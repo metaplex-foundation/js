@@ -1,0 +1,25 @@
+{
+  "name": "@metaplex/js-next",
+  "version": "5.0.0-alpha.1",
+  "license": "MIT",
+  "description": "Metaplex JavaScript SDK",
+  "keywords": [
+    "nft",
+    "metaplex",
+    "solana",
+    "blockchain"
+  ],
+  "author": "Metaplex Maintainers <contact@metaplex.com>",
+  "homepage": "https://metaplex.com",
+  "repository": {
+    "url": "https://github.com/metaplex/js-next.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0"
+  }
+}
