@@ -2,11 +2,13 @@ import path from 'path'
 import { defineConfig  } from 'vite';
 import * as pkg from './package.json';
 
-const external = [
-  ...Object.keys(pkg.peerDependencies || {}),
-];
-
 export default defineConfig({
+  resolve: {
+    dedupe: ['bn.js'],
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
@@ -14,7 +16,9 @@ export default defineConfig({
       fileName: (format) => `metaplex-sdk.${format}.js`,
     },
     rollupOptions: {
-      external: [external],
-    }
+      external: [
+        ...Object.keys(pkg.peerDependencies || {}),
+      ],
+    },
   }
 });
