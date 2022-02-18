@@ -77,14 +77,8 @@ export class TransactionBuilder {
   }
 
   getSigners(): Signer[] {
-    return this.records
-      .flatMap(record => record.signers)
-      .reduce((signers: Signer[], signer: Signer) => {
-        if (! signers.some(({ publicKey }) => publicKey.equals(signer.publicKey))) {
-          signers.push(signer)
-        }
-        return signers
-      }, []);
+    // Duplicated signers are handled by the Solana SDK.
+    return this.records.flatMap(record => record.signers);
   }
 
   setTransactionOptions(transactionOptions: TransactionCtorFields): TransactionBuilder {
