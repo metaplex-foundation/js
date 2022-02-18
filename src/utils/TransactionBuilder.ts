@@ -105,8 +105,6 @@ export class TransactionBuilder {
   }
 
   async sendTransaction(connection: Connection, sendOptions: SendOptions = {}): Promise<string> {
-    const tx = this.toTransaction();
-
-    return connection.sendTransaction(tx, this.getSigners(), sendOptions)
+    return connection.sendTransaction(this.toTransaction(), this.getSigners(), sendOptions)
   }
 }
