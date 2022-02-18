@@ -1,5 +1,5 @@
-import { Model } from "./Model";
-import { MetadataAccount, MetadataEditionAccount } from "./accounts";
+import { Model } from "@/modules/shared";
+import { MetadataAccount, MetadataEditionAccount } from "@/modules/nfts";
 
 export class Nft extends Model {
 

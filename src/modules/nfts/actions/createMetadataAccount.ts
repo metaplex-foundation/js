@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { CreateMetadataV2, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount } from '@/models';
+import { MetadataAccount } from '@/modules/nfts';
 import { Pda } from '@/utils';
 
 export interface CreateMetadataAccountParams {
