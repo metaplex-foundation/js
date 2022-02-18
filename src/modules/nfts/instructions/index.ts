@@ -1,1 +1,1 @@
-export * from './createMetadataAccountInstruction';
+export * from './CreateMetadataV2';
