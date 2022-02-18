@@ -1,5 +1,5 @@
 import { Model } from "../Model";
 
-export class Account extends Model {
+export abstract class Account extends Model {
   //
 }

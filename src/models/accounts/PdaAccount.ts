@@ -1,5 +1,5 @@
 import { Account } from "./Account";
 
-export class PdaAccount extends Account {
+export abstract class PdaAccount extends Account {
   //
 }
