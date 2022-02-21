@@ -15,16 +15,16 @@ export type GpaSortCallback = (
 export class GpaBuilder {
 
   /** The connection instance to use when fetching accounts. */
-  private readonly connection: Connection;
+  protected readonly connection: Connection;
 
   /** The public key of the program we want to retrieve accounts from. */
-  private readonly programId: PublicKey;
+  protected readonly programId: PublicKey;
 
   /** The configs to use when fetching program accounts. */
-  private config: GetProgramAccountsConfig = {};
+  protected config: GetProgramAccountsConfig = {};
 
   /** When provided, reorder accounts using this callback. */
-  private sortCallback?: GpaSortCallback;
+  protected sortCallback?: GpaSortCallback;
 
   constructor(connection: Connection, programId: PublicKey) {
     this.connection = connection;
@@ -51,7 +51,7 @@ export class GpaBuilder {
     if (!this.config.filters) {
       this.config.filters = [];
     }
-    
+
     this.config.filters.push(...filters);
 
     return this;
