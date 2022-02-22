@@ -1,8 +1,8 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount } from '@/modules/nfts';
-import { Pda } from '@/utils';
+import { Pda, TransactionBuilder } from '@/utils';
 import { createCreateMetadataAccountV2Instruction, DataV2 } from '../generated';
+import { MetadataAccount } from '@/modules/shared';
 
 export interface CreateMetadataAccountParams {
   data: DataV2,
@@ -10,7 +10,7 @@ export interface CreateMetadataAccountParams {
   mint: PublicKey,
   mintAuthority: PublicKey,
   updateAuthority?: PublicKey,
-  feePayer: PublicKey, // TODO: Make optional and defaults to transaction fee payer.
+  feePayer: Keypair, // TODO: Make optional and defaults to transaction fee payer.
 }
 
 export interface CreateMetadataAccountResult {
@@ -25,7 +25,7 @@ export const createMetadataAccount = async (metaplex: Metaplex, params: CreateMe
     metadata,
     mint: params.mint,
     mintAuthority: params.mintAuthority,
-    payer: params.feePayer,
+    payer: params.feePayer.publicKey,
     updateAuthority: params.updateAuthority ?? params.mintAuthority,
   }, {
     createMetadataAccountArgsV2: {
@@ -34,5 +34,9 @@ export const createMetadataAccount = async (metaplex: Metaplex, params: CreateMe
     }
   });
 
-  return { metadata, transactionSignature: 'todo' };
+  const txBuilder = new TransactionBuilder();
+  txBuilder.add(ix, [params.feePayer], 'CreateMetadataAccountV2');
+  const transactionSignature = await txBuilder.sendTransaction(metaplex.connection);
+
+  return { metadata, transactionSignature };
 };
