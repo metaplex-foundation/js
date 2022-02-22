@@ -2,6 +2,7 @@ import { Connection } from "@solana/web3.js";
 
 export interface MetaplexOptions {
   // wallet?: MetaplexWallet,
+  // identity?: IdentityDriver,
   // storage?: StorageDriver,
   // filesystem?: FilesystemDriver,
   // rateConverter?: RateConverterDriver,
