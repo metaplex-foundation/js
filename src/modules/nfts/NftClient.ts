@@ -4,6 +4,13 @@ import { Nft } from "@/modules/nfts";
 import { MetadataProgram } from "@metaplex-foundation/mpl-token-metadata";
 import { Metadata, MasterEditionV2 } from "@/modules/nfts/generated";
 
+const parseAccountInfo = <T>(accountInfo: AccountInfo<Buffer>, dataType: { fromAccountInfo: (info: AccountInfo<Buffer>) => [T, number] }) => {
+  return {
+    ...accountInfo,
+    data: dataType.fromAccountInfo(accountInfo)[0],
+  }
+}
+
 export class NftClient extends ModuleClient {
   //
 
@@ -15,7 +22,7 @@ export class NftClient extends ModuleClient {
       mintAccountInfo,
       metadataAccountInfo,
       editionAccountInfo,
-    ] = await this.metaplex.connection.getMultipleAccountsInfo([
+    ] = await this.metaplex.getMultipleAccountsInfo([
       mint, metadataPda, editionPda
     ]);
 
@@ -23,8 +30,8 @@ export class NftClient extends ModuleClient {
       return null;
     }
 
-    const metadataAccount = Metadata.fromAccountInfo(metadataAccountInfo as AccountInfo<Buffer>)[0];
-    const editionAccount = editionAccountInfo ? MasterEditionV2.fromAccountInfo(editionAccountInfo as AccountInfo<Buffer>)[0] : null;
+    const metadataAccount = parseAccountInfo(metadataAccountInfo, Metadata);
+    const editionAccount = editionAccountInfo ? parseAccountInfo(editionAccountInfo, MasterEditionV2) : null;
 
     return new Nft(metadataAccount, editionAccount);
   }

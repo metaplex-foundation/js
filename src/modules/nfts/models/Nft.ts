@@ -1,17 +1,18 @@
 import { Model } from "@/modules/shared";
-import { MasterEditionV2, Metadata } from "../generated";
+import { AccountInfo } from "@solana/web3.js";
+import { MasterEditionV1, MasterEditionV2, Metadata } from "../generated";
 
 export class Nft extends Model {
 
   /** The Metadata PDA account defining the NFT. */
-  public readonly metadataAccount: Metadata;
+  public readonly metadata: AccountInfo<Metadata>;
 
   /** The optional Metadata Edition PDA account associated with the NFT. */
-  public readonly masterEditionAccount: MasterEditionV2 | null;
+  public readonly masterEdition: AccountInfo<MasterEditionV1 | MasterEditionV2> | null;
 
-  constructor(metadataAccount: Metadata, masterEditionAccount: MasterEditionV2 | null = null) {
+  constructor(metadata: AccountInfo<Metadata>, masterEdition: AccountInfo<MasterEditionV1 | MasterEditionV2> | null = null) {
     super();
-    this.metadataAccount = metadataAccount;
-    this.masterEditionAccount = masterEditionAccount;
+    this.metadata = metadata;
+    this.masterEdition = masterEdition;
   }
 }
