@@ -11,7 +11,11 @@ export class Pda extends PublicKey {
   }
 
   static async find(programId: PublicKey, seeds: Array<Buffer | Uint8Array>): Promise<Pda> {
-    const [publicKey, bump] = await PublicKey.findProgramAddress(seeds, programId);
+    return this.fromPromise(PublicKey.findProgramAddress(seeds, programId));
+  }
+
+  static async fromPromise(promise: Promise<[PublicKey, number]>): Promise<Pda> {
+    const [publicKey, bump] = await promise;
 
     return new Pda(publicKey, bump);
   }

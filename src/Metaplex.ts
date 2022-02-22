@@ -1,4 +1,4 @@
-import { Connection } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 export interface MetaplexOptions {
   // wallet?: MetaplexWallet,

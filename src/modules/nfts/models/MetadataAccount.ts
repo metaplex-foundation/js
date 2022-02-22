@@ -6,11 +6,7 @@ import { Pda } from "@/utils";
 export class MetadataAccount extends PdaAccount {
 
   static async pda(mint: PublicKey): Promise<Pda> {
-    return Pda.find(MetadataProgram.PUBKEY, [
-      Buffer.from(MetadataProgram.PREFIX, 'utf8'),
-      MetadataProgram.PUBKEY.toBuffer(),
-      mint.toBuffer(),
-    ]);
+    return Pda.fromPromise(MetadataProgram.findMetadataAccount(mint))
   }
 
   //

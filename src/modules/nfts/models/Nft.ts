@@ -1,17 +1,17 @@
 import { Model } from "@/modules/shared";
-import { MetadataAccount, MetadataEditionAccount } from "@/modules/nfts";
+import { MasterEditionV2, Metadata } from "../generated";
 
 export class Nft extends Model {
 
   /** The Metadata PDA account defining the NFT. */
-  public readonly metadataAccount: MetadataAccount;
+  public readonly metadataAccount: Metadata;
 
   /** The optional Metadata Edition PDA account associated with the NFT. */
-  public readonly metadataEditionAccount: MetadataEditionAccount | null;
+  public readonly masterEditionAccount: MasterEditionV2 | null;
 
-  constructor(metadataAccount: MetadataAccount, metadataEditionAccount: MetadataEditionAccount | null = null) {
+  constructor(metadataAccount: Metadata, masterEditionAccount: MasterEditionV2 | null = null) {
     super();
     this.metadataAccount = metadataAccount;
-    this.metadataEditionAccount = metadataEditionAccount;
+    this.masterEditionAccount = masterEditionAccount;
   }
 }
