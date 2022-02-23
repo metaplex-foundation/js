@@ -3,10 +3,10 @@ import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
 import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
-import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
+import { DataV2 } from "@/programs/tokenMetadata/generated";
 import { createAccountBuilder } from "@/programs/system";
 import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
-import { createMetadataV2Builder } from "@/programs/tokenMetadata";
+import { createMetadataV2Builder, createMasterEditionV3Builder } from "@/programs/tokenMetadata";
 
 export interface CreateNftParams {
   data: DataV2,
@@ -17,9 +17,9 @@ export interface CreateNftParams {
   mint?: Signer;
   payer: Signer;
   mintAuthority: Signer;
+  updateAuthority?: Signer;
   holder: PublicKey;
   freezeAuthority?: PublicKey;
-  updateAuthority?: PublicKey;
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
 }
@@ -37,7 +37,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     // Data.
     data,
     isMutable = false,
-    maxSupply = null,
+    maxSupply,
     decimals = 0,
     allowHolderOffCurve = false,
 
@@ -45,11 +45,11 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     mint = Keypair.generate(),
     payer,
     mintAuthority,
+    updateAuthority = mintAuthority,
 
     // PublicKeys.
     holder,
     freezeAuthority,
-    updateAuthority = mintAuthority.publicKey,
 
     // Programs.
     tokenProgram = TOKEN_PROGRAM_ID,
@@ -117,25 +117,19 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     payer,
     mint: mint.publicKey,
     metadata,
-    updateAuthority,
+    updateAuthority: updateAuthority.publicKey,
   }));
 
   // Create master edition account.
-  tx.add({
-    instruction: createCreateMasterEditionV3Instruction(
-      {
-        edition: masterEdition,
-        mint: mint.publicKey,
-        updateAuthority,
-        mintAuthority: mintAuthority.publicKey,
-        payer: payer.publicKey,
-        metadata,
-      },
-      { createMasterEditionArgs: { maxSupply } },
-    ),
-    signers: [payer],
-    key: 'createMasterEdition',
-  });
+  tx.add(createMasterEditionV3Builder({
+    maxSupply,
+    payer,
+    mintAuthority,
+    updateAuthority,
+    mint: mint.publicKey,
+    metadata,
+    masterEdition,
+  }));
 
   // Prevent further minting.
   tx.add({
