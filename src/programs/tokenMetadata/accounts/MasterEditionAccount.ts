@@ -1,8 +1,8 @@
 import { AccountInfo, PublicKey } from "@solana/web3.js";
 import { MetadataProgram } from "@metaplex-foundation/mpl-token-metadata";
-import { Account } from "@/modules/shared";
+import { Account } from "@/programs/shared";
 import { Pda } from "@/utils";
-import { MasterEditionV1, MasterEditionV2, Key } from "@/modules/nfts/generated";
+import { MasterEditionV1, MasterEditionV2, Key } from "@/programs/tokenMetadata/generated";
 
 export class MasterEditionAccount extends Account<MasterEditionV1 | MasterEditionV2> {
 

@@ -1,8 +1,7 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { Pda, TransactionBuilder } from '@/utils';
-import { createCreateMetadataAccountV2Instruction, DataV2 } from '../generated';
-import { MetadataAccount } from '@/modules/shared';
+import { Pda } from '@/utils';
+import { createCreateMetadataAccountV2Instruction, DataV2, MetadataAccount, TransactionBuilder } from '@/programs';
 
 export interface CreateMetadataAccountParams {
   data: DataV2,
@@ -35,7 +34,11 @@ export const createMetadataAccount = async (metaplex: Metaplex, params: CreateMe
   });
 
   const txBuilder = new TransactionBuilder();
-  txBuilder.add(ix, [params.feePayer], 'CreateMetadataAccountV2');
+  txBuilder.add({
+    instruction: ix,
+    signers: [params.feePayer],
+    key: 'CreateMetadataAccountV2',
+  });
   const transactionSignature = await txBuilder.sendTransaction(metaplex.connection);
 
   return { metadata, transactionSignature };

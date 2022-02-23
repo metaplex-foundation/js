@@ -1,10 +1,9 @@
 import { Keypair, PublicKey, Signer, SystemProgram } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
-import { MetadataAccount, MasterEditionAccount } from "@/modules/shared";
 import { Metaplex } from "@/Metaplex";
 import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeMintInstruction, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
-import { TransactionBuilder } from "@/utils";
-import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "../generated";
+import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
+import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
 
 export interface CreateNftParams {
   data: DataV2,
