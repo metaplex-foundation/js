@@ -1,9 +1,9 @@
 import { Connection, SendOptions, Signer, Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
 
 export interface TransactionBuilderRecord {
-  key?: string,
-  instruction: TransactionInstruction,
-  signers: Signer[],
+  key?: string;
+  instruction: TransactionInstruction;
+  signers: Signer[];
 }
 
 export class TransactionBuilder {
@@ -18,30 +18,22 @@ export class TransactionBuilder {
     this.transactionOptions = transactionOptions;
   }
 
-  prepend(instruction: TransactionInstruction, signers: Signer[] = [], key?: string): TransactionBuilder {
-    this.records.unshift({ key, instruction, signers });
+  prepend(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+    const newRecords = txs.flatMap(tx => tx instanceof TransactionBuilder ? tx.getRecords() : [tx]);
+    this.records = [...newRecords, ...this.records];
 
     return this;
   }
 
-  append(instruction: TransactionInstruction, signers: Signer[] = [], key?: string): TransactionBuilder {
-    this.records.push({ key, instruction, signers });
+  append(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+    const newRecords = txs.flatMap(tx => tx instanceof TransactionBuilder ? tx.getRecords() : [tx]);
+    this.records = [...this.records, ...newRecords];
 
     return this;
   }
 
-  add(instruction: TransactionInstruction, signers: Signer[] = [], key?: string): TransactionBuilder {
-    return this.append(instruction, signers, key);
-  }
-
-  addRecords(...records: TransactionBuilderRecord[]): TransactionBuilder {
-    return records.reduce((builder: TransactionBuilder, { instruction, signers, key }) => {
-      return builder.add(instruction, signers, key);
-    }, this)
-  }
-
-  merge(that: TransactionBuilder): TransactionBuilder {
-    return this.addRecords(...that.getRecords());
+  add(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+    return this.append(...txs);
   }
 
   splitUsingKey(key: string, include: boolean = true): [TransactionBuilder, TransactionBuilder] {
@@ -51,10 +43,10 @@ export class TransactionBuilder {
 
     if (keyPosition > -1) {
       keyPosition += include ? 1 : 0; 
-      firstBuilder.addRecords(...this.records.slice(0, keyPosition))
-      firstBuilder.addRecords(...this.records.slice(keyPosition))
+      firstBuilder.add(...this.records.slice(0, keyPosition))
+      firstBuilder.add(...this.records.slice(keyPosition))
     } else {
-      firstBuilder.merge(this)
+      firstBuilder.add(this)
     }
 
     return [firstBuilder, secondBuilder];
