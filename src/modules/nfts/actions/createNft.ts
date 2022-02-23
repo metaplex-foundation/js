@@ -1,11 +1,12 @@
 import { Keypair, PublicKey, Signer } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
+import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
 import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
 import { createAccountBuilder } from "@/programs/system";
 import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
+import { createMetadataV2Builder } from "@/programs/tokenMetadata";
 
 export interface CreateNftParams {
   data: DataV2,
@@ -15,8 +16,8 @@ export interface CreateNftParams {
   allowHolderOffCurve?: boolean;
   mint?: Signer;
   payer: Signer;
+  mintAuthority: Signer;
   holder: PublicKey;
-  mintAuthority: PublicKey;
   freezeAuthority?: PublicKey;
   updateAuthority?: PublicKey;
   tokenProgram?: PublicKey;
@@ -43,12 +44,12 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     // Signers.
     mint = Keypair.generate(),
     payer,
+    mintAuthority,
 
     // PublicKeys.
     holder,
-    mintAuthority,
     freezeAuthority,
-    updateAuthority = mintAuthority,
+    updateAuthority = mintAuthority.publicKey,
 
     // Programs.
     tokenProgram = TOKEN_PROGRAM_ID,
@@ -81,7 +82,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   tx.add(initializeMintBuilder({
     decimals,
     mint,
-    mintAuthority,
+    mintAuthority: mintAuthority.publicKey,
     freezeAuthority,
     tokenProgram,
   }));
@@ -109,20 +110,15 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   }));
 
   // Create metadata account.
-  tx.add({
-    instruction: createCreateMetadataAccountV2Instruction(
-      {
-        metadata,
-        mint: mint.publicKey,
-        mintAuthority,
-        payer: payer.publicKey,
-        updateAuthority,
-      },
-      { createMetadataAccountArgsV2: { data, isMutable } },
-    ),
-    signers: [payer],
-    key: 'createMetadata',
-  });
+  tx.add(createMetadataV2Builder({
+    data,
+    isMutable,
+    mintAuthority,
+    payer,
+    mint: mint.publicKey,
+    metadata,
+    updateAuthority,
+  }));
 
   // Create master edition account.
   tx.add({
@@ -131,7 +127,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
         edition: masterEdition,
         mint: mint.publicKey,
         updateAuthority,
-        mintAuthority,
+        mintAuthority: mintAuthority.publicKey,
         payer: payer.publicKey,
         metadata,
       },
@@ -145,7 +141,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   tx.add({
     instruction: createSetAuthorityInstruction(
       mint.publicKey,
-      mintAuthority,
+      mintAuthority.publicKey,
       AuthorityType.MintTokens,
       null,
       [],
