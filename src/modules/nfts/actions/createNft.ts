@@ -4,6 +4,7 @@ import { MetadataAccount, MasterEditionAccount } from "@/modules/shared";
 import { Metaplex } from "@/Metaplex";
 import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeMintInstruction, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder } from "@/utils";
+import { createCreateMasterEditionInstruction, createCreateMetadataAccountInstruction } from "../generated";
 
 export interface CreateNftParams {
   decimals: number;
@@ -63,7 +64,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     space: MINT_SIZE,
     lamports,
     programId: tokenProgram,
-  }), [payer, mint], 'createAccount')
+  }), [payer, mint], 'createAccount');
 
   // Initialize the mint account.
   tx.add(createInitializeMintInstruction(
@@ -72,7 +73,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     mintAuthority,
     freezeAuthority,
     tokenProgram,
-  ), [mint], 'initializeMint')
+  ), [mint], 'initializeMint');
 
   // Create the holder associated account if it does not exists.
   if (!holderTokenExists) {
@@ -83,7 +84,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
       mint.publicKey,
       tokenProgram,
       associatedTokenProgram,
-    ), [payer], 'createAssociatedTokenAccount')
+    ), [payer], 'createAssociatedTokenAccount');
   }
 
   // Mint 1 token to the token holder.
@@ -94,7 +95,13 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     1,
     [],
     tokenProgram,
-  ), [payer], 'initializeMint')
+  ), [payer], 'initializeMint');
+
+  // Create metadata account.
+  // tx.add(createCreateMetadataAccountInstruction());
+
+  // Create master edition account.
+  // tx.add(createCreateMasterEditionInstruction());
 
   // Prevent further minting.
   tx.add(createSetAuthorityInstruction(
@@ -104,7 +111,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     null,
     [],
     tokenProgram,
-  ), [payer], 'initializeMint')
+  ), [payer], 'initializeMint');
 
   return tx;
 }
