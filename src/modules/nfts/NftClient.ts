@@ -3,7 +3,8 @@ import { Nft, FindNftParams, findNft, CreateNftParams, createNft } from "@/modul
 
 export class NftClient extends ModuleClient {
 
-  async createNft(params: CreateNftParams): Promise<Nft> {
+  async createNft(params: CreateNftParams): Promise<string> {
+    // TODO: Fetch and return Nft object.
     return createNft(this.metaplex, params);
   }
 

@@ -1,4 +1,5 @@
-import { Model, MetadataAccount, MasterEditionAccount } from "@/modules/shared";
+import { Model } from "@/modules/shared";
+import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 
 export class Nft extends Model {
 

@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { Nft } from "@/modules/nfts";
-import { MetadataAccount, MasterEditionAccount } from "@/modules/shared";
+import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Metaplex } from "@/Metaplex";
 
 export interface FindNftParams {

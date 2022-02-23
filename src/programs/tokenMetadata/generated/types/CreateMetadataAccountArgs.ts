@@ -5,7 +5,7 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as definedTypes from '../types';
+import * as definedTypes from '.';
 import * as beet from '@metaplex-foundation/beet';
 export type CreateMetadataAccountArgs = {
   data: definedTypes.Data;

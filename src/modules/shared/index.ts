@@ -1,4 +1,2 @@
-export * from './actions';
-export * from './accounts';
-export * from './models';
+export * from './Model';
 export * from './ModuleClient';
