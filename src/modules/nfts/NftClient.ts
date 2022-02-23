@@ -1,26 +1,13 @@
-import { PublicKey } from "@solana/web3.js";
-import { ModuleClient, MetadataAccount, MasterEditionAccount } from "@/modules/shared";
-import { Nft } from "@/modules/nfts";
+import { ModuleClient } from "@/modules/shared";
+import { Nft, FindNftParams, findNft, CreateNftParams, createNft } from "@/modules/nfts";
 
 export class NftClient extends ModuleClient {
-  //
 
-  async findNftFromMint(mint: PublicKey): Promise<Nft | null> {
-    const metadataPda = await MetadataAccount.pda(mint);
-    const editionPda = await MasterEditionAccount.pda(mint);
+  async createNft(params: CreateNftParams): Promise<Nft> {
+    return createNft(this.metaplex, params);
+  }
 
-    const [
-      metadataAccountInfo,
-      editionAccountInfo,
-    ] = await this.metaplex.getMultipleAccountsInfo([metadataPda, editionPda]);
-
-    if (!metadataAccountInfo) {
-      return null;
-    }
-
-    return new Nft(
-      MetadataAccount.fromAccountInfo(metadataAccountInfo), 
-      editionAccountInfo ? MasterEditionAccount.fromAccountInfo(editionAccountInfo) : null,
-    );
+  async findNft(params: FindNftParams): Promise<Nft | null> {
+    return findNft(this.metaplex, params);
   }
 }

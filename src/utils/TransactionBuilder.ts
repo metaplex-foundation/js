@@ -98,7 +98,9 @@ export class TransactionBuilder {
     return tx;
   }
 
-  async sendTransaction(connection: Connection, sendOptions: SendOptions = {}): Promise<string> {
-    return connection.sendTransaction(this.toTransaction(), this.getSigners(), sendOptions)
+  async sendTransaction(connection: Connection, signers: Signer[] = [], sendOptions: SendOptions = {}): Promise<string> {
+    signers = [...this.getSigners(), ...signers];
+
+    return connection.sendTransaction(this.toTransaction(), signers, sendOptions)
   }
 }

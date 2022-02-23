@@ -1,4 +1,5 @@
-import { AccountInfo, Commitment, Connection, PublicKey } from "@solana/web3.js";
+import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction } from "@solana/web3.js";
+import { TransactionBuilder } from "@/utils";
 
 export interface MetaplexOptions {
   // wallet?: MetaplexWallet,
@@ -19,6 +20,14 @@ export class Metaplex {
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.options = options;
+  }
+
+  async sendTransaction(tx: Transaction | TransactionBuilder, signers: Signer[] = [], sendOptions: SendOptions = {}): Promise<string> {
+    if (tx instanceof TransactionBuilder) {
+      return tx.sendTransaction(this.connection, signers, sendOptions);
+    }
+
+    return this.connection.sendTransaction(tx, signers, sendOptions)
   }
 
   async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
