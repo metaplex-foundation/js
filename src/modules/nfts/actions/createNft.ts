@@ -1,11 +1,11 @@
 import { Keypair, PublicKey, Signer } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
+import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
 import { DataV2 } from "@/programs/tokenMetadata/generated";
 import { createAccountBuilder } from "@/programs/system";
-import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
+import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder, setAuthorityBuilder } from "@/programs/token";
 import { createMetadataV2Builder, createMasterEditionV3Builder } from "@/programs/tokenMetadata";
 
 export interface CreateNftParams {
@@ -105,7 +105,6 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     destination: holderToken,
     mintAuthority,
     amount: 1,
-    multiSigners: [],
     tokenProgram,
   }));
 
@@ -132,18 +131,13 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   }));
 
   // Prevent further minting.
-  tx.add({
-    instruction: createSetAuthorityInstruction(
-      mint.publicKey,
-      mintAuthority.publicKey,
-      AuthorityType.MintTokens,
-      null,
-      [],
-      tokenProgram,
-    ),
-    signers: [payer],
-    key: 'setAuthority',
-  });
+  tx.add(setAuthorityBuilder({
+    mint: mint.publicKey,
+    currentAuthority: mintAuthority,
+    authorityType: AuthorityType.MintTokens,
+    newAuthority: null,
+    tokenProgram,
+  }));
 
   return tx;
 }

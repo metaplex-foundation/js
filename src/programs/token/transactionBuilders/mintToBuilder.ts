@@ -20,7 +20,7 @@ export const mintToBuilder = (params: MintToBuilderParams): TransactionBuilder =
     amount,
     multiSigners = [],
     tokenProgram = TOKEN_PROGRAM_ID,
-    instructionKey = 'mintToBuilder',
+    instructionKey = 'mintTo',
   } = params;
 
   const [mintAuthorityPublicKey, signers] = mintAuthority instanceof PublicKey
