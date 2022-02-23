@@ -3,12 +3,12 @@ import { TransactionBuilder } from "@/programs/shared";
 import { createInitializeMintInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 export interface InitializeMintBuilderParams {
-  decimals: number,
-  mint: Signer,
-  mintAuthority: PublicKey,
-  freezeAuthority?: PublicKey,
-  tokenProgram?: PublicKey,
-  instructionKey?: string,
+  decimals: number;
+  mint: Signer;
+  mintAuthority: PublicKey;
+  freezeAuthority?: PublicKey;
+  tokenProgram?: PublicKey;
+  instructionKey?: string;
 }
 
 export const initializeMintBuilder = (params: InitializeMintBuilderParams): TransactionBuilder => {

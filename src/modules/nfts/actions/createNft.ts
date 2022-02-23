@@ -5,7 +5,7 @@ import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBal
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
 import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
 import { createAccountBuilder } from "@/programs/system";
-import { initializeMintBuilder } from "@/programs/token";
+import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
 
 export interface CreateNftParams {
   data: DataV2,
@@ -88,33 +88,25 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
 
   // Create the holder associated account if it does not exists.
   if (!holderTokenExists) {
-    tx.add({
-      instruction: createAssociatedTokenAccountInstruction(
-        payer.publicKey,
-        holderToken,
-        holder,
-        mint.publicKey,
-        tokenProgram,
-        associatedTokenProgram,
-      ),
-      signers: [payer],
-      key: 'createAssociatedTokenAccount',
-    });
+    tx.add(createAssociatedTokenAccountBuilder({
+      payer,
+      associatedToken: holderToken,
+      owner: holder,
+      mint: mint.publicKey,
+      tokenProgram,
+      associatedTokenProgram,
+    }));
   }
 
   // Mint 1 token to the token holder.
-  tx.add({
-    instruction: createMintToInstruction(
-      mint.publicKey, 
-      holderToken,
-      mintAuthority,
-      1,
-      [],
-      tokenProgram,
-    ),
-    signers: [payer],
-    key: 'initializeMint',
-  });
+  tx.add(mintToBuilder({
+    mint: mint.publicKey,
+    destination: holderToken,
+    mintAuthority,
+    amount: 1,
+    multiSigners: [],
+    tokenProgram,
+  }));
 
   // Create metadata account.
   tx.add({
@@ -160,7 +152,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
       tokenProgram,
     ),
     signers: [payer],
-    key: 'initializeMint',
+    key: 'setAuthority',
   });
 
   return tx;
