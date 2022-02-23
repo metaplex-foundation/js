@@ -18,6 +18,10 @@ export class TransactionBuilder {
     this.transactionOptions = transactionOptions;
   }
 
+  static make(transactionOptions: TransactionCtorFields = {}) {
+    return new TransactionBuilder(transactionOptions);
+  }
+
   prepend(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
     const newRecords = txs.flatMap(tx => tx instanceof TransactionBuilder ? tx.getRecords() : [tx]);
     this.records = [...newRecords, ...this.records];

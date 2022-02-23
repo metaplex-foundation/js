@@ -1,9 +1,11 @@
-import { Keypair, PublicKey, Signer, SystemProgram } from "@solana/web3.js";
+import { Keypair, PublicKey, Signer } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeMintInstruction, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
+import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
 import { createCreateMasterEditionV3Instruction, createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
+import { createAccountBuilder } from "@/programs/system";
+import { initializeMintBuilder } from "@/programs/token";
 
 export interface CreateNftParams {
   data: DataV2,
@@ -45,7 +47,7 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     // PublicKeys.
     holder,
     mintAuthority,
-    freezeAuthority = null,
+    freezeAuthority,
     updateAuthority = mintAuthority,
 
     // Programs.
@@ -67,30 +69,22 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
 
   // Allocate space on the blockchain for the mint account.
-  tx.add({
-    instruction: SystemProgram.createAccount({
-      fromPubkey: payer.publicKey,
-      newAccountPubkey: mint.publicKey,
-      space: MINT_SIZE,
-      lamports,
-      programId: tokenProgram,
-    }),
-    signers: [payer, mint],
-    key: 'createAccount',
-  });
+  tx.add(createAccountBuilder({
+    payer: payer,
+    newAccount: mint,
+    space: MINT_SIZE,
+    lamports,
+    program: tokenProgram,
+  }));
 
   // Initialize the mint account.
-  tx.add({
-    instruction: createInitializeMintInstruction(
-      mint.publicKey,
-      decimals,
-      mintAuthority,
-      freezeAuthority,
-      tokenProgram,
-    ),
-    signers: [mint],
-    key: 'initializeMint',
-  });
+  tx.add(initializeMintBuilder({
+    decimals,
+    mint,
+    mintAuthority,
+    freezeAuthority,
+    tokenProgram,
+  }));
 
   // Create the holder associated account if it does not exists.
   if (!holderTokenExists) {

@@ -1,5 +1,5 @@
 import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction } from "@solana/web3.js";
-import { TransactionBuilder } from "@/utils";
+import { TransactionBuilder } from "@/programs/shared";
 
 export interface MetaplexOptions {
   // wallet?: MetaplexWallet,
