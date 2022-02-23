@@ -2,16 +2,19 @@ import { Keypair, PublicKey, Signer, SystemProgram } from "@solana/web3.js";
 import { Nft } from "@/modules/nfts";
 import { MetadataAccount, MasterEditionAccount } from "@/modules/shared";
 import { Metaplex } from "@/Metaplex";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, createInitializeMintInstruction, getMinimumBalanceForRentExemptMint } from "@solana/spl-token";
+import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeMintInstruction, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder } from "@/utils";
 
 export interface CreateNftParams {
-  decimals: number,
-  mint?: Signer,
-  payer: Signer,
-  mintAuthority: PublicKey,
-  freezeAuthority?: PublicKey,
-  tokenProgram?: PublicKey,
+  decimals: number;
+  allowHolderOffCurve?: boolean;
+  mint?: Signer;
+  payer: Signer;
+  holder: PublicKey;
+  mintAuthority: PublicKey;
+  freezeAuthority?: PublicKey;
+  tokenProgram?: PublicKey;
+  associatedTokenProgram?: PublicKey;
 }
 
 export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<string> => {
@@ -24,33 +27,84 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
 
 export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftParams): Promise<TransactionBuilder> => {
   const {
+    // Data.
     decimals = 0,
+    allowHolderOffCurve = false,
+
+    // Signers.
     mint = Keypair.generate(),
     payer,
+
+    // PublicKeys.
+    holder,
     mintAuthority,
     freezeAuthority = null,
+
+    // Programs.
     tokenProgram = TOKEN_PROGRAM_ID,
+    associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
   } = params;
 
+  const tx = new TransactionBuilder();
   const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
+  const holderToken = await getAssociatedTokenAddress(
+    mint.publicKey,
+    holder,
+    allowHolderOffCurve,
+    tokenProgram,
+    associatedTokenProgram,
+  );
+  const holderTokenExists = !! await metaplex.getAccountInfo(holderToken);
 
-  const createAccountIx = SystemProgram.createAccount({
+  // Allocate space on the blockchain for the mint account.
+  tx.add(SystemProgram.createAccount({
     fromPubkey: payer.publicKey,
     newAccountPubkey: mint.publicKey,
     space: MINT_SIZE,
     lamports,
     programId: tokenProgram,
-  });
+  }), [payer, mint], 'createAccount')
 
-  const initializeMintIx = createInitializeMintInstruction(
+  // Initialize the mint account.
+  tx.add(createInitializeMintInstruction(
     mint.publicKey,
     decimals,
     mintAuthority,
     freezeAuthority,
     tokenProgram,
-  );
+  ), [mint], 'initializeMint')
 
-  return (new TransactionBuilder())
-    .add(createAccountIx, [payer, mint], 'createAccount')
-    .add(initializeMintIx, [mint], 'initializeMint')
+  // Create the holder associated account if it does not exists.
+  if (!holderTokenExists) {
+    tx.add(createAssociatedTokenAccountInstruction(
+      payer.publicKey,
+      holderToken,
+      holder,
+      mint.publicKey,
+      tokenProgram,
+      associatedTokenProgram,
+    ), [payer], 'createAssociatedTokenAccount')
+  }
+
+  // Mint 1 token to the token holder.
+  tx.add(createMintToInstruction(
+    mint.publicKey, 
+    holderToken,
+    mintAuthority,
+    1,
+    [],
+    tokenProgram,
+  ), [payer], 'initializeMint')
+
+  // Prevent further minting.
+  tx.add(createSetAuthorityInstruction(
+    mint.publicKey,
+    mintAuthority,
+    AuthorityType.MintTokens,
+    null,
+    [],
+    tokenProgram,
+  ), [payer], 'initializeMint')
+
+  return tx;
 }
