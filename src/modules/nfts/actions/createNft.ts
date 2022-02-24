@@ -2,9 +2,9 @@ import { Keypair, PublicKey, Signer } from "@solana/web3.js";
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { MetadataAccount, MasterEditionAccount } from "@/programs";
-import { DataV2 } from "@/programs/tokenMetadata/generated";
 import { createNftBuilder } from "@/modules/nfts";
+import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
+import { DataV2 } from "@/programs/tokenMetadata/generated";
 
 export interface CreateNftParams {
   // Data.
@@ -15,7 +15,7 @@ export interface CreateNftParams {
 
   // Signers.
   mint?: Signer;
-  payer: Signer;
+  payer: Signer; // TODO: Make optional and use Identity driver when not provided.
   mintAuthority: Signer;
   updateAuthority?: Signer;
 
@@ -28,7 +28,15 @@ export interface CreateNftParams {
   associatedTokenProgram?: PublicKey;
 }
 
-export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<string> => {
+export interface CreateNftResult {
+  mint: Signer,
+  metadata: PublicKey,
+  masterEdition: PublicKey,
+  associatedToken: PublicKey,
+  transactionId: string,
+}
+
+export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<CreateNftResult> => {
   const {
     data,
     isMutable,
@@ -55,12 +63,11 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     associatedTokenProgram,
   );
 
-  const tx = createNftBuilder({
+  const transactionId = await metaplex.sendTransaction(createNftBuilder({
     lamports,
     data,
     isMutable,
     maxSupply,
-    createAssociatedToken: true,
     mint,
     payer,
     mintAuthority,
@@ -72,10 +79,13 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     masterEdition,
     tokenProgram,
     associatedTokenProgram,
-  });
+  }));
 
-  const txId = await metaplex.sendTransaction(tx);
-
-  // TODO: Return Nft object or should this live in the client?
-  return txId;
+  return {
+    transactionId,
+    mint,
+    metadata,
+    masterEdition,
+    associatedToken,
+  };
 }

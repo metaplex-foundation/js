@@ -11,7 +11,6 @@ export interface CreateNftBuilderParams {
   data: DataV2;
   isMutable?: boolean;
   maxSupply?: bignum;
-  createAssociatedToken?: boolean;
 
   // Signers.
   mint: Signer;
@@ -46,7 +45,6 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
     data,
     isMutable,
     maxSupply,
-    createAssociatedToken,
     mint,
     payer,
     mintAuthority,
@@ -74,7 +72,7 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
       lamports,
       decimals: 0,
       amount: 1,
-      createAssociatedToken,
+      createAssociatedToken: true,
       mint,
       payer,
       mintAuthority,
