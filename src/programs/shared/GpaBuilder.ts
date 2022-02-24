@@ -65,13 +65,15 @@ export class GpaBuilder {
     return this;
   }
 
-  where(offset: number, bytes: string | Buffer | PublicKey | BN) {
+  where(offset: number, bytes: string | Buffer | PublicKey | BN | number) {
     if (bytes instanceof Buffer) {
       bytes = base58.encode(bytes);
     } else if (bytes instanceof PublicKey) {
       bytes = bytes.toBase58();
     } else if (bytes instanceof BN) {
       bytes = base58.encode(bytes.toArray());
+    } else if (typeof bytes !== "string") {
+      bytes = base58.encode((new BN(bytes, 'le')).toArray());
     }
 
     return this.addFilter({ memcmp: { offset, bytes } });
