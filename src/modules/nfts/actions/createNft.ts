@@ -1,11 +1,10 @@
 import { Keypair, PublicKey, Signer } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, AuthorityType } from "@solana/spl-token";
+import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress, AuthorityType } from "@solana/spl-token";
 import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
 import { DataV2 } from "@/programs/tokenMetadata/generated";
-import { createAccountBuilder } from "@/programs/system";
-import { initializeMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder, setAuthorityBuilder } from "@/programs/token";
+import { createMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder, setAuthorityBuilder } from "@/programs/token";
 import { createMetadataV2Builder, createMasterEditionV3Builder } from "@/programs/tokenMetadata";
 
 export interface CreateNftParams {
@@ -52,8 +51,8 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
     freezeAuthority,
 
     // Programs.
-    tokenProgram = TOKEN_PROGRAM_ID,
-    associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
+    tokenProgram,
+    associatedTokenProgram,
   } = params;
 
   const tx = new TransactionBuilder();
@@ -69,19 +68,12 @@ export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftPara
   const metadata = await MetadataAccount.pda(mint.publicKey);
   const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
 
-  // Allocate space on the blockchain for the mint account.
-  tx.add(createAccountBuilder({
-    payer: payer,
-    newAccount: mint,
-    space: MINT_SIZE,
+  // Create and initialize the mint account.
+  tx.add(createMintBuilder({
     lamports,
-    program: tokenProgram,
-  }));
-
-  // Initialize the mint account.
-  tx.add(initializeMintBuilder({
     decimals,
     mint,
+    payer,
     mintAuthority: mintAuthority.publicKey,
     freezeAuthority,
     tokenProgram,
