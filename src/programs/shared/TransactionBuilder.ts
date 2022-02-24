@@ -87,6 +87,14 @@ export class TransactionBuilder {
     return this.transactionOptions;
   }
 
+  when(condition: boolean, callback: (tx: TransactionBuilder) => TransactionBuilder) {
+    return condition ? callback(this) : this;
+  }
+
+  unless(condition: boolean, callback: (tx: TransactionBuilder) => TransactionBuilder) {
+    return this.when(!condition, callback);
+  }
+
   toTransaction(): Transaction {
     const tx = new Transaction(this.getTransactionOptions());
     tx.add(...this.getInstructions());
