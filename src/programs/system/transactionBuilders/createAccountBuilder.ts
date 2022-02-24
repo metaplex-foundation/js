@@ -2,12 +2,12 @@ import { PublicKey, Signer, SystemProgram } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 
 export interface CreateAccountBuilderParams {
-  space: number,
-  lamports: number,
-  payer: Signer,
-  newAccount: Signer,
-  program?: PublicKey,
-  instructionKey?: string,
+  space: number;
+  lamports: number;
+  payer: Signer;
+  newAccount: Signer;
+  program?: PublicKey;
+  instructionKey?: string;
 }
 
 export const createAccountBuilder = (params: CreateAccountBuilderParams): TransactionBuilder => {

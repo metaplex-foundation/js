@@ -1,21 +1,16 @@
 import { Keypair, PublicKey, Signer } from "@solana/web3.js";
+import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
-import { TransactionBuilder, MetadataAccount, MasterEditionAccount } from "@/programs";
+import { MetadataAccount, MasterEditionAccount } from "@/programs";
 import { DataV2 } from "@/programs/tokenMetadata/generated";
-import { createMintAndMintToAssociatedTokenBuilder, disableMintingBuilder } from "@/programs/token";
-import { createMetadataV2Builder, createMasterEditionV3Builder } from "@/programs/tokenMetadata";
+import { createNftBuilder } from "@/modules/nfts";
 
 export interface CreateNftParams {
-  //
-}
-
-export interface CreateNftBuilderParams {
   // Data.
-  data: DataV2,
-  isMutable?: boolean,
-  maxSupply?: bignum,
+  data: DataV2;
+  isMutable?: boolean;
+  maxSupply?: bignum;
   allowHolderOffCurve?: boolean;
 
   // Signers.
@@ -25,117 +20,62 @@ export interface CreateNftBuilderParams {
   updateAuthority?: Signer;
 
   // Public keys.
-  holder: PublicKey;
+  owner: PublicKey;
   freezeAuthority?: PublicKey;
 
    // Programs.
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
-
-  // Instruction keys.
-  createAccountInstructionKey?: string,
-  initializeMintInstructionKey?: string,
-  createAssociatedTokenInstructionKey?: string,
-  mintToInstructionKey?: string,
-  createMetadataInstructionKey?: string,
-  createMasterEditionInstructionKey?: string,
-  disableMintingInstructionKey?: string,
 }
 
 export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<string> => {
-  const tx = await createNftBuilder(metaplex, params);
-  const txId = await metaplex.sendTransaction(tx);
-
-  // TODO: Return Nft object or should this live in the client?
-  return txId;
-}
-
-export const createNftBuilder = async (metaplex: Metaplex, params: CreateNftBuilderParams): Promise<TransactionBuilder> => {
   const {
     data,
-    isMutable = false,
+    isMutable,
     maxSupply,
     allowHolderOffCurve = false,
     mint = Keypair.generate(),
     payer,
     mintAuthority,
     updateAuthority = mintAuthority,
-    holder,
+    owner = mintAuthority.publicKey,
     freezeAuthority,
     tokenProgram,
     associatedTokenProgram,
-    createAccountInstructionKey,
-    initializeMintInstructionKey,
-    createAssociatedTokenInstructionKey,
-    mintToInstructionKey,
-    createMetadataInstructionKey,
-    createMasterEditionInstructionKey,
-    disableMintingInstructionKey,
   } = params;
 
+  const metadata = await MetadataAccount.pda(mint.publicKey);
+  const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
   const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
-  const holderToken = await getAssociatedTokenAddress(
+  const associatedToken = await getAssociatedTokenAddress(
     mint.publicKey,
-    holder,
+    owner,
     allowHolderOffCurve,
     tokenProgram,
     associatedTokenProgram,
   );
-  const holderTokenExists = !! await metaplex.getAccountInfo(holderToken);
-  const metadata = await MetadataAccount.pda(mint.publicKey);
-  const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
 
-  return TransactionBuilder.make()
+  const tx = createNftBuilder({
+    lamports,
+    data,
+    isMutable,
+    maxSupply,
+    createAssociatedToken: true,
+    mint,
+    payer,
+    mintAuthority,
+    updateAuthority,
+    owner,
+    associatedToken,
+    freezeAuthority,
+    metadata,
+    masterEdition,
+    tokenProgram,
+    associatedTokenProgram,
+  });
 
-    // Create the mint account and send one token to the holder.
-    .add(createMintAndMintToAssociatedTokenBuilder({
-      lamports,
-      decimals: 0,
-      amount: 1,
-      createAssociatedToken: !holderTokenExists,
-      mint,
-      payer,
-      mintAuthority,
-      owner: holder,
-      associatedToken: holderToken,
-      freezeAuthority,
-      tokenProgram,
-      associatedTokenProgram,
-      createAccountInstructionKey,
-      initializeMintInstructionKey,
-      createAssociatedTokenInstructionKey,
-      mintToInstructionKey,
-    }))
+  const txId = await metaplex.sendTransaction(tx);
 
-    // Create metadata account.
-    .add(createMetadataV2Builder({
-      data,
-      isMutable,
-      mintAuthority,
-      payer,
-      mint: mint.publicKey,
-      metadata,
-      updateAuthority: updateAuthority.publicKey,
-      instructionKey: createMetadataInstructionKey,
-    }))
-
-    // Create master edition account.
-    .add(createMasterEditionV3Builder({
-      maxSupply,
-      payer,
-      mintAuthority,
-      updateAuthority,
-      mint: mint.publicKey,
-      metadata,
-      masterEdition,
-      instructionKey: createMasterEditionInstructionKey,
-    }))
-
-    // Prevent further minting.
-    .add(disableMintingBuilder({
-      mint: mint.publicKey,
-      mintAuthority,
-      tokenProgram,
-      instructionKey: disableMintingInstructionKey,
-    }));
+  // TODO: Return Nft object or should this live in the client?
+  return txId;
 }
