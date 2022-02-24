@@ -8,4 +8,8 @@ export const TokenMetadataProgram = {
   accounts(connection: Connection) {
     return new TokenMetadataGpaBuilder(connection, this.publicKey);
   },
+
+  metadataV1Accounts(connection: Connection) {
+    return this.accounts(connection).metadataV1Accounts();
+  },
 };
