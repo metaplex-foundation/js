@@ -1,5 +1,6 @@
 import { ModuleClient } from "@/modules/shared";
 import { Nft, FindNftParams, findNft, CreateNftParams, createNft } from "@/modules/nfts";
+import { failIfNull } from "@/utils";
 
 export class NftClient extends ModuleClient {
 
@@ -14,14 +15,7 @@ export class NftClient extends ModuleClient {
   }
 
   async findNftOrFail(params: FindNftParams): Promise<Nft> {
-    const nft = await this.findNft(params);
-
-    if (!nft) {
-      // TODO: failIfNull() helper method.
-      // TODO: Custom errors.
-      throw new Error('Nft not found');
-    }
-
-    return nft;
+    // TODO: Custom errors.
+    return failIfNull(await this.findNft(params), new Error('Nft not found'));
   }
 }
