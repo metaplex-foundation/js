@@ -3,6 +3,7 @@ import { Model } from "@/modules/shared";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { TokenStandard, Collection, Uses, Creator } from "@/programs/tokenMetadata/generated";
 import { bignum } from "@metaplex-foundation/beet";
+import { JsonMetadata } from "./JsonMetadata";
 
 export class Nft extends Model {
 
@@ -11,6 +12,9 @@ export class Nft extends Model {
 
   /** The optional Metadata Edition PDA account associated with the NFT. */
   public readonly masterEditionAccount: MasterEditionAccount | null;
+
+  /** The JSON metadata from the URI. */
+  public readonly json: JsonMetadata | null;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -31,10 +35,15 @@ export class Nft extends Model {
   public readonly supply: bignum | null;
   public readonly maxSupply: bignum | null;
 
-  constructor(metadataAccount: MetadataAccount, masterEditionAccount: MasterEditionAccount | null = null) {
+  constructor(
+    metadataAccount: MetadataAccount,
+    masterEditionAccount: MasterEditionAccount | null = null,
+    json: JsonMetadata | null = null,
+  ) {
     super();
     this.metadataAccount = metadataAccount;
     this.masterEditionAccount = masterEditionAccount;
+    this.json = json;
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;

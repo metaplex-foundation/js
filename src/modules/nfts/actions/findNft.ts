@@ -21,16 +21,15 @@ export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Prom
   const publicKeys = [metadataPda, editionPda];
 
   const [
-    metadataAccountInfo,
-    editionAccountInfo,
+    metadataInfo,
+    editionInfo,
   ] = await metaplex.getMultipleAccountsInfo(publicKeys);
+  const metadata = metadataInfo ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
+  const edition = editionInfo ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
 
-  if (!metadataAccountInfo) {
+  if (!metadata) {
     return null;
   }
 
-  return new Nft(
-    MetadataAccount.fromAccountInfo(metadataAccountInfo), 
-    editionAccountInfo ? MasterEditionAccount.fromAccountInfo(editionAccountInfo) : null,
-  );
+  return new Nft(metadata, edition, await metadata.getJson());
 }
