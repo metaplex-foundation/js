@@ -4,11 +4,17 @@ import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
 import { createNftBuilder } from "@/modules/nfts";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
-import { DataV2 } from "@/programs/tokenMetadata/generated";
+import { Creator, Collection, Uses } from "@/programs/tokenMetadata/generated";
 
 export interface CreateNftParams {
   // Data.
-  data: DataV2;
+  name: string;
+  symbol?: string;
+  uri: string;
+  sellerFeeBasisPoints?: number;
+  creators?: Creator[];
+  collection?: Collection;
+  uses?: Uses;
   isMutable?: boolean;
   maxSupply?: bignum;
   allowHolderOffCurve?: boolean;
@@ -16,11 +22,11 @@ export interface CreateNftParams {
   // Signers.
   mint?: Signer;
   payer: Signer; // TODO: Make optional and use Identity driver when not provided.
-  mintAuthority: Signer;
+  mintAuthority?: Signer;
   updateAuthority?: Signer;
 
   // Public keys.
-  owner: PublicKey;
+  owner?: PublicKey;
   freezeAuthority?: PublicKey;
 
    // Programs.
@@ -38,19 +44,35 @@ export interface CreateNftResult {
 
 export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<CreateNftResult> => {
   const {
-    data,
+    name,
+    symbol = '',
+    uri,
+    sellerFeeBasisPoints = 500,
+    creators = null,
+    collection = null,
+    uses = null,
     isMutable,
     maxSupply,
     allowHolderOffCurve = false,
     mint = Keypair.generate(),
     payer,
-    mintAuthority,
+    mintAuthority = payer,
     updateAuthority = mintAuthority,
     owner = mintAuthority.publicKey,
     freezeAuthority,
     tokenProgram,
     associatedTokenProgram,
   } = params;
+
+  const data = {
+    name,
+    symbol,
+    uri,
+    sellerFeeBasisPoints,
+    creators,
+    collection,
+    uses,
+  }
 
   const metadata = await MetadataAccount.pda(mint.publicKey);
   const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
