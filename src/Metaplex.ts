@@ -1,9 +1,9 @@
 import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
+import { IdentityDriver, GuestIdentityDriver } from "@/drivers";
 
 export interface MetaplexOptions {
-  // wallet?: MetaplexWallet,
-  // identity?: IdentityDriver,
+  identity?: IdentityDriver,
   // storage?: StorageDriver,
   // filesystem?: FilesystemDriver,
   // rateConverter?: RateConverterDriver,
@@ -17,9 +17,27 @@ export class Metaplex {
   /** Options that dictate how to interact with the Metaplex SDK. */
   public readonly options: MetaplexOptions;
 
+  /** Encapsulates the identity of the users interacting with the SDK. */
+  protected identityDriver: IdentityDriver;
+
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.options = options;
+    this.identityDriver = options.identity ?? new GuestIdentityDriver();
+  }
+
+  static make(connection: Connection, options: MetaplexOptions = {}) {
+    return new this(connection, options);
+  }
+
+  identity() {
+    return this.identityDriver;
+  }
+
+  setIdentity(identity: IdentityDriver) {
+    this.identityDriver = identity;
+
+    return this;
   }
 
   async sendTransaction(tx: Transaction | TransactionBuilder, signers: Signer[] = [], sendOptions: SendOptions = {}): Promise<string> {
