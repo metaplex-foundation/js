@@ -1,4 +1,4 @@
-import { Connection, SendOptions, Signer, Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
+import { Signer, Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
 
 export interface TransactionBuilderRecord {
   key?: string;
@@ -100,11 +100,5 @@ export class TransactionBuilder {
     tx.add(...this.getInstructions());
 
     return tx;
-  }
-
-  async sendTransaction(connection: Connection, signers: Signer[] = [], sendOptions: SendOptions = {}): Promise<string> {
-    signers = [...this.getSigners(), ...signers];
-
-    return connection.sendTransaction(this.toTransaction(), signers, sendOptions)
   }
 }

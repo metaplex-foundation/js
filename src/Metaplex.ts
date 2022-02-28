@@ -1,4 +1,4 @@
-import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction } from "@solana/web3.js";
+import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 import { IdentityDriver, GuestIdentityDriver } from "@/drivers";
 
@@ -40,11 +40,18 @@ export class Metaplex {
     return this;
   }
 
-  async sendTransaction(tx: Transaction | TransactionBuilder, signers: Signer[] = [], sendOptions: SendOptions = {}): Promise<string> {
+  async sendTransaction(
+    tx: Transaction | TransactionBuilder,
+    signers: Signer[] = [],
+    sendOptions: SendOptions = {},
+  ): Promise<TransactionSignature> {
     if (tx instanceof TransactionBuilder) {
-      return tx.sendTransaction(this.connection, signers, sendOptions);
+      signers = [...tx.getSigners(), ...signers];
+      tx = tx.toTransaction();
     }
 
+    await this.identity().signTransaction(tx);
+    
     return this.connection.sendTransaction(tx, signers, sendOptions)
   }
 
