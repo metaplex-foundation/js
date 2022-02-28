@@ -1,9 +1,17 @@
-import { Signer, Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
+import { Signer as Web3Signer, Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
+import { IdentityDriver } from "@/drivers";
+import { Signer } from "@/utils";
 
 export interface TransactionBuilderRecord {
   key?: string;
   instruction: TransactionInstruction;
   signers: Signer[];
+}
+
+export interface SignerHistogram {
+  all: Signer[];
+  keypairs: Web3Signer[];
+  identities: IdentityDriver[];
 }
 
 export class TransactionBuilder {
@@ -72,9 +80,39 @@ export class TransactionBuilder {
     return this.records.map(record => record.instruction);
   }
 
-  getSigners(): Signer[] {
-    // Duplicated signers are handled by the Solana SDK.
-    return this.records.flatMap(record => record.signers);
+  getSigners(): SignerHistogram {
+    return this.records
+      .flatMap(record => record.signers)
+      .reduce((signers: SignerHistogram, signer: Signer) => {
+        const duplicateIndex = signers.all.findIndex(({ publicKey }) => publicKey.equals(signer.publicKey));
+        const duplicate = signers.all[duplicateIndex] ?? null;
+        const duplicateIsIdentity = duplicate ? !('secretKey' in duplicate) : false;
+        const signerIsIdentity = !('secretKey' in signer);
+
+        if (! duplicate) {
+          signers.all.push(signer);
+          signerIsIdentity 
+            ? signers.identities.push(signer)
+            : signers.keypairs.push(signer);
+        } else if (duplicateIsIdentity && !signerIsIdentity) {
+          // Prefer keypair than identity signer as it requires less user interactions.
+          const duplicateKeypairIndex = signers.keypairs.findIndex(({ publicKey }) => publicKey.equals(signer.publicKey));
+          delete signers.all[duplicateIndex];
+          delete signers.keypairs[duplicateKeypairIndex];
+          signers.all.push(signer);
+          signers.keypairs.push(signer);
+        }
+
+        return signers
+      }, { all: [], keypairs: [], identities: [] });
+  }
+
+  getKeypairSigners(): Web3Signer[] {
+    return this.getSigners().keypairs;
+  }
+
+  getIdentitySigners(): IdentityDriver[] {
+    return this.getSigners().identities;
   }
 
   setTransactionOptions(transactionOptions: TransactionCtorFields): TransactionBuilder {
