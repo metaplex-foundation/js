@@ -1,19 +1,42 @@
 import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { Metaplex, NftClient } from ".";
+import { Metaplex, KeypairIdentityDriver, NftClient, Signer } from ".";
 import { TokenMetadataProgram } from "./programs";
 
-// Initial setup.
+
+
+
+/////////////////////////
+// ✨ Initial setup. ✨ //
+/////////////////////////
+
 const connection = new Connection(clusterApiUrl('devnet'));
-const metaplex = new Metaplex(connection);
-const nftClient = new NftClient(metaplex); // <- Would love to just `metaplex.nfts.method()` instead but it's not tree-shakable.
-const wallet = Keypair.generate(); // <- This will be abstracted in a Identity driver. E.g. Identity.CLI or Identity.Web.
+const metaplex = Metaplex.make(connection)
+  .setIdentity(new KeypairIdentityDriver(Keypair.generate()))
 
-// [READ] Find an NFT.
-const nft = await nftClient.findNftOrFail({ // <- findNft returns null if not found.
-  mint: new PublicKey('4xDRiUt7GWNBDGbErRPSsQN6roKku42pKpUHg6NCSBV6'),
-});
+const nftClient = new NftClient(metaplex);
+// ⬆️ Would love to just `metaplex.nfts.method()` instead but it's not tree-shakable.
 
-// Access the NFT on-chain data (readonly).
+
+
+
+//////////////////////
+// 📖 Find an NFT 📖 //
+//////////////////////
+
+const mintPublicKey = new PublicKey('4xDRiUt7GWNBDGbErRPSsQN6roKku42pKpUHg6NCSBV6');
+
+const nft = await nftClient.findNft({ mint: mintPublicKey });
+// ⬆️ tryFindNft returns null if not found.
+// ⬆️ other options such as "metadata", "token" or "uri" could be supported where only one is needed.
+
+
+
+
+////////////////////////////////
+// 📖 Access the NFT's data 📖 //
+////////////////////////////////
+
+// On-chain (readonly).
 nft.updateAuthority;
 nft.mint;
 nft.name;
@@ -29,32 +52,87 @@ nft.collection;
 nft.uses;
 nft.supply;
 nft.maxSupply;
+// ⬆️ Data from metadata and masterEdition destructured into the NFT object.
 
-// Access the NFT JSON metadata (readonly).
+// JSON metadata (readonly).
 nft.json?.name;
 nft.json?.image;
 nft.json?.properties?.creators;
+// etc.
+// ⬆️ Explicit `json` property to show it's not on-chain data.
 
-// [READ] Find multiple NFTs using a GpaBuilder. (TODO)
-const myNfts = await nftClient.allNftsFromOwner(new PublicKey('some_owner'));
-const cmv2Nfts = await nftClient.allNftsFromCandyMachineV2(new PublicKey('some_candy_machine_v2_creator_pda'));
 
-// Under the hood, it uses:
+
+
+/////////////////////////////////////////////
+// 📖 Find many NFTs (Not Yet Implement) 📖 //
+/////////////////////////////////////////////
+
+const owner = new PublicKey('some_owner');
+const ownerNfts = await nftClient.allNftsFromOwner(owner);
+
+const candyMachine = new PublicKey('some_candy_machine');
+const candyMachineNfts = await nftClient.allNftsFromCandyMachineV2(candyMachine);
+
+// Under the hood, this will use GpaBuilders like so:
 TokenMetadataProgram
   .metadataV1Accounts(connection)
-  .whereFirstCreator(new PublicKey('some_candy_machine_v2_creator_pda'))
+  .whereFirstCreator(await CandyMachineCreator.pda(candyMachine))
   .get();
 
-// [WRITE] Create a new NFT.
+
+
+
+///////////////////////////
+// 🖊 Create a new NFT 🖊 //
+///////////////////////////
+
 const newNft = await nftClient.createNft({
   name: 'My NFT',
-  uri: 'https://example.org/metadata', // <- nftClient.uploadMetadata({...}) could generate that URL based on the Storage driver provider.
-  payer: wallet,
+  uri: 'https://example.org/metadata',
+  // ⬆️ nftClient.uploadMetadata({...}) could generate that URL based on the given Storage driver.
 });
 
-// [WRITE] Update an NFT's metadata. (TODO)
+// These are the only required options but a lot more are available:
+export interface CreateNftParams {
+  // Data.
+  name: string;
+  symbol?: string; // ⬅️ Defaults to empty string.
+  uri: string;
+  sellerFeeBasisPoints?: number; // ⬅️ Defaults to 500?
+  creators?: Creator[];
+  collection?: Collection;
+  uses?: Uses;
+  isMutable?: boolean; // ⬅️ Defaults to false.
+  maxSupply?: bignum; // ⬅️ Defaults to none.
+  allowHolderOffCurve?: boolean; // ⬅️ Defaults to false. Used to compute ATA.
+
+  // Signers.
+  mint?: Signer; // ⬅️ Defaults to Keypair.generate().
+  payer?: Signer; // ⬅️ Defaults to Metaplex.identity().
+  mintAuthority?: Signer; // ⬅️ Defaults to payer / identity.
+  updateAuthority?: Signer; // ⬅️ Defaults to mintAuthority.
+
+  // Public keys.
+  owner?: PublicKey; // ⬅️ Defaults to mintAuthority.publicKey.
+  freezeAuthority?: PublicKey; // ⬅️ Defaults to null.
+
+   // Programs.
+  tokenProgram?: PublicKey;
+  associatedTokenProgram?: PublicKey;
+}
+
+
+
+
+////////////////////////////////////////////
+// 🖊 Update an NFT (Not Yet Implement) 🖊 //
+////////////////////////////////////////////
+
 const updatedNft = await nftClient.updateNft(nft, {
   name: 'My Updated NFT',
 })
 
-// Don't forget about the thirst category: [REALTIME].
+// ⬆️ Groups data properties together before sending to program if any are given.
+// ⬆️ Returns a brand new Nft object?
+// Readonly + immutable => safer and creates a more consistent API but slightly hurts DevEx.
