@@ -1,13 +1,14 @@
-import { PublicKey, Signer } from "@solana/web3.js";
+import { PublicKey, Signer as Web3Signer } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 import { createMintToInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Signer } from "@/utils";
 
 export interface MintToBuilderParams {
   mint: PublicKey;
   destination: PublicKey;
   mintAuthority: PublicKey | Signer;
   amount: number | bigint;
-  multiSigners?: Signer[];
+  multiSigners?: Web3Signer[];
   tokenProgram?: PublicKey;
   instructionKey?: string;
 }

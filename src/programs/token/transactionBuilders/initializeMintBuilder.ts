@@ -1,6 +1,7 @@
-import { PublicKey, Signer } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 import { createInitializeMintInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Signer } from "@/utils";
 
 export interface InitializeMintBuilderParams {
   decimals: number;

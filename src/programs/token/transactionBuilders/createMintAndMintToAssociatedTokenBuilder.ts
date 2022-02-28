@@ -1,6 +1,7 @@
-import { PublicKey, Signer } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 import { createMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
+import { Signer } from "@/utils";
 
 export interface CreateMintAndMintToAssociatedTokenBuilderParams {
   // Data.

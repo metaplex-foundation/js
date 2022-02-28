@@ -1,6 +1,7 @@
-import { PublicKey, Signer } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { TransactionBuilder } from "@/programs/shared";
 import { createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
+import { Signer } from "@/utils";
 
 export interface CreateMetadataV2BuilderParams {
   data: DataV2,

@@ -1,10 +1,11 @@
-import { Keypair, PublicKey, Signer } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
 import { createNftBuilder } from "@/modules/nfts";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Creator, Collection, Uses } from "@/programs/tokenMetadata/generated";
+import { Signer } from "@/utils";
 
 export interface CreateNftParams {
   // Data.
@@ -21,7 +22,7 @@ export interface CreateNftParams {
 
   // Signers.
   mint?: Signer;
-  payer: Signer; // TODO: Make optional and use Identity driver when not provided.
+  payer?: Signer;
   mintAuthority?: Signer;
   updateAuthority?: Signer;
 
@@ -55,7 +56,7 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     maxSupply,
     allowHolderOffCurve = false,
     mint = Keypair.generate(),
-    payer,
+    payer = metaplex.identity(),
     mintAuthority = payer,
     updateAuthority = mintAuthority,
     owner = mintAuthority.publicKey,
