@@ -7,15 +7,16 @@ export interface FindNftParams {
   mint?: PublicKey,
 }
 
-export const findNft = async (metaplex: Metaplex, params: FindNftParams): Promise<Nft | null> => {
+export const findNft = async (metaplex: Metaplex, params: FindNftParams): Promise<Nft> => {
   if (params.mint) {
     return findNftFromMint(metaplex, params.mint);
   } else {
-    return null;
+    // TODO: Custom error.
+    throw new Error('Nft option not provided');
   }
 }
 
-export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Promise<Nft | null> => {
+export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Promise<Nft> => {
   const metadataPda = await MetadataAccount.pda(mint);
   const editionPda = await MasterEditionAccount.pda(mint);
   const publicKeys = [metadataPda, editionPda];
@@ -28,7 +29,8 @@ export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Prom
   const edition = editionInfo ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
 
   if (!metadata) {
-    return null;
+    // TODO: Custom error.
+    throw new Error('Nft not found');
   }
 
   return new Nft(metadata, edition, await metadata.getJson());
