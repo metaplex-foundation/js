@@ -45,12 +45,18 @@ export class Metaplex {
     signers: Signer[] = [],
     sendOptions: SendOptions = {},
   ): Promise<TransactionSignature> {
+    const identities = [this.identity()];
+
     if (tx instanceof TransactionBuilder) {
-      signers = [...tx.getSigners(), ...signers];
+      const signerHistogram = tx.getSigners();
+      signers = [...signerHistogram.keypairs, ...signers];
+      identities.push(...signerHistogram.identities);
       tx = tx.toTransaction();
     }
 
-    await this.identity().signTransaction(tx);
+    for (let i = 0; i < identities.length; i++) {
+      await identities[i].signTransaction(tx);
+    }
     
     return this.connection.sendTransaction(tx, signers, sendOptions)
   }
