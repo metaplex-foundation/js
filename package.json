@@ -25,13 +25,16 @@
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.34.0",
+    "arweave": "^1.10.23",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0"
   },
   "peerDependencies": {
     "@metaplex-foundation/mpl-core": "^0.0.4",
     "@solana/spl-token": "^0.2.0",
-    "@solana/web3.js": "^1.34.0"
+    "@solana/wallet-adapter-base": "^0.9.3",
+    "@solana/web3.js": "^1.34.0",
+    "arweave": "^1.10.23"
   },
   "devDependencies": {
     "typescript": "^4.5.4",

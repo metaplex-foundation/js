@@ -20,7 +20,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     return this.walletAdapter.publicKey;
   }
 
-  async signTransaction(transaction: Transaction) {
+  public async signTransaction(transaction: Transaction) {
     transaction.feePayer = this.publicKey;
     await this.walletAdapter.signTransaction(transaction);
   };

@@ -10,7 +10,7 @@ export class GuestIdentityDriver extends IdentityDriver {
     this.publicKey = PublicKey.default;
   }
 
-  async signTransaction(_transaction: Transaction) {
+  public async signTransaction(_transaction: Transaction) {
     // TODO: Custom errors.
     throw new Error('Guests cannot sign transactions.');
   };
