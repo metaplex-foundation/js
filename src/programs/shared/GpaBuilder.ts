@@ -1,10 +1,8 @@
-import { AccountInfo, Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
+import { Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import BN from "bn.js";
-
-export type AccountInfoWithPublicKey<T> = AccountInfo<T> & {
-  pubkey: PublicKey;
-}
+import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
+import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,
@@ -93,7 +91,7 @@ export class GpaBuilder {
     const accounts = rawAccounts.map(({ pubkey, account }) => ({ pubkey, ...account }));
 
     if (this.sortCallback) {
-      accounts.sort(this.sortCallback)
+      accounts.sort(this.sortCallback);
     }
 
     return accounts;
@@ -104,10 +102,14 @@ export class GpaBuilder {
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
-    return this.getAndMap(account => account.pubkey)
+    return this.getAndMap(account => account.pubkey);
   }
 
   async getDataAsPublicKeys(): Promise<PublicKey[]> {
-    return this.getAndMap(account => new PublicKey(account.data))
+    return this.getAndMap(account => new PublicKey(account.data));
+  }
+
+  async getMultipleAccountsFromData(options: GmaBuilderOptions): Promise<GmaBuilder> {
+    return new GmaBuilder(this.connection, await this.getDataAsPublicKeys(), options);
   }
 }
