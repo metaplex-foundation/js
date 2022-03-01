@@ -25,11 +25,11 @@ export const allNftsFromCandyMachine = async (metaplex: Metaplex, params: AllNft
     throw new Error('Candy Machine address not provided');
   }
 
-  const mints = await TokenMetadataProgram
+  const accounts = await TokenMetadataProgram
     .metadataV1Accounts(metaplex.connection)
     .selectMint()
     .whereFirstCreator(firstCreator)
-    .getDataAsPublicKeys();
+    .getMultipleAccountsFromData();
 
   return [];
 }

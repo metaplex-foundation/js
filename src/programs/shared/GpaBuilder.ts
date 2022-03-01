@@ -1,7 +1,7 @@
 import { Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import BN from "bn.js";
-import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
+import { AccountInfoWithPublicKey, MaybeAccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
 import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
 
 export type GpaSortCallback = (
@@ -109,7 +109,11 @@ export class GpaBuilder {
     return this.getAndMap(account => new PublicKey(account.data));
   }
 
-  async getMultipleAccountsFromData(options: GmaBuilderOptions): Promise<GmaBuilder> {
+  async buildMultipleAccountsFromData(options?: GmaBuilderOptions): Promise<GmaBuilder> {
     return new GmaBuilder(this.connection, await this.getDataAsPublicKeys(), options);
+  }
+
+  async getMultipleAccountsFromData(options?: GmaBuilderOptions): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+    return (await this.buildMultipleAccountsFromData(options)).get();
   }
 }
