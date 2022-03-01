@@ -1,5 +1,6 @@
-import { Connection, PublicKey } from "@solana/web3.js";
-import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
+import { AccountInfo, Connection, PublicKey } from "@solana/web3.js";
+import { MaybeAccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
+import { chunk, zipMap } from "@/utils";
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
@@ -36,23 +37,47 @@ export class GmaBuilder {
     return [];
   }
 
-  async getFirst(n?: number): Promise<AccountInfoWithPublicKey<Buffer>[]> {
+  async getFirst(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     return [];
   }
 
-  async getLast(n?: number): Promise<AccountInfoWithPublicKey<Buffer>[]> {
+  async getLast(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     return [];
   }
 
-  async getBetween(start: number, end: number): Promise<AccountInfoWithPublicKey<Buffer>[]> {
+  async getBetween(start: number, end: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     return [];
   }
 
-  async getPage(page: number, perPage: number): Promise<AccountInfoWithPublicKey<Buffer>[]> {
+  async getPage(page: number, perPage: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     return [];
   }
 
-  async get(): Promise<AccountInfoWithPublicKey<Buffer>[]> {
+  async get(): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     return [];
+  }
+
+  protected async fetchChunks(publicKeys: PublicKey[]): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+    const chunks = chunk(publicKeys, this.chunkSize);
+    const chunkPromises = chunks.map(chunk => this.fetchChunk(chunk));
+    const resolvedChunks = await Promise.allSettled(chunkPromises);
+
+    return resolvedChunks.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  }
+
+  protected async fetchChunk(publicKeys: PublicKey[]): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+    try {
+      // TODO: Use lower level RPC call to add dataSlice support.
+      const accounts = (await this.connection.getMultipleAccountsInfo(publicKeys)) as (AccountInfo<Buffer> | null)[];
+
+      return zipMap(publicKeys, accounts, (publicKey, account) => {
+        return !account
+          ? { pubkey: publicKey, exists: false }
+          : { pubkey: publicKey, exists: true, ...account };
+      });
+    } catch (error) {
+      // TODO: Throw error instead?
+      return publicKeys.map(publicKey => ({ pubkey: publicKey, exists: false }));
+    }
   }
 }

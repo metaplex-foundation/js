@@ -13,6 +13,18 @@ export const tryOr = <T, U>(callback: () => T, defaultValue: U): T | U => {
 
 export const tryOrNull = <T>(cb: () => T) => tryOr(cb, null);
 
+export const chunk = <T>(array: T[], chunkSize: number): T[][] => array.reduce((accumulator, item, index) => { 
+  const chunkIndex = Math.floor(index/chunkSize);
+
+  if (!accumulator[chunkIndex]) {
+    accumulator[chunkIndex] = [];
+  }
+
+  accumulator[chunkIndex].push(item);
+
+  return accumulator;
+}, [] as T[][])
+
 export const zipMap = <T, U, V>(left: T[], right: U[], fn: (t: T, u: U | null, i: number) => V): V[] => (
   left.map((t: T, index) => fn(t, right?.[index] ?? null, index))
 );
