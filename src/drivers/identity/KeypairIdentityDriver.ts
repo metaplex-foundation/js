@@ -1,12 +1,14 @@
 import { Keypair, PublicKey, Signer as Web3Signer, Transaction } from '@solana/web3.js';
 import { IdentityDriver } from './IdentityDriver';
+import { Metaplex } from '@/Metaplex';
 
-export class KeypairIdentityDriver implements IdentityDriver, Web3Signer {
+export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer {
   public readonly keypair: Keypair;
   public readonly publicKey: PublicKey;
   public readonly secretKey: Uint8Array;
 
-  constructor(keypair: Keypair) {
+  constructor(metaplex: Metaplex, keypair: Keypair) {
+    super(metaplex);
     this.keypair = keypair;
     this.publicKey = keypair.publicKey;
     this.secretKey = keypair.secretKey;

@@ -1,11 +1,13 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base';
 import { IdentityDriver } from './IdentityDriver';
+import { Metaplex } from '@/Metaplex';
 
-export class WalletAdapterIdentityDriver implements IdentityDriver {
+export class WalletAdapterIdentityDriver extends IdentityDriver {
   public readonly walletAdapter: SignerWalletAdapter;
 
-  constructor(walletAdapter: SignerWalletAdapter) {
+  constructor(metaplex: Metaplex, walletAdapter: SignerWalletAdapter) {
+    super(metaplex);
     this.walletAdapter = walletAdapter;
   }
 

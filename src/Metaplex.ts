@@ -1,9 +1,10 @@
-import { AccountInfo, Commitment, Connection, PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountInfo, Commitment, Connection, Keypair, PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
+import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { TransactionBuilder } from "@/programs/shared";
-import { IdentityDriver, GuestIdentityDriver } from "@/drivers";
+import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers";
 
 export interface MetaplexOptions {
-  identity?: IdentityDriver,
+  // identity?: IdentityDriver,
   // storage?: StorageDriver,
   // filesystem?: FilesystemDriver,
   // rateConverter?: RateConverterDriver,
@@ -23,7 +24,7 @@ export class Metaplex {
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.options = options;
-    this.identityDriver = options.identity ?? new GuestIdentityDriver();
+    this.identityDriver = new GuestIdentityDriver(this);
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {
@@ -38,6 +39,18 @@ export class Metaplex {
     this.identityDriver = identity;
 
     return this;
+  }
+
+  useKeypairIdentity(keypair: Keypair) {
+    return this.setIdentity(new KeypairIdentityDriver(this, keypair));
+  }
+
+  useWalletAdapterIdentity(walletAdapter: SignerWalletAdapter) {
+    return this.setIdentity(new WalletAdapterIdentityDriver(this, walletAdapter));
+  }
+
+  useGuestIdentity() {
+    return this.setIdentity(new GuestIdentityDriver(this));
   }
 
   async sendTransaction(
