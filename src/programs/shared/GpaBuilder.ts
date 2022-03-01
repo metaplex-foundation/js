@@ -2,9 +2,8 @@ import { AccountInfo, Connection, GetProgramAccountsConfig, GetProgramAccountsFi
 import base58 from "bs58";
 import BN from "bn.js";
 
-export type AccountInfoWithPublicKey<T> = {
+export type AccountInfoWithPublicKey<T> = AccountInfo<T> & {
   pubkey: PublicKey;
-  account: AccountInfo<T>;
 }
 
 export type GpaSortCallback = (
@@ -90,7 +89,8 @@ export class GpaBuilder {
   }
 
   async get(): Promise<AccountInfoWithPublicKey<Buffer>[]> {
-    const accounts = await this.connection.getProgramAccounts(this.programId, this.config);
+    const rawAccounts = await this.connection.getProgramAccounts(this.programId, this.config);
+    const accounts = rawAccounts.map(({ pubkey, account }) => ({ pubkey, ...account }));
 
     if (this.sortCallback) {
       accounts.sort(this.sortCallback)
@@ -99,7 +99,15 @@ export class GpaBuilder {
     return accounts;
   }
 
+  async getAndMap<T>(callback: (account: AccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
+    return (await this.get()).map(callback);
+  }
+
   async getPublicKeys(): Promise<PublicKey[]> {
-    return (await this.get()).map(account => account.pubkey);
+    return this.getAndMap(account => account.pubkey)
+  }
+
+  async getDataAsPublicKeys(): Promise<PublicKey[]> {
+    return this.getAndMap(account => new PublicKey(account.data))
   }
 }
