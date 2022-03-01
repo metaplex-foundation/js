@@ -29,7 +29,8 @@ export const allNftsFromCandyMachine = async (metaplex: Metaplex, params: AllNft
     .metadataV1Accounts(metaplex.connection)
     .selectMint()
     .whereFirstCreator(firstCreator)
-    .getMultipleAccountsFromData();
+    .getMultipleAccounts()
+    .get();
 
   return [];
 }

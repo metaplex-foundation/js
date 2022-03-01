@@ -9,12 +9,20 @@ export interface GmaBuilderOptions {
 export class GmaBuilder {
   protected readonly connection: Connection;
   protected readonly publicKeys: PublicKey[];
+  protected promise: Promise<PublicKey[]> | null;
   protected chunkSize: number;
 
-  constructor(connection: Connection, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+  constructor(connection: Connection, publicKeys: PublicKey[] | Promise<PublicKey[]>, options: GmaBuilderOptions = {}) {
     this.connection = connection;
-    this.publicKeys = publicKeys;
     this.chunkSize = options.chunkSize ?? 100;
+
+    if (publicKeys instanceof Promise) {
+      this.publicKeys = [];
+      this.promise = publicKeys;
+    } else {
+      this.publicKeys = publicKeys;
+      this.promise = null;
+    }
   }
 
   chunkBy(n: number) {
@@ -29,32 +37,41 @@ export class GmaBuilder {
     return this;
   }
 
-  getPublicKeys(): PublicKey[] {
+  async getPublicKeys(): Promise<PublicKey[]> {
+    if (this.promise) {
+      this.addPublicKeys(await this.promise);
+      this.promise = null;
+    }
+
     return this.publicKeys;
   }
 
-  getUniquePublicKeys(): PublicKey[] {
-    return [];
+  async getUniquePublicKeys(): Promise<PublicKey[]> {
+    // TODO: Only send unique keys and reconciliate after call.
+    return this.getPublicKeys();
   }
 
   async getFirst(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     const end = this.boundNumber(n ?? 1);
+    const publicKeys = await this.getPublicKeys();
 
-    return this.getChunks(this.publicKeys.slice(0, end));
+    return this.getChunks(publicKeys.slice(0, end));
   }
 
   async getLast(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     const start = this.boundNumber(n ?? 1);
+    const publicKeys = await this.getPublicKeys();
 
-    return this.getChunks(this.publicKeys.slice(- start));
+    return this.getChunks(publicKeys.slice(- start));
   }
 
   async getBetween(start: number, end: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
     start = this.boundNumber(start);
     end = this.boundNumber(end);
     [start, end] = start > end ? [end, start] : [start, end];
+    const publicKeys = await this.getPublicKeys();
 
-    return this.getChunks(this.publicKeys.slice(start, end));
+    return this.getChunks(publicKeys.slice(start, end));
   }
 
   async getPage(page: number, perPage: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
@@ -62,7 +79,21 @@ export class GmaBuilder {
   }
 
   async get(): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
-    return this.getChunks(this.publicKeys);
+    return this.getChunks(await this.getPublicKeys());
+  }
+
+  async getAndMap<T>(callback: (account: MaybeAccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
+    return (await this.get()).map(callback);
+  }
+
+  getMultipleAccounts(
+    callback?: (account: MaybeAccountInfoWithPublicKey<Buffer>) => PublicKey | null,
+    options?: GmaBuilderOptions,
+  ): GmaBuilder {
+    callback = callback ?? (account => account.exists ? new PublicKey(account.data) : null);
+    options = options ?? { chunkSize: this.chunkSize };
+
+    return new GmaBuilder(this.connection, this.getAndMap(callback), options);
   }
 
   protected async getChunks(publicKeys: PublicKey[]): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {

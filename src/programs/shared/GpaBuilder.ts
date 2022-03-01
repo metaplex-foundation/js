@@ -109,11 +109,12 @@ export class GpaBuilder {
     return this.getAndMap(account => new PublicKey(account.data));
   }
 
-  async buildMultipleAccountsFromData(options?: GmaBuilderOptions): Promise<GmaBuilder> {
-    return new GmaBuilder(this.connection, await this.getDataAsPublicKeys(), options);
-  }
+  getMultipleAccounts(
+    callback?: (account: AccountInfoWithPublicKey<Buffer>) => PublicKey,
+    options?: GmaBuilderOptions,
+  ): GmaBuilder {
+    callback = callback ?? (account => new PublicKey(account.data));
 
-  async getMultipleAccountsFromData(options?: GmaBuilderOptions): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
-    return (await this.buildMultipleAccountsFromData(options)).get();
+    return new GmaBuilder(this.connection, this.getAndMap(callback), options);
   }
 }
