@@ -11,6 +11,7 @@ export class GuestIdentityDriver extends IdentityDriver {
   }
 
   async signTransaction(_transaction: Transaction) {
-    // Do nothing...
+    // TODO: Custom errors.
+    throw new Error('Guests cannot sign transactions.');
   };
 }
