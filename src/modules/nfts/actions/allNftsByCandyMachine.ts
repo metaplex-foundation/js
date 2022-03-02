@@ -33,21 +33,28 @@ export const allNftsFromCandyMachine = async (metaplex: Metaplex, params: AllNft
     .whereFirstCreator(firstCreator)
     .getDataAsPublicKeys();
 
-  const postpone = Postpone.make(async () => mintKeys.map(async mint => [
-    await MetadataAccount.pda(mint),
-    await MasterEditionAccount.pda(mint),
-  ]));
+  return Postpone.make(async () => mintKeys)
+    // Get PDAs.
+    .map(async mint => [await MetadataAccount.pda(mint), await MasterEditionAccount.pda(mint)])
 
-  return postpone
+    // Resolve and flatten PDA promises.
     .asyncPipe(async promises => Promise.allSettled(await promises))
     .flatMap(result => result.status === 'fulfilled' ? result.value : [])
+
+    // Feed PDAs into a GetMultipleAccountBuilder.
     .pipe(pdas => new GmaBuilder(metaplex.connection, pdas))
     .asyncPipe(async gma => (await gma).get())
+
+    // Regroup Metadata and MasterEdition accounts.
     .chunk(2)
+
+    // Map Nfts from Metadata and MasterEdition accounts.
     .flatMap(([metadataInfo, editionInfo]) => {
       const metadata = metadataInfo.exists ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
       const edition = editionInfo.exists ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
       return metadata ? [new Nft(metadata, edition)] : [];
     })
+
+    // Execute the postponed promise.
     .run()
 }
