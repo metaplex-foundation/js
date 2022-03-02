@@ -3,7 +3,7 @@ import base58 from "bs58";
 import BN from "bn.js";
 import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
 import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
-import { LazyPipe } from "@/utils";
+import { Postpone } from "@/utils";
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,
@@ -98,14 +98,12 @@ export class GpaBuilder {
     return accounts;
   }
 
-  lazy(): LazyPipe<AccountInfoWithPublicKey<Buffer>[]> {
-    return LazyPipe.make(this.get);
+  lazy(): Postpone<AccountInfoWithPublicKey<Buffer>[]> {
+    return Postpone.make(this.get);
   }
 
   async getAndMap<T>(callback: (account: AccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
-    return this.lazy()
-      .map<AccountInfoWithPublicKey<Buffer>[], T>(callback)
-      .run();
+    return this.lazy().map(callback).run();
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
@@ -119,10 +117,10 @@ export class GpaBuilder {
   getMultipleAccounts(
     callback?: (account: AccountInfoWithPublicKey<Buffer>) => PublicKey,
     options?: GmaBuilderOptions,
-  ): LazyPipe<GmaBuilder> {
+  ): Postpone<GmaBuilder> {
     const cb = callback ?? (account => new PublicKey(account.data));
 
-    return LazyPipe.make(async () => {
+    return Postpone.make(async () => {
       return new GmaBuilder(this.connection, await this.getAndMap(cb), options);
     });
   }

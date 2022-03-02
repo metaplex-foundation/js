@@ -1,7 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
 import { Nft } from "@/modules/nfts";
+import { MasterEditionAccount, MetadataAccount, TokenMetadataProgram } from "@/programs/tokenMetadata";
 import { Metaplex } from "@/Metaplex";
-import { TokenMetadataProgram } from "@/programs";
+import { Postpone } from "@/utils";
+import { GmaBuilder } from "@/programs";
 
 export interface AllNftsFromCandyMachineParams {
   v1?: PublicKey,
@@ -25,12 +27,27 @@ export const allNftsFromCandyMachine = async (metaplex: Metaplex, params: AllNft
     throw new Error('Candy Machine address not provided');
   }
 
-  const accounts = await TokenMetadataProgram
+  const mintKeys = await TokenMetadataProgram
     .metadataV1Accounts(metaplex.connection)
     .selectMint()
     .whereFirstCreator(firstCreator)
-    .getMultipleAccounts()
-    .run();
+    .getDataAsPublicKeys();
 
-  return [];
+  const postpone = Postpone.make(async () => mintKeys.map(async mint => [
+    await MetadataAccount.pda(mint),
+    await MasterEditionAccount.pda(mint),
+  ]));
+
+  return postpone
+    .asyncPipe(async promises => Promise.allSettled(await promises))
+    .flatMap(result => result.status === 'fulfilled' ? result.value : [])
+    .pipe(pdas => new GmaBuilder(metaplex.connection, pdas))
+    .asyncPipe(async gma => (await gma).get())
+    .chunk(2)
+    .flatMap(([metadataInfo, editionInfo]) => {
+      const metadata = metadataInfo.exists ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
+      const edition = editionInfo.exists ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
+      return metadata ? [new Nft(metadata, edition)] : [];
+    })
+    .run()
 }

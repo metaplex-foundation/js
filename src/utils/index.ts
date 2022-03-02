@@ -1,4 +1,4 @@
 export * from './common';
-export * from './LazyPipe';
+export * from './Postpone';
 export * from './Pda';
 export * from './Signer';

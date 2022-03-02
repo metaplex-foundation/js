@@ -1,6 +1,6 @@
 import { AccountInfo, Connection, PublicKey } from "@solana/web3.js";
 import { MaybeAccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
-import { chunk, LazyPipe, zipMap } from "@/utils";
+import { chunk, Postpone, zipMap } from "@/utils";
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
@@ -66,14 +66,12 @@ export class GmaBuilder {
     return this.getChunks(this.getPublicKeys());
   }
 
-  lazy(): LazyPipe<MaybeAccountInfoWithPublicKey<Buffer>[]> {
-    return LazyPipe.make(async () => this.get());
+  lazy(): Postpone<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+    return Postpone.make(async () => this.get());
   }
 
   async getAndMap<T>(callback: (account: MaybeAccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
-    return this.lazy()
-      .map<MaybeAccountInfoWithPublicKey<Buffer>[], T>(callback)
-      .run();
+    return this.lazy().map(callback).run();
   }
 
   protected async getChunks(publicKeys: PublicKey[]): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
