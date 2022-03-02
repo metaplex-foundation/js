@@ -90,10 +90,15 @@ export class GmaBuilder {
     callback?: (account: MaybeAccountInfoWithPublicKey<Buffer>) => PublicKey | null,
     options?: GmaBuilderOptions,
   ): GmaBuilder {
-    callback = callback ?? (account => account.exists ? new PublicKey(account.data) : null);
-    options = options ?? { chunkSize: this.chunkSize };
+    const cb = callback ?? (account => account.exists ? new PublicKey(account.data) : null);
+    const opt = { chunkSize: this.chunkSize, ...options };
 
-    return new GmaBuilder(this.connection, this.getAndMap(callback), options);
+    const promise = async (): Promise<PublicKey[]> => {
+      const foo = await this.getAndMap(cb);
+      return foo.filter(publicKey => publicKey !== null) as PublicKey[];
+    }
+
+    return new GmaBuilder(this.connection, promise(), opt);
   }
 
   protected async getChunks(publicKeys: PublicKey[]): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
