@@ -1,5 +1,5 @@
 import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { Metaplex, KeypairIdentityDriver, NftClient, Signer } from ".";
+import { Metaplex, NftClient, Signer } from ".";
 import { TokenMetadataProgram } from "./programs";
 
 
@@ -11,7 +11,7 @@ import { TokenMetadataProgram } from "./programs";
 
 const connection = new Connection(clusterApiUrl('devnet'));
 const metaplex = Metaplex.make(connection)
-  .setIdentity(new KeypairIdentityDriver(Keypair.generate()))
+  .useKeypairIdentity(Keypair.generate());
 
 const nftClient = new NftClient(metaplex);
 // ⬆️ Would love to just `metaplex.nfts.method()` instead but it's not tree-shakable.
