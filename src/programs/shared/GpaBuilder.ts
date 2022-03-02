@@ -1,8 +1,9 @@
 import { Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import BN from "bn.js";
-import { AccountInfoWithPublicKey, MaybeAccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
+import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
 import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
+import { LazyPipe } from "@/utils";
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,
@@ -97,8 +98,14 @@ export class GpaBuilder {
     return accounts;
   }
 
+  lazy(): LazyPipe<AccountInfoWithPublicKey<Buffer>[]> {
+    return LazyPipe.make(this.get);
+  }
+
   async getAndMap<T>(callback: (account: AccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
-    return (await this.get()).map(callback);
+    return this.lazy()
+      .map<AccountInfoWithPublicKey<Buffer>[], T>(callback)
+      .run();
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
@@ -112,9 +119,11 @@ export class GpaBuilder {
   getMultipleAccounts(
     callback?: (account: AccountInfoWithPublicKey<Buffer>) => PublicKey,
     options?: GmaBuilderOptions,
-  ): GmaBuilder {
-    callback = callback ?? (account => new PublicKey(account.data));
+  ): LazyPipe<GmaBuilder> {
+    const cb = callback ?? (account => new PublicKey(account.data));
 
-    return new GmaBuilder(this.connection, this.getAndMap(callback), options);
+    return LazyPipe.make(async () => {
+      return new GmaBuilder(this.connection, await this.getAndMap(cb), options);
+    });
   }
 }
