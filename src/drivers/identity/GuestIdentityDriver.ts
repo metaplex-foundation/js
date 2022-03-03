@@ -26,11 +26,11 @@ export class GuestIdentityDriver extends IdentityDriver {
   };
 
   public async sendTransaction(
-    _transaction: Transaction,
-    _signers: Signer[],
-    _options?: SendOptions,
+    transaction: Transaction,
+    signers: Signer[],
+    options?: SendOptions,
   ): Promise<TransactionSignature> {
-    // TODO: Custom errors.
-    throw new Error('Guests cannot send transactions.');
+    return this.metaplex.connection
+      .sendTransaction(transaction, signers, options);
   };
 }

@@ -16,4 +16,8 @@ export abstract class IdentityDriver extends Driver {
   public async verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean> {
     return nacl.sign.detached.verify(message, signature, this.publicKey.toBytes());
   };
+
+  public is(that: IdentityDriver): boolean {
+    return this.publicKey.toBase58() === that.publicKey.toBase58();
+  }
 }

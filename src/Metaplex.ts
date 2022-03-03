@@ -1,7 +1,8 @@
-import { AccountInfo, Commitment, Connection, Keypair, PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountInfo, Commitment, Connection, Keypair, PublicKey, SendOptions, Transaction, TransactionSignature } from "@solana/web3.js";
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { TransactionBuilder } from "@/programs/shared";
 import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers";
+import { Signer, getSignerHistogram } from "@/utils";
 
 export interface MetaplexOptions {
   // identity?: IdentityDriver,
@@ -54,24 +55,24 @@ export class Metaplex {
   }
 
   async sendTransaction(
-    tx: Transaction | TransactionBuilder,
+    transaction: Transaction | TransactionBuilder,
     signers: Signer[] = [],
     sendOptions: SendOptions = {},
   ): Promise<TransactionSignature> {
-    const identities = [this.identity()];
-
-    if (tx instanceof TransactionBuilder) {
-      const signerHistogram = tx.getSigners();
-      signers = [...signerHistogram.keypairs, ...signers];
-      identities.push(...signerHistogram.identities);
-      tx = tx.toTransaction();
+    if (transaction instanceof TransactionBuilder) {
+      signers = [...transaction.getSigners(), ...signers];
+      transaction = transaction.toTransaction();
     }
+
+    const { keypairs, identities } = getSignerHistogram(signers);
 
     for (let i = 0; i < identities.length; i++) {
-      await identities[i].signTransaction(tx);
+      if (!identities[i].is(this.identity())) {
+        await identities[i].signTransaction(transaction);
+      }
     }
-    
-    return this.connection.sendTransaction(tx, signers, sendOptions)
+
+    return this.identity().sendTransaction(transaction, keypairs, sendOptions)
   }
 
   async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
