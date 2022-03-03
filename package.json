@@ -1,9 +1,17 @@
 {
   "name": "@metaplex/js-next",
   "version": "5.0.0-alpha.1",
-  "main": "./dist/postpone.umd.js",
-  "module": "./dist/postpone.es.js",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
+  "browser": {
+    "./dist/index.cjs.js": "./dist/index.browser.esm.js",
+    "./dist/index.esm.js": "./dist/index.browser.esm.js"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
   "license": "MIT",
   "description": "Metaplex JavaScript SDK",
   "keywords": [
@@ -18,7 +26,7 @@
     "url": "https://github.com/metaplex/js-next.git"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "rollup -c --watch",
     "build": "rimraf dist && rollup -c"
   },
   "dependencies": {
