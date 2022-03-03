@@ -1,6 +1,9 @@
 {
   "name": "@metaplex/js-next",
   "version": "5.0.0-alpha.1",
+  "main": "./dist/postpone.umd.js",
+  "module": "./dist/postpone.es.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "description": "Metaplex JavaScript SDK",
   "keywords": [
@@ -16,7 +19,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build && tsc --emitDeclarationOnly"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.5.17",
