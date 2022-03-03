@@ -4,4 +4,8 @@ export class File {
   constructor(content: string | Buffer) {
     this.content = content;
   }
+
+  toBuffer() {
+    return Buffer.from(this.content);
+  }
 }

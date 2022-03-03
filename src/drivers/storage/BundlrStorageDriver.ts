@@ -17,24 +17,55 @@ export class BundlrStorageDriver extends StorageDriver {
     this.options = options;
   }
 
-  public async upload(content: string | Buffer | File): Promise<string> {
-    if (content instanceof File) {
-      content = content.content;
+  public async upload(file: File): Promise<string> {
+    const bundlr = await this.getBundlr();
+    const price = await bundlr.getPrice(file.toBuffer().length);
+    await bundlr.fund(price);
+
+    // TODO: Add support for tags. E.g. "Content-Type".
+    const tags: { name: string, value: string }[] = [];
+    const { status, data } = await bundlr.uploader.upload(file.toBuffer(), tags);
+
+    if (status >= 300) {
+      // TODO: Custom errors.
+      throw new Error(`Failed to upload asset. Got status: ${status}.`);
     }
 
-    const bundlr = await this.getBundlr();
-
-    //
+    return `https://arweave.net/${data.id}`;
   }
 
   protected async getBundlr(): Promise<WebBundlr | NodeBundlr> {
     if (this.bundlr) return this.bundlr;
+
+    const currency = "solana";
     const address = this.options?.address ?? "https://node1.bundlr.network";
-    this.bundlr = new WebBundlr(address, "solana", this.metaplex.identity(), {
+    const bundlr = new WebBundlr(address, currency, this.metaplex.identity(), {
       timeout: this.options.timeout,
       providerUrl: this.options.providerUrl,
     });
 
-    return this.bundlr;
+    try {
+      // Check for valid bundlr node.
+      await bundlr.utils.getBundlerAddress(currency)
+    } catch (error) {
+      // TODO: Custom errors.
+      throw new Error(`Failed to connect to bundlr ${address}.`);
+    }
+
+    try {
+      // Try to initiate bundlr.
+      await bundlr.ready();
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!bundlr.address) {
+      // TODO: Custom errors.
+      throw new Error('Failed to initiate Bundlr.');
+    }
+
+    this.bundlr = bundlr;
+
+    return bundlr;
   }
 }
