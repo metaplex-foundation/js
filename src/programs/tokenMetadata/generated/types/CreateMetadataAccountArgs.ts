@@ -16,7 +16,7 @@ export type CreateMetadataAccountArgs = {
  * @category userTypes
  * @category generated
  */
-export const createMetadataAccountArgsBeet = new beet.BeetArgsStruct<CreateMetadataAccountArgs>(
+export const createMetadataAccountArgsBeet = new beet.FixableBeetArgsStruct<CreateMetadataAccountArgs>(
   [
     ['data', definedTypes.dataBeet],
     ['isMutable', beet.bool],
