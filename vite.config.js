@@ -20,5 +20,7 @@ export default defineConfig({
         ...Object.keys(pkg.peerDependencies || {}),
       ],
     },
+    sourcemap: true,
+    minify: false,
   }
 });

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "dist",
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -15,7 +16,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["src/*"]
     }
   },
   "include": ["src"]
