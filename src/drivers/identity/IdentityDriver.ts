@@ -1,4 +1,4 @@
-import { Connection, PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
+import { PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Driver } from "@/drivers";
 
@@ -9,7 +9,6 @@ export abstract class IdentityDriver extends Driver {
   public abstract signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
   public abstract sendTransaction(
     transaction: Transaction,
-    connection: Connection,
     signers: Signer[],
     options?: SendOptions,
   ): Promise<TransactionSignature>;

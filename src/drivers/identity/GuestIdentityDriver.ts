@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Transaction, TransactionSignature, SendOptions, Signer } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } from '@solana/web3.js';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
@@ -27,7 +27,6 @@ export class GuestIdentityDriver extends IdentityDriver {
 
   public async sendTransaction(
     _transaction: Transaction,
-    _connection: Connection,
     _signers: Signer[],
     _options?: SendOptions,
   ): Promise<TransactionSignature> {
