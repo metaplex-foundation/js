@@ -1,4 +1,4 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionSignature, SendOptions, Signer } from '@solana/web3.js';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
@@ -10,8 +10,28 @@ export class GuestIdentityDriver extends IdentityDriver {
     this.publicKey = PublicKey.default;
   }
 
-  public async signTransaction(_transaction: Transaction) {
+  public async signMessage(_message: Uint8Array): Promise<Uint8Array> {
+    // TODO: Custom errors.
+    throw new Error('Guests cannot sign messages.');
+  };
+
+  public async signTransaction(_transaction: Transaction): Promise<Transaction> {
     // TODO: Custom errors.
     throw new Error('Guests cannot sign transactions.');
+  };
+
+  public async signAllTransactions(_transactions: Transaction[]): Promise<Transaction[]> {
+    // TODO: Custom errors.
+    throw new Error('Guests cannot sign transactions.');
+  };
+
+  public async sendTransaction(
+    _transaction: Transaction,
+    _connection: Connection,
+    _signers: Signer[],
+    _options?: SendOptions,
+  ): Promise<TransactionSignature> {
+    // TODO: Custom errors.
+    throw new Error('Guests cannot send transactions.');
   };
 }

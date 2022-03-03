@@ -1,4 +1,5 @@
-import { Keypair, PublicKey, Signer as Web3Signer, Transaction } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey, SendOptions, Signer, Signer as Web3Signer, Transaction, TransactionSignature } from '@solana/web3.js';
+import nacl from 'tweetnacl';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
@@ -14,8 +15,27 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
     this.secretKey = keypair.secretKey;
   }
 
-  public async signTransaction(transaction: Transaction) {
+  public async signMessage(message: Uint8Array): Promise<Uint8Array> {
+    return nacl.sign.detached(message, this.secretKey);
+  };
+
+  public async signTransaction(transaction: Transaction): Promise<Transaction> {
     transaction.feePayer = this.publicKey;
     transaction.sign(this.keypair);
+
+    return transaction;
   };
+
+  public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
+    return Promise.all(transactions.map(transaction => this.signTransaction(transaction)));
+  };
+
+  public async sendTransaction(
+    transaction: Transaction,
+    connection: Connection,
+    signers: Signer[],
+    options?: SendOptions,
+  ): Promise<TransactionSignature> {
+    return connection.sendTransaction(await this.signTransaction(transaction), signers, options);
+  }
 }

@@ -27,7 +27,8 @@
     "@solana/web3.js": "^1.34.0",
     "arweave": "^1.10.23",
     "bn.js": "^5.2.0",
-    "bs58": "^5.0.0"
+    "bs58": "^5.0.0",
+    "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
     "@metaplex-foundation/mpl-core": "^0.0.4",
