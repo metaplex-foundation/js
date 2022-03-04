@@ -1,4 +1,5 @@
 import { Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
+import { Buffer } from 'buffer';
 import base58 from "bs58";
 import BN from "bn.js";
 import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";

@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { Buffer } from 'buffer';
 import { TokenMetadataGpaBuilder } from "./TokenMetadataGpaBuilder";
 import { padEmptyChars } from "@/utils";
 

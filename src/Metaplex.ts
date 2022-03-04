@@ -1,5 +1,6 @@
 import { AccountInfo, Commitment, Connection, Keypair, PublicKey, SendOptions, Transaction, TransactionSignature } from "@solana/web3.js";
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
+import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
 import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers";
 import { Signer, getSignerHistogram } from "@/utils";

@@ -39,6 +39,7 @@
     "@solana/web3.js": "^1.34.0",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
+    "buffer": "^6.0.3",
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {

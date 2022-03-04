@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer';
+
 export class File {
   public readonly content: string | Buffer;
 

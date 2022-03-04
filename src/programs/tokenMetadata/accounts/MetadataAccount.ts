@@ -1,4 +1,5 @@
 import { AccountInfo, PublicKey } from "@solana/web3.js";
+import { Buffer } from 'buffer';
 import { Metadata } from "@/programs/tokenMetadata/generated";
 import { TokenMetadataProgram } from "@/programs/tokenMetadata";
 import { Account } from "@/programs/shared";
