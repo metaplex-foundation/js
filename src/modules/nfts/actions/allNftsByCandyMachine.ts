@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { Buffer } from 'buffer';
-import { Nft } from "@/modules/nfts";
+import { Nft } from "../models";
 import { MasterEditionAccount, MetadataAccount, TokenMetadataProgram } from "@/programs/tokenMetadata";
 import { Metaplex } from "@/Metaplex";
 import { Postpone } from "@/utils";

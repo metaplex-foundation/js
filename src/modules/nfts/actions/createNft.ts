@@ -2,7 +2,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
 import { bignum } from "@metaplex-foundation/beet";
 import { Metaplex } from "@/Metaplex";
-import { createNftBuilder } from "@/modules/nfts";
+import { createNftBuilder } from "../transactionBuilders";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Creator, Collection, Uses } from "@/programs/tokenMetadata/generated";
 import { Signer } from "@/utils";

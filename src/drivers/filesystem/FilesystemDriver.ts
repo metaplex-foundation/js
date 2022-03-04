@@ -1,4 +1,4 @@
-import { Driver } from "@/drivers";
+import { Driver } from "../Driver";
 import { File } from "./File";
 
 export abstract class FilesystemDriver extends Driver {

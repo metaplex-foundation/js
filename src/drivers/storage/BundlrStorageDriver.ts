@@ -1,6 +1,7 @@
 import NodeBundlr, { WebBundlr } from "@bundlr-network/client";
-import { StorageDriver, File } from "@/drivers";
 import { Metaplex } from "@/Metaplex";
+import { StorageDriver } from "./StorageDriver";
+import { File } from "../filesystem/File";
 
 export interface BundlrOptions {
   address?: string;

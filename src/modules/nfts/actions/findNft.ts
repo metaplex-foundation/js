@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { Nft } from "@/modules/nfts";
+import { Nft } from "../models";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Metaplex } from "@/Metaplex";
 
