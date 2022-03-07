@@ -21,7 +21,7 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
     transaction.feePayer = this.publicKey;
-    transaction.sign(this.keypair);
+    transaction.partialSign(this.keypair);
 
     return transaction;
   };

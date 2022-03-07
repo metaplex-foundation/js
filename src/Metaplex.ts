@@ -1,4 +1,4 @@
-import { AccountInfo, Commitment, Connection, Keypair, PublicKey, SendOptions, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountInfo, Commitment, ConfirmOptions, Connection, Keypair, PublicKey, SendOptions, Transaction, TransactionSignature } from "@solana/web3.js";
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
@@ -74,6 +74,24 @@ export class Metaplex {
     }
 
     return this.identity().sendTransaction(transaction, keypairs, sendOptions)
+  }
+
+  async sendAndConfirmTransaction(
+    transaction: Transaction | TransactionBuilder,
+    signers?: Signer[],
+    confirmOptions?: ConfirmOptions,
+  ): Promise<TransactionSignature> {
+    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
+    const rpcResponse = await this.connection.confirmTransaction(signature, confirmOptions?.commitment);
+
+    if (rpcResponse.value.err) {
+      // TODO: Custom errors.
+      throw new Error(
+        `Transaction ${signature} failed (${JSON.stringify(rpcResponse.value)})`,
+      );
+    }
+
+    return signature;
   }
 
   async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {

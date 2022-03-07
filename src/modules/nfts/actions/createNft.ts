@@ -86,7 +86,7 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     associatedTokenProgram,
   );
 
-  const transactionId = await metaplex.sendTransaction(createNftBuilder({
+  const transactionId = await metaplex.sendAndConfirmTransaction(createNftBuilder({
     lamports,
     data,
     isMutable,
