@@ -2,7 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { bignum } from "@metaplex-foundation/beet";
 import { TransactionBuilder } from "@/programs";
 import { DataV2 } from "@/programs/tokenMetadata/generated";
-import { createMintAndMintToAssociatedTokenBuilder, disableMintingBuilder } from "@/programs/token";
+import { createMintAndMintToAssociatedTokenBuilder } from "@/programs/token";
 import { createMetadataV2Builder, createMasterEditionV3Builder } from "@/programs/tokenMetadata";
 import { Signer } from "@/utils";
 
@@ -63,7 +63,6 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
     mintToInstructionKey,
     createMetadataInstructionKey,
     createMasterEditionInstructionKey,
-    disableMintingInstructionKey,
   } = params;
 
   return TransactionBuilder.make()
@@ -100,7 +99,7 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
       instructionKey: createMetadataInstructionKey,
     }))
 
-    // Create master edition account.
+    // Create master edition account (prevents further minting).
     .add(createMasterEditionV3Builder({
       maxSupply,
       payer,
@@ -110,13 +109,5 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
       metadata,
       masterEdition,
       instructionKey: createMasterEditionInstructionKey,
-    }))
-
-    // Prevent further minting.
-    .add(disableMintingBuilder({
-      mint: mint.publicKey,
-      mintAuthority,
-      tokenProgram,
-      instructionKey: disableMintingInstructionKey,
     }));
 }
