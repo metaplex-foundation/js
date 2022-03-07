@@ -21,7 +21,7 @@ export class Account<T> implements AccountInfo<T> {
   }
 
   static parseAccountInfo<T>(accountInfo: AccountInfo<Buffer>, accountData: GeneratedAccountData<T>): Account<T> {
-    return new Account<T>({
+    return new this<T>({
       ...accountInfo,
       data: accountData.fromAccountInfo(accountInfo)[0],
     })
