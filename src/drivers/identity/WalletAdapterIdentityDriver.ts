@@ -56,6 +56,6 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     signers: Signer[],
     options?: SendOptions,
   ): Promise<TransactionSignature> {
-    return this.walletAdapter.sendTransaction(transaction, this.metaplex.connection, { signers, ...options })
+    return this.walletAdapter.sendTransaction(transaction, this.metaplex.connection, { signers, ...options });
   };
 }

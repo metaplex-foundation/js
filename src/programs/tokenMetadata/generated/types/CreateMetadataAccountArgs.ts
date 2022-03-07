@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as definedTypes from '.';
+import { Data, dataBeet } from './Data';
 import * as beet from '@metaplex-foundation/beet';
 export type CreateMetadataAccountArgs = {
-  data: definedTypes.Data;
+  data: Data;
   isMutable: boolean;
 };
 
@@ -18,7 +18,7 @@ export type CreateMetadataAccountArgs = {
  */
 export const createMetadataAccountArgsBeet = new beet.FixableBeetArgsStruct<CreateMetadataAccountArgs>(
   [
-    ['data', definedTypes.dataBeet],
+    ['data', dataBeet],
     ['isMutable', beet.bool],
   ],
   'CreateMetadataAccountArgs',
