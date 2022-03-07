@@ -4,6 +4,7 @@ import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
 import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers";
 import { Signer, getSignerHistogram } from "@/utils";
+import { NftClient } from "./modules";
 
 export interface MetaplexOptions {
   // identity?: IdentityDriver,
@@ -53,6 +54,10 @@ export class Metaplex {
 
   useGuestIdentity() {
     return this.setIdentity(new GuestIdentityDriver(this));
+  }
+
+  nfts() {
+    return new NftClient(this);
   }
 
   async sendTransaction(
