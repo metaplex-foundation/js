@@ -4,6 +4,7 @@ import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata"
 import { TokenStandard, Collection, Uses, Creator } from "@/programs/tokenMetadata/generated";
 import { bignum } from "@metaplex-foundation/beet";
 import { JsonMetadata } from "./JsonMetadata";
+import { removeEmptyChars } from "@/utils";
 
 export class Nft extends Model {
 
@@ -47,9 +48,9 @@ export class Nft extends Model {
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
-    this.name = metadataAccount.data.data.name;
-    this.symbol = metadataAccount.data.data.symbol;
-    this.uri = metadataAccount.data.data.uri;
+    this.name = removeEmptyChars(metadataAccount.data.data.name);
+    this.symbol = removeEmptyChars(metadataAccount.data.data.symbol);
+    this.uri = removeEmptyChars(metadataAccount.data.data.uri);
     this.sellerFeeBasisPoints = metadataAccount.data.data.sellerFeeBasisPoints;
     this.creators = metadataAccount.data.data.creators;
     this.primarySaleHappened = metadataAccount.data.primarySaleHappened;
