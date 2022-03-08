@@ -2,7 +2,8 @@ import { AccountInfo, Commitment, ConfirmOptions, Connection, Keypair, PublicKey
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
-import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers";
+import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers/identity";
+import { StorageDriver, BundlrStorageDriver } from "@/drivers/storage";
 import { Signer, getSignerHistogram } from "@/utils";
 import { NftClient } from "./modules";
 
@@ -24,10 +25,14 @@ export class Metaplex {
   /** Encapsulates the identity of the users interacting with the SDK. */
   protected identityDriver: IdentityDriver;
 
+  /** Encapsulates where assets should be uploaded. */
+  protected storageDriver: StorageDriver;
+
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
+    this.storageDriver = new BundlrStorageDriver(this);
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {
@@ -36,6 +41,10 @@ export class Metaplex {
 
   identity() {
     return this.identityDriver;
+  }
+
+  storage() {
+    return this.storageDriver;
   }
 
   setIdentity(identity: IdentityDriver) {
