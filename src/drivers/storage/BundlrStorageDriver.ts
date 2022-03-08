@@ -2,6 +2,7 @@ import NodeBundlr, { WebBundlr } from "@bundlr-network/client";
 import { Metaplex } from "@/Metaplex";
 import { StorageDriver } from "./StorageDriver";
 import { MetaplexFile } from "../filesystem/MetaplexFile";
+import BN from "bn.js";
 
 export interface BundlrOptions {
   address?: string;
@@ -16,6 +17,13 @@ export class BundlrStorageDriver extends StorageDriver {
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
     this.options = options;
+  }
+
+  public async getPrice(file: MetaplexFile): Promise<BN> {
+    const bundlr = await this.getBundlr();
+    const price = await bundlr.getPrice(file.toBuffer().length);
+
+    return new BN(price.toString());
   }
 
   public async upload(file: MetaplexFile): Promise<string> {

@@ -43,7 +43,7 @@
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
-    "@bundlr-network/client": "^0.5.17",
+    "@bundlr-network/client": "^0.5.18",
     "@metaplex-foundation/mpl-core": "^0.0.4",
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
