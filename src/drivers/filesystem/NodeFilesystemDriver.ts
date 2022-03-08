@@ -1,6 +1,6 @@
 import { readFile, lstat } from "fs/promises";
 import { FilesystemDriver } from "./FilesystemDriver";
-import { File } from "./File";
+import { MetaplexFile } from "./MetaplexFile";
 
 export class NodeFilesystemDriver extends FilesystemDriver {
 
@@ -32,6 +32,6 @@ export class NodeFilesystemDriver extends FilesystemDriver {
   }
 
   public async read(path: string) {
-    return new File(await readFile(path));
+    return new MetaplexFile(await readFile(path));
   }
 }

@@ -1,7 +1,7 @@
 import NodeBundlr, { WebBundlr } from "@bundlr-network/client";
 import { Metaplex } from "@/Metaplex";
 import { StorageDriver } from "./StorageDriver";
-import { File } from "../filesystem/File";
+import { MetaplexFile } from "../filesystem/MetaplexFile";
 
 export interface BundlrOptions {
   address?: string;
@@ -18,7 +18,7 @@ export class BundlrStorageDriver extends StorageDriver {
     this.options = options;
   }
 
-  public async upload(file: File): Promise<string> {
+  public async upload(file: MetaplexFile): Promise<string> {
     const bundlr = await this.getBundlr();
     const price = await bundlr.getPrice(file.toBuffer().length);
     await bundlr.fund(price);

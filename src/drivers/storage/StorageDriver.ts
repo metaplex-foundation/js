@@ -1,6 +1,6 @@
 import { Driver } from "../Driver";
-import { File } from "../filesystem/File";
+import { MetaplexFile } from "../filesystem/MetaplexFile";
 
 export abstract class StorageDriver extends Driver {
-  public abstract upload(file: File): Promise<string>;
+  public abstract upload(file: MetaplexFile): Promise<string>;
 }
