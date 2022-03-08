@@ -1,6 +1,6 @@
 {
-  "name": "@metaplex/js-next",
-  "version": "5.0.0-alpha.1",
+  "name": "@lorisleiva/js-next-alpha",
+  "version": "0.1.0",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
