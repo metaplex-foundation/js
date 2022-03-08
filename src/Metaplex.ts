@@ -1,4 +1,4 @@
-import { AccountInfo, Commitment, ConfirmOptions, Connection, Keypair, PublicKey, RpcResponseAndContext, SendOptions, SignatureResult, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountInfo, Commitment, ConfirmOptions, Connection, ConnectionConfig, Keypair, PublicKey, RpcResponseAndContext, SendOptions, SignatureResult, Transaction, TransactionSignature } from "@solana/web3.js";
 import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
@@ -7,7 +7,7 @@ import { StorageDriver, BundlrStorageDriver } from "@/drivers/storage";
 import { Signer, getSignerHistogram } from "@/utils";
 import { NftClient } from "./modules";
 
-export interface MetaplexOptions {
+export type MetaplexOptions = ConnectionConfig & {
   // identity?: IdentityDriver,
   // storage?: StorageDriver,
   // filesystem?: FilesystemDriver,
@@ -15,6 +15,9 @@ export interface MetaplexOptions {
 }
 
 export class Metaplex {
+
+  /** The RPC endpoint to use to communicate to the blockchain. */
+  public readonly endpoint: string;
 
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection;
@@ -28,15 +31,16 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
-  constructor(connection: Connection, options: MetaplexOptions = {}) {
-    this.connection = connection;
+  constructor(endpoint: string, options: MetaplexOptions = {}) {
+    this.endpoint = endpoint;
+    this.connection = new Connection(endpoint, options);
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
   }
 
-  static make(connection: Connection, options: MetaplexOptions = {}) {
-    return new this(connection, options);
+  static make(endpoint: string, options: MetaplexOptions = {}) {
+    return new this(endpoint, options);
   }
 
   identity() {

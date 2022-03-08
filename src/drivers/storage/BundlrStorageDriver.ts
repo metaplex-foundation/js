@@ -16,7 +16,10 @@ export class BundlrStorageDriver extends StorageDriver {
 
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
-    this.options = options;
+    this.options = {
+      providerUrl: metaplex.endpoint,
+      ...options,
+    };
   }
 
   public async getPrice(file: MetaplexFile): Promise<BN> {
