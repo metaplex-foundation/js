@@ -40,6 +40,7 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
+    "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
@@ -51,6 +52,7 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
+    "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
