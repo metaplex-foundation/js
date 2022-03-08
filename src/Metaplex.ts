@@ -47,10 +47,6 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  storage() {
-    return this.storageDriver;
-  }
-
   setIdentity(identity: IdentityDriver) {
     this.identityDriver = identity;
 
@@ -67,6 +63,16 @@ export class Metaplex {
 
   useGuestIdentity() {
     return this.setIdentity(new GuestIdentityDriver(this));
+  }
+
+  storage() {
+    return this.storageDriver;
+  }
+
+  setStorage(storage: StorageDriver) {
+    this.storageDriver = storage;
+
+    return this;
   }
 
   nfts() {
