@@ -1,11 +1,21 @@
 import { PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from '@solana/web3.js';
 import { MessageSignerWalletAdapterProps, SignerWalletAdapterProps, WalletAdapter as BaseWalletAdapter } from '@solana/wallet-adapter-base';
 import { IdentityDriver } from './IdentityDriver';
+import { GuestIdentityDriver } from './GuestIdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
 type WalletAdapter = BaseWalletAdapter
   & Partial<MessageSignerWalletAdapterProps>
   & Partial<SignerWalletAdapterProps>;
+
+export const walletAdapterIdentity = (walletAdapter: WalletAdapter) => 
+  (metaplex: Metaplex) => new WalletAdapterIdentityDriver(metaplex, walletAdapter);
+
+export const walletOrGuestIdentity = (walletAdapter: WalletAdapter | null | undefined) => (metaplex: Metaplex) => {
+  return walletAdapter
+    ? new WalletAdapterIdentityDriver(metaplex, walletAdapter)
+    : new GuestIdentityDriver(metaplex);
+};
 
 export class WalletAdapterIdentityDriver extends IdentityDriver {
   public readonly walletAdapter: WalletAdapter;

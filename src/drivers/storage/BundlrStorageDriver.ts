@@ -10,6 +10,9 @@ export interface BundlrOptions {
   providerUrl?: string;
 }
 
+export const bundlrStorage = (options: BundlrOptions = {}) => 
+  (metaplex: Metaplex) => new BundlrStorageDriver(metaplex, options);
+
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;
   protected options: BundlrOptions;

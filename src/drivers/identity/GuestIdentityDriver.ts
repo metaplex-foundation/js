@@ -2,6 +2,9 @@ import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } fro
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
+export const guestIdentity = () => 
+  (metaplex: Metaplex) => new GuestIdentityDriver(metaplex);
+
 export class GuestIdentityDriver extends IdentityDriver {
   public readonly publicKey: PublicKey;
 

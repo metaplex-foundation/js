@@ -1,17 +1,16 @@
-import { AccountInfo, Commitment, ConfirmOptions, Connection, ConnectionConfig, Keypair, PublicKey, RpcResponseAndContext, SendOptions, SignatureResult, Transaction, TransactionSignature } from "@solana/web3.js";
-import { SignerWalletAdapter } from "@solana/wallet-adapter-base";
+import { AccountInfo, Commitment, ConfirmOptions, Connection, ConnectionConfig, PublicKey, RpcResponseAndContext, SendOptions, SignatureResult, Transaction, TransactionSignature } from "@solana/web3.js";
 import { Buffer } from 'buffer';
 import { TransactionBuilder } from "@/programs/shared";
-import { IdentityDriver, GuestIdentityDriver, KeypairIdentityDriver, WalletAdapterIdentityDriver } from "@/drivers/identity";
+import { IdentityDriver, GuestIdentityDriver } from "@/drivers/identity";
 import { StorageDriver, BundlrStorageDriver } from "@/drivers/storage";
 import { Signer, getSignerHistogram } from "@/utils";
 import { NftClient } from "./modules";
+import { Driver } from "./drivers/Driver";
+
+export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
 export type MetaplexOptions = ConnectionConfig & {
-  // identity?: IdentityDriver,
-  // storage?: StorageDriver,
-  // filesystem?: FilesystemDriver,
-  // rateConverter?: RateConverterDriver,
+  // ...
 }
 
 export class Metaplex {
@@ -47,30 +46,18 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver) {
-    this.identityDriver = identity;
+  setIdentity(identity: IdentityDriver | DriverInstaller<IdentityDriver>) {
+    this.identityDriver = identity instanceof IdentityDriver ? identity : identity(this);
 
     return this;
-  }
-
-  useKeypairIdentity(keypair: Keypair) {
-    return this.setIdentity(new KeypairIdentityDriver(this, keypair));
-  }
-
-  useWalletAdapterIdentity(walletAdapter: SignerWalletAdapter) {
-    return this.setIdentity(new WalletAdapterIdentityDriver(this, walletAdapter));
-  }
-
-  useGuestIdentity() {
-    return this.setIdentity(new GuestIdentityDriver(this));
   }
 
   storage() {
     return this.storageDriver;
   }
 
-  setStorage(storage: StorageDriver) {
-    this.storageDriver = storage;
+  setStorage(storage: StorageDriver | DriverInstaller<StorageDriver>) {
+    this.storageDriver = storage instanceof StorageDriver ? storage : storage(this);
 
     return this;
   }
