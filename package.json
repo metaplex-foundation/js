@@ -28,7 +28,7 @@
   "scripts": {
     "dev": "rollup -c --watch",
     "build": "rimraf dist && rollup -c",
-    "test": "tape test/**/*.test.js"
+    "test": "tape -r ./node_modules/esbuild-runner/lib/register test/**/*.test.ts"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.6.1-rc1",
@@ -61,7 +61,10 @@
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.3",
+    "@types/tape": "^4.13.2",
     "@zerollup/ts-transform-paths": "^1.7.18",
+    "esbuild": "^0.14.27",
+    "esbuild-runner": "^2.2.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.69.0",
     "rollup-plugin-terser": "^7.0.2",
