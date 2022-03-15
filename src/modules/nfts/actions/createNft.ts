@@ -6,12 +6,15 @@ import { createNftBuilder } from "../transactionBuilders";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Creator, Collection, Uses } from "@/programs/tokenMetadata/generated";
 import { Signer } from "@/utils";
+import { JsonMetadata } from "../models/JsonMetadata";
+import { MetaplexFile } from "@/drivers/Filesystem/MetaplexFile";
 
 export interface CreateNftParams {
   // Data.
   name: string;
   symbol?: string;
-  uri: string;
+  uri?: string;
+  json?: JsonMetadata;
   sellerFeeBasisPoints?: number;
   creators?: Creator[];
   collection?: Collection;
@@ -47,7 +50,6 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
   const {
     name,
     symbol = '',
-    uri,
     sellerFeeBasisPoints = 500,
     creators = null,
     collection = null,
@@ -65,10 +67,12 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     associatedTokenProgram,
   } = params;
 
+  const resolvedUri = await getUri(metaplex, params);
+
   const data = {
     name,
     symbol,
-    uri,
+    uri: resolvedUri,
     sellerFeeBasisPoints,
     creators,
     collection,
@@ -112,3 +116,21 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     associatedToken,
   };
 }
+
+export const getUri = async (metaplex: Metaplex, params: CreateNftParams): Promise<string> => {
+  if (params.uri) {
+    return params.uri;
+  }
+
+  if (params.json) {
+    return metaplex.storage().upload(new MetaplexFile(JSON.stringify(params.json)));
+  }
+
+  const json: JsonMetadata = {
+    name: params.name,
+    creators: params.creators,
+    //
+  };
+
+  return metaplex.storage().upload(new MetaplexFile(JSON.stringify(json)));
+};
