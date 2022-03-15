@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/js-next-alpha",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -30,7 +30,7 @@
     "build": "rimraf dist && rollup -c"
   },
   "dependencies": {
-    "@bundlr-network/client": "^0.6.0-rc1",
+    "@bundlr-network/client": "^0.6.1-rc1",
     "@metaplex-foundation/beet": "^0.1.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
     "@metaplex-foundation/mpl-core": "^0.0.4",
@@ -44,7 +44,7 @@
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
-    "@bundlr-network/client": "^0.6.0-rc1",
+    "@bundlr-network/client": "^0.6.1-rc1",
     "@metaplex-foundation/mpl-core": "^0.0.4",
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
