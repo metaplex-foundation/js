@@ -8,7 +8,8 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 
 	// And we uploaded some metadata somewhere.
 	const uri = await mx.storage().uploadJson({
-		name: 'JSON NFT name'
+		name: 'JSON NFT name',
+		description: 'JSON NFT description',
 	})
 
 	// When we create a new NFT with minimum configuration.
@@ -24,9 +25,19 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 		uri: uri,
 		json: {
 			name: 'JSON NFT name',
+			description: 'JSON NFT description',
 		},
 		sellerFeeBasisPoints: 500,
 		primarySaleHappened: false,
 		updateAuthority: spokSamePubkey(mx.identity().publicKey),
+		creators: [
+			{
+				address: spokSamePubkey(mx.identity().publicKey),
+				share: 100,
+				verified: true,
+			},
+		],
+		collection: null,
+		uses: null,
 	});
 });
