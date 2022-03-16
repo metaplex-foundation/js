@@ -10,7 +10,7 @@ import { JsonMetadata } from "../models/JsonMetadata";
 
 export interface CreateNftParams {
   // Data.
-  name: string;
+  name?: string;
   symbol?: string;
   uri?: string;
   json?: JsonMetadata;
@@ -159,7 +159,7 @@ const resolveData = (metaplex: Metaplex, params: CreateNftParams, uri: string, j
   }
   
   return {
-    name: params.name,
+    name: params.name ?? json.name ?? '',
     symbol: params.symbol ?? json.symbol ?? '',
     uri,
     sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? json.seller_fee_basis_points ?? 500,
