@@ -24,8 +24,8 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
     transaction.feePayer = this.publicKey;
-    // TODO: Fix Transaction recentBlockhash required when uncommented.
-    // transaction.partialSign(this.keypair);
+    // TODO: Handle Transaction recentBlockhash required.
+    transaction.partialSign(this.keypair);
 
     return transaction;
   };
@@ -39,7 +39,9 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
     signers: Signer[],
     options?: SendOptions,
   ): Promise<TransactionSignature> {
+    transaction.feePayer = this.publicKey;
+
     return this.metaplex.connection
-      .sendTransaction(await this.signTransaction(transaction), signers, options);
+      .sendTransaction(transaction, [this.keypair, ...signers], options);
   }
 }
