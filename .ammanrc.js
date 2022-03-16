@@ -2,7 +2,7 @@ const { LOCALHOST, tmpLedgerDir } = require('@metaplex-foundation/amman');
 const path = require('path');
 
 function localDeployPath(programName) {
-  return path.join(__dirname, '..', 'target', 'deploy', `${programName}.so`);
+  return path.join(__dirname, '..', 'metaplex-program-library', 'target', 'deploy', `${programName}.so`);
 }
 
 const programIds = {
@@ -14,9 +14,9 @@ const programIds = {
   candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ'
 };
 
-const programs = {
-  metadata: { programId: programIds.metadata, deployPath: localDeployPath('mpl_token_metadata') },
-};
+const programs = [
+  { programId: programIds.metadata, deployPath: localDeployPath('mpl_token_metadata') },
+];
 
 module.exports = {
   validator: {

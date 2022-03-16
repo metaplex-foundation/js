@@ -26,7 +26,7 @@ export interface CreateNftBuilderParams {
   metadata: PublicKey;
   masterEdition: PublicKey;
 
-   // Programs.
+  // Programs.
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
 
