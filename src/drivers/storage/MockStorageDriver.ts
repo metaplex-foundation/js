@@ -14,8 +14,7 @@ export class mockStorageDriver extends StorageDriver {
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
-    const hash = (Math.random() + 1).toString(36).substring(7);
-    const uri = `https://mockstorage.example.com/${hash}`;
+    const uri = `https://mockstorage.example.com/${this.getHash()}`;
     this.cache[uri] = file;
 
     return uri;
@@ -35,5 +34,16 @@ export class mockStorageDriver extends StorageDriver {
     const file = await this.download(uri);
 
     return JSON.parse(file.toString());
+  }
+
+  protected getHash (length: number = 20) {
+    let result = '';
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const alphabetLength = alphabet.length;
+    for (var i = 0; i < length; i++) {
+      result += alphabet.charAt(Math.floor(Math.random() * alphabetLength));
+   }
+
+   return result;
   }
 }

@@ -1,7 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
-import { Nft } from "../models";
+import { JsonMetadata, Nft } from "../models";
 import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
 import { Metaplex } from "@/Metaplex";
+import { removeEmptyChars } from "@/utils";
 
 export interface FindNftParams {
   mint?: PublicKey,
@@ -33,5 +34,15 @@ export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Prom
     throw new Error('Nft not found');
   }
 
-  return new Nft(metadata, edition, await metadata.getJson());
+  return new Nft(metadata, edition, await fetchJsonMetadata(metaplex, metadata));
+}
+
+const fetchJsonMetadata = async (metaplex: Metaplex, metadata: MetadataAccount): Promise<JsonMetadata | null> => {
+  try {
+    const uri = removeEmptyChars(metadata.data.data.uri);
+
+    return metaplex.storage().downloadJson<JsonMetadata>(uri);
+  } catch (error) {
+    return null;  
+  }
 }

@@ -22,7 +22,9 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 		$topic: 'Created NFT',
 		name: 'On-chain NFT name',
 		uri: uri,
-		json: null,
+		json: {
+			name: 'JSON NFT name',
+		},
 		sellerFeeBasisPoints: 500,
 		primarySaleHappened: false,
 		updateAuthority: spokSamePubkey(mx.identity().publicKey),
