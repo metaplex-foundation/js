@@ -61,7 +61,7 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
   } = params;
 
   const [uri, json] = await resolveUriAndJson(metaplex, params);
-  const data = resolveData(metaplex, params, uri, json);
+  const data = resolveData(params, uri, json, updateAuthority.publicKey);
 
   const metadata = await MetadataAccount.pda(mint.publicKey);
   const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
@@ -131,7 +131,7 @@ const resolveUriAndJson = async (metaplex: Metaplex, params: CreateNftParams): P
   return [uri, json];
 };
 
-const resolveData = (metaplex: Metaplex, params: CreateNftParams, uri: string, json: JsonMetadata): DataV2 => {
+const resolveData = (params: CreateNftParams, uri: string, json: JsonMetadata, updateAuthority: PublicKey): DataV2 => {
   const jsonCreators: Creator[] | undefined = json.properties?.creators
     ?.filter(creator => creator.address)
     .map(creator => ({
@@ -144,13 +144,13 @@ const resolveData = (metaplex: Metaplex, params: CreateNftParams, uri: string, j
 
   if (creators === null) {
     creators = [{
-      address: metaplex.identity().publicKey,
+      address: updateAuthority,
       share: 100,
       verified: true,
     }]
   } else {
     creators = creators.map(creator => {
-      if (creator.address.toBase58() === metaplex.identity().publicKey.toBase58()) {
+      if (creator.address.toBase58() === updateAuthority.toBase58()) {
         return { ...creator, verified: true };
       } else {
         return creator;

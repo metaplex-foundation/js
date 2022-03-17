@@ -1,8 +1,9 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
-import { metaplex, spokSamePubkey } from '../../utils';
+import { metaplex, spokSamePubkey, spokSameBignum } from '../../utils';
 import { JsonMetadata, MetaplexFile } from '../../../src';
 import { Keypair } from '@solana/web3.js';
+import { UseMethod } from '../../../src/programs/tokenMetadata/generated'
 
 test('it can create an NFT with minimum configuration', async (t: Test) => {
 	// Given we have a Metaplex instance.
@@ -47,6 +48,103 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 		],
 		collection: null,
 		uses: null,
+	});
+});
+
+test.only('it can create an NFT with maximum configuration', async (t: Test) => {
+	// Given we have a Metaplex instance.
+	const mx = await metaplex();
+
+	// And we uploaded an image.
+	const imageFile = new MetaplexFile('some_image');
+	const imageUri = await mx.storage().upload(imageFile);
+
+	// And a various keypairs for different access.
+	const mint = Keypair.generate();
+	const collection = Keypair.generate();
+	const owner = Keypair.generate();
+	const mintAuthority = Keypair.generate();
+	const updateAuthority = Keypair.generate();
+	const freezeAuthority = Keypair.generate();
+	const otherCreator = Keypair.generate();
+
+	// When we create a new NFT with minimum configuration.
+	const nft = await mx.nfts().createNft({
+		name: 'On-chain NFT name',
+		symbol: 'MYNFT',
+		json: {
+			name: 'JSON NFT name',
+			description: 'JSON NFT description',
+			image: imageUri,
+		},
+		sellerFeeBasisPoints: 456,
+		isMutable: true,
+		maxSupply: 123,
+		mint: mint,
+		payer: mx.identity(),
+		mintAuthority: mintAuthority,
+		updateAuthority: updateAuthority,
+		owner: owner.publicKey,
+		// freezeAuthority: freezeAuthority.publicKey,
+		collection: {
+			verified: false,
+			key: collection.publicKey,
+		},
+		uses: {
+			useMethod: UseMethod.Burn,
+			remaining: 0,
+			total: 1000,
+		},
+		creators: [
+			{
+				address: updateAuthority.publicKey,
+				share: 60,
+				verified: true,
+			},
+			{
+				address: otherCreator.publicKey,
+				share: 40,
+				verified: false,
+			},
+		],
+	});
+
+	// Then we created and retrieved the new NFT and it has appropriate defaults.
+	console.log(nft);
+	spok(t, nft, {
+		$topic: 'Created NFT',
+		name: 'On-chain NFT name',
+		uri: spok.string,
+		json: {
+			name: 'JSON NFT name',
+			description: 'JSON NFT description',
+			image: imageUri,
+		},
+		sellerFeeBasisPoints: 456,
+		primarySaleHappened: false,
+		updateAuthority: spokSamePubkey(updateAuthority.publicKey),
+		// freezeAuthority: spokSamePubkey(freezeAuthority.publicKey),
+		collection: {
+			verified: false,
+			key: spokSamePubkey(collection.publicKey),
+		},
+		uses: {
+			useMethod: UseMethod.Burn,
+			remaining: spokSameBignum(0),
+			total: spokSameBignum(1000),
+		},
+		creators: [
+			{
+				address: spokSamePubkey(updateAuthority.publicKey),
+				share: 60,
+				verified: true,
+			},
+			{
+				address: spokSamePubkey(otherCreator.publicKey),
+				share: 40,
+				verified: false,
+			},
+		],
 	});
 });
 
