@@ -28,7 +28,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 
 	// Then we created and retrieved the new NFT and it has appropriate defaults.
 	spok(t, nft, {
-		$topic: 'Created NFT',
+		$topic: 'nft',
 		name: 'On-chain NFT name',
 		uri: metadataUri,
 		json: {
@@ -51,7 +51,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 	});
 });
 
-test.only('it can create an NFT with maximum configuration', async (t: Test) => {
+test('it can create an NFT with maximum configuration', async (t: Test) => {
 	// Given we have a Metaplex instance.
 	const mx = await metaplex();
 
@@ -85,7 +85,9 @@ test.only('it can create an NFT with maximum configuration', async (t: Test) => 
 		mintAuthority: mintAuthority,
 		updateAuthority: updateAuthority,
 		owner: owner.publicKey,
-		// freezeAuthority: freezeAuthority.publicKey,
+		// Must be the same as mint authority.
+		// https://github.com/metaplex-foundation/metaplex-program-library/blob/c0bf49d416d6aaf5aa9db999343b20be720df67a/token-metadata/program/src/utils.rs#L346
+		freezeAuthority: mintAuthority.publicKey,
 		collection: {
 			verified: false,
 			key: collection.publicKey,
@@ -110,9 +112,8 @@ test.only('it can create an NFT with maximum configuration', async (t: Test) => 
 	});
 
 	// Then we created and retrieved the new NFT and it has appropriate defaults.
-	console.log(nft);
 	spok(t, nft, {
-		$topic: 'Created NFT',
+		$topic: 'nft',
 		name: 'On-chain NFT name',
 		uri: spok.string,
 		json: {
@@ -123,7 +124,6 @@ test.only('it can create an NFT with maximum configuration', async (t: Test) => 
 		sellerFeeBasisPoints: 456,
 		primarySaleHappened: false,
 		updateAuthority: spokSamePubkey(updateAuthority.publicKey),
-		// freezeAuthority: spokSamePubkey(freezeAuthority.publicKey),
 		collection: {
 			verified: false,
 			key: spokSamePubkey(collection.publicKey),
@@ -188,7 +188,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 
 	// Then the created NFT used some of the JSON metadata to fill some on-chain data.
 	spok(t, nft, {
-		$topic: 'NFT created using JSON metadata only',
+		$topic: 'nft',
 		name: 'JSON NFT name',
 		symbol: 'MYNFT',
 		uri: spok.string,
@@ -249,7 +249,7 @@ test('it creates missing JSON metadata from the on-chain data', async (t: Test) 
 
 	// Then the NFT created used some of the on-chain data to create and upload some JSON metadata.
 	spok(t, nft, {
-		$topic: 'NFT created without explicit metadata',
+		$topic: 'nft',
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
 		uri: spok.string,
@@ -276,8 +276,8 @@ test('it creates missing JSON metadata from the on-chain data', async (t: Test) 
 		},
 		sellerFeeBasisPoints: 456,
 		creators: creators.map(creator => ({
-			address: spokSamePubkey(creator.address),
 			...creator,
+			address: spokSamePubkey(creator.address),
 		})),
 	});
 });
