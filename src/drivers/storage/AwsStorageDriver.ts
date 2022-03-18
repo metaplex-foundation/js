@@ -31,9 +31,9 @@ export class AwsStorageDriver extends StorageDriver {
     });
 
     try {
-      const data = await this.client.send(command);
-      console.log("Success", data);
-      return this.getUrl(key);
+      await this.client.send(command);
+
+      return await this.getUrl(key);
     } catch (err) {
       // TODO: Custom errors.
       throw err;
