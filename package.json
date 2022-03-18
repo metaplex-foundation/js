@@ -31,6 +31,7 @@
     "test": "tape -r ./node_modules/esbuild-runner/lib/register test/**/*.test.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.54.1",
     "@bundlr-network/client": "^0.6.1-rc1",
     "@metaplex-foundation/beet": "^0.1.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
@@ -45,6 +46,7 @@
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
+    "@aws-sdk/client-s3": "^3.54.1",
     "@bundlr-network/client": "^0.6.1-rc1",
     "@metaplex-foundation/mpl-core": "^0.0.4",
     "@solana/spl-token": "^0.2.0",
