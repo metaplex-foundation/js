@@ -23,13 +23,7 @@ export abstract class StorageDriver extends Driver {
     const response = await fetch(uri);
     const buffer = await response.arrayBuffer();
 
-    // Identify content type and extension.
-    const { fileTypeFromBuffer } = await import('file-type');
-    const fileType = await fileTypeFromBuffer(buffer);
-    const options = fileType ? { contentType: fileType.mime, extension: fileType.ext } : {};
-    const filename = fileType ? `downloaded.${fileType.ext}` : 'downloaded';
-
-    return new MetaplexFile(await response.arrayBuffer(), filename, options);
+    return new MetaplexFile(buffer, uri);
   }
 
   public async downloadJson<T extends object>(uri: string): Promise<T> {

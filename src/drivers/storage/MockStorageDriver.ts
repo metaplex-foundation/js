@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Metaplex } from "@/Metaplex";
-import { randomStr } from "@/utils";
 import { MetaplexFile } from "../filesystem/MetaplexFile";
 import { StorageDriver } from "./StorageDriver";
 

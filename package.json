@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/js-next-alpha",
-  "version": "0.1.15",
+  "version": "0.1.17",
   "type": "module",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
@@ -47,7 +47,6 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
-    "file-type": "^17.1.1",
     "mime": "^3.0.0",
     "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
