@@ -1,25 +1,35 @@
 {
+  "include": ["src", "types"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
-    "strict": true,
+    "target": "es2019",
+    "module": "esnext",
+    "outDir": "dist/esm",
+    "declarationDir": "dist/types",
+    "noEmit": false,
     "declaration": true,
     "sourceMap": true,
-    "resolveJsonModule": true,
+    "noEmitOnError": true,
+    "stripInternal": true,
+    "moduleResolution": "node",
+    "strict": true,
     "esModuleInterop": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "plugins": [{ "transform": "@zerollup/ts-transform-paths" }],
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "transform": "@ovos-media/ts-transform-paths",
+        "exclude": ["*"]
+      }
+    ],
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "build", "lib"]
+  "typedocOptions": {
+    "entryPoints": "src/index.ts",
+    "out": "docs",
+    "readme": "README.md"
+  }
 }

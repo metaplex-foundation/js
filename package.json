@@ -1,17 +1,22 @@
 {
   "name": "@lorisleiva/js-next-alpha",
-  "version": "0.1.12",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.esm.js",
-  "types": "./dist/index.d.ts",
-  "browser": {
-    "./dist/index.cjs.js": "./dist/index.browser.esm.js",
-    "./dist/index.esm.js": "./dist/index.browser.esm.js"
+  "version": "0.1.13",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
   },
   "files": [
     "/dist",
     "/src"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "description": "Metaplex JavaScript SDK",
   "keywords": [
@@ -26,8 +31,8 @@
     "url": "https://github.com/metaplex/js-next.git"
   },
   "scripts": {
-    "dev": "rollup -c --watch",
-    "build": "rimraf dist && rollup -c",
+    "clean": "rimraf dist",
+    "build": "yarn clean && ttsc -p tsconfig.json && ttsc -p tsconfig.cjs.json",
     "test": "tape -r ./node_modules/esbuild-runner/lib/register test/**/*.test.ts"
   },
   "dependencies": {
@@ -60,6 +65,7 @@
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.1.0",
+    "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.3",
