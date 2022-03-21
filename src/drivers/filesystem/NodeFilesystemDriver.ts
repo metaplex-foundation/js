@@ -32,6 +32,6 @@ export class NodeFilesystemDriver extends FilesystemDriver {
   }
 
   public async read(path: string) {
-    return new MetaplexFile(await readFile(path));
+    return new MetaplexFile(await readFile(path), path);
   }
 }
