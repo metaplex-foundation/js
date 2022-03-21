@@ -3,6 +3,7 @@ import { Metaplex } from "@/Metaplex";
 import { StorageDriver } from "./StorageDriver";
 import { MetaplexFile } from "../filesystem/MetaplexFile";
 import BN from "bn.js";
+import { WalletAdapterIdentityDriver } from "../identity/WalletAdapterIdentityDriver";
 
 export interface BundlrOptions {
   address?: string;
@@ -57,10 +58,14 @@ export class BundlrStorageDriver extends StorageDriver {
 
     const currency = "solana";
     const address = this.options?.address ?? "https://node1.bundlr.network";
-    const bundlr = new WebBundlr(address, currency, this.metaplex.identity(), {
+    const options = {
       timeout: this.options.timeout,
       providerUrl: this.options.providerUrl,
-    });
+    };
+
+    const bundlr = this.metaplex.identity() instanceof WalletAdapterIdentityDriver
+      ? new WebBundlr(address, currency, this.metaplex.identity(), options)
+      : new NodeBundlr(address, currency, this.metaplex.identity(), options);
 
     try {
       // Check for valid bundlr node.
@@ -70,16 +75,18 @@ export class BundlrStorageDriver extends StorageDriver {
       throw new Error(`Failed to connect to bundlr ${address}.`);
     }
 
-    try {
-      // Try to initiate bundlr.
-      await bundlr.ready();
-    } catch (error) {
-      console.error(error);
-    }
-
-    if (!bundlr.address) {
-      // TODO: Custom errors.
-      throw new Error('Failed to initiate Bundlr.');
+    if (bundlr instanceof WebBundlr) {
+      try {
+        // Try to initiate bundlr.
+        await bundlr.ready();
+      } catch (error) {
+        console.error(error);
+      }
+  
+      if (!bundlr.address) {
+        // TODO: Custom errors.
+        throw new Error('Failed to initiate Bundlr.');
+      }
     }
 
     this.bundlr = bundlr;

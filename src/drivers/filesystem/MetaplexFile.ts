@@ -62,6 +62,6 @@ export class MetaplexFile {
   }
 
   toGlobalFile(): File {
-    return new File([this.buffer as BlobPart], 'foo');
+    return new File([this.buffer as BlobPart], this.fileName);
   }
 }

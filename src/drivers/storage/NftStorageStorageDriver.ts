@@ -22,7 +22,7 @@ export class NftStorageStorageDriver extends StorageDriver {
   public async upload(file: MetaplexFile): Promise<string> {
     const { url } = await this.nftStorage.store({
       image: file.toGlobalFile(),
-      name: 'Unknown',
+      name: file.displayName,
       description: 'Unknown',
     });
 
