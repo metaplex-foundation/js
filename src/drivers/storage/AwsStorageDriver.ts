@@ -22,18 +22,16 @@ export class AwsStorageDriver extends StorageDriver {
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
-    // TODO: Get from MetaplexFile (Default to random string).
-    const key = 'some-key';
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
-      Key: key,
+      Key: file.uniqueName,
       Body: file.toBuffer(),
     });
 
     try {
       await this.client.send(command);
 
-      return await this.getUrl(key);
+      return await this.getUrl(file.uniqueName);
     } catch (err) {
       // TODO: Custom errors.
       throw err;

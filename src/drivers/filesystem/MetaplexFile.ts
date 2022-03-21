@@ -6,7 +6,7 @@ export interface MetaplexFileOptions {
   uniqueName?: string;
   contentType?: string;
   extension?: string;
-  tags?: { key: string, value: string }[];
+  tags?: { name: string, value: string }[];
 }
 
 export class MetaplexFile {
@@ -16,7 +16,7 @@ export class MetaplexFile {
   public readonly uniqueName: string;
   public readonly contentType: string | null;
   public readonly extension: string | null;
-  public readonly tags: { key: string, value: string }[];
+  public readonly tags: { name: string, value: string }[];
 
   constructor(content: string | Buffer | Uint8Array | ArrayBuffer, fileName: string, options: MetaplexFileOptions = {}) {
     this.buffer = MetaplexFile.parseContent(content);
@@ -48,7 +48,7 @@ export class MetaplexFile {
     }
 
     return [
-      { key: 'Content-Type', value: this.contentType },
+      { name: 'Content-Type', value: this.contentType },
       ...this.tags,
     ];
   }

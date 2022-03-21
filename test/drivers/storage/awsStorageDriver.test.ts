@@ -24,7 +24,8 @@ test('it can upload assets to a S3 bucket', async (t: Test) => {
   mx.setStorage(awsStorage(awsClient, 'some-bucket'));
 
   // When we upload some content to AWS S3.
-  const uri = await mx.storage().upload(new MetaplexFile('some-image', 'some-image.jpg'));
+  const file = new MetaplexFile('some-image', 'some-image.jpg', { uniqueName: 'some-key' });
+  const uri = await mx.storage().upload(file);
 
   // Then we get the URL of the uploaded asset.
   t.equals(uri, 'https://s3.us-east.amazonaws.com/some-bucket/some-key');

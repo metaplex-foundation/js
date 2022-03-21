@@ -37,14 +37,17 @@ export class BundlrStorageDriver extends StorageDriver {
     const price = await bundlr.getPrice(file.toBuffer().length);
     await bundlr.fund(price);
 
-    // TODO: Add support for tags. E.g. "Content-Type".
-    const tags: { name: string, value: string }[] = [];
-    const { status, data } = await bundlr.uploader.upload(file.toBuffer(), tags);
+    const { status, data } = await bundlr.uploader.upload(
+      file.toBuffer(),
+      file.getTagsWithContentType(),
+    );
 
     if (status >= 300) {
       // TODO: Custom errors.
       throw new Error(`Failed to upload asset. Got status: ${status}.`);
     }
+
+    // TODO: withdraw any money left in the balance?
 
     return `https://arweave.net/${data.id}`;
   }
