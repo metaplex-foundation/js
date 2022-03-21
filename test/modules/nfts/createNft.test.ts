@@ -10,7 +10,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 	const mx = await metaplex();
 
 	// And we uploaded an image.
-	const imageFile = new MetaplexFile('some_image');
+	const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
 	const imageUri = await mx.storage().upload(imageFile);
 
 	// And we uploaded some metadata containing this image.
@@ -56,7 +56,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 	const mx = await metaplex();
 
 	// And we uploaded an image.
-	const imageFile = new MetaplexFile('some_image');
+	const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
 	const imageUri = await mx.storage().upload(imageFile);
 
 	// And a various keypairs for different access.
@@ -153,7 +153,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 	const mx = await metaplex();
 
 	// And an uploaded image.
-	const imageFile = new MetaplexFile('some_image');
+	const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
 	const imageUri = await mx.storage().upload(imageFile);
 
 	// And two other creators used in the JSON metadata.

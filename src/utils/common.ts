@@ -1,3 +1,5 @@
+import mime from 'mime';
+
 // eslint-disable-next-line no-control-regex
 export const removeEmptyChars = (value: string) => value.replace(/\u0000/g, '');
 
@@ -38,3 +40,24 @@ export const fetchJson = async <T>(uri: string): Promise<T | null> => {
     return null;
   }
 };
+
+export const randomStr = (
+  length: number = 20,
+  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+) => {
+  let result = '';
+  const alphabetLength = alphabet.length;
+  for (var i = 0; i < length; i++) {
+    result += alphabet.charAt(Math.floor(Math.random() * alphabetLength));
+ }
+
+ return result;
+}
+
+export const getContentType = (fileName: string): string | null => mime.getType(fileName);
+
+export const getExtension = (fileName: string): string | null => {
+  const lastDotIndex = fileName.lastIndexOf('.');
+
+  return lastDotIndex < 0 ? null : fileName.slice(lastDotIndex + 1);
+}

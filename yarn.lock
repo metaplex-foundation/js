@@ -897,10 +897,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@bundlr-network/client@^0.6.1-rc2":
-  version "0.6.1-rc4"
-  resolved "https://registry.npmjs.org/@bundlr-network/client/-/client-0.6.1-rc4.tgz"
-  integrity sha512-TnVJFTmJtgshJ0SK6hikdaDiEBM3Kh3TIJ2KH16061TBlZ3/jX2H1l0qZulF26pyI4nYgPiFfm0AdJA2zXpeWA==
+"@bundlr-network/client@^0.6.1-rc4":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@bundlr-network/client/-/client-0.6.1.tgz#5b4b0acb64f2671447b57fa21fa334d82a8c3c21"
+  integrity sha512-k6dTXnPDFtkLwTMVABKs9GUruS84k5TNCz5io7bYP5asAOP7l/PJ383sinHY58XRl1GbFxQ0c85blvj8ecKA/g==
   dependencies:
     "@solana/wallet-adapter-base" "^0.9.2"
     "@solana/web3.js" "^1.36.0"
@@ -1571,6 +1571,11 @@
   resolved "https://registry.npmjs.org/@supercharge/promise-pool/-/promise-pool-2.1.0.tgz"
   integrity sha512-YEKOfn4xF+DQ61UY5NwHNtr8hYjwchXjGTocVJDAHLQceIRZF8VECH7gumFbp+aGTfygPbMbEtBumXJ/mcJz+w==
 
+"@tokenizer/token@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@tokenizer/token/-/token-0.3.0.tgz#fe98a93fe789247e998c75e74e9c7c63217aa276"
+  integrity sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==
+
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"
   resolved "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.8.tgz"
@@ -1644,6 +1649,11 @@
   version "4.0.1"
   resolved "https://registry.npmjs.org/@types/long/-/long-4.0.1.tgz"
   integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
+
+"@types/mime@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
+  integrity sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==
 
 "@types/minimatch@^3.0.4":
   version "3.0.5"
@@ -2964,6 +2974,15 @@ figures@^3.0.0:
   dependencies:
     escape-string-regexp "^1.0.5"
 
+file-type@^17.1.1:
+  version "17.1.1"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-17.1.1.tgz#24c59bc663df0c0c181b31dfacde25e06431afbe"
+  integrity sha512-heRUMZHby2Qj6wZAA3YHeMlRmZNQTcb6VxctkGmM+mcM6ROQKvHpr7SS6EgdfEhH+s25LDshBjvPx/Ecm+bOVQ==
+  dependencies:
+    readable-web-to-node-stream "^3.0.2"
+    strtok3 "^7.0.0-alpha.7"
+    token-types "^5.0.0-alpha.2"
+
 file-uri-to-path@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz"
@@ -3917,6 +3936,11 @@ mime@^2.4.6:
   resolved "https://registry.npmjs.org/mime/-/mime-2.6.0.tgz"
   integrity sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==
 
+mime@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-3.0.0.tgz#b374550dca3a0c18443b0c950a6a58f1931cf7a7"
+  integrity sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==
+
 mimic-fn@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/mimic-fn/-/mimic-fn-2.1.0.tgz"
@@ -4304,6 +4328,11 @@ pause-stream@0.0.11:
   dependencies:
     through "~2.3"
 
+peek-readable@^5.0.0-alpha.5:
+  version "5.0.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/peek-readable/-/peek-readable-5.0.0-alpha.5.tgz#ace5dfedf7bc33f17c9b5170b9d54f69a4fba79b"
+  integrity sha512-pJohF/tDwV3ntnT5+EkUo4E700q/j/OCDuPxtM+5/kFGjyOai/sK4/We4Cy1MB2OiTQliWU5DxPvYIKQAdPqAA==
+
 process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
@@ -4416,6 +4445,13 @@ readable-stream@~2.3.6:
     safe-buffer "~5.1.1"
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
+
+readable-web-to-node-stream@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/readable-web-to-node-stream/-/readable-web-to-node-stream-3.0.2.tgz#5d52bb5df7b54861fd48d015e93a2cb87b3ee0bb"
+  integrity sha512-ePeK6cc1EcKLEhJFt/AebMCLL+GgSKhuygrZ/GLaKZYEecIgIECf4UaUuaByiGtzckwR4ain9VzUh95T1exYGw==
+  dependencies:
+    readable-stream "^3.6.0"
 
 receptacle@^1.3.2:
   version "1.3.2"
@@ -4800,6 +4836,14 @@ strip-indent@^3.0.0:
   dependencies:
     min-indent "^1.0.0"
 
+strtok3@^7.0.0-alpha.7:
+  version "7.0.0-alpha.8"
+  resolved "https://registry.yarnpkg.com/strtok3/-/strtok3-7.0.0-alpha.8.tgz#23a7870974e0494b58b14af6dd1c2c67cf13314d"
+  integrity sha512-u+k19v+rTxBjGYxncRQjGvZYwYvEd0uP3D+uHKe/s4WB1eXS5ZwpZsTlBu5xSS4zEd89mTXECXg6WW3FSeV8cA==
+  dependencies:
+    "@tokenizer/token" "^0.3.0"
+    peek-readable "^5.0.0-alpha.5"
+
 superagent@^6.1.0:
   version "6.1.0"
   resolved "https://registry.npmjs.org/superagent/-/superagent-6.1.0.tgz"
@@ -4924,6 +4968,14 @@ toidentifier@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.1.tgz"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
+
+token-types@^5.0.0-alpha.2:
+  version "5.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/token-types/-/token-types-5.0.0-alpha.2.tgz#e43d63b2a8223a593d1c782a5149bec18f1abf97"
+  integrity sha512-EsG9UxAW4M6VATrEEjhPFTKEUi1OiJqTUMIZOGBN49fGxYjZB36k0p7to3HZSmWRoHm1QfZgrg3e02fpqAt5fQ==
+  dependencies:
+    "@tokenizer/token" "^0.3.0"
+    ieee754 "^1.2.1"
 
 tr46@~0.0.3:
   version "0.0.3"
