@@ -1,4 +1,4 @@
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
 import { bignum } from '@metaplex-foundation/beet';
 import { Metaplex } from '@/Metaplex';
@@ -47,7 +47,8 @@ export interface CreateNftResult {
 
 export const createNft = async (
   metaplex: Metaplex,
-  params: CreateNftParams
+  params: CreateNftParams,
+  confirmOptions?: ConfirmOptions
 ): Promise<CreateNftResult> => {
   const {
     isMutable,
@@ -94,7 +95,9 @@ export const createNft = async (
       masterEdition: masterEditionPda,
       tokenProgram,
       associatedTokenProgram,
-    })
+    }),
+    undefined,
+    confirmOptions
   );
 
   return {
