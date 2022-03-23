@@ -2,8 +2,7 @@ import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } fro
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 
-export const guestIdentity = () => 
-  (metaplex: Metaplex) => new GuestIdentityDriver(metaplex);
+export const guestIdentity = () => (metaplex: Metaplex) => new GuestIdentityDriver(metaplex);
 
 export class GuestIdentityDriver extends IdentityDriver {
   public readonly publicKey: PublicKey;
@@ -16,24 +15,23 @@ export class GuestIdentityDriver extends IdentityDriver {
   public async signMessage(_message: Uint8Array): Promise<Uint8Array> {
     // TODO: Custom errors.
     throw new Error('Guests cannot sign messages.');
-  };
+  }
 
   public async signTransaction(_transaction: Transaction): Promise<Transaction> {
     // TODO: Custom errors.
     throw new Error('Guests cannot sign transactions.');
-  };
+  }
 
   public async signAllTransactions(_transactions: Transaction[]): Promise<Transaction[]> {
     // TODO: Custom errors.
     throw new Error('Guests cannot sign transactions.');
-  };
+  }
 
   public async sendTransaction(
     transaction: Transaction,
     signers: Signer[],
-    options?: SendOptions,
+    options?: SendOptions
   ): Promise<TransactionSignature> {
-    return this.metaplex.connection
-      .sendTransaction(transaction, signers, options);
-  };
+    return this.metaplex.connection.sendTransaction(transaction, signers, options);
+  }
 }

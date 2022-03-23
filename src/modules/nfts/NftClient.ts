@@ -12,7 +12,6 @@ import {
 import { tryOrNull } from '@/utils';
 
 export class NftClient extends ModuleClient {
-
   async createNft(params: CreateNftParams): Promise<Nft> {
     const { mint } = await createNft(this.metaplex, params);
 

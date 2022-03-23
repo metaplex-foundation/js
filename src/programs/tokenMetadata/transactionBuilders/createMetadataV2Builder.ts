@@ -1,11 +1,14 @@
-import { PublicKey } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { createCreateMetadataAccountV2Instruction, DataV2 } from "@/programs/tokenMetadata/generated";
-import { Signer } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import {
+  createCreateMetadataAccountV2Instruction,
+  DataV2,
+} from '@/programs/tokenMetadata/generated';
+import { Signer } from '@/utils';
 
 export interface CreateMetadataV2BuilderParams {
-  data: DataV2,
-  isMutable?: boolean,
+  data: DataV2;
+  isMutable?: boolean;
   mintAuthority: Signer;
   payer: Signer;
   mint: PublicKey;
@@ -14,7 +17,9 @@ export interface CreateMetadataV2BuilderParams {
   instructionKey?: string;
 }
 
-export const createMetadataV2Builder = (params: CreateMetadataV2BuilderParams): TransactionBuilder => {
+export const createMetadataV2Builder = (
+  params: CreateMetadataV2BuilderParams
+): TransactionBuilder => {
   const {
     data,
     isMutable = false,
@@ -35,9 +40,9 @@ export const createMetadataV2Builder = (params: CreateMetadataV2BuilderParams): 
         payer: payer.publicKey,
         updateAuthority,
       },
-      { createMetadataAccountArgsV2: { data, isMutable } },
+      { createMetadataAccountArgsV2: { data, isMutable } }
     ),
     signers: [payer, mintAuthority],
     key: instructionKey,
   });
-}
+};

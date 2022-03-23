@@ -1,9 +1,9 @@
-import { PublicKey } from "@solana/web3.js";
-import { MINT_SIZE, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { TransactionBuilder } from "@/programs/shared";
-import { createAccountBuilder } from "@/programs/system";
-import { initializeMintBuilder } from "@/programs/token";
-import { Signer } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { MINT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TransactionBuilder } from '@/programs/shared';
+import { createAccountBuilder } from '@/programs/system';
+import { initializeMintBuilder } from '@/programs/token';
+import { Signer } from '@/utils';
 
 export interface CreateMintBuilderParams {
   lamports: number;
@@ -30,25 +30,31 @@ export const createMintBuilder = (params: CreateMintBuilderParams): TransactionB
     initializeMintInstructionKey = 'initializeMint',
   } = params;
 
-  return TransactionBuilder.make()
+  return (
+    TransactionBuilder.make()
 
-    // Allocate space on the blockchain for the mint account.
-    .add(createAccountBuilder({
-      payer: payer,
-      newAccount: mint,
-      space: MINT_SIZE,
-      lamports,
-      program: tokenProgram,
-      instructionKey: createAccountInstructionKey,
-    }))
+      // Allocate space on the blockchain for the mint account.
+      .add(
+        createAccountBuilder({
+          payer: payer,
+          newAccount: mint,
+          space: MINT_SIZE,
+          lamports,
+          program: tokenProgram,
+          instructionKey: createAccountInstructionKey,
+        })
+      )
 
-    // Initialize the mint account.
-    .add(initializeMintBuilder({
-      decimals,
-      mint,
-      mintAuthority,
-      freezeAuthority,
-      tokenProgram,
-      instructionKey: initializeMintInstructionKey,
-    }));
-}
+      // Initialize the mint account.
+      .add(
+        initializeMintBuilder({
+          decimals,
+          mint,
+          mintAuthority,
+          freezeAuthority,
+          tokenProgram,
+          instructionKey: initializeMintInstructionKey,
+        })
+      )
+  );
+};

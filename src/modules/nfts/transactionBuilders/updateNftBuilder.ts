@@ -21,9 +21,7 @@ export interface UpdateNftBuilderParams {
   instructionKey?: string;
 }
 
-export const updateNftBuilder = (
-  params: UpdateNftBuilderParams
-): TransactionBuilder => {
+export const updateNftBuilder = (params: UpdateNftBuilderParams): TransactionBuilder => {
   const {
     data,
     isMutable,

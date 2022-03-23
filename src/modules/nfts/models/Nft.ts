@@ -1,13 +1,12 @@
-import { PublicKey } from "@solana/web3.js";
-import { Model } from "@/modules/shared";
-import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
-import { TokenStandard, Collection, Uses, Creator } from "@/programs/tokenMetadata/generated";
-import { bignum } from "@metaplex-foundation/beet";
-import { JsonMetadata } from "./JsonMetadata";
-import { removeEmptyChars } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { Model } from '@/modules/shared';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { TokenStandard, Collection, Uses, Creator } from '@/programs/tokenMetadata/generated';
+import { bignum } from '@metaplex-foundation/beet';
+import { JsonMetadata } from './JsonMetadata';
+import { removeEmptyChars } from '@/utils';
 
 export class Nft extends Model {
-
   /** The Metadata PDA account defining the NFT. */
   public readonly metadataAccount: MetadataAccount;
 
@@ -39,7 +38,7 @@ export class Nft extends Model {
   constructor(
     metadataAccount: MetadataAccount,
     masterEditionAccount: MasterEditionAccount | null = null,
-    json: JsonMetadata | null = null,
+    json: JsonMetadata | null = null
   ) {
     super();
     this.metadataAccount = metadataAccount;

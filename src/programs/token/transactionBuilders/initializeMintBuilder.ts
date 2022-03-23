@@ -1,7 +1,7 @@
-import { PublicKey } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { createInitializeMintInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { Signer } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import { createInitializeMintInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { Signer } from '@/utils';
 
 export interface InitializeMintBuilderParams {
   decimals: number;
@@ -28,9 +28,9 @@ export const initializeMintBuilder = (params: InitializeMintBuilderParams): Tran
       decimals,
       mintAuthority,
       freezeAuthority,
-      tokenProgram,
+      tokenProgram
     ),
     signers: [mint],
     key: instructionKey,
   });
-}
+};

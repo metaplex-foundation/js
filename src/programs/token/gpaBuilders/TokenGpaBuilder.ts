@@ -1,9 +1,8 @@
-import { PublicKey } from "@solana/web3.js";
-import BN from "bn.js";
-import { TokenProgramGpaBuilder } from "./TokenProgramGpaBuilder";
+import { PublicKey } from '@solana/web3.js';
+import BN from 'bn.js';
+import { TokenProgramGpaBuilder } from './TokenProgramGpaBuilder';
 
 export class TokenGpaBuilder extends TokenProgramGpaBuilder {
-
   whereMint(mint: PublicKey) {
     return this.where(0, mint);
   }

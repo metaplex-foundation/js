@@ -1,7 +1,11 @@
-import { PublicKey } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { createMintBuilder, createAssociatedTokenAccountBuilder, mintToBuilder } from "@/programs/token";
-import { Signer } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import {
+  createMintBuilder,
+  createAssociatedTokenAccountBuilder,
+  mintToBuilder,
+} from '@/programs/token';
+import { Signer } from '@/utils';
 
 export interface CreateMintAndMintToAssociatedTokenBuilderParams {
   // Data.
@@ -31,7 +35,9 @@ export interface CreateMintAndMintToAssociatedTokenBuilderParams {
   mintToInstructionKey?: string;
 }
 
-export const createMintAndMintToAssociatedTokenBuilder = (params: CreateMintAndMintToAssociatedTokenBuilderParams): TransactionBuilder => {
+export const createMintAndMintToAssociatedTokenBuilder = (
+  params: CreateMintAndMintToAssociatedTokenBuilderParams
+): TransactionBuilder => {
   const {
     lamports,
     decimals,
@@ -51,39 +57,49 @@ export const createMintAndMintToAssociatedTokenBuilder = (params: CreateMintAndM
     mintToInstructionKey,
   } = params;
 
-  return TransactionBuilder.make()
+  return (
+    TransactionBuilder.make()
 
-    // Create and initialize the mint account.
-    .add(createMintBuilder({
-      lamports,
-      decimals,
-      mint,
-      payer,
-      mintAuthority: mintAuthority.publicKey,
-      freezeAuthority,
-      tokenProgram,
-      createAccountInstructionKey,
-      initializeMintInstructionKey,
-    }))
+      // Create and initialize the mint account.
+      .add(
+        createMintBuilder({
+          lamports,
+          decimals,
+          mint,
+          payer,
+          mintAuthority: mintAuthority.publicKey,
+          freezeAuthority,
+          tokenProgram,
+          createAccountInstructionKey,
+          initializeMintInstructionKey,
+        })
+      )
 
-  // Create the associated account if it does not exists.
-  .when(createAssociatedToken, tx => tx.add(createAssociatedTokenAccountBuilder({
-    payer,
-    associatedToken,
-    owner,
-    mint: mint.publicKey,
-    tokenProgram,
-    associatedTokenProgram,
-    instructionKey: createAssociatedTokenInstructionKey,
-  })))
+      // Create the associated account if it does not exists.
+      .when(createAssociatedToken, (tx) =>
+        tx.add(
+          createAssociatedTokenAccountBuilder({
+            payer,
+            associatedToken,
+            owner,
+            mint: mint.publicKey,
+            tokenProgram,
+            associatedTokenProgram,
+            instructionKey: createAssociatedTokenInstructionKey,
+          })
+        )
+      )
 
-  // Mint to the associated token.
-  .add(mintToBuilder({
-    mint: mint.publicKey,
-    destination: associatedToken,
-    mintAuthority,
-    amount,
-    tokenProgram,
-    instructionKey: mintToInstructionKey,
-  }));
-}
+      // Mint to the associated token.
+      .add(
+        mintToBuilder({
+          mint: mint.publicKey,
+          destination: associatedToken,
+          mintAuthority,
+          amount,
+          tokenProgram,
+          instructionKey: mintToInstructionKey,
+        })
+      )
+  );
+};

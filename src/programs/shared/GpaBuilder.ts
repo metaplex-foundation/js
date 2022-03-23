@@ -1,18 +1,22 @@
-import { Connection, GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  GetProgramAccountsConfig,
+  GetProgramAccountsFilter,
+  PublicKey,
+} from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import base58 from "bs58";
-import BN from "bn.js";
-import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
-import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
-import { Postpone } from "@/utils";
+import base58 from 'bs58';
+import BN from 'bn.js';
+import { AccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
+import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
+import { Postpone } from '@/utils';
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,
   b: AccountInfoWithPublicKey<Buffer>
-) => number
+) => number;
 
 export class GpaBuilder {
-
   /** The connection instance to use when fetching accounts. */
   protected readonly connection: Connection;
 
@@ -32,8 +36,8 @@ export class GpaBuilder {
 
   static from<T extends typeof GpaBuilder>(this: T, builder: GpaBuilder): InstanceType<T> {
     const newBuilder = new this(builder.connection, builder.programId) as InstanceType<T>;
-    newBuilder.mergeConfig(builder.config)
-    newBuilder.sortCallback = builder.sortCallback
+    newBuilder.mergeConfig(builder.config);
+    newBuilder.sortCallback = builder.sortCallback;
 
     return newBuilder;
   }
@@ -71,8 +75,8 @@ export class GpaBuilder {
       bytes = bytes.toBase58();
     } else if (bytes instanceof BN) {
       bytes = base58.encode(bytes.toArray());
-    } else if (typeof bytes !== "string") {
-      bytes = base58.encode((new BN(bytes, 'le')).toArray());
+    } else if (typeof bytes !== 'string') {
+      bytes = base58.encode(new BN(bytes, 'le').toArray());
     }
 
     return this.addFilter({ memcmp: { offset, bytes } });
@@ -90,7 +94,10 @@ export class GpaBuilder {
 
   async get(): Promise<AccountInfoWithPublicKey<Buffer>[]> {
     const rawAccounts = await this.connection.getProgramAccounts(this.programId, this.config);
-    const accounts = rawAccounts.map(({ pubkey, account }) => ({ pubkey, ...account }));
+    const accounts = rawAccounts.map(({ pubkey, account }) => ({
+      pubkey,
+      ...account,
+    }));
 
     if (this.sortCallback) {
       accounts.sort(this.sortCallback);
@@ -108,18 +115,18 @@ export class GpaBuilder {
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
-    return this.getAndMap(account => account.pubkey);
+    return this.getAndMap((account) => account.pubkey);
   }
 
   async getDataAsPublicKeys(): Promise<PublicKey[]> {
-    return this.getAndMap(account => new PublicKey(account.data));
+    return this.getAndMap((account) => new PublicKey(account.data));
   }
 
   getMultipleAccounts(
     callback?: (account: AccountInfoWithPublicKey<Buffer>) => PublicKey,
-    options?: GmaBuilderOptions,
+    options?: GmaBuilderOptions
   ): Postpone<GmaBuilder> {
-    const cb = callback ?? (account => new PublicKey(account.data));
+    const cb = callback ?? ((account) => new PublicKey(account.data));
 
     return Postpone.make(async () => {
       return new GmaBuilder(this.connection, await this.getAndMap(cb), options);

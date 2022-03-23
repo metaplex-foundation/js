@@ -1,9 +1,9 @@
-import { AccountInfo, PublicKey } from "@solana/web3.js";
+import { AccountInfo, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 
 type GeneratedAccountData<T> = {
-  fromAccountInfo: (info: AccountInfo<Buffer>) => [T, ...any]
-}
+  fromAccountInfo: (info: AccountInfo<Buffer>) => [T, ...any];
+};
 
 export class Account<T> implements AccountInfo<T> {
   public readonly executable: boolean;
@@ -20,10 +20,13 @@ export class Account<T> implements AccountInfo<T> {
     this.rentEpoch = accountInfo.rentEpoch;
   }
 
-  static parseAccountInfo<T>(accountInfo: AccountInfo<Buffer>, accountData: GeneratedAccountData<T>): Account<T> {
+  static parseAccountInfo<T>(
+    accountInfo: AccountInfo<Buffer>,
+    accountData: GeneratedAccountData<T>
+  ): Account<T> {
     return new this<T>({
       ...accountInfo,
       data: accountData.fromAccountInfo(accountInfo)[0],
-    })
+    });
   }
 }

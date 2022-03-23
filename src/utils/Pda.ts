@@ -1,8 +1,7 @@
-import { PublicKey, PublicKeyInitData } from "@solana/web3.js";
+import { PublicKey, PublicKeyInitData } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 
 export class Pda extends PublicKey {
-
   /** The bump used to generate the PDA. */
   public readonly bump: number;
 

@@ -1,10 +1,9 @@
-import BN from "bn.js";
-import { Metaplex } from "@/Metaplex";
-import { MetaplexFile } from "../filesystem/MetaplexFile";
-import { StorageDriver } from "./StorageDriver";
+import BN from 'bn.js';
+import { Metaplex } from '@/Metaplex';
+import { MetaplexFile } from '../filesystem/MetaplexFile';
+import { StorageDriver } from './StorageDriver';
 
-export const mockStorage = () => 
-  (metaplex: Metaplex) => new mockStorageDriver(metaplex);
+export const mockStorage = () => (metaplex: Metaplex) => new mockStorageDriver(metaplex);
 
 export class mockStorageDriver extends StorageDriver {
   private cache: Record<string, MetaplexFile> = {};
@@ -23,7 +22,7 @@ export class mockStorageDriver extends StorageDriver {
   public async download(uri: string): Promise<MetaplexFile> {
     const file = this.cache[uri];
 
-    if (! file) {
+    if (!file) {
       throw new Error(`File not found at ${uri}.`);
     }
 

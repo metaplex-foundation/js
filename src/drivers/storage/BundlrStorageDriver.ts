@@ -1,9 +1,9 @@
-import NodeBundlr, { WebBundlr } from "@bundlr-network/client";
-import { Metaplex } from "@/Metaplex";
-import { StorageDriver } from "./StorageDriver";
-import { MetaplexFile } from "../filesystem/MetaplexFile";
-import BN from "bn.js";
-import { WalletAdapterIdentityDriver } from "../identity/WalletAdapterIdentityDriver";
+import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
+import { Metaplex } from '@/Metaplex';
+import { StorageDriver } from './StorageDriver';
+import { MetaplexFile } from '../filesystem/MetaplexFile';
+import BN from 'bn.js';
+import { WalletAdapterIdentityDriver } from '../identity/WalletAdapterIdentityDriver';
 
 export interface BundlrOptions {
   address?: string;
@@ -11,8 +11,10 @@ export interface BundlrOptions {
   providerUrl?: string;
 }
 
-export const bundlrStorage = (options: BundlrOptions = {}) => 
-  (metaplex: Metaplex) => new BundlrStorageDriver(metaplex, options);
+export const bundlrStorage =
+  (options: BundlrOptions = {}) =>
+  (metaplex: Metaplex) =>
+    new BundlrStorageDriver(metaplex, options);
 
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;
@@ -40,7 +42,7 @@ export class BundlrStorageDriver extends StorageDriver {
 
     const { status, data } = await bundlr.uploader.upload(
       file.toBuffer(),
-      file.getTagsWithContentType(),
+      file.getTagsWithContentType()
     );
 
     if (status >= 300) {
@@ -56,20 +58,21 @@ export class BundlrStorageDriver extends StorageDriver {
   protected async getBundlr(): Promise<WebBundlr | NodeBundlr> {
     if (this.bundlr) return this.bundlr;
 
-    const currency = "solana";
-    const address = this.options?.address ?? "https://node1.bundlr.network";
+    const currency = 'solana';
+    const address = this.options?.address ?? 'https://node1.bundlr.network';
     const options = {
       timeout: this.options.timeout,
       providerUrl: this.options.providerUrl,
     };
 
-    const bundlr = this.metaplex.identity() instanceof WalletAdapterIdentityDriver
-      ? new WebBundlr(address, currency, this.metaplex.identity(), options)
-      : new NodeBundlr(address, currency, this.metaplex.identity(), options);
+    const bundlr =
+      this.metaplex.identity() instanceof WalletAdapterIdentityDriver
+        ? new WebBundlr(address, currency, this.metaplex.identity(), options)
+        : new NodeBundlr(address, currency, this.metaplex.identity(), options);
 
     try {
       // Check for valid bundlr node.
-      await bundlr.utils.getBundlerAddress(currency)
+      await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
       // TODO: Custom errors.
       throw new Error(`Failed to connect to bundlr ${address}.`);
@@ -82,7 +85,7 @@ export class BundlrStorageDriver extends StorageDriver {
       } catch (error) {
         console.error(error);
       }
-  
+
       if (!bundlr.address) {
         // TODO: Custom errors.
         throw new Error('Failed to initiate Bundlr.');

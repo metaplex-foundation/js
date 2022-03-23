@@ -66,8 +66,7 @@ const resolveData = (params: UpdateNftParams, nft: Nft): DataV2 => {
     name: params.name ?? nft.name,
     symbol: params.symbol ?? nft.symbol,
     uri: params.uri ?? nft.uri,
-    sellerFeeBasisPoints:
-      params.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
     creators: params.creators ?? nft.creators,
     collection: params.collection ?? nft.collection,
     uses: params.uses ?? nft.uses,
