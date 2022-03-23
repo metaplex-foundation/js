@@ -1,6 +1,15 @@
-import { ModuleClient } from "@/modules/shared";
-import { Nft, FindNftParams, findNft, CreateNftParams, createNft } from "@/modules/nfts";
-import { tryOrNull } from "@/utils";
+import { ModuleClient } from '@/modules/shared';
+import {
+  Nft,
+  FindNftParams,
+  findNft,
+  CreateNftParams,
+  createNft,
+  updateNft,
+  UpdateNftParams,
+  UpdateNftResult,
+} from '@/modules/nfts';
+import { tryOrNull } from '@/utils';
 
 export class NftClient extends ModuleClient {
 
@@ -16,5 +25,9 @@ export class NftClient extends ModuleClient {
 
   async tryFindNft(params: FindNftParams): Promise<Nft | null> {
     return tryOrNull(() => this.findNft(params));
+  }
+
+  async updateNft(params: UpdateNftParams): Promise<UpdateNftResult> {
+    return updateNft(this.metaplex, params);
   }
 }
