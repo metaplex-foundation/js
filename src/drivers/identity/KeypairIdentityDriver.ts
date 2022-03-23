@@ -6,10 +6,10 @@ import {
   Signer as Web3Signer,
   Transaction,
   TransactionSignature,
-} from "@solana/web3.js";
-import nacl from "tweetnacl";
-import { IdentityDriver } from "./IdentityDriver";
-import { Metaplex } from "@/Metaplex";
+} from '@solana/web3.js';
+import nacl from 'tweetnacl';
+import { IdentityDriver } from './IdentityDriver';
+import { Metaplex } from '@/Metaplex';
 
 export const keypairIdentity = (keypair: Keypair) => (metaplex: Metaplex) =>
   new KeypairIdentityDriver(metaplex, keypair);

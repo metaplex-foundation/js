@@ -1,5 +1,5 @@
-import { IdentityDriver } from "@/drivers";
-import { Signer as Web3Signer } from "@solana/web3.js";
+import { IdentityDriver } from '@/drivers';
+import { Signer as Web3Signer } from '@solana/web3.js';
 
 export type Signer = Web3Signer | IdentityDriver;
 
@@ -16,8 +16,8 @@ export const getSignerHistogram = (signers: Signer[]) =>
         publicKey.equals(signer.publicKey)
       );
       const duplicate = signers.all[duplicateIndex] ?? null;
-      const duplicateIsIdentity = duplicate ? !("secretKey" in duplicate) : false;
-      const signerIsIdentity = !("secretKey" in signer);
+      const duplicateIsIdentity = duplicate ? !('secretKey' in duplicate) : false;
+      const signerIsIdentity = !('secretKey' in signer);
 
       if (!duplicate) {
         signers.all.push(signer);

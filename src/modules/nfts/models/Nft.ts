@@ -1,10 +1,10 @@
-import { PublicKey } from "@solana/web3.js";
-import { Model } from "@/modules/shared";
-import { MetadataAccount, MasterEditionAccount } from "@/programs/tokenMetadata";
-import { TokenStandard, Collection, Uses, Creator } from "@/programs/tokenMetadata/generated";
-import { bignum } from "@metaplex-foundation/beet";
-import { JsonMetadata } from "./JsonMetadata";
-import { removeEmptyChars } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { Model } from '@/modules/shared';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { TokenStandard, Collection, Uses, Creator } from '@/programs/tokenMetadata/generated';
+import { bignum } from '@metaplex-foundation/beet';
+import { JsonMetadata } from './JsonMetadata';
+import { removeEmptyChars } from '@/utils';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */

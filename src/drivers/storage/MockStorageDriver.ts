@@ -1,7 +1,7 @@
-import BN from "bn.js";
-import { Metaplex } from "@/Metaplex";
-import { MetaplexFile } from "../filesystem/MetaplexFile";
-import { StorageDriver } from "./StorageDriver";
+import BN from 'bn.js';
+import { Metaplex } from '@/Metaplex';
+import { MetaplexFile } from '../filesystem/MetaplexFile';
+import { StorageDriver } from './StorageDriver';
 
 export const mockStorage = () => (metaplex: Metaplex) => new mockStorageDriver(metaplex);
 

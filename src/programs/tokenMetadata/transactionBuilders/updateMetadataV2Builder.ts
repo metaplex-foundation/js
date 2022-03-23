@@ -1,10 +1,10 @@
-import { TransactionBuilder } from "@/programs/shared";
+import { TransactionBuilder } from '@/programs/shared';
 import {
   createUpdateMetadataAccountV2Instruction,
   DataV2,
-} from "@/programs/tokenMetadata/generated";
-import { Signer } from "@/utils";
-import { PublicKey } from "@solana/web3.js";
+} from '@/programs/tokenMetadata/generated';
+import { Signer } from '@/utils';
+import { PublicKey } from '@solana/web3.js';
 
 export interface UpdateMetadataV2BuilderParams {
   data: DataV2;
@@ -26,7 +26,7 @@ export const updateMetadataV2Builder = (
     isMutable,
     metadata,
     updateAuthority,
-    instructionKey = "updateMetadatav2",
+    instructionKey = 'updateMetadatav2',
   } = params;
 
   return TransactionBuilder.make().add({

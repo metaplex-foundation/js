@@ -1,4 +1,4 @@
-import { chunk } from "./common";
+import { chunk } from './common';
 
 type ArrayElement<ArrayType> = ArrayType extends readonly (infer ElementType)[]
   ? ElementType

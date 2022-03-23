@@ -1,9 +1,9 @@
-import { PublicKey } from "@solana/web3.js";
-import { MINT_SIZE, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { TransactionBuilder } from "@/programs/shared";
-import { createAccountBuilder } from "@/programs/system";
-import { initializeMintBuilder } from "@/programs/token";
-import { Signer } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { MINT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TransactionBuilder } from '@/programs/shared';
+import { createAccountBuilder } from '@/programs/system';
+import { initializeMintBuilder } from '@/programs/token';
+import { Signer } from '@/utils';
 
 export interface CreateMintBuilderParams {
   lamports: number;
@@ -26,8 +26,8 @@ export const createMintBuilder = (params: CreateMintBuilderParams): TransactionB
     mintAuthority,
     freezeAuthority,
     tokenProgram = TOKEN_PROGRAM_ID,
-    createAccountInstructionKey = "createAccount",
-    initializeMintInstructionKey = "initializeMint",
+    createAccountInstructionKey = 'createAccount',
+    initializeMintInstructionKey = 'initializeMint',
   } = params;
 
   return (

@@ -1,9 +1,9 @@
-import mime from "mime";
+import mime from 'mime';
 
 // eslint-disable-next-line no-control-regex
-export const removeEmptyChars = (value: string) => value.replace(/\u0000/g, "");
+export const removeEmptyChars = (value: string) => value.replace(/\u0000/g, '');
 
-export const padEmptyChars = (value: string, chars: number) => value.padEnd(chars, "\u0000");
+export const padEmptyChars = (value: string, chars: number) => value.padEnd(chars, '\u0000');
 
 export const tryOr = <T, U>(callback: () => T, defaultValue: U): T | U => {
   try {
@@ -46,9 +46,9 @@ export const fetchJson = async <T>(uri: string): Promise<T | null> => {
 
 export const randomStr = (
   length: number = 20,
-  alphabet: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 ) => {
-  let result = "";
+  let result = '';
   const alphabetLength = alphabet.length;
   for (var i = 0; i < length; i++) {
     result += alphabet.charAt(Math.floor(Math.random() * alphabetLength));
@@ -60,7 +60,7 @@ export const randomStr = (
 export const getContentType = (fileName: string): string | null => mime.getType(fileName);
 
 export const getExtension = (fileName: string): string | null => {
-  const lastDotIndex = fileName.lastIndexOf(".");
+  const lastDotIndex = fileName.lastIndexOf('.');
 
   return lastDotIndex < 0 ? null : fileName.slice(lastDotIndex + 1);
 };

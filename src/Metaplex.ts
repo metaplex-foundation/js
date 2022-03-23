@@ -10,14 +10,14 @@ import {
   SignatureResult,
   Transaction,
   TransactionSignature,
-} from "@solana/web3.js";
-import { Buffer } from "buffer";
-import { TransactionBuilder } from "@/programs/shared";
-import { IdentityDriver, GuestIdentityDriver } from "@/drivers/identity";
-import { StorageDriver, BundlrStorageDriver } from "@/drivers/storage";
-import { Signer, getSignerHistogram } from "@/utils";
-import { NftClient } from "./modules";
-import { Driver } from "./drivers/Driver";
+} from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import { TransactionBuilder } from '@/programs/shared';
+import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
+import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
+import { Signer, getSignerHistogram } from '@/utils';
+import { NftClient } from './modules';
+import { Driver } from './drivers/Driver';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 

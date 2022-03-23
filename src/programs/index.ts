@@ -1,3 +1,3 @@
-export * from "./shared";
-export * from "./token";
-export * from "./tokenMetadata";
+export * from './shared';
+export * from './token';
+export * from './tokenMetadata';

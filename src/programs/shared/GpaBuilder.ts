@@ -3,13 +3,13 @@ import {
   GetProgramAccountsConfig,
   GetProgramAccountsFilter,
   PublicKey,
-} from "@solana/web3.js";
-import { Buffer } from "buffer";
-import base58 from "bs58";
-import BN from "bn.js";
-import { AccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
-import { GmaBuilder, GmaBuilderOptions } from "./GmaBuilder";
-import { Postpone } from "@/utils";
+} from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import base58 from 'bs58';
+import BN from 'bn.js';
+import { AccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
+import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
+import { Postpone } from '@/utils';
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,
@@ -75,8 +75,8 @@ export class GpaBuilder {
       bytes = bytes.toBase58();
     } else if (bytes instanceof BN) {
       bytes = base58.encode(bytes.toArray());
-    } else if (typeof bytes !== "string") {
-      bytes = base58.encode(new BN(bytes, "le").toArray());
+    } else if (typeof bytes !== 'string') {
+      bytes = base58.encode(new BN(bytes, 'le').toArray());
     }
 
     return this.addFilter({ memcmp: { offset, bytes } });

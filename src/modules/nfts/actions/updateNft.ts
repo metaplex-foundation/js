@@ -1,11 +1,11 @@
-import { Metaplex } from "@/Metaplex";
-import { DataV2, MetadataAccount } from "@/programs/tokenMetadata";
-import { Collection, Creator, Uses } from "@/programs/tokenMetadata/generated";
-import { Signer } from "@/utils";
-import { PublicKey } from "@solana/web3.js";
-import { Nft } from "./../models/Nft";
-import { updateNftBuilder } from "./../transactionBuilders";
-import { findNftFromMint } from "./findNft";
+import { Metaplex } from '@/Metaplex';
+import { DataV2, MetadataAccount } from '@/programs/tokenMetadata';
+import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
+import { Signer } from '@/utils';
+import { PublicKey } from '@solana/web3.js';
+import { Nft } from './../models/Nft';
+import { updateNftBuilder } from './../transactionBuilders';
+import { findNftFromMint } from './findNft';
 
 export interface UpdateNftParams {
   mint: PublicKey;

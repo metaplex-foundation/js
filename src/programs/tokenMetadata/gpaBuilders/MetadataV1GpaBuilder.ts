@@ -1,7 +1,7 @@
-import { PublicKey } from "@solana/web3.js";
-import { Buffer } from "buffer";
-import { TokenMetadataGpaBuilder } from "./TokenMetadataGpaBuilder";
-import { padEmptyChars } from "@/utils";
+import { PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import { TokenMetadataGpaBuilder } from './TokenMetadataGpaBuilder';
+import { padEmptyChars } from '@/utils';
 
 const MAX_NAME_LENGTH = 32;
 const MAX_SYMBOL_LENGTH = 10;

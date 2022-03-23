@@ -1,11 +1,11 @@
-import { PublicKey } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
+import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import { Signer } from "@/utils";
+} from '@solana/spl-token';
+import { Signer } from '@/utils';
 
 export interface CreateAssociatedTokenAccountBuilderParams {
   payer: Signer;
@@ -27,7 +27,7 @@ export const createAssociatedTokenAccountBuilder = (
     mint,
     tokenProgram = TOKEN_PROGRAM_ID,
     associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
-    instructionKey = "createAssociatedTokenAccount",
+    instructionKey = 'createAssociatedTokenAccount',
   } = params;
 
   return TransactionBuilder.make().add({

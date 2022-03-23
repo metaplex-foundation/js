@@ -1,2 +1,2 @@
-export * from "./Model";
-export * from "./ModuleClient";
+export * from './Model';
+export * from './ModuleClient';

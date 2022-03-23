@@ -1,5 +1,5 @@
-import { AccountInfo, PublicKey } from "@solana/web3.js";
-import { Buffer } from "buffer";
+import { AccountInfo, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 
 type GeneratedAccountData<T> = {
   fromAccountInfo: (info: AccountInfo<Buffer>) => [T, ...any];

@@ -1,7 +1,7 @@
-import { PublicKey, Signer as Web3Signer } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { createMintToInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { Signer } from "@/utils";
+import { PublicKey, Signer as Web3Signer } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import { createMintToInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { Signer } from '@/utils';
 
 export interface MintToBuilderParams {
   mint: PublicKey;
@@ -21,7 +21,7 @@ export const mintToBuilder = (params: MintToBuilderParams): TransactionBuilder =
     amount,
     multiSigners = [],
     tokenProgram = TOKEN_PROGRAM_ID,
-    instructionKey = "mintTo",
+    instructionKey = 'mintTo',
   } = params;
 
   const [mintAuthorityPublicKey, signers] =

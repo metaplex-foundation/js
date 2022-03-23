@@ -1,6 +1,6 @@
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { Signer } from "@/utils";
+import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import { Signer } from '@/utils';
 
 export interface CreateAccountBuilderParams {
   space: number;
@@ -18,7 +18,7 @@ export const createAccountBuilder = (params: CreateAccountBuilderParams): Transa
     payer,
     newAccount,
     program = SystemProgram.programId,
-    instructionKey = "createAccount",
+    instructionKey = 'createAccount',
   } = params;
 
   return TransactionBuilder.make().add({

@@ -1,7 +1,7 @@
-import { AccountInfo, Connection, PublicKey } from "@solana/web3.js";
-import { Buffer } from "buffer";
-import { MaybeAccountInfoWithPublicKey } from "./AccountInfoWithPublicKey";
-import { chunk, Postpone, zipMap } from "@/utils";
+import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import { MaybeAccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
+import { chunk, Postpone, zipMap } from '@/utils';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
@@ -84,7 +84,7 @@ export class GmaBuilder {
     const chunkPromises = chunks.map((chunk) => this.getChunk(chunk));
     const resolvedChunks = await Promise.allSettled(chunkPromises);
 
-    return resolvedChunks.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
+    return resolvedChunks.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
   }
 
   protected async getChunk(

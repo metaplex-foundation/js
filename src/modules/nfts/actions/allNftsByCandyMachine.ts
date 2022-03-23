@@ -1,14 +1,14 @@
-import { PublicKey } from "@solana/web3.js";
-import { Buffer } from "buffer";
-import { Nft } from "../models";
+import { PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import { Nft } from '../models';
 import {
   MasterEditionAccount,
   MetadataAccount,
   TokenMetadataProgram,
-} from "@/programs/tokenMetadata";
-import { Metaplex } from "@/Metaplex";
-import { Postpone } from "@/utils";
-import { GmaBuilder } from "@/programs";
+} from '@/programs/tokenMetadata';
+import { Metaplex } from '@/Metaplex';
+import { Postpone } from '@/utils';
+import { GmaBuilder } from '@/programs';
 
 export interface AllNftsFromCandyMachineParams {
   v1?: PublicKey;
@@ -27,12 +27,12 @@ export const allNftsFromCandyMachine = async (
   } else if (params.v2) {
     // TODO: Refactor when we have a CandyMachine program in the SDK.
     [firstCreator] = await PublicKey.findProgramAddress(
-      [Buffer.from("candy_machine"), params.v2.toBuffer()],
-      new PublicKey("cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ")
+      [Buffer.from('candy_machine'), params.v2.toBuffer()],
+      new PublicKey('cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ')
     );
   } else {
     // TODO: Custom error.
-    throw new Error("Candy Machine address not provided");
+    throw new Error('Candy Machine address not provided');
   }
 
   const mintKeys = await TokenMetadataProgram.metadataV1Accounts(metaplex.connection)
@@ -47,7 +47,7 @@ export const allNftsFromCandyMachine = async (
 
       // Resolve and flatten PDA promises.
       .asyncPipe(async (promises) => Promise.allSettled(await promises))
-      .flatMap((result) => (result.status === "fulfilled" ? result.value : []))
+      .flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
 
       // Feed PDAs into a GetMultipleAccountBuilder.
       .pipe((pdas) => new GmaBuilder(metaplex.connection, pdas))

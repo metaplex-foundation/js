@@ -1,6 +1,6 @@
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { TransactionBuilder } from "@/programs/shared";
-import { Signer } from "@/utils";
+import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { TransactionBuilder } from '@/programs/shared';
+import { Signer } from '@/utils';
 
 export interface transferBuilderParams {
   from: Signer;
@@ -20,7 +20,7 @@ export const transferBuilder = (params: transferBuilderParams): TransactionBuild
     basePubkey,
     seed,
     program = SystemProgram.programId,
-    instructionKey = "transfer",
+    instructionKey = 'transfer',
   } = params;
 
   return TransactionBuilder.make().add({

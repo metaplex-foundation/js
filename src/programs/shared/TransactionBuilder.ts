@@ -1,5 +1,5 @@
-import { Transaction, TransactionCtorFields, TransactionInstruction } from "@solana/web3.js";
-import { Signer } from "@/utils";
+import { Transaction, TransactionCtorFields, TransactionInstruction } from '@solana/web3.js';
+import { Signer } from '@/utils';
 
 export interface TransactionBuilderRecord {
   key?: string;

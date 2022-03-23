@@ -1,12 +1,12 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
-import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from "@solana/spl-token";
-import { bignum } from "@metaplex-foundation/beet";
-import { Metaplex } from "@/Metaplex";
-import { createNftBuilder } from "../transactionBuilders";
-import { MetadataAccount, MasterEditionAccount, DataV2 } from "@/programs/tokenMetadata";
-import { Creator, Collection, Uses } from "@/programs/tokenMetadata/generated";
-import { Signer } from "@/utils";
-import { JsonMetadata } from "../models/JsonMetadata";
+import { Keypair, PublicKey } from '@solana/web3.js';
+import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
+import { bignum } from '@metaplex-foundation/beet';
+import { Metaplex } from '@/Metaplex';
+import { createNftBuilder } from '../transactionBuilders';
+import { MetadataAccount, MasterEditionAccount, DataV2 } from '@/programs/tokenMetadata';
+import { Creator, Collection, Uses } from '@/programs/tokenMetadata/generated';
+import { Signer } from '@/utils';
+import { JsonMetadata } from '../models/JsonMetadata';
 
 export interface CreateNftParams {
   // Data.
@@ -174,8 +174,8 @@ const resolveData = (
   }
 
   return {
-    name: params.name ?? json.name ?? "",
-    symbol: params.symbol ?? json.symbol ?? "",
+    name: params.name ?? json.name ?? '',
+    symbol: params.symbol ?? json.symbol ?? '',
     uri,
     sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? json.seller_fee_basis_points ?? 500,
     creators,

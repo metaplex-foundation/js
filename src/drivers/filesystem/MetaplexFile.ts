@@ -1,5 +1,5 @@
-import { Buffer } from "buffer";
-import { getContentType, getExtension, randomStr } from "@/utils";
+import { Buffer } from 'buffer';
+import { getContentType, getExtension, randomStr } from '@/utils';
 
 export interface MetaplexFileOptions {
   displayName?: string;
@@ -51,7 +51,7 @@ export class MetaplexFile {
       return this.tags;
     }
 
-    return [{ name: "Content-Type", value: this.contentType }, ...this.tags];
+    return [{ name: 'Content-Type', value: this.contentType }, ...this.tags];
   }
 
   toBuffer(): Buffer {

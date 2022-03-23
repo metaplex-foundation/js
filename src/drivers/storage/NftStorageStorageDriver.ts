@@ -1,8 +1,8 @@
-import { NFTStorage } from "nft.storage";
-import BN from "bn.js";
-import { Metaplex } from "@/Metaplex";
-import { MetaplexFile } from "../filesystem/MetaplexFile";
-import { StorageDriver } from "./StorageDriver";
+import { NFTStorage } from 'nft.storage';
+import BN from 'bn.js';
+import { Metaplex } from '@/Metaplex';
+import { MetaplexFile } from '../filesystem/MetaplexFile';
+import { StorageDriver } from './StorageDriver';
 
 export const nftStorageStorage = (token: string) => (metaplex: Metaplex) =>
   new NftStorageStorageDriver(metaplex, token);
@@ -23,7 +23,7 @@ export class NftStorageStorageDriver extends StorageDriver {
     const { url } = await this.nftStorage.store({
       image: file.toGlobalFile(),
       name: file.displayName,
-      description: "Unknown",
+      description: 'Unknown',
     });
 
     return url;
