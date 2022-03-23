@@ -1,10 +1,18 @@
-import { Keypair, PublicKey, SendOptions, Signer, Signer as Web3Signer, Transaction, TransactionSignature } from '@solana/web3.js';
-import nacl from 'tweetnacl';
-import { IdentityDriver } from './IdentityDriver';
-import { Metaplex } from '@/Metaplex';
+import {
+  Keypair,
+  PublicKey,
+  SendOptions,
+  Signer,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from "@solana/web3.js";
+import nacl from "tweetnacl";
+import { IdentityDriver } from "./IdentityDriver";
+import { Metaplex } from "@/Metaplex";
 
-export const keypairIdentity = (keypair: Keypair) => 
-  (metaplex: Metaplex) => new KeypairIdentityDriver(metaplex, keypair);
+export const keypairIdentity = (keypair: Keypair) => (metaplex: Metaplex) =>
+  new KeypairIdentityDriver(metaplex, keypair);
 
 export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer {
   public readonly keypair: Keypair;
@@ -20,7 +28,7 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
 
   public async signMessage(message: Uint8Array): Promise<Uint8Array> {
     return nacl.sign.detached(message, this.secretKey);
-  };
+  }
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
     transaction.feePayer = this.publicKey;
@@ -28,20 +36,23 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
     transaction.partialSign(this.keypair);
 
     return transaction;
-  };
+  }
 
   public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
-    return Promise.all(transactions.map(transaction => this.signTransaction(transaction)));
-  };
+    return Promise.all(transactions.map((transaction) => this.signTransaction(transaction)));
+  }
 
   public async sendTransaction(
     transaction: Transaction,
     signers: Signer[],
-    options?: SendOptions,
+    options?: SendOptions
   ): Promise<TransactionSignature> {
     transaction.feePayer = this.publicKey;
 
-    return this.metaplex.connection
-      .sendTransaction(transaction, [this.keypair, ...signers], options);
+    return this.metaplex.connection.sendTransaction(
+      transaction,
+      [this.keypair, ...signers],
+      options
+    );
   }
 }

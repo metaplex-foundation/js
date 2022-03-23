@@ -1,4 +1,4 @@
-import { ModuleClient } from '@/modules/shared';
+import { ModuleClient } from "@/modules/shared";
 import {
   Nft,
   FindNftParams,
@@ -8,11 +8,10 @@ import {
   updateNft,
   UpdateNftParams,
   UpdateNftResult,
-} from '@/modules/nfts';
-import { tryOrNull } from '@/utils';
+} from "@/modules/nfts";
+import { tryOrNull } from "@/utils";
 
 export class NftClient extends ModuleClient {
-
   async createNft(params: CreateNftParams): Promise<Nft> {
     const { mint } = await createNft(this.metaplex, params);
 

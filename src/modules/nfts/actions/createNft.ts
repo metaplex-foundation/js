@@ -32,20 +32,23 @@ export interface CreateNftParams {
   owner?: PublicKey;
   freezeAuthority?: PublicKey;
 
-   // Programs.
+  // Programs.
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
 }
 
 export interface CreateNftResult {
-  mint: Signer,
-  metadata: PublicKey,
-  masterEdition: PublicKey,
-  associatedToken: PublicKey,
-  transactionId: string,
+  mint: Signer;
+  metadata: PublicKey;
+  masterEdition: PublicKey;
+  associatedToken: PublicKey;
+  transactionId: string;
 }
 
-export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Promise<CreateNftResult> => {
+export const createNft = async (
+  metaplex: Metaplex,
+  params: CreateNftParams
+): Promise<CreateNftResult> => {
   const {
     isMutable,
     maxSupply,
@@ -71,26 +74,28 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     owner,
     allowHolderOffCurve,
     tokenProgram,
-    associatedTokenProgram,
+    associatedTokenProgram
   );
 
-  const transactionId = await metaplex.sendAndConfirmTransaction(createNftBuilder({
-    lamports,
-    data,
-    isMutable,
-    maxSupply,
-    mint,
-    payer,
-    mintAuthority,
-    updateAuthority,
-    owner,
-    associatedToken,
-    freezeAuthority,
-    metadata,
-    masterEdition,
-    tokenProgram,
-    associatedTokenProgram,
-  }));
+  const transactionId = await metaplex.sendAndConfirmTransaction(
+    createNftBuilder({
+      lamports,
+      data,
+      isMutable,
+      maxSupply,
+      mint,
+      payer,
+      mintAuthority,
+      updateAuthority,
+      owner,
+      associatedToken,
+      freezeAuthority,
+      metadata,
+      masterEdition,
+      tokenProgram,
+      associatedTokenProgram,
+    })
+  );
 
   return {
     transactionId,
@@ -99,9 +104,12 @@ export const createNft = async (metaplex: Metaplex, params: CreateNftParams): Pr
     masterEdition,
     associatedToken,
   };
-}
+};
 
-const resolveUriAndJson = async (metaplex: Metaplex, params: CreateNftParams): Promise<[string, JsonMetadata]> => {
+const resolveUriAndJson = async (
+  metaplex: Metaplex,
+  params: CreateNftParams
+): Promise<[string, JsonMetadata]> => {
   if (params.uri) {
     const json: JsonMetadata = await metaplex.storage().downloadJson(params.uri);
 
@@ -119,7 +127,7 @@ const resolveUriAndJson = async (metaplex: Metaplex, params: CreateNftParams): P
     symbol: params.symbol,
     seller_fee_basis_points: params.sellerFeeBasisPoints,
     properties: {
-      creators: params.creators?.map(creator => ({
+      creators: params.creators?.map((creator) => ({
         address: creator.address.toBase58(),
         share: creator.share,
       })),
@@ -131,10 +139,15 @@ const resolveUriAndJson = async (metaplex: Metaplex, params: CreateNftParams): P
   return [uri, json];
 };
 
-const resolveData = (params: CreateNftParams, uri: string, json: JsonMetadata, updateAuthority: PublicKey): DataV2 => {
+const resolveData = (
+  params: CreateNftParams,
+  uri: string,
+  json: JsonMetadata,
+  updateAuthority: PublicKey
+): DataV2 => {
   const jsonCreators: Creator[] | undefined = json.properties?.creators
-    ?.filter(creator => creator.address)
-    .map(creator => ({
+    ?.filter((creator) => creator.address)
+    .map((creator) => ({
       address: new PublicKey(creator.address as string),
       share: creator.share ?? 0,
       verified: false,
@@ -143,13 +156,15 @@ const resolveData = (params: CreateNftParams, uri: string, json: JsonMetadata, u
   let creators = params.creators ?? jsonCreators ?? null;
 
   if (creators === null) {
-    creators = [{
-      address: updateAuthority,
-      share: 100,
-      verified: true,
-    }]
+    creators = [
+      {
+        address: updateAuthority,
+        share: 100,
+        verified: true,
+      },
+    ];
   } else {
-    creators = creators.map(creator => {
+    creators = creators.map((creator) => {
       if (creator.address.toBase58() === updateAuthority.toBase58()) {
         return { ...creator, verified: true };
       } else {
@@ -157,14 +172,14 @@ const resolveData = (params: CreateNftParams, uri: string, json: JsonMetadata, u
       }
     });
   }
-  
+
   return {
-    name: params.name ?? json.name ?? '',
-    symbol: params.symbol ?? json.symbol ?? '',
+    name: params.name ?? json.name ?? "",
+    symbol: params.symbol ?? json.symbol ?? "",
     uri,
     sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? json.seller_fee_basis_points ?? 500,
     creators,
     collection: params.collection ?? null,
     uses: params.uses ?? null,
-  }
-}
+  };
+};

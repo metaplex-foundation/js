@@ -5,9 +5,9 @@ import { AuthorityType } from "@solana/spl-token";
 import { Signer } from "@/utils";
 
 export interface DisableMintingBuilderParams {
-  mint: PublicKey,
-  mintAuthority: PublicKey | Signer,
-  multiSigners?: Web3Signer[],
+  mint: PublicKey;
+  mintAuthority: PublicKey | Signer;
+  multiSigners?: Web3Signer[];
   tokenProgram?: PublicKey;
   instructionKey?: string;
 }
@@ -18,16 +18,18 @@ export const disableMintingBuilder = (params: DisableMintingBuilderParams): Tran
     mintAuthority,
     multiSigners,
     tokenProgram,
-    instructionKey = 'disableMinting',
+    instructionKey = "disableMinting",
   } = params;
 
-  return TransactionBuilder.make().add(setAuthorityBuilder({
-    mint,
-    currentAuthority: mintAuthority,
-    authorityType: AuthorityType.MintTokens,
-    newAuthority: null,
-    multiSigners,
-    tokenProgram,
-    instructionKey,
-  }));
-}
+  return TransactionBuilder.make().add(
+    setAuthorityBuilder({
+      mint,
+      currentAuthority: mintAuthority,
+      authorityType: AuthorityType.MintTokens,
+      newAuthority: null,
+      multiSigners,
+      tokenProgram,
+      instructionKey,
+    })
+  );
+};

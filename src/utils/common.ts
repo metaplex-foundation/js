@@ -1,9 +1,9 @@
-import mime from 'mime';
+import mime from "mime";
 
 // eslint-disable-next-line no-control-regex
-export const removeEmptyChars = (value: string) => value.replace(/\u0000/g, '');
+export const removeEmptyChars = (value: string) => value.replace(/\u0000/g, "");
 
-export const padEmptyChars = (value: string, chars: number) => value.padEnd(chars, '\u0000');
+export const padEmptyChars = (value: string, chars: number) => value.padEnd(chars, "\u0000");
 
 export const tryOr = <T, U>(callback: () => T, defaultValue: U): T | U => {
   try {
@@ -11,25 +11,28 @@ export const tryOr = <T, U>(callback: () => T, defaultValue: U): T | U => {
   } catch (error) {
     return defaultValue;
   }
-}
+};
 
 export const tryOrNull = <T>(cb: () => T) => tryOr(cb, null);
 
-export const chunk = <T>(array: T[], chunkSize: number): T[][] => array.reduce((accumulator, item, index) => { 
-  const chunkIndex = Math.floor(index/chunkSize);
+export const chunk = <T>(array: T[], chunkSize: number): T[][] =>
+  array.reduce((accumulator, item, index) => {
+    const chunkIndex = Math.floor(index / chunkSize);
 
-  if (!accumulator[chunkIndex]) {
-    accumulator[chunkIndex] = [];
-  }
+    if (!accumulator[chunkIndex]) {
+      accumulator[chunkIndex] = [];
+    }
 
-  accumulator[chunkIndex].push(item);
+    accumulator[chunkIndex].push(item);
 
-  return accumulator;
-}, [] as T[][])
+    return accumulator;
+  }, [] as T[][]);
 
-export const zipMap = <T, U, V>(left: T[], right: U[], fn: (t: T, u: U | null, i: number) => V): V[] => (
-  left.map((t: T, index) => fn(t, right?.[index] ?? null, index))
-);
+export const zipMap = <T, U, V>(
+  left: T[],
+  right: U[],
+  fn: (t: T, u: U | null, i: number) => V
+): V[] => left.map((t: T, index) => fn(t, right?.[index] ?? null, index));
 
 export const fetchJson = async <T>(uri: string): Promise<T | null> => {
   try {
@@ -43,21 +46,21 @@ export const fetchJson = async <T>(uri: string): Promise<T | null> => {
 
 export const randomStr = (
   length: number = 20,
-  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  alphabet: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 ) => {
-  let result = '';
+  let result = "";
   const alphabetLength = alphabet.length;
   for (var i = 0; i < length; i++) {
     result += alphabet.charAt(Math.floor(Math.random() * alphabetLength));
- }
+  }
 
- return result;
-}
+  return result;
+};
 
 export const getContentType = (fileName: string): string | null => mime.getType(fileName);
 
 export const getExtension = (fileName: string): string | null => {
-  const lastDotIndex = fileName.lastIndexOf('.');
+  const lastDotIndex = fileName.lastIndexOf(".");
 
   return lastDotIndex < 0 ? null : fileName.slice(lastDotIndex + 1);
-}
+};

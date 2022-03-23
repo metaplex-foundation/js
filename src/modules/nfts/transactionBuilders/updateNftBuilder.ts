@@ -1,8 +1,8 @@
-import { TransactionBuilder } from '@/programs';
-import { updateMetadataV2Builder } from '@/programs/tokenMetadata';
-import { DataV2 } from '@/programs/tokenMetadata/generated';
-import { Signer } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder } from "@/programs";
+import { updateMetadataV2Builder } from "@/programs/tokenMetadata";
+import { DataV2 } from "@/programs/tokenMetadata/generated";
+import { Signer } from "@/utils";
+import { PublicKey } from "@solana/web3.js";
 
 export interface UpdateNftBuilderParams {
   // Data.
@@ -21,9 +21,7 @@ export interface UpdateNftBuilderParams {
   instructionKey?: string;
 }
 
-export const updateNftBuilder = (
-  params: UpdateNftBuilderParams
-): TransactionBuilder => {
+export const updateNftBuilder = (params: UpdateNftBuilderParams): TransactionBuilder => {
   const {
     data,
     isMutable,

@@ -20,7 +20,7 @@ export const transferBuilder = (params: transferBuilderParams): TransactionBuild
     basePubkey,
     seed,
     program = SystemProgram.programId,
-    instructionKey = 'transfer',
+    instructionKey = "transfer",
   } = params;
 
   return TransactionBuilder.make().add({
@@ -34,4 +34,4 @@ export const transferBuilder = (params: transferBuilderParams): TransactionBuild
     signers: [from],
     key: instructionKey,
   });
-}
+};

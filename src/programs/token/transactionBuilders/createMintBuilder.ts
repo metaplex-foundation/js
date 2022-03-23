@@ -26,29 +26,35 @@ export const createMintBuilder = (params: CreateMintBuilderParams): TransactionB
     mintAuthority,
     freezeAuthority,
     tokenProgram = TOKEN_PROGRAM_ID,
-    createAccountInstructionKey = 'createAccount',
-    initializeMintInstructionKey = 'initializeMint',
+    createAccountInstructionKey = "createAccount",
+    initializeMintInstructionKey = "initializeMint",
   } = params;
 
-  return TransactionBuilder.make()
+  return (
+    TransactionBuilder.make()
 
-    // Allocate space on the blockchain for the mint account.
-    .add(createAccountBuilder({
-      payer: payer,
-      newAccount: mint,
-      space: MINT_SIZE,
-      lamports,
-      program: tokenProgram,
-      instructionKey: createAccountInstructionKey,
-    }))
+      // Allocate space on the blockchain for the mint account.
+      .add(
+        createAccountBuilder({
+          payer: payer,
+          newAccount: mint,
+          space: MINT_SIZE,
+          lamports,
+          program: tokenProgram,
+          instructionKey: createAccountInstructionKey,
+        })
+      )
 
-    // Initialize the mint account.
-    .add(initializeMintBuilder({
-      decimals,
-      mint,
-      mintAuthority,
-      freezeAuthority,
-      tokenProgram,
-      instructionKey: initializeMintInstructionKey,
-    }));
-}
+      // Initialize the mint account.
+      .add(
+        initializeMintBuilder({
+          decimals,
+          mint,
+          mintAuthority,
+          freezeAuthority,
+          tokenProgram,
+          instructionKey: initializeMintInstructionKey,
+        })
+      )
+  );
+};

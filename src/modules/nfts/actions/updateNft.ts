@@ -1,11 +1,11 @@
-import { Metaplex } from '@/Metaplex';
-import { DataV2, MetadataAccount } from '@/programs/tokenMetadata';
-import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
-import { Signer } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
-import { Nft } from './../models/Nft';
-import { updateNftBuilder } from './../transactionBuilders';
-import { findNftFromMint } from './findNft';
+import { Metaplex } from "@/Metaplex";
+import { DataV2, MetadataAccount } from "@/programs/tokenMetadata";
+import { Collection, Creator, Uses } from "@/programs/tokenMetadata/generated";
+import { Signer } from "@/utils";
+import { PublicKey } from "@solana/web3.js";
+import { Nft } from "./../models/Nft";
+import { updateNftBuilder } from "./../transactionBuilders";
+import { findNftFromMint } from "./findNft";
 
 export interface UpdateNftParams {
   mint: PublicKey;
@@ -66,8 +66,7 @@ const resolveData = (params: UpdateNftParams, nft: Nft): DataV2 => {
     name: params.name ?? nft.name,
     symbol: params.symbol ?? nft.symbol,
     uri: params.uri ?? nft.uri,
-    sellerFeeBasisPoints:
-      params.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
     creators: params.creators ?? nft.creators,
     collection: params.collection ?? nft.collection,
     uses: params.uses ?? nft.uses,

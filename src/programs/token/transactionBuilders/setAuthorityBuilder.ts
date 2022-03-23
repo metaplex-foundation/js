@@ -4,11 +4,11 @@ import { createSetAuthorityInstruction, TOKEN_PROGRAM_ID, AuthorityType } from "
 import { Signer } from "@/utils";
 
 export interface SetAuthorityBuilderParams {
-  mint: PublicKey,
-  currentAuthority: PublicKey | Signer,
-  authorityType: AuthorityType,
-  newAuthority: PublicKey | null,
-  multiSigners?: Web3Signer[],
+  mint: PublicKey;
+  currentAuthority: PublicKey | Signer;
+  authorityType: AuthorityType;
+  newAuthority: PublicKey | null;
+  multiSigners?: Web3Signer[];
   tokenProgram?: PublicKey;
   instructionKey?: string;
 }
@@ -21,12 +21,13 @@ export const setAuthorityBuilder = (params: SetAuthorityBuilderParams): Transact
     newAuthority,
     multiSigners = [],
     tokenProgram = TOKEN_PROGRAM_ID,
-    instructionKey = 'setAuthority',
+    instructionKey = "setAuthority",
   } = params;
 
-  const [currentAuthorityPublicKey, signers] = currentAuthority instanceof PublicKey
-    ? [currentAuthority, multiSigners]
-    : [currentAuthority.publicKey, [currentAuthority]];
+  const [currentAuthorityPublicKey, signers] =
+    currentAuthority instanceof PublicKey
+      ? [currentAuthority, multiSigners]
+      : [currentAuthority.publicKey, [currentAuthority]];
 
   return TransactionBuilder.make().add({
     instruction: createSetAuthorityInstruction(
@@ -35,9 +36,9 @@ export const setAuthorityBuilder = (params: SetAuthorityBuilderParams): Transact
       authorityType,
       newAuthority,
       multiSigners,
-      tokenProgram,
+      tokenProgram
     ),
     signers,
     key: instructionKey,
   });
-}
+};

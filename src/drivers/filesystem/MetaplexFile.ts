@@ -1,12 +1,12 @@
-import { Buffer } from 'buffer';
-import { getContentType, getExtension, randomStr } from '@/utils';
+import { Buffer } from "buffer";
+import { getContentType, getExtension, randomStr } from "@/utils";
 
 export interface MetaplexFileOptions {
   displayName?: string;
   uniqueName?: string;
   contentType?: string;
   extension?: string;
-  tags?: { name: string, value: string }[];
+  tags?: { name: string; value: string }[];
 }
 
 export class MetaplexFile {
@@ -16,9 +16,13 @@ export class MetaplexFile {
   public readonly uniqueName: string;
   public readonly contentType: string | null;
   public readonly extension: string | null;
-  public readonly tags: { name: string, value: string }[];
+  public readonly tags: { name: string; value: string }[];
 
-  constructor(content: string | Buffer | Uint8Array | ArrayBuffer, fileName: string, options: MetaplexFileOptions = {}) {
+  constructor(
+    content: string | Buffer | Uint8Array | ArrayBuffer,
+    fileName: string,
+    options: MetaplexFileOptions = {}
+  ) {
     this.buffer = MetaplexFile.parseContent(content);
     this.fileName = fileName;
     this.displayName = options.displayName ?? fileName;
@@ -43,14 +47,11 @@ export class MetaplexFile {
   }
 
   getTagsWithContentType() {
-    if (! this.contentType) {
+    if (!this.contentType) {
       return this.tags;
     }
 
-    return [
-      { name: 'Content-Type', value: this.contentType },
-      ...this.tags,
-    ];
+    return [{ name: "Content-Type", value: this.contentType }, ...this.tags];
   }
 
   toBuffer(): Buffer {

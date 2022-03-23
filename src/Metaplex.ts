@@ -1,5 +1,17 @@
-import { AccountInfo, Commitment, ConfirmOptions, Connection, ConnectionConfig, PublicKey, RpcResponseAndContext, SendOptions, SignatureResult, Transaction, TransactionSignature } from "@solana/web3.js";
-import { Buffer } from 'buffer';
+import {
+  AccountInfo,
+  Commitment,
+  ConfirmOptions,
+  Connection,
+  ConnectionConfig,
+  PublicKey,
+  RpcResponseAndContext,
+  SendOptions,
+  SignatureResult,
+  Transaction,
+  TransactionSignature,
+} from "@solana/web3.js";
+import { Buffer } from "buffer";
 import { TransactionBuilder } from "@/programs/shared";
 import { IdentityDriver, GuestIdentityDriver } from "@/drivers/identity";
 import { StorageDriver, BundlrStorageDriver } from "@/drivers/storage";
@@ -11,10 +23,9 @@ export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
 export type MetaplexOptions = ConnectionConfig & {
   // ...
-}
+};
 
 export class Metaplex {
-
   /** The RPC endpoint to use to communicate to the blockchain. */
   public readonly endpoint: string;
 
@@ -69,7 +80,7 @@ export class Metaplex {
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,
     signers: Signer[] = [],
-    sendOptions: SendOptions = {},
+    sendOptions: SendOptions = {}
   ): Promise<TransactionSignature> {
     if (transaction instanceof TransactionBuilder) {
       signers = [...transaction.getSigners(), ...signers];
@@ -84,20 +95,18 @@ export class Metaplex {
       }
     }
 
-    return this.identity().sendTransaction(transaction, keypairs, sendOptions)
+    return this.identity().sendTransaction(transaction, keypairs, sendOptions);
   }
 
   async confirmTransaction(
     signature: TransactionSignature,
-    commitment?: Commitment,
+    commitment?: Commitment
   ): Promise<RpcResponseAndContext<SignatureResult>> {
     const rpcResponse = await this.connection.confirmTransaction(signature, commitment);
 
     if (rpcResponse.value.err) {
       // TODO: Custom errors.
-      throw new Error(
-        `Transaction ${signature} failed (${JSON.stringify(rpcResponse.value)})`,
-      );
+      throw new Error(`Transaction ${signature} failed (${JSON.stringify(rpcResponse.value)})`);
     }
 
     return rpcResponse;
@@ -106,7 +115,7 @@ export class Metaplex {
   async sendAndConfirmTransaction(
     transaction: Transaction | TransactionBuilder,
     signers?: Signer[],
-    confirmOptions?: ConfirmOptions,
+    confirmOptions?: ConfirmOptions
   ): Promise<TransactionSignature> {
     const signature = await this.sendTransaction(transaction, signers, confirmOptions);
     await this.confirmTransaction(signature, confirmOptions?.commitment);
@@ -115,12 +124,12 @@ export class Metaplex {
   }
 
   async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
-    return this.connection.getAccountInfo(publicKey, commitment)
+    return this.connection.getAccountInfo(publicKey, commitment);
   }
 
   async getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
     const accounts = await this.connection.getMultipleAccountsInfo(publicKeys, commitment);
-    
+
     return accounts as Array<AccountInfo<Buffer> | null>;
   }
 }

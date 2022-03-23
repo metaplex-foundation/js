@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 import { TokenMetadataGpaBuilder } from "./TokenMetadataGpaBuilder";
 import { padEmptyChars } from "@/utils";
 
@@ -14,7 +14,6 @@ const URI_START = SYMBOL_START + MAX_SYMBOL_LENGTH + 4;
 const CREATORS_START = URI_START + MAX_URI_LENGTH + 2 + 1 + 4;
 
 export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
-
   selectUpdatedAuthority() {
     return this.slice(1, 32);
   }

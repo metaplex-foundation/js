@@ -7,7 +7,6 @@ import { JsonMetadata } from "./JsonMetadata";
 import { removeEmptyChars } from "@/utils";
 
 export class Nft extends Model {
-
   /** The Metadata PDA account defining the NFT. */
   public readonly metadataAccount: MetadataAccount;
 
@@ -39,7 +38,7 @@ export class Nft extends Model {
   constructor(
     metadataAccount: MetadataAccount,
     masterEditionAccount: MasterEditionAccount | null = null,
-    json: JsonMetadata | null = null,
+    json: JsonMetadata | null = null
   ) {
     super();
     this.metadataAccount = metadataAccount;

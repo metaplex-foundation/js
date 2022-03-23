@@ -13,10 +13,10 @@ export abstract class StorageDriver extends Driver {
       jsonString = JSON.stringify(json);
     } catch (error) {
       // TODO: Custom errors.
-      throw new Error('Invalid JSON');
+      throw new Error("Invalid JSON");
     }
 
-    return this.upload(new MetaplexFile(jsonString, 'inline.json'));
+    return this.upload(new MetaplexFile(jsonString, "inline.json"));
   }
 
   public async download(uri: string): Promise<MetaplexFile> {

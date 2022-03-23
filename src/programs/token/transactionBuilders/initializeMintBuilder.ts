@@ -19,7 +19,7 @@ export const initializeMintBuilder = (params: InitializeMintBuilderParams): Tran
     mintAuthority,
     freezeAuthority = null,
     tokenProgram = TOKEN_PROGRAM_ID,
-    instructionKey = 'initializeMint',
+    instructionKey = "initializeMint",
   } = params;
 
   return TransactionBuilder.make().add({
@@ -28,9 +28,9 @@ export const initializeMintBuilder = (params: InitializeMintBuilderParams): Tran
       decimals,
       mintAuthority,
       freezeAuthority,
-      tokenProgram,
+      tokenProgram
     ),
     signers: [mint],
     key: instructionKey,
   });
-}
+};

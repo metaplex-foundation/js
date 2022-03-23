@@ -3,7 +3,6 @@ import BN from "bn.js";
 import { TokenProgramGpaBuilder } from "./TokenProgramGpaBuilder";
 
 export class MintGpaBuilder extends TokenProgramGpaBuilder {
-
   whereDoesntHaveMintAuthority() {
     return this.where(0, 0);
   }

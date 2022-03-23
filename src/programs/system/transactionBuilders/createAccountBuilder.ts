@@ -18,7 +18,7 @@ export const createAccountBuilder = (params: CreateAccountBuilderParams): Transa
     payer,
     newAccount,
     program = SystemProgram.programId,
-    instructionKey = 'createAccount',
+    instructionKey = "createAccount",
   } = params;
 
   return TransactionBuilder.make().add({
@@ -32,4 +32,4 @@ export const createAccountBuilder = (params: CreateAccountBuilderParams): Transa
     signers: [payer, newAccount],
     key: instructionKey,
   });
-}
+};

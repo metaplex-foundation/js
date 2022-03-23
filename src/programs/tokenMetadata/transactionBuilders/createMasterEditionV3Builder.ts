@@ -15,7 +15,9 @@ export interface CreateMasterEditionV3BuilderParams {
   instructionKey?: string;
 }
 
-export const createMasterEditionV3Builder = (params: CreateMasterEditionV3BuilderParams): TransactionBuilder => {
+export const createMasterEditionV3Builder = (
+  params: CreateMasterEditionV3BuilderParams
+): TransactionBuilder => {
   const {
     maxSupply = null,
     payer,
@@ -24,7 +26,7 @@ export const createMasterEditionV3Builder = (params: CreateMasterEditionV3Builde
     mint,
     metadata,
     masterEdition,
-    instructionKey = 'createMasterEditionV3',
+    instructionKey = "createMasterEditionV3",
   } = params;
 
   return TransactionBuilder.make().add({
@@ -37,9 +39,9 @@ export const createMasterEditionV3Builder = (params: CreateMasterEditionV3Builde
         payer: payer.publicKey,
         metadata,
       },
-      { createMasterEditionArgs: { maxSupply } },
+      { createMasterEditionArgs: { maxSupply } }
     ),
     signers: [payer, mintAuthority, updateAuthority],
     key: instructionKey,
   });
-}
+};

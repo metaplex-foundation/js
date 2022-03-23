@@ -3,7 +3,6 @@ import BN from "bn.js";
 import { TokenProgramGpaBuilder } from "./TokenProgramGpaBuilder";
 
 export class TokenGpaBuilder extends TokenProgramGpaBuilder {
-
   whereMint(mint: PublicKey) {
     return this.where(0, mint);
   }

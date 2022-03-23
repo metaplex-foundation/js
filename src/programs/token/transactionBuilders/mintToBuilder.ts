@@ -21,12 +21,13 @@ export const mintToBuilder = (params: MintToBuilderParams): TransactionBuilder =
     amount,
     multiSigners = [],
     tokenProgram = TOKEN_PROGRAM_ID,
-    instructionKey = 'mintTo',
+    instructionKey = "mintTo",
   } = params;
 
-  const [mintAuthorityPublicKey, signers] = mintAuthority instanceof PublicKey
-    ? [mintAuthority, multiSigners]
-    : [mintAuthority.publicKey, [mintAuthority]];
+  const [mintAuthorityPublicKey, signers] =
+    mintAuthority instanceof PublicKey
+      ? [mintAuthority, multiSigners]
+      : [mintAuthority.publicKey, [mintAuthority]];
 
   return TransactionBuilder.make().add({
     instruction: createMintToInstruction(
@@ -35,9 +36,9 @@ export const mintToBuilder = (params: MintToBuilderParams): TransactionBuilder =
       mintAuthorityPublicKey,
       amount,
       multiSigners,
-      tokenProgram,
+      tokenProgram
     ),
     signers,
     key: instructionKey,
   });
-}
+};

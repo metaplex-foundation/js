@@ -8,7 +8,6 @@ export interface TransactionBuilderRecord {
 }
 
 export class TransactionBuilder {
-
   /** The list of all instructions and their respective signers. */
   private records: TransactionBuilderRecord[] = [];
 
@@ -24,14 +23,18 @@ export class TransactionBuilder {
   }
 
   prepend(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
-    const newRecords = txs.flatMap(tx => tx instanceof TransactionBuilder ? tx.getRecords() : [tx]);
+    const newRecords = txs.flatMap((tx) =>
+      tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
+    );
     this.records = [...newRecords, ...this.records];
 
     return this;
   }
 
   append(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
-    const newRecords = txs.flatMap(tx => tx instanceof TransactionBuilder ? tx.getRecords() : [tx]);
+    const newRecords = txs.flatMap((tx) =>
+      tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
+    );
     this.records = [...this.records, ...newRecords];
 
     return this;
@@ -44,14 +47,14 @@ export class TransactionBuilder {
   splitUsingKey(key: string, include: boolean = true): [TransactionBuilder, TransactionBuilder] {
     const firstBuilder = new TransactionBuilder(this.transactionOptions);
     const secondBuilder = new TransactionBuilder(this.transactionOptions);
-    let keyPosition = this.records.findIndex(record => record.key === key)
+    let keyPosition = this.records.findIndex((record) => record.key === key);
 
     if (keyPosition > -1) {
-      keyPosition += include ? 1 : 0; 
-      firstBuilder.add(...this.records.slice(0, keyPosition))
-      firstBuilder.add(...this.records.slice(keyPosition))
+      keyPosition += include ? 1 : 0;
+      firstBuilder.add(...this.records.slice(0, keyPosition));
+      firstBuilder.add(...this.records.slice(keyPosition));
     } else {
-      firstBuilder.add(this)
+      firstBuilder.add(this);
     }
 
     return [firstBuilder, secondBuilder];
@@ -70,11 +73,11 @@ export class TransactionBuilder {
   }
 
   getInstructions(): TransactionInstruction[] {
-    return this.records.map(record => record.instruction);
+    return this.records.map((record) => record.instruction);
   }
 
   getSigners(): Signer[] {
-    return this.records.flatMap(record => record.signers);
+    return this.records.flatMap((record) => record.signers);
   }
 
   setTransactionOptions(transactionOptions: TransactionCtorFields): TransactionBuilder {
