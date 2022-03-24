@@ -7,7 +7,6 @@ import {
   createNft,
   updateNft,
   UpdateNftParams,
-  UpdateNftResult,
   CreateNftResult,
 } from '@/modules/nfts';
 import { tryOrNull } from '@/utils';
@@ -17,11 +16,11 @@ export class NftClient extends ModuleClient {
   async createNft(
     params: CreateNftParams,
     confirmOptions?: ConfirmOptions
-  ): Promise<{ nft: Nft; createNftResult: CreateNftResult }> {
+  ): Promise<{ nft: Nft } & CreateNftResult> {
     const createNftResult = await createNft(this.metaplex, params, confirmOptions);
 
     const nft = await this.findNft({ mint: createNftResult.mint.publicKey });
-    return { nft, createNftResult };
+    return { ...createNftResult, nft };
   }
 
   async findNft(params: FindNftParams): Promise<Nft> {
