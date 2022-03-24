@@ -54,14 +54,14 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-IMAGE: High-level architecture of the SDK.
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/159907775-5e5595dd-1c07-4172-92c7-4e81693d2d51.png)
 
 Now, let’s look into the NFT module and the identity and storage drivers in a bit more detail.
 
 ## NFTs
 The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
 
-IMAGE: High-level architecture of the SDK with the NFT module highlighted.
+![High-level architecture of the SDK with the NFT module highlighted.](https://user-images.githubusercontent.com/3642397/159907874-97688caf-d534-49b1-b3f3-cfd6f89d2f5e.png)
 
 ### findNft
 
@@ -150,7 +150,7 @@ The implementation of these method depends on the concrete identity driver being
 
 Let’s have a quick look at the concrete identity drivers available to us.
 
-IMAGE: High-level architecture of the SDK with the Identity drivers highlighted.
+![High-level architecture of the SDK with the Identity drivers highlighted.](https://user-images.githubusercontent.com/3642397/159907921-7c203e9e-837c-4aaf-91eb-6e4f10f7c74b.png)
 
 ### guestIdentity
 
@@ -235,7 +235,7 @@ class MetaplexFile {
 
 The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us.
 
-IMAGE: High-level architecture of the SDK with the Storage drivers highlighted.
+![High-level architecture of the SDK with the Storage drivers highlighted.](https://user-images.githubusercontent.com/3642397/159907965-1c11be34-a5ee-4aca-961f-46a69bb08aa8.png)
 
 ### bundlrStorage
 
