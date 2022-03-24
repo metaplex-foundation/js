@@ -26,7 +26,9 @@ export class NftClient extends ModuleClient {
     return tryOrNull(() => this.findNft(params));
   }
 
-  async updateNft(nft: Nft, params: UpdateNftParams): Promise<UpdateNftResult> {
-    return updateNft(this.metaplex, nft, params);
+  async updateNft(nft: Nft, params: UpdateNftParams): Promise<Nft> {
+    await updateNft(this.metaplex, nft, params);
+
+    return this.findNft({ mint: nft.mint });
   }
 }
