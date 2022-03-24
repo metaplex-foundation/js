@@ -5,11 +5,8 @@ import { Signer } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 import { Nft } from './../models/Nft';
 import { updateNftBuilder } from './../transactionBuilders';
-import { findNftFromMint } from './findNft';
 
 export interface UpdateNftParams {
-  mint: PublicKey;
-
   // Data.
   name: string;
   symbol: string;
@@ -32,11 +29,9 @@ export interface UpdateNftResult {
 
 export const updateNft = async (
   metaplex: Metaplex,
+  nft: Nft,
   params: UpdateNftParams
 ): Promise<UpdateNftResult> => {
-  const { mint } = params;
-  const nft = await findNftFromMint(metaplex, mint);
-
   const {
     newUpdateAuthority = nft.updateAuthority,
     primarySaleHappened = nft.primarySaleHappened,
@@ -46,7 +41,7 @@ export const updateNft = async (
 
   const data = resolveData(params, nft);
 
-  const metadata = await MetadataAccount.pda(mint);
+  const metadata = await MetadataAccount.pda(nft.mint);
 
   const transactionId = await metaplex.sendAndConfirmTransaction(
     updateNftBuilder({
