@@ -14,7 +14,7 @@ export class Nft extends Model {
   public readonly masterEditionAccount: MasterEditionAccount | null;
 
   /** The JSON metadata from the URI. */
-  public readonly json: JsonMetadata | null;
+  public readonly metadata: JsonMetadata | null;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -38,12 +38,12 @@ export class Nft extends Model {
   constructor(
     metadataAccount: MetadataAccount,
     masterEditionAccount: MasterEditionAccount | null = null,
-    json: JsonMetadata | null = null
+    metadata: JsonMetadata | null = null
   ) {
     super();
     this.metadataAccount = metadataAccount;
     this.masterEditionAccount = masterEditionAccount;
-    this.json = json;
+    this.metadata = metadata;
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;

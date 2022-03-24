@@ -23,15 +23,19 @@ export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Prom
   const publicKeys = [metadataPda, editionPda];
 
   const [metadataInfo, editionInfo] = await metaplex.getMultipleAccountsInfo(publicKeys);
-  const metadata = metadataInfo ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
-  const edition = editionInfo ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
+  const metadataAccount = metadataInfo ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
+  const masterEditionAccount = editionInfo ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
 
-  if (!metadata) {
+  if (!metadataAccount) {
     // TODO: Custom error.
     throw new Error('Nft not found');
   }
 
-  return new Nft(metadata, edition, await fetchJsonMetadata(metaplex, metadata));
+  return new Nft(
+    metadataAccount,
+    masterEditionAccount,
+    await fetchJsonMetadata(metaplex, metadataAccount)
+  );
 };
 
 const fetchJsonMetadata = async (

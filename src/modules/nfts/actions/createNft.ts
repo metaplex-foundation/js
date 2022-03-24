@@ -13,7 +13,7 @@ export interface CreateNftParams {
   name?: string;
   symbol?: string;
   uri?: string;
-  json?: JsonMetadata;
+  metadata?: JsonMetadata;
   sellerFeeBasisPoints?: number;
   creators?: Creator[];
   collection?: Collection;
@@ -63,11 +63,11 @@ export const createNft = async (
     associatedTokenProgram,
   } = params;
 
-  const [uri, json] = await resolveUriAndJson(metaplex, params);
-  const data = resolveData(params, uri, json, updateAuthority.publicKey);
+  const [uri, metadata] = await resolveUriAndJson(metaplex, params);
+  const data = resolveData(params, uri, metadata, updateAuthority.publicKey);
 
-  const metadata = await MetadataAccount.pda(mint.publicKey);
-  const masterEdition = await MasterEditionAccount.pda(mint.publicKey);
+  const metadataPda = await MetadataAccount.pda(mint.publicKey);
+  const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
   const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
   const associatedToken = await getAssociatedTokenAddress(
     mint.publicKey,
@@ -90,8 +90,8 @@ export const createNft = async (
       owner,
       associatedToken,
       freezeAuthority,
-      metadata,
-      masterEdition,
+      metadata: metadataPda,
+      masterEdition: masterEditionPda,
       tokenProgram,
       associatedTokenProgram,
     })
@@ -100,8 +100,8 @@ export const createNft = async (
   return {
     transactionId,
     mint,
-    metadata,
-    masterEdition,
+    metadata: metadataPda,
+    masterEdition: masterEditionPda,
     associatedToken,
   };
 };
@@ -111,18 +111,18 @@ const resolveUriAndJson = async (
   params: CreateNftParams
 ): Promise<[string, JsonMetadata]> => {
   if (params.uri) {
-    const json: JsonMetadata = await metaplex.storage().downloadJson(params.uri);
+    const metadata: JsonMetadata = await metaplex.storage().downloadJson(params.uri);
 
-    return [params.uri, json];
+    return [params.uri, metadata];
   }
 
-  if (params.json) {
-    const uri = await metaplex.storage().uploadJson(params.json);
+  if (params.metadata) {
+    const uri = await metaplex.storage().uploadJson(params.metadata);
 
-    return [uri, params.json];
+    return [uri, params.metadata];
   }
 
-  const json: JsonMetadata = {
+  const metadata: JsonMetadata = {
     name: params.name,
     symbol: params.symbol,
     seller_fee_basis_points: params.sellerFeeBasisPoints,
@@ -134,18 +134,18 @@ const resolveUriAndJson = async (
     },
   };
 
-  const uri = await metaplex.storage().uploadJson(json);
+  const uri = await metaplex.storage().uploadJson(metadata);
 
-  return [uri, json];
+  return [uri, metadata];
 };
 
 const resolveData = (
   params: CreateNftParams,
   uri: string,
-  json: JsonMetadata,
+  metadata: JsonMetadata,
   updateAuthority: PublicKey
 ): DataV2 => {
-  const jsonCreators: Creator[] | undefined = json.properties?.creators
+  const metadataCreators: Creator[] | undefined = metadata.properties?.creators
     ?.filter((creator) => creator.address)
     .map((creator) => ({
       address: new PublicKey(creator.address as string),
@@ -153,7 +153,7 @@ const resolveData = (
       verified: false,
     }));
 
-  let creators = params.creators ?? jsonCreators ?? null;
+  let creators = params.creators ?? metadataCreators ?? null;
 
   if (creators === null) {
     creators = [
@@ -174,10 +174,10 @@ const resolveData = (
   }
 
   return {
-    name: params.name ?? json.name ?? '',
-    symbol: params.symbol ?? json.symbol ?? '',
+    name: params.name ?? metadata.name ?? '',
+    symbol: params.symbol ?? metadata.symbol ?? '',
     uri,
-    sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? json.seller_fee_basis_points ?? 500,
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
     creators,
     collection: params.collection ?? null,
     uses: params.uses ?? null,

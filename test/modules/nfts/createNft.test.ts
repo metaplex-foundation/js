@@ -31,7 +31,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 		$topic: 'nft',
 		name: 'On-chain NFT name',
 		uri: metadataUri,
-		json: {
+		metadata: {
 			name: 'JSON NFT name',
 			description: 'JSON NFT description',
 			image: imageUri,
@@ -65,14 +65,13 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 	const owner = Keypair.generate();
 	const mintAuthority = Keypair.generate();
 	const updateAuthority = Keypair.generate();
-	const freezeAuthority = Keypair.generate();
 	const otherCreator = Keypair.generate();
 
 	// When we create a new NFT with minimum configuration.
 	const nft = await mx.nfts().createNft({
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
-		json: {
+		metadata: {
 			name: 'JSON NFT name',
 			description: 'JSON NFT description',
 			image: imageUri,
@@ -116,7 +115,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 		$topic: 'nft',
 		name: 'On-chain NFT name',
 		uri: spok.string,
-		json: {
+		metadata: {
 			name: 'JSON NFT name',
 			description: 'JSON NFT description',
 			image: imageUri,
@@ -159,7 +158,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 	// And two other creators used in the JSON metadata.
 	const creatorA = Keypair.generate().publicKey;
 	const creatorB = Keypair.generate().publicKey;
-	const json: JsonMetadata = {
+	const metadata: JsonMetadata = {
 		name: 'JSON NFT name',
 		symbol: 'MYNFT',
 		description: 'JSON NFT description',
@@ -184,7 +183,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 	};
 
 	// When we create a new NFT using that JSON metadata only.
-	const nft = await mx.nfts().createNft({ json });
+	const nft = await mx.nfts().createNft({ metadata });
 
 	// Then the created NFT used some of the JSON metadata to fill some on-chain data.
 	spok(t, nft, {
@@ -192,7 +191,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 		name: 'JSON NFT name',
 		symbol: 'MYNFT',
 		uri: spok.string,
-		json,
+		metadata,
 		sellerFeeBasisPoints: 456,
 		creators: [
 			{
@@ -253,7 +252,7 @@ test('it creates missing JSON metadata from the on-chain data', async (t: Test) 
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
 		uri: spok.string,
-		json: {
+		metadata: {
 			name: 'On-chain NFT name',
 			symbol: 'MYNFT',
 			seller_fee_basis_points: 456,
