@@ -24,7 +24,9 @@ export const findNftFromMint = async (metaplex: Metaplex, mint: PublicKey): Prom
 
   const [metadataInfo, editionInfo] = await metaplex.getMultipleAccountsInfo(publicKeys);
   const metadataAccount = metadataInfo ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
-  const masterEditionAccount = editionInfo ? MasterEditionAccount.fromAccountInfo(editionInfo) : null;
+  const masterEditionAccount = editionInfo
+    ? MasterEditionAccount.fromAccountInfo(editionInfo)
+    : null;
 
   if (!metadataAccount) {
     // TODO: Custom error.

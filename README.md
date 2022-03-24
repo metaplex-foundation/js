@@ -1,4 +1,304 @@
-# js-next
-[WIP] The next Metaplex JavaScript SDK
+# Metaplex JavaScript SDK
 
-[Architecture diagram](https://whimsical.com/jssdk-v2-78ZR9rVb84Qn4NTL6FP4qW).
+```scala
+⛔️ DO NOT USE IN PRODUCTION, THIS SDK IS IN VERY EARLY ALPHA STAGES!
+```
+
+This SDK helps developers getting started with the on-chain tools provided by Metaplex in a flexible and customisable way.
+
+Please note that this SDK has been re-implemented from scratch and is currently in alpha. This means, some of the core API and interfaces might change from one alpha version to another and therefore **we do not recommend that you use it in production** just yet.
+
+However, feel free to play with it and provide some early feedback if you wish to contribute to the direction of this project.
+
+## Installation
+```sh
+npm install @metaplex/js-next
+```
+
+## Setup
+The entry point to the JavaScript SDK is a `Metaplex` instance that will give you access to its API.
+
+At the very least, it accepts the RPC endpoint that should be used to communicate with the cluster.
+
+```ts
+import { Metaplex } from "@metaplex/js-next";
+import { clusterApiUrl } from "@solana/web3.js";
+
+const endpoint = clusterApiUrl("mainnet-beta");
+const metaplex = new Metaplex(endpoint);
+```
+
+You may also pass additional configurations which, for the moment, match the configurations you would give when creating a `Connection` instance.
+
+On top of that, you can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. You may do this by using the `setIdentity` and `setStorage` method respectively. We’ll talk more about these methods and what they accept below.
+
+```ts
+import { Metaplex, keypairIdentity } from "@metaplex/js-next";
+import { clusterApiUrl, Keypair } from "@solana/web3.js";
+
+const endpoint = clusterApiUrl("mainnet-beta");
+const configs = { commitment: "processed" };
+const wallet = Keypair.generate();
+
+const metaplex = Metaplex.make(endpoint, configs)
+    .setIdentity(keypairIdentity(wallet))
+    .setStorage(bundlrStorage());
+```
+
+Notice how you can create a `Metaplex` instance using `Metaplex.make(...)` instead of `new Metaplex(...)` in order to make the fluent API more readable.
+
+## Usage
+As you can see from the previous example, once you have a `Metaplex` instance, you can configure it by providing the right identity and storage providers. Think of them as drivers you can replace to fit your needs. You may even create your own drivers by extending their abstract interface.
+
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module you will be able to find, create and update NFTs with more feature to come.
+
+Here is a little visual representation of the SDK in its current state.
+
+IMAGE: High-level architecture of the SDK.
+
+Now, let’s look into the NFT module and the identity and storage drivers in a bit more detail.
+
+## NFTs
+The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
+
+IMAGE: High-level architecture of the SDK with the NFT module highlighted.
+
+### findNft
+
+The `findNft` method accepts a `mint` public key and returns [an `Nft` object](TODO).
+
+```ts
+const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
+
+const nft = await metaplex.nfts().findNft({ mint });
+```
+
+Currently, you can only find an NFT via its mint address but more options will be added soon — e.g. by metadata PDA, by uri, etc. — hence the object parameter.
+
+### createNft
+
+The `createNft` method accepts [a whole bunch of parameters](/src/modules/nfts/actions/createNft.ts#L11) where most of them are optional as the SDK will do its best to provide sensible default values.
+
+For instance, say you’ve already uploaded the JSON metadata somewhere, you can create a new NFT by simply providing that its URI like so:
+
+```ts
+const nft = await metaplex.nfts().createNft({
+    uri: "https://arweave.net/I0SChzC7YKr8NNctCCSMWWmrHegvuH4sN_-c6LU51wQ",
+});
+```
+
+This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its field to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name.
+
+When no owner, mint authority or update authority are provided, the “identity” of the SDK will be used by default. It will also default to setting the identity as the first and only creator with a 100% share and will set the secondary sales royalties to 5%. You can, of course, customise any of these parameters by providing them explicitly.
+
+[Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
+
+### updateNft
+
+The `updateNft` method accepts an `Nft` object and a set of parameter to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
+
+For instance, here is how you would change the on-chain name of an NFT.
+
+```ts
+const updatedNft = await metaplex.nfts().updateNft(nft, {
+    name: "My Updated Name",
+});
+```
+
+Anything that you don’t provide in the parameters will stay unchanged.
+
+If you’d like to change the NFT metadata, you’d first need to upload a new JSON metadata and then update the NFT using its URI.
+
+```ts
+const newUri = await metaplex.storage().uploadJson({
+    ...nft.metadata,
+    name: "My Updated Metadata Name",
+    description: "My Updated Metadata Description",
+});
+
+const updatedNft = await metaplex.nfts().updateNft(nft, {
+    uri: newUri,
+});
+```
+
+Notice how we can use the storage driver for this. We’ll talk more about that below.
+
+### The `Nft` model
+
+All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contain all the information you need at the top level — i.e. no more `metadata.data.data`.
+
+You can see [its full data representation here](/src/modules/nfts/models/Nft.ts).
+
+## Identity
+The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
+
+This method returns an identity object with the following interface.
+
+```ts
+class IdentityDriver {
+    publicKey: PublicKey;
+    signMessage(message: Uint8Array): Promise<Uint8Array>;
+    verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
+    signTransaction(transaction: Transaction): Promise<Transaction>;
+    signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
+    sendTransaction(transaction: Transaction, signers: Signer[], options?: SendOptions): Promise<TransactionSignature>;
+    is(that: IdentityDriver): boolean;
+}
+```
+
+The implementation of these method depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
+
+Let’s have a quick look at the concrete identity drivers available to us.
+
+IMAGE: High-level architecture of the SDK with the Identity drivers highlighted.
+
+### guestIdentity
+
+The `guestIdentity` driver is the default driver and requires no parameter. It is essentially a `null` driver that can be useful when we don’t need to send any signed transactions.
+
+```ts
+import { guestIdentity } from "@metaplex/js-next";
+
+metaplex.setIdentity(guestIdentity());
+```
+
+If we try to sign a message or a transaction using this driver, an error will be thrown.
+
+### keypairIdentity
+
+The `keypairIdentity` driver accepts a `Keypair` object as a parameter. This is useful when using the SDK locally such as within CLI applications.
+
+```ts
+import { keypairIdentity } from "@metaplex/js-next";
+import { Keypair } from "@solana/web3.js";
+
+// Load a local keypair.
+const keypairFile = fs.readFileSync('/Users/username/.config/solana/id.json');
+const keypair = Keypair.fromSecretKey(Buffer.from(JSON.parse(keypairFile.toString())));
+
+// Use it in the SDK.
+metaplex.setIdentity(keypairIdentity(keypair));
+```
+
+### walletAdapterIdentity
+
+The `walletAdapterIdentity` driver accepts a wallet adapter as defined by the [“wallet-adapter” repo from Solana Labs](https://github.com/solana-labs/wallet-adapter). This is useful when using the SDK in a web application that requires the user to manually approve transactions.
+
+```ts
+import { walletAdapterIdentity } from "@metaplex/js-next";
+import { useWallet } from '@solana/wallet-adapter-react';
+
+const { wallet } = useWallet();
+
+if (wallet) {
+    metaplex.setIdentity(walletAdapterIdentity(wallet));
+}
+```
+
+Note that we have to wrap `setIdentity` in a if-statement because `wallet` could be `null` — meaning there’s no connected wallet at this time. If you’d like to accept a nullable wallet and use the `guestIdentity` when it is null, you may use the `walletOrGuestIdentity` helper method instead.
+
+```ts
+import { walletOrGuestIdentity } from "@metaplex/js-next";
+import { useWallet } from '@solana/wallet-adapter-react';
+
+const { wallet } = useWallet();
+
+metaplex.setIdentity(walletOrGuestIdentity(wallet));
+```
+
+## Storage
+You may access the current storage driver using `metaplex.storage()` which will give you access to the following interface.
+
+```ts
+class StorageDriver {
+    getPrice(file: MetaplexFile): Promise<BN>;
+    upload(file: MetaplexFile): Promise<string>;
+    uploadJson<T extends object>(json: T): Promise<string>;
+    download(uri: string): Promise<MetaplexFile>;
+    downloadJson<T extends object>(uri: string): Promise<T>;
+}
+```
+
+The `MetaplexFile` class is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
+
+```ts
+class MetaplexFile {
+  public readonly buffer: Buffer;
+  public readonly fileName: string;
+  public readonly displayName: string;
+  public readonly uniqueName: string;
+  public readonly contentType: string | null;
+  public readonly extension: string | null;
+  public readonly tags: { name: string; value: string }[];
+}
+```
+
+The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us.
+
+IMAGE: High-level architecture of the SDK with the Storage drivers highlighted.
+
+### bundlrStorage
+
+The `bundlrStorage` driver is the default driver and uploads assets on Arweave using the [Bundlr network](https://bundlr.network/).
+
+By default, it will use the same RPC endpoint used by the `Metaplex` instance as a `providerUrl` and the mainnet address `"https://node1.bundlr.network"` as the Bundlr address.
+
+You may customise these by passing a parameter object to the `bundlrStorage` method. For instance, here’s how you can use Bundlr on devnet.
+
+```ts
+import { bundlrStorage } from "@metaplex/js-next";
+
+metaplex.setStorage(bundlrStorage({
+    address: 'https://devnet.bundlr.network',
+    providerUrl: 'https://api.devnet.solana.com',
+    timeout: 60000,
+}));
+```
+
+### awsStorage
+
+The `awsStorage` driver uploads assets off-chain to an S3 bucket of your choice.
+
+To set this up, you need to pass in the AWS client as well as the bucket name you wish to use. For instance:
+
+```ts
+import { awsStorage } from "@metaplex/js-next";
+import { S3Client } from "@aws-sdk/client-s3";
+
+const awsClient = new S3Client({ region: 'us-east-1' });
+
+metaplex.setStorage(awsStorage(awsClient, 'my-nft-bucket'));
+```
+
+When uploading a `MetaplexFile` using `metaplex.storage().upload(file)`, the unique name of the file will be used as the AWS key. By default, this will be a random string generated by the SDK but you may explicitly provide your own like so.
+
+```ts
+const file = new MetaplexFile('file-content', 'filename.jpg', {
+    uniqueName: 'my-unique-aws-key',
+})
+
+const uri = await metaplex.storage().upload(file);
+```
+
+### mockStorage
+
+The `mockStorage` driver is a fake driver mostly used for testing purposes. It will not actually upload the assets anywhere but instead will generate random URLs and keep track of their content in a local dictionary. That way, once uploaded, an asset can be retrieved using the `download` method.
+
+```ts
+import { mockStorage } from "@metaplex/js-next";
+
+metaplex.setStorage(mockStorage());
+```
+
+## Next steps
+As mentioned above, this is SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview on what we plan to work on next.
+- New features in the NFT module.
+- New modules such as a NFT Collections module, a Candy Machine module, an Action House module, etc.
+- More storage drivers.
+- More identity drivers.
+- New types of drivers such as error handling, logging, etc.
+- Extracting some of the SDK logic to external libraries for developers to reuse them in their own projects.
+- Adding more services and abstractions in order to encapsulate some of the quirky behaviour of the cluster and improve the user experience.
+- More documentation, tutorials, starter kits, etc.
+
+Stay tuned. 🔥
