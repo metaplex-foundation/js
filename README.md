@@ -65,7 +65,7 @@ The NFT module can be accessed via `Metaplex.nfts()` and provide the following m
 
 ### findNft
 
-The `findNft` method accepts a `mint` public key and returns [an `Nft` object](TODO).
+The `findNft` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
 
 ```ts
 const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
