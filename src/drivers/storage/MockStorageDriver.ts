@@ -20,7 +20,7 @@ export class mockStorageDriver extends StorageDriver {
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
-    const uri = `https://mockstorage.example.com/${file.uniqueName}`;
+    const uri = `${mockStorageDriver.MOCK_STORAGE_URI}${file.uniqueName}`;
     this.cache[uri] = file;
 
     return uri;
@@ -41,4 +41,5 @@ export class mockStorageDriver extends StorageDriver {
 
     return JSON.parse(file.toString());
   }
+  static MOCK_STORAGE_URI = 'https://mockstorage.example.com/';
 }
