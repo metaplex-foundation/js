@@ -82,7 +82,7 @@ The `createNft` method accepts [a whole bunch of parameters](/src/modules/nfts/a
 For instance, say you’ve already uploaded the JSON metadata somewhere, you can create a new NFT by simply providing that its URI like so:
 
 ```ts
-const nft = await metaplex.nfts().createNft({
+const { nft } = await metaplex.nfts().createNft({
     uri: "https://arweave.net/I0SChzC7YKr8NNctCCSMWWmrHegvuH4sN_-c6LU51wQ",
 });
 ```
@@ -100,7 +100,7 @@ The `updateNft` method accepts an `Nft` object and a set of parameter to update 
 For instance, here is how you would change the on-chain name of an NFT.
 
 ```ts
-const updatedNft = await metaplex.nfts().updateNft(nft, {
+const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
     name: "My Updated Name",
 });
 ```
@@ -116,7 +116,7 @@ const newUri = await metaplex.storage().uploadJson({
     description: "My Updated Metadata Description",
 });
 
-const updatedNft = await metaplex.nfts().updateNft(nft, {
+const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
     uri: newUri,
 });
 ```

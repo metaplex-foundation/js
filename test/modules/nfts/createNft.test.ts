@@ -21,7 +21,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 	});
 
 	// When we create a new NFT with minimum configuration.
-	const nft = await mx.nfts().createNft({
+	const { nft } = await mx.nfts().createNft({
 		name: 'On-chain NFT name',
 		uri: metadataUri,
 	});
@@ -68,7 +68,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 	const otherCreator = Keypair.generate();
 
 	// When we create a new NFT with minimum configuration.
-	const nft = await mx.nfts().createNft({
+	const { nft } = await mx.nfts().createNft({
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
 		metadata: {
@@ -183,7 +183,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 	};
 
 	// When we create a new NFT using that JSON metadata only.
-	const nft = await mx.nfts().createNft({ metadata });
+	const { nft } = await mx.nfts().createNft({ metadata });
 
 	// Then the created NFT used some of the JSON metadata to fill some on-chain data.
 	spok(t, nft, {
@@ -239,7 +239,7 @@ test('it creates missing JSON metadata from the on-chain data', async (t: Test) 
 	]
 
 	// When we create a new NFT on-chain data only.
-	const nft = await mx.nfts().createNft({
+	const { nft } = await mx.nfts().createNft({
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
 		sellerFeeBasisPoints: 456,
