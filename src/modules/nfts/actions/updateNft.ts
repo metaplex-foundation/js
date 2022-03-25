@@ -2,19 +2,19 @@ import { Metaplex } from '@/Metaplex';
 import { DataV2, MetadataAccount } from '@/programs/tokenMetadata';
 import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
 import { Signer } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Nft } from './../models/Nft';
 import { updateNftBuilder } from './../transactionBuilders';
 
 export interface UpdateNftParams {
   // Data.
-  name: string;
-  symbol: string;
-  uri: string;
-  sellerFeeBasisPoints: number;
-  creators: Creator[];
-  collection: Collection;
-  uses: Uses;
+  name?: string;
+  symbol?: string;
+  uri?: string;
+  sellerFeeBasisPoints?: number;
+  creators?: Creator[];
+  collection?: Collection;
+  uses?: Uses;
   newUpdateAuthority?: PublicKey;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
@@ -30,7 +30,8 @@ export interface UpdateNftResult {
 export const updateNft = async (
   metaplex: Metaplex,
   nft: Nft,
-  params: UpdateNftParams
+  params: UpdateNftParams,
+  confirmOptions?: ConfirmOptions
 ): Promise<UpdateNftResult> => {
   const {
     newUpdateAuthority = nft.updateAuthority,
@@ -51,7 +52,9 @@ export const updateNft = async (
       isMutable,
       updateAuthority,
       metadata,
-    })
+    }),
+    undefined,
+    confirmOptions
   );
   return { transactionId };
 };

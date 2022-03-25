@@ -11,6 +11,7 @@ import {
 } from '@/modules/nfts';
 import { tryOrNull } from '@/utils';
 import { ConfirmOptions } from '@solana/web3.js';
+import { UpdateNftResult } from './actions';
 
 export class NftClient extends ModuleClient {
   async createNft(
@@ -31,9 +32,14 @@ export class NftClient extends ModuleClient {
     return tryOrNull(() => this.findNft(params));
   }
 
-  async updateNft(nft: Nft, params: UpdateNftParams): Promise<Nft> {
-    await updateNft(this.metaplex, nft, params);
+  async updateNft(
+    nft: Nft,
+    params: UpdateNftParams,
+    confirmOptions?: ConfirmOptions
+  ): Promise<{ nft: Nft } & UpdateNftResult> {
+    const updateNftResult = await updateNft(this.metaplex, nft, params, confirmOptions);
+    const updatedNft = await this.findNft({ mint: nft.mint });
 
-    return this.findNft({ mint: nft.mint });
+    return { ...updateNftResult, nft: updatedNft };
   }
 }
