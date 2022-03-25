@@ -3,17 +3,24 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 
-export const mockStorage = () => (metaplex: Metaplex) => new mockStorageDriver(metaplex);
+const DEFAULT_COST_PER_BYTE = new BN(1);
+
+export const mockStorage = (costPerByte?: BN | number) => (metaplex: Metaplex) =>
+  new mockStorageDriver(metaplex, costPerByte != null ? new BN(costPerByte) : undefined);
 
 export class mockStorageDriver extends StorageDriver {
   private cache: Record<string, MetaplexFile> = {};
 
-  public async getPrice(_file: MetaplexFile): Promise<BN> {
-    return new BN(0);
+  constructor(metaplex: Metaplex, readonly costPerByte = DEFAULT_COST_PER_BYTE) {
+    super(metaplex);
+  }
+
+  public async getPrice(file: MetaplexFile): Promise<BN> {
+    return new BN(file.buffer.byteLength).mul(this.costPerByte);
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
-    const uri = `https://mockstorage.example.com/${file.uniqueName}`;
+    const uri = `${mockStorageDriver.MOCK_STORAGE_URI}${file.uniqueName}`;
     this.cache[uri] = file;
 
     return uri;
@@ -34,4 +41,5 @@ export class mockStorageDriver extends StorageDriver {
 
     return JSON.parse(file.toString());
   }
+  static MOCK_STORAGE_URI = 'https://mockstorage.example.com/';
 }

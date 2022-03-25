@@ -7,15 +7,20 @@ import {
   createNft,
   updateNft,
   UpdateNftParams,
-  UpdateNftResult,
+  CreateNftResult,
 } from '@/modules/nfts';
 import { tryOrNull } from '@/utils';
+import { ConfirmOptions } from '@solana/web3.js';
 
 export class NftClient extends ModuleClient {
-  async createNft(params: CreateNftParams): Promise<Nft> {
-    const { mint } = await createNft(this.metaplex, params);
+  async createNft(
+    params: CreateNftParams,
+    confirmOptions?: ConfirmOptions
+  ): Promise<{ nft: Nft } & CreateNftResult> {
+    const createNftResult = await createNft(this.metaplex, params, confirmOptions);
 
-    return this.findNft({ mint: mint.publicKey });
+    const nft = await this.findNft({ mint: createNftResult.mint.publicKey });
+    return { ...createNftResult, nft };
   }
 
   async findNft(params: FindNftParams): Promise<Nft> {
