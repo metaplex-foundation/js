@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/js-next-alpha",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "type": "module",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
@@ -51,11 +51,16 @@
     "mime": "^3.0.0",
     "tweetnacl": "^1.0.3"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
     "nft.storage": "^6.0.2"
   },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-s3": { "optional": true },
+    "nft.storage": { "optional": true }
+  },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.54.1",
     "@metaplex-foundation/amman": "^0.1.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@types/mime": "^2.0.3",
@@ -63,6 +68,7 @@
     "@types/tape": "^4.13.2",
     "esbuild": "^0.14.27",
     "esbuild-runner": "^2.2.1",
+    "nft.storage": "^6.0.2",
     "prettier": "^2.6.0",
     "rimraf": "^3.0.2",
     "sinon": "^13.0.1",
