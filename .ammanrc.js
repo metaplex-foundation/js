@@ -2,7 +2,7 @@ const { LOCALHOST, tmpLedgerDir } = require('@metaplex-foundation/amman');
 const path = require('path');
 
 function localDeployPath(programName) {
-  return path.join(__dirname, '..', 'metaplex-program-library', 'target', 'deploy', `${programName}.so`);
+  return path.join(__dirname, 'test', 'programs', `${programName}.so`);
 }
 
 const programIds = {
