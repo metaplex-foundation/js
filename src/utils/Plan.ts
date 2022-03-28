@@ -64,6 +64,10 @@ export class Plan<T extends object> {
     return this.steps.filter(step => !step.hidden);
   }
 
+  public getTotalPrice(): BN {
+    return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
+  }
+
   public merge<U extends object>(that: Plan<U>): Plan<T & U> {
     const plan = new Plan<T & U>();
     plan.steps.push(...this.steps, ...that.steps);

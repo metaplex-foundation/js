@@ -35,3 +35,23 @@ test('it works with multiple steps', async (t: Test) => {
   // Then the steps were executed in the right order.
   t.same(executedSteps, ['step1', 'step2']);
 });
+
+test('it keeps track of an execution state', async (t: Test) => {
+  // Given a plan with an initial state altered by its steps.
+  const initialState = { step1Executed: false, step2Executed: false };
+  const plan = Plan.make(initialState)
+    .addStep({
+      name: 'step1',
+      handler: async (state) => state.step1Executed = true,
+    })
+    .addStep({
+      name: 'step2',
+      handler: async (state) => state.step2Executed = true,
+    });
+
+  // When we execute the plan and retrieve the state.
+  const finalState = await plan.execute();
+
+  // Then the final state has successfully been updated.
+  t.same(finalState, { step1Executed: true, step2Executed: true });
+});
