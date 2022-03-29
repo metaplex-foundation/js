@@ -64,23 +64,23 @@ export const createNft = async (
     associatedTokenProgram,
   } = params;
 
-  const [uri, metadata] = await resolveUriAndJson(metaplex, params);
-  const data = resolveData(params, uri, metadata, updateAuthority.publicKey);
+  const plan = resolveUriAndJson(metaplex, params);
 
-  const metadataPda = await MetadataAccount.pda(mint.publicKey);
-  const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
-  const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
-  const associatedToken = await getAssociatedTokenAddress(
-    mint.publicKey,
-    owner,
-    allowHolderOffCurve,
-    tokenProgram,
-    associatedTokenProgram
-  );
-
-  const plan = Plan.make().addStep({
+  return plan.addStep({
     name: 'Creation of the NFT',
-    handler: async (state) => {
+    handler: async ([uri, metadata]) => {
+      const data = resolveData(params, uri, metadata, updateAuthority.publicKey);
+      const metadataPda = await MetadataAccount.pda(mint.publicKey);
+      const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
+      const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
+      const associatedToken = await getAssociatedTokenAddress(
+        mint.publicKey,
+        owner,
+        allowHolderOffCurve,
+        tokenProgram,
+        associatedTokenProgram
+      );
+
       const transactionId = await metaplex.sendAndConfirmTransaction(
         createNftBuilder({
           lamports,
@@ -113,27 +113,27 @@ export const createNft = async (
     },
     price: 100000, // TODO: Price of minting in lamports.
   });
-
-  return plan;
 };
 
-const resolveUriAndJson = async (
+const resolveUriAndJson = (
   metaplex: Metaplex,
   params: CreateNftParams
-): Promise<[string, JsonMetadata]> => {
+): Plan<[string, JsonMetadata]> => {
   if (params.uri) {
-    const metadata: JsonMetadata = await metaplex.storage().downloadJson(params.uri);
+    const uri: string = params.uri;
 
-    return [params.uri, metadata];
+    return Plan.make().addStep({
+      name: 'Download Metadata',
+      hidden: true,
+      handler: async () => {
+        const metadata: JsonMetadata = await metaplex.storage().downloadJson(uri);
+        
+        return [uri, metadata];
+      },
+    })
   }
 
-  if (params.metadata) {
-    const uri = await metaplex.storage().uploadJson(params.metadata);
-
-    return [uri, params.metadata];
-  }
-
-  const metadata: JsonMetadata = {
+  const metadata: JsonMetadata = params.metadata ?? {
     name: params.name,
     symbol: params.symbol,
     seller_fee_basis_points: params.sellerFeeBasisPoints,
@@ -145,9 +145,14 @@ const resolveUriAndJson = async (
     },
   };
 
-  const uri = await metaplex.storage().uploadJson(metadata);
-
-  return [uri, metadata];
+  return Plan.make().addStep({
+    name: 'Upload Metadata',
+    handler: async () => {
+      const uri = await metaplex.storage().uploadJson(metadata);
+  
+      return [uri, metadata];
+    },
+  })
 };
 
 const resolveData = (
