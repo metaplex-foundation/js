@@ -1,11 +1,11 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
 import { MetadataAccount, MasterEditionAccount, DataV2 } from '@/programs/tokenMetadata';
 import { Creator } from '@/programs/tokenMetadata/generated';
-import { OperationHandler } from "@/modules/shared";
-import { InputStep, Plan, RequiredParams } from "@/utils";
-import { CreateNftInput, CreateNftOperation, CreateNftOutput } from "../operations";
-import { JsonMetadata } from "../models/JsonMetadata";
+import { OperationHandler } from '@/modules/shared';
+import { InputStep, Plan, RequiredParams } from '@/utils';
+import { CreateNftInput, CreateNftOperation, CreateNftOutput } from '../operations';
+import { JsonMetadata } from '../models/JsonMetadata';
 import { createNftBuilder } from '../transactionBuilders';
 
 type CreateNftInputWithDefaults = RequiredParams<
@@ -18,8 +18,14 @@ type CreateNftInputWithUriAndMetadata = RequiredParams<
   'uri' | 'metadata'
 >;
 
-export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, CreateNftOutput, CreateNftOperation> {
-  public async handle(operation: CreateNftOperation): Promise<Plan<CreateNftOutput, CreateNftInput>> {
+export class CreateNftOperationHandler extends OperationHandler<
+  CreateNftInput,
+  CreateNftOutput,
+  CreateNftOperation
+> {
+  public async handle(
+    operation: CreateNftOperation
+  ): Promise<Plan<CreateNftOutput, CreateNftInput>> {
     return Plan.make<CreateNftInput>()
       .addStep(this.fillDefaultValues())
       .addStep(this.resolveUriAndMetadata(operation.input))
@@ -39,7 +45,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
           updateAuthority = mintAuthority,
           owner = mintAuthority.publicKey,
         } = params;
-  
+
         return {
           ...params,
           allowHolderOffCurve,
@@ -50,24 +56,26 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
           owner,
         };
       },
-    }
+    };
   }
 
-  protected resolveUriAndMetadata(input: CreateNftInput): InputStep<CreateNftInputWithDefaults, CreateNftInputWithUriAndMetadata> {
+  protected resolveUriAndMetadata(
+    input: CreateNftInput
+  ): InputStep<CreateNftInputWithDefaults, CreateNftInputWithUriAndMetadata> {
     if (input.uri) {
       const uri: string = input.uri;
-  
+
       return {
         name: 'Download Metadata',
         hidden: true,
         handler: async (input: CreateNftInputWithDefaults) => {
           const metadata: JsonMetadata = await this.metaplex.storage().downloadJson(uri);
-  
+
           return { ...input, uri, metadata };
         },
       };
     }
-  
+
     const metadata: JsonMetadata = input.metadata ?? {
       name: input.name,
       symbol: input.symbol,
@@ -79,12 +87,12 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
         })),
       },
     };
-  
+
     return {
       name: 'Upload Metadata',
       handler: async (input: CreateNftInputWithDefaults) => {
         const uri = await this.metaplex.storage().uploadJson(metadata);
-  
+
         return { ...input, uri, metadata };
       },
     };
@@ -107,7 +115,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
           tokenProgram,
           associatedTokenProgram,
         } = params;
-  
+
         const data = this.resolveData(params);
         const metadataPda = await MetadataAccount.pda(mint.publicKey);
         const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
@@ -119,7 +127,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
           tokenProgram,
           associatedTokenProgram
         );
-  
+
         const transactionId = await this.metaplex.sendAndConfirmTransaction(
           createNftBuilder({
             lamports,
@@ -141,7 +149,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
           undefined,
           this.confirmOptions
         );
-  
+
         return {
           mint,
           metadata: metadataPda,
@@ -151,10 +159,10 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
         };
       },
       price: 100000, // TODO: Price of minting in lamports.
-    }
+    };
   }
 
-  protected resolveData (input: CreateNftInputWithUriAndMetadata): DataV2 {
+  protected resolveData(input: CreateNftInputWithUriAndMetadata): DataV2 {
     const metadataCreators: Creator[] | undefined = input.metadata.properties?.creators
       ?.filter((creator) => creator.address)
       .map((creator) => ({
@@ -162,9 +170,9 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
         share: creator.share ?? 0,
         verified: false,
       }));
-  
+
     let creators = input.creators ?? metadataCreators ?? null;
-  
+
     if (creators === null) {
       creators = [
         {
@@ -182,12 +190,13 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftInput, 
         }
       });
     }
-  
+
     return {
       name: input.name ?? input.metadata.name ?? '',
       symbol: input.symbol ?? input.metadata.symbol ?? '',
       uri: input.uri,
-      sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? input.metadata.seller_fee_basis_points ?? 500,
+      sellerFeeBasisPoints:
+        input.sellerFeeBasisPoints ?? input.metadata.seller_fee_basis_points ?? 500,
       creators,
       collection: input.collection ?? null,
       uses: input.uses ?? null,
