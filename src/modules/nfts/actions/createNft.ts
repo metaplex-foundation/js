@@ -5,7 +5,7 @@ import { Metaplex } from '@/Metaplex';
 import { createNftBuilder } from '../transactionBuilders';
 import { MetadataAccount, MasterEditionAccount, DataV2 } from '@/programs/tokenMetadata';
 import { Creator, Collection, Uses } from '@/programs/tokenMetadata/generated';
-import { Signer } from '@/utils';
+import { Plan, Signer } from '@/utils';
 import { JsonMetadata } from '../models/JsonMetadata';
 
 export interface CreateNftParams {
@@ -49,7 +49,7 @@ export const createNft = async (
   metaplex: Metaplex,
   params: CreateNftParams,
   confirmOptions?: ConfirmOptions
-): Promise<CreateNftResult> => {
+): Promise<Plan<CreateNftResult>> => {
   const {
     isMutable,
     maxSupply,
@@ -78,35 +78,42 @@ export const createNft = async (
     associatedTokenProgram
   );
 
-  const transactionId = await metaplex.sendAndConfirmTransaction(
-    createNftBuilder({
-      lamports,
-      data,
-      isMutable,
-      maxSupply,
-      mint,
-      payer,
-      mintAuthority,
-      updateAuthority,
-      owner,
-      associatedToken,
-      freezeAuthority,
-      metadata: metadataPda,
-      masterEdition: masterEditionPda,
-      tokenProgram,
-      associatedTokenProgram,
-    }),
-    undefined,
-    confirmOptions
-  );
-
-  return {
-    transactionId,
+  const initialState: Omit<CreateNftResult, 'transactionId'> = {
     mint,
     metadata: metadataPda,
     masterEdition: masterEditionPda,
     associatedToken,
   };
+
+  const plan = Plan.make(initialState).addStep<{ transactionId: string }>({
+    name: 'Creation of the NFT',
+    handler: async (state) => {
+      state.transactionId = await metaplex.sendAndConfirmTransaction(
+        createNftBuilder({
+          lamports,
+          data,
+          isMutable,
+          maxSupply,
+          mint,
+          payer,
+          mintAuthority,
+          updateAuthority,
+          owner,
+          associatedToken,
+          freezeAuthority,
+          metadata: metadataPda,
+          masterEdition: masterEditionPda,
+          tokenProgram,
+          associatedTokenProgram,
+        }),
+        undefined,
+        confirmOptions
+      );
+    },
+    price: 100000, // TODO: Price of minting in lamports.
+  });
+
+  return plan;
 };
 
 const resolveUriAndJson = async (
