@@ -19,24 +19,24 @@ interface Step<T> {
 
 type InputStep<T> = Pick<Step<T>, 'name' | 'handler'> & Partial<Omit<Step<T>, 'status'>>;
 
-export class Plan<T extends object> {
-  public readonly steps: Step<T>[] = [];
-  public readonly onChangeListeners: ((steps: Step<any>[]) => void)[] = [];
+export class Plan<T extends object = {}> {
+  public readonly steps: Step<T>[];
+  public readonly onChangeListeners: ((steps: Step<any>[]) => void)[];
+  public state: T;
   public executed: boolean = false;
   public canceled: boolean = false;
-  public state: T;
 
-  public constructor (state?: T, steps: Step<T>[] = [], onChangeListeners: ((steps: Step<any>[]) => void)[] = []) {
-    this.state = state ?? {} as T;
-    this.steps = steps;
-    this.onChangeListeners = onChangeListeners;
+  public constructor (plan: Partial<Plan<T>> = {}) {
+    this.steps = plan.steps ?? [];
+    this.onChangeListeners = plan.onChangeListeners ?? [];
+    this.state = plan.state ?? {} as T;
   }
 
-  public static make<T extends object>(state?: T): Plan<T> {
-    return new Plan<T>(state);
+  public static make<T extends object = {}>(state?: T): Plan<T> {
+    return new Plan<T>({ state });
   }
 
-  public addStep<U>(step: InputStep<T & U>): Plan<T & U> {
+  public addStep<U extends object = {}>(step: InputStep<T & U>): Plan<T & U> {
     const newStep: Step<T & U> = {
       status: 'pending',
       price: 0,
@@ -45,7 +45,11 @@ export class Plan<T extends object> {
       ...step,
     };
 
-    return new Plan<T & U>(this.state as T & U, [...this.steps, newStep], this.onChangeListeners);
+    return new Plan({
+      steps: [...this.steps, newStep],
+      onChangeListeners: this.onChangeListeners,
+      state: this.state as T & U,
+    });
   }
 
   public onChange(listener: (steps: Step<any>[]) => void) {
