@@ -5,7 +5,7 @@ import { Metaplex } from '@/Metaplex';
 import { createNftBuilder } from '../transactionBuilders';
 import { MetadataAccount, MasterEditionAccount, DataV2 } from '@/programs/tokenMetadata';
 import { Creator, Collection, Uses } from '@/programs/tokenMetadata/generated';
-import { Plan, Signer } from '@/utils';
+import { Plan, Signer, RequiredParams, InputStep } from '@/utils';
 import { JsonMetadata } from '../models/JsonMetadata';
 
 export interface CreateNftParams {
@@ -37,16 +37,16 @@ export interface CreateNftParams {
   associatedTokenProgram?: PublicKey;
 }
 
-type RequiredParams =
+type CreateNftParamsWithDefaults = RequiredParams<CreateNftParams,
   | 'allowHolderOffCurve'
   | 'mint'
   | 'payer'
   | 'mintAuthority'
   | 'updateAuthority'
-  | 'owner';
+  | 'owner'
+>;
 
-type CreateNftParamsWithDefaults = Omit<CreateNftParams, RequiredParams>
-  & Required<Pick<CreateNftParams, RequiredParams>>;
+type CreateNftParamsWithUriAndMetadata = RequiredParams<CreateNftParamsWithDefaults, 'uri' | 'metadata'>;
 
 export interface CreateNftResult {
   mint: Signer;
@@ -63,101 +63,39 @@ export const createNft = async (
 ): Promise<Plan<CreateNftResult, CreateNftParams>> => {
 
   return Plan.make<CreateNftParams>()
-
-    .addStep<CreateNftParamsWithDefaults>({
-      name: 'Fill default values',
-      hidden: true,
-      handler: async (params) => {
-        const {
-          allowHolderOffCurve = false,
-          mint = Keypair.generate(),
-          payer = metaplex.identity(),
-          mintAuthority = payer,
-          updateAuthority = mintAuthority,
-          owner = mintAuthority.publicKey,
-        } = params;
-
-        return {
-          ...params,
-          allowHolderOffCurve,
-          mint,
-          payer,
-          mintAuthority,
-          updateAuthority,
-          owner,
-        }
-      },
-    })
-
-    .addStep(resolveUriAndJsonStep(metaplex, params))
-
-    .addStep<CreateNftResult>({
-      name: 'Creation of the NFT',
-      handler: async (params) => {
-        const {
-          isMutable,
-          maxSupply,
-          allowHolderOffCurve,
-          mint,
-          payer,
-          mintAuthority,
-          updateAuthority,
-          owner,
-          freezeAuthority,
-          tokenProgram,
-          associatedTokenProgram,
-        } = params;
-
-        const data = resolveData(params, params.uri, params.metadata, updateAuthority.publicKey);
-        const metadataPda = await MetadataAccount.pda(mint.publicKey);
-        const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
-        const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
-        const associatedToken = await getAssociatedTokenAddress(
-          mint.publicKey,
-          owner,
-          allowHolderOffCurve,
-          tokenProgram,
-          associatedTokenProgram
-        );
-
-        const transactionId = await metaplex.sendAndConfirmTransaction(
-          createNftBuilder({
-            lamports,
-            data,
-            isMutable,
-            maxSupply,
-            mint,
-            payer,
-            mintAuthority,
-            updateAuthority,
-            owner,
-            associatedToken,
-            freezeAuthority,
-            metadata: metadataPda,
-            masterEdition: masterEditionPda,
-            tokenProgram,
-            associatedTokenProgram,
-          }),
-          undefined,
-          confirmOptions
-        );
-
-        return {
-          mint,
-          metadata: metadataPda,
-          masterEdition: masterEditionPda,
-          associatedToken,
-          transactionId,
-        };
-      },
-      price: 100000, // TODO: Price of minting in lamports.
-    });
+    .addStep(fillDefaultValues(metaplex))
+    .addStep(resolveUriAndMetadata(metaplex, params))
+    .addStep(sendNftTransaction(metaplex, confirmOptions));
 };
 
-const resolveUriAndJsonStep = (
-  metaplex: Metaplex,
-  params: CreateNftParams
-) => {
+const fillDefaultValues = (metaplex: Metaplex): InputStep<CreateNftParams, CreateNftParamsWithDefaults> => {
+  return {
+    name: 'Fill default values',
+    hidden: true,
+    handler: async (params) => {
+      const {
+        allowHolderOffCurve = false,
+        mint = Keypair.generate(),
+        payer = metaplex.identity(),
+        mintAuthority = payer,
+        updateAuthority = mintAuthority,
+        owner = mintAuthority.publicKey,
+      } = params;
+
+      return {
+        ...params,
+        allowHolderOffCurve,
+        mint,
+        payer,
+        mintAuthority,
+        updateAuthority,
+        owner,
+      }
+    },
+  }
+};
+
+const resolveUriAndMetadata = (metaplex: Metaplex, params: CreateNftParams): InputStep<CreateNftParamsWithDefaults,CreateNftParamsWithUriAndMetadata> => {
   if (params.uri) {
     const uri: string = params.uri;
 
@@ -191,6 +129,70 @@ const resolveUriAndJsonStep = (
   
       return { ...params, uri, metadata };
     },
+  }
+};
+
+const sendNftTransaction = (metaplex: Metaplex, confirmOptions?: ConfirmOptions): InputStep<CreateNftParamsWithUriAndMetadata, CreateNftResult> => {
+  return {
+    name: 'Creation of the NFT',
+    handler: async (params) => {
+      const {
+        isMutable,
+        maxSupply,
+        allowHolderOffCurve,
+        mint,
+        payer,
+        mintAuthority,
+        updateAuthority,
+        owner,
+        freezeAuthority,
+        tokenProgram,
+        associatedTokenProgram,
+      } = params;
+
+      const data = resolveData(params, params.uri, params.metadata, updateAuthority.publicKey);
+      const metadataPda = await MetadataAccount.pda(mint.publicKey);
+      const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
+      const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
+      const associatedToken = await getAssociatedTokenAddress(
+        mint.publicKey,
+        owner,
+        allowHolderOffCurve,
+        tokenProgram,
+        associatedTokenProgram
+      );
+
+      const transactionId = await metaplex.sendAndConfirmTransaction(
+        createNftBuilder({
+          lamports,
+          data,
+          isMutable,
+          maxSupply,
+          mint,
+          payer,
+          mintAuthority,
+          updateAuthority,
+          owner,
+          associatedToken,
+          freezeAuthority,
+          metadata: metadataPda,
+          masterEdition: masterEditionPda,
+          tokenProgram,
+          associatedTokenProgram,
+        }),
+        undefined,
+        confirmOptions
+      );
+
+      return {
+        mint,
+        metadata: metadataPda,
+        masterEdition: masterEditionPda,
+        associatedToken,
+        transactionId,
+      };
+    },
+    price: 100000, // TODO: Price of minting in lamports.
   }
 };
 

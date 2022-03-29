@@ -16,7 +16,7 @@ interface Step {
   onError?: (error: unknown) => void;
 }
 
-type InputStep<From, To> = Pick<Step, 'name'> & Partial<Omit<Step, 'status'>> & {
+export type InputStep<From, To> = Pick<Step, 'name'> & Partial<Omit<Step, 'status'>> & {
   handler: (state: From) => Promise<To>;
 };
 
