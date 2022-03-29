@@ -24,6 +24,20 @@ test('it works with one trivial step', async (t: Test) => {
   t.equal(plan.getSteps()[0].status, 'successful');
 });
 
+test('it may require some initial state', async (t: Test) => {
+  // Given a plan with only one step that keep track of its execution.
+  const plan = Plan.make<{ counter: number }>().addStep({
+    name: 'step1',
+    handler: async ({ counter }) => ({ isEven: counter % 2 === 0 }),
+  });
+
+  // When we execute the plan without initial state.
+  const finalState = await plan.execute({ counter: 11 });
+
+  // Then the step was executed and we got its final state.
+  t.same(finalState, { isEven: false });
+});
+
 test('it works with multiple steps', async (t: Test) => {
   // Given a plan with multiple steps that push their name to an array.
   let executedSteps = [];
@@ -46,8 +60,7 @@ test('it works with multiple steps', async (t: Test) => {
 
 test('it keeps track of an execution state', async (t: Test) => {
   // Given a plan with an initial state altered by its steps.
-  const initialState = { step1Executed: false, step2Executed: false };
-  const plan = Plan.make(initialState)
+  const plan = Plan.make<{ step1Executed: boolean, step2Executed: boolean }>()
     .addStep({
       name: 'step1',
       handler: async (state) => ({ ...state, step1Executed: true }),
@@ -58,7 +71,10 @@ test('it keeps track of an execution state', async (t: Test) => {
     });
 
   // When we execute the plan and retrieve the state.
-  const finalState = await plan.execute();
+  const finalState = await plan.execute({
+    step1Executed: false,
+    step2Executed: false,
+  });
 
   // Then the final state has successfully been altered.
   t.same(finalState, { step1Executed: true, step2Executed: true });

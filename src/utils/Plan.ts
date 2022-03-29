@@ -22,9 +22,8 @@ type InputStep<From, To> = Pick<Step, 'name'> & Partial<Omit<Step, 'status'>> & 
 
 type InputPlan<F, I> = Pick<Plan<F, I>, 'promise'> & Partial<Plan<F, I>>;
 
-export class Plan<FinalState, InitialState = unknown> {
+export class Plan<FinalState, InitialState = undefined> {
   public readonly promise: (state: InitialState) => Promise<FinalState>;
-  public readonly initialState: InitialState;
   public readonly steps: Step[];
   public readonly onChangeListeners: ((steps: Step[]) => void)[];
   public executing: boolean = false;
@@ -32,14 +31,12 @@ export class Plan<FinalState, InitialState = unknown> {
 
   private constructor (plan: InputPlan<FinalState, InitialState>) {
     this.promise = plan.promise;
-    this.initialState = plan.initialState ?? {} as InitialState;
     this.steps = plan.steps ?? [];
     this.onChangeListeners = plan.onChangeListeners ?? [];
   }
 
-  public static make<T>(initialState?: T): Plan<T, T> {
+  public static make<T = undefined>(): Plan<T, T> {
     return new Plan<T, T>({
-      initialState,
       promise: async (initialState) => initialState,
     });
   }
@@ -55,10 +52,10 @@ export class Plan<FinalState, InitialState = unknown> {
       onError: step.onError,
     };
 
-    const promise = async () => {
+    const promise = async (initialState: InitialState) => {
       let state: FinalState;
       try {
-        state = await this.promise(this.initialState);
+        state = await this.promise(initialState);
       } catch (error) {
         this.changeStepStatus(newStep, 'canceled');
         throw error;
@@ -85,7 +82,6 @@ export class Plan<FinalState, InitialState = unknown> {
 
     return new Plan({
       promise,
-      initialState: this.initialState,
       steps: [...this.steps, newStep],
       onChangeListeners: this.onChangeListeners,
     });
@@ -118,11 +114,11 @@ export class Plan<FinalState, InitialState = unknown> {
     return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
   }
 
-  public async execute(): Promise<FinalState> {
+  public async execute(initialState?: InitialState): Promise<FinalState> {
     try {
       this.executing = true;
       this.executed = false;
-      return await this.promise(this.initialState);
+      return await this.promise(initialState ?? undefined as unknown as InitialState);
     } finally {
       this.executing = false;
       this.executed = true;
