@@ -19,7 +19,7 @@ export class NftClient extends ModuleClient {
     confirmOptions?: ConfirmOptions
   ): Promise<{ nft: Nft } & CreateNftResult> {
     const plan = await createNft(this.metaplex, params, confirmOptions);
-    const createNftResult = await plan.execute();
+    const createNftResult = await plan.execute(params);
 
     const nft = await this.findNft({ mint: createNftResult.mint.publicKey });
     return { ...createNftResult, nft };
