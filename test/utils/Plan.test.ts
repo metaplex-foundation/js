@@ -55,3 +55,23 @@ test('it keeps track of an execution state', async (t: Test) => {
   // Then the final state has successfully been updated.
   t.same(finalState, { step1Executed: true, step2Executed: true });
 });
+
+test('it can grow its execution state as we add more steps', async (t: Test) => {
+  // Given a plan with only one step that provides some state.
+  const plan = Plan.make<{ step1Executed: boolean }>().addStep({
+    name: 'step1',
+    handler: async (state) => state.step1Executed = true,
+  })
+
+  // And a second step that adds some more state to the plan.
+  const newPlan = plan.addStep<{ step2Executed: boolean }>({
+    name: 'step2',
+    handler: async (state) => state.step2Executed = true,
+  });
+
+  // When we execute the plan and retrieve the state.
+  const finalState = await newPlan.execute();
+
+  // Then the final state contains data from both steps.
+  t.same(finalState, { step1Executed: true, step2Executed: true });
+});

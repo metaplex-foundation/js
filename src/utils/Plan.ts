@@ -26,24 +26,26 @@ export class Plan<T extends object> {
   public canceled: boolean = false;
   public state: T;
 
-  public constructor (state?: T) {
+  public constructor (state?: T, steps: Step<T>[] = [], onChangeListeners: ((steps: Step<any>[]) => void)[] = []) {
     this.state = state ?? {} as T;
+    this.steps = steps;
+    this.onChangeListeners = onChangeListeners;
   }
 
   public static make<T extends object>(state?: T): Plan<T> {
     return new Plan<T>(state);
   }
 
-  public addStep(step: InputStep<T>) {
-    this.steps.push({
+  public addStep<U>(step: InputStep<T & U>): Plan<T & U> {
+    const newStep: Step<T & U> = {
       status: 'pending',
       price: 0,
       hidden: false,
       optional: false,
       ...step,
-    });
+    };
 
-    return this;
+    return new Plan<T & U>(this.state as T & U, [...this.steps, newStep], this.onChangeListeners);
   }
 
   public onChange(listener: (steps: Step<any>[]) => void) {
