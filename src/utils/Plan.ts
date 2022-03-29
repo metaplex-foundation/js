@@ -42,15 +42,7 @@ export class Plan<FinalState, InitialState = undefined> {
   }
 
   public addStep<NewState>(step: InputStep<FinalState, NewState>): Plan<NewState, InitialState> {
-    const { handler } = step;
-    const newStep: Step = {
-      name: step.name,
-      status: 'pending',
-      price: step.price ?? 0,
-      hidden: step.hidden ?? false,
-      optional: step.optional ?? false,
-      onError: step.onError,
-    };
+    const { newStep, handler } = this.parseInputStep(step);
 
     const promise = async (initialState: InitialState) => {
       let state: FinalState;
@@ -61,23 +53,7 @@ export class Plan<FinalState, InitialState = undefined> {
         throw error;
       }
 
-      this.changeStepStatus(newStep, 'running');
-
-      try {
-        const newState = handler(state);
-        this.changeStepStatus(newStep, 'successful');
-        return newState;
-      } catch (error) {
-        this.changeStepStatus(newStep, 'failed');
-        step.onError?.(error);
-        if (step.optional) {
-          // If a step is optional, it's final state should match its initial state.
-          // Otherwise, steps cannot be composed.
-          return state as unknown as NewState;
-        } else {
-          throw error;
-        }
-      }
+      return this.processStep(state, newStep, handler);
     };
 
     return new Plan({
@@ -85,6 +61,62 @@ export class Plan<FinalState, InitialState = undefined> {
       steps: [...this.steps, newStep],
       onChangeListeners: this.onChangeListeners,
     });
+  }
+
+  prependStep<NewInitialState>(step: InputStep<NewInitialState, InitialState>): Plan<FinalState, NewInitialState> {
+    const { newStep, handler } = this.parseInputStep(step);
+
+    const promise = async (newInitialState: NewInitialState) => {
+      let initialState: InitialState;
+      try {
+        initialState = await this.processStep(newInitialState, newStep, handler);
+      } catch (error) {
+        this.steps.forEach(step => this.changeStepStatus(step, 'canceled'));
+        throw error;
+      }
+
+      return this.promise(initialState);
+    };
+
+    return new Plan<FinalState, NewInitialState>({
+      promise,
+      steps: [newStep, ...this.steps],
+      onChangeListeners: this.onChangeListeners,
+    });
+  }
+
+  private parseInputStep<From, To>(step: InputStep<From, To>) {
+    const { handler } = step;
+    const newStep: Step = {
+      name: step.name,
+      status: 'pending',
+      price: step.price ?? 0,
+      hidden: step.hidden ?? false,
+      optional: step.optional ?? false,
+      onError: step.onError,
+    };
+
+    return { newStep, handler };
+  }
+
+  private async processStep<From, To>(from: From, step: Step, handler: (from: From) => Promise<To>): Promise<To> {
+    this.changeStepStatus(step, 'running');
+
+    try {
+      const to = await handler(from);
+      this.changeStepStatus(step, 'successful');
+      return to;
+    } catch (error) {
+      this.changeStepStatus(step, 'failed');
+      step.onError?.(error);
+      if (step.optional) {
+        // If a step is optional, it's destination state should match 
+        // the source state. Otherwise, steps cannot be composed.
+        return from as unknown as To;
+      } else {
+        throw error;
+      }
+    }
   }
 
   public onChange(listener: (steps: Step[]) => void) {

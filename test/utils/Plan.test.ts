@@ -99,3 +99,27 @@ test('it can grow its execution state as we add more steps', async (t: Test) => 
   // Then the final state contains data from both steps.
   t.same(finalState, { step1Executed: true, step2Executed: true });
 });
+
+test('it can prepend steps to the plan', async (t: Test) => {
+  // Given a plan with only one step that accepts a counter a tells us if it's even.
+  const plan = Plan.make<{ counter: number }>().addStep({
+    name: 'step1',
+    handler: async ({ counter }) => ({ isEven: counter % 2 === 0 }),
+  });
+
+  // And a prepended step that convert a sentence into a counter.
+  const newPlan = plan.prependStep<{ sentence: string }>({
+    name: 'step0',
+    handler: async ({ sentence }) => ({ counter: sentence.length }),
+  });
+
+  // When we execute the plan and retrieve the state.
+  const finalState = await newPlan.execute({ sentence: 'Hello world!' });
+
+  // Then the final state contains data from both steps.
+  t.same(finalState, { isEven: true });
+
+  // And both steps executed in the right order.
+  t.same(newPlan.getSteps().map((s) => s.name), ['step0', 'step1']);
+  t.same(newPlan.getSteps().map((s) => s.status), ['successful', 'successful']);
+});
