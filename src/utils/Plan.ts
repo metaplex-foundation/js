@@ -52,6 +52,14 @@ export class Plan<T extends object = {}> {
     });
   }
 
+  public merge<U extends object = {}>(that: Plan<U>): Plan<T & U> {
+    return new Plan<T & U>({
+      steps: [...this.steps, ...that.steps],
+      onChangeListeners: [...this.onChangeListeners, ...that.onChangeListeners],
+      state: { ...this.state, ...that.state },
+    });
+  }
+
   public onChange(listener: (steps: Step<any>[]) => void) {
     this.onChangeListeners.push(listener);
 
@@ -72,14 +80,6 @@ export class Plan<T extends object = {}> {
 
   public getTotalPrice(): BN {
     return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
-  }
-
-  public merge<U extends object>(that: Plan<U>): Plan<T & U> {
-    const plan = new Plan<T & U>();
-    plan.steps.push(...this.steps, ...that.steps);
-    plan.onChangeListeners.push(...this.onChangeListeners, ...that.onChangeListeners);
-
-    return plan;
   }
 
   public async execute(): Promise<T> {

@@ -75,3 +75,22 @@ test('it can grow its execution state as we add more steps', async (t: Test) => 
   // Then the final state contains data from both steps.
   t.same(finalState, { step1Executed: true, step2Executed: true });
 });
+
+test('it can merge two plans together', async (t: Test) => {
+  // Given two plans with different steps.
+  const plan1 = Plan.make<{ step1Executed: boolean }>().addStep({
+    name: 'step1',
+    handler: async (state) => state.step1Executed = true,
+  })
+
+  const plan2 = Plan.make<{ step2Executed: boolean }>().addStep({
+    name: 'step2',
+    handler: async (state) => state.step2Executed = true,
+  })
+
+  // When we merge them together.
+  const mergedPlan = plan1.merge(plan2);
+
+  // Then the merged plan has both steps.
+  t.same(mergedPlan.getSteps().map(step => step.name), ['step1', 'step2']);
+});
