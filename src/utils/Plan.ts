@@ -1,24 +1,20 @@
-import BN from "bn.js";
+import BN from 'bn.js';
 
-type StepStatus =
-  | 'pending'
-  | 'running'
-  | 'successful'
-  | 'failed'
-  | 'canceled';
+type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
 interface Step {
   name: string;
   status: StepStatus;
   price: number | BN;
-  hidden: boolean,
-  optional: boolean,
+  hidden: boolean;
+  optional: boolean;
   onError?: (error: unknown) => void;
 }
 
-export type InputStep<From, To> = Pick<Step, 'name'> & Partial<Omit<Step, 'status'>> & {
-  handler: (state: From) => Promise<To>;
-};
+export type InputStep<From, To> = Pick<Step, 'name'> &
+  Partial<Omit<Step, 'status'>> & {
+    handler: (state: From) => Promise<To>;
+  };
 
 type InputPlan<F, I> = Pick<Plan<F, I>, 'promise'> & Partial<Plan<F, I>>;
 
@@ -29,7 +25,7 @@ export class Plan<FinalState, InitialState = undefined> {
   public executing: boolean = false;
   public executed: boolean = false;
 
-  private constructor (plan: InputPlan<FinalState, InitialState>) {
+  private constructor(plan: InputPlan<FinalState, InitialState>) {
     this.promise = plan.promise;
     this.steps = plan.steps ?? [];
     this.onChangeListeners = plan.onChangeListeners ?? [];
@@ -63,7 +59,9 @@ export class Plan<FinalState, InitialState = undefined> {
     });
   }
 
-  prependStep<NewInitialState>(step: InputStep<NewInitialState, InitialState>): Plan<FinalState, NewInitialState> {
+  prependStep<NewInitialState>(
+    step: InputStep<NewInitialState, InitialState>
+  ): Plan<FinalState, NewInitialState> {
     const { newStep, handler } = this.parseInputStep(step);
 
     const promise = async (newInitialState: NewInitialState) => {
@@ -71,7 +69,7 @@ export class Plan<FinalState, InitialState = undefined> {
       try {
         initialState = await this.processStep(newInitialState, newStep, handler);
       } catch (error) {
-        this.steps.forEach(step => this.changeStepStatus(step, 'canceled'));
+        this.steps.forEach((step) => this.changeStepStatus(step, 'canceled'));
         throw error;
       }
 
@@ -99,7 +97,11 @@ export class Plan<FinalState, InitialState = undefined> {
     return { newStep, handler };
   }
 
-  private async processStep<From, To>(from: From, step: Step, handler: (from: From) => Promise<To>): Promise<To> {
+  private async processStep<From, To>(
+    from: From,
+    step: Step,
+    handler: (from: From) => Promise<To>
+  ): Promise<To> {
     this.changeStepStatus(step, 'running');
 
     try {
@@ -110,7 +112,7 @@ export class Plan<FinalState, InitialState = undefined> {
       this.changeStepStatus(step, 'failed');
       step.onError?.(error);
       if (step.optional) {
-        // If a step is optional, it's destination state should match 
+        // If a step is optional, it's destination state should match
         // the source state. Otherwise, steps cannot be composed.
         return from as unknown as To;
       } else {
@@ -126,7 +128,7 @@ export class Plan<FinalState, InitialState = undefined> {
   }
 
   private notifyChange(): void {
-    this.onChangeListeners.forEach(listener => listener(this.steps));
+    this.onChangeListeners.forEach((listener) => listener(this.steps));
   }
 
   private changeStepStatus(step: Step, newStatus: StepStatus): void {
@@ -139,7 +141,7 @@ export class Plan<FinalState, InitialState = undefined> {
   }
 
   public getVisibleSteps(): Step[] {
-    return this.steps.filter(step => !step.hidden);
+    return this.steps.filter((step) => !step.hidden);
   }
 
   public getTotalPrice(): BN {
@@ -150,7 +152,7 @@ export class Plan<FinalState, InitialState = undefined> {
     try {
       this.executing = true;
       this.executed = false;
-      return await this.promise(initialState ?? undefined as unknown as InitialState);
+      return await this.promise(initialState ?? (undefined as unknown as InitialState));
     } finally {
       this.executing = false;
       this.executed = true;

@@ -37,16 +37,15 @@ export interface CreateNftParams {
   associatedTokenProgram?: PublicKey;
 }
 
-type CreateNftParamsWithDefaults = RequiredParams<CreateNftParams,
-  | 'allowHolderOffCurve'
-  | 'mint'
-  | 'payer'
-  | 'mintAuthority'
-  | 'updateAuthority'
-  | 'owner'
+type CreateNftParamsWithDefaults = RequiredParams<
+  CreateNftParams,
+  'allowHolderOffCurve' | 'mint' | 'payer' | 'mintAuthority' | 'updateAuthority' | 'owner'
 >;
 
-type CreateNftParamsWithUriAndMetadata = RequiredParams<CreateNftParamsWithDefaults, 'uri' | 'metadata'>;
+type CreateNftParamsWithUriAndMetadata = RequiredParams<
+  CreateNftParamsWithDefaults,
+  'uri' | 'metadata'
+>;
 
 export interface CreateNftResult {
   mint: Signer;
@@ -61,14 +60,15 @@ export const createNft = async (
   params: CreateNftParams,
   confirmOptions?: ConfirmOptions
 ): Promise<Plan<CreateNftResult, CreateNftParams>> => {
-
   return Plan.make<CreateNftParams>()
     .addStep(fillDefaultValues(metaplex))
     .addStep(resolveUriAndMetadata(metaplex, params))
     .addStep(sendNftTransaction(metaplex, confirmOptions));
 };
 
-const fillDefaultValues = (metaplex: Metaplex): InputStep<CreateNftParams, CreateNftParamsWithDefaults> => {
+const fillDefaultValues = (
+  metaplex: Metaplex
+): InputStep<CreateNftParams, CreateNftParamsWithDefaults> => {
   return {
     name: 'Fill default values',
     hidden: true,
@@ -90,12 +90,15 @@ const fillDefaultValues = (metaplex: Metaplex): InputStep<CreateNftParams, Creat
         mintAuthority,
         updateAuthority,
         owner,
-      }
+      };
     },
-  }
+  };
 };
 
-const resolveUriAndMetadata = (metaplex: Metaplex, params: CreateNftParams): InputStep<CreateNftParamsWithDefaults,CreateNftParamsWithUriAndMetadata> => {
+const resolveUriAndMetadata = (
+  metaplex: Metaplex,
+  params: CreateNftParams
+): InputStep<CreateNftParamsWithDefaults, CreateNftParamsWithUriAndMetadata> => {
   if (params.uri) {
     const uri: string = params.uri;
 
@@ -104,10 +107,10 @@ const resolveUriAndMetadata = (metaplex: Metaplex, params: CreateNftParams): Inp
       hidden: true,
       handler: async (params: CreateNftParamsWithDefaults) => {
         const metadata: JsonMetadata = await metaplex.storage().downloadJson(uri);
-        
+
         return { ...params, uri, metadata };
       },
-    }
+    };
   }
 
   const metadata: JsonMetadata = params.metadata ?? {
@@ -126,13 +129,16 @@ const resolveUriAndMetadata = (metaplex: Metaplex, params: CreateNftParams): Inp
     name: 'Upload Metadata',
     handler: async (params: CreateNftParamsWithDefaults) => {
       const uri = await metaplex.storage().uploadJson(metadata);
-  
+
       return { ...params, uri, metadata };
     },
-  }
+  };
 };
 
-const sendNftTransaction = (metaplex: Metaplex, confirmOptions?: ConfirmOptions): InputStep<CreateNftParamsWithUriAndMetadata, CreateNftResult> => {
+const sendNftTransaction = (
+  metaplex: Metaplex,
+  confirmOptions?: ConfirmOptions
+): InputStep<CreateNftParamsWithUriAndMetadata, CreateNftResult> => {
   return {
     name: 'Creation of the NFT',
     handler: async (params) => {
@@ -193,7 +199,7 @@ const sendNftTransaction = (metaplex: Metaplex, confirmOptions?: ConfirmOptions)
       };
     },
     price: 100000, // TODO: Price of minting in lamports.
-  }
+  };
 };
 
 const resolveData = (
