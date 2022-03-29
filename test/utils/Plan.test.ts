@@ -6,14 +6,22 @@ test('it works with one trivial step', async (t: Test) => {
   let executed = false;
   const plan = Plan.make().addStep({
     name: 'step1',
-    handler: async () => executed = true,
+    handler: async () => {
+      executed = true;
+      return { some: 'state' };
+    },
   });
 
   // When we execute the plan.
-  await plan.execute();
+  const finalState = await plan.execute();
 
-  // Then the step was executed.
+  // Then the step was executed and we got its final state.
   t.true(executed);
+  t.same(finalState, { some: 'state' });
+
+  // And both the plan and the step are marked as successfully executed.
+  t.ok(plan.executed);
+  t.equal(plan.getSteps()[0].status, 'successful');
 });
 
 test('it works with multiple steps', async (t: Test) => {
@@ -42,31 +50,31 @@ test('it keeps track of an execution state', async (t: Test) => {
   const plan = Plan.make(initialState)
     .addStep({
       name: 'step1',
-      handler: async (state) => state.step1Executed = true,
+      handler: async (state) => ({ ...state, step1Executed: true }),
     })
     .addStep({
       name: 'step2',
-      handler: async (state) => state.step2Executed = true,
+      handler: async (state) => ({ ...state, step2Executed: true }),
     });
 
   // When we execute the plan and retrieve the state.
   const finalState = await plan.execute();
 
-  // Then the final state has successfully been updated.
+  // Then the final state has successfully been altered.
   t.same(finalState, { step1Executed: true, step2Executed: true });
 });
 
 test('it can grow its execution state as we add more steps', async (t: Test) => {
   // Given a plan with only one step that provides some state.
-  const plan = Plan.make<{ step1Executed: boolean }>().addStep({
+  const plan = Plan.make().addStep({
     name: 'step1',
-    handler: async (state) => state.step1Executed = true,
+    handler: async () => ({ step1Executed: true }),
   })
 
   // And a second step that adds some more state to the plan.
-  const newPlan = plan.addStep<{ step2Executed: boolean }>({
+  const newPlan = plan.addStep({
     name: 'step2',
-    handler: async (state) => state.step2Executed = true,
+    handler: async (state) => ({ ...state, step2Executed: true }),
   });
 
   // When we execute the plan and retrieve the state.
@@ -74,23 +82,4 @@ test('it can grow its execution state as we add more steps', async (t: Test) => 
 
   // Then the final state contains data from both steps.
   t.same(finalState, { step1Executed: true, step2Executed: true });
-});
-
-test('it can merge two plans together', async (t: Test) => {
-  // Given two plans with different steps.
-  const plan1 = Plan.make<{ step1Executed: boolean }>().addStep({
-    name: 'step1',
-    handler: async (state) => state.step1Executed = true,
-  })
-
-  const plan2 = Plan.make<{ step2Executed: boolean }>().addStep({
-    name: 'step2',
-    handler: async (state) => state.step2Executed = true,
-  })
-
-  // When we merge them together.
-  const mergedPlan = plan1.merge(plan2);
-
-  // Then the merged plan has both steps.
-  t.same(mergedPlan.getSteps().map(step => step.name), ['step1', 'step2']);
 });

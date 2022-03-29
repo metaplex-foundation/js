@@ -78,17 +78,10 @@ export const createNft = async (
     associatedTokenProgram
   );
 
-  const initialState: Omit<CreateNftResult, 'transactionId'> = {
-    mint,
-    metadata: metadataPda,
-    masterEdition: masterEditionPda,
-    associatedToken,
-  };
-
-  const plan = Plan.make(initialState).addStep<{ transactionId: string }>({
+  const plan = Plan.make().addStep({
     name: 'Creation of the NFT',
     handler: async (state) => {
-      state.transactionId = await metaplex.sendAndConfirmTransaction(
+      const transactionId = await metaplex.sendAndConfirmTransaction(
         createNftBuilder({
           lamports,
           data,
@@ -109,6 +102,14 @@ export const createNft = async (
         undefined,
         confirmOptions
       );
+
+      return {
+        mint,
+        metadata: metadataPda,
+        masterEdition: masterEditionPda,
+        associatedToken,
+        transactionId,
+      };
     },
     price: 100000, // TODO: Price of minting in lamports.
   });

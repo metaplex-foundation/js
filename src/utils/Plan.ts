@@ -7,60 +7,91 @@ type StepStatus =
   | 'failed'
   | 'canceled';
 
-interface Step<T> {
+interface Step {
   name: string;
   status: StepStatus;
   price: number | BN;
   hidden: boolean,
   optional: boolean,
-  handler: (state: T) => Promise<any>;
   onError?: (error: unknown) => void;
 }
 
-type InputStep<T> = Pick<Step<T>, 'name' | 'handler'> & Partial<Omit<Step<T>, 'status'>>;
+type InputStep<From, To> = Pick<Step, 'name'> & Partial<Omit<Step, 'status'>> & {
+  handler: (state: From) => Promise<To>;
+};
 
-export class Plan<T extends object = {}> {
-  public readonly steps: Step<T>[];
-  public readonly onChangeListeners: ((steps: Step<any>[]) => void)[];
-  public state: T;
+type InputPlan<F, I> = Pick<Plan<F, I>, 'promise'> & Partial<Plan<F, I>>;
+
+export class Plan<FinalState, InitialState = unknown> {
+  public readonly promise: (state: InitialState) => Promise<FinalState>;
+  public readonly initialState: InitialState;
+  public readonly steps: Step[];
+  public readonly onChangeListeners: ((steps: Step[]) => void)[];
+  public executing: boolean = false;
   public executed: boolean = false;
-  public canceled: boolean = false;
 
-  public constructor (plan: Partial<Plan<T>> = {}) {
+  private constructor (plan: InputPlan<FinalState, InitialState>) {
+    this.promise = plan.promise;
+    this.initialState = plan.initialState ?? {} as InitialState;
     this.steps = plan.steps ?? [];
     this.onChangeListeners = plan.onChangeListeners ?? [];
-    this.state = plan.state ?? {} as T;
   }
 
-  public static make<T extends object = {}>(state?: T): Plan<T> {
-    return new Plan<T>({ state });
+  public static make<T>(initialState?: T): Plan<T, T> {
+    return new Plan<T, T>({
+      initialState,
+      promise: async (initialState) => initialState,
+    });
   }
 
-  public addStep<U extends object = {}>(step: InputStep<T & U>): Plan<T & U> {
-    const newStep: Step<T & U> = {
+  public addStep<NewState>(step: InputStep<FinalState, NewState>): Plan<NewState, InitialState> {
+    const { handler } = step;
+    const newStep: Step = {
+      name: step.name,
       status: 'pending',
-      price: 0,
-      hidden: false,
-      optional: false,
-      ...step,
+      price: step.price ?? 0,
+      hidden: step.hidden ?? false,
+      optional: step.optional ?? false,
+      onError: step.onError,
+    };
+
+    const promise = async () => {
+      let state: FinalState;
+      try {
+        state = await this.promise(this.initialState);
+      } catch (error) {
+        this.changeStepStatus(newStep, 'canceled');
+        throw error;
+      }
+
+      this.changeStepStatus(newStep, 'running');
+
+      try {
+        const newState = handler(state);
+        this.changeStepStatus(newStep, 'successful');
+        return newState;
+      } catch (error) {
+        this.changeStepStatus(newStep, 'failed');
+        step.onError?.(error);
+        if (step.optional) {
+          // If a step is optional, it's final state should match its initial state.
+          // Otherwise, steps cannot be composed.
+          return state as unknown as NewState;
+        } else {
+          throw error;
+        }
+      }
     };
 
     return new Plan({
+      promise,
+      initialState: this.initialState,
       steps: [...this.steps, newStep],
       onChangeListeners: this.onChangeListeners,
-      state: this.state as T & U,
     });
   }
 
-  public merge<U extends object = {}>(that: Plan<U>): Plan<T & U> {
-    return new Plan<T & U>({
-      steps: [...this.steps, ...that.steps],
-      onChangeListeners: [...this.onChangeListeners, ...that.onChangeListeners],
-      state: { ...this.state, ...that.state },
-    });
-  }
-
-  public onChange(listener: (steps: Step<any>[]) => void) {
+  public onChange(listener: (steps: Step[]) => void) {
     this.onChangeListeners.push(listener);
 
     return this;
@@ -70,11 +101,16 @@ export class Plan<T extends object = {}> {
     this.onChangeListeners.forEach(listener => listener(this.steps));
   }
 
-  public getSteps(): Step<any>[] {
+  private changeStepStatus(step: Step, newStatus: StepStatus): void {
+    step.status = newStatus;
+    this.notifyChange();
+  }
+
+  public getSteps(): Step[] {
     return this.steps;
   }
 
-  public getVisibleSteps(): Step<any>[] {
+  public getVisibleSteps(): Step[] {
     return this.steps.filter(step => !step.hidden);
   }
 
@@ -82,36 +118,14 @@ export class Plan<T extends object = {}> {
     return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
   }
 
-  public async execute(): Promise<T> {
-    const steps = this.steps;
-    this.executed = true;
-
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
-
-      if (this.canceled) {
-        step.status = 'canceled';
-        this.notifyChange();
-        continue;
-      }
-
-      step.status = 'running';
-      this.notifyChange();
-
-      try {
-        await step.handler(this.state);
-        step.status = 'successful';
-        this.notifyChange();
-      } catch (error) {
-        step.status = 'failed';
-        this.notifyChange();
-        step.onError?.(error);
-        if (!step.optional) {
-          this.canceled = true;
-        }
-      }
+  public async execute(): Promise<FinalState> {
+    try {
+      this.executing = true;
+      this.executed = false;
+      return await this.promise(this.initialState);
+    } finally {
+      this.executing = false;
+      this.executed = true;
     }
-
-    return this.state;
   }
 }
