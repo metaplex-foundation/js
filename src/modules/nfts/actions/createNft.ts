@@ -59,7 +59,7 @@ export const createNft = async (
   metaplex: Metaplex,
   params: CreateNftParams,
   confirmOptions?: ConfirmOptions
-): Promise<Plan<CreateNftResult, CreateNftParams>> => {
+): Promise<Plan<CreateNftParams, CreateNftResult>> => {
   return Plan.make<CreateNftParams>()
     .addStep(fillDefaultValues(metaplex))
     .addStep(resolveUriAndMetadata(metaplex, params))

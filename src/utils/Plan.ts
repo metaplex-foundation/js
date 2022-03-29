@@ -16,16 +16,16 @@ export type InputStep<From, To> = Pick<Step, 'name'> &
     handler: (state: From) => Promise<To>;
   };
 
-type InputPlan<F, I> = Pick<Plan<F, I>, 'promise'> & Partial<Plan<F, I>>;
+type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
 
-export class Plan<FinalState, InitialState = undefined> {
-  public readonly promise: (state: InitialState) => Promise<FinalState>;
+export class Plan<I, O> {
+  public readonly promise: (state: I) => Promise<O>;
   public readonly steps: Step[];
   public readonly onChangeListeners: ((steps: Step[]) => void)[];
   public executing: boolean = false;
   public executed: boolean = false;
 
-  private constructor(plan: InputPlan<FinalState, InitialState>) {
+  private constructor(plan: InputPlan<I, O>) {
     this.promise = plan.promise;
     this.steps = plan.steps ?? [];
     this.onChangeListeners = plan.onChangeListeners ?? [];
@@ -37,11 +37,11 @@ export class Plan<FinalState, InitialState = undefined> {
     });
   }
 
-  public addStep<NewState>(step: InputStep<FinalState, NewState>): Plan<NewState, InitialState> {
+  public addStep<T>(step: InputStep<O, T>): Plan<I, T> {
     const { newStep, handler } = this.parseInputStep(step);
 
-    const promise = async (initialState: InitialState) => {
-      let state: FinalState;
+    const promise = async (initialState: I) => {
+      let state: O;
       try {
         state = await this.promise(initialState);
       } catch (error) {
@@ -59,13 +59,11 @@ export class Plan<FinalState, InitialState = undefined> {
     });
   }
 
-  prependStep<NewInitialState>(
-    step: InputStep<NewInitialState, InitialState>
-  ): Plan<FinalState, NewInitialState> {
+  prependStep<T>(step: InputStep<T, I>): Plan<T, O> {
     const { newStep, handler } = this.parseInputStep(step);
 
-    const promise = async (newInitialState: NewInitialState) => {
-      let initialState: InitialState;
+    const promise = async (newInitialState: T) => {
+      let initialState: I;
       try {
         initialState = await this.processStep(newInitialState, newStep, handler);
       } catch (error) {
@@ -76,7 +74,7 @@ export class Plan<FinalState, InitialState = undefined> {
       return this.promise(initialState);
     };
 
-    return new Plan<FinalState, NewInitialState>({
+    return new Plan<T, O>({
       promise,
       steps: [newStep, ...this.steps],
       onChangeListeners: this.onChangeListeners,
@@ -148,11 +146,11 @@ export class Plan<FinalState, InitialState = undefined> {
     return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
   }
 
-  public async execute(initialState?: InitialState): Promise<FinalState> {
+  public async execute(initialState?: I): Promise<O> {
     try {
       this.executing = true;
       this.executed = false;
-      return await this.promise(initialState ?? (undefined as unknown as InitialState));
+      return await this.promise(initialState ?? (undefined as unknown as I));
     } finally {
       this.executing = false;
       this.executed = true;

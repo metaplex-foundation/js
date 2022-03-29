@@ -12,5 +12,5 @@ export abstract class OperationHandler<I, O, T extends Operation<I, O>> {
     this.confirmOptions = confirmOptions;
   }
 
-  public abstract handle(operation: T): Promise<Plan<O, I>>;
+  public abstract handle(operation: T): Promise<Plan<I, O>>;
 }

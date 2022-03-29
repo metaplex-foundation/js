@@ -25,7 +25,7 @@ export class CreateNftOperationHandler extends OperationHandler<
 > {
   public async handle(
     operation: CreateNftOperation
-  ): Promise<Plan<CreateNftOutput, CreateNftInput>> {
+  ): Promise<Plan<CreateNftInput, CreateNftOutput>> {
     return Plan.make<CreateNftInput>()
       .addStep(this.fillDefaultValues())
       .addStep(this.resolveUriAndMetadata(operation.input))
