@@ -61,6 +61,7 @@
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.1.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
+    "@types/bn.js": "^5.1.0",
     "@types/mime": "^2.0.3",
     "@types/sinon": "^10.0.11",
     "@types/tape": "^4.13.2",
