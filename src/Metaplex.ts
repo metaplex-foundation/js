@@ -16,7 +16,7 @@ import { TransactionBuilder } from '@/programs/shared';
 import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
 import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
 import { Signer, getSignerHistogram, Plan } from '@/utils';
-import { NftClient, Operation, OperationHandler } from './modules';
+import { NftClient, Operation, OperationConstructor, OperationHandlerConstructor } from './modules';
 import { Driver } from './drivers/Driver';
 import { CreateNftOperation } from './modules/nfts/operations';
 import { CreateNftOperationHandler } from './modules/nfts/operationHandlers';
@@ -142,10 +142,8 @@ export class Metaplex {
   }
 
   register<I, O, T extends Operation<I, O>>(
-    operation: { new (input: I): T },
-    operationHandler: {
-      new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<I, O, T>;
-    }
+    operation: OperationConstructor<I, O>,
+    operationHandler: OperationHandlerConstructor<I, O, T>
   ) {
     this.operationHandlers.set(operation, operationHandler);
 
@@ -157,9 +155,7 @@ export class Metaplex {
     confirmOptions?: ConfirmOptions
   ): Promise<Plan<I, O>> {
     const operationHandler = this.operationHandlers.get(operation.constructor) as
-      | {
-          new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<I, O, T>;
-        }
+      | OperationHandlerConstructor<I, O, T>
       | undefined;
 
     if (!operationHandler) {
