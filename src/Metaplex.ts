@@ -15,9 +15,11 @@ import { Buffer } from 'buffer';
 import { TransactionBuilder } from '@/programs/shared';
 import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
 import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
-import { Signer, getSignerHistogram } from '@/utils';
-import { NftClient } from './modules';
+import { Signer, getSignerHistogram, Plan } from '@/utils';
+import { NftClient, Operation, OperationHandler } from './modules';
 import { Driver } from './drivers/Driver';
+import { CreateNftOperation } from './modules/nfts/operations';
+import { CreateNftOperationHandler } from './modules/nfts/operationHandlers';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
@@ -41,12 +43,18 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
+  /** The NFT client that interacts with the NFT program. */
+  protected operationHandlers: Map<any, any> = new Map();
+
   constructor(endpoint: string, options: MetaplexOptions = {}) {
     this.endpoint = endpoint;
     this.connection = new Connection(endpoint, options);
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
+
+    // TODO: Register them somewhere else.
+    this.register(CreateNftOperation, CreateNftOperationHandler);
   }
 
   static make(endpoint: string, options: MetaplexOptions = {}) {
@@ -131,5 +139,44 @@ export class Metaplex {
     const accounts = await this.connection.getMultipleAccountsInfo(publicKeys, commitment);
 
     return accounts as Array<AccountInfo<Buffer> | null>;
+  }
+
+  register<I, O, T extends Operation<I, O>>(
+    operation: { new (input: I): T },
+    operationHandler: {
+      new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<I, O, T>;
+    }
+  ) {
+    this.operationHandlers.set(operation, operationHandler);
+
+    return this;
+  }
+
+  async plan<I, O, T extends Operation<I, O>>(
+    operation: T,
+    confirmOptions?: ConfirmOptions
+  ): Promise<Plan<I, O>> {
+    const operationHandler = this.operationHandlers.get(operation.constructor) as
+      | {
+          new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<I, O, T>;
+        }
+      | undefined;
+
+    if (!operationHandler) {
+      // TODO: Custom errors.
+      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+    }
+
+    const handler = new operationHandler(this, confirmOptions);
+    return handler.handle(operation);
+  }
+
+  async execute<I, O, T extends Operation<I, O>>(
+    operation: T,
+    confirmOptions?: ConfirmOptions
+  ): Promise<O> {
+    const plan = await this.plan<I, O, T>(operation, confirmOptions);
+
+    return plan.execute(operation.input);
   }
 }
