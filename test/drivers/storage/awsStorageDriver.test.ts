@@ -21,7 +21,7 @@ test('it can upload assets to a S3 bucket', async (t: Test) => {
 
 	// Fed to a Metaplex instance.
 	const mx = await metaplex();
-  mx.setStorage(awsStorage(awsClient, 'some-bucket'));
+  mx.use(awsStorage(awsClient, 'some-bucket'));
 
   // When we upload some content to AWS S3.
   const file = new MetaplexFile('some-image', 'some-image.jpg', { uniqueName: 'some-key' });

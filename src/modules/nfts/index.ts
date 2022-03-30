@@ -6,12 +6,12 @@ export * from './transactionBuilders';
 export * from './NftClient';
 
 import { Metaplex } from '@/Metaplex';
-import { Plugin } from '@/modules/shared';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { NftClient } from './NftClient';
 import * as operations from './operations';
 import * as handlers from './operationHandlers';
 
-export const nftPlugin = (): Plugin => ({
+export const nftPlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.register(operations.CreateNftOperation, handlers.CreateNftOperationHandler);
 

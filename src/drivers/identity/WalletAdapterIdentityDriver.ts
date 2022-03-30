@@ -7,20 +7,27 @@ import {
 import { IdentityDriver } from './IdentityDriver';
 import { GuestIdentityDriver } from './GuestIdentityDriver';
 import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
   Partial<SignerWalletAdapterProps>;
 
-export const walletAdapterIdentity = (walletAdapter: WalletAdapter) => (metaplex: Metaplex) =>
-  new WalletAdapterIdentityDriver(metaplex, walletAdapter);
+export const walletAdapterIdentity = (walletAdapter: WalletAdapter): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.setIdentity(new WalletAdapterIdentityDriver(metaplex, walletAdapter));
+  },
+});
 
-export const walletOrGuestIdentity =
-  (walletAdapter: WalletAdapter | null | undefined) => (metaplex: Metaplex) => {
-    return walletAdapter
+export const walletOrGuestIdentity = (walletAdapter?: WalletAdapter | null): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    const identity = walletAdapter
       ? new WalletAdapterIdentityDriver(metaplex, walletAdapter)
       : new GuestIdentityDriver(metaplex);
-  };
+
+    metaplex.setIdentity(identity);
+  },
+});
 
 export class WalletAdapterIdentityDriver extends IdentityDriver {
   public readonly walletAdapter: WalletAdapter;

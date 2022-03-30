@@ -10,9 +10,13 @@ import {
 import nacl from 'tweetnacl';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 
-export const keypairIdentity = (keypair: Keypair) => (metaplex: Metaplex) =>
-  new KeypairIdentityDriver(metaplex, keypair);
+export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.setIdentity(new KeypairIdentityDriver(metaplex, keypair));
+  },
+});
 
 export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer {
   public readonly keypair: Keypair;

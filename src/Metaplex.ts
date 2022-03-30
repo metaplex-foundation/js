@@ -22,10 +22,10 @@ import {
   OperationConstructor,
   OperationHandlerConstructor,
   OutputOfOperation,
-  Plugin,
 } from '@/modules/shared';
 import { nftPlugin } from '@/modules/nfts';
-import { Driver } from './drivers/Driver';
+import { Driver } from '@/drivers/Driver';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
@@ -69,7 +69,7 @@ export class Metaplex {
     this.use(nftPlugin());
   }
 
-  use(plugin: Plugin) {
+  use(plugin: MetaplexPlugin) {
     plugin.install(this);
 
     return this;
@@ -79,8 +79,8 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver | DriverInstaller<IdentityDriver>) {
-    this.identityDriver = identity instanceof IdentityDriver ? identity : identity(this);
+  setIdentity(identity: IdentityDriver) {
+    this.identityDriver = identity;
 
     return this;
   }
@@ -89,8 +89,8 @@ export class Metaplex {
     return this.storageDriver;
   }
 
-  setStorage(storage: StorageDriver | DriverInstaller<StorageDriver>) {
-    this.storageDriver = storage instanceof StorageDriver ? storage : storage(this);
+  setStorage(storage: StorageDriver) {
+    this.storageDriver = storage;
 
     return this;
   }
