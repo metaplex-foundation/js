@@ -22,8 +22,9 @@ import {
   OperationConstructor,
   OperationHandlerConstructor,
   OutputOfOperation,
+  Plugin,
 } from '@/modules/shared';
-import { NftClient, CreateNftOperation, CreateNftOperationHandler } from '@/modules/nfts';
+import { NftClient, nftPlugin } from '@/modules/nfts';
 import { Driver } from './drivers/Driver';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
@@ -57,13 +58,21 @@ export class Metaplex {
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
-
-    // TODO: Register them somewhere else.
-    this.register(CreateNftOperation, CreateNftOperationHandler);
+    this.registerDefaultPlugins();
   }
 
   static make(endpoint: string, options: MetaplexOptions = {}) {
     return new this(endpoint, options);
+  }
+
+  registerDefaultPlugins() {
+    this.use(nftPlugin());
+  }
+
+  use(plugin: Plugin) {
+    plugin.install(this);
+
+    return this;
   }
 
   identity() {
