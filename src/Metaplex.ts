@@ -16,10 +16,9 @@ import { TransactionBuilder } from '@/programs/shared';
 import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
 import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
 import { Signer, getSignerHistogram, Plan } from '@/utils';
-import { NftClient, Operation, OperationConstructor, OperationHandlerConstructor } from './modules';
+import { InputOfOperation, Operation, OperationConstructor, OperationHandlerConstructor, OutputOfOperation } from '@/modules/shared';
+import { NftClient, CreateNftOperation, CreateNftOperationHandler } from '@/modules/nfts';
 import { Driver } from './drivers/Driver';
-import { CreateNftOperation } from './modules/nfts/operations';
-import { CreateNftOperationHandler } from './modules/nfts/operationHandlers';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
@@ -43,7 +42,7 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
-  /** The NFT client that interacts with the NFT program. */
+  /** The registered handlers for read/write operations. */
   protected operationHandlers: Map<any, any> = new Map();
 
   constructor(endpoint: string, options: MetaplexOptions = {}) {
@@ -141,21 +140,21 @@ export class Metaplex {
     return accounts as Array<AccountInfo<Buffer> | null>;
   }
 
-  register<I, O, T extends Operation<I, O>>(
+  register<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
     operation: OperationConstructor<I, O>,
-    operationHandler: OperationHandlerConstructor<I, O, T>
+    operationHandler: OperationHandlerConstructor<T, I, O>
   ) {
     this.operationHandlers.set(operation, operationHandler);
 
     return this;
   }
 
-  async plan<I, O, T extends Operation<I, O>>(
+  async plan<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
     operation: T,
     confirmOptions?: ConfirmOptions
   ): Promise<Plan<I, O>> {
     const operationHandler = this.operationHandlers.get(operation.constructor) as
-      | OperationHandlerConstructor<I, O, T>
+      | OperationHandlerConstructor<T, I, O>
       | undefined;
 
     if (!operationHandler) {
@@ -167,11 +166,11 @@ export class Metaplex {
     return handler.handle(operation);
   }
 
-  async execute<I, O, T extends Operation<I, O>>(
+  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
     operation: T,
     confirmOptions?: ConfirmOptions
   ): Promise<O> {
-    const plan = await this.plan<I, O, T>(operation, confirmOptions);
+    const plan = await this.plan<T, I, O>(operation, confirmOptions);
 
     return plan.execute(operation.input);
   }

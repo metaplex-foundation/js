@@ -1,13 +1,13 @@
-import { Operation } from './Operation';
-import { Plan } from '@/utils';
-import { Metaplex } from '@/Metaplex';
 import { ConfirmOptions } from '@solana/web3.js';
+import { Metaplex } from '@/Metaplex';
+import { Plan } from '@/utils';
+import { InputOfOperation, Operation, OutputOfOperation } from './Operation';
 
-export type OperationHandlerConstructor<I, O, T extends Operation<I, O>> = {
-  new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<I, O, T>;
+export type OperationHandlerConstructor<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>> = {
+  new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<T, I, O>;
 };
 
-export abstract class OperationHandler<I, O, T extends Operation<I, O>> {
+export abstract class OperationHandler<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>> {
   public metaplex: Metaplex;
   public confirmOptions?: ConfirmOptions;
 

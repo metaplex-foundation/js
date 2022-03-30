@@ -18,11 +18,7 @@ type CreateNftInputWithUriAndMetadata = RequiredParams<
   'uri' | 'metadata'
 >;
 
-export class CreateNftOperationHandler extends OperationHandler<
-  CreateNftInput,
-  CreateNftOutput,
-  CreateNftOperation
-> {
+export class CreateNftOperationHandler extends OperationHandler<CreateNftOperation> {
   public async handle(
     operation: CreateNftOperation
   ): Promise<Plan<CreateNftInput, CreateNftOutput>> {

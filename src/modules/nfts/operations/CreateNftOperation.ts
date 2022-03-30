@@ -5,6 +5,8 @@ import { Signer } from '@/utils';
 import { JsonMetadata } from '../models/JsonMetadata';
 import { Operation } from '@/modules/shared';
 
+export class CreateNftOperation extends Operation<CreateNftInput, CreateNftOutput> {}
+
 export interface CreateNftInput {
   // Data.
   name?: string;
@@ -41,5 +43,3 @@ export interface CreateNftOutput {
   associatedToken: PublicKey;
   transactionId: string;
 }
-
-export class CreateNftOperation extends Operation<CreateNftInput, CreateNftOutput> {}
