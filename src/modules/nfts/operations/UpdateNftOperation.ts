@@ -1,0 +1,27 @@
+import { PublicKey } from '@solana/web3.js';
+import { Operation } from '@/modules/shared';
+import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
+import { Signer } from '@/utils';
+
+export class UpdateNftOperation extends Operation<UpdateNftInput, UpdateNftOutput> {}
+
+export interface UpdateNftInput {
+  // Data.
+  name?: string;
+  symbol?: string;
+  uri?: string;
+  sellerFeeBasisPoints?: number;
+  creators?: Creator[];
+  collection?: Collection;
+  uses?: Uses;
+  newUpdateAuthority?: PublicKey;
+  primarySaleHappened?: boolean;
+  isMutable?: boolean;
+
+  // Signers.
+  updateAuthority?: Signer;
+}
+
+export interface UpdateNftOutput {
+  transactionId: string;
+}
