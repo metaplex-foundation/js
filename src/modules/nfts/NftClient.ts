@@ -1,45 +1,41 @@
 import { ModuleClient } from '@/modules/shared';
+import { Nft } from '@/modules/nfts';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
-  Nft,
-  FindNftParams,
-  findNft,
-  CreateNftParams,
-  createNft,
-  updateNft,
-  UpdateNftParams,
-  CreateNftResult,
-} from '@/modules/nfts';
-import { tryOrNull } from '@/utils';
-import { ConfirmOptions } from '@solana/web3.js';
-import { UpdateNftResult } from './actions';
+  CreateNftInput,
+  CreateNftOutput,
+  CreateNftOperation,
+  FindNftByMintOperation,
+  UpdateNftInput,
+  UpdateNftOutput,
+  UpdateNftOperation,
+} from './operations';
 
 export class NftClient extends ModuleClient {
   async createNft(
-    params: CreateNftParams,
+    input: CreateNftInput,
     confirmOptions?: ConfirmOptions
-  ): Promise<{ nft: Nft } & CreateNftResult> {
-    const createNftResult = await createNft(this.metaplex, params, confirmOptions);
+  ): Promise<{ nft: Nft } & CreateNftOutput> {
+    const operation = new CreateNftOperation(input);
+    const createNftOutput = await this.metaplex.execute(operation, confirmOptions);
+    const nft = await this.findNft({ mint: createNftOutput.mint.publicKey });
 
-    const nft = await this.findNft({ mint: createNftResult.mint.publicKey });
-    return { ...createNftResult, nft };
+    return { ...createNftOutput, nft };
   }
 
-  async findNft(params: FindNftParams): Promise<Nft> {
-    return findNft(this.metaplex, params);
-  }
-
-  async tryFindNft(params: FindNftParams): Promise<Nft | null> {
-    return tryOrNull(() => this.findNft(params));
+  async findNft({ mint }: { mint: PublicKey }): Promise<Nft> {
+    return this.metaplex.execute(new FindNftByMintOperation(mint));
   }
 
   async updateNft(
     nft: Nft,
-    params: UpdateNftParams,
+    input: Omit<UpdateNftInput, 'nft'>,
     confirmOptions?: ConfirmOptions
-  ): Promise<{ nft: Nft } & UpdateNftResult> {
-    const updateNftResult = await updateNft(this.metaplex, nft, params, confirmOptions);
+  ): Promise<{ nft: Nft } & UpdateNftOutput> {
+    const operation = new UpdateNftOperation({ ...input, nft });
+    const updateNftOutput = await this.metaplex.execute(operation, confirmOptions);
     const updatedNft = await this.findNft({ mint: nft.mint });
 
-    return { ...updateNftResult, nft: updatedNft };
+    return { ...updateNftOutput, nft: updatedNft };
   }
 }

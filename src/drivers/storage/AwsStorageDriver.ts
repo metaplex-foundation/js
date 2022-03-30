@@ -1,11 +1,15 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import BN from 'bn.js';
 
-export const awsStorage = (client: S3Client, bucketName: string) => (metaplex: Metaplex) =>
-  new AwsStorageDriver(metaplex, client, bucketName);
+export const awsStorage = (client: S3Client, bucketName: string): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.setStorage(new AwsStorageDriver(metaplex, client, bucketName));
+  },
+});
 
 export class AwsStorageDriver extends StorageDriver {
   protected client: S3Client;

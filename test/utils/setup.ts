@@ -5,8 +5,8 @@ import { Metaplex, keypairIdentity, mockStorage } from '../../src';
 export const metaplex = async (solsToAirdrop: number = 100) => {
 	const wallet = Keypair.generate();
 	const mx = Metaplex.make(LOCALHOST, { commitment: 'singleGossip' })
-		.setIdentity(keypairIdentity(wallet))
-		.setStorage(mockStorage());
+		.use(keypairIdentity(wallet))
+		.use(mockStorage());
 
 	await airdrop(mx.connection, wallet.publicKey, solsToAirdrop);
 	return mx;

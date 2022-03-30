@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 
@@ -11,8 +12,11 @@ export interface MockStorageOptions {
   costPerByte?: BN | number;
 }
 
-export const mockStorage = (options?: MockStorageOptions) => (metaplex: Metaplex) =>
-  new MockStorageDriver(metaplex, options);
+export const mockStorage = (options?: MockStorageOptions): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.setStorage(new MockStorageDriver(metaplex, options));
+  },
+});
 
 export class MockStorageDriver extends StorageDriver {
   private cache: Record<string, MetaplexFile> = {};

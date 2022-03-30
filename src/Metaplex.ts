@@ -15,9 +15,17 @@ import { Buffer } from 'buffer';
 import { TransactionBuilder } from '@/programs/shared';
 import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
 import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
-import { Signer, getSignerHistogram } from '@/utils';
-import { NftClient } from './modules';
-import { Driver } from './drivers/Driver';
+import { Signer, getSignerHistogram, Plan } from '@/utils';
+import {
+  InputOfOperation,
+  Operation,
+  OperationConstructor,
+  OperationHandlerConstructor,
+  OutputOfOperation,
+} from '@/modules/shared';
+import { nftPlugin } from '@/modules/nfts';
+import { Driver } from '@/drivers/Driver';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
 
@@ -41,24 +49,38 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
+  /** The registered handlers for read/write operations. */
+  protected operationHandlers: Map<any, any> = new Map();
+
   constructor(endpoint: string, options: MetaplexOptions = {}) {
     this.endpoint = endpoint;
     this.connection = new Connection(endpoint, options);
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
+    this.registerDefaultPlugins();
   }
 
   static make(endpoint: string, options: MetaplexOptions = {}) {
     return new this(endpoint, options);
   }
 
+  registerDefaultPlugins() {
+    this.use(nftPlugin());
+  }
+
+  use(plugin: MetaplexPlugin) {
+    plugin.install(this);
+
+    return this;
+  }
+
   identity() {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver | DriverInstaller<IdentityDriver>) {
-    this.identityDriver = identity instanceof IdentityDriver ? identity : identity(this);
+  setIdentity(identity: IdentityDriver) {
+    this.identityDriver = identity;
 
     return this;
   }
@@ -67,14 +89,10 @@ export class Metaplex {
     return this.storageDriver;
   }
 
-  setStorage(storage: StorageDriver | DriverInstaller<StorageDriver>) {
-    this.storageDriver = storage instanceof StorageDriver ? storage : storage(this);
+  setStorage(storage: StorageDriver) {
+    this.storageDriver = storage;
 
     return this;
-  }
-
-  nfts() {
-    return new NftClient(this);
   }
 
   async sendTransaction(
@@ -131,5 +149,40 @@ export class Metaplex {
     const accounts = await this.connection.getMultipleAccountsInfo(publicKeys, commitment);
 
     return accounts as Array<AccountInfo<Buffer> | null>;
+  }
+
+  register<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+    operation: OperationConstructor<I, O>,
+    operationHandler: OperationHandlerConstructor<T, I, O>
+  ) {
+    this.operationHandlers.set(operation, operationHandler);
+
+    return this;
+  }
+
+  async plan<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+    operation: T,
+    confirmOptions?: ConfirmOptions
+  ): Promise<Plan<I, O>> {
+    const operationHandler = this.operationHandlers.get(operation.constructor) as
+      | OperationHandlerConstructor<T, I, O>
+      | undefined;
+
+    if (!operationHandler) {
+      // TODO: Custom errors.
+      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+    }
+
+    const handler = new operationHandler(this, confirmOptions);
+    return handler.handle(operation);
+  }
+
+  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+    operation: T,
+    confirmOptions?: ConfirmOptions
+  ): Promise<O> {
+    const plan = await this.plan<T, I, O>(operation, confirmOptions);
+
+    return plan.execute(operation.input);
   }
 }

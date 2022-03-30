@@ -1,11 +1,15 @@
 import { NFTStorage } from 'nft.storage';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 
-export const nftStorageStorage = (token: string) => (metaplex: Metaplex) =>
-  new NftStorageStorageDriver(metaplex, token);
+export const nftStorageStorage = (token: string): MetaplexPlugin => ({
+  install(metaplex: Metaplex) {
+    metaplex.setStorage(new NftStorageStorageDriver(metaplex, token));
+  },
+});
 
 export class NftStorageStorageDriver extends StorageDriver {
   protected readonly nftStorage: NFTStorage;
