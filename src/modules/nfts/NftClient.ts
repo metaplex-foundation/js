@@ -1,12 +1,14 @@
 import { ModuleClient } from '@/modules/shared';
-import { Nft, updateNft, UpdateNftParams } from '@/modules/nfts';
+import { Nft } from '@/modules/nfts';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { UpdateNftResult } from './actions';
 import {
   CreateNftInput,
   CreateNftOutput,
   CreateNftOperation,
   FindNftByMintOperation,
+  UpdateNftInput,
+  UpdateNftOutput,
+  UpdateNftOperation,
 } from './operations';
 
 export class NftClient extends ModuleClient {
@@ -29,12 +31,13 @@ export class NftClient extends ModuleClient {
 
   async updateNft(
     nft: Nft,
-    params: UpdateNftParams,
+    input: Omit<UpdateNftInput, 'nft'>,
     confirmOptions?: ConfirmOptions
-  ): Promise<{ nft: Nft } & UpdateNftResult> {
-    const updateNftResult = await updateNft(this.metaplex, nft, params, confirmOptions);
+  ): Promise<{ nft: Nft } & UpdateNftOutput> {
+    const operation = new UpdateNftOperation({ ...input, nft });
+    const updateNftOutput = await this.metaplex.execute(operation, confirmOptions);
     const updatedNft = await this.findNft({ mint: nft.mint });
 
-    return { ...updateNftResult, nft: updatedNft };
+    return { ...updateNftOutput, nft: updatedNft };
   }
 }

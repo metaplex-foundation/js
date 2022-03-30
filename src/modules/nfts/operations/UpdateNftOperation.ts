@@ -2,10 +2,13 @@ import { PublicKey } from '@solana/web3.js';
 import { Operation } from '@/modules/shared';
 import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
 import { Signer } from '@/utils';
+import { Nft } from '../models';
 
 export class UpdateNftOperation extends Operation<UpdateNftInput, UpdateNftOutput> {}
 
 export interface UpdateNftInput {
+  nft: Nft;
+
   // Data.
   name?: string;
   symbol?: string;
