@@ -7,4 +7,7 @@ export class FindNftsByCandyMachineOperation extends Operation<
   Nft[]
 > {}
 
-export type FindNftsByCandyMachineInput = { v1: PublicKey } | { v2: PublicKey };
+export interface FindNftsByCandyMachineInput {
+  v1?: PublicKey;
+  v2?: PublicKey;
+}
