@@ -24,9 +24,7 @@ export class NftClient extends ModuleClient {
   }
 
   async findNft({ mint }: { mint: PublicKey }): Promise<Nft> {
-    const nft = await this.metaplex.execute(new FindNftByMintOperation(mint));
-
-    return nft;
+    return this.metaplex.execute(new FindNftByMintOperation(mint));
   }
 
   async updateNft(

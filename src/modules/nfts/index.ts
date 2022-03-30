@@ -7,13 +7,15 @@ export * from './NftClient';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { NftClient } from './NftClient';
-import * as operations from './operations';
-import * as handlers from './operationHandlers';
+import * as o from './operations';
+import * as h from './operationHandlers';
 
 export const nftPlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.register(operations.CreateNftOperation, handlers.CreateNftOperationHandler);
-    metaplex.register(operations.FindNftByMintOperation, handlers.FindNftByMintOperationHandler);
+    metaplex.register(o.CreateNftOperation, h.CreateNftOperationHandler);
+    metaplex.register(o.UpdateNftOperation, h.UpdateNftOperationHandler);
+    metaplex.register(o.FindNftByMintOperation, h.FindNftByMintOperationHandler);
+    metaplex.register(o.FindNftsByCandyMachineOperation, h.FindNftsByCandyMachineOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);
