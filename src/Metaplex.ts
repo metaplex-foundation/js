@@ -24,7 +24,7 @@ import {
   OutputOfOperation,
   Plugin,
 } from '@/modules/shared';
-import { NftClient, nftPlugin } from '@/modules/nfts';
+import { nftPlugin } from '@/modules/nfts';
 import { Driver } from './drivers/Driver';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
@@ -93,10 +93,6 @@ export class Metaplex {
     this.storageDriver = storage instanceof StorageDriver ? storage : storage(this);
 
     return this;
-  }
-
-  nfts() {
-    return new NftClient(this);
   }
 
   async sendTransaction(
