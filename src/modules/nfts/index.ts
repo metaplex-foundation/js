@@ -14,6 +14,7 @@ import * as handlers from './operationHandlers';
 export const nftPlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.register(operations.CreateNftOperation, handlers.CreateNftOperationHandler);
+    metaplex.register(operations.FindNftByMintOperation, handlers.FindNftByMintOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);

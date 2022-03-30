@@ -1,30 +1,30 @@
 import { ModuleClient } from '@/modules/shared';
-import { Nft, FindNftParams, findNft, updateNft, UpdateNftParams } from '@/modules/nfts';
-import { tryOrNull } from '@/utils';
-import { ConfirmOptions } from '@solana/web3.js';
+import { Nft, updateNft, UpdateNftParams } from '@/modules/nfts';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { UpdateNftResult } from './actions';
-import { CreateNftInput, CreateNftOutput, CreateNftOperation } from './operations';
+import {
+  CreateNftInput,
+  CreateNftOutput,
+  CreateNftOperation,
+  FindNftByMintOperation,
+} from './operations';
 
 export class NftClient extends ModuleClient {
   async createNft(
     input: CreateNftInput,
     confirmOptions?: ConfirmOptions
   ): Promise<{ nft: Nft } & CreateNftOutput> {
-    const createNftOutput = await this.metaplex.execute(
-      new CreateNftOperation(input),
-      confirmOptions
-    );
+    const operation = new CreateNftOperation(input);
+    const createNftOutput = await this.metaplex.execute(operation, confirmOptions);
     const nft = await this.findNft({ mint: createNftOutput.mint.publicKey });
 
     return { ...createNftOutput, nft };
   }
 
-  async findNft(params: FindNftParams): Promise<Nft> {
-    return findNft(this.metaplex, params);
-  }
+  async findNft({ mint }: { mint: PublicKey }): Promise<Nft> {
+    const nft = await this.metaplex.execute(new FindNftByMintOperation(mint));
 
-  async tryFindNft(params: FindNftParams): Promise<Nft | null> {
-    return tryOrNull(() => this.findNft(params));
+    return nft;
   }
 
   async updateNft(
