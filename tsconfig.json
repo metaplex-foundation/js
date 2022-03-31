@@ -1,31 +1,41 @@
 {
-  "include": ["src", "types"],
-  "exclude": ["node_modules"],
+  "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es2019",
-    "module": "esnext",
     "outDir": "dist/esm",
     "declarationDir": "dist/types",
-    "noEmit": false,
     "declaration": true,
     "sourceMap": true,
+    "noEmit": false,
     "noEmitOnError": true,
-    "stripInternal": true,
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "plugins": [
       {
         "transform": "@ovos-media/ts-transform-paths",
         "exclude": ["*"]
       }
     ],
-    "paths": {
-      "@/*": ["src/*"]
-    }
+
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "skipLibCheck": true,
+
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": false,
+    "strict": true,
+    "isolatedModules": true,
+
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "removeComments": false,
+    "jsx": "preserve",
   },
   "typedocOptions": {
     "entryPoints": "src/index.ts",
