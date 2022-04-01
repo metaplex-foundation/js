@@ -23,7 +23,7 @@ export const nftPlugin = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@/Metaplex' {
+declare module '../../Metaplex' {
   interface Metaplex {
     nfts(): NftClient;
   }
