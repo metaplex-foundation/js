@@ -40,7 +40,7 @@ test('it may require some initial state', async (t: Test) => {
 
 test('it works with multiple steps', async (t: Test) => {
   // Given a plan with multiple steps that push their name to an array.
-  let executedSteps = [];
+  let executedSteps: string[] = [];
   const plan = Plan.make()
     .addStep({
       name: 'step1',
