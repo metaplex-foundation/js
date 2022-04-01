@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { Model } from '@/modules/shared';
 import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
-import { TokenStandard, Collection, Uses, Creator } from '@/programs/tokenMetadata/generated';
+import { TokenStandard, Collection, Uses, Creator } from '@metaplex-foundation/mpl-token-metadata';
 import { bignum } from '@metaplex-foundation/beet';
 import { JsonMetadata } from './JsonMetadata';
 import { removeEmptyChars } from '@/utils';

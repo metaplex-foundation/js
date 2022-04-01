@@ -1,7 +1,7 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
-import { MetadataAccount, MasterEditionAccount, DataV2 } from '@/programs/tokenMetadata';
-import { Creator } from '@/programs/tokenMetadata/generated';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { Creator, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { OperationHandler } from '@/modules/shared';
 import { InputStep, Plan, RequiredParams } from '@/utils';
 import { CreateNftInput, CreateNftOperation, CreateNftOutput } from '../operations';
