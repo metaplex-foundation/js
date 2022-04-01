@@ -59,6 +59,9 @@
     "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
   },
+  "resolutions": {
+    "@metaplex-foundation/mpl-core": "0.0.4"
+  },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.1.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",

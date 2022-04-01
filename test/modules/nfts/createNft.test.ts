@@ -1,9 +1,9 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
-import { metaplex, spokSamePubkey, spokSameBignum } from '../../utils';
-import { JsonMetadata, MetaplexFile } from '../../../src';
 import { Keypair } from '@solana/web3.js';
-import { UseMethod } from '../../../src/programs/tokenMetadata/generated'
+import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
+import { JsonMetadata, MetaplexFile } from '../../../src';
+import { metaplex, spokSamePubkey, spokSameBignum } from '../../utils';
 
 test('it can create an NFT with minimum configuration', async (t: Test) => {
 	// Given we have a Metaplex instance.
