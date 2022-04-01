@@ -1531,7 +1531,7 @@
   dependencies:
     cross-fetch "3.0.6"
 
-"@solana/spl-token@0.2.0", "@solana/spl-token@^0.1.8", "@solana/spl-token@^0.2.0":
+"@solana/spl-token@^0.1.8", "@solana/spl-token@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.2.0.tgz#329bb6babb5de0f9c40035ddb1657f01a8347acd"
   integrity sha512-RWcn31OXtdqIxmkzQfB2R+WpsJOVS6rKuvpxJFjvik2LyODd+WN58ZP3Rpjpro03fscGAkzlFuP3r42doRJgyQ==

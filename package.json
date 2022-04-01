@@ -10,7 +10,9 @@
     "require": "./dist/cjs/index.js"
   },
   "files": [
-    "/dist",
+    "/dist/cjs",
+    "/dist/esm",
+    "/dist/types",
     "/src"
   ],
   "publishConfig": {
@@ -30,13 +32,18 @@
     "url": "https://github.com/metaplex/js-next.git"
   },
   "scripts": {
-    "prepublish": "yarn build && yarn test",
+    "check:publish-ready": "yarn build && yarn test",
+    "prepublishOnly": "yarn check:publish-ready",
+    "preversion": "yarn check:publish-ready",
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
-    "build": "yarn clean && ttsc -p tsconfig.json && ttsc -p tsconfig.cjs.json",
+    "build": "yarn clean && yarn build:esm && yarn build:cjs",
+    "build:esm": "ttsc -p tsconfig.json",
+    "build:cjs": "ttsc -p tsconfig.cjs.json",
+    "build:test": "ttsc -p test/tsconfig.json",
     "amman:start": "DEBUG='amman*' amman validator",
     "amman:stop": "pkill solana-test-validator",
-    "test": "tape -r ./node_modules/esbuild-runner/lib/register test/**/*.test.ts",
+    "test": "yarn build:test && tape dist/test/**/*.test.js",
     "lint": "prettier -c ./src/",
     "lint:fix": "prettier --write ./src"
   },

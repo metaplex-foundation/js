@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.cjs.json",
+  "include": ["./**/*"],
+  "compilerOptions": {
+    "outDir": "../dist/test",
+    "declarationDir": null,
+    "declaration": false
+  }
+}

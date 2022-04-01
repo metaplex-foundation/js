@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import test, { Test } from 'tape';
 import sinon from 'sinon';
-import { metaplex } from '../../utils';
+import { metaplex } from '../../helpers';
 import { awsStorage, MetaplexFile } from '../../../src';
 
 const awsClient = {
@@ -34,5 +34,5 @@ test('it can upload assets to a S3 bucket', async (t: Test) => {
   t.assert(command instanceof PutObjectCommand);
   t.equals('some-bucket', command.input.Bucket);
   t.equals('some-key', command.input.Key);
-  t.equals('some-image', command.input.Body.toString());
+  t.equals('some-image', command.input.Body?.toString());
 });

@@ -1,9 +1,9 @@
 import test, { Test } from 'tape';
-import spok from 'spok';
+import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { JsonMetadata, MetaplexFile } from '../../../src';
-import { metaplex, spokSamePubkey, spokSameBignum } from '../../utils';
+import { JsonMetadata, MetaplexFile, Nft } from '../../../src';
+import { metaplex, spokSamePubkey, spokSameBignum } from '../../helpers';
 
 test('it can create an NFT with minimum configuration', async (t: Test) => {
 	// Given we have a Metaplex instance.
@@ -48,7 +48,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
 		],
 		collection: null,
 		uses: null,
-	});
+	} as unknown as Specifications<Nft>);
 });
 
 test('it can create an NFT with maximum configuration', async (t: Test) => {
@@ -144,7 +144,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 				verified: false,
 			},
 		],
-	});
+	} as unknown as Specifications<Nft>);
 });
 
 test('it fill missing on-chain data from the JSON metadata', async (t: Test) => {
@@ -210,7 +210,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 				verified: false,
 			},
 		],
-	});
+	} as unknown as Specifications<Nft>);
 });
 
 test('it creates missing JSON metadata from the on-chain data', async (t: Test) => {
@@ -278,5 +278,5 @@ test('it creates missing JSON metadata from the on-chain data', async (t: Test) 
 			...creator,
 			address: spokSamePubkey(creator.address),
 		})),
-	});
+	} as unknown as Specifications<Nft>);
 });
