@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Operation } from '@/modules/shared';
-import { Collection, Creator, Uses } from '@/programs/tokenMetadata/generated';
+import { Collection, Creator, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Signer } from '@/utils';
 import { Nft } from '../models';
 

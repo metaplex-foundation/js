@@ -1,6 +1,6 @@
 import { TransactionBuilder } from '@/programs';
 import { updateMetadataV2Builder } from '@/programs/tokenMetadata';
-import { DataV2 } from '@/programs/tokenMetadata/generated';
+import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { Signer } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 

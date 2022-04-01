@@ -2,7 +2,7 @@ import { TransactionBuilder } from '@/programs/shared';
 import {
   createUpdateMetadataAccountV2Instruction,
   DataV2,
-} from '@/programs/tokenMetadata/generated';
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Signer } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 

@@ -1,5 +1,6 @@
+import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { OperationHandler } from '@/modules/shared';
-import { DataV2, MetadataAccount } from '@/programs';
+import { MetadataAccount } from '@/programs';
 import { InputStep, Plan } from '@/utils';
 import { UpdateNftInput, UpdateNftOperation, UpdateNftOutput } from '../operations';
 import { updateNftBuilder } from '../transactionBuilders';
