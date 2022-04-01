@@ -41,7 +41,7 @@
     "build:test": "ttsc -p test/tsconfig.json",
     "amman:start": "DEBUG='amman*' amman validator",
     "amman:stop": "pkill solana-test-validator",
-    "test": "yarn build:test && tape dist/test/test/**/*.test.js",
+    "test": "yarn build:test && tape dist/test/**/*.test.js",
     "lint": "prettier -c ./src/",
     "lint:fix": "prettier --write ./src"
   },
