@@ -31,7 +31,7 @@
   },
   "scripts": {
     "prepublish": "yarn build && yarn test",
-    "postpublish": "git push origin && git push origin --tags",
+    "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
     "build": "yarn clean && ttsc -p tsconfig.json && ttsc -p tsconfig.cjs.json",
     "amman:start": "DEBUG='amman*' amman validator",
