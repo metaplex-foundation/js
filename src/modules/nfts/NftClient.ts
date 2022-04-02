@@ -1,4 +1,4 @@
-import { ModuleClient } from '@/modules/shared';
+import { ModuleClient } from '@/shared';
 import { Nft } from '@/modules/nfts';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {

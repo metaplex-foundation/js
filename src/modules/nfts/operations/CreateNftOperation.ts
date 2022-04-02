@@ -1,9 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { Creator, Collection, Uses } from '@metaplex-foundation/mpl-token-metadata';
-import { Signer } from '@/utils';
 import { JsonMetadata } from '../models/JsonMetadata';
-import { Operation } from '@/modules/shared';
+import { Operation, Signer } from '@/shared';
 
 export class CreateNftOperation extends Operation<CreateNftInput, CreateNftOutput> {}
 

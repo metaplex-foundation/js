@@ -2,7 +2,7 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { JsonMetadata, MetaplexFile, Nft } from '../../../src';
+import { JsonMetadata, MetaplexFile, Nft } from '@/index';
 import { metaplex, spokSamePubkey, spokSameBignum } from '../../helpers';
 
 test('it can create an NFT with minimum configuration', async (t: Test) => {

@@ -1,6 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { OperationHandler } from '@/modules/shared';
-import { InputStep, Plan, Postpone } from '@/utils';
+import { OperationHandler, InputStep, Plan, Postpone, GmaBuilder } from '@/shared';
 import { Nft } from '../models';
 import { FindNftsByCandyMachineInput, FindNftsByCandyMachineOperation } from '../operations';
 import {
@@ -8,7 +7,6 @@ import {
   MetadataAccount,
   MasterEditionAccount,
 } from '@/programs/tokenMetadata';
-import { GmaBuilder } from '@/programs';
 
 export class FindNftsByCandyMachineOperationHandler extends OperationHandler<FindNftsByCandyMachineOperation> {
   public async handle(

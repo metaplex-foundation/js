@@ -9,7 +9,7 @@ import base58 from 'bs58';
 import BN from 'bn.js';
 import { AccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
-import { Postpone } from '@/utils';
+import { Postpone } from './Postpone';
 
 export type GpaSortCallback = (
   a: AccountInfoWithPublicKey<Buffer>,

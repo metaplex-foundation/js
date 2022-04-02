@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
-import { OperationHandler } from '@/modules/shared';
-import { InputStep, Plan, removeEmptyChars } from '@/utils';
+import { OperationHandler, InputStep, Plan } from '@/shared';
+import { removeEmptyChars } from '@/utils';
 import { JsonMetadata, Nft } from '../models';
 import { FindNftByMintOperation } from '../operations/FindNftByMintOperation';
 import { MasterEditionAccount, MetadataAccount } from '@/programs';

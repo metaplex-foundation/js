@@ -1,7 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
-import { Operation } from '@/modules/shared';
 import { Collection, Creator, Uses } from '@metaplex-foundation/mpl-token-metadata';
-import { Signer } from '@/utils';
+import { Operation, Signer } from '@/shared';
 import { Nft } from '../models';
 
 export class UpdateNftOperation extends Operation<UpdateNftInput, UpdateNftOutput> {}

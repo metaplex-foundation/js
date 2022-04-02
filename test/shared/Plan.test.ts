@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { Plan } from '../../src';
+import { Plan } from '@/index';
 
 test('it works with one trivial step', async (t: Test) => {
   // Given a plan with only one step that keep track of its execution.

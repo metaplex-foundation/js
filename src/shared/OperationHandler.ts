@@ -1,6 +1,6 @@
 import { ConfirmOptions } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { Plan } from '@/utils';
+import { Plan } from './Plan';
 import { InputOfOperation, Operation, OutputOfOperation } from './Operation';
 
 export type OperationHandlerConstructor<

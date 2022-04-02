@@ -1,11 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
-import { TransactionBuilder } from '@/programs/shared';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { Signer } from '@/utils';
+import { TransactionBuilder, Signer } from '@/shared';
 
 export interface CreateAssociatedTokenAccountBuilderParams {
   payer: Signer;
