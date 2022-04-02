@@ -154,7 +154,6 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
           transactionId,
         };
       },
-      price: 100000, // TODO: Price of minting in lamports.
     };
   }
 

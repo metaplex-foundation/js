@@ -1,11 +1,8 @@
-import BN from 'bn.js';
-
 type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
 interface Step {
   name: string;
   status: StepStatus;
-  price: number | BN;
   hidden: boolean;
   optional: boolean;
   onError?: (error: unknown) => void;
@@ -86,7 +83,6 @@ export class Plan<I, O> {
     const newStep: Step = {
       name: step.name,
       status: 'pending',
-      price: step.price ?? 0,
       hidden: step.hidden ?? false,
       optional: step.optional ?? false,
       onError: step.onError,
@@ -140,10 +136,6 @@ export class Plan<I, O> {
 
   public getVisibleSteps(): Step[] {
     return this.steps.filter((step) => !step.hidden);
-  }
-
-  public getTotalPrice(): BN {
-    return this.steps.reduce((total, step) => total.add(new BN(step.price)), new BN(0));
   }
 
   public async execute(initialState?: I): Promise<O> {
