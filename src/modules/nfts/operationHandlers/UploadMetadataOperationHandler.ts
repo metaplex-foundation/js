@@ -1,8 +1,14 @@
 import { OperationHandler } from '@/shared';
-import { UploadMetadataOperation, UploadMetadataOutput } from '../operations';
+import {
+  PlanUploadMetadataOperation,
+  UploadMetadataOperation,
+  UploadMetadataOutput,
+} from '../operations';
 
 export class UploadMetadataOperationHandler extends OperationHandler<UploadMetadataOperation> {
-  public async handle(_operation: UploadMetadataOperation): Promise<UploadMetadataOutput> {
-    throw new Error('Method not implemented.');
+  public async handle(operation: UploadMetadataOperation): Promise<UploadMetadataOutput> {
+    const plan = await this.metaplex.execute(new PlanUploadMetadataOperation());
+
+    return plan.execute(operation.input);
   }
 }

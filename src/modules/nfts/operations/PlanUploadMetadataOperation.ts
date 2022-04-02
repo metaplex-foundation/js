@@ -4,4 +4,8 @@ import { UploadMetadataInput, UploadMetadataOutput } from './UploadMetadataOpera
 export class PlanUploadMetadataOperation extends Operation<
   undefined,
   Plan<UploadMetadataInput, UploadMetadataOutput>
-> {}
+> {
+  constructor() {
+    super(undefined);
+  }
+}

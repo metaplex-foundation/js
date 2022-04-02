@@ -64,3 +64,28 @@ export const getExtension = (fileName: string): string | null => {
 
   return lastDotIndex < 0 ? null : fileName.slice(lastDotIndex + 1);
 };
+
+export type WalkOptions = {
+  sortObjectKeys?: boolean;
+}
+
+export const walk = (parent: any, cb: (value: any, key: any, walk: (child: any) => void) => unknown, options?: WalkOptions): void => {
+  const recursiveWalk = (child: any) => walk(child, cb, options);
+
+  if (parent && Array.isArray(parent)) {
+    parent.forEach((child, index) => {
+      cb(child, index, recursiveWalk);
+    });
+  } else if (parent && typeof parent === 'object') {
+    const keys = Object.keys(parent);
+
+    if (options?.sortObjectKeys ?? true) {
+      keys.sort();
+    }
+
+    keys.forEach(key => {
+      const child = parent[key];
+      cb(child, key, recursiveWalk);
+    });
+  }
+};
