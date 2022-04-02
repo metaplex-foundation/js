@@ -1,5 +1,6 @@
 import { MetaplexFile } from '@/drivers';
 import { OperationHandler, Plan } from '@/shared';
+import { walk } from '@/utils';
 import { JsonMetadata } from '../models';
 import {
   PlanUploadMetadataOperation,
@@ -31,10 +32,33 @@ export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUpl
   }
 
   protected getAssetsFromJsonMetadata(input: UploadMetadataInput): MetaplexFile[] {
-    throw new Error('Method not implemented.');
+    const files: MetaplexFile[] = [];
+
+    walk(input, (walk, value) => {
+      if (value instanceof MetaplexFile) {
+        files.push(value);
+      } else {
+        walk(value);
+      }
+    });
+
+    return files;
   }
 
-  protected replaceAssetsWithUris(input: UploadMetadataInput, replacements: string[]): JsonMetadata {
-    throw new Error('Method not implemented.');
+  protected replaceAssetsWithUris(
+    input: UploadMetadataInput,
+    replacements: string[]
+  ): JsonMetadata {
+    let index = 0;
+
+    walk(input, (walk, value, key, parent) => {
+      if (value instanceof MetaplexFile && index < replacements.length) {
+        parent[key] = replacements[index++];
+      }
+
+      walk(value);
+    });
+
+    return input as JsonMetadata;
   }
 }

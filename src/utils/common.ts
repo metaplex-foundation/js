@@ -67,14 +67,18 @@ export const getExtension = (fileName: string): string | null => {
 
 export type WalkOptions = {
   sortObjectKeys?: boolean;
-}
+};
 
-export const walk = (parent: any, cb: (value: any, key: any, walk: (child: any) => void) => unknown, options?: WalkOptions): void => {
+export const walk = (
+  parent: any,
+  cb: (walk: (child: any) => void, value: any, key: any, parent: any) => unknown,
+  options?: WalkOptions
+): void => {
   const recursiveWalk = (child: any) => walk(child, cb, options);
 
   if (parent && Array.isArray(parent)) {
     parent.forEach((child, index) => {
-      cb(child, index, recursiveWalk);
+      cb(recursiveWalk, child, index, parent);
     });
   } else if (parent && typeof parent === 'object') {
     const keys = Object.keys(parent);
@@ -83,9 +87,9 @@ export const walk = (parent: any, cb: (value: any, key: any, walk: (child: any) 
       keys.sort();
     }
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const child = parent[key];
-      cb(child, key, recursiveWalk);
+      cb(recursiveWalk, child, key, parent);
     });
   }
 };
