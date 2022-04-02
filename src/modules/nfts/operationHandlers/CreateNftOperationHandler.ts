@@ -69,7 +69,11 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
     };
   }
 
-  protected resolveData(input: CreateNftInput, metadata: JsonMetadata, updateAuthority: PublicKey): DataV2 {
+  protected resolveData(
+    input: CreateNftInput,
+    metadata: JsonMetadata,
+    updateAuthority: PublicKey
+  ): DataV2 {
     const metadataCreators: Creator[] | undefined = metadata.properties?.creators
       ?.filter((creator) => creator.address)
       .map((creator) => ({
@@ -102,8 +106,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
       name: input.name ?? metadata.name ?? '',
       symbol: input.symbol ?? metadata.symbol ?? '',
       uri: input.uri,
-      sellerFeeBasisPoints:
-        input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
+      sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
       creators,
       collection: input.collection ?? null,
       uses: input.uses ?? null,
