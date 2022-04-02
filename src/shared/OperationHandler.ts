@@ -1,6 +1,5 @@
 import { ConfirmOptions } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { Plan } from './Plan';
 import { InputOfOperation, Operation, OutputOfOperation } from './Operation';
 
 export type OperationHandlerConstructor<
@@ -24,5 +23,5 @@ export abstract class OperationHandler<
     this.confirmOptions = confirmOptions;
   }
 
-  public abstract handle(operation: T): Promise<Plan<I, O>>;
+  public abstract handle(operation: T): Promise<O>;
 }

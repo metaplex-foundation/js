@@ -28,7 +28,6 @@ import {
   TransactionBuilder,
   Signer,
   getSignerHistogram,
-  Plan,
 } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
@@ -166,10 +165,10 @@ export class Metaplex {
     return this;
   }
 
-  async plan<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
     operation: T,
     confirmOptions?: ConfirmOptions
-  ): Promise<Plan<I, O>> {
+  ): Promise<O> {
     const operationHandler = this.operationHandlers.get(operation.constructor) as
       | OperationHandlerConstructor<T, I, O>
       | undefined;
@@ -181,14 +180,5 @@ export class Metaplex {
 
     const handler = new operationHandler(this, confirmOptions);
     return handler.handle(operation);
-  }
-
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T,
-    confirmOptions?: ConfirmOptions
-  ): Promise<O> {
-    const plan = await this.plan<T, I, O>(operation, confirmOptions);
-
-    return plan.execute(operation.input);
   }
 }
