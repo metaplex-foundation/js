@@ -52,8 +52,7 @@
     "@bundlr-network/client": "^0.6.1-rc4",
     "@metaplex-foundation/beet": "^0.1.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-core": "^0.0.4",
-    "@metaplex-foundation/mpl-token-metadata": "^2.0.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.1.0",
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.34.0",
@@ -63,10 +62,6 @@
     "mime": "^3.0.0",
     "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
-  },
-  "resolutions": {
-    "@metaplex-foundation/mpl-core": "0.0.4",
-    "@solana/spl-token": "^0.2.0"
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.1.0",
