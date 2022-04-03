@@ -1,14 +1,14 @@
-export interface JsonMetadata {
+export interface JsonMetadata<Uri = string> {
   name?: string;
   symbol?: string;
   description?: string;
   seller_fee_basis_points?: number;
-  image?: string;
-  external_url?: string;
+  image?: Uri;
+  external_url?: Uri;
   attributes?: JsonMetadataAttribute[];
   properties?: {
     creators?: JsonMetadataCreator[];
-    files?: JsonMetadataFile[];
+    files?: JsonMetadataFile<Uri>[];
     [key: string]: unknown;
   };
   collection?: {
@@ -31,8 +31,8 @@ export interface JsonMetadataCreator {
   [key: string]: unknown;
 }
 
-export interface JsonMetadataFile {
+export interface JsonMetadataFile<Uri = string> {
   type?: string;
-  uri?: string;
+  uri?: Uri;
   [key: string]: unknown;
 }

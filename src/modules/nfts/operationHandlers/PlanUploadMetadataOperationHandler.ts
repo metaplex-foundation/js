@@ -29,7 +29,7 @@ export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUpl
       })
       .addStep({
         name: 'Upload the metadata',
-        handler: this.uploadMetadata,
+        handler: (input) => this.uploadMetadata(input),
       });
   }
 

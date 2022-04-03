@@ -1,7 +1,11 @@
-import { ModuleClient } from '@/shared';
+import { ModuleClient, Plan } from '@/shared';
 import { Nft } from '@/modules/nfts';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
+  UploadMetadataInput,
+  UploadMetadataOutput,
+  UploadMetadataOperation,
+  PlanUploadMetadataOperation,
   CreateNftInput,
   CreateNftOutput,
   CreateNftOperation,
@@ -12,6 +16,20 @@ import {
 } from './operations';
 
 export class NftClient extends ModuleClient {
+  async uploadMetadata(
+    input: UploadMetadataInput,
+    confirmOptions?: ConfirmOptions
+  ): Promise<UploadMetadataOutput> {
+    return this.metaplex.execute(new UploadMetadataOperation(input), confirmOptions);
+  }
+
+  async planUploadMetadata(
+    input: UploadMetadataInput,
+    confirmOptions?: ConfirmOptions
+  ): Promise<Plan<undefined, UploadMetadataOutput>> {
+    return this.metaplex.execute(new PlanUploadMetadataOperation(input), confirmOptions);
+  }
+
   async createNft(
     input: CreateNftInput,
     confirmOptions?: ConfirmOptions
