@@ -54,6 +54,10 @@ export class MetaplexFile {
     return [{ name: 'Content-Type', value: this.contentType }, ...this.tags];
   }
 
+  getBytes(): number {
+    return this.buffer.byteLength;
+  }
+
   toBuffer(): Buffer {
     return this.buffer;
   }

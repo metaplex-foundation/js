@@ -1,8 +1,7 @@
 import { PublicKey, Signer as Web3Signer } from '@solana/web3.js';
-import { TransactionBuilder } from '@/programs/shared';
 import { setAuthorityBuilder } from '@/programs/token';
 import { AuthorityType } from '@solana/spl-token';
-import { Signer } from '@/utils';
+import { TransactionBuilder, Signer } from '@/shared';
 
 export interface DisableMintingBuilderParams {
   mint: PublicKey;

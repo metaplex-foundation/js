@@ -2,7 +2,7 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { JsonMetadata, MetaplexFile, Nft } from '../../../src';
+import { JsonMetadata, MetaplexFile, Nft } from '@/index';
 import { metaplex, spokSamePubkey, spokSameBignum } from '../../helpers';
 
 test('it can create an NFT with minimum configuration', async (t: Test) => {
@@ -55,9 +55,12 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 	// Given we have a Metaplex instance.
 	const mx = await metaplex();
 
-	// And we uploaded an image.
-	const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
-	const imageUri = await mx.storage().upload(imageFile);
+	// And we uploaded some metadata.
+	const { uri, metadata } = await mx.nfts().uploadMetadata({
+		name: 'JSON NFT name',
+		description: 'JSON NFT description',
+		image: new MetaplexFile('some_image', 'some-image.jpg'),
+	});
 
 	// And a various keypairs for different access.
 	const mint = Keypair.generate();
@@ -69,13 +72,9 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 
 	// When we create a new NFT with minimum configuration.
 	const { nft } = await mx.nfts().createNft({
+		uri,
 		name: 'On-chain NFT name',
 		symbol: 'MYNFT',
-		metadata: {
-			name: 'JSON NFT name',
-			description: 'JSON NFT description',
-			image: imageUri,
-		},
 		sellerFeeBasisPoints: 456,
 		isMutable: true,
 		maxSupply: 123,
@@ -118,7 +117,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
 		metadata: {
 			name: 'JSON NFT name',
 			description: 'JSON NFT description',
-			image: imageUri,
+			image: metadata.image,
 		},
 		sellerFeeBasisPoints: 456,
 		primarySaleHappened: false,
@@ -151,18 +150,14 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 	// Given we have a Metaplex instance.
 	const mx = await metaplex();
 
-	// And an uploaded image.
-	const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
-	const imageUri = await mx.storage().upload(imageFile);
-
-	// And two other creators used in the JSON metadata.
+	// And we uploaded some metadata.
 	const creatorA = Keypair.generate().publicKey;
 	const creatorB = Keypair.generate().publicKey;
-	const metadata: JsonMetadata = {
+	const { uri, metadata } = await mx.nfts().uploadMetadata({
 		name: 'JSON NFT name',
 		symbol: 'MYNFT',
 		description: 'JSON NFT description',
-		image: imageUri,
+		image: new MetaplexFile('some_image', 'some-image.jpg'),
 		seller_fee_basis_points: 456,
 		properties: {
 			creators: [
@@ -180,17 +175,17 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 				},
 			]
 		}
-	};
+	});
 
 	// When we create a new NFT using that JSON metadata only.
-	const { nft } = await mx.nfts().createNft({ metadata });
+	const { nft } = await mx.nfts().createNft({ uri });
 
 	// Then the created NFT used some of the JSON metadata to fill some on-chain data.
 	spok(t, nft, {
 		$topic: 'nft',
 		name: 'JSON NFT name',
 		symbol: 'MYNFT',
-		uri: spok.string,
+		uri,
 		metadata,
 		sellerFeeBasisPoints: 456,
 		creators: [
@@ -210,73 +205,5 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 				verified: false,
 			},
 		],
-	} as unknown as Specifications<Nft>);
-});
-
-test('it creates missing JSON metadata from the on-chain data', async (t: Test) => {
-	// Given we have a Metaplex instance.
-	const mx = await metaplex();
-
-	// And some explicit creators to store on-chain.
-	const creatorA = Keypair.generate().publicKey;
-	const creatorB = Keypair.generate().publicKey;
-	const creators = [
-		{
-			address: mx.identity().publicKey,
-			share: 50,
-			verified: true,
-		},
-		{
-			address: creatorA,
-			share: 30,
-			verified: false,
-		},
-		{
-			address: creatorB,
-			share: 20,
-			verified: false,
-		},
-	]
-
-	// When we create a new NFT on-chain data only.
-	const { nft } = await mx.nfts().createNft({
-		name: 'On-chain NFT name',
-		symbol: 'MYNFT',
-		sellerFeeBasisPoints: 456,
-		creators,
-	});
-
-	// Then the NFT created used some of the on-chain data to create and upload some JSON metadata.
-	spok(t, nft, {
-		$topic: 'nft',
-		name: 'On-chain NFT name',
-		symbol: 'MYNFT',
-		uri: spok.string,
-		metadata: {
-			name: 'On-chain NFT name',
-			symbol: 'MYNFT',
-			seller_fee_basis_points: 456,
-			properties: {
-				creators: [
-					{
-						address: mx.identity().publicKey.toBase58(),
-						share: 50,
-					},
-					{
-						address: creatorA.toBase58(),
-						share: 30,
-					},
-					{
-						address: creatorB.toBase58(),
-						share: 20,
-					},
-				],
-			},
-		},
-		sellerFeeBasisPoints: 456,
-		creators: creators.map(creator => ({
-			...creator,
-			address: spokSamePubkey(creator.address),
-		})),
 	} as unknown as Specifications<Nft>);
 });

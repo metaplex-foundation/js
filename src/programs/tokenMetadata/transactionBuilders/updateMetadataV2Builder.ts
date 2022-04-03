@@ -1,10 +1,9 @@
-import { TransactionBuilder } from '@/programs/shared';
+import { PublicKey } from '@solana/web3.js';
 import {
   createUpdateMetadataAccountV2Instruction,
   DataV2,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Signer } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
+import { TransactionBuilder, Signer } from '@/shared';
 
 export interface UpdateMetadataV2BuilderParams {
   data: DataV2;

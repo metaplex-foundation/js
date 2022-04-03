@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   AccountInfo,
   Commitment,
@@ -11,20 +12,24 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import { Buffer } from 'buffer';
-import { TransactionBuilder } from '@/programs/shared';
-import { IdentityDriver, GuestIdentityDriver } from '@/drivers/identity';
-import { StorageDriver, BundlrStorageDriver } from '@/drivers/storage';
-import { Signer, getSignerHistogram, Plan } from '@/utils';
+import {
+  Driver,
+  IdentityDriver,
+  GuestIdentityDriver,
+  StorageDriver,
+  BundlrStorageDriver,
+} from '@/drivers';
 import {
   InputOfOperation,
   Operation,
   OperationConstructor,
   OperationHandlerConstructor,
   OutputOfOperation,
-} from '@/modules/shared';
-import { nftPlugin } from '@/modules/nfts';
-import { Driver } from '@/drivers/Driver';
+  TransactionBuilder,
+  Signer,
+  getSignerHistogram,
+} from '@/shared';
+import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 export type DriverInstaller<T extends Driver> = (metaplex: Metaplex) => T;
@@ -160,10 +165,10 @@ export class Metaplex {
     return this;
   }
 
-  async plan<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
     operation: T,
     confirmOptions?: ConfirmOptions
-  ): Promise<Plan<I, O>> {
+  ): Promise<O> {
     const operationHandler = this.operationHandlers.get(operation.constructor) as
       | OperationHandlerConstructor<T, I, O>
       | undefined;
@@ -175,14 +180,5 @@ export class Metaplex {
 
     const handler = new operationHandler(this, confirmOptions);
     return handler.handle(operation);
-  }
-
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T,
-    confirmOptions?: ConfirmOptions
-  ): Promise<O> {
-    const plan = await this.plan<T, I, O>(operation, confirmOptions);
-
-    return plan.execute(operation.input);
   }
 }

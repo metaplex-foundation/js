@@ -21,7 +21,7 @@ export class AwsStorageDriver extends StorageDriver {
     this.bucketName = bucketName;
   }
 
-  public async getPrice(_file: MetaplexFile): Promise<BN> {
+  public async getPrice(..._files: MetaplexFile[]): Promise<BN> {
     return new BN(0);
   }
 

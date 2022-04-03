@@ -83,11 +83,34 @@ const { nft } = await metaplex.nfts().createNft({
 });
 ```
 
-This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its field to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name.
+This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its field to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
 
 When no owner, mint authority or update authority are provided, the “identity” of the SDK will be used by default. It will also default to setting the identity as the first and only creator with a 100% share and will set the secondary sales royalties to 5%. You can, of course, customise any of these parameters by providing them explicitly.
 
 [Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
+
+### uploadMetadata
+
+If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. This method accepts a metadata object where any `MetaplexFile`s inside this object will be uploaded to the current storage driver and replaced by their URI. The method also returns the URI of the uploaded JSON metadata so you can immediately use it in combination with the `createNft` method above.
+
+```ts
+const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+    name: "My NFT",
+    image: new MetaplexFile(Buffer.from(...), 'nft-preview.jpg'),
+    properties: {
+        files: [
+            {
+                type: "video/mp4",
+                uri: new MetaplexFile(Buffer.from(...), 'nft-animation.mp4'),
+            },
+        ]
+    }
+});
+
+console.log(metadata.image) // https://arweave.net/123
+console.log(metadata.properties.files[0].uri) // https://arweave.net/456
+console.log(uri) // https://arweave.net/789
+```
 
 ### updateNft
 
@@ -106,7 +129,7 @@ Anything that you don’t provide in the parameters will stay unchanged.
 If you’d like to change the NFT metadata, you’d first need to upload a new JSON metadata and then update the NFT using its URI.
 
 ```ts
-const newUri = await metaplex.storage().uploadJson({
+const { uri: newUri } = await metaplex.nfts().uploadMetadata({
     ...nft.metadata,
     name: "My Updated Metadata Name",
     description: "My Updated Metadata Description",
