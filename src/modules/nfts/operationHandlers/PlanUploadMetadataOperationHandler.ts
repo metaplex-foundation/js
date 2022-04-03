@@ -9,7 +9,19 @@ import {
 } from '../operations';
 
 export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUploadMetadataOperation> {
-  public async handle(): Promise<Plan<UploadMetadataInput, UploadMetadataOutput>> {
+  public async handle(
+    operation: PlanUploadMetadataOperation
+  ): Promise<Plan<UploadMetadataInput, UploadMetadataOutput>> {
+    const metadata = operation.input;
+    const files = this.getAssetsFromJsonMetadata(metadata);
+
+    if (files.length <= 0) {
+      return Plan.make<UploadMetadataInput>().addStep({
+        name: 'Upload the metadata',
+        handler: (input: UploadMetadataInput) => this.uploadMetadata(input as JsonMetadata),
+      });
+    }
+
     return Plan.make<UploadMetadataInput>()
       .addStep({
         name: 'Upload assets',
@@ -22,7 +34,10 @@ export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUpl
   }
 
   protected async uploadAssets(input: UploadMetadataInput): Promise<JsonMetadata> {
-    throw new Error('Method not implemented.');
+    const files = this.getAssetsFromJsonMetadata(input);
+    const uris = await this.metaplex.storage().uploadAll(files);
+
+    return this.replaceAssetsWithUris(input, uris);
   }
 
   protected async uploadMetadata(metadata: JsonMetadata): Promise<UploadMetadataOutput> {
