@@ -9,6 +9,6 @@ export class UploadMetadataOperationHandler extends OperationHandler<UploadMetad
   public async handle(operation: UploadMetadataOperation): Promise<UploadMetadataOutput> {
     const plan = await this.metaplex.execute(new PlanUploadMetadataOperation(operation.input));
 
-    return plan.execute(operation.input);
+    return plan.execute();
   }
 }
