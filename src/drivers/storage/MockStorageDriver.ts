@@ -30,8 +30,10 @@ export class MockStorageDriver extends StorageDriver {
       options?.costPerByte != null ? new BN(options?.costPerByte) : DEFAULT_COST_PER_BYTE;
   }
 
-  public async getPrice(file: MetaplexFile): Promise<BN> {
-    return new BN(file.buffer.byteLength).mul(this.costPerByte);
+  public async getPrice(...files: MetaplexFile[]): Promise<BN> {
+    const bytes = files.reduce((total, file) => total + file.toBuffer().byteLength, 0);
+
+    return new BN(bytes).mul(this.costPerByte);
   }
 
   public async upload(file: MetaplexFile): Promise<string> {

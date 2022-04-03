@@ -3,8 +3,14 @@ import { Driver } from '../Driver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 
 export abstract class StorageDriver extends Driver {
-  public abstract getPrice(file: MetaplexFile): Promise<BN>;
+  public abstract getPrice(...files: MetaplexFile[]): Promise<BN>;
   public abstract upload(file: MetaplexFile): Promise<string>;
+
+  public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
+    const promises = files.map((file) => this.upload(file));
+
+    return Promise.all(promises);
+  }
 
   public async uploadJson<T extends object>(json: T): Promise<string> {
     let jsonString;
