@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/js-next-alpha",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
