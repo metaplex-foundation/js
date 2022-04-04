@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js';
 
 export type SolAmountInput = number | string | Uint8Array | Buffer | BN | BigNumber | SolAmount;
 
-const parseBigNumber = (input: SolAmountInput): BigNumber => {
+const parseBigNumber = (input: SolAmountInput, useLamports: boolean = false): BigNumber => {
   if (input instanceof SolAmount) {
-    return input.getLamports();
+    return useLamports ? input.getLamports() : input.getSol();
   }
 
   if (input instanceof Uint8Array || input instanceof BN) {
@@ -20,18 +20,18 @@ const parseBigNumber = (input: SolAmountInput): BigNumber => {
 export class SolAmount {
   protected readonly lamports: BigNumber;
 
-  constructor(lamports: SolAmountInput) {
-    this.lamports = parseBigNumber(lamports).decimalPlaces(0);
+  protected constructor(lamports: BigNumber) {
+    this.lamports = lamports.decimalPlaces(0);
   }
 
   static fromLamports(lamports: SolAmountInput) {
-    return new this(lamports);
+    return new this(parseBigNumber(lamports, true));
   }
 
   static fromSol(sol: SolAmountInput) {
-    const solBigNumber = parseBigNumber(sol).multipliedBy(LAMPORTS_PER_SOL).decimalPlaces(0);
+    const lamports = parseBigNumber(sol).multipliedBy(LAMPORTS_PER_SOL);
 
-    return this.fromLamports(solBigNumber.toString());
+    return new this(lamports);
   }
 
   plus(other: SolAmountInput): SolAmount {
@@ -55,35 +55,35 @@ export class SolAmount {
   }
 
   isEqualTo(other: SolAmountInput): boolean {
-    return this.lamports.isEqualTo(parseBigNumber(other));
+    return this.getSol().isEqualTo(parseBigNumber(other));
   }
 
   isLessThan(other: SolAmountInput): boolean {
-    return this.lamports.isLessThan(parseBigNumber(other));
+    return this.getSol().isLessThan(parseBigNumber(other));
   }
 
   isLessThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.lamports.isLessThanOrEqualTo(parseBigNumber(other));
+    return this.getSol().isLessThanOrEqualTo(parseBigNumber(other));
   }
 
   isGreaterThan(other: SolAmountInput): boolean {
-    return this.lamports.isGreaterThan(parseBigNumber(other));
+    return this.getSol().isGreaterThan(parseBigNumber(other));
   }
 
   isGreaterThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.lamports.isGreaterThanOrEqualTo(parseBigNumber(other));
+    return this.getSol().isGreaterThanOrEqualTo(parseBigNumber(other));
   }
 
   isNegative(): boolean {
-    return this.lamports.isNegative();
+    return this.getSol().isNegative();
   }
 
   isPositive(): boolean {
-    return this.lamports.isPositive();
+    return this.getSol().isPositive();
   }
 
   isZero(): boolean {
-    return this.lamports.isZero();
+    return this.getSol().isZero();
   }
 
   getLamports(): BigNumber {
@@ -111,6 +111,6 @@ export class SolAmount {
   }
 
   protected execute(other: SolAmountInput, operation: (a: BigNumber, b: BigNumber) => BigNumber): SolAmount {
-    return new SolAmount(operation(this.lamports, parseBigNumber(other)));
+    return SolAmount.fromSol(operation(this.getSol(), parseBigNumber(other)));
   }
 }
