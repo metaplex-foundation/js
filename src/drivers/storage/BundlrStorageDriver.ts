@@ -90,7 +90,9 @@ export class BundlrStorageDriver extends StorageDriver {
     const bytes = files.reduce((total, file) => total + file.getBytes(), 0);
     const price = await bundlr.getPrice(bytes);
 
-    return price.multipliedBy(this.options.priceMultiplier ?? 1.5);
+    return price
+      .multipliedBy(this.options.priceMultiplier ?? 1.5)
+      .decimalPlaces(0);
   }
 
   protected async uploadFile(file: MetaplexFile): Promise<string> {
