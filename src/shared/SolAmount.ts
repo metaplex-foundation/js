@@ -4,11 +4,9 @@ import BigNumber from 'bignumber.js';
 
 export type SolAmountInput = number | string | Uint8Array | Buffer | BN | BigNumber | SolAmount;
 
-const parseBigNumber = (input: SolAmountInput, useLamports: boolean = false): BigNumber => {
-  if (input instanceof SolAmount) {
-    return useLamports ? input.getLamports() : input.getSol();
-  }
-
+const parseBigNumber = (
+  input: number | string | Uint8Array | Buffer | BN | BigNumber
+): BigNumber => {
   if (input instanceof Uint8Array || input instanceof BN) {
     const bn = new BN(input);
     return new BigNumber(bn.toString());
@@ -25,10 +23,18 @@ export class SolAmount {
   }
 
   static fromLamports(lamports: SolAmountInput) {
-    return new this(parseBigNumber(lamports, true));
+    if (lamports instanceof SolAmount) {
+      return new this(lamports.getLamports());
+    }
+
+    return new this(parseBigNumber(lamports));
   }
 
   static fromSol(sol: SolAmountInput) {
+    if (sol instanceof SolAmount) {
+      return new this(sol.getLamports());
+    }
+
     const lamports = parseBigNumber(sol).multipliedBy(LAMPORTS_PER_SOL);
 
     return new this(lamports);
@@ -39,55 +45,55 @@ export class SolAmount {
   }
 
   plus(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.plus(b));
+    return this.execute(other, (a, b) => a.getLamports().plus(b.getLamports()));
   }
 
   minus(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.minus(b));
+    return this.execute(other, (a, b) => a.getLamports().minus(b.getLamports()));
   }
 
   multipliedBy(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.multipliedBy(b));
+    return this.execute(other, (a, b) => a.getLamports().multipliedBy(b.getSol()));
   }
 
   dividedBy(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.dividedBy(b));
+    return this.execute(other, (a, b) => a.getLamports().dividedBy(b.getSol()));
   }
 
   modulo(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.modulo(b));
+    return this.execute(other, (a, b) => a.getLamports().modulo(b.getLamports()));
   }
 
   isEqualTo(other: SolAmountInput): boolean {
-    return this.getSol().isEqualTo(parseBigNumber(other));
+    return this.lamports.isEqualTo(SolAmount.fromSol(other).getLamports());
   }
 
   isLessThan(other: SolAmountInput): boolean {
-    return this.getSol().isLessThan(parseBigNumber(other));
+    return this.lamports.isLessThan(SolAmount.fromSol(other).getLamports());
   }
 
   isLessThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.getSol().isLessThanOrEqualTo(parseBigNumber(other));
+    return this.lamports.isLessThanOrEqualTo(SolAmount.fromSol(other).getLamports());
   }
 
   isGreaterThan(other: SolAmountInput): boolean {
-    return this.getSol().isGreaterThan(parseBigNumber(other));
+    return this.lamports.isGreaterThan(SolAmount.fromSol(other).getLamports());
   }
 
   isGreaterThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.getSol().isGreaterThanOrEqualTo(parseBigNumber(other));
+    return this.lamports.isGreaterThanOrEqualTo(SolAmount.fromSol(other).getLamports());
   }
 
   isNegative(): boolean {
-    return this.getSol().isNegative();
+    return this.lamports.isNegative();
   }
 
   isPositive(): boolean {
-    return this.getSol().isPositive();
+    return this.lamports.isPositive();
   }
 
   isZero(): boolean {
-    return this.getSol().isZero();
+    return this.lamports.isZero();
   }
 
   getLamports(): BigNumber {
@@ -116,8 +122,8 @@ export class SolAmount {
 
   protected execute(
     other: SolAmountInput,
-    operation: (a: BigNumber, b: BigNumber) => BigNumber
+    operation: (a: SolAmount, b: SolAmount) => BigNumber
   ): SolAmount {
-    return SolAmount.fromSol(operation(this.getSol(), parseBigNumber(other)));
+    return SolAmount.fromLamports(operation(this, SolAmount.fromSol(other)));
   }
 }
