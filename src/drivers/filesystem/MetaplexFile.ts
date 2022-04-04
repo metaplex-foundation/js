@@ -38,6 +38,23 @@ export class MetaplexFile {
     return new this(buffer, file.name, options);
   }
 
+  static fromJson<T extends object>(
+    json: T,
+    fileName: string = 'inline.json',
+    options: MetaplexFileOptions = {}
+  ) {
+    let jsonString;
+
+    try {
+      jsonString = JSON.stringify(json);
+    } catch (error) {
+      // TODO: Custom errors.
+      throw new Error('Invalid JSON');
+    }
+
+    return new this(jsonString, 'inline.json');
+  }
+
   protected static parseContent(content: string | Buffer | Uint8Array | ArrayBuffer) {
     if (content instanceof ArrayBuffer) {
       return Buffer.from(new Uint8Array(content));

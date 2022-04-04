@@ -5,6 +5,8 @@ import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import BN from 'bn.js';
 import { WalletAdapterIdentityDriver } from '../identity/WalletAdapterIdentityDriver';
+import { PlanUploadMetadataOperation } from '@/modules';
+import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
 
 export interface BundlrOptions {
   address?: string;
@@ -16,6 +18,7 @@ export interface BundlrOptions {
 export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.setStorage(new BundlrStorageDriver(metaplex, options));
+    metaplex.register(PlanUploadMetadataOperation, PlanUploadMetadataUsingBundlrOperationHandler);
   },
 });
 
@@ -46,8 +49,32 @@ export class BundlrStorageDriver extends StorageDriver {
   public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
+    // TODO: withdraw any money left in the balance?
 
     return Promise.all(promises);
+  }
+
+  public async needsFunding(files: MetaplexFile[]): Promise<boolean> {
+    const price = await this.getMultipliedPrice(files);
+    const balance = await this.getBalance();
+
+    return price.isGreaterThan(balance);
+  }
+
+  public async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
+    const bundlr = await this.getBundlr();
+    const price = await this.getMultipliedPrice(files);
+
+    if (skipBalanceCheck) {
+      await bundlr.fund(price);
+      return;
+    }
+
+    const balance = await this.getBalance();
+
+    if (price.isGreaterThan(balance)) {
+      await bundlr.fund(price.minus(balance));
+    }
   }
 
   protected async getBalance() {
@@ -64,25 +91,6 @@ export class BundlrStorageDriver extends StorageDriver {
     return price.multipliedBy(this.options.priceMultiplier ?? 1.5);
   }
 
-  protected async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
-    const bundlr = await this.getBundlr();
-    const price = await this.getMultipliedPrice(files);
-
-    if (skipBalanceCheck) {
-      await bundlr.fund(price);
-      return;
-    }
-
-    const balance = await this.getBalance();
-    const difference = price.minus(balance);
-
-    if (!difference.isPositive()) {
-      return;
-    }
-
-    await bundlr.fund(difference);
-  }
-
   protected async uploadFile(file: MetaplexFile): Promise<string> {
     const bundlr = await this.getBundlr();
     const { status, data } = await bundlr.uploader.upload(
@@ -94,8 +102,6 @@ export class BundlrStorageDriver extends StorageDriver {
       // TODO: Custom errors.
       throw new Error(`Failed to upload asset. Got status: ${status}.`);
     }
-
-    // TODO: withdraw any money left in the balance?
 
     return `https://arweave.net/${data.id}`;
   }

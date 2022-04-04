@@ -11,18 +11,18 @@ import {
 export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUploadMetadataOperation> {
   public async handle(
     operation: PlanUploadMetadataOperation
-  ): Promise<Plan<undefined, UploadMetadataOutput>> {
+  ): Promise<Plan<any, UploadMetadataOutput>> {
     const metadata = operation.input;
     const files = this.getAssetsFromJsonMetadata(metadata);
 
     if (files.length <= 0) {
-      return Plan.make<undefined>().addStep({
+      return Plan.make<any>().addStep({
         name: 'Upload the metadata',
         handler: () => this.uploadMetadata(metadata as JsonMetadata),
       });
     }
 
-    return Plan.make<undefined>()
+    return Plan.make<any>()
       .addStep({
         name: 'Upload assets',
         handler: () => this.uploadAssets(metadata),
