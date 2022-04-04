@@ -113,7 +113,7 @@ export class BundlrStorageDriver extends StorageDriver {
     throw new Error('Method not implemented.');
   }
 
-  protected async getBundlr(): Promise<WebBundlr | NodeBundlr> {
+  public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
     if (this.bundlr) return this.bundlr;
 
     const currency = 'solana';
