@@ -34,6 +34,13 @@ export class BundlrStorageDriver extends StorageDriver {
     };
   }
 
+  public async getBalance(): Promise<BN> {
+    const bundlr = await this.getBundlr();
+    const balance = await bundlr.getLoadedBalance();
+
+    return new BN(balance.toString());
+  }
+
   public async getPrice(...files: MetaplexFile[]): Promise<BN> {
     const price = await this.getMultipliedPrice(files);
 
@@ -55,8 +62,9 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   public async needsFunding(files: MetaplexFile[]): Promise<boolean> {
+    const bundlr = await this.getBundlr();
+    const balance = await bundlr.getLoadedBalance();
     const price = await this.getMultipliedPrice(files);
-    const balance = await this.getBalance();
 
     return price.isGreaterThan(balance);
   }
@@ -70,17 +78,11 @@ export class BundlrStorageDriver extends StorageDriver {
       return;
     }
 
-    const balance = await this.getBalance();
+    const balance = await bundlr.getLoadedBalance();
 
     if (price.isGreaterThan(balance)) {
       await bundlr.fund(price.minus(balance));
     }
-  }
-
-  protected async getBalance() {
-    const bundlr = await this.getBundlr();
-
-    return bundlr.getLoadedBalance();
   }
 
   protected async getMultipliedPrice(files: MetaplexFile[]) {
