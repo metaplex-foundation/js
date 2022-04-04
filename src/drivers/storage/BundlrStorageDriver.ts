@@ -50,6 +50,12 @@ export class BundlrStorageDriver extends StorageDriver {
     return Promise.all(promises);
   }
 
+  protected async getBalance() {
+    const bundlr = await this.getBundlr();
+
+    return bundlr.getLoadedBalance();
+  }
+
   protected async getMultipliedPrice(files: MetaplexFile[]) {
     const bundlr = await this.getBundlr();
     const bytes = files.reduce((total, file) => total + file.getBytes(), 0);
@@ -58,12 +64,23 @@ export class BundlrStorageDriver extends StorageDriver {
     return price.multipliedBy(this.options.priceMultiplier ?? 1.5);
   }
 
-  protected async fund(files: MetaplexFile[]): Promise<void> {
+  protected async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
     const bundlr = await this.getBundlr();
     const price = await this.getMultipliedPrice(files);
-    // TODO: Check current balance to only top-up what's necessary, if necessary?
 
-    await bundlr.fund(price);
+    if (skipBalanceCheck) {
+      await bundlr.fund(price);
+      return;
+    }
+
+    const balance = await this.getBalance();
+    const difference = price.minus(balance);
+
+    if (!difference.isPositive()) {
+      return;
+    }
+
+    await bundlr.fund(difference);
   }
 
   protected async uploadFile(file: MetaplexFile): Promise<string> {
