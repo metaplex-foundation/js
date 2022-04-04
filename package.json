@@ -56,6 +56,7 @@
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.34.0",
+    "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",

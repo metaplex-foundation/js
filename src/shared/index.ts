@@ -10,4 +10,5 @@ export * from './Pda';
 export * from './Plan';
 export * from './Postpone';
 export * from './Signer';
+export * from './SolAmount';
 export * from './TransactionBuilder';
