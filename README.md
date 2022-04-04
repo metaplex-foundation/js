@@ -228,8 +228,9 @@ You may access the current storage driver using `metaplex.storage()` which will 
 
 ```ts
 class StorageDriver {
-    getPrice(file: MetaplexFile): Promise<BN>;
+    getPrice(...files: MetaplexFile[]): Promise<SolAmount>;
     upload(file: MetaplexFile): Promise<string>;
+    uploadAll(files: MetaplexFile[]): Promise<string[]> {
     uploadJson<T extends object>(json: T): Promise<string>;
     download(uri: string): Promise<MetaplexFile>;
     downloadJson<T extends object>(uri: string): Promise<T>;
