@@ -1,9 +1,9 @@
-import BN from 'bn.js';
+import { SolAmount } from '@/shared';
 import { Driver } from '../Driver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 
 export abstract class StorageDriver extends Driver {
-  public abstract getPrice(...files: MetaplexFile[]): Promise<BN>;
+  public abstract getPrice(...files: MetaplexFile[]): Promise<SolAmount>;
   public abstract upload(file: MetaplexFile): Promise<string>;
 
   public async uploadAll(files: MetaplexFile[]): Promise<string[]> {

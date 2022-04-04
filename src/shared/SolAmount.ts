@@ -34,6 +34,10 @@ export class SolAmount {
     return new this(lamports);
   }
 
+  static zero() {
+    return this.fromLamports(0);
+  }
+
   plus(other: SolAmountInput): SolAmount {
     return this.execute(other, (a, b) => a.plus(b));
   }

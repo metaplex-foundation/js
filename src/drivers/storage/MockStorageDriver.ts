@@ -3,6 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { StorageDriver } from './StorageDriver';
+import { SolAmount } from '@/shared';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = new BN(1);
@@ -30,10 +31,10 @@ export class MockStorageDriver extends StorageDriver {
       options?.costPerByte != null ? new BN(options?.costPerByte) : DEFAULT_COST_PER_BYTE;
   }
 
-  public async getPrice(...files: MetaplexFile[]): Promise<BN> {
+  public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
     const bytes = files.reduce((total, file) => total + file.toBuffer().byteLength, 0);
 
-    return new BN(bytes).mul(this.costPerByte);
+    return SolAmount.fromLamports(bytes).multipliedBy(this.costPerByte);
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
