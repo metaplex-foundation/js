@@ -3,10 +3,10 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
-import BN from 'bn.js';
 import { WalletAdapterIdentityDriver } from '../identity/WalletAdapterIdentityDriver';
 import { PlanUploadMetadataOperation } from '@/modules';
 import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
+import { SolAmount } from '@/shared';
 
 export interface BundlrOptions {
   address?: string;
@@ -34,17 +34,17 @@ export class BundlrStorageDriver extends StorageDriver {
     };
   }
 
-  public async getBalance(): Promise<BN> {
+  public async getBalance(): Promise<SolAmount> {
     const bundlr = await this.getBundlr();
     const balance = await bundlr.getLoadedBalance();
 
-    return new BN(balance.toString());
+    return SolAmount.fromLamports(balance);
   }
 
-  public async getPrice(...files: MetaplexFile[]): Promise<BN> {
+  public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
     const price = await this.getMultipliedPrice(files);
 
-    return new BN(price.toString());
+    return SolAmount.fromLamports(price);
   }
 
   public async upload(file: MetaplexFile): Promise<string> {

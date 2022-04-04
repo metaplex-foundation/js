@@ -3,7 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
-import BN from 'bn.js';
+import { SolAmount } from '@/shared';
 
 export const awsStorage = (client: S3Client, bucketName: string): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -21,8 +21,8 @@ export class AwsStorageDriver extends StorageDriver {
     this.bucketName = bucketName;
   }
 
-  public async getPrice(..._files: MetaplexFile[]): Promise<BN> {
-    return new BN(0);
+  public async getPrice(..._files: MetaplexFile[]): Promise<SolAmount> {
+    return SolAmount.zero();
   }
 
   public async upload(file: MetaplexFile): Promise<string> {
