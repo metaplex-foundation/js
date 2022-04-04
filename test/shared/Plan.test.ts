@@ -123,3 +123,22 @@ test('it can prepend steps to the plan', async (t: Test) => {
   t.same(newPlan.getSteps().map((s) => s.name), ['step0', 'step1']);
   t.same(newPlan.getSteps().map((s) => s.status), ['successful', 'successful']);
 });
+
+test('it can listen to step changes', async (t: Test) => {
+  // Given a plan with one step that listens for changes.
+  const step1Changes: string[] = [];
+  const plan = Plan.make()
+    .addStep({
+      name: 'step1',
+      handler: async () => 42,
+    })
+    .onChange((step) => {
+      step1Changes.push(step.status);
+    });
+
+  // When we execute the plan.
+  await plan.execute();
+
+  // Then all changes were recorded.
+  t.same(step1Changes, ['running', 'successful']);
+});

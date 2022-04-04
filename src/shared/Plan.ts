@@ -1,3 +1,5 @@
+import EventEmitter from 'eventemitter3';
+
 type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
 interface Step {
@@ -18,14 +20,14 @@ type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
 export class Plan<I, O> {
   public readonly promise: (state: I) => Promise<O>;
   public readonly steps: Step[];
-  public readonly onChangeListeners: ((steps: Step[]) => void)[];
+  public readonly eventEmitter: EventEmitter;
   public executing: boolean = false;
   public executed: boolean = false;
 
   private constructor(plan: InputPlan<I, O>) {
     this.promise = plan.promise;
     this.steps = plan.steps ?? [];
-    this.onChangeListeners = plan.onChangeListeners ?? [];
+    this.eventEmitter = plan.eventEmitter ?? new EventEmitter();
   }
 
   public static make<T = undefined>(): Plan<T, T> {
@@ -52,7 +54,7 @@ export class Plan<I, O> {
     return new Plan({
       promise,
       steps: [...this.steps, newStep],
-      onChangeListeners: this.onChangeListeners,
+      eventEmitter: this.eventEmitter,
     });
   }
 
@@ -74,7 +76,7 @@ export class Plan<I, O> {
     return new Plan<T, O>({
       promise,
       steps: [newStep, ...this.steps],
-      onChangeListeners: this.onChangeListeners,
+      eventEmitter: this.eventEmitter,
     });
   }
 
@@ -115,19 +117,19 @@ export class Plan<I, O> {
     }
   }
 
-  public onChange(listener: (steps: Step[]) => void) {
-    this.onChangeListeners.push(listener);
+  public onChange(listener: (step: Step) => void) {
+    this.eventEmitter.addListener('change', listener);
 
     return this;
   }
 
-  private notifyChange(): void {
-    this.onChangeListeners.forEach((listener) => listener(this.steps));
+  private notifyChange(step: Step): void {
+    this.eventEmitter.emit('change', step);
   }
 
   private changeStepStatus(step: Step, newStatus: StepStatus): void {
     step.status = newStatus;
-    this.notifyChange();
+    this.notifyChange(step);
   }
 
   public getSteps(): Step[] {

@@ -60,6 +60,7 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
+    "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "mime": "^3.0.0",
     "nft.storage": "^6.0.2",
