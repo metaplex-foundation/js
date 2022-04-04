@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash.clonedeep';
 import { MetaplexFile } from '@/drivers';
 import { OperationHandler, Plan } from '@/shared';
 import { walk } from '@/utils';
@@ -64,9 +65,10 @@ export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUpl
     input: UploadMetadataInput,
     replacements: string[]
   ): JsonMetadata {
+    const clone = cloneDeep(input);
     let index = 0;
 
-    walk(input, (walk, value, key, parent) => {
+    walk(clone, (walk, value, key, parent) => {
       if (value instanceof MetaplexFile && index < replacements.length) {
         parent[key] = replacements[index++];
       }
@@ -74,6 +76,6 @@ export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUpl
       walk(value);
     });
 
-    return input as JsonMetadata;
+    return clone as JsonMetadata;
   }
 }
