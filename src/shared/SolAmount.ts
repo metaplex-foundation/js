@@ -15,7 +15,7 @@ const parseBigNumber = (input: SolAmountInput, useLamports: boolean = false): Bi
   }
 
   return new BigNumber(input);
-}
+};
 
 export class SolAmount {
   protected readonly lamports: BigNumber;
@@ -114,7 +114,10 @@ export class SolAmount {
     return this.toLamports();
   }
 
-  protected execute(other: SolAmountInput, operation: (a: BigNumber, b: BigNumber) => BigNumber): SolAmount {
+  protected execute(
+    other: SolAmountInput,
+    operation: (a: BigNumber, b: BigNumber) => BigNumber
+  ): SolAmount {
     return SolAmount.fromSol(operation(this.getSol(), parseBigNumber(other)));
   }
 }
