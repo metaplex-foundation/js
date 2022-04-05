@@ -142,3 +142,48 @@ test('it can listen to step changes', async (t: Test) => {
   // Then all changes were recorded.
   t.same(step1Changes, ['running', 'successful']);
 });
+
+test('it can listen to all step changes at once', async (t: Test) => {
+  // Given a plan with two steps that listen for changes.
+  const history: { [key: string]: string }[] = [];
+  const plan = Plan.make()
+    .addStep({
+      name: 'step1',
+      handler: async () => 42,
+    })
+    .addStep({
+      name: 'step2',
+      handler: async (n) => n * 2,
+    })
+    .onChange((step, steps) => {
+      const acc = { changed: step.name };
+      history.push(steps.reduce((acc, step) => ({ ...acc, [step.name]: step.status }), acc));
+    });
+
+  // When we execute the plan.
+  await plan.execute();
+
+  // Then all changes were recorded.
+  t.same(history, [
+    {
+      step1: 'running',
+      step2: 'pending',
+      changed: 'step1',
+    },
+    {
+      step1: 'successful',
+      step2: 'pending',
+      changed: 'step1',
+    },
+    {
+      step1: 'successful',
+      step2: 'running',
+      changed: 'step2',
+    },
+    {
+      step1: 'successful',
+      step2: 'successful',
+      changed: 'step2',
+    },
+  ]);
+});

@@ -18,7 +18,7 @@ export type InputStep<From, To> = Pick<Step, 'name'> &
 type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
 
 export class Plan<I, O> {
-  public readonly promise: (state: I) => Promise<O>;
+  public readonly promise: (state: I, steps: Step[]) => Promise<O>;
   public readonly steps: Step[];
   public readonly eventEmitter: EventEmitter;
   public executing: boolean = false;
@@ -39,16 +39,16 @@ export class Plan<I, O> {
   public addStep<T>(step: InputStep<O, T>): Plan<I, T> {
     const { newStep, handler } = this.parseInputStep(step);
 
-    const promise = async (initialState: I) => {
+    const promise = async (initialState: I, steps: Step[]) => {
       let state: O;
       try {
-        state = await this.promise(initialState);
+        state = await this.promise(initialState, steps);
       } catch (error) {
-        this.changeStepStatus(newStep, 'canceled');
+        this.changeStepStatus(steps, newStep, 'canceled');
         throw error;
       }
 
-      return this.processStep(state, newStep, handler);
+      return this.processStep(steps, state, newStep, handler);
     };
 
     return new Plan({
@@ -61,16 +61,16 @@ export class Plan<I, O> {
   prependStep<T>(step: InputStep<T, I>): Plan<T, O> {
     const { newStep, handler } = this.parseInputStep(step);
 
-    const promise = async (newInitialState: T) => {
+    const promise = async (newInitialState: T, steps: Step[]) => {
       let initialState: I;
       try {
-        initialState = await this.processStep(newInitialState, newStep, handler);
+        initialState = await this.processStep(steps, newInitialState, newStep, handler);
       } catch (error) {
-        this.steps.forEach((step) => this.changeStepStatus(step, 'canceled'));
+        this.steps.forEach((step) => this.changeStepStatus(steps, step, 'canceled'));
         throw error;
       }
 
-      return this.promise(initialState);
+      return this.promise(initialState, steps);
     };
 
     return new Plan<T, O>({
@@ -94,18 +94,19 @@ export class Plan<I, O> {
   }
 
   private async processStep<From, To>(
+    steps: Step[],
     from: From,
     step: Step,
     handler: (from: From) => Promise<To>
   ): Promise<To> {
-    this.changeStepStatus(step, 'running');
+    this.changeStepStatus(steps, step, 'running');
 
     try {
       const to = await handler(from);
-      this.changeStepStatus(step, 'successful');
+      this.changeStepStatus(steps, step, 'successful');
       return to;
     } catch (error) {
-      this.changeStepStatus(step, 'failed');
+      this.changeStepStatus(steps, step, 'failed');
       step.onError?.(error);
       if (step.optional) {
         // If a step is optional, it's destination state should match
@@ -117,19 +118,19 @@ export class Plan<I, O> {
     }
   }
 
-  public onChange(listener: (step: Step) => void) {
+  public onChange(listener: (step: Step, steps: Step[]) => void) {
     this.eventEmitter.addListener('change', listener);
 
     return this;
   }
 
-  private notifyChange(step: Step): void {
-    this.eventEmitter.emit('change', step);
+  private notifyChange(step: Step, steps: Step[]): void {
+    this.eventEmitter.emit('change', step, steps);
   }
 
-  private changeStepStatus(step: Step, newStatus: StepStatus): void {
+  private changeStepStatus(steps: Step[], step: Step, newStatus: StepStatus): void {
     step.status = newStatus;
-    this.notifyChange(step);
+    this.notifyChange(step, steps);
   }
 
   public getSteps(): Step[] {
@@ -144,7 +145,8 @@ export class Plan<I, O> {
     try {
       this.executing = true;
       this.executed = false;
-      return await this.promise(initialState ?? (undefined as unknown as I));
+      const state = initialState ?? (undefined as unknown as I);
+      return await this.promise(state, this.steps);
     } finally {
       this.executing = false;
       this.executed = true;
