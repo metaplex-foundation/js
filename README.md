@@ -4,15 +4,15 @@
 ⛔️ DO NOT USE IN PRODUCTION, THIS SDK IS IN VERY EARLY ALPHA STAGES!
 ```
 
-This SDK helps developers getting started with the on-chain tools provided by Metaplex in a flexible and customisable way.
+This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience whilst allowing third parties to extend its features via plugins.
 
-Please note that this SDK has been re-implemented from scratch and is currently in alpha. This means, some of the core API and interfaces might change from one alpha version to another and therefore **we do not recommend that you use it in production** just yet.
+Please note that this SDK has been re-implemented from scratch and is currently in alpha. This means some of the core API and interfaces might change from one version to another and therefore **we do not recommend that you use it in production** just yet.
 
 However, feel free to play with it and provide some early feedback if you wish to contribute to the direction of this project.
 
 ## Installation
 ```sh
-npm install @metaplex/js-next
+npm install @metaplex-foundation/js-next
 ```
 
 ## Setup
@@ -30,7 +30,7 @@ const metaplex = new Metaplex(endpoint);
 
 You may also pass additional configurations which, for the moment, match the configurations you would give when creating a `Connection` instance.
 
-On top of that, you can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. We refer to these as "Identity Drivers" and "Storage Drivers" respectively. You may change these drivers by calling the `use` method on the Metaplex instance like so. We'll see all available drivers in more details below.
+On top of that, you can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. We refer to these as "Identity Drivers" and "Storage Drivers" respectively. You may change these drivers by calling the `use` method on the Metaplex instance like so. We'll see all available drivers in more detail below.
 
 ```ts
 import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex/js-next";
@@ -48,13 +48,13 @@ const metaplex = Metaplex.make(endpoint, configs)
 Notice how you can create a `Metaplex` instance using `Metaplex.make(...)` instead of `new Metaplex(...)` in order to make the fluent API more readable.
 
 ## Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module you will be able to find, create and update NFTs with more feature to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
 
 Here is a little visual representation of the SDK in its current state.
 
 ![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/160883270-33fb4767-d3b1-4496-9f00-317bb1e18e68.png)
 
-Now, let’s look into the NFT module and the identity and storage drivers in a bit more detail.
+Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
 ## NFTs
 The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
@@ -69,7 +69,7 @@ const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 const nft = await metaplex.nfts().findNft({ mint });
 ```
 
-Currently, you can only find an NFT via its mint address but more options will be added soon — e.g. by metadata PDA, by uri, etc. — hence the object parameter.
+Currently, you can only find an NFT via its mint address but more options will be added soon — e.g. by metadata PDA, by URI, etc. — hence the object parameter.
 
 ### createNft
 
@@ -83,7 +83,7 @@ const { nft } = await metaplex.nfts().createNft({
 });
 ```
 
-This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its field to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
+This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
 
 When no owner, mint authority or update authority are provided, the “identity” of the SDK will be used by default. It will also default to setting the identity as the first and only creator with a 100% share and will set the secondary sales royalties to 5%. You can, of course, customise any of these parameters by providing them explicitly.
 
@@ -114,7 +114,7 @@ console.log(uri) // https://arweave.net/789
 
 ### updateNft
 
-The `updateNft` method accepts an `Nft` object and a set of parameter to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
+The `updateNft` method accepts an `Nft` object and a set of parameters to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
 
 For instance, here is how you would change the on-chain name of an NFT.
 
@@ -144,7 +144,7 @@ Notice how we can use the storage driver for this. We’ll talk more about that 
 
 ### The `Nft` model
 
-All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contain all the information you need at the top level — i.e. no more `metadata.data.data`.
+All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
 
 You can see [its full data representation here](/src/modules/nfts/models/Nft.ts).
 
@@ -165,7 +165,7 @@ class IdentityDriver {
 }
 ```
 
-The implementation of these method depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
+The implementation of these methods depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
 
 Let’s have a quick look at the concrete identity drivers available to us.
 
@@ -212,7 +212,7 @@ if (wallet) {
 }
 ```
 
-Note that we have to wrap `metaplex.use(...)` in a if-statement because `wallet` could be `null` — meaning there’s no connected wallet at this time. If you’d like to accept a nullable wallet and use the `guestIdentity` when it is null, you may use the `walletOrGuestIdentity` helper method instead.
+Note that we have to wrap `metaplex.use(...)` in an if-statement because `wallet` could be `null` — meaning there’s no connected wallet at this time. If you’d like to accept a nullable wallet and use the `guestIdentity` when it is null, you may use the `walletOrGuestIdentity` helper method instead.
 
 ```ts
 import { walletOrGuestIdentity } from "@metaplex/js-next";
@@ -307,7 +307,7 @@ metaplex.use(mockStorage());
 ```
 
 ## Next steps
-As mentioned above, this is SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview on what we plan to work on next.
+As mentioned above, this is SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
 - New features in the NFT module.
 - New modules such as a NFT Collections module, a Candy Machine module, an Action House module, etc.
 - More storage drivers.
