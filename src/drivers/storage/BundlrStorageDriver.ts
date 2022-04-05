@@ -29,7 +29,7 @@ export class BundlrStorageDriver extends StorageDriver {
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
     this.options = {
-      providerUrl: metaplex.endpoint,
+      providerUrl: metaplex.connection.rpcEndpoint,
       ...options,
     };
   }
