@@ -18,29 +18,26 @@ npm install @metaplex-foundation/js-next
 ## Setup
 The entry point to the JavaScript SDK is a `Metaplex` instance that will give you access to its API.
 
-At the very least, it accepts the RPC endpoint that should be used to communicate with the cluster.
+It accepts a `Connection` instance that will be used to communicate with the cluster.
 
 ```ts
 import { Metaplex } from "@metaplex/js-next";
-import { clusterApiUrl } from "@solana/web3.js";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 
-const endpoint = clusterApiUrl("mainnet-beta");
-const metaplex = new Metaplex(endpoint);
+const connection = new Connection(clusterApiUrl("mainnet-beta"));
+const metaplex = new Metaplex(connection);
 ```
-
-You may also pass additional configurations which, for the moment, match the configurations you would give when creating a `Connection` instance.
 
 On top of that, you can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. We refer to these as "Identity Drivers" and "Storage Drivers" respectively. You may change these drivers by calling the `use` method on the Metaplex instance like so. We'll see all available drivers in more detail below.
 
 ```ts
 import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex/js-next";
-import { clusterApiUrl, Keypair } from "@solana/web3.js";
+import { Connection, clusterApiUrl, Keypair } from "@solana/web3.js";
 
-const endpoint = clusterApiUrl("mainnet-beta");
-const configs = { commitment: "processed" };
+const connection = new Connection(clusterApiUrl("mainnet-beta"));
 const wallet = Keypair.generate();
 
-const metaplex = Metaplex.make(endpoint, configs)
+const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(wallet))
     .use(bundlrStorage());
 ```
