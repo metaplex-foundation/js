@@ -10,6 +10,8 @@ import {
   SignatureResult,
   Transaction,
   TransactionSignature,
+  SendTransactionError,
+  TransactionError,
 } from '@solana/web3.js';
 import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
 import {
@@ -112,11 +114,15 @@ export class Metaplex {
     signature: TransactionSignature,
     commitment?: Commitment
   ): Promise<RpcResponseAndContext<SignatureResult>> {
-    const rpcResponse = await this.connection.confirmTransaction(signature, commitment);
-
-    if (rpcResponse.value.err) {
+    const rpcResponse: RpcResponseAndContext<SignatureResult> =
+      await this.connection.confirmTransaction(signature, commitment);
+    let transaction_error: TransactionError | null = rpcResponse.value.err;
+    if (transaction_error) {
       // TODO: Custom errors.
-      throw new Error(`Transaction ${signature} failed (${JSON.stringify(rpcResponse.value)})`);
+      throw new SendTransactionError(
+        `Transaction ${signature} failed (${JSON.stringify(transaction_error)})`,
+        [transaction_error.toString()]
+      );
     }
 
     return rpcResponse;
@@ -162,7 +168,10 @@ export class Metaplex {
 
     if (!operationHandler) {
       // TODO: Custom errors.
-      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+
+      throw new SendTransactionError(
+        `No operation handler registered for ${operation.constructor.name}`
+      );
     }
 
     const handler = new operationHandler(this, confirmOptions);
