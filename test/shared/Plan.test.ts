@@ -189,18 +189,25 @@ test('it can listen to all step changes at once', async (t: Test) => {
 });
 
 test('it keeps track of its execution state', async (t: Test) => {
-  // Given
+  // Given a plan with a step that ensure the plan is executing.
   const plan = Plan.make().addStep({
       name: 'step1',
-      handler: async () => 42,
+      handler: async (_, plan) => {
+        t.true(plan.executing);
+        t.false(plan.executed);
+        t.false(plan.failed);
+      },
   });
 
+  // And that plan hasn't executed yet.
   t.false(plan.executing);
   t.false(plan.executed);
   t.false(plan.failed);
 
+  // When we execute the plan.
   await plan.execute();
 
+  // Then it is marked as executed.
   t.false(plan.executing);
   t.true(plan.executed);
   t.false(plan.failed);
