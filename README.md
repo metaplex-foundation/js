@@ -21,7 +21,7 @@ The entry point to the JavaScript SDK is a `Metaplex` instance that will give yo
 It accepts a `Connection` instance that will be used to communicate with the cluster.
 
 ```ts
-import { Metaplex } from "@metaplex/js-next";
+import { Metaplex } from "@metaplex-foundation/js-next";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 
 const connection = new Connection(clusterApiUrl("mainnet-beta"));
@@ -31,7 +31,7 @@ const metaplex = new Metaplex(connection);
 On top of that, you can customise who the SDK should interact on behalf of and which storage provider to use when uploading assets. We refer to these as "Identity Drivers" and "Storage Drivers" respectively. You may change these drivers by calling the `use` method on the Metaplex instance like so. We'll see all available drivers in more detail below.
 
 ```ts
-import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex/js-next";
+import { Metaplex, keypairIdentity, bundlrStorage } from "@metaplex-foundation/js-next";
 import { Connection, clusterApiUrl, Keypair } from "@solana/web3.js";
 
 const connection = new Connection(clusterApiUrl("mainnet-beta"));
@@ -171,7 +171,7 @@ Let’s have a quick look at the concrete identity drivers available to us.
 The `guestIdentity` driver is the default driver and requires no parameter. It is essentially a `null` driver that can be useful when we don’t need to send any signed transactions.
 
 ```ts
-import { guestIdentity } from "@metaplex/js-next";
+import { guestIdentity } from "@metaplex-foundation/js-next";
 
 metaplex.use(guestIdentity());
 ```
@@ -183,7 +183,7 @@ If we try to sign a message or a transaction using this driver, an error will be
 The `keypairIdentity` driver accepts a `Keypair` object as a parameter. This is useful when using the SDK locally such as within CLI applications.
 
 ```ts
-import { keypairIdentity } from "@metaplex/js-next";
+import { keypairIdentity } from "@metaplex-foundation/js-next";
 import { Keypair } from "@solana/web3.js";
 
 // Load a local keypair.
@@ -199,7 +199,7 @@ metaplex.use(keypairIdentity(keypair));
 The `walletAdapterIdentity` driver accepts a wallet adapter as defined by the [“wallet-adapter” repo from Solana Labs](https://github.com/solana-labs/wallet-adapter). This is useful when using the SDK in a web application that requires the user to manually approve transactions.
 
 ```ts
-import { walletAdapterIdentity } from "@metaplex/js-next";
+import { walletAdapterIdentity } from "@metaplex-foundation/js-next";
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const { wallet } = useWallet();
@@ -212,7 +212,7 @@ if (wallet) {
 Note that we have to wrap `metaplex.use(...)` in an if-statement because `wallet` could be `null` — meaning there’s no connected wallet at this time. If you’d like to accept a nullable wallet and use the `guestIdentity` when it is null, you may use the `walletOrGuestIdentity` helper method instead.
 
 ```ts
-import { walletOrGuestIdentity } from "@metaplex/js-next";
+import { walletOrGuestIdentity } from "@metaplex-foundation/js-next";
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const { wallet } = useWallet();
@@ -259,7 +259,7 @@ By default, it will use the same RPC endpoint used by the `Metaplex` instance as
 You may customise these by passing a parameter object to the `bundlrStorage` method. For instance, here’s how you can use Bundlr on devnet.
 
 ```ts
-import { bundlrStorage } from "@metaplex/js-next";
+import { bundlrStorage } from "@metaplex-foundation/js-next";
 
 metaplex.use(bundlrStorage({
     address: 'https://devnet.bundlr.network',
@@ -275,7 +275,7 @@ The `awsStorage` driver uploads assets off-chain to an S3 bucket of your choice.
 To set this up, you need to pass in the AWS client as well as the bucket name you wish to use. For instance:
 
 ```ts
-import { awsStorage } from "@metaplex/js-next";
+import { awsStorage } from "@metaplex-foundation/js-next";
 import { S3Client } from "@aws-sdk/client-s3";
 
 const awsClient = new S3Client({ region: 'us-east-1' });
@@ -298,7 +298,7 @@ const uri = await metaplex.storage().upload(file);
 The `mockStorage` driver is a fake driver mostly used for testing purposes. It will not actually upload the assets anywhere but instead will generate random URLs and keep track of their content in a local dictionary. That way, once uploaded, an asset can be retrieved using the `download` method.
 
 ```ts
-import { mockStorage } from "@metaplex/js-next";
+import { mockStorage } from "@metaplex-foundation/js-next";
 
 metaplex.use(mockStorage());
 ```
