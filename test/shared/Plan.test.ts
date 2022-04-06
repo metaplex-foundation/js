@@ -24,6 +24,27 @@ test('it works with one trivial step', async (t: Test) => {
   t.equal(plan.getSteps()[0].status, 'successful');
 });
 
+test('it support another signature for adding steps', async (t: Test) => {
+  // Given we add steps using the alternative signature.
+  const plan = Plan.make().addStep('step1', async () => 42, {
+    optional: true,
+    hidden: true,
+  });
+
+  // When we execute the plan.
+  const finalState = await plan.execute();
+
+  // Then we got the right value.
+  t.same(finalState, 42);
+
+  // And all step information was stored properly.
+  const step = plan.getSteps()[0];
+  t.equal(step.name, 'step1');
+  t.equal(step.status, 'successful');
+  t.true(step.optional);
+  t.true(step.hidden);
+});
+
 test('it may require some initial state', async (t: Test) => {
   // Given a plan with only one step that keep track of its execution.
   const plan = Plan.make<{ counter: number }>().addStep({
@@ -128,10 +149,7 @@ test('it can listen to step changes', async (t: Test) => {
   // Given a plan with one step that listens for changes.
   const step1Changes: string[] = [];
   const plan = Plan.make()
-    .addStep({
-      name: 'step1',
-      handler: async () => 42,
-    })
+    .addStep('step1', async () => 42)
     .onChange((step) => {
       step1Changes.push(step.status);
     });
@@ -147,17 +165,11 @@ test('it can listen to all step changes at once', async (t: Test) => {
   // Given a plan with two steps that listen for changes.
   const history: { [key: string]: string }[] = [];
   const plan = Plan.make()
-    .addStep({
-      name: 'step1',
-      handler: async () => 42,
-    })
-    .addStep({
-      name: 'step2',
-      handler: async (n) => n * 2,
-    })
-    .onChange((step, steps) => {
+    .addStep('step1', async () => 42)
+    .addStep('step2', async (n) => n * 2)
+    .onChange((step, plan) => {
       const acc = { changed: step.name };
-      history.push(steps.reduce((acc, step) => ({ ...acc, [step.name]: step.status }), acc));
+      history.push(plan.steps.reduce((acc, step) => ({ ...acc, [step.name]: step.status }), acc));
     });
 
   // When we execute the plan.
@@ -186,4 +198,53 @@ test('it can listen to all step changes at once', async (t: Test) => {
       changed: 'step2',
     },
   ]);
+});
+
+test('it keeps track of its execution state', async (t: Test) => {
+  // Given a plan with a step that ensure the plan is executing.
+  const plan = Plan.make().addStep('step1', async (_, plan) => {
+    t.true(plan.executing);
+    t.false(plan.executed);
+    t.false(plan.failed);
+  });
+
+  // And that plan hasn't executed yet.
+  t.false(plan.executing);
+  t.false(plan.executed);
+  t.false(plan.failed);
+
+  // When we execute the plan.
+  await plan.execute();
+
+  // Then it is marked as executed.
+  t.false(plan.executing);
+  t.true(plan.executed);
+  t.false(plan.failed);
+});
+
+test('it keeps track of its failed state', async (t: Test) => {
+  // Given a plan that fails.
+  const plan = Plan.make()
+    .addStep('step1', async () => { throw new Error('error') });
+
+  // And that hasn't executed yet.
+  t.false(plan.executing);
+  t.false(plan.executed);
+  t.false(plan.failed);
+
+  // When we execute the plan.
+  try {
+    await plan.execute();
+  }
+  
+  // Then it is marked as failed.
+  catch (error) {
+    t.false(plan.executing);
+    t.true(plan.executed);
+    t.true(plan.failed);
+    return;
+  }
+
+  // We should never get here.
+  t.fail('plan should have failed');
 });
