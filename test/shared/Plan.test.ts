@@ -187,3 +187,50 @@ test('it can listen to all step changes at once', async (t: Test) => {
     },
   ]);
 });
+
+test('it keeps track of its execution state', async (t: Test) => {
+  // Given
+  const plan = Plan.make().addStep({
+      name: 'step1',
+      handler: async () => 42,
+  });
+
+  t.false(plan.executing);
+  t.false(plan.executed);
+  t.false(plan.failed);
+
+  await plan.execute();
+
+  t.false(plan.executing);
+  t.true(plan.executed);
+  t.false(plan.failed);
+});
+
+test('it keeps track of its failed state', async (t: Test) => {
+  // Given a plan that fails.
+  const plan = Plan.make().addStep({
+    name: 'step1',
+    handler: async () => { throw new Error('error') },
+  });
+
+  // And that hasn't executed yet.
+  t.false(plan.executing);
+  t.false(plan.executed);
+  t.false(plan.failed);
+
+  // When we execute the plan.
+  try {
+    await plan.execute();
+  }
+  
+  // Then it is marked as failed.
+  catch (error) {
+    t.false(plan.executing);
+    t.true(plan.executed);
+    t.true(plan.failed);
+    return;
+  }
+
+  // We should never get here.
+  t.fail('plan should have failed');
+});

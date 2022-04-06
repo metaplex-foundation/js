@@ -23,6 +23,7 @@ export class Plan<I, O> {
   public readonly eventEmitter: EventEmitter;
   public executing: boolean = false;
   public executed: boolean = false;
+  public failed: boolean = false;
 
   private constructor(plan: InputPlan<I, O>) {
     this.promise = plan.promise;
@@ -145,8 +146,12 @@ export class Plan<I, O> {
     try {
       this.executing = true;
       this.executed = false;
+      this.failed = false;
       const state = initialState ?? (undefined as unknown as I);
       return await this.promise(state, this.steps);
+    } catch (error) {
+      this.failed = true;
+      throw error;
     } finally {
       this.executing = false;
       this.executed = true;
