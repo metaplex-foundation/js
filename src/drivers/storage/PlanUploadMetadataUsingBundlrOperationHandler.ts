@@ -25,13 +25,17 @@ export class PlanUploadMetadataUsingBundlrOperationHandler extends PlanUploadMet
     const mockedMetadata = this.replaceAssetsWithUris(metadata, mockUris);
     const files: MetaplexFile[] = [...assets, MetaplexFile.fromJson(mockedMetadata)];
 
-    if (!storage.needsFunding(files)) {
-      return plan;
-    }
-
     return plan.prependStep<any>({
       name: 'Fund Bundlr wallet',
-      handler: () => storage.fund(files),
+      handler: async () => {
+        const needsFunding = await storage.needsFunding(files);
+
+        if (!needsFunding) {
+          return;
+        }
+
+        await storage.fund(files);
+      },
     });
   }
 }
