@@ -1,8 +1,8 @@
 import EventEmitter from 'eventemitter3';
 
-type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
-interface Step {
+export interface Step {
   name: string;
   status: StepStatus;
   hidden: boolean;
@@ -12,13 +12,13 @@ interface Step {
 
 export type InputStep<From, To> = Pick<Step, 'name'> &
   Partial<Omit<Step, 'status'>> & {
-    handler: (state: From) => Promise<To>;
+    handler: (state: From, plan: Plan<any, any>) => Promise<To>;
   };
 
 type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
 
 export class Plan<I, O> {
-  public readonly promise: (state: I, steps: Step[]) => Promise<O>;
+  public readonly promise: (state: I, plan: Plan<any, any>) => Promise<O>;
   public readonly steps: Step[];
   public readonly eventEmitter: EventEmitter;
   public executing: boolean = false;
@@ -38,18 +38,18 @@ export class Plan<I, O> {
   }
 
   public addStep<T>(step: InputStep<O, T>): Plan<I, T> {
-    const { newStep, handler } = this.parseInputStep(step);
+    const { newStep, handler } = Plan.parseInputStep(step);
 
-    const promise = async (initialState: I, steps: Step[]) => {
+    const promise = async (initialState: I, plan: Plan<any, any>) => {
       let state: O;
       try {
-        state = await this.promise(initialState, steps);
+        state = await this.promise(initialState, plan);
       } catch (error) {
-        this.changeStepStatus(steps, newStep, 'canceled');
+        Plan.changeStepStatus(plan, newStep, 'canceled');
         throw error;
       }
 
-      return this.processStep(steps, state, newStep, handler);
+      return Plan.processStep(plan, state, newStep, handler);
     };
 
     return new Plan({
@@ -59,19 +59,19 @@ export class Plan<I, O> {
     });
   }
 
-  prependStep<T>(step: InputStep<T, I>): Plan<T, O> {
-    const { newStep, handler } = this.parseInputStep(step);
+  public prependStep<T>(step: InputStep<T, I>): Plan<T, O> {
+    const { newStep, handler } = Plan.parseInputStep(step);
 
-    const promise = async (newInitialState: T, steps: Step[]) => {
+    const promise = async (newInitialState: T, plan: Plan<any, any>) => {
       let initialState: I;
       try {
-        initialState = await this.processStep(steps, newInitialState, newStep, handler);
+        initialState = await Plan.processStep(plan, newInitialState, newStep, handler);
       } catch (error) {
-        this.steps.forEach((step) => this.changeStepStatus(steps, step, 'canceled'));
+        this.steps.forEach((step) => Plan.changeStepStatus(plan, step, 'canceled'));
         throw error;
       }
 
-      return this.promise(initialState, steps);
+      return this.promise(initialState, plan);
     };
 
     return new Plan<T, O>({
@@ -81,57 +81,10 @@ export class Plan<I, O> {
     });
   }
 
-  private parseInputStep<From, To>(step: InputStep<From, To>) {
-    const { handler } = step;
-    const newStep: Step = {
-      name: step.name,
-      status: 'pending',
-      hidden: step.hidden ?? false,
-      optional: step.optional ?? false,
-      onError: step.onError,
-    };
-
-    return { newStep, handler };
-  }
-
-  private async processStep<From, To>(
-    steps: Step[],
-    from: From,
-    step: Step,
-    handler: (from: From) => Promise<To>
-  ): Promise<To> {
-    this.changeStepStatus(steps, step, 'running');
-
-    try {
-      const to = await handler(from);
-      this.changeStepStatus(steps, step, 'successful');
-      return to;
-    } catch (error) {
-      this.changeStepStatus(steps, step, 'failed');
-      step.onError?.(error);
-      if (step.optional) {
-        // If a step is optional, it's destination state should match
-        // the source state. Otherwise, steps cannot be composed.
-        return from as unknown as To;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  public onChange(listener: (step: Step, steps: Step[]) => void) {
+  public onChange(listener: (step: Step, plan: Plan<any, any>) => void) {
     this.eventEmitter.addListener('change', listener);
 
     return this;
-  }
-
-  private notifyChange(step: Step, steps: Step[]): void {
-    this.eventEmitter.emit('change', step, steps);
-  }
-
-  private changeStepStatus(steps: Step[], step: Step, newStatus: StepStatus): void {
-    step.status = newStatus;
-    this.notifyChange(step, steps);
   }
 
   public getSteps(): Step[] {
@@ -148,7 +101,7 @@ export class Plan<I, O> {
       this.executed = false;
       this.failed = false;
       const state = initialState ?? (undefined as unknown as I);
-      return await this.promise(state, this.steps);
+      return await this.promise(state, this);
     } catch (error) {
       this.failed = true;
       throw error;
@@ -156,5 +109,52 @@ export class Plan<I, O> {
       this.executing = false;
       this.executed = true;
     }
+  }
+
+  private static parseInputStep<From, To>(step: InputStep<From, To>) {
+    const { handler } = step;
+    const newStep: Step = {
+      name: step.name,
+      status: 'pending',
+      hidden: step.hidden ?? false,
+      optional: step.optional ?? false,
+      onError: step.onError,
+    };
+
+    return { newStep, handler };
+  }
+
+  private static async processStep<From, To>(
+    plan: Plan<any, any>,
+    from: From,
+    step: Step,
+    handler: (from: From, plan: Plan<any, any>) => Promise<To>
+  ): Promise<To> {
+    this.changeStepStatus(plan, step, 'running');
+
+    try {
+      const to = await handler(from, plan);
+      this.changeStepStatus(plan, step, 'successful');
+      return to;
+    } catch (error) {
+      this.changeStepStatus(plan, step, 'failed');
+      step.onError?.(error);
+      if (step.optional) {
+        // If a step is optional, it's destination state should match
+        // the source state. Otherwise, steps cannot be composed.
+        return from as unknown as To;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  private static notifyChange(plan: Plan<any, any>, step: Step): void {
+    plan.eventEmitter.emit('change', step, plan);
+  }
+
+  private static changeStepStatus(plan: Plan<any, any>, step: Step, newStatus: StepStatus): void {
+    step.status = newStatus;
+    this.notifyChange(plan, step);
   }
 }

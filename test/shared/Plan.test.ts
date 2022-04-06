@@ -155,9 +155,9 @@ test('it can listen to all step changes at once', async (t: Test) => {
       name: 'step2',
       handler: async (n) => n * 2,
     })
-    .onChange((step, steps) => {
+    .onChange((step, plan) => {
       const acc = { changed: step.name };
-      history.push(steps.reduce((acc, step) => ({ ...acc, [step.name]: step.status }), acc));
+      history.push(plan.steps.reduce((acc, step) => ({ ...acc, [step.name]: step.status }), acc));
     });
 
   // When we execute the plan.
