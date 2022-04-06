@@ -10,9 +10,13 @@ export interface Step {
   onError?: (error: unknown) => void;
 }
 
+export type InputStepHandler<From, To> = (state: From, plan: Plan<any, any>) => Promise<To>;
+
+export type InputStepOptions = Partial<Omit<Step, 'name' | 'status'>>;
+
 export type InputStep<From, To> = Pick<Step, 'name'> &
-  Partial<Omit<Step, 'status'>> & {
-    handler: (state: From, plan: Plan<any, any>) => Promise<To>;
+  InputStepOptions & {
+    handler: InputStepHandler<From, To>;
   };
 
 type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
@@ -37,8 +41,18 @@ export class Plan<I, O> {
     });
   }
 
-  public addStep<T>(step: InputStep<O, T>): Plan<I, T> {
-    const { newStep, handler } = Plan.parseInputStep(step);
+  public addStep<T>(step: InputStep<O, T>): Plan<I, T>;
+  public addStep<T>(
+    name: string,
+    handler: InputStepHandler<O, T>,
+    options?: InputStepOptions
+  ): Plan<I, T>;
+  public addStep<T>(
+    stepOrName: InputStep<O, T> | string,
+    stepHandler?: InputStepHandler<O, T>,
+    stepOptions?: InputStepOptions
+  ): Plan<I, T> {
+    const { newStep, handler } = Plan.parseInputStep(stepOrName, stepHandler, stepOptions);
 
     const promise = async (initialState: I, plan: Plan<any, any>) => {
       let state: O;
@@ -59,8 +73,18 @@ export class Plan<I, O> {
     });
   }
 
-  public prependStep<T>(step: InputStep<T, I>): Plan<T, O> {
-    const { newStep, handler } = Plan.parseInputStep(step);
+  public prependStep<T>(step: InputStep<T, I>): Plan<T, O>;
+  public prependStep<T>(
+    name: string,
+    handler: InputStepHandler<T, I>,
+    options?: InputStepOptions
+  ): Plan<T, O>;
+  public prependStep<T>(
+    stepOrName: InputStep<T, I> | string,
+    stepHandler?: InputStepHandler<T, I>,
+    stepOptions?: InputStepOptions
+  ): Plan<T, O> {
+    const { newStep, handler } = Plan.parseInputStep(stepOrName, stepHandler, stepOptions);
 
     const promise = async (newInitialState: T, plan: Plan<any, any>) => {
       let initialState: I;
@@ -111,14 +135,33 @@ export class Plan<I, O> {
     }
   }
 
-  private static parseInputStep<From, To>(step: InputStep<From, To>) {
-    const { handler } = step;
+  private static parseInputStep<From, To>(
+    stepOrName: InputStep<From, To> | string,
+    stepHandler?: InputStepHandler<From, To>,
+    stepOptions?: InputStepOptions
+  ) {
+    let inputStep: InputStep<From, To>;
+
+    if (typeof stepOrName === 'string') {
+      if (!stepHandler) {
+        throw new TypeError('Missing step handler');
+      }
+      inputStep = {
+        name: stepOrName,
+        handler: stepHandler,
+        ...stepOptions,
+      };
+    } else {
+      inputStep = stepOrName;
+    }
+
+    const { handler } = inputStep;
     const newStep: Step = {
-      name: step.name,
+      name: inputStep.name,
       status: 'pending',
-      hidden: step.hidden ?? false,
-      optional: step.optional ?? false,
-      onError: step.onError,
+      hidden: inputStep.hidden ?? false,
+      optional: inputStep.optional ?? false,
+      onError: inputStep.onError,
     };
 
     return { newStep, handler };
