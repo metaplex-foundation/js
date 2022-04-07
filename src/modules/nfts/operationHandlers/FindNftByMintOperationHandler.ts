@@ -16,7 +16,7 @@ export class FindNftByMintOperationHandler extends OperationHandler<FindNftByMin
     }
 
     const nft = new Nft(metadataAccount);
-    await nft.metadata.load(this.metaplex);
+    await nft.metadataLoader.load(this.metaplex);
 
     return nft;
   }

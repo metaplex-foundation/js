@@ -4,7 +4,7 @@ import { removeEmptyChars } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { Nft } from './Nft';
 
-export class JsonMetadataLoader extends Loader {
+export class JsonMetadataLoader extends Loader<JsonMetadata> {
   protected nft: Nft;
 
   constructor(nft: Nft) {
@@ -15,11 +15,6 @@ export class JsonMetadataLoader extends Loader {
   public async handle(metaplex: Metaplex) {
     const uri = removeEmptyChars(this.nft.metadataAccount.data.data.uri);
 
-    try {
-      const metadata = await metaplex.storage().downloadJson<JsonMetadata>(uri);
-      Object.assign(this, metadata);
-    } catch (error) {
-      return;
-    }
+    return metaplex.storage().downloadJson<JsonMetadata>(uri);
   }
 }

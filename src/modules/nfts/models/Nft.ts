@@ -1,18 +1,25 @@
 import { PublicKey } from '@solana/web3.js';
-import { TokenStandard, Collection, Uses, Creator } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  TokenStandard,
+  Collection,
+  Uses,
+  Creator,
+  MasterEditionV2Args,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Model } from '@/shared';
-import { MetadataAccount } from '@/programs/tokenMetadata';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadataLoader } from './JsonMetadataLoader';
 import { removeEmptyChars } from '@/utils';
 import { MasterEditionLoader } from './MasterEditionLoader';
+import { JsonMetadata } from './JsonMetadata';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
   public readonly metadataAccount: MetadataAccount;
 
   /** Loaders. */
-  public readonly metadata: JsonMetadataLoader;
-  public readonly masterEdition: MasterEditionLoader;
+  public readonly metadataLoader: JsonMetadataLoader;
+  public readonly masterEditionLoader: MasterEditionLoader;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -32,8 +39,8 @@ export class Nft extends Model {
   constructor(metadataAccount: MetadataAccount) {
     super();
     this.metadataAccount = metadataAccount;
-    this.metadata = new JsonMetadataLoader(this);
-    this.masterEdition = new MasterEditionLoader(this);
+    this.metadataLoader = new JsonMetadataLoader(this);
+    this.masterEditionLoader = new MasterEditionLoader(this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
@@ -48,5 +55,17 @@ export class Nft extends Model {
     this.tokenStandard = metadataAccount.data.tokenStandard;
     this.collection = metadataAccount.data.collection;
     this.uses = metadataAccount.data.uses;
+  }
+
+  get metadata(): JsonMetadata {
+    return this.metadataLoader.getResult() ?? {};
+  }
+
+  get masterEditionAccount(): MasterEditionAccount | null {
+    return this.masterEditionLoader.getResult() ?? null;
+  }
+
+  get masterEdition(): Partial<Omit<MasterEditionV2Args, 'key'>> {
+    return this.masterEditionAccount?.data ?? {};
   }
 }

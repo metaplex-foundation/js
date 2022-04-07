@@ -6,12 +6,13 @@ export interface LoaderOptions {
   failSilently?: boolean;
 }
 
-export abstract class Loader {
+export abstract class Loader<T> {
   protected status: LoaderStatus = 'pending';
+  protected result?: T;
   protected error?: unknown;
   protected abortSignal: AbortSignal;
 
-  public abstract handle(metaplex: Metaplex): Promise<void>;
+  public abstract handle(metaplex: Metaplex): Promise<T>;
 
   constructor() {
     this.abortSignal = new AbortController().signal;
@@ -23,8 +24,11 @@ export abstract class Loader {
     return this;
   }
 
-  async reload(metaplex: Metaplex, options: LoaderOptions = {}) {
-    if (this.isLoading()) return;
+  public async reload(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
+    if (this.isLoading()) {
+      // TODO: Custom errors.
+      throw new Error('Loader is already running.');
+    }
 
     // Prepare abort listener.
     const abortListener = (reason: unknown) => {
@@ -36,62 +40,89 @@ export abstract class Loader {
     try {
       // Start loading.
       this.status = 'running';
-      await this.handle(metaplex);
+      this.error = undefined;
+      this.result = await this.handle(metaplex);
 
       // Mark as successful if the loader wasn't aborted.
       if (!this.wasCanceled()) {
         this.status = 'successful';
       }
-    } catch (error) {
-      // Capture the error and the failed status.
-      this.status = 'failed';
-      this.error = error;
 
-      // Re-thow the error unless we want to fail silently.
-      if (!(options.failSilently ?? false)) {
-        throw error;
+      // Return the loaded result.
+      return this.result;
+    } catch (error) {
+      // Capture the error and reset the result.
+      this.error = error;
+      this.result = undefined;
+
+      // Mark as failed if the loader wasn't aborted.
+      if (!this.wasCanceled()) {
+        this.status = 'failed';
       }
+
+      // Return undefined result if loaded aborted or if we want to fail silently.
+      if (this.wasCanceled() || (options.failSilently ?? false)) {
+        return this.result;
+      }
+
+      // Otherwise, re-throw the error.
+      throw error;
     } finally {
       // Clean up the abort listener.
       this.abortSignal.removeEventListener('abort', abortListener);
     }
   }
 
-  async load(metaplex: Metaplex, options: LoaderOptions = {}) {
-    if (this.status !== 'pending') return;
-    await this.reload(metaplex, options);
+  public async load(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
+    if (this.status !== 'pending') return this.result;
+    return this.reload(metaplex, options);
   }
 
-  reset() {
+  public reset() {
     this.status = 'pending';
+    this.result = undefined;
     this.error = undefined;
+
+    return this;
   }
 
-  getStatus(): LoaderStatus {
+  public loadWith(preloadedResult: T) {
+    this.status = 'successful';
+    this.result = preloadedResult;
+    this.error = undefined;
+
+    return this;
+  }
+
+  public getStatus(): LoaderStatus {
     return this.status;
   }
 
-  getError(): unknown {
+  public getResult(): T | undefined {
+    return this.result;
+  }
+
+  public getError(): unknown {
     return this.error;
   }
 
-  isLoading(): boolean {
+  public isLoading(): boolean {
     return this.status === 'running';
   }
 
-  isLoaded(): boolean {
+  public isLoaded(): boolean {
     return this.status !== 'pending' && this.status !== 'running';
   }
 
-  wasSuccessful(): boolean {
+  public wasSuccessful(): boolean {
     return this.status === 'successful';
   }
 
-  wasFailed(): boolean {
+  public wasFailed(): boolean {
     return this.status === 'failed';
   }
 
-  wasCanceled(): boolean {
+  public wasCanceled(): boolean {
     return this.status === 'canceled';
   }
 }
