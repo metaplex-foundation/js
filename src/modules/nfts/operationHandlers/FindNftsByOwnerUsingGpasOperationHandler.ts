@@ -12,6 +12,7 @@ export class FindNftsByOwnerUsingGpasOperationHandler extends OperationHandler<F
     const tokensAndMints = await TokenProgram.tokenAccounts(this.metaplex.connection)
       .selectMint()
       .whereOwner(owner)
+      .whereAmount(1)
       .getAndMap((account) => ({
         token: account.pubkey,
         mint: new PublicKey(account.data),
