@@ -118,3 +118,21 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   t.true(loader.getError() instanceof Event);
   t.equal((loader.getError() as Event).type, 'abort');
 });
+
+test('it can be reset', async (t: Test) => {
+  // Given a metaplex instance.
+  const mx = metaplexGuest();
+
+  // And a test loader that loaded successfully.
+  const loader = new TestLoader(mx, async () => 42);
+  await loader.load();
+  t.equal(loader.getStatus(), 'successful');
+  t.equal(loader.result, 42);
+
+  // When we reset the loader.
+  loader.reset();
+  
+  // Then the loader was marked as pending.
+  t.equal(loader.getStatus(), 'pending');
+  t.equal(loader.result, undefined);
+});
