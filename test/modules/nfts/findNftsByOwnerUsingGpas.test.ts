@@ -7,6 +7,6 @@ test('dummy', async (t: Test) => {
 	const mx = metaplexGuest({ rpcEndpoint: clusterApiUrl('mainnet-beta') });
   const owner = new PublicKey('B1AfN7AgpMyctfFbjmvRAvE1yziZFDb9XCwydBjJwtRN');
   const nfts = await mx.execute(new FindNftsByOwnerOperation(owner));
-  console.log('DONE', nfts);
+  console.log('DONE', nfts.map(nft => nft.name));
   t.end();
 });
