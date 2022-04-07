@@ -1,4 +1,4 @@
-import { Metaplex } from "../Metaplex";
+import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
@@ -14,7 +14,7 @@ export abstract class Loader {
   public abstract handle(metaplex: Metaplex): Promise<void>;
 
   constructor() {
-    this.abortSignal = (new AbortController()).signal;
+    this.abortSignal = new AbortController().signal;
   }
 
   setAbortSignal(abortSignal: AbortSignal) {
@@ -39,10 +39,9 @@ export abstract class Loader {
       await this.handle(metaplex);
 
       // Mark as successful if the loader wasn't aborted.
-      if (! this.wasCanceled()) {
+      if (!this.wasCanceled()) {
         this.status = 'successful';
       }
-
     } catch (error) {
       // Capture the error and the failed status.
       this.status = 'failed';

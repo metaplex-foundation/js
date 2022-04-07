@@ -2,11 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { OperationHandler, Postpone, GmaBuilder } from '@/shared';
 import { Nft } from '../models';
 import { FindNftsByCandyMachineOperation } from '../operations';
-import {
-  TokenMetadataProgram,
-  MetadataAccount,
-  MasterEditionAccount,
-} from '@/programs/tokenMetadata';
+import { TokenMetadataProgram, MetadataAccount } from '@/programs/tokenMetadata';
 
 export class FindNftsByCandyMachineOperationHandler extends OperationHandler<FindNftsByCandyMachineOperation> {
   public async handle(operation: FindNftsByCandyMachineOperation): Promise<Nft[]> {
@@ -33,25 +29,16 @@ export class FindNftsByCandyMachineOperationHandler extends OperationHandler<Fin
 
     return (
       Postpone.make(async () => mintKeys)
-        // Get PDAs.
-        .map(async (mint) => [
-          await MetadataAccount.pda(mint),
-          await MasterEditionAccount.pda(mint),
-        ])
-
-        // Resolve and flatten PDA promises.
-        .asyncPipe(async (promises) => Promise.allSettled(await promises))
-        .flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
+        // Get and resolve PDAs.
+        .map(async (mint) => MetadataAccount.pda(mint))
+        .asyncPipe(async (promises) => Promise.all(await promises))
 
         // Feed PDAs into a GetMultipleAccountBuilder.
         .pipe((pdas) => new GmaBuilder(this.metaplex.connection, pdas))
         .asyncPipe(async (gma) => (await gma).get())
 
-        // Regroup Metadata and MasterEdition accounts.
-        .chunk(2)
-
-        // Map Nfts from Metadata and MasterEdition accounts.
-        .flatMap(([metadataInfo]) => {
+        // Map Nfts from Metadata accounts.
+        .flatMap((metadataInfo) => {
           const metadata = metadataInfo.exists
             ? MetadataAccount.fromAccountInfo(metadataInfo)
             : null;
