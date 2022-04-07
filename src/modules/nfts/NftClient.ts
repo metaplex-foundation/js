@@ -37,12 +37,12 @@ export class NftClient extends ModuleClient {
   ): Promise<{ nft: Nft } & CreateNftOutput> {
     const operation = new CreateNftOperation(input);
     const createNftOutput = await this.metaplex.execute(operation, confirmOptions);
-    const nft = await this.findNft({ mint: createNftOutput.mint.publicKey });
+    const nft = await this.findNftByMint(createNftOutput.mint.publicKey);
 
     return { ...createNftOutput, nft };
   }
 
-  async findNft({ mint }: { mint: PublicKey }): Promise<Nft> {
+  async findNftByMint(mint: PublicKey): Promise<Nft> {
     return this.metaplex.execute(new FindNftByMintOperation(mint));
   }
 
@@ -57,7 +57,7 @@ export class NftClient extends ModuleClient {
   ): Promise<{ nft: Nft } & UpdateNftOutput> {
     const operation = new UpdateNftOperation({ ...input, nft });
     const updateNftOutput = await this.metaplex.execute(operation, confirmOptions);
-    const updatedNft = await this.findNft({ mint: nft.mint });
+    const updatedNft = await this.findNftByMint(nft.mint);
 
     return { ...updateNftOutput, nft: updatedNft };
   }
