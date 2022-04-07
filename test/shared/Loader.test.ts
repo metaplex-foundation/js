@@ -1,13 +1,13 @@
 import test, { Test } from 'tape';
-import { Loader, Metaplex } from '@/index';
+import { Loader } from '@/index';
 import { metaplexGuest } from 'test/helpers';
 
 class TestLoader<T> extends Loader {
   protected cb: () => Promise<T>;
   public result?: T;
 
-  constructor(metaplex: Metaplex, cb: () => Promise<T>) {
-    super(metaplex);
+  constructor(cb: () => Promise<T>) {
+    super();
     this.cb = cb;
   }
 
@@ -29,7 +29,7 @@ test('it can succeed', async (t: Test) => {
   const mx = metaplexGuest();
 
   // And a "pending" test loader that returns a number.
-  const loader = new TestLoader(mx, async () => {
+  const loader = new TestLoader(async () => {
     t.equal(loader.getStatus(), 'running');
     return 42;
   });
@@ -37,7 +37,7 @@ test('it can succeed', async (t: Test) => {
   t.equal(loader.getStatus(), 'pending');
 
   // When we load the loader.
-  await loader.load();
+  await loader.load(mx);
 
   // Then we get the right result and it was marked as successful.
   t.equal(loader.result, 42);
@@ -50,7 +50,7 @@ test('it can fail', async (t: Test) => {
   const mx = metaplexGuest();
 
   // And a "pending" test loader that throws an error.
-  const loader = new TestLoader(mx, async () => {
+  const loader = new TestLoader(async () => {
     t.equal(loader.getStatus(), 'running');
     throw new Error('Test Loader Failure');
   });
@@ -59,7 +59,7 @@ test('it can fail', async (t: Test) => {
 
   // When we load the loader.
   try {
-    await loader.load();
+    await loader.load(mx);
   }
   
   // Then the loader is marked as failed and we kept track of the error.
@@ -78,13 +78,13 @@ test('it can fail silently', async (t: Test) => {
   const mx = metaplexGuest();
 
   // And a test loader that throws an error.
-  const loader = new TestLoader(mx, async () => {
+  const loader = new TestLoader(async () => {
     throw new Error('Test Loader Failure');
   });
 
   // When we load the loader using the "failSilently" option
   // outside of a try/catch.
-  await loader.load({ failSilently: true });
+  await loader.load(mx, { failSilently: true });
   
   // Then execution continues but the loader was marked as failed
   // and we kept track of the error.
@@ -99,7 +99,7 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   const mx = metaplexGuest();
 
   // And a test loader that returns a number after 100ms.
-  const loader = new TestLoader(mx, async () => {
+  const loader = new TestLoader(async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     return 42;
   });
@@ -110,7 +110,7 @@ test('it can be aborted using an AbortController', async (t: Test) => {
 
   // When we load the loader and abort after 10ms.
   setTimeout(() => abortController.abort(), 10);
-  await loader.load();
+  await loader.load(mx);
 
   // Then the loader was marked as canceled.
   t.equal(loader.getStatus(), 'canceled');
@@ -124,8 +124,8 @@ test('it can be reset', async (t: Test) => {
   const mx = metaplexGuest();
 
   // And a test loader that loaded successfully.
-  const loader = new TestLoader(mx, async () => 42);
-  await loader.load();
+  const loader = new TestLoader(async () => 42);
+  await loader.load(mx);
   t.equal(loader.getStatus(), 'successful');
   t.equal(loader.result, 42);
 

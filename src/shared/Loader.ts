@@ -7,22 +7,14 @@ export interface LoaderOptions {
 }
 
 export abstract class Loader {
-  protected metaplex: Metaplex;
   protected status: LoaderStatus = 'pending';
   protected error?: unknown;
   protected abortSignal: AbortSignal;
 
-  public abstract handle(): Promise<void>;
+  public abstract handle(metaplex: Metaplex): Promise<void>;
 
-  constructor(metaplex: Metaplex) {
-    this.metaplex = metaplex;
+  constructor() {
     this.abortSignal = (new AbortController()).signal;
-  }
-
-  setMetaplex(metaplex: Metaplex) {
-    this.metaplex = metaplex;
-
-    return this;
   }
 
   setAbortSignal(abortSignal: AbortSignal) {
@@ -31,7 +23,7 @@ export abstract class Loader {
     return this;
   }
 
-  async reload(options: LoaderOptions = {}) {
+  async reload(metaplex: Metaplex, options: LoaderOptions = {}) {
     if (this.isLoading()) return;
 
     // Prepare abort listener.
@@ -44,7 +36,7 @@ export abstract class Loader {
     try {
       // Start loading.
       this.status = 'running';
-      await this.handle();
+      await this.handle(metaplex);
 
       // Mark as successful if the loader wasn't aborted.
       if (! this.wasCanceled()) {
@@ -66,9 +58,9 @@ export abstract class Loader {
     }
   }
 
-  async load(options: LoaderOptions = {}) {
+  async load(metaplex: Metaplex, options: LoaderOptions = {}) {
     if (this.status !== 'pending') return;
-    await this.reload(options);
+    await this.reload(metaplex, options);
   }
 
   reset() {

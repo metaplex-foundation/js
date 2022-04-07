@@ -1,9 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { Model } from '@/shared';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { MetadataAccount } from '@/programs/tokenMetadata';
 import { TokenStandard, Collection, Uses, Creator } from '@metaplex-foundation/mpl-token-metadata';
-import { bignum } from '@metaplex-foundation/beet';
-import { JsonMetadata } from './JsonMetadata';
+import { JsonMetadataLoader } from './JsonMetadataLoader';
 import { removeEmptyChars } from '@/utils';
 
 export class Nft extends Model {
@@ -11,10 +10,11 @@ export class Nft extends Model {
   public readonly metadataAccount: MetadataAccount;
 
   /** The optional Metadata Edition PDA account associated with the NFT. */
-  public readonly masterEditionAccount: MasterEditionAccount | null;
+  // public readonly masterEditionAccount: MasterEditionAccount | null;
 
   /** The JSON metadata from the URI. */
-  public readonly metadata: JsonMetadata | null;
+  public readonly metadata: JsonMetadataLoader;
+  // public readonly metadata: JsonMetadata | null;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -32,18 +32,14 @@ export class Nft extends Model {
   public readonly uses: Uses | null;
 
   /** Data from the MasterEdition account. */
-  public readonly supply: bignum | null;
-  public readonly maxSupply: bignum | null;
+  // public readonly supply: bignum | null;
+  // public readonly maxSupply: bignum | null;
 
-  constructor(
-    metadataAccount: MetadataAccount,
-    masterEditionAccount: MasterEditionAccount | null = null,
-    metadata: JsonMetadata | null = null
-  ) {
+  constructor(metadataAccount: MetadataAccount) {
     super();
     this.metadataAccount = metadataAccount;
-    this.masterEditionAccount = masterEditionAccount;
-    this.metadata = metadata;
+    // this.masterEditionAccount = masterEditionAccount;
+    this.metadata = new JsonMetadataLoader(this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
@@ -59,7 +55,7 @@ export class Nft extends Model {
     this.collection = metadataAccount.data.collection;
     this.uses = metadataAccount.data.uses;
 
-    this.supply = masterEditionAccount?.data.supply ?? null;
-    this.maxSupply = masterEditionAccount?.data.maxSupply ?? null;
+    // this.supply = masterEditionAccount?.data.supply ?? null;
+    // this.maxSupply = masterEditionAccount?.data.maxSupply ?? null;
   }
 }

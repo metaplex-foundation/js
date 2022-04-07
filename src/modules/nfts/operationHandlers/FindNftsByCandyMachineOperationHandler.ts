@@ -51,14 +51,11 @@ export class FindNftsByCandyMachineOperationHandler extends OperationHandler<Fin
         .chunk(2)
 
         // Map Nfts from Metadata and MasterEdition accounts.
-        .flatMap(([metadataInfo, editionInfo]) => {
+        .flatMap(([metadataInfo]) => {
           const metadata = metadataInfo.exists
             ? MetadataAccount.fromAccountInfo(metadataInfo)
             : null;
-          const edition = editionInfo.exists
-            ? MasterEditionAccount.fromAccountInfo(editionInfo)
-            : null;
-          return metadata ? [new Nft(metadata, edition)] : [];
+          return metadata ? [new Nft(metadata)] : [];
         })
 
         // Execute the postponed promise.
