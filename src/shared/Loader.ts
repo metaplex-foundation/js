@@ -42,10 +42,14 @@ export abstract class Loader {
     this.abortSignal.addEventListener('abort', abortListener, { once: true });
 
     try {
-      // Start loading and capture status changes.
+      // Start loading.
       this.status = 'running';
       await this.handle();
-      this.status = 'successful';
+
+      // Mark as successful if the loader wasn't aborted.
+      if (! this.wasCanceled()) {
+        this.status = 'successful';
+      }
 
     } catch (error) {
       // Capture the error and the failed status.
@@ -74,6 +78,10 @@ export abstract class Loader {
 
   getStatus(): LoaderStatus {
     return this.status;
+  }
+
+  getError(): unknown {
+    return this.error;
   }
 
   isLoading(): boolean {
