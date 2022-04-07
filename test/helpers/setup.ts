@@ -1,6 +1,6 @@
 import { Commitment, Connection, Keypair } from "@solana/web3.js";
 import { LOCALHOST, airdrop } from '@metaplex-foundation/amman';
-import { Metaplex, guestIdentity, keypairIdentity, mockStorage } from '@/index';
+import { Metaplex, guestIdentity, keypairIdentity, mockStorage, UploadMetadataInput } from '@/index';
 
 export interface MetaplexTestOptions {
 	rpcEndpoint?: string;
@@ -24,4 +24,11 @@ export const metaplex = async (options: MetaplexTestOptions = {}) => {
 	await airdrop(mx.connection, wallet.publicKey, options.solsToAirdrop ?? 100);
 
 	return mx;
+}
+
+export const createNft = async (mx: Metaplex, metadata: UploadMetadataInput) => {
+  const { uri } = await mx.nfts().uploadMetadata(metadata)
+  const { nft } = await mx.nfts().createNft({ uri });
+
+	return nft;
 }

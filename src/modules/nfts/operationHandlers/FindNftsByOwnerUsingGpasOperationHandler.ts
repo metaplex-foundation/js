@@ -13,10 +13,7 @@ export class FindNftsByOwnerUsingGpasOperationHandler extends OperationHandler<F
       .whereAmount(1)
       .getDataAsPublicKeys();
 
-    const metadataPdas = await Promise.all(
-      mints.map((mint) => MetadataAccount.pda(mint))
-    );
-
+    const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
     const metadataInfos = await GmaBuilder.make(this.metaplex.connection, metadataPdas).get();
 
     return metadataInfos.flatMap((metadataInfo) => {

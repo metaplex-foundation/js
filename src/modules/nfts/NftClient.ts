@@ -13,6 +13,7 @@ import {
   UpdateNftInput,
   UpdateNftOutput,
   UpdateNftOperation,
+  FindNftsByOwnerOperation,
 } from './operations';
 
 export class NftClient extends ModuleClient {
@@ -43,6 +44,10 @@ export class NftClient extends ModuleClient {
 
   async findNft({ mint }: { mint: PublicKey }): Promise<Nft> {
     return this.metaplex.execute(new FindNftByMintOperation(mint));
+  }
+
+  async findNftsByOwner(owner: PublicKey): Promise<Nft[]> {
+    return this.metaplex.execute(new FindNftsByOwnerOperation(owner));
   }
 
   async updateNft(

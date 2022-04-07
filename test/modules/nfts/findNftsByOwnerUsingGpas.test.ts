@@ -1,13 +1,44 @@
-import { FindNftsByOwnerOperation } from '@/modules';
-import { clusterApiUrl, PublicKey } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplexGuest } from 'test/helpers';
+import { metaplex, createNft } from 'test/helpers';
 
-test('dummy', async (t: Test) => {
-	const mx = metaplexGuest({ rpcEndpoint: clusterApiUrl('mainnet-beta') });
-  // const owner = new PublicKey('B1AfN7AgpMyctfFbjmvRAvE1yziZFDb9XCwydBjJwtRN');
-  const owner = new PublicKey('LorisCg1FTs89a32VSrFskYDgiRbNQzct1WxyZb7nuA');
-  const nfts = await mx.execute(new FindNftsByOwnerOperation(owner));
-  console.log('DONE', nfts.map(nft => nft.name));
-  t.end();
+test('it can fetch all NFTs in a wallet', async (t: Test) => {
+  // Given a metaplex instance and a connected wallet.
+  const mx = await metaplex();
+  const owner = mx.identity().publicKey;
+
+  // And two NFTs inside that wallets.
+  const nftA = await createNft(mx, { name: 'NFT A' });
+  const nftB = await createNft(mx, { name: 'NFT B' });
+
+  // When we fetch all NFTs in the wallet.
+  const nfts = await mx.nfts().findNftsByOwner(owner);
+
+  // Then we get the right NFTs.
+  t.same(nfts.map(nft => nft.name).sort(), ['NFT A', 'NFT B']);
+  t.same(nfts.map(nft => nft.mint.toBase58()).sort(), [
+    nftA.mint.toBase58(),
+    nftB.mint.toBase58()
+  ].sort());
+});
+
+test('it does not load the NFT metadata or master edition by default', async (t: Test) => {
+  // Given a metaplex instance and a connected wallet with one nft.
+  const mx = await metaplex();
+  const owner = mx.identity().publicKey;
+  await createNft(mx, { name: 'Some NFT' });
+
+  // When we fetch all NFTs in the wallet.
+  const nfts = await mx.nfts().findNftsByOwner(owner);
+
+  // Then the fetched NFTs do not have metadata.
+  t.equal(nfts.length, 1);
+  t.false(nfts[0].metadataLoader.isLoading());
+  t.false(nfts[0].metadataLoader.isLoaded());
+  t.same(nfts[0].metadata, {});
+
+  // Nor does it have a loaded master edition.
+  t.false(nfts[0].masterEditionLoader.isLoading());
+  t.false(nfts[0].masterEditionLoader.isLoaded());
+  t.equal(nfts[0].masterEditionAccount, null);
+  t.same(nfts[0].masterEdition, {});
 });
