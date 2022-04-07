@@ -13,10 +13,9 @@ class TestLoader<T> extends Loader {
 
   public async handle() {
     const result = await this.cb();
+    if (this.wasCanceled()) return;
 
-    if (! this.wasCanceled()) {
-      this.result = result;
-    }
+    this.result = result;
   }
 
   reset(): void {
@@ -65,8 +64,8 @@ test('it can fail', async (t: Test) => {
   
   // Then the loader is marked as failed and we kept track of the error.
   catch (error) {
-    t.equal(loader.result, undefined);
     t.equal(loader.getStatus(), 'failed');
+    t.equal(loader.result, undefined);
     t.equal(loader.getError(), error);
     return;
   }
@@ -89,8 +88,8 @@ test('it can fail silently', async (t: Test) => {
   
   // Then execution continues but the loader was marked as failed
   // and we kept track of the error.
-  t.equal(loader.result, undefined);
   t.equal(loader.getStatus(), 'failed');
+  t.equal(loader.result, undefined);
   t.true(loader.getError() instanceof Error);
   t.equal((loader.getError() as Error).message, 'Test Loader Failure');
 });
@@ -112,9 +111,10 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   // When we load the loader and abort after 10ms.
   setTimeout(() => abortController.abort(), 10);
   await loader.load();
-  
+
   // Then the loader was marked as canceled.
-  t.equal(loader.result, undefined);
   t.equal(loader.getStatus(), 'canceled');
-  t.equal(loader.getError(), undefined);
+  t.equal(loader.result, undefined);
+  t.true(loader.getError() instanceof Event);
+  t.equal((loader.getError() as Event).type, 'abort');
 });
