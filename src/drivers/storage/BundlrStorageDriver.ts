@@ -126,8 +126,7 @@ export class BundlrStorageDriver extends StorageDriver {
     const bundlr =
       this.metaplex.identity() instanceof WalletAdapterIdentityDriver
         ? new WebBundlr(address, currency, this.metaplex.identity(), options)
-        : new NodeBundlr(address, currency, this.metaplex.identity(), options);
-
+        : new NodeBundlr(address, currency, this.metaplex.identity().keypair.secretKey, options);
     try {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);

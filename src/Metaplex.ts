@@ -13,7 +13,7 @@ import {
   SendTransactionError,
   TransactionError,
 } from '@solana/web3.js';
-import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
+import { GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
 import {
   InputOfOperation,
   Operation,
@@ -39,7 +39,7 @@ export class Metaplex {
   public readonly options: MetaplexOptions;
 
   /** Encapsulates the identity of the users interacting with the SDK. */
-  protected identityDriver: IdentityDriver;
+  protected identityDriver: any;
 
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
@@ -73,7 +73,7 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver) {
+  setIdentity(identity: any) {
     this.identityDriver = identity;
 
     return this;
