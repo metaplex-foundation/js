@@ -203,7 +203,7 @@ console.log(metadata.properties.files[0].uri) // https://arweave.net/456
 console.log(uri) // https://arweave.net/789
 ```
 
-Note that `MetaplexFile`s can be created in various different ways based on where the file is coming from. You can [read more about `MetaplexFile` objects and how to use them here](#TODO).
+Note that `MetaplexFile`s can be created in various different ways based on where the file is coming from. You can [read more about `MetaplexFile` objects and how to use them here](#MetaplexFile).
 
 ### createNft
 
@@ -412,12 +412,14 @@ You may access the current storage driver using `metaplex.storage()` which will 
 class StorageDriver {
     getPrice(...files: MetaplexFile[]): Promise<SolAmount>;
     upload(file: MetaplexFile): Promise<string>;
-    uploadAll(files: MetaplexFile[]): Promise<string[]> {
+    uploadAll(files: MetaplexFile[]): Promise<string[]>;
     uploadJson<T extends object>(json: T): Promise<string>;
     download(uri: string): Promise<MetaplexFile>;
     downloadJson<T extends object>(uri: string): Promise<T>;
 }
 ```
+
+The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. Be first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
 
 ### MetaplexFile
 
@@ -435,7 +437,45 @@ class MetaplexFile {
 }
 ```
 
-The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us.
+There are many way of creating a `MetaplexFile`. The simplest way is to pass a `string` to the constructor with a filename. The filename is necessary to infer the extension and the mime type of the provided file.
+
+```ts
+const file = new MetaplexFile('The content of my file', 'my-file.txt');
+```
+
+You may also explicitly provide theses options by passing a third parameter to the constructor.
+
+```ts
+const file = new MetaplexFile('The content of my file', 'my-file.txt', {
+    displayName = 'A Nice Title For My File'; // Defaults to the filename.
+    uniqueName = 'my-company/files/some-identifier'; // Defaults to a random string.
+    contentType = 'text/plain'; // Infer it from filename by default.
+    extension = 'txt'; // Infer it from filename by default.
+    tags = [{ name: 'my-tag', value: 'some-value' }]; // Defaults to [].
+});
+```
+
+Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a static `fromJson` method that you can use like so.
+
+```ts
+const file = MetaplexFile.fromJson({ foo: 42 });
+```
+
+In practice, you will most likely be creating `MetaplexFile`s from files either present on your computer or uploaded by some user on the browser. You can do the former by using `fs.readFileSync`.
+
+```ts
+const buffer = fs.readFileSync('/path/to/my-file.txt');
+const file = new MetaplexFile(buffer, 'my-file.txt');
+```
+
+And the later by using the `fromFile` static method which accepts a `File` object as defined in the browser.
+
+```ts
+const browserFile: File = event.target.files[0];
+const file: MetaplexFile = await MetaplexFile.fromFile(browserFile);
+```
+
+Okay, now let’s talk about the concrete storage drivers available to us and how to set them up.
 
 ### bundlrStorage
 
