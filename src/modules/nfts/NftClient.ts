@@ -15,6 +15,8 @@ import {
   UpdateNftOperation,
   FindNftsByOwnerOperation,
   FindNftsByMintListOperation,
+  FindNftsByCreatorOperation,
+  FindNftsByCandyMachineOperation,
 } from './operations';
 
 export class NftClient extends ModuleClient {
@@ -45,6 +47,14 @@ export class NftClient extends ModuleClient {
 
   async findNftByMint(mint: PublicKey): Promise<Nft> {
     return this.metaplex.execute(new FindNftByMintOperation(mint));
+  }
+
+  async findNftsByCandyMachine(candyMachine: PublicKey, version?: 1 | 2): Promise<Nft[]> {
+    return this.metaplex.execute(new FindNftsByCandyMachineOperation({ candyMachine, version }));
+  }
+
+  async findNftsByCreator(creator: PublicKey, position: number = 1): Promise<Nft[]> {
+    return this.metaplex.execute(new FindNftsByCreatorOperation({ creator, position }));
   }
 
   async findNftsByMintList(mints: PublicKey[]): Promise<Nft[]> {
