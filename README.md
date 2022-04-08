@@ -49,7 +49,7 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/160883270-33fb4767-d3b1-4496-9f00-317bb1e18e68.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/162458287-86e25269-0fce-4fa3-9df1-dc796ba8b9e1.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -65,7 +65,7 @@ The NFT module can be accessed via `Metaplex.nfts()` and provide the following m
 - [`createNft(onChainData)`](#createNft)
 - [`updateNft(nft, onChainData)`](#updateNft)
 
-And the following model either returned or used by the above methods.
+And the following model, either returned or used by the above methods.
 
 - [The `Nft` model](#the-nft-model)
 
@@ -79,7 +79,7 @@ const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 const nft = await metaplex.nfts().findNftByMint(mint);
 ```
 
-The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access it's image URL like so (provided it is present in the downloaded metadata).
+The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
 
 ```ts
 const imageUrl = nft.metadata.image;
@@ -96,9 +96,9 @@ You can [read more about the `NFT` model below](#the-nft-model).
 
 ### findNftsByMintList
 
-The `findNftsByMintList` method accepts an array of mint addresses and return an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+The `findNftsByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
 
-Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK is able to optimise the query and fetch multiple NFTs in much fewer requests.
+Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
 
 ```ts
 const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
@@ -165,7 +165,7 @@ Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON 
 
 When creating or updating an NFT, you will need a URI pointing to some JSON Metadata describing the NFT. Depending on your requirement, you may do this on-chain or off-chain.
 
-If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and return the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
+If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and returns the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
 
 ```ts
 const { uri } = await metaplex.nfts().uploadMetadata({
@@ -179,7 +179,7 @@ console.log(uri) // https://arweave.net/789
 
 Some properties inside that metadata object will also require you to upload some assets to provide their URI — such as the `image` property on the example above.
 
-To make this process easier, the `uploadMetadata` method will recognise any instances of `MetaplexFile` within the provide object and upload them in bulk to the current storage driver. It will then create a new version of the provided metadata where all instances of `MetaplexFile` are replaced with their URI. Finally, it will upload that replaced metadata to the storage driver and return it.
+To make this process easier, the `uploadMetadata` method will recognise any instances of `MetaplexFile` within the provided object and upload them in bulk to the current storage driver. It will then create a new version of the provided metadata where all instances of `MetaplexFile` are replaced with their URI. Finally, it will upload that replaced metadata to the storage driver and return it.
 
 ```ts
 // Assuming the user uploaded two images via an input of type "file".
@@ -219,14 +219,14 @@ const { nft } = await metaplex.nfts().createNft({
 
 This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you.
 
-Addionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
+Additionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
 - It will fetch the JSON metadata from the provided URI and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
-- Since no owner, mint authority nor update authority were provided, the “identity” of the SDK will be used by default for these parameters. Meaning the SDK's identity will be the owner of that new NFT.
+- Since no owner, mint authority or update authority were provided, the “identity” of the SDK will be used by default for these parameters. Meaning the SDK's identity will be the owner of that new NFT.
 - It will also default to setting the identity as the first and only creator with a 100% share.
 - It will try to fetch the secondary sales royalties from the downloaded JSON metadata or will default to 5%.
 - It will default to making the NFT immutable — meaning you won't be able to update it later on.
 
-If some of these default parameters are not suitable for your use-case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
 
 ### updateNft
 
@@ -298,13 +298,13 @@ await nft.metadataLoader.load();
 await nft.masterEditionLoader.load();
 ```
 
-After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behavior by providing the `failSilently` option to the `load` method.
+After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behaviour by providing the `failSilently` option to the `load` method.
 
 ```ts
 await nft.metadataLoader.load({ failSilently: true });
 ```
 
-Also note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available on the `Loader` class:
+Also, note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available in the `Loader` class:
 
 ```ts
 class Loader<T> {
@@ -328,7 +328,7 @@ class Loader<T> {
 
 As you can see, you get a bunch of methods to check the status of the loader and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the loader and load the provided data directly — this can be useful when loading NFTs in batch.
 
-Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not canceled and return early if it was.
+Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not cancelled and return early if it was.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
@@ -419,7 +419,7 @@ class StorageDriver {
 }
 ```
 
-The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. Be first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
+The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. But first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
 
 ### MetaplexFile
 
@@ -437,13 +437,13 @@ class MetaplexFile {
 }
 ```
 
-There are many way of creating a `MetaplexFile`. The simplest way is to pass a `string` to the constructor with a filename. The filename is necessary to infer the extension and the mime type of the provided file.
+There are many ways of creating a `MetaplexFile`. The simplest way is to pass a `string` to the constructor with a filename. The filename is necessary to infer the extension and the mime type of the provided file.
 
 ```ts
 const file = new MetaplexFile('The content of my file', 'my-file.txt');
 ```
 
-You may also explicitly provide theses options by passing a third parameter to the constructor.
+You may also explicitly provide these options by passing a third parameter to the constructor.
 
 ```ts
 const file = new MetaplexFile('The content of my file', 'my-file.txt', {
@@ -468,7 +468,7 @@ const buffer = fs.readFileSync('/path/to/my-file.txt');
 const file = new MetaplexFile(buffer, 'my-file.txt');
 ```
 
-And the later by using the `fromFile` static method which accepts a `File` object as defined in the browser.
+And the latter by using the `fromFile` static method which accepts a `File` object as defined in the browser.
 
 ```ts
 const browserFile: File = event.target.files[0];
@@ -531,9 +531,9 @@ metaplex.use(mockStorage());
 ```
 
 ## Next steps
-As mentioned above, this is SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
+As mentioned above, this SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
 - New features in the NFT module.
-- New modules such as a NFT Collections module, a Candy Machine module, an Action House module, etc.
+- New modules such as an NFT Collections module, a Candy Machine module, an Action House module, etc.
 - More storage drivers.
 - More identity drivers.
 - New types of drivers such as error handling, logging, etc.
