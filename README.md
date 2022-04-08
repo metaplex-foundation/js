@@ -96,7 +96,7 @@ You can [read more about the `NFT` model below](#the-nft-model).
 
 ### findNftsByMintList
 
-The `findNftsByMintList` method accepts an array of mint addresses and return an array of [`Nft` objects](#the-nft-model). However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+The `findNftsByMintList` method accepts an array of mint addresses and return an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
 
 Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK is able to optimise the query and fetch multiple NFTs in much fewer requests.
 
@@ -125,13 +125,42 @@ We'll talk more about these loaders when documenting [the `NFT` model](#the-nft-
 
 ### findNftsByOwner
 
-The `findNftsByOwner` method accepts a public key and returns all [`Nft`s](#the-nft-model) owned by that public key.
+The `findNftsByOwner` method accepts a public key and returns all `Nft`s owned by that public key.
 
 ```ts
+const myNfts = await metaplex.nfts().findNftsByOwner(metaplex.identity().publicKey);
 ```
 
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+
 ### findNftsByCreator
+
+The `findNftsByCreator` method accepts a public key and returns all `Nft`s that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
+
+```ts
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey);
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 1); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 2); // Now matching the second creator field.
+```
+
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+
 ### findNftsByCandyMachine
+
+The `findNftsByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+
+By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
+
+```ts
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey);
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+```
+
+Note that the current implementation of this method delegates to `findNftsByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+
 ### uploadMetadata
 ### createNft
 ### updateNft
