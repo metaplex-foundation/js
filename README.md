@@ -260,7 +260,75 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 
 All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
 
-You can see [its full data representation here](/src/modules/nfts/models/Nft.ts).
+You can see [its full data representation by checking the code](/src/modules/nfts/models/Nft.ts) but here is an overview of the properties that are available on the `Nft` object.
+
+```ts
+// Always loaded.
+updateAuthority: PublicKey;
+mint: PublicKey;
+name: string;
+symbol: string;
+uri: string;
+sellerFeeBasisPoints: number;
+creators: Creator[] | null;
+primarySaleHappened: boolean;
+isMutable: boolean;
+editionNonce: number | null;
+tokenStandard: TokenStandard | null;
+collection: Collection | null;
+uses: Uses | null;
+
+// Sometimes loaded.
+metadata: JsonMetadata | null;
+masterEditionAccount: MasterEditionAccount | null;
+masterEdition: {
+    supply?: bignumber;
+    maxSupply?: bignumber;
+};
+```
+
+As you can see, some of the properties — such as `metadata` — are loaded on demand. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
+- If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
+- If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
+
+In order to load these properties, you may use the `metadataLoader` and `masterEditionLoader` properties of the `Nft` object.
+
+```ts
+await nft.metadataLoader.load();
+await nft.masterEditionLoader.load();
+```
+
+After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behavior by providing the `failSilently` option to the `load` method.
+
+```ts
+await nft.metadataLoader.load({ failSilently: true });
+```
+
+Also note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available on the `Loader` class:
+
+```ts
+class Loader<T> {
+    public getStatus(): LoaderStatus;
+    public getResult(): T | undefined;
+    public getError(): unknown;
+    public isPending(): boolean;
+    public isLoading(): boolean;
+    public isLoaded(): boolean;
+    public wasSuccessful(): boolean;
+    public wasFailed(): boolean;
+    public wasCanceled(): boolean;
+
+    public load(options?: LoaderOptions): Promise<T | undefined>;
+    public reload(options?: LoaderOptions): Promise<T | undefined>;
+    public reset(): this;
+    public loadWith(preloadedResult: T): this;
+    public setAbortSignal(abortSignal: AbortSignal): this;
+}
+```
+
+As you can see, you get a bunch of methods to check the status of the loader and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the loader and load the provided data directly — this can be useful when loading NFTs in batch.
+
+Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not canceled and return early if it was.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
@@ -350,6 +418,8 @@ class StorageDriver {
     downloadJson<T extends object>(uri: string): Promise<T>;
 }
 ```
+
+### MetaplexFile
 
 The `MetaplexFile` class is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
 
