@@ -1,6 +1,7 @@
 export * from './CreateNftOperation';
 export * from './FindNftByMintOperation';
 export * from './FindNftsByCandyMachineOperation';
+export * from './FindNftsByCreatorOperation';
 export * from './FindNftsByMintListOperation';
 export * from './FindNftsByOwnerOperation';
 export * from './PlanUploadMetadataOperation';
