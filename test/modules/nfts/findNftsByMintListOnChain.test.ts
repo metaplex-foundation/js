@@ -25,13 +25,11 @@ test('it does not load the NFT metadata or master edition by default', async (t:
   const [fetchedNft] = await mx.nfts().findNftsByMintList([nft.mint]);
 
   // Then the fetched NFTs do not have metadata.
-  t.false(fetchedNft.metadataLoader.isLoading());
-  t.false(fetchedNft.metadataLoader.isLoaded());
+  t.true(fetchedNft.metadataLoader.isPending());
   t.same(fetchedNft.metadata, {});
 
   // Nor does it have a loaded master edition.
-  t.false(fetchedNft.masterEditionLoader.isLoading());
-  t.false(fetchedNft.masterEditionLoader.isLoaded());
+  t.true(fetchedNft.masterEditionLoader.isPending());
   t.equal(fetchedNft.masterEditionAccount, null);
   t.same(fetchedNft.masterEdition, {});
 });

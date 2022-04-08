@@ -32,13 +32,11 @@ test('it does not load the NFT metadata or master edition by default', async (t:
 
   // Then the fetched NFTs do not have metadata.
   t.equal(nfts.length, 1);
-  t.false(nfts[0].metadataLoader.isLoading());
-  t.false(nfts[0].metadataLoader.isLoaded());
+  t.true(nfts[0].metadataLoader.isPending());
   t.same(nfts[0].metadata, {});
 
   // Nor does it have a loaded master edition.
-  t.false(nfts[0].masterEditionLoader.isLoading());
-  t.false(nfts[0].masterEditionLoader.isLoaded());
+  t.true(nfts[0].masterEditionLoader.isPending());
   t.equal(nfts[0].masterEditionAccount, null);
   t.same(nfts[0].masterEdition, {});
 });

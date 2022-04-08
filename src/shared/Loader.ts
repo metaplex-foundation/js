@@ -74,7 +74,10 @@ export abstract class Loader<T> {
   }
 
   public async load(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
-    if (this.status !== 'pending') return this.result;
+    if (!this.isPending()) {
+      return this.result;
+    }
+
     return this.reload(metaplex, options);
   }
 
@@ -104,6 +107,10 @@ export abstract class Loader<T> {
 
   public getError(): unknown {
     return this.error;
+  }
+
+  public isPending(): boolean {
+    return this.status === 'pending';
   }
 
   public isLoading(): boolean {
