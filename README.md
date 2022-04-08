@@ -56,17 +56,85 @@ Now, let’s look into the NFT module in a bit more detail before moving on to t
 ## NFTs
 The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
 
-### findNft
+- [`findNftByMint(mint)`](#findNftByMint)
+- [`findNftsByMintList(mints)`](#findNftsByMintList)
+- [`findNftsByOwner(owner)`](#findNftsByOwner)
+- [`findNftsByCreator(creator, position = 1)`](#findNftsByCreator)
+- [`findNftsByCandyMachine(candyMachine, version = 2)`](#findNftsByCandyMachine)
+- [`uploadMetadata(metadata)`](#uploadMetadata)
+- [`createNft(onChainData)`](#createNft)
+- [`updateNft(nft, onChainData)`](#updateNft)
 
-The `findNft` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
+And the following model either returned or used by the above methods.
+
+- [The `Nft` model](#the-nft-model)
+
+### findNftByMint
+
+The `findNftByMint` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
 
 ```ts
 const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findNft({ mint });
+const nft = await metaplex.nfts().findNftByMint(mint);
 ```
 
-Currently, you can only find an NFT via its mint address but more options will be added soon — e.g. by metadata PDA, by URI, etc. — hence the object parameter.
+The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access it's image URL like so (provided it is present in the downloaded metadata).
+
+```ts
+const imageUrl = nft.metadata.image;
+```
+
+Similarly, the `MasterEdition` account of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
+
+```ts
+const supply = nft.masterEdition.supply;
+const maxSupply = nft.masterEdition.maxSupply;
+```
+
+You can [read more about the `NFT` model below](#the-nft-model).
+
+### findNftsByMintList
+
+The `findNftsByMintList` method accepts an array of mint addresses and return an array of [`Nft` objects](#the-nft-model). However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+
+Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK is able to optimise the query and fetch multiple NFTs in much fewer requests.
+
+```ts
+const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
+```
+
+NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `MasterEdition` account which might be irrelevant until the user clicks on the NFT.
+
+Thus, if you want to load the JSON metadata and/or the `MasterEdition` account of an NFT, you may do this like so.
+
+```ts
+await nft.metadataLoader.load();
+await nft.masterEditionLoader.load();
+```
+
+This will give you access to the `metadata` and `masterEdition` properties of the NFT.
+
+```ts
+const imageUrl = nft.metadata.image;
+const supply = nft.masterEdition.supply;
+const maxSupply = nft.masterEdition.maxSupply;
+```
+
+We'll talk more about these loaders when documenting [the `NFT` model](#the-nft-model).
+
+### findNftsByOwner
+
+The `findNftsByOwner` method accepts a public key and returns all [`Nft`s](#the-nft-model) owned by that public key.
+
+```ts
+```
+
+### findNftsByCreator
+### findNftsByCandyMachine
+### uploadMetadata
+### createNft
+### updateNft
 
 ### createNft
 
