@@ -1,7 +1,7 @@
-import { MetadataAccount, TokenProgram } from '@/programs';
-import { GmaBuilder, OperationHandler } from '@/shared';
+import { TokenProgram } from '@/programs';
+import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
-import { FindNftsByOwnerOperation } from '../operations/FindNftsByOwnerOperation';
+import { FindNftsByMintListOperation, FindNftsByOwnerOperation } from '../operations';
 
 export class FindNftsByOwnerUsingGpasOperationHandler extends OperationHandler<FindNftsByOwnerOperation> {
   public async handle(operation: FindNftsByOwnerOperation): Promise<Nft[]> {
@@ -13,18 +13,6 @@ export class FindNftsByOwnerUsingGpasOperationHandler extends OperationHandler<F
       .whereAmount(1)
       .getDataAsPublicKeys();
 
-    const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
-    const metadataInfos = await GmaBuilder.make(this.metaplex.connection, metadataPdas).get();
-
-    return metadataInfos.flatMap((metadataInfo) => {
-      if (!metadataInfo || !metadataInfo.exists) return [];
-
-      try {
-        const metadata = MetadataAccount.fromAccountInfo(metadataInfo);
-        return [new Nft(metadata)];
-      } catch (error) {
-        return [];
-      }
-    });
+    return await this.metaplex.execute(new FindNftsByMintListOperation(mints));
   }
 }
