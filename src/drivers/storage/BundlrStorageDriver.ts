@@ -3,7 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { WalletAdapterIdentityDriver } from '../identity/WalletAdapterIdentityDriver';
+import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver'
 import { PlanUploadMetadataOperation } from '@/modules';
 import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
@@ -123,11 +123,12 @@ export class BundlrStorageDriver extends StorageDriver {
       providerUrl: this.options.providerUrl,
     };
 
-    const bundlr =
-      this.metaplex.identity() instanceof WalletAdapterIdentityDriver
-        ? new WebBundlr(address, currency, this.metaplex.identity(), options)
-        : new NodeBundlr(address, currency, this.metaplex.identity(), options);
+    const identity = this.metaplex.identity();
 
+    const bundlr =
+      identity instanceof KeypairIdentityDriver
+        ? new NodeBundlr(address, currency, identity.keypair.secretKey, options)
+        : new WebBundlr(address, currency, identity, options);
     try {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
