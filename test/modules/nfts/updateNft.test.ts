@@ -1,7 +1,8 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Nft, MetaplexFile, JsonMetadata } from '@/index';
-import { metaplex, spokSamePubkey } from '../../helpers';
+import { metaplex } from '../../helpers';
+// import { Keypair } from '@solana/web3.js';
 
 test('it can create and update the nft', async (t: Test) => {
   // Given we have a Metaplex instance.
@@ -17,10 +18,11 @@ test('it can create and update the nft', async (t: Test) => {
     image: imageUri,
   });
 
-  // When we create a new NFT with minimum configuration.
+  t.comment('+++ create a new NFT with minimum configuration');
   const { nft: createdNft } = await mx.nfts().createNft({
-    name: 'On-chain NFT name',
     uri: metadataUri,
+    name: 'On-chain NFT name',
+    isMutable: true,
   });
 
   const updatedImageFile = new MetaplexFile('updated_image', 'updated-image.jpg');
@@ -30,8 +32,10 @@ test('it can create and update the nft', async (t: Test) => {
     description: 'Updated JSON NFT description',
     image: updatedImageUri,
   });
+
   const { nft: updated_nft }: { nft: Nft } = await mx.nfts().updateNft(createdNft, {
     name: 'Updated On-chain NFT name',
+    primarySaleHappened: true,
     uri: updatedMetadataUri,
   });
 
@@ -44,17 +48,6 @@ test('it can create and update the nft', async (t: Test) => {
       description: 'Updated JSON NFT description',
       image: updatedImageUri,
     },
-    sellerFeeBasisPoints: 500,
-    primarySaleHappened: false,
-    updateAuthority: spokSamePubkey(mx.identity().publicKey),
-    creators: [
-      {
-        address: spokSamePubkey(mx.identity().publicKey),
-        share: 100,
-        verified: true,
-      },
-    ],
-    collection: null,
-    uses: null,
+    primarySaleHappened: true,
   } as unknown as Specifications<Nft>);
 });
