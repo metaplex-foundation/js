@@ -54,15 +54,15 @@ export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
     return this.where(URI_START, Buffer.from(padEmptyChars(uri, MAX_URI_LENGTH)));
   }
 
-  selectCreator(nth: number) {
+  selectCreator(position: number) {
     return this.slice(
-      CREATORS_START + (nth - 1) * MAX_CREATOR_LEN,
-      CREATORS_START + nth * MAX_CREATOR_LEN
+      CREATORS_START + (position - 1) * MAX_CREATOR_LEN,
+      CREATORS_START + position * MAX_CREATOR_LEN
     );
   }
 
-  whereCreator(nth: number, creator: PublicKey) {
-    return this.where(CREATORS_START + (nth - 1) * MAX_CREATOR_LEN, creator);
+  whereCreator(position: number, creator: PublicKey) {
+    return this.where(CREATORS_START + (position - 1) * MAX_CREATOR_LEN, creator);
   }
 
   selectFirstCreator() {

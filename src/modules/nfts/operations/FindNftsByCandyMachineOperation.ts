@@ -8,6 +8,6 @@ export class FindNftsByCandyMachineOperation extends Operation<
 > {}
 
 export interface FindNftsByCandyMachineInput {
-  v1?: PublicKey;
-  v2?: PublicKey;
+  candyMachine: PublicKey;
+  version?: 1 | 2;
 }

@@ -2,6 +2,7 @@ export * from './Account';
 export * from './AccountInfoWithPublicKey';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
+export * from './Loader';
 export * from './Model';
 export * from './ModuleClient';
 export * from './Operation';
