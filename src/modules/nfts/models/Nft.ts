@@ -68,4 +68,10 @@ export class Nft extends Model {
   get masterEdition(): Partial<Omit<MasterEditionV2Args, 'key'>> {
     return this.masterEditionAccount?.data ?? {};
   }
+
+  public is(other: Nft | PublicKey): boolean {
+    const mint = other instanceof Nft ? other.mint : other;
+
+    return this.mint.equals(mint);
+  }
 }

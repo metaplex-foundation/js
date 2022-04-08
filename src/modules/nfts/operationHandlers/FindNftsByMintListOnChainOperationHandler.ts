@@ -3,7 +3,7 @@ import { GmaBuilder, OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { FindNftsByMintListOperation } from '../operations/FindNftsByMintListOperation';
 
-export class FindNftsByMintListOperationHandler extends OperationHandler<FindNftsByMintListOperation> {
+export class FindNftsByMintListOnChainOperationHandler extends OperationHandler<FindNftsByMintListOperation> {
   public async handle(operation: FindNftsByMintListOperation): Promise<Nft[]> {
     const mints = operation.input;
     const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
