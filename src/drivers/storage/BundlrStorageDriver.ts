@@ -3,7 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver'
+import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
 import { PlanUploadMetadataOperation } from '@/modules';
 import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
