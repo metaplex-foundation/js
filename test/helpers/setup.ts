@@ -1,6 +1,6 @@
 import { Commitment, Connection, Keypair } from "@solana/web3.js";
 import { LOCALHOST, airdrop } from '@metaplex-foundation/amman';
-import { Metaplex, guestIdentity, keypairIdentity, mockStorage, UploadMetadataInput } from '@/index';
+import { Metaplex, guestIdentity, keypairIdentity, mockStorage, UploadMetadataInput, CreateNftInput } from '@/index';
 
 export interface MetaplexTestOptions {
 	rpcEndpoint?: string;
@@ -26,9 +26,13 @@ export const metaplex = async (options: MetaplexTestOptions = {}) => {
 	return mx;
 }
 
-export const createNft = async (mx: Metaplex, metadata: UploadMetadataInput) => {
+export const createNft = async (
+	mx: Metaplex,
+	metadata: UploadMetadataInput = {},
+	onChain: Partial<CreateNftInput> = {},
+) => {
   const { uri } = await mx.nfts().uploadMetadata(metadata)
-  const { nft } = await mx.nfts().createNft({ uri });
+  const { nft } = await mx.nfts().createNft({ ...onChain, uri });
 
 	return nft;
 }
