@@ -1,5 +1,5 @@
 export * from './CreateNftOperationHandler';
-export * from './FindNftByMintOperationHandler';
+export * from './FindNftByMintOnChainOperationHandler';
 export * from './FindNftsByCandyMachineOnChainOperationHandler';
 export * from './FindNftsByCreatorOnChainOperationHandler';
 export * from './FindNftsByMintListOnChainOperationHandler';

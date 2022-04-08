@@ -13,7 +13,7 @@ import * as h from './operationHandlers';
 export const nftPlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.register(o.CreateNftOperation, h.CreateNftOperationHandler);
-    metaplex.register(o.FindNftByMintOperation, h.FindNftByMintOperationHandler);
+    metaplex.register(o.FindNftByMintOperation, h.FindNftByMintOnChainOperationHandler);
     metaplex.register(
       o.FindNftsByCandyMachineOperation,
       h.FindNftsByCandyMachineOnChainOperationHandler

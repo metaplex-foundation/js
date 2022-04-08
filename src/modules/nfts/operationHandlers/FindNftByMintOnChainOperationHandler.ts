@@ -3,7 +3,7 @@ import { Nft } from '../models';
 import { FindNftByMintOperation } from '../operations/FindNftByMintOperation';
 import { MasterEditionAccount, MetadataAccount } from '@/programs';
 
-export class FindNftByMintOperationHandler extends OperationHandler<FindNftByMintOperation> {
+export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindNftByMintOperation> {
   public async handle(operation: FindNftByMintOperation): Promise<Nft> {
     const mint = operation.input;
     const [metadataInfo, masterEditionInfo] = await this.metaplex.getMultipleAccountsInfo([
