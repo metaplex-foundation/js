@@ -12,6 +12,8 @@ export class FindNftsByCreatorOnChainOperationHandler extends OperationHandler<F
       .whereCreator(position, creator)
       .getDataAsPublicKeys();
 
-    return await this.metaplex.execute(new FindNftsByMintListOperation(mints));
+    const nfts = await this.metaplex.execute(new FindNftsByMintListOperation(mints));
+
+    return nfts.filter((nft): nft is Nft => nft !== null);
   }
 }
