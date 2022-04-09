@@ -18,7 +18,7 @@ test('it can create and update the nft', async (t: Test) => {
     image: imageUri,
   });
 
-  t.comment('+++ create a new NFT with minimum configuration');
+
   const { nft: createdNft } = await mx.nfts().createNft({
     uri: metadataUri,
     name: 'On-chain NFT name',
