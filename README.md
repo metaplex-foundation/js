@@ -49,56 +49,150 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/160883270-33fb4767-d3b1-4496-9f00-317bb1e18e68.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/162458287-86e25269-0fce-4fa3-9df1-dc796ba8b9e1.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
 ## NFTs
 The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
 
-### findNft
+- [`findNftByMint(mint)`](#findNftByMint)
+- [`findNftsByMintList(mints)`](#findNftsByMintList)
+- [`findNftsByOwner(owner)`](#findNftsByOwner)
+- [`findNftsByCreator(creator, position = 1)`](#findNftsByCreator)
+- [`findNftsByCandyMachine(candyMachine, version = 2)`](#findNftsByCandyMachine)
+- [`uploadMetadata(metadata)`](#uploadMetadata)
+- [`createNft(onChainData)`](#createNft)
+- [`updateNft(nft, onChainData)`](#updateNft)
 
-The `findNft` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
+And the following model, either returned or used by the above methods.
+
+- [The `Nft` model](#the-nft-model)
+
+### findNftByMint
+
+The `findNftByMint` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
 
 ```ts
 const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findNft({ mint });
+const nft = await metaplex.nfts().findNftByMint(mint);
 ```
 
-Currently, you can only find an NFT via its mint address but more options will be added soon — e.g. by metadata PDA, by URI, etc. — hence the object parameter.
-
-### createNft
-
-The `createNft` method accepts [a whole bunch of parameters](/src/modules/nfts/actions/createNft.ts#L11) where most of them are optional as the SDK will do its best to provide sensible default values.
-
-For instance, say you’ve already uploaded the JSON metadata somewhere, you can create a new NFT by simply providing that its URI like so:
+The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
 
 ```ts
-const { nft } = await metaplex.nfts().createNft({
-    uri: "https://arweave.net/I0SChzC7YKr8NNctCCSMWWmrHegvuH4sN_-c6LU51wQ",
-});
+const imageUrl = nft.metadata.image;
 ```
 
-This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you. It will even fetch the metadata it points to and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
+Similarly, the `MasterEdition` account of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
 
-When no owner, mint authority or update authority are provided, the “identity” of the SDK will be used by default. It will also default to setting the identity as the first and only creator with a 100% share and will set the secondary sales royalties to 5%. You can, of course, customise any of these parameters by providing them explicitly.
+```ts
+const supply = nft.masterEdition.supply;
+const maxSupply = nft.masterEdition.maxSupply;
+```
 
-[Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
+You can [read more about the `NFT` model below](#the-nft-model).
+
+### findNftsByMintList
+
+The `findNftsByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+
+Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
+
+```ts
+const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
+```
+
+NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `MasterEdition` account which might be irrelevant until the user clicks on the NFT.
+
+Thus, if you want to load the JSON metadata and/or the `MasterEdition` account of an NFT, you may do this like so.
+
+```ts
+await nft.metadataLoader.load();
+await nft.masterEditionLoader.load();
+```
+
+This will give you access to the `metadata` and `masterEdition` properties of the NFT.
+
+```ts
+const imageUrl = nft.metadata.image;
+const supply = nft.masterEdition.supply;
+const maxSupply = nft.masterEdition.maxSupply;
+```
+
+We'll talk more about these loaders when documenting [the `NFT` model](#the-nft-model).
+
+### findNftsByOwner
+
+The `findNftsByOwner` method accepts a public key and returns all `Nft`s owned by that public key.
+
+```ts
+const myNfts = await metaplex.nfts().findNftsByOwner(metaplex.identity().publicKey);
+```
+
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+
+### findNftsByCreator
+
+The `findNftsByCreator` method accepts a public key and returns all `Nft`s that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
+
+```ts
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey);
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 1); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 2); // Now matching the second creator field.
+```
+
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+
+### findNftsByCandyMachine
+
+The `findNftsByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+
+By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
+
+```ts
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey);
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+```
+
+Note that the current implementation of this method delegates to `findNftsByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
 
 ### uploadMetadata
 
-If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. This method accepts a metadata object where any `MetaplexFile`s inside this object will be uploaded to the current storage driver and replaced by their URI. The method also returns the URI of the uploaded JSON metadata so you can immediately use it in combination with the `createNft` method above.
+When creating or updating an NFT, you will need a URI pointing to some JSON Metadata describing the NFT. Depending on your requirement, you may do this on-chain or off-chain.
+
+If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and returns the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
 
 ```ts
+const { uri } = await metaplex.nfts().uploadMetadata({
+    name: "My NFT",
+    description: "My description",
+    image: "https://arweave.net/123",
+});
+
+console.log(uri) // https://arweave.net/789
+```
+
+Some properties inside that metadata object will also require you to upload some assets to provide their URI — such as the `image` property on the example above.
+
+To make this process easier, the `uploadMetadata` method will recognise any instances of `MetaplexFile` within the provided object and upload them in bulk to the current storage driver. It will then create a new version of the provided metadata where all instances of `MetaplexFile` are replaced with their URI. Finally, it will upload that replaced metadata to the storage driver and return it.
+
+```ts
+// Assuming the user uploaded two images via an input of type "file".
+const browserFiles = event.target.files;
+
 const { uri, metadata } = await metaplex.nfts().uploadMetadata({
     name: "My NFT",
-    image: new MetaplexFile(Buffer.from(...), 'nft-preview.jpg'),
+    image: await MetaplexFile.fromFile(browserFiles[0]),
     properties: {
         files: [
             {
                 type: "video/mp4",
-                uri: new MetaplexFile(Buffer.from(...), 'nft-animation.mp4'),
+                uri: await MetaplexFile.fromFile(browserFiles[1]),
             },
         ]
     }
@@ -108,6 +202,31 @@ console.log(metadata.image) // https://arweave.net/123
 console.log(metadata.properties.files[0].uri) // https://arweave.net/456
 console.log(uri) // https://arweave.net/789
 ```
+
+Note that `MetaplexFile`s can be created in various different ways based on where the file is coming from. You can [read more about `MetaplexFile` objects and how to use them here](#MetaplexFile).
+
+### createNft
+
+The `createNft` method accepts [a variety of parameters](/src/modules/nfts/actions/createNft.ts#L11) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+
+Here's how you can create a new NFT with minimum configuration.
+
+```ts
+const { nft } = await metaplex.nfts().createNft({
+    uri: "https://arweave.net/123",
+});
+```
+
+This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you.
+
+Additionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
+- It will fetch the JSON metadata from the provided URI and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
+- Since no owner, mint authority or update authority were provided, the “identity” of the SDK will be used by default for these parameters. Meaning the SDK's identity will be the owner of that new NFT.
+- It will also default to setting the identity as the first and only creator with a 100% share.
+- It will try to fetch the secondary sales royalties from the downloaded JSON metadata or will default to 5%.
+- It will default to making the NFT immutable — meaning you won't be able to update it later on.
+
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/modules/nfts/actions/createNft.ts#L11) accepted by the `createNft` method.
 
 ### updateNft
 
@@ -123,7 +242,7 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 
 Anything that you don’t provide in the parameters will stay unchanged.
 
-If you’d like to change the NFT metadata, you’d first need to upload a new JSON metadata and then update the NFT using its URI.
+If you’d like to change the JSON metadata of the NFT, you’d first need to upload a new metadata object using the `uploadMetadata` method and then use the provided URI to update the NFT.
 
 ```ts
 const { uri: newUri } = await metaplex.nfts().uploadMetadata({
@@ -137,13 +256,79 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 });
 ```
 
-Notice how we can use the storage driver for this. We’ll talk more about that below.
-
 ### The `Nft` model
 
 All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
 
-You can see [its full data representation here](/src/modules/nfts/models/Nft.ts).
+You can see [its full data representation by checking the code](/src/modules/nfts/models/Nft.ts) but here is an overview of the properties that are available on the `Nft` object.
+
+```ts
+// Always loaded.
+updateAuthority: PublicKey;
+mint: PublicKey;
+name: string;
+symbol: string;
+uri: string;
+sellerFeeBasisPoints: number;
+creators: Creator[] | null;
+primarySaleHappened: boolean;
+isMutable: boolean;
+editionNonce: number | null;
+tokenStandard: TokenStandard | null;
+collection: Collection | null;
+uses: Uses | null;
+
+// Sometimes loaded.
+metadata: JsonMetadata | null;
+masterEditionAccount: MasterEditionAccount | null;
+masterEdition: {
+    supply?: bignumber;
+    maxSupply?: bignumber;
+};
+```
+
+As you can see, some of the properties — such as `metadata` — are loaded on demand. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
+- If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
+- If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
+
+In order to load these properties, you may use the `metadataLoader` and `masterEditionLoader` properties of the `Nft` object.
+
+```ts
+await nft.metadataLoader.load();
+await nft.masterEditionLoader.load();
+```
+
+After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behaviour by providing the `failSilently` option to the `load` method.
+
+```ts
+await nft.metadataLoader.load({ failSilently: true });
+```
+
+Also, note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available in the `Loader` class:
+
+```ts
+class Loader<T> {
+    public getStatus(): LoaderStatus;
+    public getResult(): T | undefined;
+    public getError(): unknown;
+    public isPending(): boolean;
+    public isLoading(): boolean;
+    public isLoaded(): boolean;
+    public wasSuccessful(): boolean;
+    public wasFailed(): boolean;
+    public wasCanceled(): boolean;
+
+    public load(options?: LoaderOptions): Promise<T | undefined>;
+    public reload(options?: LoaderOptions): Promise<T | undefined>;
+    public reset(): this;
+    public loadWith(preloadedResult: T): this;
+    public setAbortSignal(abortSignal: AbortSignal): this;
+}
+```
+
+As you can see, you get a bunch of methods to check the status of the loader and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the loader and load the provided data directly — this can be useful when loading NFTs in batch.
+
+Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not cancelled and return early if it was.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
@@ -227,12 +412,16 @@ You may access the current storage driver using `metaplex.storage()` which will 
 class StorageDriver {
     getPrice(...files: MetaplexFile[]): Promise<SolAmount>;
     upload(file: MetaplexFile): Promise<string>;
-    uploadAll(files: MetaplexFile[]): Promise<string[]> {
+    uploadAll(files: MetaplexFile[]): Promise<string[]>;
     uploadJson<T extends object>(json: T): Promise<string>;
     download(uri: string): Promise<MetaplexFile>;
     downloadJson<T extends object>(uri: string): Promise<T>;
 }
 ```
+
+The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. But first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
+
+### MetaplexFile
 
 The `MetaplexFile` class is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
 
@@ -248,7 +437,45 @@ class MetaplexFile {
 }
 ```
 
-The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us.
+There are many ways of creating a `MetaplexFile`. The simplest way is to pass a `string` to the constructor with a filename. The filename is necessary to infer the extension and the mime type of the provided file.
+
+```ts
+const file = new MetaplexFile('The content of my file', 'my-file.txt');
+```
+
+You may also explicitly provide these options by passing a third parameter to the constructor.
+
+```ts
+const file = new MetaplexFile('The content of my file', 'my-file.txt', {
+    displayName = 'A Nice Title For My File'; // Defaults to the filename.
+    uniqueName = 'my-company/files/some-identifier'; // Defaults to a random string.
+    contentType = 'text/plain'; // Infer it from filename by default.
+    extension = 'txt'; // Infer it from filename by default.
+    tags = [{ name: 'my-tag', value: 'some-value' }]; // Defaults to [].
+});
+```
+
+Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a static `fromJson` method that you can use like so.
+
+```ts
+const file = MetaplexFile.fromJson({ foo: 42 });
+```
+
+In practice, you will most likely be creating `MetaplexFile`s from files either present on your computer or uploaded by some user on the browser. You can do the former by using `fs.readFileSync`.
+
+```ts
+const buffer = fs.readFileSync('/path/to/my-file.txt');
+const file = new MetaplexFile(buffer, 'my-file.txt');
+```
+
+And the latter by using the `fromFile` static method which accepts a `File` object as defined in the browser.
+
+```ts
+const browserFile: File = event.target.files[0];
+const file: MetaplexFile = await MetaplexFile.fromFile(browserFile);
+```
+
+Okay, now let’s talk about the concrete storage drivers available to us and how to set them up.
 
 ### bundlrStorage
 
@@ -304,9 +531,9 @@ metaplex.use(mockStorage());
 ```
 
 ## Next steps
-As mentioned above, this is SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
+As mentioned above, this SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
 - New features in the NFT module.
-- New modules such as a NFT Collections module, a Candy Machine module, an Action House module, etc.
+- New modules such as an NFT Collections module, a Candy Machine module, an Action House module, etc.
 - More storage drivers.
 - More identity drivers.
 - New types of drivers such as error handling, logging, etc.

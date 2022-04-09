@@ -19,6 +19,10 @@ export class GmaBuilder {
     this.publicKeys = publicKeys;
   }
 
+  static make(connection: Connection, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+    return new GmaBuilder(connection, publicKeys, options);
+  }
+
   chunkBy(n: number) {
     this.chunkSize = n;
 

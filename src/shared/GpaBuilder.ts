@@ -107,7 +107,7 @@ export class GpaBuilder {
   }
 
   lazy(): Postpone<AccountInfoWithPublicKey<Buffer>[]> {
-    return Postpone.make(this.get);
+    return Postpone.make(() => this.get());
   }
 
   async getAndMap<T>(callback: (account: AccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {

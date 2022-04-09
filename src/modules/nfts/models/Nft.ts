@@ -1,20 +1,25 @@
 import { PublicKey } from '@solana/web3.js';
+import {
+  TokenStandard,
+  Collection,
+  Uses,
+  Creator,
+  MasterEditionV2Args,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Model } from '@/shared';
 import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
-import { TokenStandard, Collection, Uses, Creator } from '@metaplex-foundation/mpl-token-metadata';
-import { bignum } from '@metaplex-foundation/beet';
-import { JsonMetadata } from './JsonMetadata';
+import { JsonMetadataLoader } from './JsonMetadataLoader';
 import { removeEmptyChars } from '@/utils';
+import { MasterEditionLoader } from './MasterEditionLoader';
+import { JsonMetadata } from './JsonMetadata';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
   public readonly metadataAccount: MetadataAccount;
 
-  /** The optional Metadata Edition PDA account associated with the NFT. */
-  public readonly masterEditionAccount: MasterEditionAccount | null;
-
-  /** The JSON metadata from the URI. */
-  public readonly metadata: JsonMetadata | null;
+  /** Loaders. */
+  public readonly metadataLoader: JsonMetadataLoader;
+  public readonly masterEditionLoader: MasterEditionLoader;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -31,19 +36,11 @@ export class Nft extends Model {
   public readonly collection: Collection | null;
   public readonly uses: Uses | null;
 
-  /** Data from the MasterEdition account. */
-  public readonly supply: bignum | null;
-  public readonly maxSupply: bignum | null;
-
-  constructor(
-    metadataAccount: MetadataAccount,
-    masterEditionAccount: MasterEditionAccount | null = null,
-    metadata: JsonMetadata | null = null
-  ) {
+  constructor(metadataAccount: MetadataAccount) {
     super();
     this.metadataAccount = metadataAccount;
-    this.masterEditionAccount = masterEditionAccount;
-    this.metadata = metadata;
+    this.metadataLoader = new JsonMetadataLoader(this);
+    this.masterEditionLoader = new MasterEditionLoader(this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
@@ -58,8 +55,23 @@ export class Nft extends Model {
     this.tokenStandard = metadataAccount.data.tokenStandard;
     this.collection = metadataAccount.data.collection;
     this.uses = metadataAccount.data.uses;
+  }
 
-    this.supply = masterEditionAccount?.data.supply ?? null;
-    this.maxSupply = masterEditionAccount?.data.maxSupply ?? null;
+  get metadata(): JsonMetadata {
+    return this.metadataLoader.getResult() ?? {};
+  }
+
+  get masterEditionAccount(): MasterEditionAccount | null {
+    return this.masterEditionLoader.getResult() ?? null;
+  }
+
+  get masterEdition(): Partial<Omit<MasterEditionV2Args, 'key'>> {
+    return this.masterEditionAccount?.data ?? {};
+  }
+
+  public is(other: Nft | PublicKey): boolean {
+    const mint = other instanceof Nft ? other.mint : other;
+
+    return this.mint.equals(mint);
   }
 }
