@@ -51,7 +51,7 @@ test('it can create and update the nft', async (t: Test) => {
     primarySaleHappened: true,
   } as unknown as Specifications<Nft>);
 
-  const foundUpdatedNft = await mx.nfts().findNft({ mint: createdNft.mint });
+  const foundUpdatedNft = await mx.nfts().findNftByMint(createdNft.mint);
   spok(t, foundUpdatedNft, {
     $topic: 'check-downloaded-nft',
     name: 'Updated On-chain NFT name',
