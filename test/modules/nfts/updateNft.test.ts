@@ -39,9 +39,21 @@ test('it can create and update the nft', async (t: Test) => {
     uri: updatedMetadataUri,
     isMutable: false,
   });
-
   spok(t, updated_nft, {
     $topic: 'update-nft',
+    name: 'Updated On-chain NFT name',
+    uri: updatedMetadataUri,
+    metadata: {
+      name: 'Updated JSON NFT name',
+      description: 'Updated JSON NFT description',
+      image: updatedImageUri,
+    },
+    primarySaleHappened: true,
+  } as unknown as Specifications<Nft>);
+
+  const foundUpdatedNft = await mx.nfts().findNft({ mint: createdNft.mint });
+  spok(t, foundUpdatedNft, {
+    $topic: 'check-downloaded-nft',
     name: 'Updated On-chain NFT name',
     uri: updatedMetadataUri,
     metadata: {
