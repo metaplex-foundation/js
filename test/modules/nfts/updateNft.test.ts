@@ -37,6 +37,7 @@ test('it can create and update the nft', async (t: Test) => {
     name: 'Updated On-chain NFT name',
     primarySaleHappened: true,
     uri: updatedMetadataUri,
+    isMutable: false,
   });
 
   spok(t, updated_nft, {
