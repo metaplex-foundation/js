@@ -1,65 +1,60 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { Nft, MetaplexFile, JsonMetadata } from '@/index';
-import { metaplex } from '../../helpers';
-// import { Keypair } from '@solana/web3.js';
+import { Nft, MetaplexFile } from '@/index';
+import { metaplex, createNft } from '../../helpers';
 
-test('it can create and update the nft', async (t: Test) => {
+test('it can update the on-chain data of an nft', async (t: Test) => {
   // Given we have a Metaplex instance.
-
   const mx = await metaplex();
-  const imageFile = new MetaplexFile('some_image', 'some-image.jpg');
-  const imageUri = await mx.storage().upload(imageFile);
 
-  // And we uploaded some metadata containing this image.
-  const metadataUri = await mx.storage().uploadJson<JsonMetadata>({
+  // And an existing NFT.
+  const nft = await createNft(mx, {
     name: 'JSON NFT name',
     description: 'JSON NFT description',
-    image: imageUri,
-  });
-
-
-  const { nft: createdNft } = await mx.nfts().createNft({
-    uri: metadataUri,
+    image: new MetaplexFile('some image', 'some-image.jpg'),
+  }, {
     name: 'On-chain NFT name',
     isMutable: true,
   });
 
-  const updatedImageFile = new MetaplexFile('updated_image', 'updated-image.jpg');
-  const updatedImageUri: string = await mx.storage().upload(updatedImageFile);
-  const updatedMetadataUri: string = await mx.storage().uploadJson<JsonMetadata>({
+  // And some new updated metadata that has been uploadeds.
+  const { uri: updatedUri, metadata: updatedMetadata } = await mx.nfts().uploadMetadata({
     name: 'Updated JSON NFT name',
     description: 'Updated JSON NFT description',
-    image: updatedImageUri,
+    image: new MetaplexFile('updated image', 'updated-image.jpg'),
   });
 
-  const { nft: updated_nft }: { nft: Nft } = await mx.nfts().updateNft(createdNft, {
+  // When we update the NFT with new on-chain data.
+  const { nft: updatedNft } = await mx.nfts().updateNft(nft, {
     name: 'Updated On-chain NFT name',
     primarySaleHappened: true,
-    uri: updatedMetadataUri,
+    uri: updatedUri,
     isMutable: false,
   });
-  spok(t, updated_nft, {
+
+  // Then the returned NFT should have the updated data.
+  spok(t, updatedNft, {
     $topic: 'update-nft',
     name: 'Updated On-chain NFT name',
-    uri: updatedMetadataUri,
+    uri: updatedUri,
     metadata: {
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
-      image: updatedImageUri,
+      image: updatedMetadata.image,
     },
     primarySaleHappened: true,
   } as unknown as Specifications<Nft>);
 
-  const foundUpdatedNft = await mx.nfts().findNftByMint(createdNft.mint);
+  // And the same goes if we try to fetch the NFT again.
+  const foundUpdatedNft = await mx.nfts().findNftByMint(nft.mint);
   spok(t, foundUpdatedNft, {
     $topic: 'check-downloaded-nft',
     name: 'Updated On-chain NFT name',
-    uri: updatedMetadataUri,
+    uri: updatedUri,
     metadata: {
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
-      image: updatedImageUri,
+      image: updatedMetadata.image,
     },
     primarySaleHappened: true,
   } as unknown as Specifications<Nft>);
