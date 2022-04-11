@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
-    "@bundlr-network/client": "^0.6.1-rc4",
+    "@bundlr-network/client": "^0.7.1",
     "@metaplex-foundation/beet": "^0.1.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
     "@metaplex-foundation/mpl-token-metadata": "^2.1.0",

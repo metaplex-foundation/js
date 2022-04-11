@@ -911,10 +911,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@bundlr-network/client@^0.6.1-rc4":
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/@bundlr-network/client/-/client-0.6.5.tgz#742fee2c4110c47e83234271155a666436c9773f"
-  integrity sha512-oKWhIj5zLyUedL78yxVbWIVKUCVpWaEZO0xbQfWxWPsLTNa+OdscpyudaCdG4Sb6hA9ks/gOOMb4+8pMR4WONg==
+"@bundlr-network/client@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@bundlr-network/client/-/client-0.7.1.tgz#87c3c28d580ce73cdabbb8f1e0a27d0f1d5aad5c"
+  integrity sha512-AcFn1M1/tWiXClwDkj59g8LcXaviUd3JPaI3kXqql1fozNrLRQJfuP3o+M7HTIGN48aTuZFfTOWhbHTCqr/ZWg==
   dependencies:
     "@solana/wallet-adapter-base" "^0.9.2"
     "@solana/web3.js" "^1.36.0"
