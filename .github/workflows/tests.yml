@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["16.x"]
-        solana: ["1.9.13"]
+        node: ["14.x", "16.x"]
+        solana: ["1.9.15"]
 
     steps:
     - uses: actions/checkout@v2

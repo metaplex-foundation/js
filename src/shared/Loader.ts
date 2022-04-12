@@ -1,3 +1,4 @@
+import { AbortSignal } from 'abort-controller';
 import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
@@ -10,13 +11,9 @@ export abstract class Loader<T> {
   protected status: LoaderStatus = 'pending';
   protected result?: T;
   protected error?: unknown;
-  protected abortSignal: AbortSignal;
+  protected abortSignal?: AbortSignal;
 
   public abstract handle(metaplex: Metaplex): Promise<T>;
-
-  constructor() {
-    this.abortSignal = new AbortController().signal;
-  }
 
   setAbortSignal(abortSignal: AbortSignal) {
     this.abortSignal = abortSignal;
@@ -35,7 +32,7 @@ export abstract class Loader<T> {
       this.status = 'canceled';
       this.error = reason;
     };
-    this.abortSignal.addEventListener('abort', abortListener, { once: true });
+    this.abortSignal?.addEventListener('abort', abortListener, { once: true });
 
     try {
       // Start loading.
@@ -69,7 +66,7 @@ export abstract class Loader<T> {
       throw error;
     } finally {
       // Clean up the abort listener.
-      this.abortSignal.removeEventListener('abort', abortListener);
+      this.abortSignal?.removeEventListener('abort', abortListener);
     }
   }
 

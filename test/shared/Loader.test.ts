@@ -1,4 +1,5 @@
 import test, { Test } from 'tape';
+import { AbortController } from 'abort-controller';
 import { Loader } from '@/index';
 import { metaplexGuest } from 'test/helpers';
 
@@ -109,7 +110,6 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   // Then the loader was marked as canceled.
   t.equal(loader.getStatus(), 'canceled');
   t.equal(loader.getResult(), undefined);
-  t.true(loader.getError() instanceof Event);
   t.equal((loader.getError() as Event).type, 'abort');
 });
 

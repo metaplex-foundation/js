@@ -56,10 +56,12 @@
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.37.0",
+    "abort-controller": "^3.0.0",
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
+    "cross-fetch": "^3.1.5",
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "mime": "^3.0.0",
@@ -83,6 +85,6 @@
     "typescript": "^4.5.4"
   },
   "engines": {
-    "node": ">=16.0"
+    "node": "^14.0 || >=16.0"
   }
 }
