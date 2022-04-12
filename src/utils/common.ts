@@ -1,4 +1,3 @@
-import fetch from 'cross-fetch';
 import mime from 'mime';
 
 // eslint-disable-next-line no-control-regex
@@ -34,16 +33,6 @@ export const zipMap = <T, U, V>(
   right: U[],
   fn: (t: T, u: U | null, i: number) => V
 ): V[] => left.map((t: T, index) => fn(t, right?.[index] ?? null, index));
-
-export const fetchJson = async <T>(uri: string): Promise<T | null> => {
-  try {
-    const response = await fetch(uri);
-    const metadata: T = await response.json();
-    return metadata;
-  } catch (error) {
-    return null;
-  }
-};
 
 export const randomStr = (
   length: number = 20,
