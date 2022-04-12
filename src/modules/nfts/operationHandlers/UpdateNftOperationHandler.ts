@@ -12,6 +12,7 @@ export class UpdateNftOperationHandler extends OperationHandler<UpdateNftOperati
       primarySaleHappened = nft.primarySaleHappened,
       isMutable = nft.isMutable,
       updateAuthority = this.metaplex.identity(),
+      confirmOptions,
     } = operation.input;
 
     const data = this.resolveData(operation.input);
@@ -28,7 +29,7 @@ export class UpdateNftOperationHandler extends OperationHandler<UpdateNftOperati
         metadata,
       }),
       undefined,
-      this.confirmOptions
+      confirmOptions
     );
 
     return { transactionId };

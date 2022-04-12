@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Collection, Creator, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Operation, Signer } from '@/shared';
 import { Nft } from '../models';
@@ -22,6 +22,9 @@ export interface UpdateNftInput {
 
   // Signers.
   updateAuthority?: Signer;
+
+  // Options.
+  confirmOptions?: ConfirmOptions;
 }
 
 export interface UpdateNftOutput {

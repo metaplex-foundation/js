@@ -1,4 +1,3 @@
-import { ConfirmOptions } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { InputOfOperation, Operation, OutputOfOperation } from './Operation';
 
@@ -7,7 +6,7 @@ export type OperationHandlerConstructor<
   I = InputOfOperation<T>,
   O = OutputOfOperation<T>
 > = {
-  new (metaplex: Metaplex, confirmOptions?: ConfirmOptions): OperationHandler<T, I, O>;
+  new (metaplex: Metaplex): OperationHandler<T, I, O>;
 };
 
 export abstract class OperationHandler<
@@ -16,11 +15,9 @@ export abstract class OperationHandler<
   O = OutputOfOperation<T>
 > {
   public metaplex: Metaplex;
-  public confirmOptions?: ConfirmOptions;
 
-  constructor(metaplex: Metaplex, confirmOptions?: ConfirmOptions) {
+  constructor(metaplex: Metaplex) {
     this.metaplex = metaplex;
-    this.confirmOptions = confirmOptions;
   }
 
   public abstract handle(operation: T): Promise<O>;

@@ -18,6 +18,7 @@ import {
   InputOfOperation,
   Operation,
   OperationConstructor,
+  OperationHandler,
   OperationHandlerConstructor,
   OutputOfOperation,
   TransactionBuilder,
@@ -158,23 +159,26 @@ export class Metaplex {
     return this;
   }
 
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T,
-    confirmOptions?: ConfirmOptions
-  ): Promise<O> {
+  getOperationHandler<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+    operation: T
+  ): OperationHandler<T, I, O> {
     const operationHandler = this.operationHandlers.get(operation.constructor) as
       | OperationHandlerConstructor<T, I, O>
       | undefined;
 
     if (!operationHandler) {
       // TODO: Custom errors.
-
-      throw new SendTransactionError(
-        `No operation handler registered for ${operation.constructor.name}`
-      );
+      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
     }
 
-    const handler = new operationHandler(this, confirmOptions);
+    return new operationHandler(this);
+  }
+
+  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+    operation: T
+  ): Promise<O> {
+    const handler = this.getOperationHandler<T, I, O>(operation);
+
     return handler.handle(operation);
   }
 }

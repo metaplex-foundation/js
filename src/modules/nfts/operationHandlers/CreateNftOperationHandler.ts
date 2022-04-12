@@ -22,6 +22,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
       freezeAuthority,
       tokenProgram,
       associatedTokenProgram,
+      confirmOptions,
     } = operation.input;
 
     const metadata: JsonMetadata = await this.metaplex.storage().downloadJson(uri);
@@ -57,7 +58,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
         associatedTokenProgram,
       }),
       undefined,
-      this.confirmOptions
+      confirmOptions
     );
 
     return {

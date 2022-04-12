@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { Creator, Collection, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Operation, Signer } from '@/shared';
@@ -31,6 +31,9 @@ export interface CreateNftInput {
   // Programs.
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
+
+  // Options.
+  confirmOptions?: ConfirmOptions;
 }
 
 export interface CreateNftOutput {
