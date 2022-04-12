@@ -1,3 +1,4 @@
+import fetch from 'cross-fetch';
 import { SolAmount } from '@/shared';
 import { Driver } from '../Driver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
