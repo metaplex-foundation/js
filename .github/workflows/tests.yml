@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         node: ["14.x", "16.x"]
-        solana: ["1.9.13"]
+        solana: ["1.9.15"]
 
     steps:
     - uses: actions/checkout@v2
