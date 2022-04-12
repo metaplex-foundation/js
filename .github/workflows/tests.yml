@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["16.x"]
+        node: ["^14.17.0", "16.x"]
         solana: ["1.9.13"]
 
     steps:
