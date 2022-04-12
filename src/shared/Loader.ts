@@ -1,4 +1,4 @@
-import { AbortSignal } from "abort-controller";
+import { AbortSignal } from 'abort-controller';
 import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
