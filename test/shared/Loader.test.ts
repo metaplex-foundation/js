@@ -101,11 +101,10 @@ test('it can be aborted using an AbortController', async (t: Test) => {
 
   // And an abort controller used to cancel the loader.
   const abortController = new AbortController();
-  loader.setAbortSignal(abortController.signal);
 
   // When we load the loader and abort after 10ms.
   setTimeout(() => abortController.abort(), 10);
-  await loader.load(mx);
+  await loader.load(mx, { signal: abortController.signal });
 
   // Then the loader was marked as canceled.
   t.equal(loader.getStatus(), 'canceled');

@@ -1,3 +1,4 @@
+import { AbortSignal } from 'abort-controller';
 import mime from 'mime';
 
 // eslint-disable-next-line no-control-regex
@@ -83,3 +84,30 @@ export const walk = (
     });
   }
 };
+
+export type CancelableOptions = {
+  isCanceled?: () => boolean;
+};
+
+export const cancelable = <T = unknown>(callback: (options: CancelableOptions) => Promise<T>, signal?: AbortSignal): Promise<T> => {
+  let canceled = false;
+  let cancelationError = null;
+  const isCanceled = () => canceled;
+  const getCancelationError = () => cancelationError;
+
+  if (!signal) {
+    return callback({ isCanceled });
+  }
+
+  const abortListener = (error: unknown) => {
+    canceled = true;
+    cancelationError = error;
+  };
+
+  signal.addEventListener('abort', abortListener, { once: true });
+}
+
+
+cancelable(() => {
+  
+}, signal)

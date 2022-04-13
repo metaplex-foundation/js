@@ -5,21 +5,15 @@ export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'ca
 
 export interface LoaderOptions {
   failSilently?: boolean;
+  signal?: AbortSignal;
 }
 
 export abstract class Loader<T> {
   protected status: LoaderStatus = 'pending';
   protected result?: T;
   protected error?: unknown;
-  protected abortSignal?: AbortSignal;
 
   public abstract handle(metaplex: Metaplex): Promise<T>;
-
-  setAbortSignal(abortSignal: AbortSignal) {
-    this.abortSignal = abortSignal;
-
-    return this;
-  }
 
   public async reload(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
     if (this.isLoading()) {
@@ -28,11 +22,12 @@ export abstract class Loader<T> {
     }
 
     // Prepare abort listener.
+    const signal = options.signal;
     const abortListener = (reason: unknown) => {
       this.status = 'canceled';
       this.error = reason;
     };
-    this.abortSignal?.addEventListener('abort', abortListener, { once: true });
+    signal?.addEventListener('abort', abortListener, { once: true });
 
     try {
       // Start loading.
@@ -66,7 +61,7 @@ export abstract class Loader<T> {
       throw error;
     } finally {
       // Clean up the abort listener.
-      this.abortSignal?.removeEventListener('abort', abortListener);
+      signal?.removeEventListener('abort', abortListener);
     }
   }
 
