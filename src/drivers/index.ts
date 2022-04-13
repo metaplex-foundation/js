@@ -1,4 +1,4 @@
 export * from './Driver';
-export * from './filesystem';
-export * from './identity';
-export * from './storage';
+export * from './filesystem/index';
+export * from './identity/index';
+export * from './storage/index';

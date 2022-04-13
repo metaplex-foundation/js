@@ -4,7 +4,7 @@ import {
   createAssociatedTokenAccountInstruction,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { TransactionBuilder, Signer } from '@/shared';
+import { TransactionBuilder, Signer } from '@/shared/index';
 
 export interface CreateAssociatedTokenAccountBuilderParams {
   payer: Signer;

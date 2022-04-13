@@ -3,7 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { SolAmount } from '@/shared';
+import { SolAmount } from '@/shared/index';
 
 export const awsStorage = (client: S3Client, bucketName: string): MetaplexPlugin => ({
   install(metaplex: Metaplex) {

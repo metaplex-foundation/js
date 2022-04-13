@@ -6,10 +6,10 @@ import {
   Creator,
   MasterEditionV2Args,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Model } from '@/shared';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { Model } from '@/shared/index';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata/index';
 import { JsonMetadataLoader } from './JsonMetadataLoader';
-import { removeEmptyChars } from '@/utils';
+import { removeEmptyChars } from '@/utils/index';
 import { MasterEditionLoader } from './MasterEditionLoader';
 import { JsonMetadata } from './JsonMetadata';
 

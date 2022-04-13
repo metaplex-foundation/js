@@ -4,9 +4,9 @@ import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
-import { PlanUploadMetadataOperation } from '@/modules';
+import { PlanUploadMetadataOperation } from '@/modules/index';
 import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
-import { SolAmount } from '@/shared';
+import { SolAmount } from '@/shared/index';
 
 export interface BundlrOptions {
   address?: string;

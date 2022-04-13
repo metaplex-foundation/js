@@ -1,8 +1,8 @@
 import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
-import { OperationHandler } from '@/shared';
-import { MetadataAccount } from '@/programs';
-import { UpdateNftInput, UpdateNftOperation, UpdateNftOutput } from '../operations';
-import { updateNftBuilder } from '../transactionBuilders';
+import { OperationHandler } from '@/shared/index';
+import { MetadataAccount } from '@/programs/index';
+import { UpdateNftInput, UpdateNftOperation, UpdateNftOutput } from '../operations/index';
+import { updateNftBuilder } from '../transactionBuilders/index';
 
 export class UpdateNftOperationHandler extends OperationHandler<UpdateNftOperation> {
   public async handle(operation: UpdateNftOperation): Promise<UpdateNftOutput> {

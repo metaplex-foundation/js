@@ -1,9 +1,9 @@
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/shared/index';
 import {
   PlanUploadMetadataOperation,
   UploadMetadataOperation,
   UploadMetadataOutput,
-} from '../operations';
+} from '../operations/index';
 
 export class UploadMetadataOperationHandler extends OperationHandler<UploadMetadataOperation> {
   public async handle(operation: UploadMetadataOperation): Promise<UploadMetadataOutput> {

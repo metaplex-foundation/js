@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { GpaBuilder } from '@/shared';
+import { GpaBuilder } from '@/shared/index';
 import { Key } from '@metaplex-foundation/mpl-token-metadata';
 import { MetadataV1GpaBuilder } from './MetadataV1GpaBuilder';
 

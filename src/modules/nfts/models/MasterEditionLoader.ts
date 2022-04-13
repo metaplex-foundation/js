@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
-import { MasterEditionAccount } from '@/programs';
-import { Loader } from '@/shared';
+import { MasterEditionAccount } from '@/programs/index';
+import { Loader } from '@/shared/index';
 import { Nft } from './Nft';
 
 export class MasterEditionLoader extends Loader<MasterEditionAccount | null> {

@@ -13,7 +13,7 @@ import {
   SendTransactionError,
   TransactionError,
 } from '@solana/web3.js';
-import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
+import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers/index';
 import {
   InputOfOperation,
   Operation,
@@ -24,8 +24,8 @@ import {
   TransactionBuilder,
   Signer,
   getSignerHistogram,
-} from '@/shared';
-import { nftPlugin } from '@/modules';
+} from '@/shared/index';
+import { nftPlugin } from '@/modules/index';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 export type MetaplexOptions = {

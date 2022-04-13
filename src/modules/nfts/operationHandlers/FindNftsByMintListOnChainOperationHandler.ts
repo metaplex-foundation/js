@@ -1,6 +1,6 @@
-import { MetadataAccount } from '@/programs';
-import { GmaBuilder, OperationHandler } from '@/shared';
-import { Nft } from '../models';
+import { MetadataAccount } from '@/programs/index';
+import { GmaBuilder, OperationHandler } from '@/shared/index';
+import { Nft } from '../models/index';
 import { FindNftsByMintListOperation } from '../operations/FindNftsByMintListOperation';
 
 export class FindNftsByMintListOnChainOperationHandler extends OperationHandler<FindNftsByMintListOperation> {

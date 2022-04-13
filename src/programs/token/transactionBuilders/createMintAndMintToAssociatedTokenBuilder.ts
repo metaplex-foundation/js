@@ -3,8 +3,8 @@ import {
   createMintBuilder,
   createAssociatedTokenAccountBuilder,
   mintToBuilder,
-} from '@/programs/token';
-import { TransactionBuilder, Signer } from '@/shared';
+} from '@/programs/token/index';
+import { TransactionBuilder, Signer } from '@/shared/index';
 
 export interface CreateMintAndMintToAssociatedTokenBuilderParams {
   // Data.

@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { getContentType, getExtension, randomStr } from '@/utils';
+import { getContentType, getExtension, randomStr } from '@/utils/index';
 
 export interface MetaplexFileOptions {
   displayName?: string;

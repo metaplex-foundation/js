@@ -1,8 +1,8 @@
 import { AccountInfo, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenMetadataProgram } from '@/programs/tokenMetadata';
-import { Account, Pda } from '@/shared';
+import { TokenMetadataProgram } from '@/programs/tokenMetadata/index';
+import { Account, Pda } from '@/shared/index';
 
 export class MetadataAccount extends Account<Metadata> {
   static async pda(mint: PublicKey): Promise<Pda> {

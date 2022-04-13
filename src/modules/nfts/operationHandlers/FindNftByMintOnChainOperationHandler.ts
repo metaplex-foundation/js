@@ -1,7 +1,7 @@
-import { OperationHandler } from '@/shared';
-import { Nft } from '../models';
+import { OperationHandler } from '@/shared/index';
+import { Nft } from '../models/index';
 import { FindNftByMintOperation } from '../operations/FindNftByMintOperation';
-import { MasterEditionAccount, MetadataAccount } from '@/programs';
+import { MasterEditionAccount, MetadataAccount } from '@/programs/index';
 
 export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindNftByMintOperation> {
   public async handle(operation: FindNftByMintOperation): Promise<Nft> {

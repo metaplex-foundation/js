@@ -1,6 +1,6 @@
 import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { chunk, zipMap } from '@/utils';
+import { chunk, zipMap } from '@/utils/index';
 import { MaybeAccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
 import { Postpone } from './Postpone';
 

@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
-import { Loader } from '@/shared';
-import { removeEmptyChars } from '@/utils';
+import { Loader } from '@/shared/index';
+import { removeEmptyChars } from '@/utils/index';
 import { JsonMetadata } from './JsonMetadata';
 import { Nft } from './Nft';
 

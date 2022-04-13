@@ -1,6 +1,6 @@
 import { Connection } from '@solana/web3.js';
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenMetadataGpaBuilder } from './gpaBuilders';
+import { TokenMetadataGpaBuilder } from './gpaBuilders/index';
 
 export const TokenMetadataProgram = {
   publicKey: PROGRAM_ID,

@@ -2,9 +2,9 @@ import {
   PlanUploadMetadataOperation,
   PlanUploadMetadataOperationHandler,
   UploadMetadataOutput,
-} from '@/modules';
-import { Plan } from '@/shared';
-import { MetaplexFile } from '../filesystem';
+} from '@/modules/index';
+import { Plan } from '@/shared/index';
+import { MetaplexFile } from '../filesystem/index';
 import { BundlrStorageDriver } from './BundlrStorageDriver';
 
 export class PlanUploadMetadataUsingBundlrOperationHandler extends PlanUploadMetadataOperationHandler {
