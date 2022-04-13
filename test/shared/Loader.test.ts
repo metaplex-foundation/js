@@ -55,10 +55,8 @@ test('it can fail', async (t: Test) => {
   // When we load the loader.
   try {
     await loader.load(mx);
-  }
-  
-  // Then the loader is marked as failed and we kept track of the error.
-  catch (error) {
+  } catch (error) {
+    // Then the loader is marked as failed and we kept track of the error.
     t.equal(loader.getStatus(), 'failed');
     t.equal(loader.getResult(), undefined);
     t.equal(loader.getError(), error);
@@ -80,7 +78,7 @@ test('it can fail silently', async (t: Test) => {
   // When we load the loader using the "failSilently" option
   // outside of a try/catch.
   await loader.load(mx, { failSilently: true });
-  
+
   // Then execution continues but the loader was marked as failed
   // and we kept track of the error.
   t.equal(loader.getStatus(), 'failed');
@@ -95,7 +93,7 @@ test('it can be aborted using an AbortController', async (t: Test) => {
 
   // And a test loader that returns a number after 100ms.
   const loader = new TestLoader(async () => {
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     return 42;
   });
 
@@ -125,7 +123,7 @@ test('it can be reset', async (t: Test) => {
 
   // When we reset the loader.
   loader.reset();
-  
+
   // Then the loader was marked as pending.
   t.equal(loader.getStatus(), 'pending');
   t.equal(loader.getResult(), undefined);

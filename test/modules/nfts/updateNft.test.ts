@@ -8,14 +8,18 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
   const mx = await metaplex();
 
   // And an existing NFT.
-  const nft = await createNft(mx, {
-    name: 'JSON NFT name',
-    description: 'JSON NFT description',
-    image: new MetaplexFile('some image', 'some-image.jpg'),
-  }, {
-    name: 'On-chain NFT name',
-    isMutable: true,
-  });
+  const nft = await createNft(
+    mx,
+    {
+      name: 'JSON NFT name',
+      description: 'JSON NFT description',
+      image: new MetaplexFile('some image', 'some-image.jpg'),
+    },
+    {
+      name: 'On-chain NFT name',
+      isMutable: true,
+    }
+  );
 
   // And some new updated metadata that has been uploadeds.
   const { uri: updatedUri, metadata: updatedMetadata } = await mx.nfts().uploadMetadata({

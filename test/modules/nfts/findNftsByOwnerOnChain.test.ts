@@ -14,9 +14,9 @@ test('it can fetch all NFTs in a wallet', async (t: Test) => {
   const nfts = await mx.nfts().findNftsByOwner(owner);
 
   // Then we get the right NFTs.
-  t.same(nfts.map(nft => nft.name).sort(), ['NFT A', 'NFT B']);
-  t.same(nfts.map(nft => nft.mint.toBase58()).sort(), [
-    nftA.mint.toBase58(),
-    nftB.mint.toBase58()
-  ].sort());
+  t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);
+  t.same(
+    nfts.map((nft) => nft.mint.toBase58()).sort(),
+    [nftA.mint.toBase58(), nftB.mint.toBase58()].sort()
+  );
 });
