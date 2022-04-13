@@ -41,7 +41,7 @@
     "build:esm": "ttsc -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "build:cjs": "ttsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build:test": "ttsc -p test/tsconfig.json",
-    "amman:start": "DEBUG='amman*' amman start",
+    "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "test": "yarn build:test && tape dist/test/**/*.test.js",
     "lint": "prettier -c .",
