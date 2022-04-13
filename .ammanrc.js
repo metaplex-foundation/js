@@ -15,7 +15,9 @@ const programIds = {
 };
 
 const programs = [
-  { programId: programIds.metadata, deployPath: localDeployPath('mpl_token_metadata') },
+  { 
+    label: 'Metadata',
+    programId: programIds.metadata, deployPath: localDeployPath('mpl_token_metadata') },
 ];
 
 module.exports = {
