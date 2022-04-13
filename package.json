@@ -41,8 +41,8 @@
     "build:esm": "ttsc -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "build:cjs": "ttsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build:test": "ttsc -p test/tsconfig.json",
-    "amman:start": "DEBUG='amman*' amman validator",
-    "amman:stop": "pkill solana-test-validator",
+    "amman:start": "DEBUG='amman*' amman start",
+    "amman:stop": "amman stop",
     "test": "yarn build:test && tape dist/test/**/*.test.js",
     "lint": "prettier -c .",
     "lint:fix": "prettier --write ."
@@ -68,7 +68,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@metaplex-foundation/amman": "^0.1.0",
+    "@metaplex-foundation/amman": "^0.5.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@types/bn.js": "^5.1.0",
     "@types/lodash.clonedeep": "^4.5.6",
