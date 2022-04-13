@@ -12,7 +12,10 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   const nfts = await mx.nfts().findNftsByMintList([nftA.mint, nftB.mint]);
 
   // Then we get the right NFTs.
-  t.same(nfts.map(nft => nft?.name), ['NFT A', 'NFT B']);
+  t.same(
+    nfts.map((nft) => nft?.name),
+    ['NFT A', 'NFT B']
+  );
   t.true(nfts[0]?.is(nftA));
   t.true(nfts[1]?.is(nftB));
 });
@@ -27,14 +30,13 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   const emptyMintB = Keypair.generate().publicKey;
 
   // When we fetch NFTs matching all these addresses.
-  const nfts = await mx.nfts().findNftsByMintList([
-    emptyMintA,
-    nft.mint,
-    emptyMintB,
-  ]);
+  const nfts = await mx.nfts().findNftsByMintList([emptyMintA, nft.mint, emptyMintB]);
 
   // Then we get null for mint not associated to any NFT.
-  t.same(nfts.map(nft => nft?.name ?? null), [null, 'Some NFT', null]);
+  t.same(
+    nfts.map((nft) => nft?.name ?? null),
+    [null, 'Some NFT', null]
+  );
 });
 
 test('it does not load the NFT metadata or master edition by default', async (t: Test) => {

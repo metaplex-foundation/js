@@ -1,6 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
-import { bignum } from "@metaplex-foundation/beet";
-import BN from "bn.js";
+import { PublicKey } from '@solana/web3.js';
+import { bignum } from '@metaplex-foundation/beet';
+import BN from 'bn.js';
 import { Specification } from 'spok';
 
 export function spokSamePubkey(a: PublicKey | null): Specification<PublicKey> {

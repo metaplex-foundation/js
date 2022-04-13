@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
 import { metaplex } from '../../helpers';
@@ -6,21 +6,21 @@ import { awsStorage, MetaplexFile } from '@/index';
 
 const awsClient = {
   async send() {
-    return {}
+    return {};
   },
   config: {
     async region() {
       return 'us-east';
-    }
-  }
+    },
+  },
 } as unknown as S3Client;
 
 test('it can upload assets to a S3 bucket', async (t: Test) => {
   // Given a mock awsClient.
   const stub = sinon.spy(awsClient);
 
-	// Fed to a Metaplex instance.
-	const mx = await metaplex();
+  // Fed to a Metaplex instance.
+  const mx = await metaplex();
   mx.use(awsStorage(awsClient, 'some-bucket'));
 
   // When we upload some content to AWS S3.
