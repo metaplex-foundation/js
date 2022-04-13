@@ -11,13 +11,20 @@ const programIds = {
   auction: 'auctxRXPeJoc4817jDhf4HbjnhEcr1cCXenosMhK5R8',
   metaplex: 'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98',
   fixedPriceSaleToken: 'SaLeTjyUa5wXHnGuewUSyJ5JWZaHwz3TxqUntCE9czo',
-  candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ'
+  candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ',
 };
 
 const programs = [
-  { 
-    label: 'Metadata',
-    programId: programIds.metadata, deployPath: localDeployPath('mpl_token_metadata') },
+  {
+    label: 'Token Metadata',
+    programId: programIds.metadata,
+    deployPath: localDeployPath('mpl_token_metadata'),
+  },
+  {
+    label: 'Candy Machine',
+    programId: programIds.candyMachine,
+    deployPath: localDeployPath('mpl_candy_machine'),
+  },
 ];
 
 module.exports = {
@@ -30,5 +37,5 @@ module.exports = {
     ledgerDir: tmpLedgerDir(),
     resetLedger: true,
     verifyFees: false,
-  }
-}
+  },
+};
