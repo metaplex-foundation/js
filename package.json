@@ -65,7 +65,6 @@
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "mime": "^3.0.0",
-    "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
