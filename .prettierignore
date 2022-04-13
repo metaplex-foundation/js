@@ -1,0 +1,11 @@
+**/.git
+**/.github
+**/node_modules
+**/dist
+
+.ammanrc.js
+.prettierrc
+package.json
+tsconfig.cjs.json
+tsconfig.json
+README.md
