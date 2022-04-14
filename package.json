@@ -40,7 +40,7 @@
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
     "build": "yarn clean && yarn build:esm && yarn build:cjs",
-    "build:esm": "ttsc -p tsconfig.json && tsc-esm -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
+    "build:esm": "ttsc -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "build:cjs": "ttsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build:test": "ttsc -p test/tsconfig.json",
     "amman:start": "DEBUG='amman*' amman validator",

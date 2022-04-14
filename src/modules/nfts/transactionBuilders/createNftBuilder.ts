@@ -2,7 +2,10 @@ import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { createMintAndMintToAssociatedTokenBuilder } from '@/programs/token/index';
-import { createMetadataV2Builder, createMasterEditionV3Builder } from '@/programs/tokenMetadata/index';
+import {
+  createMetadataV2Builder,
+  createMasterEditionV3Builder,
+} from '@/programs/tokenMetadata/index';
 import { TransactionBuilder, Signer } from '@/shared/index';
 
 export interface CreateNftBuilderParams {
