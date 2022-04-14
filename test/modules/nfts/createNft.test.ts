@@ -2,8 +2,8 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { JsonMetadata, MetaplexFile, Nft } from '@/index';
-import { metaplex, spokSamePubkey, spokSameBignum, killStuckProcess } from '../../helpers';
+import { JsonMetadata, MetaplexFile, Nft } from '../../../src/index.js';
+import { metaplex, spokSamePubkey, spokSameBignum, killStuckProcess } from '../../helpers/index.js';
 
 killStuckProcess();
 

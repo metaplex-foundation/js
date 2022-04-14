@@ -8,15 +8,6 @@
     "sourceMap": true,
     "noEmit": false,
     "noEmitOnError": true,
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "plugins": [
-      {
-        "transform": "@ovos-media/ts-transform-paths",
-        "exclude": ["*"]
-      }
-    ],
 
     "target": "es2019",
     "module": "esnext",

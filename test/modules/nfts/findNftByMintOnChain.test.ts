@@ -1,6 +1,6 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplex, createNft } from 'test/helpers';
+import { metaplex, createNft } from '../../helpers/index.js';
 
 test('it can fetch an NFT by its mint address', async (t: Test) => {
   // Given a metaplex instance and an existing NFT.

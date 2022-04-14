@@ -1,7 +1,7 @@
-import { Metaplex } from '@/Metaplex';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplex, createNft } from 'test/helpers';
+import { Metaplex } from '../../../src/index.js';
+import { metaplex, createNft } from '../../helpers/index.js';
 
 test('it can fetch all NFTs from the first creator', async (t: Test) => {
   // Given a metaplex instance and two NFTs from two different creators.

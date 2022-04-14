@@ -1,7 +1,7 @@
 import test, { Test } from 'tape';
 import { AbortController } from 'abort-controller';
-import { Loader } from '@/index';
-import { metaplexGuest } from 'test/helpers';
+import { Loader } from '../../src/index.js';
+import { metaplexGuest } from '../helpers/index.js';
 
 class TestLoader<T> extends Loader<T> {
   protected cb: () => Promise<T>;

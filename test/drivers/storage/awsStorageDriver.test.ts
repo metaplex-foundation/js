@@ -1,8 +1,8 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
-import { metaplex } from '../../helpers';
-import { awsStorage, MetaplexFile } from '@/index';
+import { awsStorage, MetaplexFile } from '../../../src/index.js';
+import { metaplex } from '../../helpers/index.js';
 
 const awsClient = {
   async send() {

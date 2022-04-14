@@ -7,7 +7,7 @@ import {
   mockStorage,
   UploadMetadataInput,
   CreateNftInput,
-} from '@/index';
+} from '../../src/index.js';
 
 export interface MetaplexTestOptions {
   rpcEndpoint?: string;

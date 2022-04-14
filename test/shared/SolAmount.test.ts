@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import test, { Test } from 'tape';
-import { SolAmount } from '@/index';
+import { SolAmount } from '../../src/index.js';
 
 test('it can create a SolAmount from lamports', (t: Test) => {
   t.equal(SolAmount.fromLamports(0).getLamports().toNumber(), 0);
