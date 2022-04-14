@@ -1,7 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
 import { OperationHandler } from '../../../shared/index.js';
 import { Nft } from '../models/index.js';
-import { FindNftsByCandyMachineOperation, FindNftsByCreatorOperation } from '../operations/index.js';
+import {
+  FindNftsByCandyMachineOperation,
+  FindNftsByCreatorOperation,
+} from '../operations/index.js';
 
 export class FindNftsByCandyMachineOnChainOperationHandler extends OperationHandler<FindNftsByCandyMachineOperation> {
   public async handle(operation: FindNftsByCandyMachineOperation): Promise<Nft[]> {
