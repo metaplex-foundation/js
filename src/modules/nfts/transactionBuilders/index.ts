@@ -1,2 +1,2 @@
-export * from './createNftBuilder';
-export * from './updateNftBuilder';
+export * from './createNftBuilder.js';
+export * from './updateNftBuilder.js';

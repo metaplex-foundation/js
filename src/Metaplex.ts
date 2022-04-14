@@ -18,7 +18,7 @@ import {
   GuestIdentityDriver,
   StorageDriver,
   BundlrStorageDriver,
-} from '@/drivers/index';
+} from './drivers/index.js';
 import {
   InputOfOperation,
   Operation,
@@ -29,9 +29,9 @@ import {
   TransactionBuilder,
   Signer,
   getSignerHistogram,
-} from '@/shared/index';
-import { nftPlugin } from '@/modules/index';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+} from './shared/index.js';
+import { nftPlugin } from './modules/index.js';
+import { MetaplexPlugin } from './MetaplexPlugin.js';
 
 export type MetaplexOptions = {
   // ...

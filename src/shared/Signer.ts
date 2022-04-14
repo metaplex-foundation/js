@@ -1,4 +1,4 @@
-import { IdentityDriver } from '@/drivers/index';
+import { IdentityDriver } from '../drivers/index.js';
 import { Signer as Web3Signer } from '@solana/web3.js';
 
 export type Signer = Web3Signer | IdentityDriver;

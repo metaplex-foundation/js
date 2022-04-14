@@ -1,7 +1,7 @@
-import { MetadataAccount } from '@/programs/index';
-import { GmaBuilder, OperationHandler } from '@/shared/index';
-import { Nft } from '../models/index';
-import { FindNftsByMintListOperation } from '../operations/FindNftsByMintListOperation';
+import { MetadataAccount } from '../../../programs/index.js';
+import { GmaBuilder, OperationHandler } from '../../../shared/index.js';
+import { Nft } from '../models/index.js';
+import { FindNftsByMintListOperation } from '../operations/FindNftsByMintListOperation.js';
 
 export class FindNftsByMintListOnChainOperationHandler extends OperationHandler<FindNftsByMintListOperation> {
   public async handle(operation: FindNftsByMintListOperation): Promise<(Nft | null)[]> {

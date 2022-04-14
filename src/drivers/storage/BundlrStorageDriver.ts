@@ -1,12 +1,12 @@
 import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { StorageDriver } from './StorageDriver';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
-import { PlanUploadMetadataOperation } from '@/modules/index';
-import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
-import { SolAmount } from '@/shared/index';
+import { Metaplex } from '../../Metaplex.js';
+import { MetaplexPlugin } from '../../MetaplexPlugin.js';
+import { StorageDriver } from './StorageDriver.js';
+import { MetaplexFile } from '../filesystem/MetaplexFile.js';
+import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver.js';
+import { PlanUploadMetadataOperation } from '../../modules/index.js';
+import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler.js';
+import { SolAmount } from '../../shared/index.js';
 
 export interface BundlrOptions {
   address?: string;

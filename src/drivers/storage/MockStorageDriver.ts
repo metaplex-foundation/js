@@ -1,9 +1,9 @@
 import BN from 'bn.js';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { StorageDriver } from './StorageDriver';
-import { SolAmount } from '@/shared/index';
+import { Metaplex } from '../../Metaplex.js';
+import { MetaplexPlugin } from '../../MetaplexPlugin.js';
+import { MetaplexFile } from '../filesystem/MetaplexFile.js';
+import { StorageDriver } from './StorageDriver.js';
+import { SolAmount } from '../../shared/index.js';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = new BN(1);

@@ -1,5 +1,5 @@
 import { AbortSignal } from 'abort-controller';
-import { Metaplex } from '../Metaplex';
+import { Metaplex } from '../Metaplex.js';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 

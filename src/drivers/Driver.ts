@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '../Metaplex.js';
 
 export abstract class Driver {
   protected readonly metaplex: Metaplex;

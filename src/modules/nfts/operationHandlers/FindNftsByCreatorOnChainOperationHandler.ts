@@ -1,7 +1,7 @@
-import { TokenMetadataProgram } from '@/programs/index';
-import { OperationHandler } from '@/shared/index';
-import { Nft } from '../models/index';
-import { FindNftsByMintListOperation, FindNftsByCreatorOperation } from '../operations/index';
+import { TokenMetadataProgram } from '../../../programs/index.js';
+import { OperationHandler } from '../../../shared/index.js';
+import { Nft } from '../models/index.js';
+import { FindNftsByMintListOperation, FindNftsByCreatorOperation } from '../operations/index.js';
 
 export class FindNftsByCreatorOnChainOperationHandler extends OperationHandler<FindNftsByCreatorOperation> {
   public async handle(operation: FindNftsByCreatorOperation): Promise<Nft[]> {

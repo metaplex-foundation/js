@@ -1,6 +1,6 @@
 import { readFile, lstat } from 'fs/promises';
-import { FilesystemDriver } from './FilesystemDriver';
-import { MetaplexFile } from './MetaplexFile';
+import { FilesystemDriver } from './FilesystemDriver.js';
+import { MetaplexFile } from './MetaplexFile.js';
 
 export class NodeFilesystemDriver extends FilesystemDriver {
   public async fileExists(path: string): Promise<boolean> {

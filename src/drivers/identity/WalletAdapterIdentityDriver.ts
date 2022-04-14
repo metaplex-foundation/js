@@ -4,10 +4,10 @@ import {
   SignerWalletAdapterProps,
   WalletAdapter as BaseWalletAdapter,
 } from '@solana/wallet-adapter-base';
-import { IdentityDriver } from './IdentityDriver';
-import { GuestIdentityDriver } from './GuestIdentityDriver';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { IdentityDriver } from './IdentityDriver.js';
+import { GuestIdentityDriver } from './GuestIdentityDriver.js';
+import { Metaplex } from '../../Metaplex.js';
+import { MetaplexPlugin } from '../../MetaplexPlugin.js';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &

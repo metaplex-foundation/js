@@ -1,5 +1,5 @@
-import { Operation, Plan } from '@/shared/index';
-import { UploadMetadataInput, UploadMetadataOutput } from './UploadMetadataOperation';
+import { Operation, Plan } from '../../../shared/index.js';
+import { UploadMetadataInput, UploadMetadataOutput } from './UploadMetadataOperation.js';
 
 export class PlanUploadMetadataOperation extends Operation<
   UploadMetadataInput,

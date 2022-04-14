@@ -1,5 +1,5 @@
 import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { TransactionBuilder, Signer } from '@/shared/index';
+import { TransactionBuilder, Signer } from '../../../shared/index.js';
 
 export interface CreateAccountBuilderParams {
   space: number;

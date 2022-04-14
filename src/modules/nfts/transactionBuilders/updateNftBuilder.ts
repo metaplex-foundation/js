@@ -1,7 +1,7 @@
-import { updateMetadataV2Builder } from '@/programs/tokenMetadata/index';
+import { updateMetadataV2Builder } from '../../../programs/tokenMetadata/index.js';
 import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
-import { TransactionBuilder, Signer } from '@/shared/index';
+import { TransactionBuilder, Signer } from '../../../shared/index.js';
 
 export interface UpdateNftBuilderParams {
   // Data.

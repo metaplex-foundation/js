@@ -1,3 +1,3 @@
-export * from './FilesystemDriver';
-export * from './MetaplexFile';
-// export * from './NodeFilesystemDriver';
+export * from './FilesystemDriver.js';
+export * from './MetaplexFile.js';
+// export * from './NodeFilesystemDriver.js';

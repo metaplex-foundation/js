@@ -1,8 +1,8 @@
 import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { chunk, zipMap } from '@/utils/index';
-import { MaybeAccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
-import { Postpone } from './Postpone';
+import { chunk, zipMap } from '../utils/index.js';
+import { MaybeAccountInfoWithPublicKey } from './AccountInfoWithPublicKey.js';
+import { Postpone } from './Postpone.js';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;

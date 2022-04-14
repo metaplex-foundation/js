@@ -3,7 +3,7 @@ import {
   createCreateMetadataAccountV2Instruction,
   DataV2,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TransactionBuilder, Signer } from '@/shared/index';
+import { TransactionBuilder, Signer } from '../../../shared/index.js';
 
 export interface CreateMetadataV2BuilderParams {
   data: DataV2;

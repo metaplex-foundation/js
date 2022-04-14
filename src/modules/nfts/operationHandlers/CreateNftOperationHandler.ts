@@ -1,11 +1,11 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata/index';
+import { MetadataAccount, MasterEditionAccount } from '../../../programs/tokenMetadata/index.js';
 import { Creator, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
-import { OperationHandler } from '@/shared/index';
-import { CreateNftInput, CreateNftOperation, CreateNftOutput } from '../operations/index';
-import { JsonMetadata } from '../models/JsonMetadata';
-import { createNftBuilder } from '../transactionBuilders/index';
+import { OperationHandler } from '../../../shared/index.js';
+import { CreateNftInput, CreateNftOperation, CreateNftOutput } from '../operations/index.js';
+import { JsonMetadata } from '../models/JsonMetadata.js';
+import { createNftBuilder } from '../transactionBuilders/index.js';
 
 export class CreateNftOperationHandler extends OperationHandler<CreateNftOperation> {
   public async handle(operation: CreateNftOperation): Promise<CreateNftOutput> {

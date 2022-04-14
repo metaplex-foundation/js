@@ -8,9 +8,9 @@ import {
   TransactionSignature,
 } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { IdentityDriver } from './IdentityDriver';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { IdentityDriver } from './IdentityDriver.js';
+import { Metaplex } from '../../Metaplex.js';
+import { MetaplexPlugin } from '../../MetaplexPlugin.js';
 
 export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   install(metaplex: Metaplex) {

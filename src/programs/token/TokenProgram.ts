@@ -1,6 +1,6 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Connection } from '@solana/web3.js';
-import { TokenProgramGpaBuilder } from './gpaBuilders/index';
+import { TokenProgramGpaBuilder } from './gpaBuilders/index.js';
 
 export const TokenProgram = {
   publicKey: TOKEN_PROGRAM_ID,

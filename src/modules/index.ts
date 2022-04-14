@@ -1,1 +1,1 @@
-export * from './nfts/index';
+export * from './nfts/index.js';

@@ -1,7 +1,7 @@
-import { OperationHandler } from '@/shared/index';
-import { Nft } from '../models/index';
-import { FindNftByMintOperation } from '../operations/FindNftByMintOperation';
-import { MasterEditionAccount, MetadataAccount } from '@/programs/index';
+import { OperationHandler } from '../../../shared/index.js';
+import { Nft } from '../models/index.js';
+import { FindNftByMintOperation } from '../operations/FindNftByMintOperation.js';
+import { MasterEditionAccount, MetadataAccount } from '../../../programs/index.js';
 
 export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindNftByMintOperation> {
   public async handle(operation: FindNftByMintOperation): Promise<Nft> {

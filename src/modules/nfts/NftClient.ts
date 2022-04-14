@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
-import { ModuleClient, Plan } from '@/shared/index';
-import { Nft } from './models/index';
+import { ModuleClient, Plan } from '../../shared/index.js';
+import { Nft } from './models/index.js';
 import {
   UploadMetadataInput,
   UploadMetadataOutput,
@@ -17,7 +17,7 @@ import {
   FindNftsByMintListOperation,
   FindNftsByCreatorOperation,
   FindNftsByCandyMachineOperation,
-} from './operations/index';
+} from './operations/index.js';
 
 export class NftClient extends ModuleClient {
   findNftByMint(mint: PublicKey): Promise<Nft> {

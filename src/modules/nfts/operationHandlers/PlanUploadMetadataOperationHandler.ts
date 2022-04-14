@@ -1,13 +1,13 @@
 import cloneDeep from 'lodash.clonedeep';
-import { MetaplexFile } from '@/drivers/index';
-import { OperationHandler, Plan } from '@/shared/index';
-import { walk } from '@/utils/index';
-import { JsonMetadata } from '../models/index';
+import { MetaplexFile } from '../../../drivers/index.js';
+import { OperationHandler, Plan } from '../../../shared/index.js';
+import { walk } from '../../../utils/index.js';
+import { JsonMetadata } from '../models/index.js';
 import {
   PlanUploadMetadataOperation,
   UploadMetadataInput,
   UploadMetadataOutput,
-} from '../operations/index';
+} from '../operations/index.js';
 
 export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUploadMetadataOperation> {
   public async handle(

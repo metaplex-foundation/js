@@ -2,10 +2,10 @@ import {
   PlanUploadMetadataOperation,
   PlanUploadMetadataOperationHandler,
   UploadMetadataOutput,
-} from '@/modules/index';
-import { Plan } from '@/shared/index';
-import { MetaplexFile } from '../filesystem/index';
-import { BundlrStorageDriver } from './BundlrStorageDriver';
+} from '../../modules/index.js';
+import { Plan } from '../../shared/index.js';
+import { MetaplexFile } from '../filesystem/index.js';
+import { BundlrStorageDriver } from './BundlrStorageDriver.js';
 
 export class PlanUploadMetadataUsingBundlrOperationHandler extends PlanUploadMetadataOperationHandler {
   public async handle(

@@ -1,6 +1,6 @@
-import { Operation } from '@/shared/index';
+import { Operation } from '../../../shared/index.js';
 import { PublicKey } from '@solana/web3.js';
-import { Nft } from '../models/index';
+import { Nft } from '../models/index.js';
 
 export class FindNftsByCreatorOperation extends Operation<FindNftsByCreatorInput, Nft[]> {}
 

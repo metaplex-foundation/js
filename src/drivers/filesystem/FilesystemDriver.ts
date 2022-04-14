@@ -1,5 +1,5 @@
-import { Driver } from '../Driver';
-import { MetaplexFile } from './MetaplexFile';
+import { Driver } from '../Driver.js';
+import { MetaplexFile } from './MetaplexFile.js';
 
 export abstract class FilesystemDriver extends Driver {
   public abstract fileExists(path: string): Promise<boolean>;

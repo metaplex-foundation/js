@@ -6,12 +6,12 @@ import {
   Creator,
   MasterEditionV2Args,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Model } from '@/shared/index';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata/index';
-import { JsonMetadataLoader } from './JsonMetadataLoader';
-import { removeEmptyChars } from '@/utils/index';
-import { MasterEditionLoader } from './MasterEditionLoader';
-import { JsonMetadata } from './JsonMetadata';
+import { Model } from '../../../shared/index.js';
+import { MetadataAccount, MasterEditionAccount } from '../../../programs/tokenMetadata/index.js';
+import { JsonMetadataLoader } from './JsonMetadataLoader.js';
+import { removeEmptyChars } from '../../../utils/index.js';
+import { MasterEditionLoader } from './MasterEditionLoader.js';
+import { JsonMetadata } from './JsonMetadata.js';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */

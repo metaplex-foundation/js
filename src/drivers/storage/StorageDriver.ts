@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch';
-import { SolAmount } from '@/shared/index';
-import { Driver } from '../Driver';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
+import { SolAmount } from '../../shared/index.js';
+import { Driver } from '../Driver.js';
+import { MetaplexFile } from '../filesystem/MetaplexFile.js';
 
 export abstract class StorageDriver extends Driver {
   public abstract getPrice(...files: MetaplexFile[]): Promise<SolAmount>;

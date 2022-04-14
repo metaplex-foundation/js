@@ -1,4 +1,4 @@
-import { chunk } from '../utils/common';
+import { chunk } from '../utils/common.js';
 
 type ArrayElement<ArrayType> = ArrayType extends readonly (infer ElementType)[]
   ? ElementType

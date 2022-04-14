@@ -1,8 +1,8 @@
 import { AccountInfo, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { MasterEditionV1, MasterEditionV2, Key } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenMetadataProgram } from '@/programs/tokenMetadata/index';
-import { Account, Pda } from '@/shared/index';
+import { TokenMetadataProgram } from '../../../programs/tokenMetadata/index.js';
+import { Account, Pda } from '../../../shared/index.js';
 
 export class MasterEditionAccount extends Account<MasterEditionV1 | MasterEditionV2> {
   static async pda(mint: PublicKey): Promise<Pda> {

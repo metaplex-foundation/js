@@ -1,8 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { MINT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { createAccountBuilder } from '@/programs/system/index';
-import { initializeMintBuilder } from '@/programs/token/index';
-import { TransactionBuilder, Signer } from '@/shared/index';
+import { createAccountBuilder } from '../../../programs/system/index.js';
+import { initializeMintBuilder } from '../../../programs/token/index.js';
+import { TransactionBuilder, Signer } from '../../../shared/index.js';
 
 export interface CreateMintBuilderParams {
   lamports: number;

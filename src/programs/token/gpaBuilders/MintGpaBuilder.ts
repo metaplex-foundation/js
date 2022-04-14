@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { TokenProgramGpaBuilder } from './TokenProgramGpaBuilder';
+import { TokenProgramGpaBuilder } from './TokenProgramGpaBuilder.js';
 
 export class MintGpaBuilder extends TokenProgramGpaBuilder {
   whereDoesntHaveMintAuthority() {

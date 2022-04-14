@@ -1,5 +1,5 @@
-import { Metaplex } from '@/Metaplex';
-import { InputOfOperation, Operation, OutputOfOperation } from './Operation';
+import { Metaplex } from '../Metaplex.js';
+import { InputOfOperation, Operation, OutputOfOperation } from './Operation.js';
 
 export type OperationHandlerConstructor<
   T extends Operation<I, O>,

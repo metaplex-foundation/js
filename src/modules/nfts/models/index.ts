@@ -1,2 +1,2 @@
-export * from './Nft';
-export * from './JsonMetadata';
+export * from './Nft.js';
+export * from './JsonMetadata.js';

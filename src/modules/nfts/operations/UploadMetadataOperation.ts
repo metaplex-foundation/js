@@ -1,6 +1,6 @@
-import { MetaplexFile } from '@/drivers/index';
-import { Operation } from '@/shared/index';
-import { JsonMetadata } from '../models/index';
+import { MetaplexFile } from '../../../drivers/index.js';
+import { Operation } from '../../../shared/index.js';
+import { JsonMetadata } from '../models/index.js';
 
 export class UploadMetadataOperation extends Operation<UploadMetadataInput, UploadMetadataOutput> {}
 

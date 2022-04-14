@@ -1,6 +1,6 @@
-import { GpaBuilder } from '@/shared/index';
+import { GpaBuilder } from '../../../shared/index.js';
 import { ACCOUNT_SIZE, MINT_SIZE } from '@solana/spl-token';
-import { MintGpaBuilder, TokenGpaBuilder } from './index';
+import { MintGpaBuilder, TokenGpaBuilder } from './index.js';
 
 export class TokenProgramGpaBuilder extends GpaBuilder {
   mintAccounts() {

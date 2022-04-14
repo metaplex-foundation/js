@@ -1,3 +1,3 @@
-export * from './MintGpaBuilder';
-export * from './TokenGpaBuilder';
-export * from './TokenProgramGpaBuilder';
+export * from './MintGpaBuilder.js';
+export * from './TokenGpaBuilder.js';
+export * from './TokenProgramGpaBuilder.js';

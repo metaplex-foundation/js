@@ -1,7 +1,7 @@
 import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } from '@solana/web3.js';
-import { IdentityDriver } from './IdentityDriver';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { IdentityDriver } from './IdentityDriver.js';
+import { Metaplex } from '../../Metaplex.js';
+import { MetaplexPlugin } from '../../MetaplexPlugin.js';
 
 export const guestIdentity = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {

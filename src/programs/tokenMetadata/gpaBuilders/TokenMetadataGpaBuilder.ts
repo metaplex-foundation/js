@@ -1,7 +1,7 @@
 import BN from 'bn.js';
-import { GpaBuilder } from '@/shared/index';
+import { GpaBuilder } from '../../../shared/index.js';
 import { Key } from '@metaplex-foundation/mpl-token-metadata';
-import { MetadataV1GpaBuilder } from './MetadataV1GpaBuilder';
+import { MetadataV1GpaBuilder } from './MetadataV1GpaBuilder.js';
 
 export class TokenMetadataGpaBuilder extends GpaBuilder {
   whereKey(key: Key) {

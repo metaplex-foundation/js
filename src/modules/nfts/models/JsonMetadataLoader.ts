@@ -1,8 +1,8 @@
-import { Metaplex } from '@/Metaplex';
-import { Loader } from '@/shared/index';
-import { removeEmptyChars } from '@/utils/index';
-import { JsonMetadata } from './JsonMetadata';
-import { Nft } from './Nft';
+import { Metaplex } from '../../../Metaplex.js';
+import { Loader } from '../../../shared/index.js';
+import { removeEmptyChars } from '../../../utils/index.js';
+import { JsonMetadata } from './JsonMetadata.js';
+import { Nft } from './Nft.js';
 
 export class JsonMetadataLoader extends Loader<JsonMetadata> {
   protected nft: Nft;

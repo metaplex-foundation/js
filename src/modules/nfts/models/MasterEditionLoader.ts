@@ -1,7 +1,7 @@
-import { Metaplex } from '@/Metaplex';
-import { MasterEditionAccount } from '@/programs/index';
-import { Loader } from '@/shared/index';
-import { Nft } from './Nft';
+import { Metaplex } from '../../../Metaplex.js';
+import { MasterEditionAccount } from '../../../programs/index.js';
+import { Loader } from '../../../shared/index.js';
+import { Nft } from './Nft.js';
 
 export class MasterEditionLoader extends Loader<MasterEditionAccount | null> {
   protected nft: Nft;
