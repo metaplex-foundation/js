@@ -193,11 +193,11 @@ export type EndSettingsConfig =
  * @property goLiveDate - Timestamp when minting is allowed – the Candy Machine
  * authority and whitelists can bypass this constraint
  *
- * @property noRetainAuthority - Indicates whether the candy machine authority
+ * @property retainAuthority - Indicates whether the candy machine authority
  * has the update authority for each mint or if it is transferred to the
- * minter. This should be kept as false for the vast majority of cases.
+ * minter. This should be set to `true` for the vast majority of cases.
  *
- * @property noMutable - Indicates whether the NFTs' metadata is mutable or not
+ * @property isMutable - Indicates whether the NFTs' metadata is mutable or not
  * after having been minted
  *
  * @property splTokenAccount - SPL token wallet to receive proceedings from SPL token payments
@@ -227,8 +227,8 @@ export type EndSettingsConfig =
  *    "ipfsInfuraSecret": null,
  *    "nftStorageKey": null,
  *    "awsS3Bucket": null,
- *    "noRetainAuthority": false,
- *    "noMutable": false
+ *    "retainAuthority": true, // no longer double negation
+ *    "isMutable": false        // no longer double negation
  * }
  * ```
  */
@@ -237,8 +237,8 @@ export type CandyMachineConfig = {
   number: number;
   solTreasuryAccount: PublicKeyString;
   goLiveDate: string;
-  noRetainAuthority: boolean;
-  noMutable: boolean;
+  retainAuthority: boolean;
+  isMutable: boolean;
   splTokenAccount?: PublicKeyString;
   splToken?: PublicKeyString;
   gatekeeper?: GatekeeperSettingsConfig;
