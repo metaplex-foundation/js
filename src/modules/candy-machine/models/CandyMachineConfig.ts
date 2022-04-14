@@ -1,5 +1,3 @@
-// https://docs.metaplex.com/candy-machine-v2/configuration#minimal-configuration
-
 import BigNumber from 'bignumber.js';
 import { PublicKeyString } from '../../../shared/PublicKeyString';
 
@@ -35,22 +33,15 @@ export const WhitelistModes = [BURN_EVERY_TIME, NEVER_BURN] as const;
 export type WhitelistMode = typeof WhitelistModes[number];
 
 /**
- * Configures {@link CandyMachineConfig.whitelistMintSettings}
- */
-export type WhitelistModeSetting =
-  // TODO(thlorenz): Change this to use simple flags
-  { [BURN_EVERY_TIME]: true } | { [NEVER_BURN]: true };
-
-/**
  * Whitelist Mint Settings
  *
- * @property mode - {@link WhitelistModeSetting}
+ * @property mode - {@link WhitelistMode} (burnEveryTime or neverBurn)
  * @property mint - Mint address of the whitelist token
  * @property presale - Indicates whether whitelist token holders can mint before goLiveDate
  * @property discountPrice - Price for whitelist token holders
  */
 export type WhitelistMintSettingsConfig = {
-  mode: WhitelistModeSetting;
+  mode: WhitelistMode;
   mint: PublicKeyString;
   presale: boolean;
   discountPrice: BigNumber;
@@ -193,6 +184,7 @@ export type EndSettingsConfig =
 
 /**
  * Configuration for the Candy Machine.
+ * For more info {@see https://docs.metaplex.com/candy-machine-v2/configuration}
  *
  * @property price - The amount in SOL or SPL token for a mint.
  * @property number - The number of items in the Candy Machine
