@@ -1,5 +1,6 @@
 export * from './Account';
 export * from './AccountInfoWithPublicKey';
+export * from './DateTimeString';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './Loader';
@@ -10,6 +11,7 @@ export * from './OperationHandler';
 export * from './Pda';
 export * from './Plan';
 export * from './Postpone';
+export * from './PublicKeyString';
 export * from './Signer';
 export * from './SolAmount';
 export * from './TransactionBuilder';

@@ -1,5 +1,8 @@
+import { EndSettings, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import BigNumber from 'bignumber.js';
-import { PublicKeyString } from '../../../shared/PublicKeyString';
+import BN from 'bn.js';
+import { PublicKeyString, tryConvertToMillisecondsSinceEpoch } from '../../../shared';
 
 // -----------------
 // Gatekeeper Settings
@@ -8,11 +11,11 @@ import { PublicKeyString } from '../../../shared/PublicKeyString';
 /**
  * Configures {@link CandyMachineConfig.gatekeeper} settings.
  *
- * @property gateKeeperNetwork - Gateway provider address
+ * @property gatekeeperNetwork - Gateway provider address
  * @property expireOnUse - Requires a new gateway challenge after a use
  */
 export type GatekeeperSettingsConfig = {
-  gateKeeperNetwork: string;
+  gatekeeperNetwork: string;
   expireOnUse: boolean;
 };
 
@@ -63,6 +66,7 @@ export type WhitelistMintSettingsConfig = {
 export type HiddenSettingsConfig = {
   name: string;
   uri: string;
+  // Uint8Array
   hash: string;
 };
 
@@ -167,20 +171,43 @@ export type EndSettingMode = typeof EndSettingModes[number];
 /**
  * Configures {@link CandyMachineConfig.endSettings}
  *
- * @property mode - {@link EndSettingMode} (date or amount) which identifies
+ * @property endSettingType - {@link EndSettingMode} (date or amount) which identifies
  * what {@link EndSettingsConfig.value} means
  * @property value - to test the end condition. This will be either a date
  * string (end DateTime) or an integer amount (items minted)
  * */
 export type EndSettingsConfig =
   | {
-      mode: typeof ENDSETTING_DATE;
+      endSettingType: typeof ENDSETTING_DATE;
       value: string;
     }
   | {
-      mode: typeof ENDSETTING_AMOUNT;
+      endSettingType: typeof ENDSETTING_AMOUNT;
       value: number;
     };
+
+export function endSettingsFromConfig(config?: EndSettingsConfig): EndSettings | undefined {
+  if (config == null) return undefined;
+  const endSettingType =
+    config.endSettingType === ENDSETTING_DATE ? EndSettingType.Date : EndSettingType.Amount;
+
+  const value =
+    config.endSettingType === ENDSETTING_DATE
+      ? tryConvertToMillisecondsSinceEpoch(config.value)
+      : new BN(config.value);
+  return {
+    endSettingType,
+    number: value,
+  };
+}
+
+// -----------------
+// Creators
+// -----------------
+export type CreatorConfig = Creator & {
+  address: PublicKeyString;
+};
+export type CreatorsConfig = CreatorConfig[];
 
 /**
  * Configuration for the Candy Machine.
@@ -188,6 +215,8 @@ export type EndSettingsConfig =
  *
  * @property price - The amount in SOL or SPL token for a mint.
  * @property number - The number of items in the Candy Machine
+ * @property sellerFeeBasisPoints - Royalty basis points that goes to creators
+ * in secondary sales (0-10000)
  * @property solTreasuryAccount - Wallet to receive proceedings SOL payments
  *
  * @property goLiveDate - Timestamp when minting is allowed – the Candy Machine
@@ -200,10 +229,13 @@ export type EndSettingsConfig =
  * @property isMutable - Indicates whether the NFTs' metadata is mutable or not
  * after having been minted
  *
+ * @property symbol - Optional Symbol for the NFts of the Candy Machine which
+ * can be up to 10 bytes
+ *
  * @property splTokenAccount - SPL token wallet to receive proceedings from SPL token payments
  * @property splToken - Mint address of the token accepted as payment
  *
- * @property gateKeeper - {@link GatekeeperSettingsConfig}
+ * @property gatekeeper - {@link GatekeeperSettingsConfig}
  * @property endSettings - {@link EndSettingsConfig}
  * @property whitelistMintSettings - {@link WhitelistMintSettingsConfig}
  * @property hiddenSettings - {@link HiddenSettingsConfig}
@@ -235,10 +267,13 @@ export type EndSettingsConfig =
 export type CandyMachineConfig = {
   price: number;
   number: number;
+  sellerFeeBasisPoints: number;
   solTreasuryAccount: PublicKeyString;
   goLiveDate: string;
   retainAuthority: boolean;
   isMutable: boolean;
+  creators: CreatorsConfig;
+  symbol?: string;
   splTokenAccount?: PublicKeyString;
   splToken?: PublicKeyString;
   gatekeeper?: GatekeeperSettingsConfig;
