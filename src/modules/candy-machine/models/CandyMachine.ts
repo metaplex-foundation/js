@@ -49,4 +49,6 @@ export class CandyMachine extends Model {
       candyMachineData.gatekeeper ?? undefined
     );
   }
+
+  static fromMinimalConfig(config: CandyMachineConfig) {}
 }
