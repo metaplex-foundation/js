@@ -81,7 +81,7 @@ test('it works with multiple steps', async (t: Test) => {
 
 test('it keeps track of an execution state', async (t: Test) => {
   // Given a plan with an initial state altered by its steps.
-  const plan = Plan.make<{ step1Executed: boolean, step2Executed: boolean }>()
+  const plan = Plan.make<{ step1Executed: boolean; step2Executed: boolean }>()
     .addStep({
       name: 'step1',
       handler: async (state) => ({ ...state, step1Executed: true }),
@@ -106,7 +106,7 @@ test('it can grow its execution state as we add more steps', async (t: Test) => 
   const plan = Plan.make().addStep({
     name: 'step1',
     handler: async () => ({ step1Executed: true }),
-  })
+  });
 
   // And a second step that adds some more state to the plan.
   const newPlan = plan.addStep({
@@ -141,8 +141,14 @@ test('it can prepend steps to the plan', async (t: Test) => {
   t.same(finalState, { isEven: true });
 
   // And both steps executed in the right order.
-  t.same(newPlan.getSteps().map((s) => s.name), ['step0', 'step1']);
-  t.same(newPlan.getSteps().map((s) => s.status), ['successful', 'successful']);
+  t.same(
+    newPlan.getSteps().map((s) => s.name),
+    ['step0', 'step1']
+  );
+  t.same(
+    newPlan.getSteps().map((s) => s.status),
+    ['successful', 'successful']
+  );
 });
 
 test('it can listen to step changes', async (t: Test) => {
@@ -224,8 +230,9 @@ test('it keeps track of its execution state', async (t: Test) => {
 
 test('it keeps track of its failed state', async (t: Test) => {
   // Given a plan that fails.
-  const plan = Plan.make()
-    .addStep('step1', async () => { throw new Error('error') });
+  const plan = Plan.make().addStep('step1', async () => {
+    throw new Error('error');
+  });
 
   // And that hasn't executed yet.
   t.false(plan.executing);
@@ -235,10 +242,8 @@ test('it keeps track of its failed state', async (t: Test) => {
   // When we execute the plan.
   try {
     await plan.execute();
-  }
-  
-  // Then it is marked as failed.
-  catch (error) {
+  } catch (error) {
+    // Then it is marked as failed.
     t.false(plan.executing);
     t.true(plan.executed);
     t.true(plan.failed);

@@ -15,12 +15,18 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
   const nftsA = await mx.nfts().findNftsByCreator(creatorA);
 
   // Then we don't get the NFTs from creator B.
-  t.same(nftsA.map(nft => nft.name), ['NFT A']);
+  t.same(
+    nftsA.map((nft) => nft.name),
+    ['NFT A']
+  );
   t.true(nftsA[0].is(nftA));
 
   // And vice versa.
   const nftsB = await mx.nfts().findNftsByCreator(creatorB);
-  t.same(nftsB.map(nft => nft.name), ['NFT B']);
+  t.same(
+    nftsB.map((nft) => nft.name),
+    ['NFT B']
+  );
   t.true(nftsB[0].is(nftB));
 });
 
@@ -36,25 +42,43 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
   const nftsA = await mx.nfts().findNftsByCreator(creatorA, 2);
 
   // Then we don't get the NFTs from second creator B.
-  t.same(nftsA.map(nft => nft.name), ['NFT A']);
+  t.same(
+    nftsA.map((nft) => nft.name),
+    ['NFT A']
+  );
   t.true(nftsA[0].is(nftA));
 
   // And vice versa.
   const nftsB = await mx.nfts().findNftsByCreator(creatorB, 2);
-  t.same(nftsB.map(nft => nft.name), ['NFT B']);
+  t.same(
+    nftsB.map((nft) => nft.name),
+    ['NFT B']
+  );
   t.true(nftsB[0].is(nftB));
 });
 
 const createNftWithFirstCreator = (mx: Metaplex, name: string, creator: PublicKey) => {
-  return createNft(mx, { name }, { creators: [
-    { address: creator, share: 50, verified: false },
-    { address: mx.identity().publicKey, share: 50, verified: true },
-  ] });
-}
+  return createNft(
+    mx,
+    { name },
+    {
+      creators: [
+        { address: creator, share: 50, verified: false },
+        { address: mx.identity().publicKey, share: 50, verified: true },
+      ],
+    }
+  );
+};
 
 const createNftWithSecondCreator = (mx: Metaplex, name: string, creator: PublicKey) => {
-  return createNft(mx, { name }, { creators: [
-    { address: mx.identity().publicKey, share: 50, verified: true },
-    { address: creator, share: 50, verified: false },
-  ] });
-}
+  return createNft(
+    mx,
+    { name },
+    {
+      creators: [
+        { address: mx.identity().publicKey, share: 50, verified: true },
+        { address: creator, share: 50, verified: false },
+      ],
+    }
+  );
+};

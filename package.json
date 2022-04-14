@@ -46,8 +46,8 @@
     "amman:start": "DEBUG='amman*' amman validator",
     "amman:stop": "pkill solana-test-validator",
     "test": "yarn build:test && tape dist/test/**/*.test.js",
-    "lint": "prettier -c ./src/",
-    "lint:fix": "prettier --write ./src"
+    "lint": "prettier -c .",
+    "lint:fix": "prettier --write ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
