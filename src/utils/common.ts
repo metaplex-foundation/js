@@ -88,23 +88,37 @@ export const walk = (
 export interface DisposableScope {
   isCanceled: () => boolean;
   getCancelationError: () => unknown;
+  onCancel: (cb: (reason: unknown) => void) => void;
+  throwIfCanceled: () => void;
 };
 
-export const disposable = <T = unknown>(callback: (options: DisposableScope) => Promise<T>, signal?: AbortSignal): Promise<T> => {
+export const disposable = async <T = unknown>(signal: AbortSignal | undefined, callback: (options: DisposableScope) => Promise<T>): Promise<T> => {
   let canceled = false;
   let cancelationError: unknown = null;
+  let cancelationCallback: (reason: unknown) => void = () => {};
   const scope: DisposableScope = {
     isCanceled: () => canceled,
     getCancelationError: () => cancelationError,
+    onCancel: (callback: (reason: unknown) => void) => {
+      cancelationCallback = callback;
+    },
+    throwIfCanceled: () => {
+      console.log('throwIfCanceled', canceled)
+      if (canceled) {
+        throw cancelationError;
+      }
+    },
   }
+
   const abortListener = (error: unknown) => {
     canceled = true;
     cancelationError = error;
+    cancelationCallback(error);
   };
 
   signal?.addEventListener('abort', abortListener, { once: true });
   try {
-    return callback(scope);
+    return await callback(scope);
   } finally {
     signal?.removeEventListener('abort', abortListener);
   }
