@@ -18,6 +18,7 @@ import {
   endSettingsFromConfig,
   gatekeeperFromConfig,
   hiddenSettingsFromConfig,
+  StorageConfig,
   whiteListMintSettingsFromConfig,
 } from './config';
 
@@ -66,7 +67,7 @@ export class CandyMachine extends Model {
     );
   }
 
-  static fromConfig(config: CandyMachineConfig) {
+  static fromConfig(config: Omit<CandyMachineConfig, keyof StorageConfig>) {
     const price = SolAmount.fromSol(config.price);
     const creators: Creator[] = config.creators.map((creatorConfig) => ({
       ...creatorConfig,
