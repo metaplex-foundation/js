@@ -1,13 +1,15 @@
 {
   "name": "@metaplex-foundation/js-next",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/cjs/index.js"
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
   "files": [
     "/dist/cjs",
@@ -38,14 +40,14 @@
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
     "build": "yarn clean && yarn build:esm && yarn build:cjs",
-    "build:esm": "ttsc -p tsconfig.json",
-    "build:cjs": "ttsc -p tsconfig.cjs.json",
+    "build:esm": "ttsc -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
+    "build:cjs": "ttsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build:test": "ttsc -p test/tsconfig.json",
-    "amman:start": "DEBUG='amman*' amman validator",
-    "amman:stop": "pkill solana-test-validator",
+    "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
+    "amman:stop": "amman stop",
     "test": "yarn build:test && tape dist/test/**/*.test.js",
-    "lint": "prettier -c ./src/",
-    "lint:fix": "prettier --write ./src"
+    "lint": "prettier -c .",
+    "lint:fix": "prettier --write ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
@@ -65,11 +67,10 @@
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "mime": "^3.0.0",
-    "nft.storage": "^6.0.2",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@metaplex-foundation/amman": "^0.1.0",
+    "@metaplex-foundation/amman": "^0.5.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@types/bn.js": "^5.1.0",
     "@types/lodash.clonedeep": "^4.5.6",

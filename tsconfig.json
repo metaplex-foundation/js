@@ -18,7 +18,7 @@
       }
     ],
 
-    "target": "esnext",
+    "target": "es2019",
     "module": "esnext",
     "moduleResolution": "node",
     "allowJs": false,
@@ -35,7 +35,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "removeComments": false,
-    "jsx": "preserve",
+    "jsx": "preserve"
   },
   "typedocOptions": {
     "entryPoints": "src/index.ts",
