@@ -13,7 +13,13 @@ import {
   Model,
   SolAmount,
 } from '../../../shared';
-import { CandyMachineConfig, endSettingsFromConfig } from './config';
+import {
+  CandyMachineConfig,
+  endSettingsFromConfig,
+  gatekeeperFromConfig,
+  hiddenSettingsFromConfig,
+  whiteListMintSettingsFromConfig,
+} from './config';
 
 export class CandyMachine extends Model {
   private constructor(
@@ -67,17 +73,13 @@ export class CandyMachine extends Model {
       address: tryConvertToPublickKey(creatorConfig.address),
     }));
 
-    const endSettings: EndSettings | undefined = endSettingsFromConfig(config.endSettings);
-
-    const gatekeeper: GatekeeperConfig | undefined =
-      config.gatekeeper != null
-        ? {
-            ...config.gatekeeper,
-            gatekeeperNetwork: tryConvertToPublickKey(config.gatekeeper.gatekeeperNetwork),
-          }
-        : undefined;
-
     const goLiveDate = tryConvertToMillisecondsSinceEpoch(config.goLiveDate);
+
+    const hiddenSettings = hiddenSettingsFromConfig(config.hiddenSettings);
+    const endSettings = endSettingsFromConfig(config.endSettings);
+    const whitelistMintSettings = whiteListMintSettingsFromConfig(config.whitelistMintSettings);
+    const gatekeeper = gatekeeperFromConfig(config.gatekeeper);
+
     return new CandyMachine(
       price,
       config.symbol ?? '',
@@ -89,11 +91,11 @@ export class CandyMachine extends Model {
       creators,
       new BN(config.number),
 
-      undefined, // uuid
+      undefined, // uuid is not known until the candy machine is created
       goLiveDate,
       endSettings,
-      undefined, // hiddenSettings
-      undefined, // whitelistMintSettings
+      hiddenSettings,
+      whitelistMintSettings,
       gatekeeper
     );
   }

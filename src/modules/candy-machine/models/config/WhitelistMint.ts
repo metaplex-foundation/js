@@ -1,8 +1,10 @@
 // -----------------
 // Whitelist Mint Settings
 
+import { WhitelistMintMode, WhitelistMintSettings } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
-import { PublicKeyString } from '../../../../shared';
+import { PublicKeyString, tryConvertToPublickKey } from '../../../../shared';
+import { UnreachableCaseError } from '../../../../utils';
 
 // -----------------
 export const BURN_EVERY_TIME = 'burnEveryTime';
@@ -32,3 +34,23 @@ export type WhitelistMintSettingsConfig = {
   presale: boolean;
   discountPrice: BN;
 };
+
+export function whiteListMintSettingsFromConfig(
+  config?: WhitelistMintSettingsConfig
+): WhitelistMintSettings | undefined {
+  if (config == null) return undefined;
+  let mode: WhitelistMintMode;
+  switch (config.mode) {
+    case BURN_EVERY_TIME:
+      mode = WhitelistMintMode.BurnEveryTime;
+      break;
+    case NEVER_BURN:
+      mode = WhitelistMintMode.NeverBurn;
+      break;
+    default:
+      throw new UnreachableCaseError(config.mode);
+  }
+  const mint = tryConvertToPublickKey(config.mint);
+
+  return { ...config, mode, mint };
+}

@@ -81,7 +81,7 @@ export type CandyMachineConfig = {
   splTokenAccount?: PublicKeyString;
   splToken?: PublicKeyString;
   gatekeeper?: GatekeeperSettingsConfig;
-  endSettings: EndSettingsConfig;
-  whitelistMintSettings: WhitelistMintSettingsConfig;
-  hiddenSettings: HiddenSettingsConfig;
+  endSettings?: EndSettingsConfig;
+  whitelistMintSettings?: WhitelistMintSettingsConfig;
+  hiddenSettings?: HiddenSettingsConfig;
 } & StorageConfig;

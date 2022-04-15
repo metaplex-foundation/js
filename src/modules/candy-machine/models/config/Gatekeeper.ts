@@ -1,3 +1,6 @@
+import { GatekeeperConfig } from '@metaplex-foundation/mpl-candy-machine';
+import { tryConvertToPublickKey } from '../../../../shared';
+
 /**
  * Configures {@link CandyMachineConfig.gatekeeper} settings.
  *
@@ -8,3 +11,14 @@ export type GatekeeperSettingsConfig = {
   gatekeeperNetwork: string;
   expireOnUse: boolean;
 };
+
+export function gatekeeperFromConfig(
+  config?: GatekeeperSettingsConfig
+): GatekeeperConfig | undefined {
+  if (config == null) return undefined;
+
+  return {
+    ...config,
+    gatekeeperNetwork: tryConvertToPublickKey(config.gatekeeperNetwork),
+  };
+}
