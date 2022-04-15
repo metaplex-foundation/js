@@ -13,7 +13,7 @@ import {
   Model,
   SolAmount,
 } from '../../../shared';
-import { CandyMachineConfig, endSettingsFromConfig } from './CandyMachineConfig';
+import { CandyMachineConfig, endSettingsFromConfig } from './config';
 
 export class CandyMachine extends Model {
   private constructor(
