@@ -1,4 +1,5 @@
 import { AbortSignal } from 'abort-controller';
+import { disposable } from '@/utils';
 import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
@@ -21,48 +22,31 @@ export abstract class Loader<T> {
       throw new Error('Loader is already running.');
     }
 
-    // Prepare abort listener.
-    const signal = options.signal;
-    const abortListener = (reason: unknown) => {
-      this.status = 'canceled';
-      this.error = reason;
-    };
-    signal?.addEventListener('abort', abortListener, { once: true });
-
-    try {
-      // Start loading.
-      this.status = 'running';
-      this.error = undefined;
-      this.result = await this.handle(metaplex);
-
-      // Mark as successful if the loader wasn't aborted.
-      if (!this.wasCanceled()) {
-        this.status = 'successful';
-      }
-
-      // Return the loaded result.
-      return this.result;
-    } catch (error) {
-      // Capture the error and reset the result.
-      this.error = error;
-      this.result = undefined;
-
-      // Mark as failed if the loader wasn't aborted.
-      if (!this.wasCanceled()) {
-        this.status = 'failed';
-      }
-
-      // Return undefined result if loaded aborted or if we want to fail silently.
-      if (this.wasCanceled() || (options.failSilently ?? false)) {
-        return this.result;
-      }
-
-      // Otherwise, re-throw the error.
-      throw error;
-    } finally {
-      // Clean up the abort listener.
-      signal?.removeEventListener('abort', abortListener);
-    }
+    return disposable(async ({ isCanceled }) => {
+        try {
+          // Start loading.
+          this.reset();
+          this.status = 'running';
+          this.result = await this.handle(metaplex);
+          this.status = isCanceled() ? 'canceled' : 'successful';
+    
+          // Return the loaded result.
+          return this.result;
+        } catch (error) {
+          // Capture the error and reset the result.
+          this.error = error;
+          this.result = undefined;
+          this.status = isCanceled() ? 'canceled' : 'failed';
+    
+          // Return undefined result if loaded aborted or if we want to fail silently.
+          if (isCanceled() || (options.failSilently ?? false)) {
+            return undefined;
+          }
+    
+          // Otherwise, re-throw the error.
+          throw error;
+        }
+    }, options.signal)
   }
 
   public async load(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {

@@ -85,29 +85,27 @@ export const walk = (
   }
 };
 
-export type CancelableOptions = {
-  isCanceled?: () => boolean;
+export interface DisposableScope {
+  isCanceled: () => boolean;
+  getCancelationError: () => unknown;
 };
 
-export const cancelable = <T = unknown>(callback: (options: CancelableOptions) => Promise<T>, signal?: AbortSignal): Promise<T> => {
+export const disposable = <T = unknown>(callback: (options: DisposableScope) => Promise<T>, signal?: AbortSignal): Promise<T> => {
   let canceled = false;
-  let cancelationError = null;
-  const isCanceled = () => canceled;
-  const getCancelationError = () => cancelationError;
-
-  if (!signal) {
-    return callback({ isCanceled });
+  let cancelationError: unknown = null;
+  const scope: DisposableScope = {
+    isCanceled: () => canceled,
+    getCancelationError: () => cancelationError,
   }
-
   const abortListener = (error: unknown) => {
     canceled = true;
     cancelationError = error;
   };
 
-  signal.addEventListener('abort', abortListener, { once: true });
+  signal?.addEventListener('abort', abortListener, { once: true });
+  try {
+    return callback(scope);
+  } finally {
+    signal?.removeEventListener('abort', abortListener);
+  }
 }
-
-
-cancelable(() => {
-  
-}, signal)
