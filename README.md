@@ -314,15 +314,14 @@ class Loader<T> {
     public isPending(): boolean;
     public isLoading(): boolean;
     public isLoaded(): boolean;
-    public wasSuccessful(): boolean;
-    public wasFailed(): boolean;
-    public wasCanceled(): boolean;
+    public isSuccessful(): boolean;
+    public isFailed(): boolean;
+    public isCanceled(): boolean;
 
     public load(options?: LoaderOptions): Promise<T | undefined>;
     public reload(options?: LoaderOptions): Promise<T | undefined>;
     public reset(): this;
     public loadWith(preloadedResult: T): this;
-    public setAbortSignal(abortSignal: AbortSignal): this;
 }
 ```
 

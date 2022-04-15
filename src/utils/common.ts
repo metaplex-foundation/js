@@ -90,9 +90,12 @@ export interface DisposableScope {
   getCancelationError: () => unknown;
   onCancel: (cb: (reason: unknown) => void) => void;
   throwIfCanceled: () => void;
-};
+}
 
-export const disposable = async <T = unknown>(signal: AbortSignal | undefined, callback: (options: DisposableScope) => Promise<T>): Promise<T> => {
+export const disposable = async <T = unknown>(
+  signal: AbortSignal | undefined,
+  callback: (options: DisposableScope) => Promise<T>
+): Promise<T> => {
   let canceled = false;
   let cancelationError: unknown = null;
   let cancelationCallback: (reason: unknown) => void = () => {};
@@ -103,12 +106,11 @@ export const disposable = async <T = unknown>(signal: AbortSignal | undefined, c
       cancelationCallback = callback;
     },
     throwIfCanceled: () => {
-      console.log('throwIfCanceled', canceled)
       if (canceled) {
         throw cancelationError;
       }
     },
-  }
+  };
 
   const abortListener = (error: unknown) => {
     canceled = true;
@@ -122,4 +124,4 @@ export const disposable = async <T = unknown>(signal: AbortSignal | undefined, c
   } finally {
     signal?.removeEventListener('abort', abortListener);
   }
-}
+};

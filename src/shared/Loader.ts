@@ -54,7 +54,7 @@ export abstract class Loader<T> {
         // Otherwise, re-throw the error.
         throw error;
       }
-    })
+    });
   }
 
   public async load(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
@@ -105,15 +105,15 @@ export abstract class Loader<T> {
     return this.status !== 'pending' && this.status !== 'running';
   }
 
-  public wasSuccessful(): boolean {
+  public isSuccessful(): boolean {
     return this.status === 'successful';
   }
 
-  public wasFailed(): boolean {
+  public isFailed(): boolean {
     return this.status === 'failed';
   }
 
-  public wasCanceled(): boolean {
+  public isCanceled(): boolean {
     return this.status === 'canceled';
   }
 }
