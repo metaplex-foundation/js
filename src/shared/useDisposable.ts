@@ -2,6 +2,7 @@ import { AbortSignal } from 'abort-controller';
 import { EventEmitter } from 'eventemitter3';
 
 export type DisposableScope = {
+  signal: AbortSignal | undefined;
   isCanceled: () => boolean;
   getCancelationError: () => unknown;
   throwIfCanceled: () => void;
@@ -28,6 +29,7 @@ export const useDisposable = (signal: AbortSignal | undefined) => {
 
   // Abort scope to give to the callback.
   const scope: DisposableScope = {
+    signal,
     isCanceled,
     getCancelationError,
     throwIfCanceled: () => {
