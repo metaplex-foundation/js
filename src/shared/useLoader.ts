@@ -1,12 +1,12 @@
-import { AbortSignal } from "abort-controller";
-import { useDisposable, DisposableScope } from "./useDisposable";
+import { AbortSignal } from 'abort-controller';
+import { useDisposable, DisposableScope } from './useDisposable';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
 export type LoaderOptions = {
   failSilently?: boolean;
   signal?: AbortSignal;
-}
+};
 
 export const useLoader = <T>(callback: (scope: DisposableScope) => T) => {
   // State.
@@ -61,7 +61,7 @@ export const useLoader = <T>(callback: (scope: DisposableScope) => T) => {
         throw error;
       }
     });
-  }
+  };
 
   const reload = async (options: LoaderOptions = {}): Promise<T | undefined> => {
     if (isRunning()) {
@@ -106,5 +106,5 @@ export const useLoader = <T>(callback: (scope: DisposableScope) => T) => {
 
       return this;
     },
-  }
+  };
 };
