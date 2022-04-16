@@ -12,24 +12,24 @@ export const useAbortSignal = async <T = unknown>(
   signal: AbortSignal | undefined,
   callback: (scope: AbortSignalScope) => Promise<T>
 ): Promise<T> => {
-  let canceled = false;
   let cancelationError: unknown = null;
-  let eventEmitter = new EventEmitter();
+  const isCanceled = () => signal?.aborted ?? false;
+  const getCancelationError = () => cancelationError;
+  const eventEmitter = new EventEmitter();
   const scope: AbortSignalScope = {
-    isCanceled: () => canceled,
-    getCancelationError: () => cancelationError,
+    isCanceled,
+    getCancelationError,
     onCancel: (callback: (reason: unknown) => void) => {
       eventEmitter.on('cancel', callback);
     },
     throwIfCanceled: () => {
-      if (canceled) {
-        throw cancelationError;
+      if (isCanceled()) {
+        throw getCancelationError();
       }
     },
   };
 
   const abortListener = (error: unknown) => {
-    canceled = true;
     cancelationError = error;
     eventEmitter.emit('cancel', error);
   };
