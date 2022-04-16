@@ -1,5 +1,5 @@
 import { AbortSignal } from 'abort-controller';
-import { useAbortSignal, AbortSignalScope } from '@/utils';
+import { useAbortSignal, AbortSignalScope } from './useAbortSignal';
 import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
