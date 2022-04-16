@@ -50,7 +50,7 @@ export const useDisposable = (signal: AbortSignal | undefined) => {
     getCancelationError,
     onCancel(callback: (reason: unknown) => unknown) {
       eventEmitter.on('cancel', callback);
-      return this; 
+      return this;
     },
   };
 };

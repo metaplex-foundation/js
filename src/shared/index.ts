@@ -14,3 +14,4 @@ export * from './Signer';
 export * from './SolAmount';
 export * from './TransactionBuilder';
 export * from './useDisposable';
+export * from './useLoader';
