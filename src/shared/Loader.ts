@@ -1,5 +1,5 @@
 import { AbortSignal } from 'abort-controller';
-import { disposable, DisposableScope } from '@/utils';
+import { useAbortSignal, AbortSignalScope } from '@/utils';
 import { Metaplex } from '../Metaplex';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
@@ -14,7 +14,7 @@ export abstract class Loader<T> {
   protected result?: T;
   protected error?: unknown;
 
-  public abstract handle(metaplex: Metaplex, disposableScope?: DisposableScope): Promise<T>;
+  public abstract handle(metaplex: Metaplex, AbortSignalScope?: AbortSignalScope): Promise<T>;
 
   public async reload(metaplex: Metaplex, options: LoaderOptions = {}): Promise<T | undefined> {
     if (this.isLoading()) {
@@ -22,7 +22,7 @@ export abstract class Loader<T> {
       throw new Error('Loader is already running.');
     }
 
-    return disposable(options.signal, async (scope) => {
+    return useAbortSignal(options.signal, async (scope) => {
       const { isCanceled, onCancel, throwIfCanceled } = scope;
 
       onCancel((error) => {

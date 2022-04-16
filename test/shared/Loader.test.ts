@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import { AbortController } from 'abort-controller';
-import { Loader, Metaplex, DisposableScope } from '@/index';
+import { Loader, Metaplex, AbortSignalScope } from '@/index';
 import { metaplexGuest } from 'test/helpers';
 
 class TestLoader<T> extends Loader<T> {
@@ -11,7 +11,7 @@ class TestLoader<T> extends Loader<T> {
     this.cb = cb;
   }
 
-  public async handle(_mx: Metaplex, { throwIfCanceled }: DisposableScope): Promise<T> {
+  public async handle(_mx: Metaplex, { throwIfCanceled }: AbortSignalScope): Promise<T> {
     const result = await this.cb();
     throwIfCanceled();
 

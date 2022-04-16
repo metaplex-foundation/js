@@ -1,4 +1,5 @@
 import { AbortSignal } from 'abort-controller';
+import { EventEmitter } from 'eventemitter3';
 import mime from 'mime';
 
 // eslint-disable-next-line no-control-regex
@@ -85,25 +86,25 @@ export const walk = (
   }
 };
 
-export interface DisposableScope {
+export interface AbortSignalScope {
   isCanceled: () => boolean;
   getCancelationError: () => unknown;
   onCancel: (cb: (reason: unknown) => void) => void;
   throwIfCanceled: () => void;
 }
 
-export const disposable = async <T = unknown>(
+export const useAbortSignal = async <T = unknown>(
   signal: AbortSignal | undefined,
-  callback: (options: DisposableScope) => Promise<T>
+  callback: (scope: AbortSignalScope) => Promise<T>
 ): Promise<T> => {
   let canceled = false;
   let cancelationError: unknown = null;
-  let cancelationCallback: (reason: unknown) => void = () => {};
-  const scope: DisposableScope = {
+  let eventEmitter = new EventEmitter();
+  const scope: AbortSignalScope = {
     isCanceled: () => canceled,
     getCancelationError: () => cancelationError,
     onCancel: (callback: (reason: unknown) => void) => {
-      cancelationCallback = callback;
+      eventEmitter.on('cancel', callback);
     },
     throwIfCanceled: () => {
       if (canceled) {
@@ -115,7 +116,7 @@ export const disposable = async <T = unknown>(
   const abortListener = (error: unknown) => {
     canceled = true;
     cancelationError = error;
-    cancelationCallback(error);
+    eventEmitter.emit('cancel', error);
   };
 
   signal?.addEventListener('abort', abortListener, { once: true });
@@ -123,5 +124,6 @@ export const disposable = async <T = unknown>(
     return await callback(scope);
   } finally {
     signal?.removeEventListener('abort', abortListener);
+    eventEmitter.removeAllListeners();
   }
 };
