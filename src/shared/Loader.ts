@@ -22,13 +22,14 @@ export abstract class Loader<T> {
       throw new Error('Loader is already running.');
     }
 
-    return useAbortSignal(options.signal, async (scope) => {
-      const { isCanceled, onCancel, throwIfCanceled } = scope;
-
-      onCancel((error) => {
+    const disposable = useAbortSignal(options.signal)
+      .onCancel((error) => {
         this.status = 'canceled';
         this.error = error;
       });
+
+    return disposable.run(async (scope) => {
+      const { isCanceled, throwIfCanceled } = scope;
 
       try {
         // Start loading.
