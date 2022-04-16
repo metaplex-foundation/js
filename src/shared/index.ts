@@ -13,4 +13,4 @@ export * from './Postpone';
 export * from './Signer';
 export * from './SolAmount';
 export * from './TransactionBuilder';
-export * from './useAbortSignal';
+export * from './useDisposable';

@@ -1,13 +1,13 @@
 import { AbortSignal } from 'abort-controller';
 import { EventEmitter } from 'eventemitter3';
 
-export type AbortSignalScope = {
+export type DisposableScope = {
   isCanceled: () => boolean;
   getCancelationError: () => unknown;
   throwIfCanceled: () => void;
 };
 
-export const useAbortSignal = (signal: AbortSignal | undefined) => {
+export const useDisposable = (signal: AbortSignal | undefined) => {
   // Abort getters.
   let cancelationError: unknown = null;
   const isCanceled = () => signal?.aborted ?? false;
@@ -27,7 +27,7 @@ export const useAbortSignal = (signal: AbortSignal | undefined) => {
   signal?.addEventListener('abort', abortListener);
 
   // Abort scope to give to the callback.
-  const scope: AbortSignalScope = {
+  const scope: DisposableScope = {
     isCanceled,
     getCancelationError,
     throwIfCanceled: () => {
@@ -36,7 +36,7 @@ export const useAbortSignal = (signal: AbortSignal | undefined) => {
       }
     },
   };
-  const run = async <T = unknown>(callback: (scope: AbortSignalScope) => T): Promise<T> => {
+  const run = async <T = unknown>(callback: (scope: DisposableScope) => T): Promise<T> => {
     try {
       return await Promise.resolve(callback(scope));
     } finally {
