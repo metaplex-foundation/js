@@ -3,6 +3,7 @@ import { EventEmitter } from 'eventemitter3';
 import { useDisposable, DisposableScope } from './useDisposable';
 
 export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export type LoaderCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
 export type LoaderOptions = {
   failSilently?: boolean;
@@ -30,7 +31,7 @@ export type Loader<T> = {
   onCancel: (callback: () => unknown) => Loader<T>;
 };
 
-export const useLoader = <T>(callback: (scope: DisposableScope) => T | Promise<T>) => {
+export const useLoader = <T>(callback: LoaderCallback<T>) => {
   // State.
   let status: LoaderStatus = 'pending';
   let result: T | undefined = undefined;
