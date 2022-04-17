@@ -6,6 +6,6 @@ import { Nft } from './Nft';
 export type JsonMetadataLoader = Loader<JsonMetadata>;
 
 export const useJsonMetadataLoader = (metaplex: Metaplex, nft: Nft): JsonMetadataLoader =>
-  useLoader(() => {
-    return metaplex.storage().downloadJson<JsonMetadata>(nft.uri);
+  useLoader(({ signal }) => {
+    return metaplex.storage().downloadJson<JsonMetadata>(nft.uri, { signal });
   });
