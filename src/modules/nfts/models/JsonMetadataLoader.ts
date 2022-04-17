@@ -1,10 +1,10 @@
 import { Metaplex } from '@/Metaplex';
-import { Loader } from '@/shared';
+import { OldLoader } from '@/shared';
 import { removeEmptyChars } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { Nft } from './Nft';
 
-export class JsonMetadataLoader extends Loader<JsonMetadata> {
+export class JsonMetadataLoader extends OldLoader<JsonMetadata> {
   protected nft: Nft;
 
   constructor(nft: Nft) {

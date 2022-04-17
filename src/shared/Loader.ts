@@ -2,7 +2,7 @@ import { useDisposable, DisposableScope } from './useDisposable';
 import { Metaplex } from '../Metaplex';
 import { LoaderOptions, LoaderStatus } from './useLoader';
 
-export abstract class Loader<T> {
+export abstract class OldLoader<T> {
   protected status: LoaderStatus = 'pending';
   protected result?: T;
   protected error?: unknown;

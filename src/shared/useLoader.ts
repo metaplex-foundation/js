@@ -9,6 +9,27 @@ export type LoaderOptions = {
   signal?: AbortSignal;
 };
 
+export type Loader<T> = {
+  getStatus: () => LoaderStatus;
+  getResult: () => T | undefined;
+  getError: () => unknown;
+  isPending: () => boolean;
+  isRunning: () => boolean;
+  isLoaded: () => boolean;
+  isSuccessful: () => boolean;
+  isFailed: () => boolean;
+  isCanceled: () => boolean;
+  reload: (options?: LoaderOptions) => Promise<T | undefined>;
+  load: (options?: LoaderOptions) => Promise<T | undefined>;
+  loadWith: (preloadedResult: T) => Loader<T>;
+  reset: () => Loader<T>;
+  onStatusChange: (callback: (status: LoaderStatus) => unknown) => Loader<T>;
+  onStatusChangeTo: (status: LoaderStatus, callback: () => unknown) => Loader<T>;
+  onSuccess: (callback: () => unknown) => Loader<T>;
+  onFailure: (callback: () => unknown) => Loader<T>;
+  onCancel: (callback: () => unknown) => Loader<T>;
+};
+
 export const useLoader = <T>(callback: (scope: DisposableScope) => T) => {
   // State.
   let status: LoaderStatus = 'pending';

@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import AbortController from 'abort-controller';
-import { useLoader } from '@/index';
+import { useLoader, Loader } from '@/index';
 
 test('it can succeed with an asynchronous callback', async (t: Test) => {
   // Given a "pending" async loader that returns a number.
@@ -125,4 +125,45 @@ test('it can be loaded with a preloaded result', async (t: Test) => {
   t.equal(loader.getStatus(), 'successful');
   t.equal(loader.getResult(), 180);
   t.equal(loader.getError(), undefined);
+});
+
+test('it can listen to status changes', async (t: Test) => {
+  // Given a helper methods that keeps track of a loader's history.
+  const useHistory = async <T>(loader: Loader<T>) => {
+    const history: string[] = [];
+    await loader.onStatusChange((status) => history.push(status));
+    return history;
+  };
+
+  // Then we get the right history for successful loaders.
+  const l1 = useLoader(() => 42);
+  const h1 = await useHistory(l1);
+  await l1.load();
+  t.deepEqual(h1, ['running', 'successful']);
+
+  // And we get the right history for failed loaders.
+  const l2 = useLoader(() => {
+    throw new Error();
+  });
+  const h2 = await useHistory(l2);
+  await l2.load({ failSilently: true });
+  t.deepEqual(h2, ['running', 'failed']);
+
+  // And we get the right history for canceled loaders.
+  const abortController = new AbortController();
+  setTimeout(() => abortController.abort(), 10);
+  const l3 = useLoader(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return 42;
+  });
+  const h3 = await useHistory(l3);
+  await l3.load({ signal: abortController.signal });
+  t.deepEqual(h3, ['running', 'canceled']);
+
+  // And we get the right history for preloaded and resetted loaders.
+  const l4 = useLoader(() => 42);
+  const h4 = await useHistory(l4);
+  l4.loadWith(180);
+  l4.reset();
+  t.deepEqual(h4, ['successful', 'pending']);
 });
