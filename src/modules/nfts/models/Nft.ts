@@ -6,12 +6,13 @@ import {
   Creator,
   MasterEditionV2Args,
 } from '@metaplex-foundation/mpl-token-metadata';
+import { Metaplex } from '@/Metaplex';
 import { Model } from '@/shared';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
-import { JsonMetadataLoader } from './JsonMetadataLoader';
 import { removeEmptyChars } from '@/utils';
-import { MasterEditionLoader } from './MasterEditionLoader';
+import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';
+import { useJsonMetadataLoader, JsonMetadataLoader } from './useJsonMetadataLoader';
+import { useMasterEditionLoader, MasterEditionLoader } from './useMasterEditionLoader';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
@@ -36,11 +37,11 @@ export class Nft extends Model {
   public readonly collection: Collection | null;
   public readonly uses: Uses | null;
 
-  constructor(metadataAccount: MetadataAccount) {
+  constructor(metadataAccount: MetadataAccount, metaplex: Metaplex) {
     super();
     this.metadataAccount = metadataAccount;
-    this.metadataLoader = new JsonMetadataLoader(this);
-    this.masterEditionLoader = new MasterEditionLoader(this);
+    this.metadataLoader = useJsonMetadataLoader(metaplex, this);
+    this.masterEditionLoader = useMasterEditionLoader(metaplex, this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;

@@ -30,7 +30,7 @@ export type Loader<T> = {
   onCancel: (callback: () => unknown) => Loader<T>;
 };
 
-export const useLoader = <T>(callback: (scope: DisposableScope) => T) => {
+export const useLoader = <T>(callback: (scope: DisposableScope) => T | Promise<T>) => {
   // State.
   let status: LoaderStatus = 'pending';
   let result: T | undefined = undefined;
