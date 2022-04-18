@@ -76,7 +76,7 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   try {
     await loader.load({ signal: abortController.signal });
   } catch (error) {
-    //
+    // Fail silently...
   }
 
   // Then the loader was marked as canceled.
