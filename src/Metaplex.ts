@@ -20,7 +20,7 @@ import {
   getSignerHistogram,
   OperationConstructor,
   Operation,
-  NameOfOperation,
+  KeyOfOperation,
   InputOfOperation,
   OutputOfOperation,
   OperationHandler,
@@ -153,27 +153,27 @@ export class Metaplex {
   }
 
   register<
-    T extends Operation<N, I, O>,
-    N extends string = NameOfOperation<T>,
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(
-    operationConstructor: OperationConstructor<T, N, I, O>,
-    operationHandler: OperationHandler<T, N, I, O>
+    operationConstructor: OperationConstructor<T, K, I, O>,
+    operationHandler: OperationHandler<T, K, I, O>
   ) {
-    this.operationHandlers.set(operationConstructor.name, operationHandler);
+    this.operationHandlers.set(operationConstructor.key, operationHandler);
 
     return this;
   }
 
   getOperationHandler<
-    T extends Operation<N, I, O>,
-    N extends string = NameOfOperation<T>,
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
-  >(operation: T): OperationHandler<T, N, I, O> {
+  >(operation: T): OperationHandler<T, K, I, O> {
     const operationHandler = this.operationHandlers.get(operation.key) as
-      | OperationHandler<T, N, I, O>
+      | OperationHandler<T, K, I, O>
       | undefined;
 
     if (!operationHandler) {
@@ -185,21 +185,21 @@ export class Metaplex {
   }
 
   getLoader<
-    T extends Operation<N, I, O>,
-    N extends string = NameOfOperation<T>,
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(operation: T): Loader<O> {
-    return this.getOperationHandler<T, N, I, O>(operation)(this, operation);
+    return this.getOperationHandler<T, K, I, O>(operation)(this, operation);
   }
 
   async execute<
-    T extends Operation<N, I, O>,
-    N extends string = NameOfOperation<T>,
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(operation: T, options: LoaderOptions = {}): Promise<O> {
-    const output = await this.getLoader<T, N, I, O>(operation).load(options);
+    const output = await this.getLoader<T, K, I, O>(operation).load(options);
 
     if (!output) {
       // TODO: Refactor

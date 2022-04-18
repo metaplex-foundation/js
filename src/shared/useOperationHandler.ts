@@ -1,11 +1,11 @@
 import { Metaplex } from '../Metaplex';
 import { DisposableScope } from './useDisposable';
 import { useLoader, Loader } from './useLoader';
-import { Operation, InputOfOperation, OutputOfOperation, NameOfOperation } from './useOperation';
+import { Operation, InputOfOperation, OutputOfOperation, KeyOfOperation } from './useOperation';
 
 export type OperationHandler<
-  T extends Operation<N, I, O>,
-  N extends string = NameOfOperation<T>,
+  T extends Operation<K, I, O>,
+  K extends string = KeyOfOperation<T>,
   I = InputOfOperation<T>,
   O = OutputOfOperation<T>
 > = {
@@ -14,8 +14,8 @@ export type OperationHandler<
 };
 
 export const useOperationHandler = <
-  T extends Operation<N, I, O>,
-  N extends string = NameOfOperation<T>,
+  T extends Operation<K, I, O>,
+  K extends string = KeyOfOperation<T>,
   I = InputOfOperation<T>,
   O = OutputOfOperation<T>
 >(
@@ -28,5 +28,5 @@ export const useOperationHandler = <
 
   getLoader.__typename = 'OperationHandler';
 
-  return getLoader as OperationHandler<T, N, I, O>;
+  return getLoader as OperationHandler<T, K, I, O>;
 };
