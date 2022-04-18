@@ -5,7 +5,7 @@ import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
 import { planUploadMetadataOperation } from '@/modules';
-import { planUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
+import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
 
 export interface BundlrOptions {
