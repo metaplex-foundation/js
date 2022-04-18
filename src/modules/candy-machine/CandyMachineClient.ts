@@ -1,7 +1,7 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { ModuleClient, tryConvertToPublickKey } from '../../shared';
 import { CandyMachine } from './models/CandyMachine';
-import { CandyMachineConfig } from './models/config';
+import { CandyMachineConfig, StorageConfig } from './models/config';
 import { InitCandyMachineInput, InitCandyMachineOperation } from './operations';
 
 export class CandyMachineClient extends ModuleClient {
@@ -13,8 +13,8 @@ export class CandyMachineClient extends ModuleClient {
   }
 
   initCandyMachineFromConfig(
-    config: CandyMachineConfig,
-    payer: Keypair,
+    config: Omit<CandyMachineConfig, keyof StorageConfig>,
+    payer: PublicKey,
     {
       authority,
       candyMachine,

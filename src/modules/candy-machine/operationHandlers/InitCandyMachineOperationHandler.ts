@@ -8,8 +8,8 @@ export class InitCandyMachineOperationHandler extends OperationHandler<InitCandy
     const {
       payer,
       candyMachine = Keypair.generate().publicKey,
-      wallet = payer.publicKey,
-      authority = payer.publicKey,
+      wallet = payer,
+      authority = payer,
       candyMachineModel,
       confirmOptions,
     } = operation.input;

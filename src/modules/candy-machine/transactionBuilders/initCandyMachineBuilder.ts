@@ -6,7 +6,9 @@ import {
 import { TransactionBuilder } from '../../../shared';
 import { InitCandyMachineInput } from '../operations';
 
-export type InitCandyMachineBuilderParams = Required<InitCandyMachineInput>;
+export type InitCandyMachineBuilderParams = Required<
+  Omit<InitCandyMachineInput, 'confirmOptions'>
+> & { confirmOptions: InitCandyMachineInput['confirmOptions'] };
 
 export function initCandyMachineBuilder(params: InitCandyMachineBuilderParams): TransactionBuilder {
   const { candyMachineModel, candyMachine, wallet, payer, authority } = params;
@@ -16,14 +18,14 @@ export function initCandyMachineBuilder(params: InitCandyMachineBuilderParams): 
   const accounts: InitializeCandyMachineInstructionAccounts = {
     candyMachine,
     wallet,
-    payer: payer.publicKey,
+    payer,
     authority,
   };
   const instruction = createInitializeCandyMachineInstruction(accounts, args);
 
   return TransactionBuilder.make().add({
     instruction,
-    signers: [payer],
+    signers: [], // TODO(thlorenz): assuming identity will be used to sign
     key: 'initializeCandyMachine',
   });
 }
