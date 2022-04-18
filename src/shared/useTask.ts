@@ -16,7 +16,7 @@ export type Task<T> = {
   getError: () => unknown;
   isPending: () => boolean;
   isRunning: () => boolean;
-  isLoaded: () => boolean;
+  isCompleted: () => boolean;
   isSuccessful: () => boolean;
   isFailed: () => boolean;
   isCanceled: () => boolean;
@@ -43,7 +43,7 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
   const getError = () => error;
   const isPending = () => status === 'pending';
   const isRunning = () => status === 'running';
-  const isLoaded = () => status !== 'pending' && status !== 'running';
+  const isCompleted = () => status !== 'pending' && status !== 'running';
   const isSuccessful = () => status === 'successful';
   const isFailed = () => status === 'failed';
   const isCanceled = () => status === 'canceled';
@@ -111,7 +111,7 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
     getError,
     isPending,
     isRunning,
-    isLoaded,
+    isCompleted,
     isSuccessful,
     isFailed,
     isCanceled,
