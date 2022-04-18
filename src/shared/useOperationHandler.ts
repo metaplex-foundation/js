@@ -1,28 +1,23 @@
 import { Metaplex } from '../Metaplex';
 import { DisposableScope } from './useDisposable';
 import { useLoader, Loader } from './useLoader';
-import {
-  NewOperation,
-  NewInputOfOperation,
-  NewOutputOfOperation,
-  NewNameOfOperation,
-} from './useOperation';
+import { Operation, InputOfOperation, OutputOfOperation, NameOfOperation } from './useOperation';
 
-export type NewOperationHandler<
-  T extends NewOperation<N, I, O>,
-  N extends string = NewNameOfOperation<T>,
-  I = NewInputOfOperation<T>,
-  O = NewOutputOfOperation<T>
+export type OperationHandler<
+  T extends Operation<N, I, O>,
+  N extends string = NameOfOperation<T>,
+  I = InputOfOperation<T>,
+  O = OutputOfOperation<T>
 > = {
   __typename: 'OperationHandler';
   (metaplex: Metaplex, operation: T): Loader<O>;
 };
 
 export const useOperationHandler = <
-  T extends NewOperation<N, I, O>,
-  N extends string = NewNameOfOperation<T>,
-  I = NewInputOfOperation<T>,
-  O = NewOutputOfOperation<T>
+  T extends Operation<N, I, O>,
+  N extends string = NameOfOperation<T>,
+  I = InputOfOperation<T>,
+  O = OutputOfOperation<T>
 >(
   callback: (metaplex: Metaplex, operation: T, scope: DisposableScope) => O | Promise<O>
 ) => {
@@ -31,5 +26,7 @@ export const useOperationHandler = <
       return callback(metaplex, operation, scope);
     });
 
-  return getLoader as NewOperationHandler<T, N, I, O>;
+  getLoader.__typename = 'OperationHandler';
+
+  return getLoader as OperationHandler<T, N, I, O>;
 };

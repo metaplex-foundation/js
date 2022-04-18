@@ -1,11 +1,11 @@
 import { MetaplexFile } from '@/drivers';
-import { NewOperation, useOperation } from '@/shared';
+import { Operation, useOperation } from '@/shared';
 import { JsonMetadata } from '../models';
 
 export const uploadMetadataOperation =
   useOperation<UploadMetadataOperation>('UploadMetadataOperation');
 
-export type UploadMetadataOperation = NewOperation<
+export type UploadMetadataOperation = Operation<
   'UploadMetadataOperation',
   UploadMetadataInput,
   UploadMetadataOutput

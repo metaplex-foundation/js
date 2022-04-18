@@ -56,7 +56,7 @@ const uploadMetadata = async (
   return { metadata, uri };
 };
 
-const getAssetsFromJsonMetadata = (input: UploadMetadataInput): MetaplexFile[] => {
+export const getAssetsFromJsonMetadata = (input: UploadMetadataInput): MetaplexFile[] => {
   const files: MetaplexFile[] = [];
 
   walk(input, (walk, value) => {
@@ -70,7 +70,7 @@ const getAssetsFromJsonMetadata = (input: UploadMetadataInput): MetaplexFile[] =
   return files;
 };
 
-const replaceAssetsWithUris = (
+export const replaceAssetsWithUris = (
   input: UploadMetadataInput,
   replacements: string[]
 ): JsonMetadata => {

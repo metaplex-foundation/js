@@ -1,28 +1,36 @@
+import { Metaplex } from '@/Metaplex';
 import {
+  getAssetsFromJsonMetadata,
   PlanUploadMetadataOperation,
-  PlanUploadMetadataOperationHandler,
+  planUploadMetadataOperationHandler,
+  replaceAssetsWithUris,
   UploadMetadataOutput,
-} from '@/modules';
-import { Plan } from '@/shared';
+} from '@/modules/nfts';
+import { Plan, useOperationHandler } from '@/shared';
 import { MetaplexFile } from '../filesystem';
 import { BundlrStorageDriver } from './BundlrStorageDriver';
 
-export class PlanUploadMetadataUsingBundlrOperationHandler extends PlanUploadMetadataOperationHandler {
-  public async handle(
+export const planUploadMetadataUsingBundlrOperationHandler = useOperationHandler<PlanUploadMetadataOperation>(
+  async (
+    metaplex: Metaplex,
     operation: PlanUploadMetadataOperation
-  ): Promise<Plan<any, UploadMetadataOutput>> {
+  ): Promise<Plan<any, UploadMetadataOutput>> => {
     const metadata = operation.input;
-    const plan = await super.handle(operation);
-    const storage = this.metaplex.storage();
+    const plan = await planUploadMetadataOperationHandler(metaplex, operation).load();
+    const storage = metaplex.storage();
+
+    if (!plan) {
+      throw new Error('Temporary error');
+    }
 
     if (!(storage instanceof BundlrStorageDriver)) {
       return plan;
     }
 
-    const assets = this.getAssetsFromJsonMetadata(metadata);
+    const assets = getAssetsFromJsonMetadata(metadata);
     const mockUri = 'x'.repeat(100);
     const mockUris = assets.map(() => mockUri);
-    const mockedMetadata = this.replaceAssetsWithUris(metadata, mockUris);
+    const mockedMetadata = replaceAssetsWithUris(metadata, mockUris);
     const files: MetaplexFile[] = [...assets, MetaplexFile.fromJson(mockedMetadata)];
 
     return plan.prependStep<any>({
@@ -37,5 +45,4 @@ export class PlanUploadMetadataUsingBundlrOperationHandler extends PlanUploadMet
         await storage.fund(files);
       },
     });
-  }
-}
+  });

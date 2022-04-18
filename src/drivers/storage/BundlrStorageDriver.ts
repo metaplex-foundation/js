@@ -4,8 +4,8 @@ import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
-import { PlanUploadMetadataOperation } from '@/modules';
-import { PlanUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
+import { planUploadMetadataOperation } from '@/modules';
+import { planUploadMetadataUsingBundlrOperationHandler } from './PlanUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
 
 export interface BundlrOptions {
@@ -18,7 +18,7 @@ export interface BundlrOptions {
 export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.setStorage(new BundlrStorageDriver(metaplex, options));
-    metaplex.register(PlanUploadMetadataOperation, PlanUploadMetadataUsingBundlrOperationHandler);
+    metaplex.register(planUploadMetadataOperation, planUploadMetadataUsingBundlrOperationHandler);
   },
 });
 

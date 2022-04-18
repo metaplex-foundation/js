@@ -1,41 +1,42 @@
-export type NewNameOfOperation<T> = T extends NewOperation<infer N, unknown, unknown> ? N : never;
-export type NewInputOfOperation<T> = T extends NewOperation<string, infer I, unknown> ? I : never;
-export type NewOutputOfOperation<T> = T extends NewOperation<string, unknown, infer O> ? O : never;
+export type NameOfOperation<T> = T extends Operation<infer N, unknown, unknown> ? N : never;
+export type InputOfOperation<T> = T extends Operation<string, infer I, unknown> ? I : never;
+export type OutputOfOperation<T> = T extends Operation<string, unknown, infer O> ? O : never;
 
-export type NewOperation<N extends string, I, O> = {
+export type Operation<N extends string, I, O> = {
   __typename: 'Operation';
-  name: N;
+  key: N;
   input: I;
 
   // This is necessary for type inference.
   __output?: O;
 };
 
-export type NewOperationConstructor<
-  T extends NewOperation<N, I, O>,
-  N extends string = NewNameOfOperation<T>,
-  I = NewInputOfOperation<T>,
-  O = NewOutputOfOperation<T>
+export type OperationConstructor<
+  T extends Operation<N, I, O>,
+  N extends string = NameOfOperation<T>,
+  I = InputOfOperation<T>,
+  O = OutputOfOperation<T>
 > = {
-  name: string;
+  key: string;
   (input: I): T;
 };
 
 export const useOperation = <
-  T extends NewOperation<N, I, O>,
-  N extends string = NewNameOfOperation<T>,
-  I = NewInputOfOperation<T>,
-  O = NewOutputOfOperation<T>
+  T extends Operation<N, I, O>,
+  N extends string = NameOfOperation<T>,
+  I = InputOfOperation<T>,
+  O = OutputOfOperation<T>
 >(
-  name: N
-): NewOperationConstructor<T, N, I, O> => {
+  key: N
+): OperationConstructor<T, N, I, O> => {
   const constructor = (input: I) => {
     return {
-      name,
+      __typename: 'Operation',
+      key,
       input,
     } as T;
   };
-  constructor.name = name;
+  constructor.key = key;
 
   return constructor;
 };
