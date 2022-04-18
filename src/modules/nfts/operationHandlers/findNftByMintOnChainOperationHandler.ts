@@ -1,11 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { useOperationHandler } from '@/shared';
+import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { FindNftByMintOperation } from '../operations/findNftByMintOperation';
 import { MasterEditionAccount, MetadataAccount } from '@/programs';
 
-export const findNftByMintOnChainOperationHandler = useOperationHandler<FindNftByMintOperation>(
-  async (metaplex: Metaplex, operation: FindNftByMintOperation): Promise<Nft> => {
+export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> = {
+  handle: async (operation: FindNftByMintOperation, metaplex: Metaplex): Promise<Nft> => {
     const mint = operation.input;
     const [metadataInfo, masterEditionInfo] = await metaplex.getMultipleAccountsInfo([
       await MetadataAccount.pda(mint),
@@ -27,5 +27,5 @@ export const findNftByMintOnChainOperationHandler = useOperationHandler<FindNftB
     nft.masterEditionLoader.loadWith(masterEditionAccount);
 
     return nft;
-  }
-);
+  },
+};

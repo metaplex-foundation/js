@@ -1,12 +1,12 @@
 import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { useOperationHandler } from '@/shared';
+import { OperationHandler } from '@/shared';
 import { MetadataAccount } from '@/programs';
 import { UpdateNftInput, UpdateNftOperation, UpdateNftOutput } from '../operations';
 import { updateNftBuilder } from '../transactionBuilders';
 
-export const updateNftOperationHandler = useOperationHandler<UpdateNftOperation>(
-  async (metaplex: Metaplex, operation: UpdateNftOperation): Promise<UpdateNftOutput> => {
+export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
+  handle: async (operation: UpdateNftOperation, metaplex: Metaplex): Promise<UpdateNftOutput> => {
     const {
       nft,
       newUpdateAuthority = nft.updateAuthority,
@@ -34,8 +34,8 @@ export const updateNftOperationHandler = useOperationHandler<UpdateNftOperation>
     );
 
     return { transactionId };
-  }
-);
+  },
+};
 
 const resolveData = (input: UpdateNftInput): DataV2 => {
   const { nft } = input;

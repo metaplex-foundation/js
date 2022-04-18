@@ -1,11 +1,11 @@
 import { Metaplex } from '@/Metaplex';
 import { TokenProgram } from '@/programs';
-import { useOperationHandler } from '@/shared';
+import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { findNftsByMintListOperation, FindNftsByOwnerOperation } from '../operations';
 
-export const findNftsByOwnerOnChainOperationHandler = useOperationHandler<FindNftsByOwnerOperation>(
-  async (metaplex: Metaplex, operation: FindNftsByOwnerOperation): Promise<Nft[]> => {
+export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsByOwnerOperation> = {
+  handle: async (operation: FindNftsByOwnerOperation, metaplex: Metaplex): Promise<Nft[]> => {
     const owner = operation.input;
 
     const mints = await TokenProgram.tokenAccounts(metaplex.connection)
@@ -17,5 +17,5 @@ export const findNftsByOwnerOnChainOperationHandler = useOperationHandler<FindNf
     const nfts = await metaplex.execute(findNftsByMintListOperation(mints));
 
     return nfts.filter((nft): nft is Nft => nft !== null);
-  }
-);
+  },
+};

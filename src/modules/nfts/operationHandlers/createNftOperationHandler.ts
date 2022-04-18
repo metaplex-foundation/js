@@ -2,14 +2,14 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
 import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
 import { Creator, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
-import { useOperationHandler } from '@/shared';
 import { CreateNftInput, CreateNftOperation } from '../operations';
 import { JsonMetadata } from '../models/JsonMetadata';
 import { createNftBuilder } from '../transactionBuilders';
 import { Metaplex } from '@/Metaplex';
+import { OperationHandler } from '@/shared';
 
-export const createNftOperationHandler = useOperationHandler<CreateNftOperation>(
-  async (metaplex: Metaplex, operation: CreateNftOperation) => {
+export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
+  handle: async (operation: CreateNftOperation, metaplex: Metaplex) => {
     const {
       uri,
       isMutable,
@@ -69,8 +69,8 @@ export const createNftOperationHandler = useOperationHandler<CreateNftOperation>
       associatedToken,
       transactionId,
     };
-  }
-);
+  },
+};
 
 const resolveData = (
   input: CreateNftInput,

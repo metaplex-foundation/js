@@ -6,18 +6,19 @@ import {
   replaceAssetsWithUris,
   UploadMetadataOutput,
 } from '@/modules/nfts';
-import { Plan, useOperationHandler } from '@/shared';
+import { Plan, OperationHandler, DisposableScope } from '@/shared';
 import { MetaplexFile } from '../filesystem';
 import { BundlrStorageDriver } from './BundlrStorageDriver';
 
-export const planUploadMetadataUsingBundlrOperationHandler =
-  useOperationHandler<PlanUploadMetadataOperation>(
-    async (
+export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<PlanUploadMetadataOperation> =
+  {
+    handle: async (
+      operation: PlanUploadMetadataOperation,
       metaplex: Metaplex,
-      operation: PlanUploadMetadataOperation
+      scope: DisposableScope
     ): Promise<Plan<any, UploadMetadataOutput>> => {
       const metadata = operation.input;
-      const plan = await planUploadMetadataOperationHandler(metaplex, operation).load();
+      const plan = await planUploadMetadataOperationHandler.handle(operation, metaplex, scope);
       const storage = metaplex.storage();
 
       if (!(storage instanceof BundlrStorageDriver)) {
@@ -42,5 +43,5 @@ export const planUploadMetadataUsingBundlrOperationHandler =
           await storage.fund(files);
         },
       });
-    }
-  );
+    },
+  };

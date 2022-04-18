@@ -1,12 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { useOperationHandler } from '@/shared';
+import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { FindNftsByCandyMachineOperation, findNftsByCreatorOperation } from '../operations';
 
-export const findNftsByCandyMachineOnChainOperationHandler =
-  useOperationHandler<FindNftsByCandyMachineOperation>(
-    async (metaplex: Metaplex, operation: FindNftsByCandyMachineOperation): Promise<Nft[]> => {
+export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<FindNftsByCandyMachineOperation> =
+  {
+    handle: async (
+      operation: FindNftsByCandyMachineOperation,
+      metaplex: Metaplex
+    ): Promise<Nft[]> => {
       const { candyMachine, version = 2 } = operation.input;
       let firstCreator = candyMachine;
 
@@ -24,5 +27,5 @@ export const findNftsByCandyMachineOnChainOperationHandler =
           position: 1,
         })
       );
-    }
-  );
+    },
+  };

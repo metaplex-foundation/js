@@ -1,12 +1,15 @@
 import { Metaplex } from '@/Metaplex';
 import { MetadataAccount } from '@/programs';
-import { GmaBuilder, useOperationHandler } from '@/shared';
+import { GmaBuilder, OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { FindNftsByMintListOperation } from '../operations/findNftsByMintListOperation';
 
-export const findNftsByMintListOnChainOperationHandler =
-  useOperationHandler<FindNftsByMintListOperation>(
-    async (metaplex: Metaplex, operation: FindNftsByMintListOperation): Promise<(Nft | null)[]> => {
+export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNftsByMintListOperation> =
+  {
+    handle: async (
+      operation: FindNftsByMintListOperation,
+      metaplex: Metaplex
+    ): Promise<(Nft | null)[]> => {
       const mints = operation.input;
       const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
       const metadataInfos = await GmaBuilder.make(metaplex.connection, metadataPdas).get();
@@ -21,5 +24,5 @@ export const findNftsByMintListOnChainOperationHandler =
           return null;
         }
       });
-    }
-  );
+    },
+  };

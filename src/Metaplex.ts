@@ -27,7 +27,7 @@ import {
 } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { Loader, LoaderOptions } from './shared/useLoader';
+import { Loader, LoaderOptions, useLoader } from './shared/useLoader';
 
 export type MetaplexOptions = {
   // ...
@@ -189,7 +189,11 @@ export class Metaplex {
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(operation: T): Loader<O> {
-    return this.getOperationHandler<T, K, I, O>(operation)(this, operation);
+    const operationHandler = this.getOperationHandler<T, K, I, O>(operation);
+
+    return useLoader((scope) => {
+      return operationHandler.handle(operation, this, scope);
+    });
   }
 
   execute<

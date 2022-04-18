@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexFile } from '@/drivers';
-import { Plan, useOperationHandler } from '@/shared';
+import { Plan, OperationHandler } from '@/shared';
 import { walk } from '@/utils';
 import { JsonMetadata } from '../models';
 import {
@@ -10,10 +10,10 @@ import {
   UploadMetadataOutput,
 } from '../operations';
 
-export const planUploadMetadataOperationHandler = useOperationHandler<PlanUploadMetadataOperation>(
-  async (
-    metaplex: Metaplex,
-    operation: PlanUploadMetadataOperation
+export const planUploadMetadataOperationHandler: OperationHandler<PlanUploadMetadataOperation> = {
+  handle: async (
+    operation: PlanUploadMetadataOperation,
+    metaplex: Metaplex
   ): Promise<Plan<any, UploadMetadataOutput>> => {
     const metadata = operation.input;
     const files = getAssetsFromJsonMetadata(metadata);
@@ -34,8 +34,8 @@ export const planUploadMetadataOperationHandler = useOperationHandler<PlanUpload
         name: 'Upload the metadata',
         handler: (input) => uploadMetadata(metaplex, input),
       });
-  }
-);
+  },
+};
 
 const uploadAssets = async (
   metaplex: Metaplex,
