@@ -7,12 +7,8 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
-import {
-  tryConvertToPublickKey,
-  tryConvertToMillisecondsSinceEpoch,
-  Model,
-  SolAmount,
-} from '../../../shared';
+import { tryConvertToPublickKey, tryConvertToMillisecondsSinceEpoch, Model } from '../../../shared';
+import { strict as assert } from 'assert';
 import {
   CandyMachineConfig,
   endSettingsFromConfig,
@@ -21,10 +17,11 @@ import {
   StorageConfig,
   whiteListMintSettingsFromConfig,
 } from './config';
+import { PublicKey } from '@solana/web3.js';
 
 export class CandyMachine extends Model {
   private constructor(
-    readonly price: SolAmount,
+    readonly price: BN,
     readonly symbol: string,
     readonly sellerFeeBasisPoints: number,
 
@@ -46,11 +43,37 @@ export class CandyMachine extends Model {
     super();
   }
 
+  getData(candyMachinePubkey?: PublicKey): CandyMachineData {
+    let uuid = this.uuid;
+    if (uuid == null && candyMachinePubkey != null) {
+      uuid = candyMachineUuidFromPubkey(candyMachinePubkey);
+    }
+    assert(uuid != null, 'uuid must be set or the pda provided in order to derive it');
+    return {
+      price: this.price,
+      symbol: this.symbol,
+      sellerFeeBasisPoints: this.sellerFeeBasisPoints,
+
+      maxSupply: this.maxSupply,
+      isMutable: this.isMutable,
+      retainAuthority: this.retainAuthority,
+      creators: this.creators,
+      itemsAvailable: this.itemsAvailable,
+
+      uuid,
+      goLiveDate: this.goLiveDate ?? null,
+      endSettings: this.endSettings ?? null,
+      hiddenSettings: this.hiddenSettings ?? null,
+      whitelistMintSettings: this.whitelistMintSettings ?? null,
+      gatekeeper: this.gatekeeper ?? null,
+    };
+  }
+
   static fromCandyMachineData(candyMachineData: CandyMachineData) {
     const goLiveDate =
       candyMachineData.goLiveDate != null ? new BN(candyMachineData.goLiveDate) : undefined;
     return new CandyMachine(
-      SolAmount.fromLamports(candyMachineData.price),
+      new BN(candyMachineData.price),
       candyMachineData.symbol,
       candyMachineData.sellerFeeBasisPoints,
       new BN(candyMachineData.maxSupply),
@@ -68,7 +91,6 @@ export class CandyMachine extends Model {
   }
 
   static fromConfig(config: Omit<CandyMachineConfig, keyof StorageConfig>) {
-    const price = SolAmount.fromSol(config.price);
     const creators: Creator[] = config.creators.map((creatorConfig) => ({
       ...creatorConfig,
       address: tryConvertToPublickKey(creatorConfig.address),
@@ -82,7 +104,7 @@ export class CandyMachine extends Model {
     const gatekeeper = gatekeeperFromConfig(config.gatekeeper);
 
     return new CandyMachine(
-      price,
+      new BN(config.price),
       config.symbol ?? '',
       config.sellerFeeBasisPoints,
 
@@ -92,7 +114,9 @@ export class CandyMachine extends Model {
       creators,
       new BN(config.number),
 
-      undefined, // uuid is not known until the candy machine is created
+      // uuid is not known until the candy machine is created
+      undefined,
+
       goLiveDate,
       endSettings,
       hiddenSettings,
@@ -100,4 +124,13 @@ export class CandyMachine extends Model {
       gatekeeper
     );
   }
+}
+
+// -----------------
+// Helpers
+// -----------------
+
+export function candyMachineUuidFromPubkey(candyMachinePubkey: PublicKey) {
+  // NOTE: repeating program business logic here which isn't ideal
+  return candyMachinePubkey.toBase58().slice(0, 6);
 }

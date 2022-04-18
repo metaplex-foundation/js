@@ -1,9 +1,17 @@
-import { ConfirmOptions } from '@solana/web3.js';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { Operation } from '../../../shared';
 import { CandyMachine } from '../models/CandyMachine';
-import { CandyMachineConfig, StorageConfig } from '../models/config';
 
-export type InitCandyMachineInput = Omit<CandyMachineConfig, keyof StorageConfig> & {
+export type InitCandyMachineInput = {
+  // Accounts
+  // payer: Keypair;
+  // solTreasuryAccount
+  wallet: PublicKey;
+  candyMachine?: PublicKey;
+  authority?: PublicKey;
+  // Models
+  candyMachineModel: CandyMachine;
+  // Transactino Options
   confirmOptions?: ConfirmOptions;
 };
 
