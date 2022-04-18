@@ -6,7 +6,6 @@ export type InputOfOperation<T> = T extends Operation<string, infer I, unknown> 
 export type OutputOfOperation<T> = T extends Operation<string, unknown, infer O> ? O : never;
 
 export type Operation<K extends string, I, O> = {
-  __typename: 'Operation';
   key: K;
   input: I;
 
