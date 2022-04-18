@@ -1,9 +1,11 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Collection, Creator, Uses } from '@metaplex-foundation/mpl-token-metadata';
-import { Operation, Signer } from '@/shared';
+import { useOperation, Signer } from '@/shared';
 import { Nft } from '../models';
 
-export class UpdateNftOperation extends Operation<UpdateNftInput, UpdateNftOutput> {}
+export const updateNftOperation = useOperation<UpdateNftInput, UpdateNftOutput>(
+  'updateNftOperation'
+);
 
 export interface UpdateNftInput {
   nft: Nft;

@@ -1,8 +1,10 @@
 import { MetaplexFile } from '@/drivers';
-import { Operation } from '@/shared';
+import { useOperation } from '@/shared';
 import { JsonMetadata } from '../models';
 
-export class UploadMetadataOperation extends Operation<UploadMetadataInput, UploadMetadataOutput> {}
+export const uploadMetadataOperation = useOperation<UploadMetadataInput, UploadMetadataOutput>(
+  'uploadMetadataOperation'
+);
 
 export type UploadMetadataInput = JsonMetadata<MetaplexFile | string>;
 

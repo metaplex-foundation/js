@@ -1,5 +1,7 @@
-import { Operation } from '@/shared';
 import { PublicKey } from '@solana/web3.js';
+import { useOperation } from '@/shared';
 import { Nft } from '../models';
 
-export class FindNftsByMintListOperation extends Operation<PublicKey[], (Nft | null)[]> {}
+export const findNftsByMintListOperation = useOperation<PublicKey[], (Nft | null)[]>(
+  'findNftsByMintListOperation'
+);

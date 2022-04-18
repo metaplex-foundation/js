@@ -1,7 +1,7 @@
-import { Operation, Plan } from '@/shared';
+import { useOperation, Plan } from '@/shared';
 import { UploadMetadataInput, UploadMetadataOutput } from './UploadMetadataOperation';
 
-export class PlanUploadMetadataOperation extends Operation<
+export const planUploadMetadataOperation = useOperation<
   UploadMetadataInput,
   Plan<any, UploadMetadataOutput>
-> {}
+>('planUploadMetadataOperation');

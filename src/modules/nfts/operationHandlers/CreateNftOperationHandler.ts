@@ -2,20 +2,21 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
 import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
 import { Creator, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
-import { OperationHandler } from '@/shared';
-import { CreateNftInput, CreateNftOperation, CreateNftOutput } from '../operations';
+import { useOperationHandler } from '@/shared';
+import { CreateNftInput, CreateNftOperation } from '../operations';
 import { JsonMetadata } from '../models/JsonMetadata';
 import { createNftBuilder } from '../transactionBuilders';
+import { Metaplex } from '@/Metaplex';
 
-export class CreateNftOperationHandler extends OperationHandler<CreateNftOperation> {
-  public async handle(operation: CreateNftOperation): Promise<CreateNftOutput> {
+export const createNftOperationHandler = useOperationHandler<CreateNftOperation>(
+  async (metaplex: Metaplex, operation: CreateNftOperation) => {
     const {
       uri,
       isMutable,
       maxSupply,
       allowHolderOffCurve = false,
       mint = Keypair.generate(),
-      payer = this.metaplex.identity(),
+      payer = metaplex.identity(),
       mintAuthority = payer,
       updateAuthority = mintAuthority,
       owner = mintAuthority.publicKey,
@@ -25,12 +26,12 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
       confirmOptions,
     } = operation.input;
 
-    const metadata: JsonMetadata = await this.metaplex.storage().downloadJson(uri);
-    const data = this.resolveData(operation.input, metadata, updateAuthority.publicKey);
+    const metadata: JsonMetadata = await metaplex.storage().downloadJson(uri);
+    const data = resolveData(operation.input, metadata, updateAuthority.publicKey);
 
     const metadataPda = await MetadataAccount.pda(mint.publicKey);
     const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
-    const lamports = await getMinimumBalanceForRentExemptMint(this.metaplex.connection);
+    const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
     const associatedToken = await getAssociatedTokenAddress(
       mint.publicKey,
       owner,
@@ -39,7 +40,7 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
       associatedTokenProgram
     );
 
-    const transactionId = await this.metaplex.sendAndConfirmTransaction(
+    const transactionId = await metaplex.sendAndConfirmTransaction(
       createNftBuilder({
         lamports,
         data,
@@ -69,48 +70,48 @@ export class CreateNftOperationHandler extends OperationHandler<CreateNftOperati
       transactionId,
     };
   }
+);
 
-  protected resolveData(
-    input: CreateNftInput,
-    metadata: JsonMetadata,
-    updateAuthority: PublicKey
-  ): DataV2 {
-    const metadataCreators: Creator[] | undefined = metadata.properties?.creators
-      ?.filter((creator) => creator.address)
-      .map((creator) => ({
-        address: new PublicKey(creator.address as string),
-        share: creator.share ?? 0,
-        verified: false,
-      }));
+const resolveData = (
+  input: CreateNftInput,
+  metadata: JsonMetadata,
+  updateAuthority: PublicKey
+): DataV2 => {
+  const metadataCreators: Creator[] | undefined = metadata.properties?.creators
+    ?.filter((creator) => creator.address)
+    .map((creator) => ({
+      address: new PublicKey(creator.address as string),
+      share: creator.share ?? 0,
+      verified: false,
+    }));
 
-    let creators = input.creators ?? metadataCreators ?? null;
+  let creators = input.creators ?? metadataCreators ?? null;
 
-    if (creators === null) {
-      creators = [
-        {
-          address: updateAuthority,
-          share: 100,
-          verified: true,
-        },
-      ];
-    } else {
-      creators = creators.map((creator) => {
-        if (creator.address.toBase58() === updateAuthority.toBase58()) {
-          return { ...creator, verified: true };
-        } else {
-          return creator;
-        }
-      });
-    }
-
-    return {
-      name: input.name ?? metadata.name ?? '',
-      symbol: input.symbol ?? metadata.symbol ?? '',
-      uri: input.uri,
-      sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
-      creators,
-      collection: input.collection ?? null,
-      uses: input.uses ?? null,
-    };
+  if (creators === null) {
+    creators = [
+      {
+        address: updateAuthority,
+        share: 100,
+        verified: true,
+      },
+    ];
+  } else {
+    creators = creators.map((creator) => {
+      if (creator.address.toBase58() === updateAuthority.toBase58()) {
+        return { ...creator, verified: true };
+      } else {
+        return creator;
+      }
+    });
   }
-}
+
+  return {
+    name: input.name ?? metadata.name ?? '',
+    symbol: input.symbol ?? metadata.symbol ?? '',
+    uri: input.uri,
+    sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
+    creators,
+    collection: input.collection ?? null,
+    uses: input.uses ?? null,
+  };
+};

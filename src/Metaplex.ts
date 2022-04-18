@@ -14,19 +14,17 @@ import {
   TransactionError,
 } from '@solana/web3.js';
 import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
-import {
-  InputOfOperation,
-  Operation,
-  OperationConstructor,
-  OperationHandler,
-  OperationHandlerConstructor,
-  OutputOfOperation,
-  TransactionBuilder,
-  Signer,
-  getSignerHistogram,
-} from '@/shared';
+import { TransactionBuilder, Signer, getSignerHistogram } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { NewOperationHandler } from './shared/useOperationHandler';
+import {
+  NewInputOfOperation,
+  NewOperation,
+  NewOperationConstructor,
+  NewOutputOfOperation,
+} from './shared/useOperation';
+import { Loader, LoaderOptions } from './shared/useLoader';
 
 export type MetaplexOptions = {
   // ...
@@ -46,7 +44,7 @@ export class Metaplex {
   protected storageDriver: StorageDriver;
 
   /** The registered handlers for read/write operations. */
-  protected operationHandlers: Map<any, any> = new Map();
+  protected operationHandlers: Map<string, NewOperationHandler<any, any, any>> = new Map();
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
@@ -150,35 +148,43 @@ export class Metaplex {
     return accounts as Array<AccountInfo<Buffer> | null>;
   }
 
-  register<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: OperationConstructor<I, O>,
-    operationHandler: OperationHandlerConstructor<T, I, O>
+  register<T extends NewOperation<I, O>, I = NewInputOfOperation<T>, O = NewOutputOfOperation<T>>(
+    operationConstructor: NewOperationConstructor<T, I, O>,
+    operationHandler: NewOperationHandler<T, I, O>
   ) {
-    this.operationHandlers.set(operation, operationHandler);
+    this.operationHandlers.set(operationConstructor.name, operationHandler);
 
     return this;
   }
 
-  getOperationHandler<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T
-  ): OperationHandler<T, I, O> {
-    const operationHandler = this.operationHandlers.get(operation.constructor) as
-      | OperationHandlerConstructor<T, I, O>
+  getOperationHandler<
+    T extends NewOperation<I, O>,
+    I = NewInputOfOperation<T>,
+    O = NewOutputOfOperation<T>
+  >(operation: T): NewOperationHandler<T, I, O> {
+    const operationHandler = this.operationHandlers.get(operation.name) as
+      | NewOperationHandler<T, I, O>
       | undefined;
 
     if (!operationHandler) {
       // TODO: Custom errors.
-      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+      throw new Error(`No operation handler registered for ${operation.name}`);
     }
 
-    return new operationHandler(this);
+    return operationHandler;
   }
 
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
+  getLoader<T extends NewOperation<I, O>, I = NewInputOfOperation<T>, O = NewOutputOfOperation<T>>(
     operation: T
-  ): Promise<O> {
-    const handler = this.getOperationHandler<T, I, O>(operation);
+  ): Loader<O> {
+    return this.getOperationHandler<T, I, O>(operation).getLoader(this, operation);
+  }
 
-    return handler.handle(operation);
+  async execute<
+    T extends NewOperation<I, O>,
+    I = NewInputOfOperation<T>,
+    O = NewOutputOfOperation<T>
+  >(operation: T, options: LoaderOptions = {}): Promise<O | undefined> {
+    return this.getLoader<T, I, O>(operation).load(options);
   }
 }

@@ -1,9 +1,15 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { Creator, Collection, Uses } from '@metaplex-foundation/mpl-token-metadata';
-import { Operation, Signer } from '@/shared';
+import { useOperation, Signer, NewOperation } from '@/shared';
 
-export class CreateNftOperation extends Operation<CreateNftInput, CreateNftOutput> {}
+export const createNftOperation = useOperation<CreateNftOperation>('CreateNftOperation');
+
+export type CreateNftOperation = NewOperation<
+  'CreateNftOperation',
+  CreateNftInput,
+  CreateNftOutput
+>;
 
 export interface CreateNftInput {
   // Data.
