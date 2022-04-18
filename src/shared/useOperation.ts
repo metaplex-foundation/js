@@ -31,7 +31,6 @@ export const useOperation = <
 ): OperationConstructor<T, K, I, O> => {
   const constructor = (input: I) => {
     return {
-      __typename: 'Operation',
       key,
       input,
     } as T;

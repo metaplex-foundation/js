@@ -26,7 +26,5 @@ export const useOperationHandler = <
       return callback(metaplex, operation, scope);
     });
 
-  getLoader.__typename = 'OperationHandler';
-
   return getLoader as OperationHandler<T, K, I, O>;
 };
