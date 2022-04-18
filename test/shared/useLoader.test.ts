@@ -61,24 +61,6 @@ test('it can fail', async (t: Test) => {
   t.fail('Test loader should have failed');
 });
 
-test('it can fail silently', async (t: Test) => {
-  // Given a test loader that throws an error.
-  const loader = useLoader(() => {
-    throw new Error('Test Loader Failure');
-  });
-
-  // When we load the loader using the "failSilently" option
-  // outside of a try/catch.
-  await loader.load({ failSilently: true });
-
-  // Then execution continues but the loader was marked as failed
-  // and we kept track of the error.
-  t.equal(loader.getStatus(), 'failed');
-  t.equal(loader.getResult(), undefined);
-  t.true(loader.getError() instanceof Error);
-  t.equal((loader.getError() as Error).message, 'Test Loader Failure');
-});
-
 test('it can be aborted using an AbortController', async (t: Test) => {
   // Given a test loader that returns a number after 100ms.
   const loader = useLoader(async () => {
@@ -91,7 +73,11 @@ test('it can be aborted using an AbortController', async (t: Test) => {
 
   // When we load the loader and abort after 10ms.
   setTimeout(() => abortController.abort(), 10);
-  await loader.load({ signal: abortController.signal });
+  try {
+    await loader.load({ signal: abortController.signal });
+  } catch (error) {
+    //
+  }
 
   // Then the loader was marked as canceled.
   t.equal(loader.getStatus(), 'canceled');
@@ -146,7 +132,11 @@ test('it can listen to status changes', async (t: Test) => {
     throw new Error();
   });
   const h2 = await useHistory(l2);
-  await l2.load({ failSilently: true });
+  try {
+    await l2.load();
+  } catch (error) {
+    // Fail silently...
+  }
   t.deepEqual(h2, ['running', 'failed']);
 
   // And we get the right history for canceled loaders.
@@ -157,7 +147,11 @@ test('it can listen to status changes', async (t: Test) => {
     return 42;
   });
   const h3 = await useHistory(l3);
-  await l3.load({ signal: abortController.signal });
+  try {
+    await l3.load({ signal: abortController.signal });
+  } catch (error) {
+    // Fail silently...
+  }
   t.deepEqual(h3, ['running', 'canceled']);
 
   // And we get the right history for preloaded and resetted loaders.

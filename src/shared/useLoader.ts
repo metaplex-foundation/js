@@ -6,7 +6,6 @@ export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'ca
 export type LoaderCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
 export type LoaderOptions = {
-  failSilently?: boolean;
   signal?: AbortSignal;
 };
 
@@ -20,8 +19,8 @@ export type Loader<T> = {
   isSuccessful: () => boolean;
   isFailed: () => boolean;
   isCanceled: () => boolean;
-  reload: (options?: LoaderOptions) => Promise<T | undefined>;
-  load: (options?: LoaderOptions) => Promise<T | undefined>;
+  reload: (options?: LoaderOptions) => Promise<T>;
+  load: (options?: LoaderOptions) => Promise<T>;
   loadWith: (preloadedResult: T) => Loader<T>;
   reset: () => Loader<T>;
   onStatusChange: (callback: (status: LoaderStatus) => unknown) => Loader<T>;
@@ -57,7 +56,7 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
   };
 
   // Run methods.
-  const forceRun = async (options: LoaderOptions = {}): Promise<T | undefined> => {
+  const forceRun = async (options: LoaderOptions = {}): Promise<T> => {
     const disposable = useDisposable(options.signal).onCancel((cancelError) => {
       setStatus('canceled');
       error = cancelError;
@@ -83,18 +82,13 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
         result = undefined;
         setStatus(isCanceled() ? 'canceled' : 'failed');
 
-        // Return undefined result if loaded aborted or if we want to fail silently.
-        if (isCanceled() || (options.failSilently ?? false)) {
-          return undefined;
-        }
-
-        // Otherwise, re-throw the error.
+        // Re-throw the error.
         throw error;
       }
     });
   };
 
-  const reload = async (options: LoaderOptions = {}): Promise<T | undefined> => {
+  const reload = async (options: LoaderOptions = {}): Promise<T> => {
     if (isRunning()) {
       // TODO: Custom errors.
       throw new Error('Loader is already running.');
@@ -103,12 +97,16 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
     return forceRun(options);
   };
 
-  const load = async (options: LoaderOptions = {}): Promise<T | undefined> => {
-    if (!isPending()) {
-      return getResult();
+  const load = async (options: LoaderOptions = {}): Promise<T> => {
+    if (!isLoaded()) {
+      return reload(options);
     }
 
-    return reload(options);
+    if (!isSuccessful()) {
+      throw getError();
+    }
+
+    return getResult() as T;
   };
 
   return {

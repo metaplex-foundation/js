@@ -193,19 +193,12 @@ export class Metaplex {
     return this.getOperationHandler<T, K, I, O>(operation)(this, operation);
   }
 
-  async execute<
+  execute<
     T extends Operation<K, I, O>,
     K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(operation: T, options: LoaderOptions = {}): Promise<O> {
-    const output = await this.getLoader<T, K, I, O>(operation).load(options);
-
-    if (!output) {
-      // TODO: Refactor
-      throw new Error('Temporary error');
-    }
-
-    return output;
+    return this.getLoader<T, K, I, O>(operation).load(options);
   }
 }
