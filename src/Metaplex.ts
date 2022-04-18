@@ -202,6 +202,6 @@ export class Metaplex {
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
   >(operation: T, options: TaskOptions = {}): Promise<O> {
-    return this.getTask<T, K, I, O>(operation).load(options);
+    return this.getTask<T, K, I, O>(operation).run(options);
   }
 }

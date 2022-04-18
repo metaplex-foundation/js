@@ -7,6 +7,7 @@ export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
 export type TaskOptions = {
   signal?: AbortSignal;
+  force?: boolean;
 };
 
 export type Task<T> = {
@@ -19,8 +20,7 @@ export type Task<T> = {
   isSuccessful: () => boolean;
   isFailed: () => boolean;
   isCanceled: () => boolean;
-  reload: (options?: TaskOptions) => Promise<T>;
-  load: (options?: TaskOptions) => Promise<T>;
+  run: (options?: TaskOptions) => Promise<T>;
   loadWith: (preloadedResult: T) => Task<T>;
   reset: () => Task<T>;
   onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
@@ -88,25 +88,21 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
     });
   };
 
-  const reload = async (options: TaskOptions = {}): Promise<T> => {
+  const run = async (options: TaskOptions = {}): Promise<T> => {
     if (isRunning()) {
       // TODO: Custom errors.
       throw new Error('Task is already running.');
     }
 
-    return forceRun(options);
-  };
-
-  const load = async (options: TaskOptions = {}): Promise<T> => {
-    if (!isLoaded()) {
-      return reload(options);
+    if (isPending() || (options.force ?? false)) {
+      return forceRun(options);
     }
 
-    if (!isSuccessful()) {
-      throw getError();
+    if (isSuccessful()) {
+      return getResult() as T;
     }
 
-    return getResult() as T;
+    throw getError();
   };
 
   return {
@@ -119,8 +115,7 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
     isSuccessful,
     isFailed,
     isCanceled,
-    reload,
-    load,
+    run,
     loadWith(preloadedResult: T) {
       setStatus('successful');
       result = preloadedResult;

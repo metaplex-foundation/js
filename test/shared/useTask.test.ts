@@ -11,8 +11,8 @@ test('it can succeed with an asynchronous callback', async (t: Test) => {
   t.equal(task.getResult(), undefined);
   t.equal(task.getStatus(), 'pending');
 
-  // When we load the task.
-  await task.load();
+  // When we run the task.
+  await task.run();
 
   // Then we get the right result and it was marked as successful.
   t.equal(task.getResult(), 42);
@@ -29,8 +29,8 @@ test('it can succeed with an synchronous callback', async (t: Test) => {
   t.equal(task.getResult(), undefined);
   t.equal(task.getStatus(), 'pending');
 
-  // When we load the task.
-  await task.load();
+  // When we run the task.
+  await task.run();
 
   // Then we get the right result and it was marked as successful.
   t.equal(task.getResult(), 42);
@@ -47,9 +47,9 @@ test('it can fail', async (t: Test) => {
   t.equal(task.getResult(), undefined);
   t.equal(task.getStatus(), 'pending');
 
-  // When we load the task.
+  // When we run the task.
   try {
-    await task.load();
+    await task.run();
   } catch (error) {
     // Then the task is marked as failed and we kept track of the error.
     t.equal(task.getStatus(), 'failed');
@@ -71,10 +71,10 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   // And an abort controller used to cancel the task.
   const abortController = new AbortController();
 
-  // When we load the task and abort after 10ms.
+  // When we run the task and abort after 10ms.
   setTimeout(() => abortController.abort(), 10);
   try {
-    await task.load({ signal: abortController.signal });
+    await task.run({ signal: abortController.signal });
   } catch (error) {
     // Fail silently...
   }
@@ -86,9 +86,9 @@ test('it can be aborted using an AbortController', async (t: Test) => {
 });
 
 test('it can be reset', async (t: Test) => {
-  // Given a test task that loaded successfully.
+  // Given a test task that ran successfully.
   const task = useTask(() => 42);
-  await task.load();
+  await task.run();
   t.equal(task.getStatus(), 'successful');
   t.equal(task.getResult(), 42);
 
@@ -117,14 +117,14 @@ test('it can listen to status changes', async (t: Test) => {
   // Given a helper methods that keeps track of a task's history.
   const useHistory = async <T>(task: Task<T>) => {
     const history: string[] = [];
-    await task.onStatusChange((status) => history.push(status));
+    task.onStatusChange((status) => history.push(status));
     return history;
   };
 
   // Then we get the right history for successful tasks.
   const l1 = useTask(() => 42);
   const h1 = await useHistory(l1);
-  await l1.load();
+  await l1.run();
   t.deepEqual(h1, ['running', 'successful']);
 
   // And we get the right history for failed tasks.
@@ -133,7 +133,7 @@ test('it can listen to status changes', async (t: Test) => {
   });
   const h2 = await useHistory(l2);
   try {
-    await l2.load();
+    await l2.run();
   } catch (error) {
     // Fail silently...
   }
@@ -148,7 +148,7 @@ test('it can listen to status changes', async (t: Test) => {
   });
   const h3 = await useHistory(l3);
   try {
-    await l3.load({ signal: abortController.signal });
+    await l3.run({ signal: abortController.signal });
   } catch (error) {
     // Fail silently...
   }

@@ -23,7 +23,7 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
     }
 
     const nft = new Nft(metadataAccount, metaplex);
-    await nft.metadataTask.load();
+    await nft.metadataTask.run();
     nft.masterEditionTask.loadWith(masterEditionAccount);
 
     return nft;
