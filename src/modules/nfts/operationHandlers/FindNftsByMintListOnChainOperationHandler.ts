@@ -14,7 +14,7 @@ export class FindNftsByMintListOnChainOperationHandler extends OperationHandler<
 
       try {
         const metadata = MetadataAccount.fromAccountInfo(metadataInfo);
-        return new Nft(metadata);
+        return new Nft(metadata, this.metaplex);
       } catch (error) {
         return null;
       }

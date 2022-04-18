@@ -21,8 +21,8 @@ export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindN
       throw new Error('Nft not found');
     }
 
-    const nft = new Nft(metadataAccount);
-    await nft.metadataLoader.load(this.metaplex);
+    const nft = new Nft(metadataAccount, this.metaplex);
+    await nft.metadataLoader.load();
     nft.masterEditionLoader.loadWith(masterEditionAccount);
 
     return nft;
