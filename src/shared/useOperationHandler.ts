@@ -15,7 +15,7 @@ export type NewOperationHandler<
   O = NewOutputOfOperation<T>
 > = {
   __typename: 'OperationHandler';
-  getLoader: (metaplex: Metaplex, operation: T) => Loader<O>;
+  (metaplex: Metaplex, operation: T): Loader<O>;
 };
 
 export const useOperationHandler = <
@@ -31,5 +31,5 @@ export const useOperationHandler = <
       return callback(metaplex, operation, scope);
     });
 
-  return <NewOperationHandler<T, N, I, O>>{ getLoader };
+  return getLoader as NewOperationHandler<T, N, I, O>;
 };

@@ -1,5 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
-import { useOperation } from '@/shared';
+import { NewOperation, useOperation } from '@/shared';
 import { Nft } from '../models';
 
-export const findNftsByOwnerOperation = useOperation<PublicKey, Nft[]>('findNftsByOwnerOperation');
+export const findNftsByOwnerOperation = useOperation<FindNftsByOwnerOperation>(
+  'FindNftsByOwnerOperation'
+);
+
+export type FindNftsByOwnerOperation = NewOperation<'FindNftsByOwnerOperation', PublicKey, Nft[]>;

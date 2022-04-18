@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
+import { Metaplex } from '@/Metaplex';
 import { MetaplexFile } from '@/drivers';
-import { OperationHandler, Plan } from '@/shared';
+import { Plan, useOperationHandler } from '@/shared';
 import { walk } from '@/utils';
 import { JsonMetadata } from '../models';
 import {
@@ -9,73 +10,80 @@ import {
   UploadMetadataOutput,
 } from '../operations';
 
-export class PlanUploadMetadataOperationHandler extends OperationHandler<PlanUploadMetadataOperation> {
-  public async handle(
+export const planUploadMetadataOperationHandler = useOperationHandler<PlanUploadMetadataOperation>(
+  async (
+    metaplex: Metaplex,
     operation: PlanUploadMetadataOperation
-  ): Promise<Plan<any, UploadMetadataOutput>> {
+  ): Promise<Plan<any, UploadMetadataOutput>> => {
     const metadata = operation.input;
-    const files = this.getAssetsFromJsonMetadata(metadata);
+    const files = getAssetsFromJsonMetadata(metadata);
 
     if (files.length <= 0) {
       return Plan.make<any>().addStep({
         name: 'Upload the metadata',
-        handler: () => this.uploadMetadata(metadata as JsonMetadata),
+        handler: () => uploadMetadata(metaplex, metadata as JsonMetadata),
       });
     }
 
     return Plan.make<any>()
       .addStep({
         name: 'Upload assets',
-        handler: () => this.uploadAssets(metadata),
+        handler: () => uploadAssets(metaplex, metadata),
       })
       .addStep({
         name: 'Upload the metadata',
-        handler: (input) => this.uploadMetadata(input),
+        handler: (input) => uploadMetadata(metaplex, input),
       });
   }
+);
 
-  protected async uploadAssets(input: UploadMetadataInput): Promise<JsonMetadata> {
-    const files = this.getAssetsFromJsonMetadata(input);
-    const uris = await this.metaplex.storage().uploadAll(files);
+const uploadAssets = async (
+  metaplex: Metaplex,
+  input: UploadMetadataInput
+): Promise<JsonMetadata> => {
+  const files = getAssetsFromJsonMetadata(input);
+  const uris = await metaplex.storage().uploadAll(files);
 
-    return this.replaceAssetsWithUris(input, uris);
-  }
+  return replaceAssetsWithUris(input, uris);
+};
 
-  protected async uploadMetadata(metadata: JsonMetadata): Promise<UploadMetadataOutput> {
-    const uri = await this.metaplex.storage().uploadJson(metadata);
+const uploadMetadata = async (
+  metaplex: Metaplex,
+  metadata: JsonMetadata
+): Promise<UploadMetadataOutput> => {
+  const uri = await metaplex.storage().uploadJson(metadata);
 
-    return { metadata, uri };
-  }
+  return { metadata, uri };
+};
 
-  protected getAssetsFromJsonMetadata(input: UploadMetadataInput): MetaplexFile[] {
-    const files: MetaplexFile[] = [];
+const getAssetsFromJsonMetadata = (input: UploadMetadataInput): MetaplexFile[] => {
+  const files: MetaplexFile[] = [];
 
-    walk(input, (walk, value) => {
-      if (value instanceof MetaplexFile) {
-        files.push(value);
-      } else {
-        walk(value);
-      }
-    });
-
-    return files;
-  }
-
-  protected replaceAssetsWithUris(
-    input: UploadMetadataInput,
-    replacements: string[]
-  ): JsonMetadata {
-    const clone = cloneDeep(input);
-    let index = 0;
-
-    walk(clone, (walk, value, key, parent) => {
-      if (value instanceof MetaplexFile && index < replacements.length) {
-        parent[key] = replacements[index++];
-      }
-
+  walk(input, (walk, value) => {
+    if (value instanceof MetaplexFile) {
+      files.push(value);
+    } else {
       walk(value);
-    });
+    }
+  });
 
-    return clone as JsonMetadata;
-  }
-}
+  return files;
+};
+
+const replaceAssetsWithUris = (
+  input: UploadMetadataInput,
+  replacements: string[]
+): JsonMetadata => {
+  const clone = cloneDeep(input);
+  let index = 0;
+
+  walk(clone, (walk, value, key, parent) => {
+    if (value instanceof MetaplexFile && index < replacements.length) {
+      parent[key] = replacements[index++];
+    }
+
+    walk(value);
+  });
+
+  return clone as JsonMetadata;
+};

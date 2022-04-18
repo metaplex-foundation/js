@@ -4,8 +4,6 @@ export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './Model';
 export * from './ModuleClient';
-export * from './Operation';
-export * from './OperationHandler';
 export * from './Pda';
 export * from './Plan';
 export * from './Postpone';

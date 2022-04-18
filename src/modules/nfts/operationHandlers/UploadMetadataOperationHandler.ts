@@ -1,14 +1,15 @@
-import { OperationHandler } from '@/shared';
+import { Metaplex } from '@/Metaplex';
+import { useOperationHandler } from '@/shared';
 import {
-  PlanUploadMetadataOperation,
+  planUploadMetadataOperation,
   UploadMetadataOperation,
   UploadMetadataOutput,
 } from '../operations';
 
-export class UploadMetadataOperationHandler extends OperationHandler<UploadMetadataOperation> {
-  public async handle(operation: UploadMetadataOperation): Promise<UploadMetadataOutput> {
-    const plan = await this.metaplex.execute(new PlanUploadMetadataOperation(operation.input));
+export const uploadMetadataOperationHandler = useOperationHandler<UploadMetadataOperation>(
+  async (metaplex: Metaplex, operation: UploadMetadataOperation): Promise<UploadMetadataOutput> => {
+    const plan = await metaplex.execute(planUploadMetadataOperation(operation.input));
 
     return plan.execute();
   }
-}
+);

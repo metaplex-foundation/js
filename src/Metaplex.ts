@@ -20,6 +20,7 @@ import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { NewOperationHandler } from './shared/useOperationHandler';
 import {
   NewInputOfOperation,
+  NewNameOfOperation,
   NewOperation,
   NewOperationConstructor,
   NewOutputOfOperation,
@@ -44,7 +45,7 @@ export class Metaplex {
   protected storageDriver: StorageDriver;
 
   /** The registered handlers for read/write operations. */
-  protected operationHandlers: Map<string, NewOperationHandler<any, any, any>> = new Map();
+  protected operationHandlers: Map<string, NewOperationHandler<any, any, any, any>> = new Map();
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
@@ -148,9 +149,14 @@ export class Metaplex {
     return accounts as Array<AccountInfo<Buffer> | null>;
   }
 
-  register<T extends NewOperation<I, O>, I = NewInputOfOperation<T>, O = NewOutputOfOperation<T>>(
-    operationConstructor: NewOperationConstructor<T, I, O>,
-    operationHandler: NewOperationHandler<T, I, O>
+  register<
+    T extends NewOperation<N, I, O>,
+    N extends string = NewNameOfOperation<T>,
+    I = NewInputOfOperation<T>,
+    O = NewOutputOfOperation<T>
+  >(
+    operationConstructor: NewOperationConstructor<T, N, I, O>,
+    operationHandler: NewOperationHandler<T, N, I, O>
   ) {
     this.operationHandlers.set(operationConstructor.name, operationHandler);
 
@@ -158,12 +164,13 @@ export class Metaplex {
   }
 
   getOperationHandler<
-    T extends NewOperation<I, O>,
+    T extends NewOperation<N, I, O>,
+    N extends string = NewNameOfOperation<T>,
     I = NewInputOfOperation<T>,
     O = NewOutputOfOperation<T>
-  >(operation: T): NewOperationHandler<T, I, O> {
+  >(operation: T): NewOperationHandler<T, N, I, O> {
     const operationHandler = this.operationHandlers.get(operation.name) as
-      | NewOperationHandler<T, I, O>
+      | NewOperationHandler<T, N, I, O>
       | undefined;
 
     if (!operationHandler) {
@@ -174,17 +181,28 @@ export class Metaplex {
     return operationHandler;
   }
 
-  getLoader<T extends NewOperation<I, O>, I = NewInputOfOperation<T>, O = NewOutputOfOperation<T>>(
-    operation: T
-  ): Loader<O> {
-    return this.getOperationHandler<T, I, O>(operation).getLoader(this, operation);
+  getLoader<
+    T extends NewOperation<N, I, O>,
+    N extends string = NewNameOfOperation<T>,
+    I = NewInputOfOperation<T>,
+    O = NewOutputOfOperation<T>
+  >(operation: T): Loader<O> {
+    return this.getOperationHandler<T, N, I, O>(operation)(this, operation);
   }
 
   async execute<
-    T extends NewOperation<I, O>,
+    T extends NewOperation<N, I, O>,
+    N extends string = NewNameOfOperation<T>,
     I = NewInputOfOperation<T>,
     O = NewOutputOfOperation<T>
-  >(operation: T, options: LoaderOptions = {}): Promise<O | undefined> {
-    return this.getLoader<T, I, O>(operation).load(options);
+  >(operation: T, options: LoaderOptions = {}): Promise<O> {
+    const output = await this.getLoader<T, N, I, O>(operation).load(options);
+
+    if (!output) {
+      // TODO: Refactor
+      throw new Error('Temporary error');
+    }
+
+    return output;
   }
 }

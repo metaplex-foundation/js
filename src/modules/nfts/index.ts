@@ -13,17 +13,17 @@ import * as h from './operationHandlers';
 export const nftPlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     metaplex.register(o.createNftOperation, h.createNftOperationHandler);
-    metaplex.register(o.findNftByMintOperation, h.FindNftByMintOnChainOperationHandler);
+    metaplex.register(o.findNftByMintOperation, h.findNftByMintOnChainOperationHandler);
     metaplex.register(
       o.findNftsByCandyMachineOperation,
-      h.FindNftsByCandyMachineOnChainOperationHandler
+      h.findNftsByCandyMachineOnChainOperationHandler
     );
-    metaplex.register(o.findNftsByCreatorOperation, h.FindNftsByCreatorOnChainOperationHandler);
-    metaplex.register(o.findNftsByMintListOperation, h.FindNftsByMintListOnChainOperationHandler);
-    metaplex.register(o.findNftsByOwnerOperation, h.FindNftsByOwnerOnChainOperationHandler);
-    metaplex.register(o.planUploadMetadataOperation, h.PlanUploadMetadataOperationHandler);
-    metaplex.register(o.updateNftOperation, h.UpdateNftOperationHandler);
-    metaplex.register(o.uploadMetadataOperation, h.UploadMetadataOperationHandler);
+    metaplex.register(o.findNftsByCreatorOperation, h.findNftsByCreatorOnChainOperationHandler);
+    metaplex.register(o.findNftsByMintListOperation, h.findNftsByMintListOnChainOperationHandler);
+    metaplex.register(o.findNftsByOwnerOperation, h.findNftsByOwnerOnChainOperationHandler);
+    metaplex.register(o.planUploadMetadataOperation, h.planUploadMetadataOperationHandler);
+    metaplex.register(o.updateNftOperation, h.updateNftOperationHandler);
+    metaplex.register(o.uploadMetadataOperation, h.uploadMetadataOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);
