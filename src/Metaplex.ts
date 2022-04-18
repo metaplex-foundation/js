@@ -27,7 +27,6 @@ import {
 } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
-import {} from './shared/useOperation';
 import { Loader, LoaderOptions } from './shared/useLoader';
 
 export type MetaplexOptions = {
