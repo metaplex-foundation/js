@@ -11,16 +11,16 @@ import { Model } from '@/shared';
 import { removeEmptyChars } from '@/utils';
 import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';
-import { useJsonMetadataLoader, JsonMetadataLoader } from './useJsonMetadataLoader';
-import { useMasterEditionLoader, MasterEditionLoader } from './useMasterEditionLoader';
+import { useJsonMetadataTask, JsonMetadataTask } from './useJsonMetadataTask';
+import { useMasterEditionTask, MasterEditionTask } from './useMasterEditionTask';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
   public readonly metadataAccount: MetadataAccount;
 
-  /** Loaders. */
-  public readonly metadataLoader: JsonMetadataLoader;
-  public readonly masterEditionLoader: MasterEditionLoader;
+  /** Tasks. */
+  public readonly metadataTask: JsonMetadataTask;
+  public readonly masterEditionTask: MasterEditionTask;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -40,8 +40,8 @@ export class Nft extends Model {
   constructor(metadataAccount: MetadataAccount, metaplex: Metaplex) {
     super();
     this.metadataAccount = metadataAccount;
-    this.metadataLoader = useJsonMetadataLoader(metaplex, this);
-    this.masterEditionLoader = useMasterEditionLoader(metaplex, this);
+    this.metadataTask = useJsonMetadataTask(metaplex, this);
+    this.masterEditionTask = useMasterEditionTask(metaplex, this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
@@ -59,11 +59,11 @@ export class Nft extends Model {
   }
 
   get metadata(): JsonMetadata {
-    return this.metadataLoader.getResult() ?? {};
+    return this.metadataTask.getResult() ?? {};
   }
 
   get masterEditionAccount(): MasterEditionAccount | null {
-    return this.masterEditionLoader.getResult() ?? null;
+    return this.masterEditionTask.getResult() ?? null;
   }
 
   get masterEdition(): Partial<Omit<MasterEditionV2Args, 'key'>> {

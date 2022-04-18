@@ -109,8 +109,8 @@ NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded
 Thus, if you want to load the JSON metadata and/or the `MasterEdition` account of an NFT, you may do this like so.
 
 ```ts
-await nft.metadataLoader.load();
-await nft.masterEditionLoader.load();
+await nft.metadataTask.load();
+await nft.masterEditionTask.load();
 ```
 
 This will give you access to the `metadata` and `masterEdition` properties of the NFT.
@@ -121,7 +121,7 @@ const supply = nft.masterEdition.supply;
 const maxSupply = nft.masterEdition.maxSupply;
 ```
 
-We'll talk more about these loaders when documenting [the `NFT` model](#the-nft-model).
+We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-model).
 
 ### findNftsByOwner
 
@@ -291,24 +291,24 @@ As you can see, some of the properties — such as `metadata` — are loaded on 
 - If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
 - If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
 
-In order to load these properties, you may use the `metadataLoader` and `masterEditionLoader` properties of the `Nft` object.
+In order to load these properties, you may use the `metadataTask` and `masterEditionTask` properties of the `Nft` object.
 
 ```ts
-await nft.metadataLoader.load();
-await nft.masterEditionLoader.load();
+await nft.metadataTask.load();
+await nft.masterEditionTask.load();
 ```
 
-After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behaviour by providing the `failSilently` option to the `load` method.
+After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a task fails to load the data, an error will be thrown. You may change that behaviour by providing the `failSilently` option to the `load` method.
 
 ```ts
-await nft.metadataLoader.load({ failSilently: true });
+await nft.metadataTask.load({ failSilently: true });
 ```
 
-Also, note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available in the `Loader` class:
+Also, note that both `metadataTask` and `masterEditionTask` are instances of the `Task` class which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
 ```ts
-class Loader<T> {
-    public getStatus(): LoaderStatus;
+class Task<T> {
+    public getStatus(): TaskStatus;
     public getResult(): T | undefined;
     public getError(): unknown;
     public isPending(): boolean;
@@ -318,16 +318,16 @@ class Loader<T> {
     public isFailed(): boolean;
     public isCanceled(): boolean;
 
-    public load(options?: LoaderOptions): Promise<T | undefined>;
-    public reload(options?: LoaderOptions): Promise<T | undefined>;
+    public load(options?: TaskOptions): Promise<T | undefined>;
+    public reload(options?: TaskOptions): Promise<T | undefined>;
     public reset(): this;
     public loadWith(preloadedResult: T): this;
 }
 ```
 
-As you can see, you get a bunch of methods to check the status of the loader and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the loader and load the provided data directly — this can be useful when loading NFTs in batch.
+As you can see, you get a bunch of methods to check the status of the task and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
 
-Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not cancelled and return early if it was.
+Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.

@@ -27,7 +27,7 @@ import {
 } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { Loader, LoaderOptions, useLoader } from './shared/useLoader';
+import { Task, TaskOptions, useTask } from './shared/useTask';
 
 export type MetaplexOptions = {
   // ...
@@ -183,15 +183,15 @@ export class Metaplex {
     return operationHandler;
   }
 
-  getLoader<
+  getTask<
     T extends Operation<K, I, O>,
     K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
-  >(operation: T): Loader<O> {
+  >(operation: T): Task<O> {
     const operationHandler = this.getOperationHandler<T, K, I, O>(operation);
 
-    return useLoader((scope) => {
+    return useTask((scope) => {
       return operationHandler.handle(operation, this, scope);
     });
   }
@@ -201,7 +201,7 @@ export class Metaplex {
     K extends string = KeyOfOperation<T>,
     I = InputOfOperation<T>,
     O = OutputOfOperation<T>
-  >(operation: T, options: LoaderOptions = {}): Promise<O> {
-    return this.getLoader<T, K, I, O>(operation).load(options);
+  >(operation: T, options: TaskOptions = {}): Promise<O> {
+    return this.getTask<T, K, I, O>(operation).load(options);
   }
 }

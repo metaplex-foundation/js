@@ -2,15 +2,15 @@ import { AbortSignal } from 'abort-controller';
 import { EventEmitter } from 'eventemitter3';
 import { useDisposable, DisposableScope } from './useDisposable';
 
-export type LoaderStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
-export type LoaderCallback<T> = (scope: DisposableScope) => T | Promise<T>;
+export type TaskStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
-export type LoaderOptions = {
+export type TaskOptions = {
   signal?: AbortSignal;
 };
 
-export type Loader<T> = {
-  getStatus: () => LoaderStatus;
+export type Task<T> = {
+  getStatus: () => TaskStatus;
   getResult: () => T | undefined;
   getError: () => unknown;
   isPending: () => boolean;
@@ -19,20 +19,20 @@ export type Loader<T> = {
   isSuccessful: () => boolean;
   isFailed: () => boolean;
   isCanceled: () => boolean;
-  reload: (options?: LoaderOptions) => Promise<T>;
-  load: (options?: LoaderOptions) => Promise<T>;
-  loadWith: (preloadedResult: T) => Loader<T>;
-  reset: () => Loader<T>;
-  onStatusChange: (callback: (status: LoaderStatus) => unknown) => Loader<T>;
-  onStatusChangeTo: (status: LoaderStatus, callback: () => unknown) => Loader<T>;
-  onSuccess: (callback: () => unknown) => Loader<T>;
-  onFailure: (callback: () => unknown) => Loader<T>;
-  onCancel: (callback: () => unknown) => Loader<T>;
+  reload: (options?: TaskOptions) => Promise<T>;
+  load: (options?: TaskOptions) => Promise<T>;
+  loadWith: (preloadedResult: T) => Task<T>;
+  reset: () => Task<T>;
+  onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
+  onStatusChangeTo: (status: TaskStatus, callback: () => unknown) => Task<T>;
+  onSuccess: (callback: () => unknown) => Task<T>;
+  onFailure: (callback: () => unknown) => Task<T>;
+  onCancel: (callback: () => unknown) => Task<T>;
 };
 
-export const useLoader = <T>(callback: LoaderCallback<T>) => {
+export const useTask = <T>(callback: TaskCallback<T>) => {
   // State.
-  let status: LoaderStatus = 'pending';
+  let status: TaskStatus = 'pending';
   let result: T | undefined = undefined;
   let error: unknown = undefined;
   const eventEmitter = new EventEmitter();
@@ -49,14 +49,14 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
   const isCanceled = () => status === 'canceled';
 
   // Setters.
-  const setStatus = (newStatus: LoaderStatus) => {
+  const setStatus = (newStatus: TaskStatus) => {
     if (status === newStatus) return;
     status = newStatus;
     eventEmitter.emit('statusChange', newStatus);
   };
 
   // Run methods.
-  const forceRun = async (options: LoaderOptions = {}): Promise<T> => {
+  const forceRun = async (options: TaskOptions = {}): Promise<T> => {
     const disposable = useDisposable(options.signal).onCancel((cancelError) => {
       setStatus('canceled');
       error = cancelError;
@@ -88,16 +88,16 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
     });
   };
 
-  const reload = async (options: LoaderOptions = {}): Promise<T> => {
+  const reload = async (options: TaskOptions = {}): Promise<T> => {
     if (isRunning()) {
       // TODO: Custom errors.
-      throw new Error('Loader is already running.');
+      throw new Error('Task is already running.');
     }
 
     return forceRun(options);
   };
 
-  const load = async (options: LoaderOptions = {}): Promise<T> => {
+  const load = async (options: TaskOptions = {}): Promise<T> => {
     if (!isLoaded()) {
       return reload(options);
     }
@@ -135,12 +135,12 @@ export const useLoader = <T>(callback: LoaderCallback<T>) => {
 
       return this;
     },
-    onStatusChange(callback: (status: LoaderStatus) => unknown) {
+    onStatusChange(callback: (status: TaskStatus) => unknown) {
       eventEmitter.on('statusChange', callback);
 
       return this;
     },
-    onStatusChangeTo(status: LoaderStatus, callback: () => unknown) {
+    onStatusChangeTo(status: TaskStatus, callback: () => unknown) {
       return this.onStatusChange((newStatus) => (status === newStatus ? callback() : undefined));
     },
     onSuccess(callback: () => unknown) {
