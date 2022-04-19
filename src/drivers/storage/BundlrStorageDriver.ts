@@ -1,4 +1,5 @@
 import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
+import BigNumber from 'bignumber.js';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
@@ -43,8 +44,7 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const bytes = this.getBytes(files);
-    const price = await this.getMultipliedPrice(bytes);
+    const price = await this.getMultipliedPrice(this.getBytes(files));
 
     return SolAmount.fromLamports(price);
   }
@@ -63,40 +63,55 @@ export class BundlrStorageDriver extends StorageDriver {
     return Promise.all(promises);
   }
 
-  public async needsFunding(files: MetaplexFile[]): Promise<boolean> {
-    const bundlr = await this.getBundlr();
-    const balance = await bundlr.getLoadedBalance();
-    const bytes = this.getBytes(files);
-    const price = await this.getMultipliedPrice(bytes);
-
-    return price.isGreaterThan(balance);
-  }
-
-  public async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
-    await this.fundBytes(this.getBytes(files), skipBalanceCheck);
-  }
-
-  public async fundBytes(bytes: number, skipBalanceCheck = false): Promise<void> {
-    const bundlr = await this.getBundlr();
-    const price = await this.getMultipliedPrice(bytes);
+  public async fundingNeeded(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<BigNumber> {
+    const price = await this.getMultipliedPrice(this.getBytes(filesOrBytes));
 
     if (skipBalanceCheck) {
-      await bundlr.fund(price);
+      return price;
+    }
+
+    const bundlr = await this.getBundlr();
+    const balance = await bundlr.getLoadedBalance();
+
+    return price.isGreaterThan(balance) ? price.minus(balance) : new BigNumber(0);
+  }
+
+  public async needsFunding(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<boolean> {
+    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+
+    return fundingNeeded.isGreaterThan(0);
+  }
+
+  public async fund(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<void> {
+    const bundlr = await this.getBundlr();
+    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+
+    if (!fundingNeeded.isGreaterThan(0)) {
       return;
     }
 
-    const balance = await bundlr.getLoadedBalance();
+    // TODO: Catch errors and wrap in BundlrErrors.
+    await bundlr.fund(fundingNeeded);
+  }
 
-    if (price.isGreaterThan(balance)) {
-      await bundlr.fund(price.minus(balance));
+  protected getBytes(filesOrBytes: MetaplexFile[] | number): number {
+    if (typeof filesOrBytes === 'number') {
+      return filesOrBytes;
     }
+
+    return filesOrBytes.reduce((total, file) => total + file.getBytes(), 0);
   }
 
-  protected getBytes(files: MetaplexFile[]): number {
-    return files.reduce((total, file) => total + file.getBytes(), 0);
-  }
-
-  protected async getMultipliedPrice(bytes: number): Promise<any> {
+  protected async getMultipliedPrice(bytes: number): Promise<BigNumber> {
     const bundlr = await this.getBundlr();
     const price = await bundlr.getPrice(bytes);
 
