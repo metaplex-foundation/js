@@ -77,6 +77,16 @@ export class SdkError extends MetaplexError {
     });
   }
 
+  static taskIsAlreadyRunning(cause?: Error) {
+    return new this({
+      cause,
+      key: 'task_is_already_running',
+      title: 'Task Is Already Running',
+      problem: "Trying to re-run a task that hasn't completed yet.",
+      solution: 'Ensure the task has completed using "await" before trying to run it again.',
+    });
+  }
+
   static notYetImplemented(cause?: Error) {
     return new this({
       cause,
