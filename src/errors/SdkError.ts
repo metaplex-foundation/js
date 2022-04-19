@@ -54,4 +54,26 @@ export class SdkError extends MetaplexError {
         '"metaplex.use(keypairIdentity(keypair))".',
     });
   }
+
+  static uninitializedWalletAdapter(cause?: Error) {
+    return new this({
+      cause,
+      key: 'uninitialized_wallet_adapter',
+      title: 'Uninitialized Wallet Adapter',
+      problem: 'The current wallet adapter is not initialized.',
+      solution:
+        'You likely have selected a wallet adapter but forgot to initialize it. ' +
+        'You may do this by running the following asynchronous method: "walletAdater.connect();".',
+    });
+  }
+
+  static operationNotSupportedByWalletAdapter(operation: string, cause?: Error) {
+    return new this({
+      cause,
+      key: 'operation_not_supported_by_wallet_adapter',
+      title: 'Operation Not Supported By Wallet Adapter',
+      problem: `The current wallet adapter does not support the following operation: [${operation}].`,
+      solution: 'Ensure your wallet is connected using a compatible wallet adapter.',
+    });
+  }
 }

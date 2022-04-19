@@ -8,6 +8,7 @@ import { IdentityDriver } from './IdentityDriver';
 import { GuestIdentityDriver } from './GuestIdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { SdkError } from '@/errors';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
@@ -39,8 +40,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   get publicKey(): PublicKey {
     if (!this.walletAdapter.publicKey) {
-      // TODO: Custom errors.
-      throw new Error('Wallet adapter not initialized');
+      throw SdkError.uninitializedWalletAdapter();
     }
 
     return this.walletAdapter.publicKey;
@@ -48,8 +48,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signMessage(message: Uint8Array): Promise<Uint8Array> {
     if (this.walletAdapter.signMessage === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing messages.');
+      throw SdkError.operationNotSupportedByWalletAdapter('signMessage');
     }
 
     return this.walletAdapter.signMessage(message);
@@ -57,8 +56,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (this.walletAdapter.signTransaction === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing transactions.');
+      throw SdkError.operationNotSupportedByWalletAdapter('signTransaction');
     }
 
     return this.walletAdapter.signTransaction(transaction);
@@ -66,8 +64,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
     if (this.walletAdapter.signAllTransactions === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing transactions.');
+      throw SdkError.operationNotSupportedByWalletAdapter('signAllTransactions');
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
