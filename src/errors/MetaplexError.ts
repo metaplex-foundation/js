@@ -1,4 +1,4 @@
-export type MetaplexErrorSource = 'sdk' | 'network' | 'rpc' | 'provider';
+export type MetaplexErrorSource = 'sdk' | 'network' | 'rpc' | 'plugin' | 'program';
 
 export type MetaplexErrorInput = {
   key: string;

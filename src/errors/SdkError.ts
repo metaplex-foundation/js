@@ -41,4 +41,17 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure the provided string uses a valid JSON syntax.',
     });
   }
+
+  static operationUnauthorizedForGuests(operation: string, cause?: Error) {
+    return new this({
+      cause,
+      key: 'operation_unauthorized_for_guests',
+      title: 'Operation Unauthorized For Guests',
+      problem: `Trying to access the [${operation}] operation as a guest.`,
+      solution:
+        'Ensure your wallet is connected using the identity driver. ' +
+        'For instance, by using "metaplex.use(walletAdapterIdentity(wallet))" or ' +
+        '"metaplex.use(keypairIdentity(keypair))".',
+    });
+  }
 }
