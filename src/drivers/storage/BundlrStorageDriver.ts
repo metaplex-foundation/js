@@ -72,8 +72,7 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   public async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
-    const bytes = this.getBytes(files);
-    await this.fundBytes(bytes, skipBalanceCheck);
+    await this.fundBytes(this.getBytes(files), skipBalanceCheck);
   }
 
   public async fundBytes(bytes: number, skipBalanceCheck = false): Promise<void> {
@@ -93,8 +92,7 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   protected getBytes(files: MetaplexFile[]): number {
-    const bytes = files.reduce((total, file) => total + file.getBytes(), 0);
-    return bytes;
+    return files.reduce((total, file) => total + file.getBytes(), 0);
   }
 
   protected async getMultipliedPrice(bytes: number): Promise<any> {
