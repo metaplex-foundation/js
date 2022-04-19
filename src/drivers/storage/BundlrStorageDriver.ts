@@ -148,17 +148,16 @@ export class BundlrStorageDriver extends StorageDriver {
     };
 
     const identity = this.metaplex.identity();
-
     const bundlr =
       identity instanceof KeypairIdentityDriver
         ? new NodeBundlr(address, currency, identity.keypair.secretKey, options)
         : new WebBundlr(address, currency, identity, options);
+
     try {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
-      // TODO: Custom errors.
-      throw new Error(`Failed to connect to bundlr ${address}.`);
+      throw BundlrError.failedToConnectToBundlrAddress(address, error as Error);
     }
 
     if (bundlr instanceof WebBundlr) {
@@ -166,12 +165,7 @@ export class BundlrStorageDriver extends StorageDriver {
         // Try to initiate bundlr.
         await bundlr.ready();
       } catch (error) {
-        console.error(error);
-      }
-
-      if (!bundlr.address) {
-        // TODO: Custom errors.
-        throw new Error('Failed to initiate Bundlr.');
+        throw BundlrError.failedToInitializeBundlr(error as Error);
       }
     }
 

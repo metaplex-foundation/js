@@ -11,6 +11,30 @@ export class BundlrError extends MetaplexError {
     });
   }
 
+  static failedToInitializeBundlr(cause: Error) {
+    return new this({
+      cause,
+      key: 'failed_to_initialize_bundlr',
+      title: 'Failed to Initialize Bundlr',
+      problem: 'Bundlr could not be initialized.',
+      solution:
+        'This could happen for a variety of reasons. ' +
+        'Check the underlying error below for more information.',
+    });
+  }
+
+  static failedToConnectToBundlrAddress(address: string, cause?: Error) {
+    return new this({
+      cause,
+      key: 'failed_to_connect_to_bundlr_address',
+      title: 'Failed to Connect to Bundlr Address',
+      problem: `Bundlr could not connect to the provided address [${address}].`,
+      solution:
+        'Ensure the provided address is valid. Some valid addresses include: ' +
+        '"https://node1.bundlr.network" for mainnet and "https://devnet.bundlr.network" for devnet',
+    });
+  }
+
   static assetUploadFailed(status: number, cause?: Error) {
     return new this({
       cause,
