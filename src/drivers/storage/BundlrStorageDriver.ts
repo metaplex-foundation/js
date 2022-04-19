@@ -7,6 +7,7 @@ import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
 import { planUploadMetadataOperation } from '@/modules';
 import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
+import { BundlrError, SdkError } from '@/errors';
 
 export interface BundlrOptions {
   address?: string;
@@ -110,8 +111,7 @@ export class BundlrStorageDriver extends StorageDriver {
     );
 
     if (status >= 300) {
-      // TODO: Custom errors.
-      throw new Error(`Failed to upload asset. Got status: ${status}.`);
+      throw BundlrError.assetUploadFailed(status);
     }
 
     return `https://arweave.net/${data.id}`;
@@ -119,7 +119,7 @@ export class BundlrStorageDriver extends StorageDriver {
 
   protected async withdrawAll(): Promise<void> {
     // TODO: Implement when available on Bundlr.
-    throw new Error('Method not implemented.');
+    throw SdkError.notYetImplemented();
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {

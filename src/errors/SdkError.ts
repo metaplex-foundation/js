@@ -76,4 +76,14 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure your wallet is connected using a compatible wallet adapter.',
     });
   }
+
+  static notYetImplemented(cause?: Error) {
+    return new this({
+      cause,
+      key: 'not_yet_implemented',
+      title: 'Not Yet Implemented',
+      problem: 'This feature is not yet implemented.',
+      solution: 'Please check back later.',
+    });
+  }
 }
