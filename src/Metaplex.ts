@@ -15,18 +15,19 @@ import {
 } from '@solana/web3.js';
 import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
 import {
-  InputOfOperation,
-  Operation,
-  OperationConstructor,
-  OperationHandler,
-  OperationHandlerConstructor,
-  OutputOfOperation,
   TransactionBuilder,
   Signer,
   getSignerHistogram,
+  OperationConstructor,
+  Operation,
+  KeyOfOperation,
+  InputOfOperation,
+  OutputOfOperation,
+  OperationHandler,
 } from '@/shared';
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { Task, TaskOptions, useTask } from './shared/useTask';
 
 export type MetaplexOptions = {
   // ...
@@ -46,7 +47,7 @@ export class Metaplex {
   protected storageDriver: StorageDriver;
 
   /** The registered handlers for read/write operations. */
-  protected operationHandlers: Map<any, any> = new Map();
+  protected operationHandlers: Map<string, OperationHandler<any, any, any, any>> = new Map();
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
@@ -150,35 +151,57 @@ export class Metaplex {
     return accounts as Array<AccountInfo<Buffer> | null>;
   }
 
-  register<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: OperationConstructor<I, O>,
-    operationHandler: OperationHandlerConstructor<T, I, O>
+  register<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(
+    operationConstructor: OperationConstructor<T, K, I, O>,
+    operationHandler: OperationHandler<T, K, I, O>
   ) {
-    this.operationHandlers.set(operation, operationHandler);
+    this.operationHandlers.set(operationConstructor.key, operationHandler);
 
     return this;
   }
 
-  getOperationHandler<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T
-  ): OperationHandler<T, I, O> {
-    const operationHandler = this.operationHandlers.get(operation.constructor) as
-      | OperationHandlerConstructor<T, I, O>
+  getOperationHandler<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T): OperationHandler<T, K, I, O> {
+    const operationHandler = this.operationHandlers.get(operation.key) as
+      | OperationHandler<T, K, I, O>
       | undefined;
 
     if (!operationHandler) {
       // TODO: Custom errors.
-      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+      throw new Error(`No operation handler registered for ${operation.key}`);
     }
 
-    return new operationHandler(this);
+    return operationHandler;
   }
 
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T
-  ): Promise<O> {
-    const handler = this.getOperationHandler<T, I, O>(operation);
+  getTask<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T): Task<O> {
+    const operationHandler = this.getOperationHandler<T, K, I, O>(operation);
 
-    return handler.handle(operation);
+    return useTask((scope) => {
+      return operationHandler.handle(operation, this, scope);
+    });
+  }
+
+  execute<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T, options: TaskOptions = {}): Promise<O> {
+    return this.getTask<T, K, I, O>(operation).run(options);
   }
 }

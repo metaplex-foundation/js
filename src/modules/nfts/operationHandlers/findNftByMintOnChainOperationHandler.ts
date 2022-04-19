@@ -1,12 +1,13 @@
+import { Metaplex } from '@/Metaplex';
 import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
-import { FindNftByMintOperation } from '../operations/FindNftByMintOperation';
+import { FindNftByMintOperation } from '../operations/findNftByMintOperation';
 import { MasterEditionAccount, MetadataAccount } from '@/programs';
 
-export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindNftByMintOperation> {
-  public async handle(operation: FindNftByMintOperation): Promise<Nft> {
+export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> = {
+  handle: async (operation: FindNftByMintOperation, metaplex: Metaplex): Promise<Nft> => {
     const mint = operation.input;
-    const [metadataInfo, masterEditionInfo] = await this.metaplex.getMultipleAccountsInfo([
+    const [metadataInfo, masterEditionInfo] = await metaplex.getMultipleAccountsInfo([
       await MetadataAccount.pda(mint),
       await MasterEditionAccount.pda(mint),
     ]);
@@ -21,10 +22,10 @@ export class FindNftByMintOnChainOperationHandler extends OperationHandler<FindN
       throw new Error('Nft not found');
     }
 
-    const nft = new Nft(metadataAccount, this.metaplex);
-    await nft.metadataLoader.load();
-    nft.masterEditionLoader.loadWith(masterEditionAccount);
+    const nft = new Nft(metadataAccount, metaplex);
+    await nft.metadataTask.run();
+    nft.masterEditionTask.loadWith(masterEditionAccount);
 
     return nft;
-  }
-}
+  },
+};
