@@ -25,7 +25,7 @@ import {
   Signer,
   getSignerHistogram,
 } from '@/shared';
-import { nftPlugin } from '@/modules';
+import { candyMachinePlugin, nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 
 export type MetaplexOptions = {
@@ -61,7 +61,7 @@ export class Metaplex {
   }
 
   registerDefaultPlugins() {
-    this.use(nftPlugin());
+    this.use(nftPlugin()).use(candyMachinePlugin());
   }
 
   use(plugin: MetaplexPlugin) {
@@ -138,6 +138,23 @@ export class Metaplex {
     await this.confirmTransaction(signature, confirmOptions?.commitment);
 
     return signature;
+  }
+
+  async rawSendAndConfirmTransaction(
+    transaction: Transaction | TransactionBuilder,
+    signers?: Signer[],
+    confirmOptions?: ConfirmOptions
+  ): Promise<{
+    signature: TransactionSignature;
+    confirmed: RpcResponseAndContext<SignatureResult>;
+  }> {
+    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
+    const confirmed = await this.connection.confirmTransaction(
+      signature,
+      confirmOptions?.commitment
+    );
+
+    return { signature, confirmed };
   }
 
   async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
