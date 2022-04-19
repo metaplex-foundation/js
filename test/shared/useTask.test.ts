@@ -50,15 +50,13 @@ test('it can fail', async (t: Test) => {
   // When we run the task.
   try {
     await task.run();
+    t.fail('Test task should have failed');
   } catch (error) {
     // Then the task is marked as failed and we kept track of the error.
     t.equal(task.getStatus(), 'failed');
     t.equal(task.getResult(), undefined);
     t.equal(task.getError(), error);
-    return;
   }
-
-  t.fail('Test task should have failed');
 });
 
 test('it can be aborted using an AbortController', async (t: Test) => {
