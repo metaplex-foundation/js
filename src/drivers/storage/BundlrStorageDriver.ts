@@ -42,7 +42,8 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const price = await this.getMultipliedPrice(files);
+    const bytes = this.getBytes(files);
+    const price = await this.getMultipliedPrice(bytes);
 
     return SolAmount.fromLamports(price);
   }
@@ -64,14 +65,20 @@ export class BundlrStorageDriver extends StorageDriver {
   public async needsFunding(files: MetaplexFile[]): Promise<boolean> {
     const bundlr = await this.getBundlr();
     const balance = await bundlr.getLoadedBalance();
-    const price = await this.getMultipliedPrice(files);
+    const bytes = this.getBytes(files);
+    const price = await this.getMultipliedPrice(bytes);
 
     return price.isGreaterThan(balance);
   }
 
   public async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
+    const bytes = this.getBytes(files);
+    await this.fundBytes(bytes, skipBalanceCheck);
+  }
+
+  public async fundBytes(bytes: number, skipBalanceCheck = false): Promise<void> {
     const bundlr = await this.getBundlr();
-    const price = await this.getMultipliedPrice(files);
+    const price = await this.getMultipliedPrice(bytes);
 
     if (skipBalanceCheck) {
       await bundlr.fund(price);
@@ -85,9 +92,13 @@ export class BundlrStorageDriver extends StorageDriver {
     }
   }
 
-  protected async getMultipliedPrice(files: MetaplexFile[]) {
-    const bundlr = await this.getBundlr();
+  protected getBytes(files: MetaplexFile[]): number {
     const bytes = files.reduce((total, file) => total + file.getBytes(), 0);
+    return bytes;
+  }
+
+  protected async getMultipliedPrice(bytes: number): Promise<any> {
+    const bundlr = await this.getBundlr();
     const price = await bundlr.getPrice(bytes);
 
     return price.multipliedBy(this.options.priceMultiplier ?? 1.5).decimalPlaces(0);
