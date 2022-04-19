@@ -1,4 +1,5 @@
 import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
+import BigNumber from 'bignumber.js';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { StorageDriver } from './StorageDriver';
@@ -7,6 +8,12 @@ import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
 import { planUploadMetadataOperation } from '@/modules';
 import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
+import {
+  AssetUploadFailedError,
+  FailedToConnectToBundlrAddressError,
+  FailedToInitializeBundlrError,
+  NotYetImplementedError,
+} from '@/errors';
 
 export interface BundlrOptions {
   address?: string;
@@ -42,8 +49,7 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const bytes = this.getBytes(files);
-    const price = await this.getMultipliedPrice(bytes);
+    const price = await this.getMultipliedPrice(this.getBytes(files));
 
     return SolAmount.fromLamports(price);
   }
@@ -62,40 +68,55 @@ export class BundlrStorageDriver extends StorageDriver {
     return Promise.all(promises);
   }
 
-  public async needsFunding(files: MetaplexFile[]): Promise<boolean> {
-    const bundlr = await this.getBundlr();
-    const balance = await bundlr.getLoadedBalance();
-    const bytes = this.getBytes(files);
-    const price = await this.getMultipliedPrice(bytes);
-
-    return price.isGreaterThan(balance);
-  }
-
-  public async fund(files: MetaplexFile[], skipBalanceCheck = false): Promise<void> {
-    await this.fundBytes(this.getBytes(files), skipBalanceCheck);
-  }
-
-  public async fundBytes(bytes: number, skipBalanceCheck = false): Promise<void> {
-    const bundlr = await this.getBundlr();
-    const price = await this.getMultipliedPrice(bytes);
+  public async fundingNeeded(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<BigNumber> {
+    const price = await this.getMultipliedPrice(this.getBytes(filesOrBytes));
 
     if (skipBalanceCheck) {
-      await bundlr.fund(price);
+      return price;
+    }
+
+    const bundlr = await this.getBundlr();
+    const balance = await bundlr.getLoadedBalance();
+
+    return price.isGreaterThan(balance) ? price.minus(balance) : new BigNumber(0);
+  }
+
+  public async needsFunding(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<boolean> {
+    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+
+    return fundingNeeded.isGreaterThan(0);
+  }
+
+  public async fund(
+    filesOrBytes: MetaplexFile[] | number,
+    skipBalanceCheck = false
+  ): Promise<void> {
+    const bundlr = await this.getBundlr();
+    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+
+    if (!fundingNeeded.isGreaterThan(0)) {
       return;
     }
 
-    const balance = await bundlr.getLoadedBalance();
+    // TODO: Catch errors and wrap in BundlrErrors.
+    await bundlr.fund(fundingNeeded);
+  }
 
-    if (price.isGreaterThan(balance)) {
-      await bundlr.fund(price.minus(balance));
+  protected getBytes(filesOrBytes: MetaplexFile[] | number): number {
+    if (typeof filesOrBytes === 'number') {
+      return filesOrBytes;
     }
+
+    return filesOrBytes.reduce((total, file) => total + file.getBytes(), 0);
   }
 
-  protected getBytes(files: MetaplexFile[]): number {
-    return files.reduce((total, file) => total + file.getBytes(), 0);
-  }
-
-  protected async getMultipliedPrice(bytes: number): Promise<any> {
+  protected async getMultipliedPrice(bytes: number): Promise<BigNumber> {
     const bundlr = await this.getBundlr();
     const price = await bundlr.getPrice(bytes);
 
@@ -110,8 +131,7 @@ export class BundlrStorageDriver extends StorageDriver {
     );
 
     if (status >= 300) {
-      // TODO: Custom errors.
-      throw new Error(`Failed to upload asset. Got status: ${status}.`);
+      throw new AssetUploadFailedError(status);
     }
 
     return `https://arweave.net/${data.id}`;
@@ -119,7 +139,7 @@ export class BundlrStorageDriver extends StorageDriver {
 
   protected async withdrawAll(): Promise<void> {
     // TODO: Implement when available on Bundlr.
-    throw new Error('Method not implemented.');
+    throw new NotYetImplementedError();
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
@@ -133,17 +153,16 @@ export class BundlrStorageDriver extends StorageDriver {
     };
 
     const identity = this.metaplex.identity();
-
     const bundlr =
       identity instanceof KeypairIdentityDriver
         ? new NodeBundlr(address, currency, identity.keypair.secretKey, options)
         : new WebBundlr(address, currency, identity, options);
+
     try {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
-      // TODO: Custom errors.
-      throw new Error(`Failed to connect to bundlr ${address}.`);
+      throw new FailedToConnectToBundlrAddressError(address, error as Error);
     }
 
     if (bundlr instanceof WebBundlr) {
@@ -151,12 +170,7 @@ export class BundlrStorageDriver extends StorageDriver {
         // Try to initiate bundlr.
         await bundlr.ready();
       } catch (error) {
-        console.error(error);
-      }
-
-      if (!bundlr.address) {
-        // TODO: Custom errors.
-        throw new Error('Failed to initiate Bundlr.');
+        throw new FailedToInitializeBundlrError(error as Error);
       }
     }
 

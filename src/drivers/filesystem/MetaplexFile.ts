@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { getContentType, getExtension, randomStr } from '@/utils';
+import { InvalidJsonVariableError } from '@/errors';
 
 export interface MetaplexFileOptions {
   displayName?: string;
@@ -48,11 +49,10 @@ export class MetaplexFile {
     try {
       jsonString = JSON.stringify(json);
     } catch (error) {
-      // TODO: Custom errors.
-      throw new Error('Invalid JSON');
+      throw new InvalidJsonVariableError(error as Error);
     }
 
-    return new this(jsonString, 'inline.json');
+    return new this(jsonString, fileName, options);
   }
 
   protected static parseContent(content: string | Buffer | Uint8Array | ArrayBuffer) {

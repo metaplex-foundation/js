@@ -1,5 +1,6 @@
 import { AbortSignal } from 'abort-controller';
 import { EventEmitter } from 'eventemitter3';
+import { TaskIsAlreadyRunningError } from '@/errors';
 import { useDisposable, DisposableScope } from './useDisposable';
 
 export type TaskStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
@@ -90,8 +91,7 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
 
   const run = async (options: TaskOptions = {}): Promise<T> => {
     if (isRunning()) {
-      // TODO: Custom errors.
-      throw new Error('Task is already running.');
+      throw new TaskIsAlreadyRunningError();
     }
 
     if (isPending() || (options.force ?? false)) {
