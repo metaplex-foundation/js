@@ -28,6 +28,7 @@ import {
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { Task, TaskOptions, useTask } from './shared/useTask';
+import { SdkError } from '@/errors';
 
 export type MetaplexOptions = {
   // ...
@@ -176,8 +177,7 @@ export class Metaplex {
       | undefined;
 
     if (!operationHandler) {
-      // TODO: Custom errors.
-      throw new Error(`No operation handler registered for ${operation.key}`);
+      throw SdkError.operationHandlerMissing(operation.key);
     }
 
     return operationHandler;
