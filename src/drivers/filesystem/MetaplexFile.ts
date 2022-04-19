@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { getContentType, getExtension, randomStr } from '@/utils';
+import { SdkError } from '@/errors';
 
 export interface MetaplexFileOptions {
   displayName?: string;
@@ -48,8 +49,7 @@ export class MetaplexFile {
     try {
       jsonString = JSON.stringify(json);
     } catch (error) {
-      // TODO: Custom errors.
-      throw new Error('Invalid JSON');
+      throw SdkError.invalidJsonVariable(error as Error);
     }
 
     return new this(jsonString, fileName, options);
