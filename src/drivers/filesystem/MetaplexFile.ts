@@ -52,7 +52,7 @@ export class MetaplexFile {
       throw new Error('Invalid JSON');
     }
 
-    return new this(jsonString, 'inline.json');
+    return new this(jsonString, fileName, options);
   }
 
   protected static parseContent(content: string | Buffer | Uint8Array | ArrayBuffer) {
