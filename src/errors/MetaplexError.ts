@@ -49,12 +49,15 @@ export class MetaplexError extends Error {
   }
 
   toString() {
+    const causedBy = this.cause ? `\n\nCaused By: ${this.cause}` : '';
+
     return (
       `[${this.name}] ${this.title}` +
       `\n>> Source: ${this.getFullSource()}` +
       `\n>> Problem: ${this.problem}` +
       `\n>> Solution: ${this.solution}` +
-      `\n>> Key: ${this.key}`
+      `\n>> Key: ${this.key}` +
+      causedBy
     );
   }
 }
