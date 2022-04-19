@@ -1,4 +1,6 @@
 import {
+  CandyMachine,
+  CandyMachineArgs,
   CandyMachineData,
   EndSettings,
   GatekeeperConfig,
@@ -17,9 +19,9 @@ import {
   StorageConfig,
   whiteListMintSettingsFromConfig,
 } from './config';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 
-export class CandyMachine extends Model {
+export class CandyMachineModel extends Model {
   private constructor(
     readonly price: BN,
     readonly symbol: string,
@@ -44,11 +46,7 @@ export class CandyMachine extends Model {
   }
 
   getData(candyMachinePubkey?: PublicKey): CandyMachineData {
-    let uuid = this.uuid;
-    if (uuid == null && candyMachinePubkey != null) {
-      uuid = candyMachineUuidFromPubkey(candyMachinePubkey);
-    }
-    assert(uuid != null, 'uuid must be set or the pda provided in order to derive it');
+    const uuid = this.resolveUuid(candyMachinePubkey);
     return {
       price: this.price,
       symbol: this.symbol,
@@ -69,10 +67,19 @@ export class CandyMachine extends Model {
     };
   }
 
+  private resolveUuid(candyMachinePubkey?: PublicKey) {
+    let uuid = this.uuid;
+    if (uuid == null && candyMachinePubkey != null) {
+      uuid = candyMachineUuidFromPubkey(candyMachinePubkey);
+    }
+    assert(uuid != null, 'uuid must be set or the pda provided in order to derive it');
+    return uuid;
+  }
+
   static fromCandyMachineData(candyMachineData: CandyMachineData) {
     const goLiveDate =
       candyMachineData.goLiveDate != null ? new BN(candyMachineData.goLiveDate) : undefined;
-    return new CandyMachine(
+    return new CandyMachineModel(
       new BN(candyMachineData.price),
       candyMachineData.symbol,
       candyMachineData.sellerFeeBasisPoints,
@@ -103,7 +110,7 @@ export class CandyMachine extends Model {
     const whitelistMintSettings = whiteListMintSettingsFromConfig(config.whitelistMintSettings);
     const gatekeeper = gatekeeperFromConfig(config.gatekeeper);
 
-    return new CandyMachine(
+    return new CandyMachineModel(
       new BN(config.price),
       config.symbol ?? '',
       config.sellerFeeBasisPoints,
@@ -123,6 +130,29 @@ export class CandyMachine extends Model {
       whitelistMintSettings,
       gatekeeper
     );
+  }
+
+  getSize(candyMachinePubkey?: PublicKey) {
+    // TODO(thlorenz): in some cases we actually allocated MAX sizes in order
+    // to allow configuring candy machine later, see
+    // metaplex-foundation/metaplex/js/packages/cli/src/helpers/instructions.ts:235 (createCandyMachineV2Account)
+
+    // size does not depend on which pubkey is used
+    const somePubkey = PublicKey.default;
+    const args: CandyMachineArgs = {
+      data: this.getData(candyMachinePubkey),
+      wallet: somePubkey,
+      authority: somePubkey,
+      // TODO(thlorenz): pass or determine this
+      tokenMint: null,
+      itemsRedeemed: new BN(0),
+    };
+    // TODO(thlorenz): HACK for now
+    return CandyMachine.byteSize(args) + 4000;
+  }
+
+  static async getCandyMachine(candyMachineAccount: PublicKey, connection: Connection) {
+    return CandyMachine.fromAccountAddress(connection, candyMachineAccount);
   }
 }
 

@@ -1,3 +1,4 @@
+import { ConfirmOptions } from '@solana/web3.js';
 import test from 'tape';
 
 /**
@@ -12,3 +13,8 @@ export function killStuckProcess() {
     test.onFinish(() => process.exit(0));
   }
 }
+
+export const SKIP_PREFLIGHT: ConfirmOptions = {
+  skipPreflight: true,
+  commitment: 'confirmed',
+};

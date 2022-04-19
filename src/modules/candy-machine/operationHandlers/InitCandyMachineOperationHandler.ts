@@ -5,29 +5,39 @@ import { initCandyMachineBuilder } from '../transactionBuilders';
 
 export class InitCandyMachineOperationHandler extends OperationHandler<InitCandyMachineOperation> {
   async handle(operation: InitCandyMachineOperation): Promise<InitCandyMachineOutput> {
+    const { payer = this.metaplex.identity() } = operation.input;
     const {
-      payer,
-      candyMachine = Keypair.generate().publicKey,
-      wallet = payer,
-      authority = payer,
+      candyMachine = Keypair.generate(),
+      wallet = payer.publicKey,
+      authority = payer.publicKey,
       candyMachineModel,
       confirmOptions,
     } = operation.input;
 
-    const transactionId = await this.metaplex.sendAndConfirmTransaction(
-      initCandyMachineBuilder({
+    const connection = this.metaplex.connection;
+    const { signature, confirmed } = await this.metaplex.rawSendAndConfirmTransaction(
+      await initCandyMachineBuilder({
         payer,
         candyMachine,
         wallet,
         authority,
         candyMachineModel,
         confirmOptions,
+        connection,
       }),
       undefined,
       confirmOptions
     );
 
-    // TODO(thlorenz): retrieve account and deserialize
-    return { candyMachine: operation.input.candyMachineModel, transactionId };
+    return {
+      // Accounts
+      payer,
+      candyMachine,
+      wallet,
+      authority,
+      // Transaction Result
+      transactionId: signature,
+      confirmed,
+    };
   }
 }

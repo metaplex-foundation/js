@@ -1,5 +1,6 @@
 const { LOCALHOST, tmpLedgerDir } = require('@metaplex-foundation/amman');
 const path = require('path');
+const accountProviders = require('./dist/test/test/helpers/amman.js');
 
 function localDeployPath(programName) {
   return path.join(__dirname, 'test', 'programs', `${programName}.so`);
@@ -37,5 +38,8 @@ module.exports = {
     ledgerDir: tmpLedgerDir(),
     resetLedger: true,
     verifyFees: false,
+  },
+  relay: {
+    accountProviders,
   },
 };

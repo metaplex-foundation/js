@@ -1,23 +1,29 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { Operation } from '../../../shared';
-import { CandyMachine } from '../models/CandyMachine';
+import { ConfirmOptions, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
+import { Operation, Signer } from '../../../shared';
+import { CandyMachineModel } from '../models/CandyMachine';
 
 export type InitCandyMachineInput = {
   // Accounts
-  payer: PublicKey;
+  payer?: Signer;
   // solTreasuryAccount
   wallet: PublicKey;
-  candyMachine?: PublicKey;
+  candyMachine?: Signer;
   authority?: PublicKey;
   // Models
-  candyMachineModel: CandyMachine;
+  candyMachineModel: CandyMachineModel;
   // Transaction Options
   confirmOptions?: ConfirmOptions;
 };
 
 export type InitCandyMachineOutput = {
-  candyMachine: CandyMachine;
+  // Accounts
+  payer: Signer;
+  wallet: PublicKey;
+  candyMachine: Signer;
+  authority: PublicKey;
+  // Transaction Result
   transactionId: string;
+  confirmed: RpcResponseAndContext<SignatureResult>;
 };
 
 export class InitCandyMachineOperation extends Operation<
