@@ -74,7 +74,7 @@ test('it can be aborted using an AbortController', async (t: Test) => {
   try {
     await task.run({ signal: abortController.signal });
   } catch (error) {
-    // Fail silently...
+    t.equal((error as Event).type, 'abort');
   }
 
   // Then the task was marked as canceled.
