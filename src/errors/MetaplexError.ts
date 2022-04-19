@@ -31,6 +31,7 @@ export class MetaplexError extends Error {
     this.source = input.source;
     this.sourceDetails = input.sourceDetails;
     this.cause = input.cause;
+    this.message = this.toString(false);
   }
 
   getCapitalizedSource(): string {
@@ -48,16 +49,18 @@ export class MetaplexError extends Error {
     return capitalizedSource + sourceDetails;
   }
 
-  toString() {
+  toString(withName: boolean = true) {
     const causedBy = this.cause ? `\n\nCaused By: ${this.cause}` : '';
 
     return (
-      `[${this.name}] ${this.title}` +
+      (withName ? `[${this.name}] ` : '') +
+      `${this.title}` +
       `\n>> Source: ${this.getFullSource()}` +
       `\n>> Problem: ${this.problem}` +
       `\n>> Solution: ${this.solution}` +
       `\n>> Key: ${this.key}` +
-      causedBy
+      causedBy +
+      '\n'
     );
   }
 }
