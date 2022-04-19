@@ -20,6 +20,7 @@ import {
   whiteListMintSettingsFromConfig,
 } from './config';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { getSpaceForCandy } from './candyMachineSpace';
 
 export class CandyMachineModel extends Model {
   private constructor(
@@ -133,22 +134,7 @@ export class CandyMachineModel extends Model {
   }
 
   getSize(candyMachinePubkey?: PublicKey) {
-    // TODO(thlorenz): in some cases we actually allocated MAX sizes in order
-    // to allow configuring candy machine later, see
-    // metaplex-foundation/metaplex/js/packages/cli/src/helpers/instructions.ts:235 (createCandyMachineV2Account)
-
-    // size does not depend on which pubkey is used
-    const somePubkey = PublicKey.default;
-    const args: CandyMachineArgs = {
-      data: this.getData(candyMachinePubkey),
-      wallet: somePubkey,
-      authority: somePubkey,
-      // TODO(thlorenz): pass or determine this
-      tokenMint: null,
-      itemsRedeemed: new BN(0),
-    };
-    // TODO(thlorenz): HACK for now
-    return CandyMachine.byteSize(args) + 4000;
+    return getSpaceForCandy(this.getData(candyMachinePubkey));
   }
 
   static async getCandyMachine(candyMachineAccount: PublicKey, connection: Connection) {
