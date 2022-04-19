@@ -87,6 +87,16 @@ export class SdkError extends MetaplexError {
     });
   }
 
+  static assetNotFound(location: string, cause?: Error) {
+    return new this({
+      cause,
+      key: 'asset_not_found',
+      title: 'Asset Not Found',
+      problem: `The asset at [${location}] could not be found.`,
+      solution: 'Ensure the asset exists at the given path or URI.',
+    });
+  }
+
   static notYetImplemented(cause?: Error) {
     return new this({
       cause,

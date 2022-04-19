@@ -3,6 +3,7 @@ import { OperationHandler } from '@/shared';
 import { Nft } from '../models';
 import { FindNftByMintOperation } from '../operations/findNftByMintOperation';
 import { MasterEditionAccount, MetadataAccount } from '@/programs';
+import { NftError } from '@/errors';
 
 export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> = {
   handle: async (operation: FindNftByMintOperation, metaplex: Metaplex): Promise<Nft> => {
@@ -18,8 +19,7 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       : null;
 
     if (!metadataAccount) {
-      // TODO: Custom error.
-      throw new Error('Nft not found');
+      throw NftError.nftNotFound(mint);
     }
 
     const nft = new Nft(metadataAccount, metaplex);
