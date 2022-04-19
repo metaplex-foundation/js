@@ -5,10 +5,6 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { TransactionError } from '@solana/web3.js';
 
-import tokenMetadataAccounts from '@metaplex-foundation/mpl-token-metadata';
-import candyMachineAccounts from '@metaplex-foundation/mpl-candy-machine';
-export const accountProviders = { ...tokenMetadataAccounts, ...candyMachineAccounts };
-
 export const amman = Amman.instance({
   knownLabels: { [TOKEN_METADATA_ADDRESS]: 'Token Metadata' },
 });

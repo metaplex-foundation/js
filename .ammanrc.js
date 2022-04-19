@@ -1,6 +1,7 @@
 const { LOCALHOST, tmpLedgerDir } = require('@metaplex-foundation/amman');
 const path = require('path');
-const accountProviders = require('./dist/test/test/helpers/amman.js');
+
+const { accountProviders } = require('./dist/cjs/accountProviders');
 
 function localDeployPath(programName) {
   return path.join(__dirname, 'test', 'programs', `${programName}.so`);
