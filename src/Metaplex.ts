@@ -28,7 +28,7 @@ import {
 import { nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { Task, TaskOptions, useTask } from './shared/useTask';
-import { SdkError } from '@/errors';
+import { OperationHandlerMissingError } from '@/errors';
 
 export type MetaplexOptions = {
   // ...
@@ -177,7 +177,7 @@ export class Metaplex {
       | undefined;
 
     if (!operationHandler) {
-      throw SdkError.operationHandlerMissing(operation.key);
+      throw new OperationHandlerMissingError(operation.key);
     }
 
     return operationHandler;

@@ -8,7 +8,12 @@ import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
 import { planUploadMetadataOperation } from '@/modules';
 import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetadataUsingBundlrOperationHandler';
 import { SolAmount } from '@/shared';
-import { BundlrError, SdkError } from '@/errors';
+import {
+  AssetUploadFailedError,
+  FailedToConnectToBundlrAddressError,
+  FailedToInitializeBundlrError,
+  NotYetImplementedError,
+} from '@/errors';
 
 export interface BundlrOptions {
   address?: string;
@@ -126,7 +131,7 @@ export class BundlrStorageDriver extends StorageDriver {
     );
 
     if (status >= 300) {
-      throw BundlrError.assetUploadFailed(status);
+      throw new AssetUploadFailedError(status);
     }
 
     return `https://arweave.net/${data.id}`;
@@ -134,7 +139,7 @@ export class BundlrStorageDriver extends StorageDriver {
 
   protected async withdrawAll(): Promise<void> {
     // TODO: Implement when available on Bundlr.
-    throw SdkError.notYetImplemented();
+    throw new NotYetImplementedError();
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
@@ -157,7 +162,7 @@ export class BundlrStorageDriver extends StorageDriver {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
-      throw BundlrError.failedToConnectToBundlrAddress(address, error as Error);
+      throw new FailedToConnectToBundlrAddressError(address, error as Error);
     }
 
     if (bundlr instanceof WebBundlr) {
@@ -165,7 +170,7 @@ export class BundlrStorageDriver extends StorageDriver {
         // Try to initiate bundlr.
         await bundlr.ready();
       } catch (error) {
-        throw BundlrError.failedToInitializeBundlr(error as Error);
+        throw new FailedToInitializeBundlrError(error as Error);
       }
     }
 

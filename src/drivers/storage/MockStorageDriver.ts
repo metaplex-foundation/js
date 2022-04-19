@@ -4,7 +4,7 @@ import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { MetaplexFile } from '../filesystem/MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 import { SolAmount } from '@/shared';
-import { SdkError } from '@/errors';
+import { AssetNotFoundError } from '@/errors';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = new BN(1);
@@ -49,7 +49,7 @@ export class MockStorageDriver extends StorageDriver {
     const file = this.cache[uri];
 
     if (!file) {
-      throw SdkError.assetNotFound(uri);
+      throw new AssetNotFoundError(uri);
     }
 
     return file;

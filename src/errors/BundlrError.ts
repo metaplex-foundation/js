@@ -10,9 +10,11 @@ export class BundlrError extends MetaplexError {
       sourceDetails: 'Bundlr',
     });
   }
+}
 
-  static failedToInitializeBundlr(cause: Error) {
-    return new this({
+export class FailedToInitializeBundlrError extends BundlrError {
+  constructor(cause: Error) {
+    super({
       cause,
       key: 'failed_to_initialize_bundlr',
       title: 'Failed to Initialize Bundlr',
@@ -22,9 +24,11 @@ export class BundlrError extends MetaplexError {
         'Check the underlying error below for more information.',
     });
   }
+}
 
-  static failedToConnectToBundlrAddress(address: string, cause?: Error) {
-    return new this({
+export class FailedToConnectToBundlrAddressError extends BundlrError {
+  constructor(address: string, cause?: Error) {
+    super({
       cause,
       key: 'failed_to_connect_to_bundlr_address',
       title: 'Failed to Connect to Bundlr Address',
@@ -34,9 +38,11 @@ export class BundlrError extends MetaplexError {
         '"https://node1.bundlr.network" for mainnet and "https://devnet.bundlr.network" for devnet',
     });
   }
+}
 
-  static assetUploadFailed(status: number, cause?: Error) {
-    return new this({
+export class AssetUploadFailedError extends BundlrError {
+  constructor(status: number, cause?: Error) {
+    super({
       cause,
       key: 'asset_upload_failed',
       title: 'Asset Upload Failed',

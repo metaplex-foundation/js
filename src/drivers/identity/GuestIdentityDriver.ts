@@ -2,7 +2,7 @@ import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } fro
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { SdkError } from '@/errors';
+import { OperationUnauthorizedForGuestsError } from '@/errors';
 
 export const guestIdentity = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -19,15 +19,15 @@ export class GuestIdentityDriver extends IdentityDriver {
   }
 
   public async signMessage(_message: Uint8Array): Promise<Uint8Array> {
-    throw SdkError.operationUnauthorizedForGuests('signMessage');
+    throw new OperationUnauthorizedForGuestsError('signMessage');
   }
 
   public async signTransaction(_transaction: Transaction): Promise<Transaction> {
-    throw SdkError.operationUnauthorizedForGuests('signTransaction');
+    throw new OperationUnauthorizedForGuestsError('signTransaction');
   }
 
   public async signAllTransactions(_transactions: Transaction[]): Promise<Transaction[]> {
-    throw SdkError.operationUnauthorizedForGuests('signAllTransactions');
+    throw new OperationUnauthorizedForGuestsError('signAllTransactions');
   }
 
   public async sendTransaction(

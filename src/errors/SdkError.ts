@@ -8,9 +8,11 @@ export class SdkError extends MetaplexError {
       source: 'sdk',
     });
   }
+}
 
-  static operationHandlerMissing(operationKey: string, cause?: Error) {
-    return new this({
+export class OperationHandlerMissingError extends SdkError {
+  constructor(operationKey: string, cause?: Error) {
+    super({
       cause,
       key: 'operation_handler_missing',
       title: 'Operation Handler Missing',
@@ -20,9 +22,11 @@ export class SdkError extends MetaplexError {
         '"metaplex.register(operation, operationHandler)".',
     });
   }
+}
 
-  static invalidJsonVariable(cause?: Error) {
-    return new this({
+export class InvalidJsonVariableError extends SdkError {
+  constructor(cause?: Error) {
+    super({
       cause,
       key: 'invalid_json_variable',
       title: 'Invalid JSON Variable',
@@ -31,9 +35,11 @@ export class SdkError extends MetaplexError {
         'Ensure the variable can be parsed as a JSON string using "JSON.stringify(myVariable)".',
     });
   }
+}
 
-  static invalidJsonString(cause?: Error) {
-    return new this({
+export class InvalidJsonStringError extends SdkError {
+  constructor(cause?: Error) {
+    super({
       cause,
       key: 'invalid_json_string',
       title: 'Invalid JSON String',
@@ -41,9 +47,11 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure the provided string uses a valid JSON syntax.',
     });
   }
+}
 
-  static operationUnauthorizedForGuests(operation: string, cause?: Error) {
-    return new this({
+export class OperationUnauthorizedForGuestsError extends SdkError {
+  constructor(operation: string, cause?: Error) {
+    super({
       cause,
       key: 'operation_unauthorized_for_guests',
       title: 'Operation Unauthorized For Guests',
@@ -54,9 +62,11 @@ export class SdkError extends MetaplexError {
         '"metaplex.use(keypairIdentity(keypair))".',
     });
   }
+}
 
-  static uninitializedWalletAdapter(cause?: Error) {
-    return new this({
+export class UninitializedWalletAdapterError extends SdkError {
+  constructor(cause?: Error) {
+    super({
       cause,
       key: 'uninitialized_wallet_adapter',
       title: 'Uninitialized Wallet Adapter',
@@ -66,9 +76,11 @@ export class SdkError extends MetaplexError {
         'You may do this by running the following asynchronous method: "walletAdater.connect();".',
     });
   }
+}
 
-  static operationNotSupportedByWalletAdapter(operation: string, cause?: Error) {
-    return new this({
+export class OperationNotSupportedByWalletAdapterError extends SdkError {
+  constructor(operation: string, cause?: Error) {
+    super({
       cause,
       key: 'operation_not_supported_by_wallet_adapter',
       title: 'Operation Not Supported By Wallet Adapter',
@@ -76,9 +88,11 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure your wallet is connected using a compatible wallet adapter.',
     });
   }
+}
 
-  static taskIsAlreadyRunning(cause?: Error) {
-    return new this({
+export class TaskIsAlreadyRunningError extends SdkError {
+  constructor(cause?: Error) {
+    super({
       cause,
       key: 'task_is_already_running',
       title: 'Task Is Already Running',
@@ -86,9 +100,11 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure the task has completed using "await" before trying to run it again.',
     });
   }
+}
 
-  static assetNotFound(location: string, cause?: Error) {
-    return new this({
+export class AssetNotFoundError extends SdkError {
+  constructor(location: string, cause?: Error) {
+    super({
       cause,
       key: 'asset_not_found',
       title: 'Asset Not Found',
@@ -96,9 +112,11 @@ export class SdkError extends MetaplexError {
       solution: 'Ensure the asset exists at the given path or URI.',
     });
   }
+}
 
-  static notYetImplemented(cause?: Error) {
-    return new this({
+export class NotYetImplementedError extends SdkError {
+  constructor(cause?: Error) {
+    super({
       cause,
       key: 'not_yet_implemented',
       title: 'Not Yet Implemented',

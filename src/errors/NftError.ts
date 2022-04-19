@@ -11,9 +11,11 @@ export class NftError extends MetaplexError {
       sourceDetails: 'NFT',
     });
   }
+}
 
-  static nftNotFound(mint: PublicKey, cause?: Error) {
-    return new this({
+export class NftNotFoundError extends NftError {
+  constructor(mint: PublicKey, cause?: Error) {
+    super({
       cause,
       key: 'nft_not_found',
       title: 'NFT Not Found',
