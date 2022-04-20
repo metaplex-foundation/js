@@ -12,15 +12,6 @@ export class AssertionError extends Error {
 }
 
 /**
- * Asserts that both values are strictly equal.
- */
-export function equal<T>(actual: unknown, expected: T, message?: string): asserts actual is T {
-  if (actual !== expected) {
-    throw new AssertionError((message ?? '') + ` ${actual} !== ${expected}`);
-  }
-}
-
-/**
  * Assserts that the provided condition is true.
  */
 export default function assert(condition: boolean, message?: string): asserts condition {
@@ -28,3 +19,16 @@ export default function assert(condition: boolean, message?: string): asserts co
     throw new AssertionError(message ?? 'Assertion failed');
   }
 }
+
+/**
+ * Asserts that both values are strictly equal.
+ */
+assert.equal = function assertEqual<T>(
+  actual: unknown,
+  expected: T,
+  message?: string
+): asserts actual is T {
+  if (actual !== expected) {
+    throw new AssertionError((message ?? '') + ` ${actual} !== ${expected}`);
+  }
+};
