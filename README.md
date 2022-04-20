@@ -345,7 +345,6 @@ class IdentityDriver {
     verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
     signTransaction(transaction: Transaction): Promise<Transaction>;
     signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
-    sendTransaction(transaction: Transaction, signers: Signer[], options?: SendOptions): Promise<TransactionSignature>;
     is(that: IdentityDriver): boolean;
 }
 ```

@@ -20,7 +20,7 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
 
     const metadata = await MetadataAccount.pda(nft.mint);
 
-    const transactionId = await metaplex.sendAndConfirmTransaction(
+    const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
       updateNftBuilder({
         data,
         newUpdateAuthority,
@@ -33,7 +33,7 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
       confirmOptions
     );
 
-    return { transactionId };
+    return { transactionId: signature };
   },
 };
 

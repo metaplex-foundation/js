@@ -1,4 +1,4 @@
-import { PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
@@ -71,16 +71,5 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
-  }
-
-  public async sendTransaction(
-    transaction: Transaction,
-    signers: Signer[],
-    options?: SendOptions
-  ): Promise<TransactionSignature> {
-    return this.walletAdapter.sendTransaction(transaction, this.metaplex.connection, {
-      signers,
-      ...options,
-    });
   }
 }

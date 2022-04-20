@@ -1,4 +1,4 @@
-import { PublicKey, Transaction, TransactionSignature, SendOptions, Signer } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
@@ -28,13 +28,5 @@ export class GuestIdentityDriver extends IdentityDriver {
 
   public async signAllTransactions(_transactions: Transaction[]): Promise<Transaction[]> {
     throw new OperationUnauthorizedForGuestsError('signAllTransactions');
-  }
-
-  public async sendTransaction(
-    transaction: Transaction,
-    signers: Signer[],
-    options?: SendOptions
-  ): Promise<TransactionSignature> {
-    return this.metaplex.connection.sendTransaction(transaction, signers, options);
   }
 }
