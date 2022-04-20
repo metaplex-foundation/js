@@ -1,18 +1,20 @@
-import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
 import {
   Blockhash,
   Commitment,
   ConfirmOptions,
   PublicKey,
-  RpcResponseAndContext,
   SendOptions,
   SendTransactionError,
-  SignatureResult,
   Transaction,
   TransactionError,
   TransactionSignature,
 } from '@solana/web3.js';
-import { RpcDriver } from './RpcDriver';
+import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
+import {
+  ConfirmTransactionResponse,
+  RpcDriver,
+  SendAndConfirmTransactionResponse,
+} from './RpcDriver';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -47,10 +49,11 @@ export class Web3RpcDriver extends RpcDriver {
   async confirmTransaction(
     signature: TransactionSignature,
     commitment?: Commitment
-  ): Promise<RpcResponseAndContext<SignatureResult>> {
-    const rpcResponse: RpcResponseAndContext<SignatureResult> =
+  ): Promise<ConfirmTransactionResponse> {
+    const rpcResponse: ConfirmTransactionResponse =
       await this.metaplex.connection.confirmTransaction(signature, commitment);
-    let transaction_error: TransactionError | null = rpcResponse.value.err;
+
+    const transaction_error: TransactionError | null = rpcResponse.value.err;
     if (transaction_error) {
       // TODO: Custom errors.
       throw new SendTransactionError(
@@ -66,11 +69,11 @@ export class Web3RpcDriver extends RpcDriver {
     transaction: Transaction | TransactionBuilder,
     signers?: Signer[],
     confirmOptions?: ConfirmOptions
-  ): Promise<TransactionSignature> {
+  ): Promise<SendAndConfirmTransactionResponse> {
     const signature = await this.sendTransaction(transaction, signers, confirmOptions);
-    await this.confirmTransaction(signature, confirmOptions?.commitment);
+    const confirmResponse = await this.confirmTransaction(signature, confirmOptions?.commitment);
 
-    return signature;
+    return { signature, confirmResponse };
   }
 
   getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {

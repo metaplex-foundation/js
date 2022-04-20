@@ -13,6 +13,12 @@ import {
 import { Driver } from '../Driver';
 import { Buffer } from 'buffer';
 
+export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
+export type SendAndConfirmTransactionResponse = {
+  signature: TransactionSignature;
+  confirmResponse: ConfirmTransactionResponse;
+};
+
 export abstract class RpcDriver extends Driver {
   public abstract sendTransaction(
     transaction: Transaction | TransactionBuilder,
@@ -23,13 +29,13 @@ export abstract class RpcDriver extends Driver {
   public abstract confirmTransaction(
     signature: TransactionSignature,
     commitment?: Commitment
-  ): Promise<RpcResponseAndContext<SignatureResult>>;
+  ): Promise<ConfirmTransactionResponse>;
 
   public abstract sendAndConfirmTransaction(
     transaction: Transaction | TransactionBuilder,
     signers?: Signer[],
     confirmOptions?: ConfirmOptions
-  ): Promise<TransactionSignature>;
+  ): Promise<SendAndConfirmTransactionResponse>;
 
   public abstract getAccountInfo(
     publicKey: PublicKey,
