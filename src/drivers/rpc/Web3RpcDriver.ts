@@ -49,6 +49,7 @@ export class Web3RpcDriver extends RpcDriver {
     try {
       return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
     } catch (error) {
+      // TODO: Parse using program knowledge when possible.
       throw new FailedToSendTransactionError(error as Error);
     }
   }

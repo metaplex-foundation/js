@@ -21,8 +21,6 @@ export class FailedToSendTransactionError extends RpcError {
       problem: `The transaction could not be sent successfully to the network.`,
       solution: 'Check the error below for more information.',
     });
-
-    // TODO: Parse using program knowledge.
   }
 
   public asSendTransactionError(): SendTransactionError {
