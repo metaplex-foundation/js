@@ -1,23 +1,13 @@
-import { Buffer } from 'buffer';
+import { Connection } from '@solana/web3.js';
 import {
-  AccountInfo,
-  Commitment,
-  ConfirmOptions,
-  Connection,
-  PublicKey,
-  RpcResponseAndContext,
-  SendOptions,
-  SignatureResult,
-  Transaction,
-  TransactionSignature,
-  SendTransactionError,
-  TransactionError,
-} from '@solana/web3.js';
-import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
+  IdentityDriver,
+  GuestIdentityDriver,
+  StorageDriver,
+  BundlrStorageDriver,
+  RpcDriver,
+  Web3RpcDriver,
+} from '@/drivers';
 import {
-  TransactionBuilder,
-  Signer,
-  getSignerHistogram,
   OperationConstructor,
   Operation,
   KeyOfOperation,
@@ -47,6 +37,9 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
+  /** Encapsulates how to read and write on-chain. */
+  protected rpcDriver: RpcDriver;
+
   /** The registered handlers for read/write operations. */
   protected operationHandlers: Map<string, OperationHandler<any, any, any, any>> = new Map();
 
@@ -55,6 +48,7 @@ export class Metaplex {
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
+    this.rpcDriver = new Web3RpcDriver(this);
     this.registerDefaultPlugins();
   }
 
@@ -92,64 +86,14 @@ export class Metaplex {
     return this;
   }
 
-  async sendTransaction(
-    transaction: Transaction | TransactionBuilder,
-    signers: Signer[] = [],
-    sendOptions: SendOptions = {}
-  ): Promise<TransactionSignature> {
-    if (transaction instanceof TransactionBuilder) {
-      signers = [...transaction.getSigners(), ...signers];
-      transaction = transaction.toTransaction();
-    }
-
-    const { keypairs, identities } = getSignerHistogram(signers);
-
-    for (let i = 0; i < identities.length; i++) {
-      if (!identities[i].is(this.identity())) {
-        await identities[i].signTransaction(transaction);
-      }
-    }
-
-    return this.identity().sendTransaction(transaction, keypairs, sendOptions);
+  rpc() {
+    return this.rpcDriver;
   }
 
-  async confirmTransaction(
-    signature: TransactionSignature,
-    commitment?: Commitment
-  ): Promise<RpcResponseAndContext<SignatureResult>> {
-    const rpcResponse: RpcResponseAndContext<SignatureResult> =
-      await this.connection.confirmTransaction(signature, commitment);
-    let transaction_error: TransactionError | null = rpcResponse.value.err;
-    if (transaction_error) {
-      // TODO: Custom errors.
-      throw new SendTransactionError(
-        `Transaction ${signature} failed (${JSON.stringify(transaction_error)})`,
-        [transaction_error.toString()]
-      );
-    }
+  setRpc(rpc: RpcDriver) {
+    this.rpcDriver = rpc;
 
-    return rpcResponse;
-  }
-
-  async sendAndConfirmTransaction(
-    transaction: Transaction | TransactionBuilder,
-    signers?: Signer[],
-    confirmOptions?: ConfirmOptions
-  ): Promise<TransactionSignature> {
-    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
-    await this.confirmTransaction(signature, confirmOptions?.commitment);
-
-    return signature;
-  }
-
-  async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
-    return this.connection.getAccountInfo(publicKey, commitment);
-  }
-
-  async getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
-    const accounts = await this.connection.getMultipleAccountsInfo(publicKeys, commitment);
-
-    return accounts as Array<AccountInfo<Buffer> | null>;
+    return this;
   }
 
   register<

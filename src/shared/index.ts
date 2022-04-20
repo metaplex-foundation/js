@@ -7,6 +7,7 @@ export * from './ModuleClient';
 export * from './Pda';
 export * from './Plan';
 export * from './Postpone';
+export * from './RpcHandler';
 export * from './Signer';
 export * from './SolAmount';
 export * from './TransactionBuilder';
