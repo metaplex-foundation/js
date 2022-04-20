@@ -1,5 +1,6 @@
 import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
 import {
+  Blockhash,
   Commitment,
   ConfirmOptions,
   PublicKey,
@@ -24,15 +25,23 @@ export class Web3RpcDriver extends RpcDriver {
       transaction = transaction.toTransaction();
     }
 
+    transaction.feePayer ??= this.getDefaultFeePayer();
+    transaction.recentBlockhash ??= await this.getLatestBlockhash();
+
+    signers = [this.metaplex.identity(), ...signers];
     const { keypairs, identities } = getSignerHistogram(signers);
 
-    for (let i = 0; i < identities.length; i++) {
-      if (!identities[i].is(this.metaplex.identity())) {
-        await identities[i].signTransaction(transaction);
-      }
+    if (keypairs.length > 0) {
+      transaction.partialSign(...keypairs);
     }
 
-    return this.metaplex.identity().sendTransaction(transaction, keypairs, sendOptions);
+    for (let i = 0; i < identities.length; i++) {
+      await identities[i].signTransaction(transaction);
+    }
+
+    const rawTransaction = transaction.serialize();
+
+    return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
   }
 
   async confirmTransaction(
@@ -70,5 +79,15 @@ export class Web3RpcDriver extends RpcDriver {
 
   getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
     return this.metaplex.connection.getMultipleAccountsInfo(publicKeys, commitment);
+  }
+
+  protected async getLatestBlockhash(): Promise<Blockhash> {
+    return (await this.metaplex.connection.getLatestBlockhash('finalized')).blockhash;
+  }
+
+  protected getDefaultFeePayer(): PublicKey | undefined {
+    const identity = this.metaplex.identity().publicKey;
+
+    return identity.equals(PublicKey.default) ? undefined : identity;
   }
 }
