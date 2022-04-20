@@ -40,7 +40,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       associatedTokenProgram
     );
 
-    const transactionId = await metaplex.sendAndConfirmTransaction(
+    const transactionId = await metaplex.rpc().sendAndConfirmTransaction(
       createNftBuilder({
         lamports,
         data,
