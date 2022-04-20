@@ -13,7 +13,11 @@ import {
   ConfirmTransactionResponse,
   SendAndConfirmTransactionResponse,
 } from './RpcDriver';
-import { FailedToConfirmTransactionError, FailedToSendTransactionError } from '@/errors';
+import {
+  FailedToConfirmTransactionError,
+  FailedToConfirmTransactionWithResponseError,
+  FailedToSendTransactionError,
+} from '@/errors';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -53,14 +57,18 @@ export class Web3RpcDriver extends RpcDriver {
     signature: TransactionSignature,
     commitment?: Commitment
   ): Promise<ConfirmTransactionResponse> {
-    const rpcResponse: ConfirmTransactionResponse =
-      await this.metaplex.connection.confirmTransaction(signature, commitment);
+    try {
+      const rpcResponse: ConfirmTransactionResponse =
+        await this.metaplex.connection.confirmTransaction(signature, commitment);
 
-    if (rpcResponse.value.err) {
-      throw new FailedToConfirmTransactionError(rpcResponse);
+      if (rpcResponse.value.err) {
+        throw new FailedToConfirmTransactionWithResponseError(rpcResponse);
+      }
+
+      return rpcResponse;
+    } catch (error) {
+      throw new FailedToConfirmTransactionError(error as Error);
     }
-
-    return rpcResponse;
   }
 
   async sendAndConfirmTransaction(
