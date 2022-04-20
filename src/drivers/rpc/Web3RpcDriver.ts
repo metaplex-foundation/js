@@ -4,18 +4,16 @@ import {
   ConfirmOptions,
   PublicKey,
   SendOptions,
-  SendTransactionError,
   Transaction,
-  TransactionError,
   TransactionSignature,
 } from '@solana/web3.js';
 import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
 import {
-  ConfirmTransactionResponse,
   RpcDriver,
+  ConfirmTransactionResponse,
   SendAndConfirmTransactionResponse,
 } from './RpcDriver';
-import { ConfirmTransactionFailedError } from '@/errors';
+import { FailedToConfirmTransactionError, FailedToSendTransactionError } from '@/errors';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -44,7 +42,11 @@ export class Web3RpcDriver extends RpcDriver {
 
     const rawTransaction = transaction.serialize();
 
-    return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
+    try {
+      return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
+    } catch (error) {
+      throw new FailedToSendTransactionError(error as Error);
+    }
   }
 
   async confirmTransaction(
@@ -55,7 +57,7 @@ export class Web3RpcDriver extends RpcDriver {
       await this.metaplex.connection.confirmTransaction(signature, commitment);
 
     if (rpcResponse.value.err) {
-      throw new ConfirmTransactionFailedError(rpcResponse);
+      throw new FailedToConfirmTransactionError(rpcResponse);
     }
 
     return rpcResponse;
