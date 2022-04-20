@@ -1,6 +1,5 @@
 import {
   CandyMachine,
-  CandyMachineArgs,
   CandyMachineData,
   EndSettings,
   GatekeeperConfig,
@@ -10,7 +9,7 @@ import {
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
 import { tryConvertToPublickKey, tryConvertToMillisecondsSinceEpoch, Model } from '../../../shared';
-import { strict as assert } from 'assert';
+import assert from '../../../utils/assert';
 import {
   CandyMachineConfig,
   endSettingsFromConfig,

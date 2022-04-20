@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import assert from '../utils/assert';
 import { PublicKey } from '@solana/web3.js';
 
 /**
