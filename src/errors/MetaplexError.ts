@@ -58,7 +58,6 @@ export class MetaplexError extends Error {
       `\n>> Source: ${this.getFullSource()}` +
       `\n>> Problem: ${this.problem}` +
       `\n>> Solution: ${this.solution}` +
-      `\n>> Key: ${this.key}` +
       causedBy +
       '\n'
     );
