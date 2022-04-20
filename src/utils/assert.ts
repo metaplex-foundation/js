@@ -22,7 +22,6 @@ export function equal<T>(actual: unknown, expected: T, message?: string): assert
 
 /**
  * Assserts that the provided condition is true.
- *
  */
 export default function assert(condition: boolean, message?: string): asserts condition {
   if (!condition) {
