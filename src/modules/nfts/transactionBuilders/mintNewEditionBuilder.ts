@@ -7,7 +7,7 @@ import {
 import { TransactionBuilder, Signer } from '@/shared';
 import BN from 'bn.js';
 
-export type MintNewEditionBuilderSharedParams = {
+type MintNewEditionBuilderSharedParams = {
   // Data.
   lamports: number;
   edition: number | BN;
@@ -88,7 +88,7 @@ export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): Tran
     initializeMintInstructionKey,
     createAssociatedTokenInstructionKey,
     mintToInstructionKey,
-    mintNewEditionInstructionKey,
+    mintNewEditionInstructionKey = 'mintNewEditionFromMasterEdition',
   } = params;
 
   let mintNewEditionViaBuilder: TransactionBuilder;

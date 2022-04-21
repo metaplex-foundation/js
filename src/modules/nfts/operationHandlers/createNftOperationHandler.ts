@@ -17,7 +17,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       allowHolderOffCurve = false,
       mint = Keypair.generate(),
       payer = metaplex.identity(),
-      mintAuthority = payer,
+      mintAuthority = metaplex.identity(),
       updateAuthority = mintAuthority,
       owner = mintAuthority.publicKey,
       freezeAuthority,
