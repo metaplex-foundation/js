@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { metaplex, createNft, killStuckProcess } from '../../helpers';
+import { createNft, killStuckProcess, metaplex } from '../../helpers';
 
 killStuckProcess();
 

@@ -12,7 +12,7 @@ export class EditionMarkerAccount extends Account<EditionMarker> {
       TokenMetadataProgram.publicKey.toBuffer(),
       mint.toBuffer(),
       Buffer.from('edition', 'utf8'),
-      edition.div(new BN(248)).toBuffer(),
+      Buffer.from(edition.div(new BN(248)).toString()),
     ]);
   }
 
