@@ -116,7 +116,7 @@ export class AssetNotFoundError extends SdkError {
 }
 
 export class AccountNotFoundError extends SdkError {
-  constructor(address: PublicKey, accountType: string, solution?: string, cause?: Error) {
+  constructor(address: PublicKey, accountType?: string, solution?: string, cause?: Error) {
     super({
       cause,
       key: 'account_not_found',
@@ -128,6 +128,20 @@ export class AccountNotFoundError extends SdkError {
       solution:
         solution ??
         'Ensure the provided address is correct and that an account exists at this address.',
+    });
+  }
+}
+
+export class UnexpectedAccountError extends SdkError {
+  constructor(address: PublicKey, accountType: string, cause?: Error) {
+    super({
+      cause,
+      key: 'unexpected_account',
+      title: 'Unexpected Account',
+      problem:
+        `The account at the provided address [${address.toBase58()}] ` +
+        `is not of the expected type [${accountType}].`,
+      solution: `Ensure the provided address is correct and that it holds an account of type [${accountType}].`,
     });
   }
 }

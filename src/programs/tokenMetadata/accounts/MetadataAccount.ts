@@ -13,7 +13,7 @@ export class MetadataAccount extends Account<Metadata> {
     ]);
   }
 
-  static fromAccountInfo(accountInfo: AccountInfo<Buffer>): MetadataAccount {
-    return this.parseAccountInfo(accountInfo, Metadata) as MetadataAccount;
+  static fromAccountInfo(publicKey: PublicKey, accountInfo: AccountInfo<Buffer>): MetadataAccount {
+    return this.parseAccountInfo(publicKey, accountInfo, Metadata) as MetadataAccount;
   }
 }

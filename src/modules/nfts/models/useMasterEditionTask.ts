@@ -14,5 +14,5 @@ export const useMasterEditionTask = (metaplex: Metaplex, nft: Nft): MasterEditio
       return null;
     }
 
-    return MasterEditionAccount.fromAccountInfo(masterEditionInfo);
+    return MasterEditionAccount.fromAccountInfo(masterEditionPda, masterEditionInfo);
   });

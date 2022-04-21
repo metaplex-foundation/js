@@ -14,11 +14,14 @@ export class MasterEditionAccount extends Account<MasterEditionV1 | MasterEditio
     ]);
   }
 
-  static fromAccountInfo(accountInfo: AccountInfo<Buffer>): MasterEditionAccount {
+  static fromAccountInfo(
+    publicKey: PublicKey,
+    accountInfo: AccountInfo<Buffer>
+  ): MasterEditionAccount {
     if (accountInfo.data?.[0] === Key.MasterEditionV1) {
-      return this.parseAccountInfo(accountInfo, MasterEditionV1);
+      return this.parseAccountInfo(publicKey, accountInfo, MasterEditionV1);
     }
 
-    return this.parseAccountInfo(accountInfo, MasterEditionV2);
+    return this.parseAccountInfo(publicKey, accountInfo, MasterEditionV2);
   }
 }

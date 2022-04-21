@@ -16,7 +16,10 @@ export class EditionMarkerAccount extends Account<EditionMarker> {
     ]);
   }
 
-  static fromAccountInfo(accountInfo: AccountInfo<Buffer>): EditionMarkerAccount {
-    return this.parseAccountInfo(accountInfo, EditionMarker) as EditionMarkerAccount;
+  static fromAccountInfo(
+    publicKey: PublicKey,
+    accountInfo: AccountInfo<Buffer>
+  ): EditionMarkerAccount {
+    return this.parseAccountInfo(publicKey, accountInfo, EditionMarker) as EditionMarkerAccount;
   }
 }

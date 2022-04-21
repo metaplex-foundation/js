@@ -14,7 +14,7 @@ export class EditionAccount extends Account<Edition> {
     ]);
   }
 
-  static fromAccountInfo(accountInfo: AccountInfo<Buffer>): EditionAccount {
-    return this.parseAccountInfo(accountInfo, Edition) as EditionAccount;
+  static fromAccountInfo(publicKey: PublicKey, accountInfo: AccountInfo<Buffer>): EditionAccount {
+    return this.parseAccountInfo(publicKey, accountInfo, Edition) as EditionAccount;
   }
 }

@@ -8,16 +8,17 @@ import { NftNotFoundError } from '@/errors';
 export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> = {
   handle: async (operation: FindNftByMintOperation, metaplex: Metaplex): Promise<Nft> => {
     const mint = operation.input;
+    const metadataPda = await MetadataAccount.pda(mint);
+    const masterEditionPda = await MasterEditionAccount.pda(mint);
     const [metadataInfo, masterEditionInfo] = await metaplex
       .rpc()
-      .getMultipleAccountsInfo([
-        await MetadataAccount.pda(mint),
-        await MasterEditionAccount.pda(mint),
-      ]);
+      .getMultipleAccountsInfo([metadataPda, masterEditionPda]);
 
-    const metadataAccount = metadataInfo ? MetadataAccount.fromAccountInfo(metadataInfo) : null;
+    const metadataAccount = metadataInfo
+      ? MetadataAccount.fromAccountInfo(metadataPda, metadataInfo)
+      : null;
     const masterEditionAccount = masterEditionInfo
-      ? MasterEditionAccount.fromAccountInfo(masterEditionInfo)
+      ? MasterEditionAccount.fromAccountInfo(masterEditionPda, masterEditionInfo)
       : null;
 
     if (!metadataAccount) {
