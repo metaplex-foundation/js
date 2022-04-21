@@ -1,4 +1,5 @@
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
+import { PublicKey } from '@solana/web3.js';
 
 export class SdkError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -110,6 +111,23 @@ export class AssetNotFoundError extends SdkError {
       title: 'Asset Not Found',
       problem: `The asset at [${location}] could not be found.`,
       solution: 'Ensure the asset exists at the given path or URI.',
+    });
+  }
+}
+
+export class AccountNotFoundError extends SdkError {
+  constructor(address: PublicKey, accountType: string, solution?: string, cause?: Error) {
+    super({
+      cause,
+      key: 'account_not_found',
+      title: 'Account Not Found',
+      problem:
+        (accountType
+          ? `The account of type [${accountType}] was not found`
+          : 'No account was found') + ` at the provided address [${address.toBase58()}].`,
+      solution:
+        solution ??
+        'Ensure the provided address is correct and that an account exists at this address.',
     });
   }
 }

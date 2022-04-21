@@ -7,6 +7,7 @@ import { Metaplex } from '@/Metaplex';
 import { OperationHandler } from '@/shared';
 import BN from 'bn.js';
 import { EditionMarkerAccount } from '@/programs/tokenMetadata/accounts/EditionMarkerAccount';
+import { AccountNotFoundError } from '@/errors';
 
 export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOperation> = {
   handle: async (operation: MintNewEditionOperation, metaplex: Metaplex) => {
@@ -29,7 +30,12 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
     const masterEditionInfo = await metaplex.rpc().getAccountInfo(masterEdition);
 
     if (!masterEditionInfo) {
-      throw new Error();
+      throw new AccountNotFoundError(
+        masterEdition,
+        'MasterEdition',
+        `Ensure the provided mint address for the master NFT [${masterMint.toBase58()}] ` +
+          `is correct and that it has an associated MasterEdition PDA.`
+      );
     }
 
     const masterEditionAccount = MasterEditionAccount.fromAccountInfo(masterEditionInfo);
