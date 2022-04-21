@@ -1,12 +1,10 @@
-import BN from "bn.js";
+import BN from 'bn.js';
 import { PublicKey } from '@solana/web3.js';
-import {
-  createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { createMintNewEditionFromMasterEditionViaVaultProxyInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { TransactionBuilder, Signer } from '@/shared';
 
 export interface MintNewEditionFromMasterEditionViaVaultProxyBuilderParams {
-  edition: number | BN,
+  edition: number | BN;
   newMetadata: PublicKey;
   newEdition: PublicKey;
   masterEdition: PublicKey;
@@ -20,7 +18,7 @@ export interface MintNewEditionFromMasterEditionViaVaultProxyBuilderParams {
   vault: PublicKey;
   newMetadataUpdateAuthority: PublicKey;
   metadata: PublicKey;
-  tokenVaultProgram: PublicKey;
+  tokenVaultProgram?: PublicKey;
   instructionKey?: string;
 }
 
@@ -42,7 +40,7 @@ export const mintNewEditionFromMasterEditionViaVaultProxyBuilder = (
     vault,
     newMetadataUpdateAuthority,
     metadata,
-    tokenVaultProgram,
+    tokenVaultProgram = new PublicKey('vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn'),
     instructionKey = 'mintNewEditionFromMasterEditionViaVaultProxy',
   } = params;
 

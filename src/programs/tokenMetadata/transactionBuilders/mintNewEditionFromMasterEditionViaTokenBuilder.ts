@@ -1,12 +1,10 @@
-import BN from "bn.js";
+import BN from 'bn.js';
 import { PublicKey } from '@solana/web3.js';
-import {
-  createMintNewEditionFromMasterEditionViaTokenInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { TransactionBuilder, Signer } from '@/shared';
 
 export interface MintNewEditionFromMasterEditionViaTokenBuilderParams {
-  edition: number | BN,
+  edition: number | BN;
   newMetadata: PublicKey;
   newEdition: PublicKey;
   masterEdition: PublicKey;
