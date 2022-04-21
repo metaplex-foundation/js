@@ -1,12 +1,16 @@
 import { Keypair } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
-import { MetadataAccount, MasterEditionAccount, EditionAccount } from '@/programs/tokenMetadata';
+import BN from 'bn.js';
+import {
+  MetadataAccount,
+  MasterEditionAccount,
+  EditionAccount,
+  EditionMarkerAccount,
+} from '@/programs/tokenMetadata';
 import { MintNewEditionOperation } from '../operations';
 import { mintNewEditionBuilder } from '../transactionBuilders';
 import { Metaplex } from '@/Metaplex';
-import { OperationHandler } from '@/shared';
-import BN from 'bn.js';
-import { EditionMarkerAccount } from '@/programs/tokenMetadata/accounts/EditionMarkerAccount';
+import { OperationHandler, TransactionBuilder } from '@/shared';
 import { AccountNotFoundError } from '@/errors';
 
 export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOperation> = {
@@ -54,28 +58,60 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       associatedTokenProgram
     );
 
-    const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
-      mintNewEditionBuilder({
-        lamports,
-        edition,
-        newMint,
-        newMetadata,
-        newEdition,
-        newMintAuthority,
-        newUpdateAuthority,
-        newOwner,
-        newAssociatedToken,
-        newFreezeAuthority,
-        payer,
-        masterMetadata,
-        masterEdition,
-        masterEditionMarkPda,
-        tokenProgram,
-        associatedTokenProgram,
-      }),
-      undefined,
-      confirmOptions
-    );
+    const sharedInput = {
+      lamports,
+      edition,
+      newMint,
+      newMetadata,
+      newEdition,
+      newMintAuthority,
+      newUpdateAuthority,
+      newOwner,
+      newAssociatedToken,
+      newFreezeAuthority,
+      payer,
+      masterMetadata,
+      masterEdition,
+      masterEditionMarkPda,
+      tokenProgram,
+      associatedTokenProgram,
+    };
+
+    let transactionBuilder: TransactionBuilder;
+    if (operation.input.via === 'token') {
+      const masterTokenAccountOwner =
+        operation.input.masterTokenAccountOwner ?? metaplex.identity();
+      const masterTokenAccount =
+        operation.input.masterTokenAccount ??
+        (await getAssociatedTokenAddress(
+          masterMint,
+          masterTokenAccountOwner.publicKey,
+          false,
+          tokenProgram,
+          associatedTokenProgram
+        ));
+
+      transactionBuilder = mintNewEditionBuilder({
+        via: 'token',
+        masterTokenAccountOwner,
+        masterTokenAccount,
+        ...sharedInput,
+      });
+    } else {
+      transactionBuilder = mintNewEditionBuilder({
+        via: 'vault',
+        vaultAuthority: operation.input.vaultAuthority,
+        safetyDepositStore: operation.input.safetyDepositStore,
+        safetyDepositBox: operation.input.safetyDepositBox,
+        vault: operation.input.vault,
+        tokenVaultProgram: operation.input.tokenVaultProgram,
+        ...sharedInput,
+      });
+    }
+
+    const { signature } = await metaplex
+      .rpc()
+      .sendAndConfirmTransaction(transactionBuilder, undefined, confirmOptions);
 
     return {
       mint: newMint,
