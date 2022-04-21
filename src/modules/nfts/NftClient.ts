@@ -1,6 +1,11 @@
-import { ModuleClient, Plan } from '@/shared';
-import { Nft } from '@/modules/nfts';
 import { PublicKey } from '@solana/web3.js';
+import { ModuleClient, Plan } from '@/shared';
+import {
+  MintNewEditionInput,
+  mintNewEditionOperation,
+  MintNewEditionOutput,
+  Nft,
+} from '@/modules/nfts';
 import {
   UploadMetadataInput,
   UploadMetadataOutput,
@@ -54,6 +59,14 @@ export class NftClient extends ModuleClient {
     const nft = await this.findNftByMint(createNftOutput.mint.publicKey);
 
     return { ...createNftOutput, nft };
+  }
+
+  async mintNewEdition(input: MintNewEditionInput): Promise<{ nft: Nft } & MintNewEditionOutput> {
+    const operation = mintNewEditionOperation(input);
+    const mintNewEditionOutput = await this.metaplex.execute(operation);
+    const nft = await this.findNftByMint(mintNewEditionOutput.mint.publicKey);
+
+    return { ...mintNewEditionOutput, nft };
   }
 
   async updateNft(
