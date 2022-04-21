@@ -21,6 +21,7 @@ export const nftPlugin = (): MetaplexPlugin => ({
     metaplex.register(o.findNftsByCreatorOperation, h.findNftsByCreatorOnChainOperationHandler);
     metaplex.register(o.findNftsByMintListOperation, h.findNftsByMintListOnChainOperationHandler);
     metaplex.register(o.findNftsByOwnerOperation, h.findNftsByOwnerOnChainOperationHandler);
+    metaplex.register(o.mintNewEditionOperation, h.mintNewEditionOperationHandler);
     metaplex.register(o.planUploadMetadataOperation, h.planUploadMetadataOperationHandler);
     metaplex.register(o.updateNftOperation, h.updateNftOperationHandler);
     metaplex.register(o.uploadMetadataOperation, h.uploadMetadataOperationHandler);

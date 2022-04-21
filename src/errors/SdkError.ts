@@ -19,7 +19,7 @@ export class OperationHandlerMissingError extends SdkError {
       title: 'Operation Handler Missing',
       problem: `No operation handler was registered for the [${operationKey}] operation.`,
       solution:
-        'Ensure an operation handler is registered by using the following code: ' +
+        'Did you forget to register it? You may do this by using: ' +
         '"metaplex.register(operation, operationHandler)".',
     });
   }
