@@ -85,11 +85,11 @@ The returned `Nft` object will have its JSON metadata already loaded so you can,
 const imageUrl = nft.metadata.image;
 ```
 
-Similarly, the `MasterEdition` account of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
+Similarly, the `OriginalEdition` account (a.k.a the Master Edition) of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
 
 ```ts
-const supply = nft.masterEdition.supply;
-const maxSupply = nft.masterEdition.maxSupply;
+const supply = nft.originalEdition.supply;
+const maxSupply = nft.originalEdition.maxSupply;
 ```
 
 You can [read more about the `NFT` model below](#the-nft-model).
@@ -104,21 +104,29 @@ Note that this is much more efficient than calling `findNftByMint` for each mint
 const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
 ```
 
-NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `MasterEdition` account which might be irrelevant until the user clicks on the NFT.
+NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `Edition` account which might be irrelevant until the user clicks on the NFT.
 
-Thus, if you want to load the JSON metadata and/or the `MasterEdition` account of an NFT, you may do this like so.
+Thus, if you want to load the JSON metadata and/or the `Edition` account of an NFT, you may do this like so.
 
 ```ts
 await nft.metadataTask.run();
-await nft.masterEditionTask.run();
+await nft.EditionTask.run();
 ```
 
-This will give you access to the `metadata` and `masterEdition` properties of the NFT.
+This will give you access to the `metadata`, `originalEdition` and `printEdition` properties of the NFT. The last two depend on whether the NFT is an original edition or a print edition.
 
 ```ts
 const imageUrl = nft.metadata.image;
-const supply = nft.masterEdition.supply;
-const maxSupply = nft.masterEdition.maxSupply;
+
+if (nft.isOriginal()) {
+    const currentSupply = nft.originalEdition.supply;
+    const maxSupply = nft.originalEdition.maxSupply;
+}
+
+if (nft.isPrint()) {
+  const parentEdition = nft.printEdition.parent;
+  const editionNumber = nft.printEdition.edition;
+}
 ```
 
 We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-model).
@@ -131,7 +139,7 @@ The `findNftsByOwner` method accepts a public key and returns all `Nft`s owned b
 const myNfts = await metaplex.nfts().findNftsByOwner(metaplex.identity().publicKey);
 ```
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### findNftsByCreator
 
@@ -143,7 +151,7 @@ const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 1); // Eq
 const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 2); // Now matching the second creator field.
 ```
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### findNftsByCandyMachine
 
@@ -159,7 +167,7 @@ const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey,
 
 Note that the current implementation of this method delegates to `findNftsByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### uploadMetadata
 
@@ -217,7 +225,7 @@ const { nft } = await metaplex.nfts().createNft({
 });
 ```
 
-This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you.
+This will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you.
 
 Additionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
 - It will fetch the JSON metadata from the provided URI and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
@@ -280,10 +288,14 @@ uses: Uses | null;
 
 // Sometimes loaded.
 metadata: JsonMetadata | null;
-masterEditionAccount: MasterEditionAccount | null;
-masterEdition: {
-    supply?: bignumber;
-    maxSupply?: bignumber;
+editionAccount: OriginalOrPrintEditionAccount | null;
+originalEdition: null | {
+    supply: number | BN;
+    maxSupply: number | BN;
+};
+printEdition: null | {
+  parent: PublicKey;
+  edition: number | BN;
 };
 ```
 
@@ -291,16 +303,16 @@ As you can see, some of the properties — such as `metadata` — are loaded on 
 - If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
 - If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
 
-In order to load these properties, you may run the `metadataTask` and `masterEditionTask` properties of the `Nft` object.
+In order to load these properties, you may run the `metadataTask` and `editionTask` properties of the `Nft` object.
 
 ```ts
 await nft.metadataTask.run();
-await nft.masterEditionTask.run();
+await nft.editionTask.run();
 ```
 
-After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a task fails to load the data, an error will be thrown.
+After these two promises resolve, you should have access to the `metadata`, `editionAccount`, `originalEdition` and `printEdition` properties. Note that if a task fails to load the data, an error will be thrown.
 
-Also, note that both `metadataTask` and `masterEditionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
+Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
 ```ts
 export type Task<T> = {

@@ -1,6 +1,6 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@solana/spl-token';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { MetadataAccount, OriginalEditionAccount } from '@/programs/tokenMetadata';
 import { Creator, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { CreateNftInput, CreateNftOperation } from '../operations';
 import { JsonMetadata } from '../models/JsonMetadata';
@@ -17,7 +17,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       allowHolderOffCurve = false,
       mint = Keypair.generate(),
       payer = metaplex.identity(),
-      mintAuthority = payer,
+      mintAuthority = metaplex.identity(),
       updateAuthority = mintAuthority,
       owner = mintAuthority.publicKey,
       freezeAuthority,
@@ -30,7 +30,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     const data = resolveData(operation.input, metadata, updateAuthority.publicKey);
 
     const metadataPda = await MetadataAccount.pda(mint.publicKey);
-    const masterEditionPda = await MasterEditionAccount.pda(mint.publicKey);
+    const masterEditionPda = await OriginalEditionAccount.pda(mint.publicKey);
     const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
     const associatedToken = await getAssociatedTokenAddress(
       mint.publicKey,

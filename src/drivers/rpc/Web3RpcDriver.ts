@@ -1,4 +1,5 @@
 import {
+  AccountInfo,
   Blockhash,
   Commitment,
   ConfirmOptions,
@@ -7,7 +8,7 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
+import { getSignerHistogram, Signer, TransactionBuilder, UnparsedMaybeAccount } from '@/shared';
 import {
   RpcDriver,
   ConfirmTransactionResponse,
@@ -18,6 +19,8 @@ import {
   FailedToConfirmTransactionWithResponseError,
   FailedToSendTransactionError,
 } from '@/errors';
+import { zipMap } from '@/utils';
+import { Buffer } from 'buffer';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -58,18 +61,18 @@ export class Web3RpcDriver extends RpcDriver {
     signature: TransactionSignature,
     commitment?: Commitment
   ): Promise<ConfirmTransactionResponse> {
+    let rpcResponse: ConfirmTransactionResponse;
     try {
-      const rpcResponse: ConfirmTransactionResponse =
-        await this.metaplex.connection.confirmTransaction(signature, commitment);
-
-      if (rpcResponse.value.err) {
-        throw new FailedToConfirmTransactionWithResponseError(rpcResponse);
-      }
-
-      return rpcResponse;
+      rpcResponse = await this.metaplex.connection.confirmTransaction(signature, commitment);
     } catch (error) {
       throw new FailedToConfirmTransactionError(error as Error);
     }
+
+    if (rpcResponse.value.err) {
+      throw new FailedToConfirmTransactionWithResponseError(rpcResponse);
+    }
+
+    return rpcResponse;
   }
 
   async sendAndConfirmTransaction(
@@ -83,12 +86,21 @@ export class Web3RpcDriver extends RpcDriver {
     return { signature, confirmResponse };
   }
 
-  getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
-    return this.metaplex.connection.getAccountInfo(publicKey, commitment);
+  async getAccount(publicKey: PublicKey, commitment?: Commitment) {
+    const accountInfo = await this.metaplex.connection.getAccountInfo(publicKey, commitment);
+
+    return this.getUnparsedMaybeAccount(publicKey, accountInfo);
   }
 
-  getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
-    return this.metaplex.connection.getMultipleAccountsInfo(publicKeys, commitment);
+  async getMultipleAccounts(publicKeys: PublicKey[], commitment?: Commitment) {
+    const accountInfos = await this.metaplex.connection.getMultipleAccountsInfo(
+      publicKeys,
+      commitment
+    );
+
+    return zipMap(publicKeys, accountInfos, (publicKey, accountInfo) => {
+      return this.getUnparsedMaybeAccount(publicKey, accountInfo);
+    });
   }
 
   protected async getLatestBlockhash(): Promise<Blockhash> {
@@ -99,5 +111,16 @@ export class Web3RpcDriver extends RpcDriver {
     const identity = this.metaplex.identity().publicKey;
 
     return identity.equals(PublicKey.default) ? undefined : identity;
+  }
+
+  protected getUnparsedMaybeAccount(
+    publicKey: PublicKey,
+    accountInfo: AccountInfo<Buffer> | null
+  ): UnparsedMaybeAccount {
+    if (!accountInfo) {
+      return { publicKey, exists: false };
+    }
+
+    return { publicKey, exists: true, ...accountInfo };
   }
 }

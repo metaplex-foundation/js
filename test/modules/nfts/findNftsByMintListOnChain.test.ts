@@ -52,7 +52,8 @@ test('it does not load the NFT metadata or master edition by default', async (t:
   t.same(fetchedNft?.metadata, {});
 
   // Nor does it have a loaded master edition.
-  t.true(fetchedNft?.masterEditionTask.isPending());
-  t.equal(fetchedNft?.masterEditionAccount, null);
-  t.same(fetchedNft?.masterEdition, {});
+  t.true(fetchedNft?.editionTask.isPending());
+  t.equal(fetchedNft?.editionAccount, null);
+  t.same(fetchedNft?.originalEdition, null);
+  t.same(fetchedNft?.printEdition, null);
 });
