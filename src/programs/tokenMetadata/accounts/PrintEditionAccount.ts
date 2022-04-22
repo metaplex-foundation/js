@@ -1,10 +1,10 @@
-import { AccountInfo, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Edition, Key } from '@metaplex-foundation/mpl-token-metadata';
 import { OriginalEditionAccount } from './OriginalEditionAccount';
-import { Account, Pda } from '@/shared';
+import { BaseAccount, Pda, UnparsedAccount } from '@/shared';
 
-export class PrintEditionAccount extends Account<Edition> {
+export class PrintEditionAccount extends BaseAccount<Edition> {
   static async pda(mint: PublicKey): Promise<Pda> {
     return OriginalEditionAccount.pda(mint);
   }
@@ -13,10 +13,7 @@ export class PrintEditionAccount extends Account<Edition> {
     return buffer?.[0] === Key.EditionV1;
   }
 
-  static fromAccountInfo(
-    publicKey: PublicKey,
-    accountInfo: AccountInfo<Buffer>
-  ): PrintEditionAccount {
-    return this.parseAccountInfo(publicKey, accountInfo, Edition) as PrintEditionAccount;
+  static from(unparsedAccount: UnparsedAccount) {
+    return new PrintEditionAccount(this.parse(unparsedAccount, Edition));
   }
 }

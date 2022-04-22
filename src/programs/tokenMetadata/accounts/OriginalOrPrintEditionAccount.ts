@@ -1,11 +1,11 @@
-import { AccountInfo, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { MasterEditionV1, MasterEditionV2, Edition } from '@metaplex-foundation/mpl-token-metadata';
 import { OriginalEditionAccount, PrintEditionAccount } from '@/programs/tokenMetadata';
-import { Account, Pda } from '@/shared';
+import { BaseAccount, Pda, UnparsedAccount } from '@/shared';
 import { UnexpectedAccountError } from '@/errors';
 
-export class OriginalOrPrintEditionAccount extends Account<
+export class OriginalOrPrintEditionAccount extends BaseAccount<
   MasterEditionV1 | MasterEditionV2 | Edition
 > {
   static async pda(mint: PublicKey): Promise<Pda> {
@@ -16,18 +16,18 @@ export class OriginalOrPrintEditionAccount extends Account<
     return OriginalEditionAccount.recognizes(buffer) || PrintEditionAccount.recognizes(buffer);
   }
 
-  static fromAccountInfo(
-    publicKey: PublicKey,
-    accountInfo: AccountInfo<Buffer>
-  ): OriginalOrPrintEditionAccount {
-    if (OriginalEditionAccount.recognizes(accountInfo.data)) {
-      return OriginalEditionAccount.fromAccountInfo(publicKey, accountInfo);
+  static from(unparsedAccount: UnparsedAccount) {
+    if (!this.recognizes(unparsedAccount.data)) {
+      throw new UnexpectedAccountError(
+        unparsedAccount.publicKey,
+        'MasterEditionV1|MasterEditionV2|EditionV1'
+      );
     }
 
-    if (PrintEditionAccount.recognizes(accountInfo.data)) {
-      return PrintEditionAccount.fromAccountInfo(publicKey, accountInfo);
-    }
+    const account = OriginalEditionAccount.recognizes(unparsedAccount.data)
+      ? OriginalEditionAccount.from(unparsedAccount)
+      : PrintEditionAccount.from(unparsedAccount);
 
-    throw new UnexpectedAccountError(publicKey, 'MasterEditionV1|MasterEditionV2|EditionV1');
+    return new OriginalOrPrintEditionAccount(account);
   }
 }

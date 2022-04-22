@@ -42,10 +42,10 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       );
     }
 
-    const masterEditionAccount = OriginalEditionAccount.fromAccountInfo(
-      masterEdition,
-      masterEditionInfo
-    );
+    const masterEditionAccount = OriginalEditionAccount.from({
+      publicKey: masterEdition,
+      ...masterEditionInfo,
+    });
     const edition = new BN(masterEditionAccount.data.supply, 'le').add(new BN(1));
     const masterEditionMarkPda = await EditionMarkerAccount.pda(masterMint, edition);
 

@@ -1,11 +1,11 @@
-import { AccountInfo, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import BN from 'bn.js';
 import { EditionMarker } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenMetadataProgram } from '@/programs/tokenMetadata';
-import { Account, Pda } from '@/shared';
+import { BaseAccount, Pda, UnparsedAccount } from '@/shared';
 
-export class EditionMarkerAccount extends Account<EditionMarker> {
+export class EditionMarkerAccount extends BaseAccount<EditionMarker> {
   static async pda(mint: PublicKey, edition: BN): Promise<Pda> {
     return Pda.find(TokenMetadataProgram.publicKey, [
       Buffer.from('metadata', 'utf8'),
@@ -16,10 +16,7 @@ export class EditionMarkerAccount extends Account<EditionMarker> {
     ]);
   }
 
-  static fromAccountInfo(
-    publicKey: PublicKey,
-    accountInfo: AccountInfo<Buffer>
-  ): EditionMarkerAccount {
-    return this.parseAccountInfo(publicKey, accountInfo, EditionMarker) as EditionMarkerAccount;
+  static from(unparsedAccount: UnparsedAccount) {
+    return new EditionMarkerAccount(this.parse(unparsedAccount, EditionMarker));
   }
 }

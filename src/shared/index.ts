@@ -1,4 +1,4 @@
-export * from './Account';
+export * from './BaseAccount';
 export * from './AccountInfoWithPublicKey';
 export * from './GmaBuilder';
 export * from './GpaBuilder';

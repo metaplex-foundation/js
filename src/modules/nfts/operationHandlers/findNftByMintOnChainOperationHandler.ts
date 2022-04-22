@@ -15,10 +15,10 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       .getMultipleAccountsInfo([metadataPda, masterEditionPda]);
 
     const metadataAccount = metadataInfo
-      ? MetadataAccount.fromAccountInfo(metadataPda, metadataInfo)
+      ? MetadataAccount.from({ publicKey: metadataPda, ...metadataInfo })
       : null;
     const masterEditionAccount = masterEditionInfo
-      ? OriginalEditionAccount.fromAccountInfo(masterEditionPda, masterEditionInfo)
+      ? OriginalEditionAccount.from({ publicKey: masterEditionPda, ...masterEditionInfo })
       : null;
 
     if (!metadataAccount) {
