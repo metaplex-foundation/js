@@ -34,4 +34,12 @@ export class OriginalOrPrintEditionAccount extends BaseAccount<
   static fromMaybe(maybe: UnparsedMaybeAccount) {
     return maybe.exists ? this.from(maybe) : maybe;
   }
+
+  isOriginal(): this is BaseAccount<MasterEditionV1 | MasterEditionV2> {
+    return 'maxSupply' in this.data;
+  }
+
+  isPrint(): this is BaseAccount<Edition> {
+    return !this.isOriginal();
+  }
 }
