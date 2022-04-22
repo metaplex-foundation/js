@@ -49,7 +49,7 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/162458287-86e25269-0fce-4fa3-9df1-dc796ba8b9e1.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/164744650-6fc88f89-9fc9-4914-8857-970fea96dc84.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -64,6 +64,7 @@ The NFT module can be accessed via `Metaplex.nfts()` and provide the following m
 - [`uploadMetadata(metadata)`](#uploadMetadata)
 - [`createNft(onChainData)`](#createNft)
 - [`updateNft(nft, onChainData)`](#updateNft)
+- [`printNewEdition({ originalMint, ...params })`](#printNewEdition)
 
 And the following model, either returned or used by the above methods.
 
