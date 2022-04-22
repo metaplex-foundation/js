@@ -1,6 +1,4 @@
-import { Signer, TransactionBuilder } from '@/shared';
 import {
-  AccountInfo,
   Commitment,
   ConfirmOptions,
   PublicKey,
@@ -10,8 +8,8 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import { Signer, TransactionBuilder, UnparsedMaybeAccount } from '@/shared';
 import { Driver } from '../Driver';
-import { Buffer } from 'buffer';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {
@@ -37,13 +35,13 @@ export abstract class RpcDriver extends Driver {
     confirmOptions?: ConfirmOptions
   ): Promise<SendAndConfirmTransactionResponse>;
 
-  public abstract getAccountInfo(
+  public abstract getAccount(
     publicKey: PublicKey,
     commitment?: Commitment
-  ): Promise<AccountInfo<Buffer> | null>;
+  ): Promise<UnparsedMaybeAccount>;
 
-  public abstract getMultipleAccountsInfo(
+  public abstract getMultipleAccounts(
     publicKeys: PublicKey[],
     commitment?: Commitment
-  ): Promise<Array<AccountInfo<Buffer> | null>>;
+  ): Promise<UnparsedMaybeAccount[]>;
 }

@@ -8,11 +8,11 @@ export type MasterEditionTask = Task<OriginalEditionAccount | null>;
 export const useMasterEditionTask = (metaplex: Metaplex, nft: Nft): MasterEditionTask =>
   useTask(async () => {
     const masterEditionPda = await OriginalEditionAccount.pda(nft.mint);
-    const masterEditionInfo = await metaplex.rpc().getAccountInfo(masterEditionPda);
+    const masterEdition = await metaplex.rpc().getAccount(masterEditionPda);
 
-    if (!masterEditionInfo) {
+    if (!masterEdition.exists) {
       return null;
     }
 
-    return OriginalEditionAccount.from({ publicKey: masterEditionPda, ...masterEditionInfo });
+    return OriginalEditionAccount.from(masterEdition);
   });

@@ -12,13 +12,11 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
     const masterEditionPda = await OriginalEditionAccount.pda(mint);
     const [metadataInfo, masterEditionInfo] = await metaplex
       .rpc()
-      .getMultipleAccountsInfo([metadataPda, masterEditionPda]);
+      .getMultipleAccounts([metadataPda, masterEditionPda]);
 
-    const metadataAccount = metadataInfo
-      ? MetadataAccount.from({ publicKey: metadataPda, ...metadataInfo })
-      : null;
-    const masterEditionAccount = masterEditionInfo
-      ? OriginalEditionAccount.from({ publicKey: masterEditionPda, ...masterEditionInfo })
+    const metadataAccount = metadataInfo.exists ? MetadataAccount.from(metadataInfo) : null;
+    const masterEditionAccount = masterEditionInfo.exists
+      ? OriginalEditionAccount.from(masterEditionInfo)
       : null;
 
     if (!metadataAccount) {
