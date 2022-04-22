@@ -8,14 +8,15 @@ import { NftNotFoundError } from '@/errors';
 export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> = {
   handle: async (operation: FindNftByMintOperation, metaplex: Metaplex): Promise<Nft> => {
     const mint = operation.input;
-    const metadataPda = await MetadataAccount.pda(mint);
-    const EditionPda = await OriginalOrPrintEditionAccount.pda(mint);
-    const [metadataInfo, EditionInfo] = await metaplex
+    const [metadata, edition] = await metaplex
       .rpc()
-      .getMultipleAccounts([metadataPda, EditionPda]);
+      .getMultipleAccounts([
+        await MetadataAccount.pda(mint),
+        await OriginalOrPrintEditionAccount.pda(mint),
+      ]);
 
-    const metadataAccount = MetadataAccount.fromMaybe(metadataInfo);
-    const EditionAccount = OriginalOrPrintEditionAccount.fromMaybe(EditionInfo);
+    const metadataAccount = MetadataAccount.fromMaybe(metadata);
+    const editionAccount = OriginalOrPrintEditionAccount.fromMaybe(edition);
 
     if (!metadataAccount.exists) {
       throw new NftNotFoundError(mint);
@@ -23,7 +24,7 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
 
     const nft = new Nft(metadataAccount, metaplex);
     await nft.metadataTask.run();
-    nft.editionTask.loadWith(EditionAccount.exists ? EditionAccount : null);
+    nft.editionTask.loadWith(editionAccount.exists ? editionAccount : null);
 
     return nft;
   },
