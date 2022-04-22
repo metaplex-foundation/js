@@ -14,18 +14,16 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       .rpc()
       .getMultipleAccounts([metadataPda, masterEditionPda]);
 
-    const metadataAccount = metadataInfo.exists ? MetadataAccount.from(metadataInfo) : null;
-    const masterEditionAccount = masterEditionInfo.exists
-      ? OriginalEditionAccount.from(masterEditionInfo)
-      : null;
+    const metadataAccount = MetadataAccount.fromMaybe(metadataInfo);
+    const masterEditionAccount = OriginalEditionAccount.fromMaybe(masterEditionInfo);
 
-    if (!metadataAccount) {
+    if (!metadataAccount.exists) {
       throw new NftNotFoundError(mint);
     }
 
     const nft = new Nft(metadataAccount, metaplex);
     await nft.metadataTask.run();
-    nft.masterEditionTask.loadWith(masterEditionAccount);
+    nft.masterEditionTask.loadWith(masterEditionAccount.exists ? masterEditionAccount : null);
 
     return nft;
   },

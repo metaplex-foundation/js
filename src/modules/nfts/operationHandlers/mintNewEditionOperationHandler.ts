@@ -31,9 +31,11 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
     // Master NFT.
     const masterMetadata = await MetadataAccount.pda(masterMint);
     const masterEdition = await OriginalEditionAccount.pda(masterMint);
-    const masterEditionInfo = await metaplex.rpc().getAccount(masterEdition);
+    const masterEditionAccount = OriginalEditionAccount.fromMaybe(
+      await metaplex.rpc().getAccount(masterEdition)
+    );
 
-    if (!masterEditionInfo.exists) {
+    if (!masterEditionAccount.exists) {
       throw new AccountNotFoundError(
         masterEdition,
         'MasterEdition',
@@ -42,7 +44,6 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       );
     }
 
-    const masterEditionAccount = OriginalEditionAccount.from(masterEditionInfo);
     const edition = new BN(masterEditionAccount.data.supply, 'le').add(new BN(1));
     const masterEditionMarkPda = await EditionMarkerAccount.pda(masterMint, edition);
 

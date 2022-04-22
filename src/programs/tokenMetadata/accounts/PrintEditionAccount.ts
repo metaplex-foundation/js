@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Edition, Key } from '@metaplex-foundation/mpl-token-metadata';
 import { OriginalEditionAccount } from './OriginalEditionAccount';
-import { BaseAccount, Pda, UnparsedAccount } from '@/shared';
+import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/shared';
 
 export class PrintEditionAccount extends BaseAccount<Edition> {
   static async pda(mint: PublicKey): Promise<Pda> {
@@ -15,5 +15,9 @@ export class PrintEditionAccount extends BaseAccount<Edition> {
 
   static from(unparsedAccount: UnparsedAccount) {
     return new PrintEditionAccount(this.parse(unparsedAccount, Edition));
+  }
+
+  static fromMaybe(maybe: UnparsedMaybeAccount) {
+    return maybe.exists ? this.from(maybe) : maybe;
   }
 }

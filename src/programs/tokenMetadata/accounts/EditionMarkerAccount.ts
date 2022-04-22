@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import BN from 'bn.js';
 import { EditionMarker } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenMetadataProgram } from '@/programs/tokenMetadata';
-import { BaseAccount, Pda, UnparsedAccount } from '@/shared';
+import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/shared';
 
 export class EditionMarkerAccount extends BaseAccount<EditionMarker> {
   static async pda(mint: PublicKey, edition: BN): Promise<Pda> {
@@ -18,5 +18,9 @@ export class EditionMarkerAccount extends BaseAccount<EditionMarker> {
 
   static from(unparsedAccount: UnparsedAccount) {
     return new EditionMarkerAccount(this.parse(unparsedAccount, EditionMarker));
+  }
+
+  static fromMaybe(maybe: UnparsedMaybeAccount) {
+    return maybe.exists ? this.from(maybe) : maybe;
   }
 }

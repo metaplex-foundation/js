@@ -25,6 +25,7 @@ export abstract class BaseAccount<T> implements Account<T> {
   public readonly lamports: number;
   public readonly data: T;
   public readonly rentEpoch?: number | undefined;
+  public readonly exists: true = true;
 
   protected constructor(accountValue: Account<T>) {
     this.publicKey = accountValue.publicKey;
@@ -47,7 +48,7 @@ export abstract class BaseAccount<T> implements Account<T> {
     }
   }
 
-  static maybeParse<T>(
+  static parseMaybe<T>(
     unparsedMaybeAccount: UnparsedMaybeAccount,
     accountData: AccountDataConstructor<T>
   ): MaybeAccount<T> {
