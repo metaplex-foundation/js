@@ -49,7 +49,7 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/164744650-6fc88f89-9fc9-4914-8857-970fea96dc84.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/164747006-35914b02-bbc3-4c14-98c2-eccf062468cc.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -64,7 +64,7 @@ The NFT module can be accessed via `Metaplex.nfts()` and provide the following m
 - [`uploadMetadata(metadata)`](#uploadMetadata)
 - [`createNft(onChainData)`](#createNft)
 - [`updateNft(nft, onChainData)`](#updateNft)
-- [`printNewEdition({ originalMint, ...params })`](#printNewEdition)
+- [`printNewEdition(originalMint, params)`](#printNewEdition)
 
 And the following model, either returned or used by the above methods.
 
@@ -267,21 +267,18 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 
 ### printNewEdition
 
-The `printNewEdition` method accepts a set of parameters where only the mint address of the original NFT is required and returns a brand-new NFT printed edition from the original edition.
+The `printNewEdition` method requires the mint address of the original NFT and returns a brand-new NFT printed from the original edition.
 
-For instance, this is how you would print a new edition of an NFT called `myOriginalNft`.
+For instance, this is how you would print a new edition of the `originalNft` NFT.
 
 ```ts
-const { nft: printedNft } = await metaplex.nfts().printNewEdition({
-  originalMint: myOriginalNft.mint,
-});
+const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalNft.mint);
 ```
 
 By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
 
 ```ts
-const { nft: printedNft } = await metaplex.nfts().printNewEdition({
-  originalMint,
+const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalMint, {
   newMint,                   // Defaults to a brand-new Keypair.
   newMintAuthority,          // Defaults to the current identity.
   newUpdateAuthority,        // Defaults to the current identity.
