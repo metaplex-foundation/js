@@ -61,14 +61,30 @@ test('it keeps track of the edition number', async (t: Test) => {
   const { nft: printNft2 } = await mx.nfts().printNewEdition({ originalMint });
   const { nft: printNft3 } = await mx.nfts().printNewEdition({ originalMint });
 
-  // Then each edition knows its number.
-  t.equal(printNft1.printEdition?.edition.toString(), '1');
-  t.equal(printNft2.printEdition?.edition.toString(), '2');
-  t.equal(printNft3.printEdition?.edition.toString(), '3');
-
-  // And they are all associated with the same parent.
-  const expectedParent = originalNft.editionAccount?.publicKey.toBase58();
-  t.equal(printNft1.printEdition?.parent.toBase58(), expectedParent);
-  t.equal(printNft2.printEdition?.parent.toBase58(), expectedParent);
-  t.equal(printNft3.printEdition?.parent.toBase58(), expectedParent);
+  // Then each edition knows their number and are associated with the same parent.
+  isPrintOfOriginal(t, printNft1, originalNft, 1);
+  isPrintOfOriginal(t, printNft2, originalNft, 2);
+  isPrintOfOriginal(t, printNft3, originalNft, 3);
 });
+
+test('it can print unlimited editions', async (t: Test) => {
+  // Given an existing Original NFT with no explicit maxSupply.
+  const mx = await metaplex();
+  const originalNft = await createNft(mx);
+
+  // When we print an edition of the NFT.
+  const { nft: printNft } = await mx.nfts().printNewEdition({ originalMint: originalNft.mint });
+
+  // Then we successfully printed the first NFT of an unlimited collection.
+  isPrintOfOriginal(t, printNft, originalNft, 1);
+});
+
+const isPrintOfOriginal = (t: Test, print: Nft, original: Nft, edition: number) => {
+  spok(t, print, {
+    $topic: 'print NFT #' + edition,
+    printEdition: {
+      parent: spokSamePubkey(original.editionAccount?.publicKey ?? null),
+      edition: spokSameBignum(edition),
+    },
+  } as unknown as Specifications<Nft>);
+};
