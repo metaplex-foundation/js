@@ -79,7 +79,17 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
     };
 
     let transactionBuilder: TransactionBuilder;
-    if (operation.input.via === 'token') {
+    if (operation.input.via === 'vault') {
+      transactionBuilder = printNewEditionBuilder({
+        via: 'vault',
+        vaultAuthority: operation.input.vaultAuthority,
+        safetyDepositStore: operation.input.safetyDepositStore,
+        safetyDepositBox: operation.input.safetyDepositBox,
+        vault: operation.input.vault,
+        tokenVaultProgram: operation.input.tokenVaultProgram,
+        ...sharedInput,
+      });
+    } else {
       const originalTokenAccountOwner =
         operation.input.originalTokenAccountOwner ?? metaplex.identity();
       const originalTokenAccount =
@@ -96,16 +106,6 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
         via: 'token',
         originalTokenAccountOwner,
         originalTokenAccount,
-        ...sharedInput,
-      });
-    } else {
-      transactionBuilder = printNewEditionBuilder({
-        via: 'vault',
-        vaultAuthority: operation.input.vaultAuthority,
-        safetyDepositStore: operation.input.safetyDepositStore,
-        safetyDepositBox: operation.input.safetyDepositBox,
-        vault: operation.input.vault,
-        tokenVaultProgram: operation.input.tokenVaultProgram,
         ...sharedInput,
       });
     }

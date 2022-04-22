@@ -94,23 +94,7 @@ export const printNewEditionBuilder = (
   } = params;
 
   let mintNewEditionViaBuilder: TransactionBuilder;
-  if (params.via === 'token') {
-    mintNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
-      edition,
-      newMetadata,
-      newEdition,
-      masterEdition: originalEdition,
-      newMint,
-      editionMarkPda: originalEditionMarkPda,
-      newMintAuthority,
-      payer,
-      tokenAccountOwner: params.originalTokenAccountOwner,
-      tokenAccount: params.originalTokenAccount,
-      newMetadataUpdateAuthority: newUpdateAuthority,
-      metadata: originalMetadata,
-      instructionKey: mintNewEditionInstructionKey,
-    });
-  } else {
+  if (params.via === 'vault') {
     mintNewEditionViaBuilder = mintNewEditionFromMasterEditionViaVaultProxyBuilder({
       edition,
       newMetadata,
@@ -127,6 +111,22 @@ export const printNewEditionBuilder = (
       newMetadataUpdateAuthority: newUpdateAuthority,
       metadata: originalMetadata,
       tokenVaultProgram: params.tokenVaultProgram,
+      instructionKey: mintNewEditionInstructionKey,
+    });
+  } else {
+    mintNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
+      edition,
+      newMetadata,
+      newEdition,
+      masterEdition: originalEdition,
+      newMint,
+      editionMarkPda: originalEditionMarkPda,
+      newMintAuthority,
+      payer,
+      tokenAccountOwner: params.originalTokenAccountOwner,
+      tokenAccount: params.originalTokenAccount,
+      newMetadataUpdateAuthority: newUpdateAuthority,
+      metadata: originalMetadata,
       instructionKey: mintNewEditionInstructionKey,
     });
   }
