@@ -37,7 +37,7 @@ type PrintNewEditionBuilderSharedParams = {
   initializeMintInstructionKey?: string;
   createAssociatedTokenInstructionKey?: string;
   mintToInstructionKey?: string;
-  mintNewEditionInstructionKey?: string;
+  printNewEditionInstructionKey?: string;
 };
 
 export type PrintNewEditionBuilderParams = PrintNewEditionBuilderSharedParams &
@@ -90,12 +90,12 @@ export const printNewEditionBuilder = (
     initializeMintInstructionKey,
     createAssociatedTokenInstructionKey,
     mintToInstructionKey,
-    mintNewEditionInstructionKey = 'mintNewEditionFromMasterEdition',
+    printNewEditionInstructionKey = 'printNewEdition',
   } = params;
 
-  let mintNewEditionViaBuilder: TransactionBuilder;
+  let printNewEditionViaBuilder: TransactionBuilder;
   if (params.via === 'vault') {
-    mintNewEditionViaBuilder = mintNewEditionFromMasterEditionViaVaultProxyBuilder({
+    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaVaultProxyBuilder({
       edition,
       newMetadata,
       newEdition,
@@ -111,10 +111,10 @@ export const printNewEditionBuilder = (
       newMetadataUpdateAuthority: newUpdateAuthority,
       metadata: originalMetadata,
       tokenVaultProgram: params.tokenVaultProgram,
-      instructionKey: mintNewEditionInstructionKey,
+      instructionKey: printNewEditionInstructionKey,
     });
   } else {
-    mintNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
+    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
       edition,
       newMetadata,
       newEdition,
@@ -127,7 +127,7 @@ export const printNewEditionBuilder = (
       tokenAccount: params.originalTokenAccount,
       newMetadataUpdateAuthority: newUpdateAuthority,
       metadata: originalMetadata,
-      instructionKey: mintNewEditionInstructionKey,
+      instructionKey: printNewEditionInstructionKey,
     });
   }
 
@@ -157,6 +157,6 @@ export const printNewEditionBuilder = (
       )
 
       // Mint new edition.
-      .add(mintNewEditionViaBuilder)
+      .add(printNewEditionViaBuilder)
   );
 };

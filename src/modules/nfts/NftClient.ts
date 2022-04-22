@@ -65,10 +65,10 @@ export class NftClient extends ModuleClient {
     input: PrintNewEditionInput
   ): Promise<{ nft: Nft } & PrintNewEditionOutput> {
     const operation = printNewEditionOperation(input);
-    const mintNewEditionOutput = await this.metaplex.execute(operation);
-    const nft = await this.findNftByMint(mintNewEditionOutput.mint.publicKey);
+    const printNewEditionOutput = await this.metaplex.execute(operation);
+    const nft = await this.findNftByMint(printNewEditionOutput.mint.publicKey);
 
-    return { ...mintNewEditionOutput, nft };
+    return { ...printNewEditionOutput, nft };
   }
 
   async updateNft(
