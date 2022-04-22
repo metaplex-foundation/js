@@ -11,7 +11,9 @@ export type PrintNewEditionOperation = Operation<
   PrintNewEditionOutput
 >;
 
-type PrintNewEditionSharedInput = {
+export type PrintNewEditionInput = PrintNewEditionSharedInput & PrintNewEditionViaInput;
+
+export type PrintNewEditionSharedInput = {
   originalMint: PublicKey;
   newMint?: Signer;
   newMintAuthority?: Signer;
@@ -24,22 +26,20 @@ type PrintNewEditionSharedInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-export type PrintNewEditionInput = PrintNewEditionSharedInput &
-  (
-    | {
-        via?: 'token';
-        originalTokenAccountOwner?: Signer;
-        originalTokenAccount?: PublicKey;
-      }
-    | {
-        via: 'vault';
-        vaultAuthority: Signer;
-        safetyDepositStore: PublicKey;
-        safetyDepositBox: PublicKey;
-        vault: PublicKey;
-        tokenVaultProgram?: PublicKey;
-      }
-  );
+export type PrintNewEditionViaInput =
+  | {
+      via?: 'token';
+      originalTokenAccountOwner?: Signer;
+      originalTokenAccount?: PublicKey;
+    }
+  | {
+      via: 'vault';
+      vaultAuthority: Signer;
+      safetyDepositStore: PublicKey;
+      safetyDepositBox: PublicKey;
+      vault: PublicKey;
+      tokenVaultProgram?: PublicKey;
+    };
 
 export type PrintNewEditionOutput = {
   mint: Signer;

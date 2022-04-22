@@ -27,9 +27,7 @@ test('it can print a new edition from an original edition', async (t: Test) => {
   );
 
   // When we print a new edition of the NFT.
-  const { nft: printNft } = await mx.nfts().printNewEdition({
-    originalMint: originalNft.mint,
-  });
+  const { nft: printNft } = await mx.nfts().printNewEdition(originalNft.mint);
 
   // Then we created and returned the printed NFT with the right data.
   const expectedNft = {
@@ -56,10 +54,9 @@ test('it keeps track of the edition number', async (t: Test) => {
   const originalNft = await createNft(mx, {}, { maxSupply: 100 });
 
   // When we print 3 new editions of the NFT.
-  const originalMint = originalNft.mint;
-  const { nft: printNft1 } = await mx.nfts().printNewEdition({ originalMint });
-  const { nft: printNft2 } = await mx.nfts().printNewEdition({ originalMint });
-  const { nft: printNft3 } = await mx.nfts().printNewEdition({ originalMint });
+  const { nft: printNft1 } = await mx.nfts().printNewEdition(originalNft.mint);
+  const { nft: printNft2 } = await mx.nfts().printNewEdition(originalNft.mint);
+  const { nft: printNft3 } = await mx.nfts().printNewEdition(originalNft.mint);
 
   // Then each edition knows their number and are associated with the same parent.
   isPrintOfOriginal(t, printNft1, originalNft, 1);
@@ -73,7 +70,7 @@ test('it can print unlimited editions', async (t: Test) => {
   const originalNft = await createNft(mx);
 
   // When we print an edition of the NFT.
-  const { nft: printNft } = await mx.nfts().printNewEdition({ originalMint: originalNft.mint });
+  const { nft: printNft } = await mx.nfts().printNewEdition(originalNft.mint);
 
   // Then we successfully printed the first NFT of an unlimited collection.
   isPrintOfOriginal(t, printNft, originalNft, 1);
@@ -86,7 +83,7 @@ test('it cannot print when the maxSupply is zero', async (t: Test) => {
 
   try {
     // When we try to print an edition of the NFT.
-    await mx.nfts().printNewEdition({ originalMint: originalNft.mint });
+    await mx.nfts().printNewEdition(originalNft.mint);
     t.fail('The NFT should not have printed');
   } catch (error) {
     // Then we should get an error.
