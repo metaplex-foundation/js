@@ -49,3 +49,26 @@ test('it can print a new edition from an original edition', async (t: Test) => {
   const retrievedNft = await mx.nfts().findNftByMint(printNft.mint);
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 });
+
+test('it keeps track of the edition number', async (t: Test) => {
+  // Given an existing Original NFT.
+  const mx = await metaplex();
+  const originalNft = await createNft(mx, {}, { maxSupply: 100 });
+
+  // When we print 3 new editions of the NFT.
+  const originalMint = originalNft.mint;
+  const { nft: printNft1 } = await mx.nfts().printNewEdition({ originalMint });
+  const { nft: printNft2 } = await mx.nfts().printNewEdition({ originalMint });
+  const { nft: printNft3 } = await mx.nfts().printNewEdition({ originalMint });
+
+  // Then each edition knows its number.
+  t.equal(printNft1.printEdition?.edition.toString(), '1');
+  t.equal(printNft2.printEdition?.edition.toString(), '2');
+  t.equal(printNft3.printEdition?.edition.toString(), '3');
+
+  // And they are all associated with the same parent.
+  const expectedParent = originalNft.editionAccount?.publicKey.toBase58();
+  t.equal(printNft1.printEdition?.parent.toBase58(), expectedParent);
+  t.equal(printNft2.printEdition?.parent.toBase58(), expectedParent);
+  t.equal(printNft3.printEdition?.parent.toBase58(), expectedParent);
+});
