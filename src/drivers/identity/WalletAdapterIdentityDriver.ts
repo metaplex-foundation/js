@@ -1,4 +1,4 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
@@ -12,6 +12,7 @@ import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
 } from '@/errors';
+import { SendTransactionOptions } from '@solana/wallet-adapter-base';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
@@ -71,5 +72,17 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
+  }
+
+  public async sendTransaction(
+    transaction: Transaction,
+    connection: Connection,
+    options?: SendTransactionOptions
+  ): Promise<TransactionSignature> {
+    if (this.walletAdapter.sendTransaction === undefined) {
+      throw new OperationNotSupportedByWalletAdapterError('sendTransaction');
+    }
+
+    return this.walletAdapter.sendTransaction(transaction, connection, options);
   }
 }
