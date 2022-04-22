@@ -27,7 +27,7 @@ type PrintNewEditionSharedInput = {
 export type PrintNewEditionInput = PrintNewEditionSharedInput &
   (
     | {
-        via: 'token';
+        via?: 'token';
         originalTokenAccountOwner?: Signer;
         originalTokenAccount?: PublicKey;
       }
