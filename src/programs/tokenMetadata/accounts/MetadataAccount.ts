@@ -13,10 +13,6 @@ export class MetadataAccount extends BaseAccount<Metadata> {
     ]);
   }
 
-  foo(): string {
-    return 'bar';
-  }
-
   static from(unparsedAccount: UnparsedAccount) {
     return new MetadataAccount(this.parse(unparsedAccount, Metadata));
   }

@@ -11,7 +11,12 @@ export type Account<T> = AccountInfo<T> & {
   publicKey: PublicKey;
 };
 
+export type MaybeAccount<T> =
+  | (Account<T> & { exists: true })
+  | { publicKey: PublicKey; exists: false };
+
 export type UnparsedAccount = Account<Buffer>;
+export type UnparsedMaybeAccount = MaybeAccount<Buffer>;
 
 export abstract class BaseAccount<T> implements Account<T> {
   public readonly publicKey: PublicKey;
@@ -40,5 +45,17 @@ export abstract class BaseAccount<T> implements Account<T> {
     } catch (error) {
       throw new UnexpectedAccountError(unparsedAccount.publicKey, accountData.name, error as Error);
     }
+  }
+
+  static maybeParse<T>(
+    unparsedMaybeAccount: UnparsedMaybeAccount,
+    accountData: AccountDataConstructor<T>
+  ): MaybeAccount<T> {
+    if (!unparsedMaybeAccount.exists) {
+      return unparsedMaybeAccount;
+    }
+
+    const parsedAccount = this.parse(unparsedMaybeAccount, accountData);
+    return { ...parsedAccount, exists: true };
   }
 }

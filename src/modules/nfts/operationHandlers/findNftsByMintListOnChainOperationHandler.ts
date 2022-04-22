@@ -19,7 +19,7 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
         if (!metadataInfo || !metadataInfo.exists) return null;
 
         try {
-          const metadata = MetadataAccount.from({ publicKey: metadataPda, ...metadataInfo });
+          const metadata = MetadataAccount.from(metadataInfo);
           return new Nft(metadata, metaplex);
         } catch (error) {
           return null;
