@@ -280,7 +280,7 @@ uses: Uses | null;
 
 // Sometimes loaded.
 metadata: JsonMetadata | null;
-masterEditionAccount: MasterEditionAccount | null;
+masterEditionAccount: OriginalEditionAccount | null;
 masterEdition: {
     supply?: bignumber;
     maxSupply?: bignumber;

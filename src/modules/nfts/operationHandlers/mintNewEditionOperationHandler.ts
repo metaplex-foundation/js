@@ -3,8 +3,8 @@ import { getMinimumBalanceForRentExemptMint, getAssociatedTokenAddress } from '@
 import BN from 'bn.js';
 import {
   MetadataAccount,
-  MasterEditionAccount,
-  EditionAccount,
+  OriginalEditionAccount,
+  PrintEditionAccount,
   EditionMarkerAccount,
 } from '@/programs/tokenMetadata';
 import { MintNewEditionOperation } from '../operations';
@@ -30,7 +30,7 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
 
     // Master NFT.
     const masterMetadata = await MetadataAccount.pda(masterMint);
-    const masterEdition = await MasterEditionAccount.pda(masterMint);
+    const masterEdition = await OriginalEditionAccount.pda(masterMint);
     const masterEditionInfo = await metaplex.rpc().getAccountInfo(masterEdition);
 
     if (!masterEditionInfo) {
@@ -42,7 +42,7 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       );
     }
 
-    const masterEditionAccount = MasterEditionAccount.fromAccountInfo(
+    const masterEditionAccount = OriginalEditionAccount.fromAccountInfo(
       masterEdition,
       masterEditionInfo
     );
@@ -51,7 +51,7 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
 
     // New NFT.
     const newMetadata = await MetadataAccount.pda(newMint.publicKey);
-    const newEdition = await EditionAccount.pda(newMint.publicKey);
+    const newEdition = await PrintEditionAccount.pda(newMint.publicKey);
     const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
     const newAssociatedToken = await getAssociatedTokenAddress(
       newMint.publicKey,

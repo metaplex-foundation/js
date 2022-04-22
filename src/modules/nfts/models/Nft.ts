@@ -9,7 +9,7 @@ import {
 import { Metaplex } from '@/Metaplex';
 import { Model } from '@/shared';
 import { removeEmptyChars } from '@/utils';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { MetadataAccount, OriginalEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';
 import { useJsonMetadataTask, JsonMetadataTask } from './useJsonMetadataTask';
 import { useMasterEditionTask, MasterEditionTask } from './useMasterEditionTask';
@@ -62,7 +62,7 @@ export class Nft extends Model {
     return this.metadataTask.getResult() ?? {};
   }
 
-  get masterEditionAccount(): MasterEditionAccount | null {
+  get masterEditionAccount(): OriginalEditionAccount | null {
     return this.masterEditionTask.getResult() ?? null;
   }
 
