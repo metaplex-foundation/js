@@ -7,7 +7,7 @@ import {
 import { TransactionBuilder, Signer } from '@/shared';
 import BN from 'bn.js';
 
-type MintNewEditionBuilderSharedParams = {
+type PrintNewEditionBuilderSharedParams = {
   // Data.
   lamports: number;
   edition: number | BN;
@@ -24,9 +24,9 @@ type MintNewEditionBuilderSharedParams = {
   payer: Signer;
 
   // Master NFT.
-  masterMetadata: PublicKey;
-  masterEdition: PublicKey;
-  masterEditionMarkPda: PublicKey;
+  originalMetadata: PublicKey;
+  originalEdition: PublicKey;
+  originalEditionMarkPda: PublicKey;
 
   // Programs.
   tokenProgram?: PublicKey;
@@ -40,12 +40,12 @@ type MintNewEditionBuilderSharedParams = {
   mintNewEditionInstructionKey?: string;
 };
 
-export type MintNewEditionBuilderParams = MintNewEditionBuilderSharedParams &
+export type PrintNewEditionBuilderParams = PrintNewEditionBuilderSharedParams &
   (
     | {
         via: 'token';
-        masterTokenAccountOwner: Signer;
-        masterTokenAccount: PublicKey;
+        originalTokenAccountOwner: Signer;
+        originalTokenAccount: PublicKey;
       }
     | {
         via: 'vault';
@@ -57,7 +57,9 @@ export type MintNewEditionBuilderParams = MintNewEditionBuilderSharedParams &
       }
   );
 
-export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): TransactionBuilder => {
+export const printNewEditionBuilder = (
+  params: PrintNewEditionBuilderParams
+): TransactionBuilder => {
   const {
     // Data.
     lamports,
@@ -75,9 +77,9 @@ export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): Tran
     payer,
 
     // Master NFT.
-    masterMetadata,
-    masterEdition,
-    masterEditionMarkPda,
+    originalMetadata,
+    originalEdition,
+    originalEditionMarkPda,
 
     // Programs.
     tokenProgram,
@@ -97,15 +99,15 @@ export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): Tran
       edition,
       newMetadata,
       newEdition,
-      masterEdition,
+      masterEdition: originalEdition,
       newMint,
-      editionMarkPda: masterEditionMarkPda,
+      editionMarkPda: originalEditionMarkPda,
       newMintAuthority,
       payer,
-      tokenAccountOwner: params.masterTokenAccountOwner,
-      tokenAccount: params.masterTokenAccount,
+      tokenAccountOwner: params.originalTokenAccountOwner,
+      tokenAccount: params.originalTokenAccount,
       newMetadataUpdateAuthority: newUpdateAuthority,
-      metadata: masterMetadata,
+      metadata: originalMetadata,
       instructionKey: mintNewEditionInstructionKey,
     });
   } else {
@@ -113,9 +115,9 @@ export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): Tran
       edition,
       newMetadata,
       newEdition,
-      masterEdition,
+      masterEdition: originalEdition,
       newMint,
-      editionMarkPda: masterEditionMarkPda,
+      editionMarkPda: originalEditionMarkPda,
       newMintAuthority,
       payer,
       vaultAuthority: params.vaultAuthority,
@@ -123,7 +125,7 @@ export const mintNewEditionBuilder = (params: MintNewEditionBuilderParams): Tran
       safetyDepositBox: params.safetyDepositBox,
       vault: params.vault,
       newMetadataUpdateAuthority: newUpdateAuthority,
-      metadata: masterMetadata,
+      metadata: originalMetadata,
       tokenVaultProgram: params.tokenVaultProgram,
       instructionKey: mintNewEditionInstructionKey,
     });

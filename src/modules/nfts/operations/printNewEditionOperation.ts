@@ -1,17 +1,18 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { useOperation, Signer, Operation } from '@/shared';
 
-export const mintNewEditionOperation =
-  useOperation<MintNewEditionOperation>('MintNewEditionOperation');
+export const printNewEditionOperation = useOperation<PrintNewEditionOperation>(
+  'PrintNewEditionOperation'
+);
 
-export type MintNewEditionOperation = Operation<
-  'MintNewEditionOperation',
-  MintNewEditionInput,
-  MintNewEditionOutput
+export type PrintNewEditionOperation = Operation<
+  'PrintNewEditionOperation',
+  PrintNewEditionInput,
+  PrintNewEditionOutput
 >;
 
-type MintNewEditionSharedInput = {
-  masterMint: PublicKey;
+type PrintNewEditionSharedInput = {
+  originalMint: PublicKey;
   newMint?: Signer;
   newMintAuthority?: Signer;
   newUpdateAuthority?: PublicKey;
@@ -23,12 +24,12 @@ type MintNewEditionSharedInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-export type MintNewEditionInput = MintNewEditionSharedInput &
+export type PrintNewEditionInput = PrintNewEditionSharedInput &
   (
     | {
         via: 'token';
-        masterTokenAccountOwner?: Signer;
-        masterTokenAccount?: PublicKey;
+        originalTokenAccountOwner?: Signer;
+        originalTokenAccount?: PublicKey;
       }
     | {
         via: 'vault';
@@ -40,7 +41,7 @@ export type MintNewEditionInput = MintNewEditionSharedInput &
       }
   );
 
-export type MintNewEditionOutput = {
+export type PrintNewEditionOutput = {
   mint: Signer;
   metadata: PublicKey;
   edition: PublicKey;

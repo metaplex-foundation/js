@@ -29,7 +29,7 @@ test('it can print a new edition from an original edition', async (t: Test) => {
   // When we print a new edition of the NFT.
   const { nft: printNft } = await mx
     .nfts()
-    .mintNewEdition({ masterMint: originalNft.mint, via: 'token' });
+    .printNewEdition({ originalMint: originalNft.mint, via: 'token' });
 
   // Then we created and returned the printed NFT with the right data.
   const expectedNft = {

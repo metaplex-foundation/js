@@ -1,3 +1,3 @@
 export * from './createNftBuilder';
-export * from './mintNewEditionBuilder';
+export * from './printNewEditionBuilder';
 export * from './updateNftBuilder';

@@ -7,16 +7,16 @@ import {
   PrintEditionAccount,
   EditionMarkerAccount,
 } from '@/programs/tokenMetadata';
-import { MintNewEditionOperation } from '../operations';
-import { mintNewEditionBuilder } from '../transactionBuilders';
+import { PrintNewEditionOperation } from '../operations';
+import { printNewEditionBuilder } from '../transactionBuilders';
 import { Metaplex } from '@/Metaplex';
 import { OperationHandler, TransactionBuilder } from '@/shared';
 import { AccountNotFoundError } from '@/errors';
 
-export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOperation> = {
-  handle: async (operation: MintNewEditionOperation, metaplex: Metaplex) => {
+export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOperation> = {
+  handle: async (operation: PrintNewEditionOperation, metaplex: Metaplex) => {
     const {
-      masterMint,
+      originalMint,
       newMint = Keypair.generate(),
       newMintAuthority = metaplex.identity(),
       newUpdateAuthority = newMintAuthority.publicKey,
@@ -28,24 +28,24 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       confirmOptions,
     } = operation.input;
 
-    // Master NFT.
-    const masterMetadata = await MetadataAccount.pda(masterMint);
-    const masterEdition = await OriginalEditionAccount.pda(masterMint);
-    const masterEditionAccount = OriginalEditionAccount.fromMaybe(
-      await metaplex.rpc().getAccount(masterEdition)
+    // Original NFT.
+    const originalMetadata = await MetadataAccount.pda(originalMint);
+    const originalEdition = await OriginalEditionAccount.pda(originalMint);
+    const originalEditionAccount = OriginalEditionAccount.fromMaybe(
+      await metaplex.rpc().getAccount(originalEdition)
     );
 
-    if (!masterEditionAccount.exists) {
+    if (!originalEditionAccount.exists) {
       throw new AccountNotFoundError(
-        masterEdition,
-        'MasterEdition',
-        `Ensure the provided mint address for the master NFT [${masterMint.toBase58()}] ` +
-          `is correct and that it has an associated MasterEdition PDA.`
+        originalEdition,
+        'OriginalEdition',
+        `Ensure the provided mint address for the original NFT [${originalMint.toBase58()}] ` +
+          `is correct and that it has an associated OriginalEdition PDA.`
       );
     }
 
-    const edition = new BN(masterEditionAccount.data.supply, 'le').add(new BN(1));
-    const masterEditionMarkPda = await EditionMarkerAccount.pda(masterMint, edition);
+    const edition = new BN(originalEditionAccount.data.supply, 'le').add(new BN(1));
+    const originalEditionMarkPda = await EditionMarkerAccount.pda(originalMint, edition);
 
     // New NFT.
     const newMetadata = await MetadataAccount.pda(newMint.publicKey);
@@ -71,35 +71,35 @@ export const mintNewEditionOperationHandler: OperationHandler<MintNewEditionOper
       newAssociatedToken,
       newFreezeAuthority,
       payer,
-      masterMetadata,
-      masterEdition,
-      masterEditionMarkPda,
+      originalMetadata,
+      originalEdition,
+      originalEditionMarkPda,
       tokenProgram,
       associatedTokenProgram,
     };
 
     let transactionBuilder: TransactionBuilder;
     if (operation.input.via === 'token') {
-      const masterTokenAccountOwner =
-        operation.input.masterTokenAccountOwner ?? metaplex.identity();
-      const masterTokenAccount =
-        operation.input.masterTokenAccount ??
+      const originalTokenAccountOwner =
+        operation.input.originalTokenAccountOwner ?? metaplex.identity();
+      const originalTokenAccount =
+        operation.input.originalTokenAccount ??
         (await getAssociatedTokenAddress(
-          masterMint,
-          masterTokenAccountOwner.publicKey,
+          originalMint,
+          originalTokenAccountOwner.publicKey,
           false,
           tokenProgram,
           associatedTokenProgram
         ));
 
-      transactionBuilder = mintNewEditionBuilder({
+      transactionBuilder = printNewEditionBuilder({
         via: 'token',
-        masterTokenAccountOwner,
-        masterTokenAccount,
+        originalTokenAccountOwner,
+        originalTokenAccount,
         ...sharedInput,
       });
     } else {
-      transactionBuilder = mintNewEditionBuilder({
+      transactionBuilder = printNewEditionBuilder({
         via: 'vault',
         vaultAuthority: operation.input.vaultAuthority,
         safetyDepositStore: operation.input.safetyDepositStore,
