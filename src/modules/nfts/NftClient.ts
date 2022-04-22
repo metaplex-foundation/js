@@ -61,16 +61,6 @@ export class NftClient extends ModuleClient {
     return { ...createNftOutput, nft };
   }
 
-  async printNewEdition(
-    input: PrintNewEditionInput
-  ): Promise<{ nft: Nft } & PrintNewEditionOutput> {
-    const operation = printNewEditionOperation(input);
-    const printNewEditionOutput = await this.metaplex.execute(operation);
-    const nft = await this.findNftByMint(printNewEditionOutput.mint.publicKey);
-
-    return { ...printNewEditionOutput, nft };
-  }
-
   async updateNft(
     nft: Nft,
     input: Omit<UpdateNftInput, 'nft'>
@@ -80,5 +70,15 @@ export class NftClient extends ModuleClient {
     const updatedNft = await this.findNftByMint(nft.mint);
 
     return { ...updateNftOutput, nft: updatedNft };
+  }
+
+  async printNewEdition(
+    input: PrintNewEditionInput
+  ): Promise<{ nft: Nft } & PrintNewEditionOutput> {
+    const operation = printNewEditionOperation(input);
+    const printNewEditionOutput = await this.metaplex.execute(operation);
+    const nft = await this.findNftByMint(printNewEditionOutput.mint.publicKey);
+
+    return { ...printNewEditionOutput, nft };
   }
 }

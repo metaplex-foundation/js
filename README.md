@@ -264,6 +264,34 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 });
 ```
 
+### printNewEdition
+
+The `printNewEdition` method accepts a set of parameters where only the mint address of the original NFT is required and returns a brand-new NFT printed edition from the original edition.
+
+For instance, this is how you would print a new edition of an NFT called `myOriginalNft`.
+
+```ts
+const { nft: printedNft } = await metaplex.nfts().printNewEdition({
+  originalMint: myOriginalNft.mint,
+});
+```
+
+By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
+
+```ts
+const { nft: printedNft } = await metaplex.nfts().printNewEdition({
+  originalMint,
+  newMint,                   // Defaults to a brand-new Keypair.
+  newMintAuthority,          // Defaults to the current identity.
+  newUpdateAuthority,        // Defaults to the current identity.
+  newOwner,                  // Defaults to the current identity.
+  newFreezeAuthority,        // Defaults to undefined.
+  payer,                     // Defaults to the current identity.
+  originalTokenAccountOwner, // Defaults to the current identity.
+  originalTokenAccount,      // Defaults to the ATA of the current identity.
+});
+```
+
 ### The `Nft` model
 
 All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
