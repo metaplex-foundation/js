@@ -2,6 +2,7 @@ import { Connection, PublicKey, Transaction, TransactionSignature } from '@solan
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
+  SendTransactionOptions,
   WalletAdapter as BaseWalletAdapter,
 } from '@solana/wallet-adapter-base';
 import { IdentityDriver } from './IdentityDriver';
@@ -12,7 +13,6 @@ import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
 } from '@/errors';
-import { SendTransactionOptions } from '@solana/wallet-adapter-base';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
@@ -76,13 +76,13 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async sendTransaction(
     transaction: Transaction,
-    connection: Connection,
+    _connection?: Connection,
     options?: SendTransactionOptions
   ): Promise<TransactionSignature> {
-    if (this.walletAdapter.sendTransaction === undefined) {
-      throw new OperationNotSupportedByWalletAdapterError('sendTransaction');
-    }
+    const { signers, ...sendOptions } = options || {};
 
-    return this.walletAdapter.sendTransaction(transaction, connection, options);
+    // We accept a connection to match the wallet signature, but it is not used.
+    // We use the RpcDriver to send the transaction to keep the single point of failure.
+    return this.metaplex.rpc().sendTransaction(transaction, signers, sendOptions);
   }
 }
