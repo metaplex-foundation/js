@@ -1335,10 +1335,10 @@
   dependencies:
     multiformats "^9.5.4"
 
-"@metaplex-foundation/amman@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.5.0.tgz#0e42535478077b1094f1350b85319e7d1b458525"
-  integrity sha512-cU00tLgCtFMW6q5VHME7bZloYJ9wFcv5dYJR4knf4yP0Qk961sZI0ZxIKZQxN1npPJ3M3U3oZrfR2Kg0mY9TpA==
+"@metaplex-foundation/amman@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.6.0.tgz#73696dbb2516c7c0d44e979e52515839b1bb90d9"
+  integrity sha512-UHFAXPNNm6qNAQI7NTFIKYbuKu+2lmg+VmD5UoGqK8vW9o4NJW8JhISBuZlHWH4rcARPWudgn4FoukJdTw5fqQ==
   dependencies:
     "@metaplex-foundation/cusper" "^0.0.2"
     "@metaplex-foundation/js-next" "^0.5.1"
@@ -1348,13 +1348,16 @@
     ansi-colors "^4.1.1"
     bn.js "^5.2.0"
     buffer-hexdump "^1.0.0"
+    date-fns "^2.28.0"
     debug "^4.3.3"
+    deep-diff "^1.0.2"
     numeral "^2.0.6"
     port-pid "^0.0.7"
     socket.io "^4.4.1"
     socket.io-client "^4.4.1"
     split2 "^4.1.0"
     text-table "^0.2.0"
+    timeago.js "^4.0.2"
     wait-on "^6.0.0"
     yargs "^17.3.0"
 
@@ -2592,6 +2595,11 @@ data-uri-to-buffer@^3.0.1:
   resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-3.0.1.tgz#594b8973938c5bc2c33046535785341abc4f3636"
   integrity sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==
 
+date-fns@^2.28.0:
+  version "2.28.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
+  integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
+
 debug@4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
@@ -2618,6 +2626,11 @@ decamelize@^1.1.0, decamelize@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
   integrity sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=
+
+deep-diff@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/deep-diff/-/deep-diff-1.0.2.tgz#afd3d1f749115be965e89c63edc7abb1506b9c26"
+  integrity sha512-aWS3UIVH+NPGCD1kki+DCU9Dua032iSsO43LqQpcs4R3+dVv7tX0qBGjiVHJHjplsoUM2XRO/KB92glqc68awg==
 
 deep-equal@^2.0.5:
   version "2.0.5"
@@ -5031,6 +5044,11 @@ through@2, "through@>=2.2.7 <3", through@^2.3.6, through@^2.3.8, through@~2.3, t
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
+
+timeago.js@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/timeago.js/-/timeago.js-4.0.2.tgz#724e8c8833e3490676c7bb0a75f5daf20e558028"
+  integrity sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==
 
 timeout-abort-controller@^1.1.1:
   version "1.1.1"
