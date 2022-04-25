@@ -4,9 +4,10 @@ import {
   InitializeCandyMachineInstructionArgs,
   PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { Connection } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { createAccountBuilder } from '../../../programs';
 import { Signer, TransactionBuilder } from '../../../shared';
+import { logDebug } from '../../../utils';
 import { CandyMachineModel } from '../models/CandyMachine';
 import { InitCandyMachineInput } from '../operations';
 
@@ -52,6 +53,10 @@ async function createCandyMachineAccountBuilder(
 ) {
   const space = candyMachineModel.getSize(candyMachine.publicKey);
   const lamports = await connection.getMinimumBalanceForRentExemption(space);
+  logDebug(
+    `Creating candy machine account with space ${space} ` +
+      `and balance of ${lamports / LAMPORTS_PER_SOL} SOL`
+  );
   return createAccountBuilder({
     payer,
     newAccount: candyMachine,
