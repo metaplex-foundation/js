@@ -6,13 +6,13 @@ import {
   metaplex,
   SKIP_PREFLIGHT,
   spokSameBignum,
-  spokSamePubkey,
 } from '../../helpers';
 import { CandyMachine, cusper } from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair, PublicKey } from '@solana/web3.js';
-import spok, { Specifications } from 'spok';
+import spok from 'spok';
 import { Signer } from '../../../src/shared';
-import { Creator } from '@metaplex-foundation/mpl-token-metadata';
+import { creatorsConfigDefault } from '../../../src/modules/candy-machine/models/config';
+import { assertCreators } from '../../helpers/candy-machine';
 
 killStuckProcess();
 
@@ -20,7 +20,7 @@ function assertProperlyInitialized(
   t: test.Test,
   {
     candyMachineSigner,
-    payer,
+    payer: _,
     wallet,
     authority,
     candyMachine,
@@ -67,22 +67,68 @@ function assertProperlyInitialized(
       goLiveDate: spokSameBignum(new Date(goLiveDate).valueOf()),
     },
   });
-  spok(t, candyMachine.data.creators, <Specifications<Creator[]>>[
-    {
-      $topic: 'creators',
-      address: spokSamePubkey(payer.publicKey),
-      verified: false,
-      share: 100,
-    },
-  ]);
 }
 
 test('candyMachine: init with minimal config', async (t) => {
   const mx = await metaplex();
   const payer = mx.identity();
 
-  // TODO(thlorenz): prod code could default to this creator setting
-  const creators = [{ address: payer.publicKey.toBase58(), verified: false, share: 100 }];
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const config = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...config, ...opts, payer });
+
+  const cm = mx.candyMachine();
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
+  });
+  assertCreators(
+    t,
+    candyMachine.data.creators,
+    creatorsConfigDefault(solTreasuryAccount.publicKey.toBase58())
+  );
+});
+
+test('candyMachine: init with config specifying creators', async (t) => {
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const [coCreator] = await amman.genLabeledKeypair('coCreator');
+  const creators = [
+    {
+      address: payer.publicKey.toBase58(),
+      verified: false,
+      share: 50,
+    },
+    {
+      address: coCreator.toBase58(),
+      verified: false,
+      share: 50,
+    },
+  ];
   const solTreasuryAccount = Keypair.generate();
   await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
 
@@ -105,12 +151,11 @@ test('candyMachine: init with minimal config', async (t) => {
 
   const cm = mx.candyMachine();
 
-  const { transactionId, confirmResponse, ...rest } = await cm.initCandyMachineFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, { ...rest, ...config, tokenMint: null });
+  assertProperlyInitialized(t, { ...rest, ...config, candyMachine, tokenMint: null });
+  assertCreators(t, candyMachine.data.creators, config.creators);
 });

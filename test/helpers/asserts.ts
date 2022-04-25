@@ -33,3 +33,4 @@ export function assertConfirmedWithoutError(
     t.fail(resolveTransactionError(cusper, confirmed.value.err).stack);
   }
 }
+

@@ -76,7 +76,7 @@ export type CandyMachineConfig = {
   goLiveDate: string;
   retainAuthority: boolean;
   isMutable: boolean;
-  creators: CreatorsConfig;
+  creators?: CreatorsConfig;
   symbol?: string;
   splTokenAccount?: PublicKeyString;
   splToken?: PublicKeyString;
