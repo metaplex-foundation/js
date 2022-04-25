@@ -3,7 +3,7 @@ import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { JsonMetadata, MetaplexFile, Nft } from '@/index';
-import { metaplex, spokSamePubkey, spokSameBignum, killStuckProcess } from '../../helpers';
+import { metaplex, spokSamePubkey, spokSameBignum, killStuckProcess, amman } from '../../helpers';
 
 killStuckProcess();
 
@@ -214,4 +214,29 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
       },
     ],
   } as unknown as Specifications<Nft>);
+});
+
+test('it can make another keypair pay for the storage', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+  console.log(await mx.connection.getBalance(mx.identity().publicKey));
+
+  // And a keypair that will pay for the storage.
+  const payer = Keypair.generate();
+  await amman.airdrop(mx.connection, payer.publicKey, 1);
+  t.equal(await mx.connection.getBalance(payer.publicKey), 1000000000);
+
+  // When we create a new NFT using that account as a payer.
+  const { uri } = await mx.nfts().uploadMetadata({ name: 'My NFT' });
+  const { nft } = await mx.nfts().createNft({ uri, payer });
+
+  // Then the payer has less lamports than it used to.
+  t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
+  console.log(await mx.connection.getBalance(mx.identity().publicKey));
+
+  // And the NFT was successfully created.
+  spok(t, nft, {
+    $topic: 'nft',
+    name: 'My NFT',
+  });
 });
