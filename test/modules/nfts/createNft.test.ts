@@ -242,3 +242,32 @@ test('it can make another signer wallet pay for the storage and transaction fees
     name: 'My NFT',
   });
 });
+
+test('it can create an NFT for other signer wallets without using the identity', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // And a bunch of wallet used instead of the identity.
+  const payer = Keypair.generate();
+  const mintAuthority = Keypair.generate();
+  const updateAuthority = Keypair.generate();
+  const owner = Keypair.generate();
+  await amman.airdrop(mx.connection, payer.publicKey, 1);
+
+  // When we create a new NFT using these accounts.
+  const { uri } = await mx.nfts().uploadMetadata({ name: 'My NFT' });
+  const { nft } = await mx.nfts().createNft({
+    uri,
+    payer,
+    mintAuthority,
+    updateAuthority,
+    owner: owner.publicKey,
+  });
+
+  // Then the NFT was successfully created and assigned to the right wallets.
+  spok(t, nft, {
+    $topic: 'nft',
+    name: 'My NFT',
+    updateAuthority: spokSamePubkey(updateAuthority.publicKey),
+  } as unknown as Specifications<Nft>);
+});
