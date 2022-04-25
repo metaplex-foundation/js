@@ -216,10 +216,10 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
   } as unknown as Specifications<Nft>);
 });
 
-test('it can make another keypair pay for the storage', async (t: Test) => {
+test('it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
-  console.log(await mx.connection.getBalance(mx.identity().publicKey));
+  const initialIdentityBalance = await mx.connection.getBalance(mx.identity().publicKey);
 
   // And a keypair that will pay for the storage.
   const payer = Keypair.generate();
@@ -232,7 +232,9 @@ test('it can make another keypair pay for the storage', async (t: Test) => {
 
   // Then the payer has less lamports than it used to.
   t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
-  console.log(await mx.connection.getBalance(mx.identity().publicKey));
+
+  // And the identity did not lose any lamports.
+  t.equal(await mx.connection.getBalance(mx.identity().publicKey), initialIdentityBalance);
 
   // And the NFT was successfully created.
   spok(t, nft, {

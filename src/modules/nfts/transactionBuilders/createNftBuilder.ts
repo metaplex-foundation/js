@@ -65,6 +65,7 @@ export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBui
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Create the mint account and send one token to the holder.
       .add(
