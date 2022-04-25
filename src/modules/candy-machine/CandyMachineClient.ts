@@ -2,7 +2,7 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, tryConvertToPublickKey } from '../../shared';
 import { CandyMachineModel } from './models/CandyMachine';
 import { CandyMachineConfig, StorageConfig } from './models/config';
-import { InitCandyMachineInput, InitCandyMachineOperation } from './operations';
+import { InitCandyMachineInput, initCandyMachineOperation } from './operations';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachine?: Signer;
@@ -12,7 +12,7 @@ export type CandyMachineInitFromConfigOpts = {
 
 export class CandyMachineClient extends ModuleClient {
   async initCandyMachine(input: InitCandyMachineInput) {
-    const operation = new InitCandyMachineOperation(input);
+    const operation = initCandyMachineOperation(input);
     const initCandyMachineOutput = await this.metaplex.execute(operation);
     const { candyMachine: candyMachineSigner, ...rest } = initCandyMachineOutput;
 

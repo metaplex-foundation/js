@@ -1,5 +1,5 @@
 import { ConfirmOptions, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
-import { Operation, Signer } from '../../../shared';
+import { Operation, Signer, useOperation } from '../../../shared';
 import { CandyMachineModel } from '../models/CandyMachine';
 
 export type InitCandyMachineInput = {
@@ -23,10 +23,14 @@ export type InitCandyMachineOutput = {
   authority: PublicKey;
   // Transaction Result
   transactionId: string;
-  confirmed: RpcResponseAndContext<SignatureResult>;
+  confirmResponse: RpcResponseAndContext<SignatureResult>;
 };
 
-export class InitCandyMachineOperation extends Operation<
+const K = 'InitCandyMachineOperation' as const;
+export type InitCandyMachineOperation = Operation<
+  typeof K,
   InitCandyMachineInput,
   InitCandyMachineOutput
-> {}
+>;
+
+export const initCandyMachineOperation = useOperation<InitCandyMachineOperation>(K);

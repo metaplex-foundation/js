@@ -1,1 +1,1 @@
-export * from './InitCandyMachineOperation';
+export * from './initCandyMachineOperation';

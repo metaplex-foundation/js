@@ -105,9 +105,12 @@ test('candyMachine: init with minimal config', async (t) => {
 
   const cm = mx.candyMachine();
 
-  const { transactionId, confirmed, ...rest } = await cm.initCandyMachineFromConfig(config, opts);
+  const { transactionId, confirmResponse, ...rest } = await cm.initCandyMachineFromConfig(
+    config,
+    opts
+  );
   amman.addr.addLabel('initCandyMachine', transactionId);
 
-  assertConfirmedWithoutError(t, cusper, confirmed);
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, { ...rest, ...config, tokenMint: null });
 });

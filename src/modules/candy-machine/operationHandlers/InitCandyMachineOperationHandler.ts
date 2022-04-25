@@ -1,11 +1,15 @@
 import { Keypair } from '@solana/web3.js';
+import { Metaplex } from '../../../Metaplex';
 import { OperationHandler } from '../../../shared';
 import { InitCandyMachineOperation, InitCandyMachineOutput } from '../operations';
 import { initCandyMachineBuilder } from '../transactionBuilders';
 
-export class InitCandyMachineOperationHandler extends OperationHandler<InitCandyMachineOperation> {
-  async handle(operation: InitCandyMachineOperation): Promise<InitCandyMachineOutput> {
-    const { payer = this.metaplex.identity() } = operation.input;
+export const initCandyMachineOperationHandler: OperationHandler<InitCandyMachineOperation> = {
+  async handle(
+    operation: InitCandyMachineOperation,
+    metaplex: Metaplex
+  ): Promise<InitCandyMachineOutput> {
+    const { payer = metaplex.identity() } = operation.input;
     const {
       candyMachine = Keypair.generate(),
       wallet = payer.publicKey,
@@ -14,8 +18,8 @@ export class InitCandyMachineOperationHandler extends OperationHandler<InitCandy
       confirmOptions,
     } = operation.input;
 
-    const connection = this.metaplex.connection;
-    const { signature, confirmed } = await this.metaplex.rawSendAndConfirmTransaction(
+    const connection = metaplex.connection;
+    const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
       await initCandyMachineBuilder({
         payer,
         candyMachine,
@@ -37,7 +41,7 @@ export class InitCandyMachineOperationHandler extends OperationHandler<InitCandy
       authority,
       // Transaction Result
       transactionId: signature,
-      confirmed,
+      confirmResponse,
     };
-  }
-}
+  },
+};
