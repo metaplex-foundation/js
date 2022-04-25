@@ -231,7 +231,7 @@ test('it keeps track of its execution state', async (t: Test) => {
 test('it keeps track of its failed state', async (t: Test) => {
   // Given a plan that fails.
   const plan = Plan.make().addStep('step1', async () => {
-    throw new Error('error');
+    throw new Error();
   });
 
   // And that hasn't executed yet.

@@ -1,55 +1,61 @@
-import { ModuleClient, Plan } from '@/shared';
-import { Nft } from '@/modules/nfts';
 import { PublicKey } from '@solana/web3.js';
+import { ModuleClient, Plan } from '@/shared';
+import {
+  printNewEditionOperation,
+  PrintNewEditionOutput,
+  Nft,
+  PrintNewEditionSharedInput,
+  PrintNewEditionViaInput,
+} from '@/modules/nfts';
 import {
   UploadMetadataInput,
   UploadMetadataOutput,
-  UploadMetadataOperation,
-  PlanUploadMetadataOperation,
+  uploadMetadataOperation,
+  planUploadMetadataOperation,
   CreateNftInput,
   CreateNftOutput,
-  CreateNftOperation,
-  FindNftByMintOperation,
+  createNftOperation,
+  findNftByMintOperation,
   UpdateNftInput,
   UpdateNftOutput,
-  UpdateNftOperation,
-  FindNftsByOwnerOperation,
-  FindNftsByMintListOperation,
-  FindNftsByCreatorOperation,
-  FindNftsByCandyMachineOperation,
+  updateNftOperation,
+  findNftsByOwnerOperation,
+  findNftsByMintListOperation,
+  findNftsByCreatorOperation,
+  findNftsByCandyMachineOperation,
 } from './operations';
 
 export class NftClient extends ModuleClient {
   findNftByMint(mint: PublicKey): Promise<Nft> {
-    return this.metaplex.execute(new FindNftByMintOperation(mint));
+    return this.metaplex.execute(findNftByMintOperation(mint));
   }
 
   findNftsByMintList(mints: PublicKey[]): Promise<(Nft | null)[]> {
-    return this.metaplex.execute(new FindNftsByMintListOperation(mints));
+    return this.metaplex.execute(findNftsByMintListOperation(mints));
   }
 
   findNftsByOwner(owner: PublicKey): Promise<Nft[]> {
-    return this.metaplex.execute(new FindNftsByOwnerOperation(owner));
+    return this.metaplex.execute(findNftsByOwnerOperation(owner));
   }
 
   findNftsByCreator(creator: PublicKey, position: number = 1): Promise<Nft[]> {
-    return this.metaplex.execute(new FindNftsByCreatorOperation({ creator, position }));
+    return this.metaplex.execute(findNftsByCreatorOperation({ creator, position }));
   }
 
   findNftsByCandyMachine(candyMachine: PublicKey, version?: 1 | 2): Promise<Nft[]> {
-    return this.metaplex.execute(new FindNftsByCandyMachineOperation({ candyMachine, version }));
+    return this.metaplex.execute(findNftsByCandyMachineOperation({ candyMachine, version }));
   }
 
   uploadMetadata(input: UploadMetadataInput): Promise<UploadMetadataOutput> {
-    return this.metaplex.execute(new UploadMetadataOperation(input));
+    return this.metaplex.execute(uploadMetadataOperation(input));
   }
 
   planUploadMetadata(input: UploadMetadataInput): Promise<Plan<undefined, UploadMetadataOutput>> {
-    return this.metaplex.execute(new PlanUploadMetadataOperation(input));
+    return this.metaplex.execute(planUploadMetadataOperation(input));
   }
 
   async createNft(input: CreateNftInput): Promise<{ nft: Nft } & CreateNftOutput> {
-    const operation = new CreateNftOperation(input);
+    const operation = createNftOperation(input);
     const createNftOutput = await this.metaplex.execute(operation);
     const nft = await this.findNftByMint(createNftOutput.mint.publicKey);
 
@@ -60,10 +66,21 @@ export class NftClient extends ModuleClient {
     nft: Nft,
     input: Omit<UpdateNftInput, 'nft'>
   ): Promise<{ nft: Nft } & UpdateNftOutput> {
-    const operation = new UpdateNftOperation({ ...input, nft });
+    const operation = updateNftOperation({ ...input, nft });
     const updateNftOutput = await this.metaplex.execute(operation);
     const updatedNft = await this.findNftByMint(nft.mint);
 
     return { ...updateNftOutput, nft: updatedNft };
+  }
+
+  async printNewEdition(
+    originalMint: PublicKey,
+    input: Omit<PrintNewEditionSharedInput, 'originalMint'> & PrintNewEditionViaInput = {}
+  ): Promise<{ nft: Nft } & PrintNewEditionOutput> {
+    const operation = printNewEditionOperation({ originalMint, ...input });
+    const printNewEditionOutput = await this.metaplex.execute(operation);
+    const nft = await this.findNftByMint(printNewEditionOutput.mint.publicKey);
+
+    return { ...printNewEditionOutput, nft };
   }
 }

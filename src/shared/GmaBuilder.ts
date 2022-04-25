@@ -1,8 +1,8 @@
 import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { chunk, zipMap } from '@/utils';
-import { MaybeAccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
 import { Postpone } from './Postpone';
+import { UnparsedMaybeAccount } from '@/shared';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
@@ -44,19 +44,19 @@ export class GmaBuilder {
     return this.getPublicKeys();
   }
 
-  async getFirst(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  async getFirst(n?: number): Promise<UnparsedMaybeAccount[]> {
     const end = this.boundNumber(n ?? 1);
 
     return this.getChunks(this.getPublicKeys().slice(0, end));
   }
 
-  async getLast(n?: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  async getLast(n?: number): Promise<UnparsedMaybeAccount[]> {
     const start = this.boundNumber(n ?? 1);
 
     return this.getChunks(this.getPublicKeys().slice(-start));
   }
 
-  async getBetween(start: number, end: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  async getBetween(start: number, end: number): Promise<UnparsedMaybeAccount[]> {
     start = this.boundNumber(start);
     end = this.boundNumber(end);
     [start, end] = start > end ? [end, start] : [start, end];
@@ -64,27 +64,23 @@ export class GmaBuilder {
     return this.getChunks(this.getPublicKeys().slice(start, end));
   }
 
-  async getPage(page: number, perPage: number): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  async getPage(page: number, perPage: number): Promise<UnparsedMaybeAccount[]> {
     return this.getBetween((page - 1) * perPage, page * perPage);
   }
 
-  async get(): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  async get(): Promise<UnparsedMaybeAccount[]> {
     return this.getChunks(this.getPublicKeys());
   }
 
-  lazy(): Postpone<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  lazy(): Postpone<UnparsedMaybeAccount[]> {
     return Postpone.make(async () => this.get());
   }
 
-  async getAndMap<T>(
-    callback: (account: MaybeAccountInfoWithPublicKey<Buffer>) => T
-  ): Promise<T[]> {
+  async getAndMap<T>(callback: (account: UnparsedMaybeAccount) => T): Promise<T[]> {
     return this.lazy().map(callback).run();
   }
 
-  protected async getChunks(
-    publicKeys: PublicKey[]
-  ): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  protected async getChunks(publicKeys: PublicKey[]): Promise<UnparsedMaybeAccount[]> {
     const chunks = chunk(publicKeys, this.chunkSize);
     const chunkPromises = chunks.map((chunk) => this.getChunk(chunk));
     const resolvedChunks = await Promise.allSettled(chunkPromises);
@@ -92,9 +88,7 @@ export class GmaBuilder {
     return resolvedChunks.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
   }
 
-  protected async getChunk(
-    publicKeys: PublicKey[]
-  ): Promise<MaybeAccountInfoWithPublicKey<Buffer>[]> {
+  protected async getChunk(publicKeys: PublicKey[]): Promise<UnparsedMaybeAccount[]> {
     try {
       // TODO: Use lower level RPC call to add dataSlice support.
       const accounts = (await this.connection.getMultipleAccountsInfo(
@@ -103,13 +97,13 @@ export class GmaBuilder {
 
       return zipMap(publicKeys, accounts, (publicKey, account) => {
         return !account
-          ? { pubkey: publicKey, exists: false }
-          : { pubkey: publicKey, exists: true, ...account };
+          ? { publicKey: publicKey, exists: false }
+          : { publicKey: publicKey, exists: true, ...account };
       });
     } catch (error) {
       // TODO: Throw error instead?
       return publicKeys.map((publicKey) => ({
-        pubkey: publicKey,
+        publicKey: publicKey,
         exists: false,
       }));
     }

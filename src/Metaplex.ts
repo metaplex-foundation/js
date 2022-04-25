@@ -1,32 +1,24 @@
-import { Buffer } from 'buffer';
+import { Connection } from '@solana/web3.js';
 import {
-  AccountInfo,
-  Commitment,
-  ConfirmOptions,
-  Connection,
-  PublicKey,
-  RpcResponseAndContext,
-  SendOptions,
-  SignatureResult,
-  Transaction,
-  TransactionSignature,
-  SendTransactionError,
-  TransactionError,
-} from '@solana/web3.js';
-import { IdentityDriver, GuestIdentityDriver, StorageDriver, BundlrStorageDriver } from '@/drivers';
+  IdentityDriver,
+  GuestIdentityDriver,
+  StorageDriver,
+  BundlrStorageDriver,
+  RpcDriver,
+  Web3RpcDriver,
+} from '@/drivers';
 import {
-  InputOfOperation,
-  Operation,
   OperationConstructor,
-  OperationHandler,
-  OperationHandlerConstructor,
+  Operation,
+  KeyOfOperation,
+  InputOfOperation,
   OutputOfOperation,
-  TransactionBuilder,
-  Signer,
-  getSignerHistogram,
+  OperationHandler,
 } from '@/shared';
 import { candyMachinePlugin, nftPlugin } from '@/modules';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { Task, TaskOptions, useTask } from './shared/useTask';
+import { OperationHandlerMissingError } from '@/errors';
 
 export type MetaplexOptions = {
   // ...
@@ -45,14 +37,18 @@ export class Metaplex {
   /** Encapsulates where assets should be uploaded. */
   protected storageDriver: StorageDriver;
 
+  /** Encapsulates how to read and write on-chain. */
+  protected rpcDriver: RpcDriver;
+
   /** The registered handlers for read/write operations. */
-  protected operationHandlers: Map<any, any> = new Map();
+  protected operationHandlers: Map<string, OperationHandler<any, any, any, any>> = new Map();
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.options = options;
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
+    this.rpcDriver = new Web3RpcDriver(this);
     this.registerDefaultPlugins();
   }
 
@@ -90,112 +86,66 @@ export class Metaplex {
     return this;
   }
 
-  async sendTransaction(
-    transaction: Transaction | TransactionBuilder,
-    signers: Signer[] = [],
-    sendOptions: SendOptions = {}
-  ): Promise<TransactionSignature> {
-    if (transaction instanceof TransactionBuilder) {
-      signers = [...transaction.getSigners(), ...signers];
-      transaction = transaction.toTransaction();
-    }
-
-    const { keypairs, identities } = getSignerHistogram(signers);
-
-    for (let i = 0; i < identities.length; i++) {
-      if (!identities[i].is(this.identity())) {
-        await identities[i].signTransaction(transaction);
-      }
-    }
-
-    return this.identity().sendTransaction(transaction, keypairs, sendOptions);
+  rpc() {
+    return this.rpcDriver;
   }
 
-  async confirmTransaction(
-    signature: TransactionSignature,
-    commitment?: Commitment
-  ): Promise<RpcResponseAndContext<SignatureResult>> {
-    const rpcResponse: RpcResponseAndContext<SignatureResult> =
-      await this.connection.confirmTransaction(signature, commitment);
-    let transaction_error: TransactionError | null = rpcResponse.value.err;
-    if (transaction_error) {
-      // TODO: Custom errors.
-      throw new SendTransactionError(
-        `Transaction ${signature} failed (${JSON.stringify(transaction_error)})`,
-        [transaction_error.toString()]
-      );
-    }
-
-    return rpcResponse;
-  }
-
-  async sendAndConfirmTransaction(
-    transaction: Transaction | TransactionBuilder,
-    signers?: Signer[],
-    confirmOptions?: ConfirmOptions
-  ): Promise<TransactionSignature> {
-    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
-    await this.confirmTransaction(signature, confirmOptions?.commitment);
-
-    return signature;
-  }
-
-  async rawSendAndConfirmTransaction(
-    transaction: Transaction | TransactionBuilder,
-    signers?: Signer[],
-    confirmOptions?: ConfirmOptions
-  ): Promise<{
-    signature: TransactionSignature;
-    confirmed: RpcResponseAndContext<SignatureResult>;
-  }> {
-    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
-    const confirmed = await this.connection.confirmTransaction(
-      signature,
-      confirmOptions?.commitment
-    );
-
-    return { signature, confirmed };
-  }
-
-  async getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
-    return this.connection.getAccountInfo(publicKey, commitment);
-  }
-
-  async getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
-    const accounts = await this.connection.getMultipleAccountsInfo(publicKeys, commitment);
-
-    return accounts as Array<AccountInfo<Buffer> | null>;
-  }
-
-  register<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: OperationConstructor<I, O>,
-    operationHandler: OperationHandlerConstructor<T, I, O>
-  ) {
-    this.operationHandlers.set(operation, operationHandler);
+  setRpc(rpc: RpcDriver) {
+    this.rpcDriver = rpc;
 
     return this;
   }
 
-  getOperationHandler<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T
-  ): OperationHandler<T, I, O> {
-    const operationHandler = this.operationHandlers.get(operation.constructor) as
-      | OperationHandlerConstructor<T, I, O>
+  register<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(
+    operationConstructor: OperationConstructor<T, K, I, O>,
+    operationHandler: OperationHandler<T, K, I, O>
+  ) {
+    this.operationHandlers.set(operationConstructor.key, operationHandler);
+
+    return this;
+  }
+
+  getOperationHandler<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T): OperationHandler<T, K, I, O> {
+    const operationHandler = this.operationHandlers.get(operation.key) as
+      | OperationHandler<T, K, I, O>
       | undefined;
 
     if (!operationHandler) {
-      // TODO: Custom errors.
-      throw new Error(`No operation handler registered for ${operation.constructor.name}`);
+      throw new OperationHandlerMissingError(operation.key);
     }
 
-    return new operationHandler(this);
+    return operationHandler;
   }
 
-  async execute<T extends Operation<I, O>, I = InputOfOperation<T>, O = OutputOfOperation<T>>(
-    operation: T
-  ): Promise<O> {
-    const handler = this.getOperationHandler<T, I, O>(operation);
+  getTask<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T): Task<O> {
+    const operationHandler = this.getOperationHandler<T, K, I, O>(operation);
 
-    return handler.handle(operation);
+    return useTask((scope) => {
+      return operationHandler.handle(operation, this, scope);
+    });
+  }
+
+  execute<
+    T extends Operation<K, I, O>,
+    K extends string = KeyOfOperation<T>,
+    I = InputOfOperation<T>,
+    O = OutputOfOperation<T>
+  >(operation: T, options: TaskOptions = {}): Promise<O> {
+    return this.getTask<T, K, I, O>(operation).run(options);
   }
 }

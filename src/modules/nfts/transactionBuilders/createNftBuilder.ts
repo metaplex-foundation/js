@@ -36,7 +36,6 @@ export interface CreateNftBuilderParams {
   mintToInstructionKey?: string;
   createMetadataInstructionKey?: string;
   createMasterEditionInstructionKey?: string;
-  disableMintingInstructionKey?: string;
 }
 
 export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBuilder => {

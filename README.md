@@ -49,7 +49,7 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/162458287-86e25269-0fce-4fa3-9df1-dc796ba8b9e1.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/164747006-35914b02-bbc3-4c14-98c2-eccf062468cc.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -64,6 +64,7 @@ The NFT module can be accessed via `Metaplex.nfts()` and provide the following m
 - [`uploadMetadata(metadata)`](#uploadMetadata)
 - [`createNft(onChainData)`](#createNft)
 - [`updateNft(nft, onChainData)`](#updateNft)
+- [`printNewEdition(originalMint, params)`](#printNewEdition)
 
 And the following model, either returned or used by the above methods.
 
@@ -85,11 +86,11 @@ The returned `Nft` object will have its JSON metadata already loaded so you can,
 const imageUrl = nft.metadata.image;
 ```
 
-Similarly, the `MasterEdition` account of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
+Similarly, the `OriginalEdition` account (a.k.a the Master Edition) of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
 
 ```ts
-const supply = nft.masterEdition.supply;
-const maxSupply = nft.masterEdition.maxSupply;
+const supply = nft.originalEdition.supply;
+const maxSupply = nft.originalEdition.maxSupply;
 ```
 
 You can [read more about the `NFT` model below](#the-nft-model).
@@ -104,24 +105,32 @@ Note that this is much more efficient than calling `findNftByMint` for each mint
 const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
 ```
 
-NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `MasterEdition` account which might be irrelevant until the user clicks on the NFT.
+NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `Edition` account which might be irrelevant until the user clicks on the NFT.
 
-Thus, if you want to load the JSON metadata and/or the `MasterEdition` account of an NFT, you may do this like so.
+Thus, if you want to load the JSON metadata and/or the `Edition` account of an NFT, you may do this like so.
 
 ```ts
-await nft.metadataLoader.load();
-await nft.masterEditionLoader.load();
+await nft.metadataTask.run();
+await nft.EditionTask.run();
 ```
 
-This will give you access to the `metadata` and `masterEdition` properties of the NFT.
+This will give you access to the `metadata`, `originalEdition` and `printEdition` properties of the NFT. The last two depend on whether the NFT is an original edition or a print edition.
 
 ```ts
 const imageUrl = nft.metadata.image;
-const supply = nft.masterEdition.supply;
-const maxSupply = nft.masterEdition.maxSupply;
+
+if (nft.isOriginal()) {
+    const currentSupply = nft.originalEdition.supply;
+    const maxSupply = nft.originalEdition.maxSupply;
+}
+
+if (nft.isPrint()) {
+  const parentEdition = nft.printEdition.parent;
+  const editionNumber = nft.printEdition.edition;
+}
 ```
 
-We'll talk more about these loaders when documenting [the `NFT` model](#the-nft-model).
+We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-model).
 
 ### findNftsByOwner
 
@@ -131,7 +140,7 @@ The `findNftsByOwner` method accepts a public key and returns all `Nft`s owned b
 const myNfts = await metaplex.nfts().findNftsByOwner(metaplex.identity().publicKey);
 ```
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### findNftsByCreator
 
@@ -143,7 +152,7 @@ const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 1); // Eq
 const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 2); // Now matching the second creator field.
 ```
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### findNftsByCandyMachine
 
@@ -159,7 +168,7 @@ const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey,
 
 Note that the current implementation of this method delegates to `findNftsByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their `MasterEdition` loaded.
+Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### uploadMetadata
 
@@ -217,7 +226,7 @@ const { nft } = await metaplex.nfts().createNft({
 });
 ```
 
-This will take care of creating the mint account, the associated token account, the metadata PDA and the master edition PDA for you.
+This will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you.
 
 Additionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
 - It will fetch the JSON metadata from the provided URI and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
@@ -256,6 +265,31 @@ const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
 });
 ```
 
+### printNewEdition
+
+The `printNewEdition` method requires the mint address of the original NFT and returns a brand-new NFT printed from the original edition.
+
+For instance, this is how you would print a new edition of the `originalNft` NFT.
+
+```ts
+const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalNft.mint);
+```
+
+By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
+
+```ts
+const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalMint, {
+  newMint,                   // Defaults to a brand-new Keypair.
+  newMintAuthority,          // Defaults to the current identity.
+  newUpdateAuthority,        // Defaults to the current identity.
+  newOwner,                  // Defaults to the current identity.
+  newFreezeAuthority,        // Defaults to undefined.
+  payer,                     // Defaults to the current identity.
+  originalTokenAccountOwner, // Defaults to the current identity.
+  originalTokenAccount,      // Defaults to the ATA of the current identity.
+});
+```
+
 ### The `Nft` model
 
 All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
@@ -280,10 +314,14 @@ uses: Uses | null;
 
 // Sometimes loaded.
 metadata: JsonMetadata | null;
-masterEditionAccount: MasterEditionAccount | null;
-masterEdition: {
-    supply?: bignumber;
-    maxSupply?: bignumber;
+editionAccount: OriginalOrPrintEditionAccount | null;
+originalEdition: null | {
+    supply: number | BN;
+    maxSupply: number | BN;
+};
+printEdition: null | {
+  parent: PublicKey;
+  edition: number | BN;
 };
 ```
 
@@ -291,44 +329,47 @@ As you can see, some of the properties — such as `metadata` — are loaded on 
 - If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
 - If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
 
-In order to load these properties, you may use the `metadataLoader` and `masterEditionLoader` properties of the `Nft` object.
+In order to load these properties, you may run the `metadataTask` and `editionTask` properties of the `Nft` object.
 
 ```ts
-await nft.metadataLoader.load();
-await nft.masterEditionLoader.load();
+await nft.metadataTask.run();
+await nft.editionTask.run();
 ```
 
-After these two promises resolve, you should have access to the `metadata`, `masterEditionAccount` and `masterEdition` properties. Note that if a loader fails to load the data, an error will be thrown. You may change that behaviour by providing the `failSilently` option to the `load` method.
+After these two promises resolve, you should have access to the `metadata`, `editionAccount`, `originalEdition` and `printEdition` properties. Note that if a task fails to load the data, an error will be thrown.
+
+Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
 ```ts
-await nft.metadataLoader.load({ failSilently: true });
+export type Task<T> = {
+    getStatus: () => TaskStatus;
+    getResult: () => T | undefined;
+    getError: () => unknown;
+    isPending: () => boolean;
+    isRunning: () => boolean;
+    isCompleted: () => boolean;
+    isSuccessful: () => boolean;
+    isFailed: () => boolean;
+    isCanceled: () => boolean;
+    run: (options?: TaskOptions) => Promise<T>;
+    loadWith: (preloadedResult: T) => Task<T>;
+    reset: () => Task<T>;
+    onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
+    onStatusChangeTo: (status: TaskStatus, callback: () => unknown) => Task<T>;
+    onSuccess: (callback: () => unknown) => Task<T>;
+    onFailure: (callback: () => unknown) => Task<T>;
+    onCancel: (callback: () => unknown) => Task<T>;
+};
+
+export type TaskOptions = {
+  signal?: AbortSignal;
+  force?: boolean;
+};
 ```
 
-Also, note that both `metadataLoader` and `masterEditionLoader` are instances of the `Loader` class which contains a bunch of helper methods. Here's an overview of the methods available in the `Loader` class:
+As you can see, you get a bunch of methods to check the status of a task, to listen to its changes, to run it and to reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
 
-```ts
-class Loader<T> {
-    public getStatus(): LoaderStatus;
-    public getResult(): T | undefined;
-    public getError(): unknown;
-    public isPending(): boolean;
-    public isLoading(): boolean;
-    public isLoaded(): boolean;
-    public wasSuccessful(): boolean;
-    public wasFailed(): boolean;
-    public wasCanceled(): boolean;
-
-    public load(options?: LoaderOptions): Promise<T | undefined>;
-    public reload(options?: LoaderOptions): Promise<T | undefined>;
-    public reset(): this;
-    public loadWith(preloadedResult: T): this;
-    public setAbortSignal(abortSignal: AbortSignal): this;
-}
-```
-
-As you can see, you get a bunch of methods to check the status of the loader and to load, reload and reset the data. You also get a `loadWith` method which allows you to bypass the loader and load the provided data directly — this can be useful when loading NFTs in batch.
-
-Finally, you may provide an `AbortSignal` using the `setAbortSignal` method to cancel the loader if you need to. This needs to be supported by the concrete implementation of the loader as they will have to consistently check that the loader was not cancelled and return early if it was.
+Finally, you may provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
@@ -342,7 +383,6 @@ class IdentityDriver {
     verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
     signTransaction(transaction: Transaction): Promise<Transaction>;
     signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
-    sendTransaction(transaction: Transaction, signers: Signer[], options?: SendOptions): Promise<TransactionSignature>;
     is(that: IdentityDriver): boolean;
 }
 ```

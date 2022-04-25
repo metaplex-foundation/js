@@ -1,13 +1,18 @@
-import { PublicKey, SendOptions, Signer, Transaction, TransactionSignature } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
+  SendTransactionOptions,
   WalletAdapter as BaseWalletAdapter,
 } from '@solana/wallet-adapter-base';
 import { IdentityDriver } from './IdentityDriver';
 import { GuestIdentityDriver } from './GuestIdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import {
+  OperationNotSupportedByWalletAdapterError,
+  UninitializedWalletAdapterError,
+} from '@/errors';
 
 type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
@@ -39,8 +44,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   get publicKey(): PublicKey {
     if (!this.walletAdapter.publicKey) {
-      // TODO: Custom errors.
-      throw new Error('Wallet adapter not initialized');
+      throw new UninitializedWalletAdapterError();
     }
 
     return this.walletAdapter.publicKey;
@@ -48,8 +52,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signMessage(message: Uint8Array): Promise<Uint8Array> {
     if (this.walletAdapter.signMessage === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing messages.');
+      throw new OperationNotSupportedByWalletAdapterError('signMessage');
     }
 
     return this.walletAdapter.signMessage(message);
@@ -57,8 +60,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (this.walletAdapter.signTransaction === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing transactions.');
+      throw new OperationNotSupportedByWalletAdapterError('signTransaction');
     }
 
     return this.walletAdapter.signTransaction(transaction);
@@ -66,8 +68,7 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
     if (this.walletAdapter.signAllTransactions === undefined) {
-      // TODO: Custom errors.
-      throw new Error('The provided wallet adapter does not support signing transactions.');
+      throw new OperationNotSupportedByWalletAdapterError('signAllTransactions');
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
@@ -75,12 +76,13 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
   public async sendTransaction(
     transaction: Transaction,
-    signers: Signer[],
-    options?: SendOptions
+    _connection?: Connection,
+    options?: SendTransactionOptions
   ): Promise<TransactionSignature> {
-    return this.walletAdapter.sendTransaction(transaction, this.metaplex.connection, {
-      signers,
-      ...options,
-    });
+    const { signers, ...sendOptions } = options || {};
+
+    // We accept a connection to match the wallet signature, but it is not used.
+    // We use the RpcDriver to send the transaction to keep the single point of failure.
+    return this.metaplex.rpc().sendTransaction(transaction, signers, sendOptions);
   }
 }
