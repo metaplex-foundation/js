@@ -109,7 +109,7 @@ test('candyMachine: init with minimal config', async (t) => {
     config,
     opts
   );
-  amman.addr.addLabel('initCandyMachine', transactionId);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, { ...rest, ...config, tokenMint: null });
