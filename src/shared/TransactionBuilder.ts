@@ -85,7 +85,7 @@ export class TransactionBuilder {
   }
 
   getSigners(): Signer[] {
-    const feePayer = this.feePayer ? [this.feePayer] : [];
+    const feePayer = this.feePayer == null ? [] : [this.feePayer];
     const signers = this.records.flatMap((record) => record.signers);
 
     return [...feePayer, ...signers];

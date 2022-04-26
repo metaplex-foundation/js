@@ -14,7 +14,7 @@ test('it can fetch an NFT by its mint address', async (t: Test) => {
   const fetchedNft = await mx.nfts().findNftByMint(mint.publicKey);
 
   // Then we get the right NFT.
-  t.true(fetchedNft.is(nft));
+  t.true(fetchedNft.equals(nft));
 });
 
 test('it can fetch an NFT with an invalid URI', async (t: Test) => {
@@ -28,7 +28,7 @@ test('it can fetch an NFT with an invalid URI', async (t: Test) => {
   const fetchedNft = await mx.nfts().findNftByMint(nft.mint);
 
   // Then we get the right NFT.
-  t.true(fetchedNft.is(nft));
+  t.true(fetchedNft.equals(nft));
 
   // And its metadata is empty.
   t.same(fetchedNft.metadata, {});

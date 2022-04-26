@@ -83,7 +83,7 @@ export class Nft extends Model {
     return this.editionAccount.data;
   }
 
-  public is(other: Nft | PublicKey): boolean {
+  public equals(other: Nft | PublicKey): boolean {
     const mint = other instanceof Nft ? other.mint : other;
 
     return this.mint.equals(mint);
