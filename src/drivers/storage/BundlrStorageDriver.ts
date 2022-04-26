@@ -10,6 +10,7 @@ import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetad
 import { SolAmount } from '@/shared';
 import {
   AssetUploadFailedError,
+  BundlrWithdrawError,
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
   NotYetImplementedError,
@@ -148,7 +149,7 @@ export class BundlrStorageDriver extends StorageDriver {
     try {
       await bundlr.withdrawBalance(balance);
     } catch (err) {
-      throw new NotYetImplementedError();
+      throw new BundlrWithdrawError();
     }
   }
 
