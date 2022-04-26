@@ -1,26 +1,26 @@
-import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
-import { Buffer } from 'buffer';
-import { chunk, zipMap } from '@/utils';
+import { PublicKey } from '@solana/web3.js';
+import { chunk } from '@/utils';
 import { Postpone } from './Postpone';
 import { UnparsedMaybeAccount } from '@/shared';
+import { Metaplex } from '@/Metaplex';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
 }
 
 export class GmaBuilder {
-  protected readonly connection: Connection;
+  protected readonly metaplex: Metaplex;
   protected readonly publicKeys: PublicKey[];
   protected chunkSize: number;
 
-  constructor(connection: Connection, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
-    this.connection = connection;
+  constructor(metaplex: Metaplex, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+    this.metaplex = metaplex;
     this.chunkSize = options.chunkSize ?? 100;
     this.publicKeys = publicKeys;
   }
 
-  static make(connection: Connection, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
-    return new GmaBuilder(connection, publicKeys, options);
+  static make(metaplex: Metaplex, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+    return new GmaBuilder(metaplex, publicKeys, options);
   }
 
   chunkBy(n: number) {
@@ -91,15 +91,7 @@ export class GmaBuilder {
   protected async getChunk(publicKeys: PublicKey[]): Promise<UnparsedMaybeAccount[]> {
     try {
       // TODO: Use lower level RPC call to add dataSlice support.
-      const accounts = (await this.connection.getMultipleAccountsInfo(
-        publicKeys
-      )) as (AccountInfo<Buffer> | null)[];
-
-      return zipMap(publicKeys, accounts, (publicKey, account) => {
-        return !account
-          ? { publicKey: publicKey, exists: false }
-          : { publicKey: publicKey, exists: true, ...account };
-      });
+      return await this.metaplex.rpc().getMultipleAccounts(publicKeys);
     } catch (error) {
       // TODO: Throw error instead?
       return publicKeys.map((publicKey) => ({

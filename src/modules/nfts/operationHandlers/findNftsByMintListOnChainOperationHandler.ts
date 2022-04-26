@@ -13,7 +13,7 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
     ): Promise<(Nft | null)[]> => {
       const mints = operation.input;
       const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
-      const metadataInfos = await GmaBuilder.make(metaplex.connection, metadataPdas).get();
+      const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas).get();
 
       return zipMap(metadataPdas, metadataInfos, (metadataPda, metadataInfo) => {
         if (!metadataInfo || !metadataInfo.exists) return null;

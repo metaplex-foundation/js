@@ -1,19 +1,19 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Connection } from '@solana/web3.js';
 import { TokenProgramGpaBuilder } from './gpaBuilders';
+import { Metaplex } from '@/Metaplex';
 
 export const TokenProgram = {
   publicKey: TOKEN_PROGRAM_ID,
 
-  accounts(connection: Connection) {
-    return new TokenProgramGpaBuilder(connection, this.publicKey);
+  accounts(metaplex: Metaplex) {
+    return new TokenProgramGpaBuilder(metaplex, this.publicKey);
   },
 
-  mintAccounts(connection: Connection) {
-    return this.accounts(connection).mintAccounts();
+  mintAccounts(metaplex: Metaplex) {
+    return this.accounts(metaplex).mintAccounts();
   },
 
-  tokenAccounts(connection: Connection) {
-    return this.accounts(connection).tokenAccounts();
+  tokenAccounts(metaplex: Metaplex) {
+    return this.accounts(metaplex).tokenAccounts();
   },
 };
