@@ -2,14 +2,20 @@ import test from 'tape';
 import {
   amman,
   assertConfirmedWithoutError,
-  assertThrowsAsync,
+  assertThrows,
   hash32Bit,
   killStuckProcess,
   metaplex,
   SKIP_PREFLIGHT,
   spokSameBignum,
+  spokSamePubkey,
 } from '../../helpers';
-import { CandyMachine, cusper, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  CandyMachine,
+  cusper,
+  EndSettingType,
+  GatekeeperConfig,
+} from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import { Signer } from '../../../src/shared';
@@ -223,9 +229,9 @@ test('candyMachine: init with invalid hidden settings (hash too short)', async (
     },
   };
 
-  await assertThrowsAsync(
+  await assertThrows(
     t,
-    cm.initCandyMachineFromConfig(config, opts),
+    () => cm.initCandyMachineFromConfig(config, opts),
     /len.+10.+should match len.+32/i
   );
 });
@@ -255,4 +261,50 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
     candyMachine,
     tokenMint: null,
   });
+});
+
+// -----------------
+// Gatekeeper Settings
+// -----------------
+test('candyMachine: with gatekeeper settings', async (t) => {
+  const [gateKeeper] = amman.genKeypair();
+
+  const { cm, minimalConfig, opts } = await init();
+
+  const config: CandyMachineConfigWithoutStorage = {
+    ...minimalConfig,
+    gatekeeper: { expireOnUse: true, gatekeeperNetwork: gateKeeper.toBase58() },
+  };
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
+  });
+  spok(t, candyMachine.data.gatekeeper as GatekeeperConfig, {
+    $topic: 'gatekeeper',
+    expireOnUse: config.gatekeeper?.expireOnUse,
+    gatekeeperNetwork: spokSamePubkey(config.gatekeeper?.gatekeeperNetwork),
+  });
+});
+
+test('candyMachine: with invalid gatekeeper settings (network not a public key)', async (t) => {
+  const { cm, minimalConfig, opts } = await init();
+
+  const config: CandyMachineConfigWithoutStorage = {
+    ...minimalConfig,
+    gatekeeper: { expireOnUse: true, gatekeeperNetwork: '<invalid>' },
+  };
+
+  await assertThrows(
+    t,
+    () => cm.initCandyMachineFromConfig(config, opts),
+    /not a valid PublicKey/i
+  );
 });

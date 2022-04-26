@@ -1,5 +1,5 @@
 import { GatekeeperConfig } from '@metaplex-foundation/mpl-candy-machine';
-import { tryConvertToPublickKey } from '../../../../shared';
+import { PublicKeyString, tryConvertToPublickKey } from '../../../../shared';
 
 /**
  * Configures {@link CandyMachineConfig.gatekeeper} settings.
@@ -8,7 +8,7 @@ import { tryConvertToPublickKey } from '../../../../shared';
  * @property expireOnUse - Requires a new gateway challenge after a use
  */
 export type GatekeeperSettingsConfig = {
-  gatekeeperNetwork: string;
+  gatekeeperNetwork: PublicKeyString;
   expireOnUse: boolean;
 };
 
