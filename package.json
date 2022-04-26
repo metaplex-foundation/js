@@ -31,7 +31,7 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "homepage": "https://metaplex.com",
   "repository": {
-    "url": "https://github.com/metaplex/js-next.git"
+    "url": "https://github.com/metaplex-foundation/js-next.git"
   },
   "scripts": {
     "check:publish-ready": "yarn build && yarn test",
