@@ -9,7 +9,7 @@ export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNfts
     handle: async (operation: FindNftsByCreatorOperation, metaplex: Metaplex): Promise<Nft[]> => {
       const { creator, position = 1 } = operation.input;
 
-      const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex.connection)
+      const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
         .selectMint()
         .whereCreator(position, creator)
         .getDataAsPublicKeys();

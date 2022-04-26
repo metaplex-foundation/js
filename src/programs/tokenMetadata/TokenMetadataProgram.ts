@@ -1,15 +1,15 @@
-import { Connection } from '@solana/web3.js';
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenMetadataGpaBuilder } from './gpaBuilders';
+import { Metaplex } from '@/Metaplex';
 
 export const TokenMetadataProgram = {
   publicKey: PROGRAM_ID,
 
-  accounts(connection: Connection) {
-    return new TokenMetadataGpaBuilder(connection, this.publicKey);
+  accounts(metaplex: Metaplex) {
+    return new TokenMetadataGpaBuilder(metaplex, this.publicKey);
   },
 
-  metadataV1Accounts(connection: Connection) {
-    return this.accounts(connection).metadataV1Accounts();
+  metadataV1Accounts(metaplex: Metaplex) {
+    return this.accounts(metaplex).metadataV1Accounts();
   },
 };

@@ -8,7 +8,7 @@ export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsBy
   handle: async (operation: FindNftsByOwnerOperation, metaplex: Metaplex): Promise<Nft[]> => {
     const owner = operation.input;
 
-    const mints = await TokenProgram.tokenAccounts(metaplex.connection)
+    const mints = await TokenProgram.tokenAccounts(metaplex)
       .selectMint()
       .whereOwner(owner)
       .whereAmount(1)

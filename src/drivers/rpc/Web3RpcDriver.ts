@@ -3,12 +3,19 @@ import {
   Blockhash,
   Commitment,
   ConfirmOptions,
+  GetProgramAccountsConfig,
   PublicKey,
   SendOptions,
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import { getSignerHistogram, Signer, TransactionBuilder, UnparsedMaybeAccount } from '@/shared';
+import {
+  getSignerHistogram,
+  Signer,
+  TransactionBuilder,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/shared';
 import {
   RpcDriver,
   ConfirmTransactionResponse,
@@ -104,6 +111,21 @@ export class Web3RpcDriver extends RpcDriver {
     return zipMap(publicKeys, accountInfos, (publicKey, accountInfo) => {
       return this.getUnparsedMaybeAccount(publicKey, accountInfo);
     });
+  }
+
+  async getProgramAccounts(
+    programId: PublicKey,
+    configOrCommitment?: GetProgramAccountsConfig | Commitment
+  ): Promise<UnparsedAccount[]> {
+    const accounts = await this.metaplex.connection.getProgramAccounts(
+      programId,
+      configOrCommitment
+    );
+
+    return accounts.map(({ pubkey, account }) => ({
+      publicKey: pubkey,
+      ...account,
+    }));
   }
 
   protected async getLatestBlockhash(): Promise<Blockhash> {
