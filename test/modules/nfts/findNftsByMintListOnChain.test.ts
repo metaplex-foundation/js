@@ -1,6 +1,8 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplex, createNft } from 'test/helpers';
+import { metaplex, createNft, killStuckProcess } from 'test/helpers';
+
+killStuckProcess();
 
 test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   // Given a metaplex instance and two NFTs on-chain.
