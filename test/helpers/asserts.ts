@@ -33,3 +33,16 @@ export function assertConfirmedWithoutError(
     t.fail(resolveTransactionError(cusper, confirmed.value.err).stack);
   }
 }
+
+export async function assertThrowsAsync<T>(
+  t: Test,
+  promise: Promise<T>,
+  match: RegExp
+): Promise<void> {
+  try {
+    await promise;
+    t.fail(`expected error to throw ${match.toString()}`);
+  } catch {
+    t.pass(`throws ${match.toString()}`);
+  }
+}

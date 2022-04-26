@@ -2,6 +2,8 @@ import test from 'tape';
 import {
   amman,
   assertConfirmedWithoutError,
+  assertThrowsAsync,
+  hash32Bit,
   killStuckProcess,
   metaplex,
   SKIP_PREFLIGHT,
@@ -16,7 +18,7 @@ import {
   creatorsConfigDefault,
 } from '../../../src/modules/candy-machine/models/config';
 import { assertCreators } from '../../helpers/candy-machine';
-import BN from 'bn.js';
+import { assertTransactionSummary } from '@metaplex-foundation/amman';
 
 killStuckProcess();
 
@@ -249,5 +251,87 @@ test('candyMachine: init with end settings - date', async (t) => {
     $topic: 'end settings',
     endSettingType: EndSettingType.Date,
     number: spokSameBignum(new Date(config.endSettings?.value! as string).valueOf()),
+  });
+});
+
+test.only('candyMachine: init with invalid hidden settings (hash too short)', async (t) => {
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const config: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+    hiddenSettings: {
+      hash: 'not 32-bit',
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...config, ...opts, payer });
+
+  const cm = mx.candyMachine();
+
+  await assertThrowsAsync(
+    t,
+    cm.initCandyMachineFromConfig(config, opts),
+    /len.+10.+should match len.+32/i
+  );
+});
+
+test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
+  // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine
+  // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const config: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+    hiddenSettings: {
+      hash: hash32Bit('cache-file..'),
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...config, ...opts, payer });
+
+  const cm = mx.candyMachine();
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
   });
 });
