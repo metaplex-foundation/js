@@ -63,7 +63,6 @@ export class BundlrStorageDriver extends StorageDriver {
   public async uploadAll(files: MetaplexFile[]): Promise<string[] | any> {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
-    // TODO: withdraw any money left in the balance?
 
     return Promise.all(promises).then(() => this.withdraw());
   }
