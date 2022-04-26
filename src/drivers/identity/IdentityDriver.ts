@@ -13,7 +13,7 @@ export abstract class IdentityDriver extends Driver {
     return nacl.sign.detached.verify(message, signature, this.publicKey.toBytes());
   }
 
-  public is(that: Signer | PublicKey): boolean {
+  public equals(that: Signer | PublicKey): boolean {
     if (!(that instanceof PublicKey)) {
       that = that.publicKey;
     }

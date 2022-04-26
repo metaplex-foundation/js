@@ -18,8 +18,8 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
     nfts.map((nft) => nft?.name),
     ['NFT A', 'NFT B']
   );
-  t.true(nfts[0]?.is(nftA));
-  t.true(nfts[1]?.is(nftB));
+  t.true(nfts[0]?.equals(nftA));
+  t.true(nfts[1]?.equals(nftB));
 });
 
 test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
