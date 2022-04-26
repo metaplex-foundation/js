@@ -18,9 +18,35 @@ import {
   creatorsConfigDefault,
 } from '../../../src/modules/candy-machine/models/config';
 import { assertCreators } from '../../helpers/candy-machine';
-import { assertTransactionSummary } from '@metaplex-foundation/amman';
 
 killStuckProcess();
+
+async function init() {
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const minimalConfig: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...minimalConfig, ...opts, payer });
+
+  const cm = mx.candyMachine();
+  return { cm, payer, solTreasuryAccount, minimalConfig, opts };
+}
 
 function assertProperlyInitialized(
   t: test.Test,
@@ -75,30 +101,12 @@ function assertProperlyInitialized(
   });
 }
 
+// -----------------
+// Minimal Config
+// -----------------
 test('candyMachine: init with minimal config', async (t) => {
-  const mx = await metaplex();
-  const payer = mx.identity();
-
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
-
-  const config = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
-  };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
+  const { cm, solTreasuryAccount, minimalConfig, opts } = await init();
+  const config = minimalConfig;
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
     await cm.initCandyMachineFromConfig(config, opts);
@@ -119,8 +127,7 @@ test('candyMachine: init with minimal config', async (t) => {
 });
 
 test('candyMachine: init with config specifying creators', async (t) => {
-  const mx = await metaplex();
-  const payer = mx.identity();
+  const { cm, payer, minimalConfig, opts } = await init();
 
   const [coCreator] = await amman.genLabeledKeypair('coCreator');
   const creators = [
@@ -135,27 +142,7 @@ test('candyMachine: init with config specifying creators', async (t) => {
       share: 50,
     },
   ];
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
-
-  const config = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
-    creators,
-  };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
+  const config = { ...minimalConfig, creators };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
     await cm.initCandyMachineFromConfig(config, opts);
@@ -166,31 +153,16 @@ test('candyMachine: init with config specifying creators', async (t) => {
   assertCreators(t, candyMachine.data.creators, config.creators);
 });
 
+// -----------------
+// End Settings
+// -----------------
 test('candyMachine: init with end settings - amount', async (t) => {
-  const mx = await metaplex();
-  const payer = mx.identity();
-
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+  const { cm, minimalConfig, opts } = await init();
 
   const config: CandyMachineConfigWithoutStorage = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
+    ...minimalConfig,
     endSettings: { endSettingType: 'amount', value: 100 },
   };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
     await cm.initCandyMachineFromConfig(config, opts);
@@ -211,30 +183,12 @@ test('candyMachine: init with end settings - amount', async (t) => {
 });
 
 test('candyMachine: init with end settings - date', async (t) => {
-  const mx = await metaplex();
-  const payer = mx.identity();
-
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+  const { cm, minimalConfig, opts } = await init();
 
   const config: CandyMachineConfigWithoutStorage = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
+    ...minimalConfig,
     endSettings: { endSettingType: 'date', value: '25 Jan 2022 00:00:00 GMT' },
   };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
     await cm.initCandyMachineFromConfig(config, opts);
@@ -254,35 +208,20 @@ test('candyMachine: init with end settings - date', async (t) => {
   });
 });
 
-test.only('candyMachine: init with invalid hidden settings (hash too short)', async (t) => {
-  const mx = await metaplex();
-  const payer = mx.identity();
-
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+// -----------------
+// Hidden Settings
+// -----------------
+test('candyMachine: init with invalid hidden settings (hash too short)', async (t) => {
+  const { cm, minimalConfig, opts } = await init();
 
   const config: CandyMachineConfigWithoutStorage = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
+    ...minimalConfig,
     hiddenSettings: {
       hash: 'not 32-bit',
       uri: 'https://example.com',
       name: 'mint-name',
     },
   };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
 
   await assertThrowsAsync(
     t,
@@ -294,34 +233,16 @@ test.only('candyMachine: init with invalid hidden settings (hash too short)', as
 test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
   // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine
   // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
-  const mx = await metaplex();
-  const payer = mx.identity();
-
-  const solTreasuryAccount = Keypair.generate();
-  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+  const { cm, minimalConfig, opts } = await init();
 
   const config: CandyMachineConfigWithoutStorage = {
-    price: 1.0,
-    number: 10,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
+    ...minimalConfig,
     hiddenSettings: {
       hash: hash32Bit('cache-file..'),
       uri: 'https://example.com',
       name: 'mint-name',
     },
   };
-
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
-
-  const cm = mx.candyMachine();
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
     await cm.initCandyMachineFromConfig(config, opts);
