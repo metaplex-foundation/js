@@ -60,12 +60,12 @@ export class BundlrStorageDriver extends StorageDriver {
     return uri;
   }
 
-  public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
+  public async uploadAll(files: MetaplexFile[]): Promise<string[] | any> {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
     // TODO: withdraw any money left in the balance?
 
-    return Promise.all(promises);
+    return Promise.all(promises).then(() => this.withdraw());
   }
 
   public async fundingNeeded(
@@ -140,6 +140,17 @@ export class BundlrStorageDriver extends StorageDriver {
   protected async withdrawAll(): Promise<void> {
     // TODO: Implement when available on Bundlr.
     throw new NotYetImplementedError();
+  }
+
+  public async withdraw(): Promise<void> {
+    const bundlr = await this.getBundlr();
+    const balance = await bundlr.getLoadedBalance();
+
+    try {
+      await bundlr.withdrawBalance(balance);
+    } catch (err) {
+      throw new NotYetImplementedError();
+    }
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
