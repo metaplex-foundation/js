@@ -1,6 +1,7 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { Driver } from '../Driver';
+import { Signer } from '@/shared';
 
 export abstract class IdentityDriver extends Driver {
   public abstract publicKey: PublicKey;
@@ -12,7 +13,11 @@ export abstract class IdentityDriver extends Driver {
     return nacl.sign.detached.verify(message, signature, this.publicKey.toBytes());
   }
 
-  public is(that: IdentityDriver): boolean {
-    return this.publicKey.toBase58() === that.publicKey.toBase58();
+  public is(that: Signer | PublicKey): boolean {
+    if (!(that instanceof PublicKey)) {
+      that = that.publicKey;
+    }
+
+    return this.publicKey.equals(that);
   }
 }

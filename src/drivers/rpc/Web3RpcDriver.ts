@@ -36,7 +36,10 @@ export class Web3RpcDriver extends RpcDriver {
     transaction.feePayer ??= this.getDefaultFeePayer();
     transaction.recentBlockhash ??= await this.getLatestBlockhash();
 
-    signers = [this.metaplex.identity(), ...signers];
+    if (transaction.feePayer && this.metaplex.identity().is(transaction.feePayer)) {
+      signers = [this.metaplex.identity(), ...signers];
+    }
+
     const { keypairs, identities } = getSignerHistogram(signers);
 
     if (keypairs.length > 0) {
