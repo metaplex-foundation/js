@@ -32,7 +32,7 @@ export type WhitelistMintSettingsConfig = {
   mode: WhitelistMode;
   mint: PublicKeyString;
   presale: boolean;
-  discountPrice: BN;
+  discountPrice: number;
 };
 
 export function whiteListMintSettingsFromConfig(
@@ -51,6 +51,7 @@ export function whiteListMintSettingsFromConfig(
       throw new UnreachableCaseError(config.mode);
   }
   const mint = tryConvertToPublickKey(config.mint);
+  const discountPrice = new BN(config.discountPrice);
 
-  return { ...config, mode, mint };
+  return { ...config, mode, mint, discountPrice };
 }

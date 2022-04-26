@@ -15,6 +15,8 @@ import {
   cusper,
   EndSettingType,
   GatekeeperConfig,
+  WhitelistMintMode,
+  WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import spok from 'spok';
@@ -300,6 +302,64 @@ test('candyMachine: with invalid gatekeeper settings (network not a public key)'
   const config: CandyMachineConfigWithoutStorage = {
     ...minimalConfig,
     gatekeeper: { expireOnUse: true, gatekeeperNetwork: '<invalid>' },
+  };
+
+  await assertThrows(
+    t,
+    () => cm.initCandyMachineFromConfig(config, opts),
+    /not a valid PublicKey/i
+  );
+});
+
+// -----------------
+// WhitelistMint Settings
+// -----------------
+test('candyMachine: with whitelistMint settings', async (t) => {
+  const [mint] = amman.genKeypair();
+
+  const { cm, minimalConfig, opts } = await init();
+
+  const config: CandyMachineConfigWithoutStorage = {
+    ...minimalConfig,
+    whitelistMintSettings: {
+      mode: 'burnEveryTime',
+      discountPrice: 5,
+      mint: mint.toBase58(),
+      presale: false,
+    },
+  };
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
+  });
+  spok(t, candyMachine.data.whitelistMintSettings as WhitelistMintSettings, {
+    $topic: 'whitelist mint settings',
+    mode: WhitelistMintMode.BurnEveryTime,
+    discountPrice: spokSameBignum(config.whitelistMintSettings?.discountPrice!),
+    mint: spokSamePubkey(config.whitelistMintSettings?.mint!),
+    presale: config.whitelistMintSettings?.presale,
+  });
+});
+
+test('candyMachine: with invalid whitemint settings (mint not a public key)', async (t) => {
+  const { cm, minimalConfig, opts } = await init();
+
+  const config: CandyMachineConfigWithoutStorage = {
+    ...minimalConfig,
+    whitelistMintSettings: {
+      mode: 'burnEveryTime',
+      discountPrice: 5,
+      mint: '<invalid mint key>',
+      presale: false,
+    },
   };
 
   await assertThrows(
