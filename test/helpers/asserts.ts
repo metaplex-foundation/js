@@ -2,15 +2,19 @@ import { PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.
 import { bignum } from '@metaplex-foundation/beet';
 import { cusper as cusperTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
-import { Specification } from 'spok';
+import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
 import { resolveTransactionError } from './amman';
 
-export function spokSamePubkey(a: PublicKey | null): Specification<PublicKey> {
-  const same = (b: PublicKey | null | undefined) => b != null && !!a?.equals(b);
+export function spokSamePubkey(
+  a: PublicKey | string | null | undefined
+): Specifications<PublicKey> {
+  const keyStr = typeof a === 'string' ? a : a?.toString();
+  const key = typeof a === 'string' ? new PublicKey(a) : a;
+  const same = (b: PublicKey | null | undefined) => b != null && !!key?.equals(b);
 
-  same.$spec = `spokSamePubkey(${a?.toBase58()})`;
-  same.$description = `${a?.toBase58()} equal`;
+  same.$spec = `spokSamePubkey(${keyStr})`;
+  same.$description = `${keyStr} equal`;
   return same;
 }
 
