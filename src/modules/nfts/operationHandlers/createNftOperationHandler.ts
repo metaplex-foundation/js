@@ -26,7 +26,13 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       confirmOptions,
     } = operation.input;
 
-    const metadata: JsonMetadata = await metaplex.storage().downloadJson(uri);
+    let metadata: JsonMetadata;
+    try {
+      metadata = await metaplex.storage().downloadJson(uri);
+    } catch (e) {
+      metadata = {};
+    }
+
     const data = resolveData(operation.input, metadata, updateAuthority.publicKey);
 
     const metadataPda = await MetadataAccount.pda(mint.publicKey);

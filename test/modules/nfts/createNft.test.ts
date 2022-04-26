@@ -271,3 +271,22 @@ test('it can create an NFT for other signer wallets without using the identity',
     updateAuthority: spokSamePubkey(updateAuthority.publicKey),
   } as unknown as Specifications<Nft>);
 });
+
+test('it can create an NFT with an invalid URI', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create an NFT with an invalid URI.
+  const { nft } = await mx.nfts().createNft({
+    name: 'My NFT with an invalid URI',
+    uri: 'https://example.com/some/invalid/uri',
+  });
+
+  // Then the NFT was created successfully.
+  t.equal(nft.name, 'My NFT with an invalid URI');
+  t.equal(nft.uri, 'https://example.com/some/invalid/uri');
+
+  // But its metadata is empty.
+  t.same(nft.metadata, {});
+  t.equals(nft.metadataTask.getStatus(), 'failed');
+});

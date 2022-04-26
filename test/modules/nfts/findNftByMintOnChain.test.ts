@@ -16,3 +16,21 @@ test('it can fetch an NFT by its mint address', async (t: Test) => {
   // Then we get the right NFT.
   t.true(fetchedNft.is(nft));
 });
+
+test('it can fetch an NFT with an invalid URI', async (t: Test) => {
+  // Given an existing NFT with an invalid URI.
+  const mx = await metaplex();
+  const { nft } = await mx.nfts().createNft({
+    uri: 'https://example.com/some/invalid/uri',
+  });
+
+  // When we fetch that NFT using its mint address.
+  const fetchedNft = await mx.nfts().findNftByMint(nft.mint);
+
+  // Then we get the right NFT.
+  t.true(fetchedNft.is(nft));
+
+  // And its metadata is empty.
+  t.same(fetchedNft.metadata, {});
+  t.equals(fetchedNft.metadataTask.getStatus(), 'failed');
+});
