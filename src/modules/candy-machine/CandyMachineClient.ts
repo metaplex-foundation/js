@@ -1,7 +1,7 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, tryConvertToPublickKey } from '../../shared';
 import { CandyMachineModel } from './models/CandyMachine';
-import { CandyMachineConfig, StorageConfig } from './models/config';
+import { CandyMachineConfigWithoutStorage } from './models/config';
 import { InitCandyMachineInput, initCandyMachineOperation } from './operations';
 
 export type CandyMachineInitFromConfigOpts = {
@@ -23,7 +23,7 @@ export class CandyMachineClient extends ModuleClient {
   }
 
   initCandyMachineFromConfig(
-    config: Omit<CandyMachineConfig, keyof StorageConfig>,
+    config: CandyMachineConfigWithoutStorage,
     { authority, candyMachine, confirmOptions }: CandyMachineInitFromConfigOpts = {}
   ) {
     const { solTreasuryAccount } = config;

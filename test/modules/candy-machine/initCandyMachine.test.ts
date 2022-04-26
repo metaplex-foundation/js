@@ -7,12 +7,16 @@ import {
   SKIP_PREFLIGHT,
   spokSameBignum,
 } from '../../helpers';
-import { CandyMachine, cusper } from '@metaplex-foundation/mpl-candy-machine';
+import { CandyMachine, cusper, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import { Signer } from '../../../src/shared';
-import { creatorsConfigDefault } from '../../../src/modules/candy-machine/models/config';
+import {
+  CandyMachineConfigWithoutStorage,
+  creatorsConfigDefault,
+} from '../../../src/modules/candy-machine/models/config';
 import { assertCreators } from '../../helpers/candy-machine';
+import BN from 'bn.js';
 
 killStuckProcess();
 
@@ -158,4 +162,92 @@ test('candyMachine: init with config specifying creators', async (t) => {
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, { ...rest, ...config, candyMachine, tokenMint: null });
   assertCreators(t, candyMachine.data.creators, config.creators);
+});
+
+test('candyMachine: init with end settings - amount', async (t) => {
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const config: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+    endSettings: { endSettingType: 'amount', value: 100 },
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...config, ...opts, payer });
+
+  const cm = mx.candyMachine();
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
+  });
+  spok(t, candyMachine.data.endSettings, {
+    $topic: 'end settings',
+    endSettingType: EndSettingType.Amount,
+    number: spokSameBignum(new Date(config.endSettings?.value! as number).valueOf()),
+  });
+});
+
+test('candyMachine: init with end settings - date', async (t) => {
+  const mx = await metaplex();
+  const payer = mx.identity();
+
+  const solTreasuryAccount = Keypair.generate();
+  await amman.airdrop(mx.connection, solTreasuryAccount.publicKey, 100);
+
+  const config: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number: 10,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasuryAccount.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+    endSettings: { endSettingType: 'date', value: '25 Jan 2022 00:00:00 GMT' },
+  };
+
+  const opts = {
+    candyMachine: Keypair.generate(),
+    confirmOptions: SKIP_PREFLIGHT,
+  };
+  await amman.addr.addLabels({ ...config, ...opts, payer });
+
+  const cm = mx.candyMachine();
+
+  const { transactionId, confirmResponse, candyMachine, ...rest } =
+    await cm.initCandyMachineFromConfig(config, opts);
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+  assertProperlyInitialized(t, {
+    ...rest,
+    ...config,
+    candyMachine,
+    tokenMint: null,
+  });
+  spok(t, candyMachine.data.endSettings, {
+    $topic: 'end settings',
+    endSettingType: EndSettingType.Date,
+    number: spokSameBignum(new Date(config.endSettings?.value! as string).valueOf()),
+  });
 });

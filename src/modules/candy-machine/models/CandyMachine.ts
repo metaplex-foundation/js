@@ -12,6 +12,7 @@ import { tryConvertToPublickKey, tryConvertToMillisecondsSinceEpoch, Model } fro
 import assert from '../../../utils/assert';
 import {
   CandyMachineConfig,
+  CandyMachineConfigWithoutStorage,
   creatorsConfigDefault,
   endSettingsFromConfig,
   gatekeeperFromConfig,
@@ -98,7 +99,7 @@ export class CandyMachineModel extends Model {
     );
   }
 
-  static fromConfig(config: Omit<CandyMachineConfig, keyof StorageConfig>) {
+  static fromConfig(config: CandyMachineConfigWithoutStorage) {
     const configCreators = config.creators ?? creatorsConfigDefault(config.solTreasuryAccount);
     const creators: Creator[] = configCreators.map((creatorConfig) => ({
       ...creatorConfig,

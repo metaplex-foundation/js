@@ -85,3 +85,5 @@ export type CandyMachineConfig = {
   whitelistMintSettings?: WhitelistMintSettingsConfig;
   hiddenSettings?: HiddenSettingsConfig;
 } & StorageConfig;
+
+export type CandyMachineConfigWithoutStorage = Omit<CandyMachineConfig, keyof StorageConfig>;

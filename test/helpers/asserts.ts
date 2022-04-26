@@ -14,8 +14,8 @@ export function spokSamePubkey(a: PublicKey | null): Specification<PublicKey> {
   return same;
 }
 
-export function spokSameBignum(a: BN | bignum): Specification<bignum> {
-  const same = (b?: BN | bignum) => b != null && new BN(a).eq(new BN(b));
+export function spokSameBignum(a: BN | bignum | number): Specification<bignum> {
+  const same = (b?: BN | bignum | number) => b != null && new BN(a).eq(new BN(b));
 
   same.$spec = `spokSameBignum(${a})`;
   same.$description = `${a} equal`;
@@ -33,4 +33,3 @@ export function assertConfirmedWithoutError(
     t.fail(resolveTransactionError(cusper, confirmed.value.err).stack);
   }
 }
-
