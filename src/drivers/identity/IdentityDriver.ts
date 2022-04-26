@@ -1,9 +1,9 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { Driver } from '../Driver';
-import { Signer } from '@/shared';
+import { IdentitySigner, Signer } from '@/shared';
 
-export abstract class IdentityDriver extends Driver {
+export abstract class IdentityDriver extends Driver implements IdentitySigner {
   public abstract publicKey: PublicKey;
   public abstract signMessage(message: Uint8Array): Promise<Uint8Array>;
   public abstract signTransaction(transaction: Transaction): Promise<Transaction>;
