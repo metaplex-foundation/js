@@ -65,7 +65,10 @@ export class BundlrStorageDriver extends StorageDriver {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
 
-    return Promise.all(promises).then(() => this.withdraw());
+    const uris = await Promise.all(promises);
+    await this.withdraw();
+
+    return uris;
   }
 
   public async fundingNeeded(
