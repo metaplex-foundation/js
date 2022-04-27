@@ -61,7 +61,7 @@ export class BundlrStorageDriver extends StorageDriver {
     return uri;
   }
 
-  public async uploadAll(files: MetaplexFile[]): Promise<string[] | any> {
+  public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
 
