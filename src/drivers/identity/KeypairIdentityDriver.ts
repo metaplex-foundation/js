@@ -1,8 +1,9 @@
-import { Keypair, PublicKey, Signer as Web3Signer, Transaction } from '@solana/web3.js';
+import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { KeypairSigner } from '@/shared';
 
 export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -10,7 +11,7 @@ export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   },
 });
 
-export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer {
+export class KeypairIdentityDriver extends IdentityDriver implements KeypairSigner {
   public readonly keypair: Keypair;
   public readonly publicKey: PublicKey;
   public readonly secretKey: Uint8Array;
@@ -27,8 +28,8 @@ export class KeypairIdentityDriver extends IdentityDriver implements Web3Signer 
   }
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
-    transaction.feePayer = this.publicKey;
-    // TODO: Handle Transaction recentBlockhash required.
+    // TODO: Handle Error: Transaction recentBlockhash required.
+
     transaction.partialSign(this.keypair);
 
     return transaction;

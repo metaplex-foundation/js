@@ -1,5 +1,7 @@
 import test, { Test } from 'tape';
-import { metaplex, createNft } from 'test/helpers';
+import { metaplex, createNft, killStuckProcess } from 'test/helpers';
+
+killStuckProcess();
 
 test('it can fetch all NFTs in a wallet', async (t: Test) => {
   // Given a metaplex instance and a connected wallet.
