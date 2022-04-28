@@ -152,7 +152,7 @@ export class BundlrStorageDriver extends StorageDriver {
     try {
       await bundlr.withdrawBalance(balance);
     } catch (err) {
-      throw new BundlrWithdrawError();
+      throw new BundlrWithdrawError(err);
     }
   }
 
