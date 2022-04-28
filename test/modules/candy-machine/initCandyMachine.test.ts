@@ -239,8 +239,9 @@ test('candyMachine: init with invalid hidden settings (hash too short)', async (
 });
 
 test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
-  // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine
+  // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine,
   // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
+  // see: src/modules/candy-machine/models/candyMachineSpace.ts
   const { cm, minimalConfig, opts } = await init();
 
   const config: CandyMachineConfigWithoutStorage = {

@@ -44,6 +44,8 @@ const CONFIG_LINE_SIZE = 4 + MAX_NAME_LENGTH + 4 + MAX_URI_LENGTH;
 // https://github.com/metaplex-foundation/metaplex-program-library/blob/2c426e85393311c6ba62dd9fb1333d15cc35659a/candy-machine/program/src/lib.rs#L856
 export function getSpaceForCandy(data: CandyMachineData) {
   if (data.hiddenSettings != null) {
+    // TODO(thlorenz): this seems to be a bug copied from the Rust program code
+    // the actual size of hidden settings struct is not factored in here
     return CONFIG_ARRAY_START;
   } else {
     const itemsAvailable = new BN(data.itemsAvailable).toNumber();
