@@ -147,10 +147,10 @@ export class BundlrStorageDriver extends StorageDriver {
 
   public async withdraw(): Promise<void> {
     const bundlr = await this.getBundlr();
-    const balance = await bundlr.getLoadedBalance();
+    const balance = await this.getBalance();
 
     try {
-      await bundlr.withdrawBalance(balance);
+      await bundlr.withdrawBalance(balance.getLamports().minus(new BigNumber(5000)));
     } catch (err) {
       throw new BundlrWithdrawError();
     }
