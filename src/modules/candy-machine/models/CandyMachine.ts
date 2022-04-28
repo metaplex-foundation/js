@@ -11,13 +11,11 @@ import BN from 'bn.js';
 import { tryConvertToPublickKey, tryConvertToMillisecondsSinceEpoch, Model } from '../../../shared';
 import assert from '../../../utils/assert';
 import {
-  CandyMachineConfig,
   CandyMachineConfigWithoutStorage,
   creatorsConfigDefault,
   endSettingsFromConfig,
   gatekeeperFromConfig,
   hiddenSettingsFromConfig,
-  StorageConfig,
   whiteListMintSettingsFromConfig,
 } from './config';
 import { Connection, PublicKey } from '@solana/web3.js';
