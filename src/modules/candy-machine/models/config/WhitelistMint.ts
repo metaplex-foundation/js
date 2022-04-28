@@ -1,12 +1,8 @@
-// -----------------
-// Whitelist Mint Settings
-
 import { WhitelistMintMode, WhitelistMintSettings } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { PublicKeyString, tryConvertToPublickKey } from '../../../../shared';
 import { UnreachableCaseError } from '../../../../utils';
 
-// -----------------
 export const BURN_EVERY_TIME = 'burnEveryTime';
 export const NEVER_BURN = 'neverBurn';
 
@@ -22,6 +18,10 @@ export type WhitelistMode = typeof WhitelistModes[number];
 
 /**
  * Whitelist Mint Settings
+
+ * Whitelist settings provide a variety of different use cases and revolve
+ * around the idea of using custom SPL tokens to offer special rights to token
+ * holders - how said SPL token is distributed is up to you. 
  *
  * @property mode - {@link WhitelistMode} (burnEveryTime or neverBurn)
  * @property mint - Mint address of the whitelist token
