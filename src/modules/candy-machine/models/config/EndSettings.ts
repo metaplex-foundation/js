@@ -9,6 +9,9 @@ export type EndSettingMode = typeof EndSettingModes[number];
 /**
  * Configures {@link CandyMachineConfig.endSettings}
  *
+ * End Settings provides a mechanism to stop the mint if a certain condition is
+ * met without interaction.
+ *
  * @property endSettingType - {@link EndSettingMode} (date or amount) which identifies
  * what {@link EndSettingsConfig.value} means
  * @property value - to test the end condition. This will be either a date
