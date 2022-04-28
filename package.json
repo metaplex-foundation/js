@@ -72,7 +72,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@metaplex-foundation/amman": "^0.6.0",
+    "@metaplex-foundation/amman": "^0.6.1",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@types/bn.js": "^5.1.0",
     "@types/debug": "^4.1.7",
