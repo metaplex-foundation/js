@@ -137,8 +137,8 @@ export class CandyMachineModel extends Model {
     return getSpaceForCandy(this.getData(candyMachinePubkey));
   }
 
-  static async getCandyMachine(candyMachineAccount: PublicKey, connection: Connection) {
-    return CandyMachine.fromAccountAddress(connection, candyMachineAccount);
+  static async findCandyMachine(candyMachineAddress: PublicKey, connection: Connection) {
+    return CandyMachineAccount.fromAccountAddress(connection, candyMachineAddress);
   }
 }
 

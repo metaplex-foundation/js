@@ -17,7 +17,7 @@ export class CandyMachineClient extends ModuleClient {
     const { candyMachine: candyMachineSigner, ...rest } = initCandyMachineOutput;
 
     // TODO(thlorenz): gracefully handle if not found
-    const candyMachine = await this.getCandyMachine(candyMachineSigner.publicKey);
+    const candyMachine = await this.findCandyMachine(candyMachineSigner.publicKey);
 
     return { ...rest, candyMachineSigner, candyMachine };
   }
@@ -39,7 +39,7 @@ export class CandyMachineClient extends ModuleClient {
     return this.initCandyMachine(input);
   }
 
-  getCandyMachine(candyMachineAccount: PublicKey) {
-    return CandyMachineModel.getCandyMachine(candyMachineAccount, this.metaplex.connection);
+  findCandyMachine(candyMachineAddress: PublicKey) {
+    return CandyMachine.findCandyMachine(candyMachineAddress, this.metaplex.connection);
   }
 }
