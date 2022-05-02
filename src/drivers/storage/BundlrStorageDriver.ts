@@ -33,6 +33,7 @@ export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;
   protected options: BundlrOptions;
+  protected shouldWithdrawAfterUploading: boolean = true;
 
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
@@ -66,7 +67,10 @@ export class BundlrStorageDriver extends StorageDriver {
     const promises = files.map((file) => this.uploadFile(file));
 
     const uris = await Promise.all(promises);
-    await this.withdraw();
+
+    if (this.shouldWithdrawAfterUploading) {
+      await this.withdraw();
+    }
 
     return uris;
   }
@@ -154,6 +158,14 @@ export class BundlrStorageDriver extends StorageDriver {
     } catch (err) {
       throw new BundlrWithdrawError(err);
     }
+  }
+
+  public withdrawAfterUploading() {
+    this.shouldWithdrawAfterUploading = true;
+  }
+
+  public dontWithdrawAfterUploading() {
+    this.shouldWithdrawAfterUploading = false;
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
