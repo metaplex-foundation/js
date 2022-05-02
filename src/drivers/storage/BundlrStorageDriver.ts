@@ -153,22 +153,25 @@ export class BundlrStorageDriver extends StorageDriver {
     };
 
     const identity = this.metaplex.identity();
-
-    // Try to initiate bundlr.
-    let bundlr: WebBundlr | NodeBundlr;
-    try {
-      bundlr = await (identity instanceof KeypairIdentityDriver
-        ? NodeBundlr.init(address, currency, identity.keypair.secretKey, options)
-        : WebBundlr.init(address, currency, identity, options));
-    } catch (error) {
-      throw new FailedToInitializeBundlrError(error as Error);
-    }
+    const bundlr =
+      identity instanceof KeypairIdentityDriver
+        ? new NodeBundlr(address, currency, identity.keypair.secretKey, options)
+        : new WebBundlr(address, currency, identity, options);
 
     try {
-      // Check the provided Bundlr address is reachable.
+      // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
       throw new FailedToConnectToBundlrAddressError(address, error as Error);
+    }
+
+    if (bundlr instanceof WebBundlr) {
+      try {
+        // Try to initiate bundlr.
+        await bundlr.ready();
+      } catch (error) {
+        throw new FailedToInitializeBundlrError(error as Error);
+      }
     }
 
     this.bundlr = bundlr;
