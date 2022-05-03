@@ -153,10 +153,14 @@ export class BundlrStorageDriver extends StorageDriver {
     const bundlr = await this.getBundlr();
     const balance = await this.getBalance();
 
-    try {
-      await bundlr.withdrawBalance(balance.getLamports().minus(new BigNumber(5000)));
-    } catch (err) {
-      throw new BundlrWithdrawError(err);
+    if (balance.getLamports() > new BigNumber(5000)) {
+      const { status } = await bundlr.withdrawBalance(
+        balance.getLamports().minus(new BigNumber(5000))
+      );
+
+      if (status >= 300) {
+        throw new BundlrWithdrawError(status);
+      }
     }
   }
 

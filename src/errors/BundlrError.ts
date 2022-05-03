@@ -57,7 +57,7 @@ export class AssetUploadFailedError extends BundlrError {
 }
 
 export class BundlrWithdrawError extends BundlrError {
-  constructor(cause?: Error) {
+  constructor(status: number,cause?: Error) {
     super({
       cause,
       key: 'bundlr_withdraw_error',
