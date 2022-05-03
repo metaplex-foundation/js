@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   AccountInfo,
   Blockhash,
@@ -25,9 +26,12 @@ import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
   FailedToSendTransactionError,
+  MetaplexError,
+  ParsedProgramError,
+  UnknownProgramError,
 } from '@/errors';
 import { zipMap } from '@/utils';
-import { Buffer } from 'buffer';
+import { isErrorWithLogs, Program } from '../programs';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -62,8 +66,7 @@ export class Web3RpcDriver extends RpcDriver {
     try {
       return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
     } catch (error) {
-      // TODO: Parse using program knowledge when possible.
-      throw new FailedToSendTransactionError(error as Error);
+      throw this.parseProgramError(error, transaction);
     }
   }
 
@@ -147,5 +150,51 @@ export class Web3RpcDriver extends RpcDriver {
     }
 
     return { publicKey, exists: true, ...accountInfo };
+  }
+
+  protected parseProgramError(error: unknown, transaction: Transaction): MetaplexError {
+    // Ensure the error as logs.
+    if (!isErrorWithLogs(error)) {
+      return new FailedToSendTransactionError(error as Error);
+    }
+
+    // Parse the instruction number.
+    const regex = /^.+Error processing Instruction (\d+):$/;
+    const instruction: string | null = error.message.match(regex)?.[0] ?? null;
+
+    // Ensure there is an instruction number given to find the program.
+    if (!instruction) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Get the program ID from the instruction in the transaction.
+    const instructionNumber: number = parseInt(instruction, 10);
+    const programId: PublicKey | null =
+      transaction.instructions?.[instructionNumber]?.programId ?? null;
+
+    // Ensure we were able to find a program ID for the instruction.
+    if (!programId) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Find a registered program if any.
+    let program: Program;
+    try {
+      program = this.metaplex.programs().get(programId);
+    } catch (_programNotFoundError) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Ensure an error resolver exists on the program.
+    if (!program.errorResolver) {
+      return new UnknownProgramError(program, error);
+    }
+
+    // Finally, resolve the error;
+    const resolvedError = program.errorResolver(error);
+
+    return resolvedError
+      ? new ParsedProgramError(program, resolvedError)
+      : new UnknownProgramError(program, error);
   }
 }
