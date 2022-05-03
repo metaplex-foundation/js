@@ -7,6 +7,6 @@ export type Program = {
   name: string;
   address: PublicKey;
   clusterFilter: (cluster: Cluster) => boolean;
-  errorResolver: <T extends MetaplexError>(error: unknown) => T;
-  gpaResolver: <T extends GpaBuilder>(metaplex: Metaplex) => T;
+  errorResolver: (error: unknown) => MetaplexError;
+  gpaResolver: (metaplex: Metaplex) => GpaBuilder;
 };

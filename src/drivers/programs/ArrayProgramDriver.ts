@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Program } from './Program';
 import { ProgramDriver } from './ProgramDriver';
 
-export class CoreProgramDriver extends ProgramDriver {
+export class ArrayProgramDriver extends ProgramDriver {
   protected programs: Program[] = [];
 
   public register(program: Program): void {

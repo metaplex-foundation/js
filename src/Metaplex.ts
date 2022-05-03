@@ -7,7 +7,7 @@ import {
   RpcDriver,
   Web3RpcDriver,
   ProgramDriver,
-  CoreProgramDriver,
+  ArrayProgramDriver,
 } from '@/drivers';
 import {
   Cluster,
@@ -56,7 +56,7 @@ export class Metaplex {
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
     this.rpcDriver = new Web3RpcDriver(this);
-    this.programDriver = new CoreProgramDriver(this);
+    this.programDriver = new ArrayProgramDriver(this);
     this.registerDefaultPlugins();
   }
 

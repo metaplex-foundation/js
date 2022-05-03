@@ -15,10 +15,10 @@ export abstract class ProgramDriver extends Driver {
     nameOrAddress: string | PublicKey,
     error: unknown
   ): T {
-    return this.get(nameOrAddress).errorResolver(error);
+    return this.get(nameOrAddress).errorResolver(error) as T;
   }
 
   public getGpaBuilder<T extends GpaBuilder>(nameOrAddress: string | PublicKey): T {
-    return this.get(nameOrAddress).gpaResolver<T>(this.metaplex);
+    return this.get(nameOrAddress).gpaResolver(this.metaplex) as T;
   }
 }
