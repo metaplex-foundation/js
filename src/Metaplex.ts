@@ -10,6 +10,8 @@ import {
   CoreProgramDriver,
 } from '@/drivers';
 import {
+  Cluster,
+  resolveClusterFromConnection,
   OperationConstructor,
   Operation,
   KeyOfOperation,
@@ -23,15 +25,15 @@ import { Task, TaskOptions, useTask } from './shared/useTask';
 import { OperationHandlerMissingError } from '@/errors';
 
 export type MetaplexOptions = {
-  // ...
+  cluster?: Cluster;
 };
 
 export class Metaplex {
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection;
 
-  /** Options that dictate how to interact with the Metaplex SDK. */
-  public readonly options: MetaplexOptions;
+  /** The cluster in which the connection endpoint belongs to. */
+  public readonly cluster: Cluster;
 
   /** Encapsulates the identity of the users interacting with the SDK. */
   protected identityDriver: IdentityDriver;
@@ -50,7 +52,7 @@ export class Metaplex {
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
-    this.options = options;
+    this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
     this.rpcDriver = new Web3RpcDriver(this);
