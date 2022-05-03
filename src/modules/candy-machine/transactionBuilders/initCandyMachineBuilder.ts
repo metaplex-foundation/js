@@ -1,4 +1,5 @@
 import {
+  CandyMachineData,
   createInitializeCandyMachineInstruction,
   InitializeCandyMachineInstructionAccounts,
   InitializeCandyMachineInstructionArgs,
@@ -6,33 +7,39 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { createAccountBuilder } from '../../../programs';
+import { getSpaceForCandy } from '../../../programs/candyMachine/accounts/candyMachineSpace';
 import { Signer, TransactionBuilder } from '../../../shared';
 import { logDebug } from '../../../utils';
-import { CandyMachineModel } from '../models/CandyMachine';
 import { InitCandyMachineInput } from '../operations';
 
-export type InitCandyMachineBuilderParams = Required<
-  Omit<InitCandyMachineInput, 'confirmOptions'>
-> & { confirmOptions: InitCandyMachineInput['confirmOptions']; connection: Connection };
+export type InitCandyMachineBuilderParams = Omit<InitCandyMachineInput, 'confirmOptions'> & {
+  confirmOptions: InitCandyMachineInput['confirmOptions'];
+  connection: Connection;
+};
 
 export async function initCandyMachineBuilder(
   params: InitCandyMachineBuilderParams
 ): Promise<TransactionBuilder> {
-  const { candyMachineModel, candyMachine, wallet, payer, authority, connection } = params;
-  const candyMachineData = candyMachineModel.getData(candyMachine.publicKey);
-
+  const {
+    candyMachineData,
+    candyMachineSigner,
+    walletAddress,
+    payerSigner: payer,
+    authorityAddress,
+    connection,
+  } = params;
   const args: InitializeCandyMachineInstructionArgs = { data: candyMachineData };
   const accounts: InitializeCandyMachineInstructionAccounts = {
-    candyMachine: candyMachine.publicKey,
-    wallet,
+    candyMachine: candyMachineSigner.publicKey,
+    wallet: walletAddress,
     payer: payer.publicKey,
-    authority,
+    authority: authorityAddress,
   };
   const initCandyMachineIx = createInitializeCandyMachineInstruction(accounts, args);
   const createCandyMachine = await createCandyMachineAccountBuilder(
     payer,
-    candyMachine,
-    candyMachineModel,
+    candyMachineSigner,
+    candyMachineData,
     connection
   );
 
@@ -48,10 +55,10 @@ export async function initCandyMachineBuilder(
 async function createCandyMachineAccountBuilder(
   payer: Signer,
   candyMachine: Signer,
-  candyMachineModel: CandyMachineModel,
+  candyMachineData: CandyMachineData,
   connection: Connection
 ) {
-  const space = candyMachineModel.getSize(candyMachine.publicKey);
+  const space = getSpaceForCandy(candyMachineData);
   const lamports = await connection.getMinimumBalanceForRentExemption(space);
   logDebug(
     `Creating candy machine account with space ${space} ` +

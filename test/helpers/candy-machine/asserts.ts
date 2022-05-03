@@ -1,7 +1,7 @@
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import spok from 'spok';
 import { Test } from 'tape';
-import { CreatorsConfig } from '../../../src/modules/candy-machine/models/config';
+import { CreatorsConfig } from '../../../src/modules/candy-machine/config';
 
 export function assertCreators(t: Test, creators: Creator[], config: CreatorsConfig) {
   t.equal(creators.length, config.length, 'creators.length');

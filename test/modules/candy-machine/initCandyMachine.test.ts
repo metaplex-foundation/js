@@ -11,7 +11,6 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import {
-  CandyMachine,
   cusper,
   EndSettingType,
   GatekeeperConfig,
@@ -24,8 +23,9 @@ import { Signer } from '../../../src/shared';
 import {
   CandyMachineConfigWithoutStorage,
   creatorsConfigDefault,
-} from '../../../src/modules/candy-machine/models/config';
+} from '../../../src/modules/candy-machine/config';
 import { assertCreators } from '../../helpers/candy-machine';
+import { CandyMachine } from '../../../src/modules';
 
 killStuckProcess();
 
@@ -58,27 +58,25 @@ async function init() {
 
 function assertProperlyInitialized(
   t: test.Test,
+  candyMachine: CandyMachine,
   {
     candyMachineSigner,
-    payer: _,
-    wallet,
-    authority,
-    candyMachine,
+    payerSigner: _,
+    walletAddress: wallet,
+    authorityAddress: authority,
     price,
     sellerFeeBasisPoints,
     number,
     isMutable,
     retainAuthority,
     goLiveDate,
-    tokenMint,
+    tokenMintAddress: tokenMint,
   }: {
     // Accounts
     candyMachineSigner: Signer;
-    payer: Signer;
-    wallet: PublicKey;
-    authority: PublicKey;
-    // Data
-    candyMachine: CandyMachine;
+    payerSigner: Signer;
+    walletAddress: PublicKey;
+    authorityAddress: PublicKey;
     // Config
     price: number;
     sellerFeeBasisPoints: number;
@@ -87,10 +85,10 @@ function assertProperlyInitialized(
     retainAuthority: boolean;
     goLiveDate: string;
     // Extra
-    tokenMint: PublicKey | null;
+    tokenMintAddress: PublicKey | null;
   }
 ) {
-  spok(t, candyMachine.pretty(), {
+  spok(t, candyMachine.candyMachineAccount.data.pretty(), {
     $topic: 'candy machine',
     authority: authority.toBase58(),
     wallet: wallet.toBase58(),
@@ -121,15 +119,14 @@ test('candyMachine: init with minimal config', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
   assertCreators(
     t,
-    candyMachine.data.creators,
+    candyMachine.creators,
     creatorsConfigDefault(solTreasuryAccount.publicKey.toBase58())
   );
 });
@@ -157,8 +154,8 @@ test('candyMachine: init with config specifying creators', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, { ...rest, ...config, candyMachine, tokenMint: null });
-  assertCreators(t, candyMachine.data.creators, config.creators);
+  assertProperlyInitialized(t, candyMachine, { ...rest, ...config, tokenMintAddress: null });
+  assertCreators(t, candyMachine.creators, config.creators);
 });
 
 // -----------------
@@ -177,13 +174,12 @@ test('candyMachine: init with end settings - amount', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
-  spok(t, candyMachine.data.endSettings, {
+  spok(t, candyMachine.endSettings, {
     $topic: 'end settings',
     endSettingType: EndSettingType.Amount,
     number: spokSameBignum(new Date(config.endSettings?.value! as number).valueOf()),
@@ -203,13 +199,12 @@ test('candyMachine: init with end settings - date', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
-  spok(t, candyMachine.data.endSettings, {
+  spok(t, candyMachine.endSettings, {
     $topic: 'end settings',
     endSettingType: EndSettingType.Date,
     number: spokSameBignum(new Date(config.endSettings?.value! as string).valueOf()),
@@ -258,11 +253,10 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
 });
 
@@ -284,13 +278,12 @@ test('candyMachine: with gatekeeper settings', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
-  spok(t, candyMachine.data.gatekeeper as GatekeeperConfig, {
+  spok(t, candyMachine.gatekeeper as GatekeeperConfig, {
     $topic: 'gatekeeper',
     expireOnUse: config.gatekeeper?.expireOnUse,
     gatekeeperNetwork: spokSamePubkey(config.gatekeeper?.gatekeeperNetwork),
@@ -335,13 +328,12 @@ test('candyMachine: with whitelistMint settings', async (t) => {
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, {
+  assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
-    candyMachine,
-    tokenMint: null,
+    tokenMintAddress: null,
   });
-  spok(t, candyMachine.data.whitelistMintSettings as WhitelistMintSettings, {
+  spok(t, candyMachine.whitelistMintSettings as WhitelistMintSettings, {
     $topic: 'whitelist mint settings',
     mode: WhitelistMintMode.BurnEveryTime,
     discountPrice: spokSameBignum(config.whitelistMintSettings?.discountPrice!),

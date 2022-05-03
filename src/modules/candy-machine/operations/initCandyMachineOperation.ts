@@ -1,26 +1,26 @@
+import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
 import { ConfirmOptions, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
 import { Operation, Signer, useOperation } from '../../../shared';
-import { CandyMachineModel } from '../models/CandyMachine';
 
 export type InitCandyMachineInput = {
   // Accounts
-  payer?: Signer;
+  payerSigner: Signer;
   // solTreasuryAccount
-  wallet: PublicKey;
-  candyMachine?: Signer;
-  authority?: PublicKey;
-  // Models
-  candyMachineModel: CandyMachineModel;
+  walletAddress: PublicKey;
+  candyMachineSigner: Signer;
+  authorityAddress: PublicKey;
+  // Accounts
+  candyMachineData: CandyMachineData;
   // Transaction Options
   confirmOptions?: ConfirmOptions;
 };
 
 export type InitCandyMachineOutput = {
   // Accounts
-  payer: Signer;
-  wallet: PublicKey;
-  candyMachine: Signer;
-  authority: PublicKey;
+  payerSigner: Signer;
+  walletAddress: PublicKey;
+  candyMachineSigner: Signer;
+  authorityAddress: PublicKey;
   // Transaction Result
   transactionId: string;
   confirmResponse: RpcResponseAndContext<SignatureResult>;

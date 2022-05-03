@@ -9,23 +9,23 @@ export const initCandyMachineOperationHandler: OperationHandler<InitCandyMachine
     operation: InitCandyMachineOperation,
     metaplex: Metaplex
   ): Promise<InitCandyMachineOutput> {
-    const { payer = metaplex.identity() } = operation.input;
+    const { payerSigner: payer = metaplex.identity() } = operation.input;
     const {
-      candyMachine = Keypair.generate(),
-      wallet = payer.publicKey,
-      authority = payer.publicKey,
-      candyMachineModel,
+      candyMachineSigner: candyMachine = Keypair.generate(),
+      walletAddress: wallet = payer.publicKey,
+      authorityAddress: authority = payer.publicKey,
+      candyMachineData: candyMachineAccount,
       confirmOptions,
     } = operation.input;
 
     const connection = metaplex.connection;
     const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
       await initCandyMachineBuilder({
-        payer,
-        candyMachine,
-        wallet,
-        authority,
-        candyMachineModel,
+        payerSigner: payer,
+        candyMachineSigner: candyMachine,
+        walletAddress: wallet,
+        authorityAddress: authority,
+        candyMachineData: candyMachineAccount,
         confirmOptions,
         connection,
       }),
@@ -35,10 +35,10 @@ export const initCandyMachineOperationHandler: OperationHandler<InitCandyMachine
 
     return {
       // Accounts
-      payer,
-      candyMachine,
-      wallet,
-      authority,
+      payerSigner: payer,
+      candyMachineSigner: candyMachine,
+      walletAddress: wallet,
+      authorityAddress: authority,
       // Transaction Result
       transactionId: signature,
       confirmResponse,

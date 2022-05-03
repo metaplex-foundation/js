@@ -1,17 +1,10 @@
-import { PublicKeyString } from '../../../../shared';
+import { PublicKeyString } from '../../../shared';
 import { CreatorsConfig } from './Creators';
 import { EndSettingsConfig } from './EndSettings';
 import { GatekeeperSettingsConfig } from './Gatekeeper';
 import { HiddenSettingsConfig } from './HiddenSettings';
 import { StorageConfig } from './Storage';
 import { WhitelistMintSettingsConfig } from './WhitelistMint';
-
-export * from './Creators';
-export * from './EndSettings';
-export * from './Gatekeeper';
-export * from './HiddenSettings';
-export * from './Storage';
-export * from './WhitelistMint';
 
 /**
  * Configuration for the Candy Machine.
