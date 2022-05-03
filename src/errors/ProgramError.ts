@@ -1,6 +1,8 @@
 import { Program } from '@/drivers';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
+type UnderlyingProgramError = Error & { code?: number; logs?: string[] };
+
 export class ProgramError extends MetaplexError {
   public program: Program;
 
@@ -17,7 +19,7 @@ export class ProgramError extends MetaplexError {
 }
 
 export class ParsedProgramError extends ProgramError {
-  constructor(program: Program, cause: Error & { code?: number }) {
+  constructor(program: Program, cause: UnderlyingProgramError) {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     super(program, {
       cause,
@@ -27,12 +29,13 @@ export class ParsedProgramError extends ProgramError {
         `The program [${program.name}] at address [${program.address.toBase58()}] ` +
         `raised an error${ofCode} that translates to "${cause.message}".`,
       solution: 'Check the error message provided by the program.',
+      logs: cause.logs,
     });
   }
 }
 
 export class UnknownProgramError extends ProgramError {
-  constructor(program: Program, cause: Error & { code?: number }) {
+  constructor(program: Program, cause: UnderlyingProgramError) {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     super(program, {
       cause,
@@ -46,6 +49,7 @@ export class UnknownProgramError extends ProgramError {
         'error below to investigate what went wrong. ' +
         'To get more helpful error messages, ensure the program that failed is ' +
         'registered by the SDK and provides an "errorResolver" method.',
+      logs: cause.logs,
     });
   }
 }

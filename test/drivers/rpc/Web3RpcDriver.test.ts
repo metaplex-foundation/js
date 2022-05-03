@@ -18,7 +18,7 @@ test('rpc-driver: it parses program errors when sending transactions', async (t:
   const { mx } = await init();
 
   // When
-  await mx.rpc().sendTransaction(
+  const promise = mx.rpc().sendTransaction(
     createMasterEditionV3Builder({
       payer: mx.identity(),
       mintAuthority: mx.identity(),
@@ -28,4 +28,10 @@ test('rpc-driver: it parses program errors when sending transactions', async (t:
       masterEdition: Keypair.generate().publicKey,
     })
   );
+
+  try {
+    await promise;
+  } catch (error) {
+    console.log(error);
+  }
 });
