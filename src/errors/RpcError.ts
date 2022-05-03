@@ -31,7 +31,7 @@ export class FailedToSendTransactionError extends RpcError {
     return this.asSendTransactionError().message;
   }
 
-  public get logs() {
+  public get errorLogs() {
     return this.asSendTransactionError().logs ?? [];
   }
 }

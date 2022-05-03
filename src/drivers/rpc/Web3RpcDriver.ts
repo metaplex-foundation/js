@@ -190,7 +190,7 @@ export class Web3RpcDriver extends RpcDriver {
       return new UnknownProgramError(program, error);
     }
 
-    // Finally, resolve the error;
+    // Finally, resolve the error.
     const resolvedError = program.errorResolver(error);
 
     return resolvedError
