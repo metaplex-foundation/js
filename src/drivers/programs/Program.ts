@@ -6,7 +6,7 @@ import { MetaplexError } from '@/errors';
 export type Program = {
   name: string;
   address: PublicKey;
-  clusterFilter: (cluster: Cluster) => boolean;
-  errorResolver: (error: unknown) => MetaplexError;
-  gpaResolver: (metaplex: Metaplex) => GpaBuilder;
+  clusterFilter?: (cluster: Cluster) => boolean;
+  errorResolver?: (error: unknown) => MetaplexError;
+  gpaResolver?: (metaplex: Metaplex) => GpaBuilder;
 };

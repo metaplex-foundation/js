@@ -16,7 +16,9 @@ export class ArrayProgramDriver extends ProgramDriver {
   }
 
   public allForCluster(cluster: Cluster): Program[] {
-    return this.programs.filter((program) => program.clusterFilter(cluster));
+    return this.programs.filter((program) => {
+      return program.clusterFilter?.(cluster) ?? true;
+    });
   }
 
   public allForCurrentCluster(): Program[] {

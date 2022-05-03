@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Cluster } from '@/shared';
+import { Program } from '@/drivers';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 export class SdkError extends MetaplexError {
@@ -166,6 +167,22 @@ export class ProgramNotRecognizedError extends SdkError {
     });
     this.nameOrAddress = nameOrAddress;
     this.cluster = cluster;
+  }
+}
+
+export class MissingGpaBuilderError extends SdkError {
+  program: Program;
+  constructor(program: Program, cause?: Error) {
+    super({
+      cause,
+      key: 'missing_gpa_builder',
+      title: 'Missing "getProgramAccount" Builder',
+      problem: `The program [${program.name}] does not have a registered "getProgramAccount" builder.`,
+      solution:
+        'When registering a program, make sure you provide a "gpaResolver" ' +
+        'before trying to access its "getProgramAccount" builder.',
+    });
+    this.program = program;
   }
 }
 
