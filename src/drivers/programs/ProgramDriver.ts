@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Cluster, GpaBuilder } from '@/shared';
-import { MetaplexError, MissingGpaBuilderError } from '@/errors';
+import { MetaplexError, MissingGpaBuilderError, ParsedProgramError } from '@/errors';
 import { Driver } from '../Driver';
 import { Program } from './Program';
 import { UnknownProgramError } from '@/errors';
@@ -15,11 +15,17 @@ export abstract class ProgramDriver extends Driver {
   public resolveError(nameOrAddress: string | PublicKey, error: unknown): MetaplexError {
     const program = this.get(nameOrAddress);
 
-    if (!program.errorResolver) {
+    if (!(error instanceof Error) || !('logs' in error) || !program.errorResolver) {
       return new UnknownProgramError(program, error as Error);
     }
 
-    return program.errorResolver(error);
+    const resolvedError = program.errorResolver(error);
+
+    if (!resolvedError) {
+      return new UnknownProgramError(program, error);
+    }
+
+    return new ParsedProgramError(program, resolvedError);
   }
 
   public getGpaBuilder<T extends GpaBuilder>(nameOrAddress: string | PublicKey): T {

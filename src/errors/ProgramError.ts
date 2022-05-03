@@ -17,7 +17,7 @@ export class ProgramError extends MetaplexError {
 }
 
 export class ParsedProgramError extends ProgramError {
-  constructor(program: Program, cause: Error & { code?: string }) {
+  constructor(program: Program, cause: Error & { code?: number }) {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     super(program, {
       cause,
@@ -32,7 +32,7 @@ export class ParsedProgramError extends ProgramError {
 }
 
 export class UnknownProgramError extends ProgramError {
-  constructor(program: Program, cause: Error & { code?: string }) {
+  constructor(program: Program, cause: Error & { code?: number }) {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     super(program, {
       cause,
