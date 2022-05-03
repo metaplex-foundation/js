@@ -8,6 +8,7 @@ import {
   Web3RpcDriver,
   ProgramDriver,
   ArrayProgramDriver,
+  coreProgramsPlugin,
 } from '@/drivers';
 import {
   Cluster,
@@ -65,6 +66,7 @@ export class Metaplex {
   }
 
   registerDefaultPlugins() {
+    this.use(coreProgramsPlugin);
     this.use(nftPlugin());
   }
 
