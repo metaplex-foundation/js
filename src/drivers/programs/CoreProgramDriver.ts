@@ -1,3 +1,4 @@
+import { ProgramNotRecognizedError } from '@/errors';
 import { Cluster } from '@/shared';
 import { PublicKey } from '@solana/web3.js';
 import { Program } from './Program';
@@ -22,13 +23,17 @@ export class CoreProgramDriver extends ProgramDriver {
     return this.allForCluster(this.metaplex.cluster);
   }
 
-  public get(nameOrAddress: string | PublicKey): Program | null {
+  public get(nameOrAddress: string | PublicKey): Program {
     const programs = this.allForCurrentCluster();
+    const program =
+      typeof nameOrAddress === 'string'
+        ? programs.find((program) => program.name === nameOrAddress)
+        : programs.find((program) => program.address.equals(nameOrAddress));
 
-    if (typeof nameOrAddress === 'string') {
-      return programs.find((program) => program.name === nameOrAddress) ?? null;
+    if (!program) {
+      throw new ProgramNotRecognizedError(nameOrAddress, this.metaplex.cluster);
     }
 
-    return programs.find((program) => program.address.equals(nameOrAddress)) ?? null;
+    return program;
   }
 }

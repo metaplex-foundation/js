@@ -104,6 +104,16 @@ export class Metaplex {
     return this;
   }
 
+  programs() {
+    return this.programDriver;
+  }
+
+  setPrograms(programDriver: ProgramDriver) {
+    this.programDriver = programDriver;
+
+    return this;
+  }
+
   register<
     T extends Operation<K, I, O>,
     K extends string = KeyOfOperation<T>,

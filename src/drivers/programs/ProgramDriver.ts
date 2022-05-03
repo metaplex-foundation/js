@@ -8,5 +8,5 @@ export abstract class ProgramDriver extends Driver {
   public abstract all(): Program[];
   public abstract allForCluster(cluster: Cluster): Program[];
   public abstract allForCurrentCluster(): Program[];
-  public abstract get(nameOrAddress: string | PublicKey): Program | null;
+  public abstract get(nameOrAddress: string | PublicKey): Program;
 }

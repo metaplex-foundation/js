@@ -1,5 +1,6 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 import { PublicKey } from '@solana/web3.js';
+import { Cluster } from '@/shared';
+import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 export class SdkError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -143,6 +144,28 @@ export class UnexpectedAccountError extends SdkError {
         `is not of the expected type [${accountType}].`,
       solution: `Ensure the provided address is correct and that it holds an account of type [${accountType}].`,
     });
+  }
+}
+
+export class ProgramNotRecognizedError extends SdkError {
+  nameOrAddress: string | PublicKey;
+  cluster: Cluster;
+  constructor(nameOrAddress: string | PublicKey, cluster: Cluster, cause?: Error) {
+    const isName = typeof nameOrAddress === 'string';
+    const toString = isName ? nameOrAddress : nameOrAddress.toBase58();
+    super({
+      cause,
+      key: 'program_not_recognized',
+      title: 'Program Not Recognized',
+      problem:
+        `The provided program ${isName ? 'name' : 'address'} [${toString}] ` +
+        `is not recognized in the [${cluster}] cluster.`,
+      solution:
+        'Did you forget to register this program? ' +
+        'If so, you may use "metaplex.programs().register(myProgram)" to fix this.',
+    });
+    this.nameOrAddress = nameOrAddress;
+    this.cluster = cluster;
   }
 }
 
