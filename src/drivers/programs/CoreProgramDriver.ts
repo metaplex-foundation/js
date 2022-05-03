@@ -15,7 +15,7 @@ export class CoreProgramDriver extends ProgramDriver {
   }
 
   public allForCluster(cluster: Cluster): Program[] {
-    return this.programs.filter((program) => program.clusterResolver(cluster));
+    return this.programs.filter((program) => program.clusterFilter(cluster));
   }
 
   public allForCurrentCluster(): Program[] {

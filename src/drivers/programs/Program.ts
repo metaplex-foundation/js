@@ -4,5 +4,5 @@ import { Cluster } from '@/shared';
 export type Program = {
   name: string;
   address: PublicKey;
-  clusterResolver: (cluster: Cluster) => boolean;
+  clusterFilter: (cluster: Cluster) => boolean;
 };
