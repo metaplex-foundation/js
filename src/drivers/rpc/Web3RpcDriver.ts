@@ -159,8 +159,8 @@ export class Web3RpcDriver extends RpcDriver {
     }
 
     // Parse the instruction number.
-    const regex = /^.+Error processing Instruction (\d+):$/;
-    const instruction: string | null = error.message.match(regex)?.[0] ?? null;
+    const regex = /Error processing Instruction (\d+):/;
+    const instruction: string | null = error.message.match(regex)?.[1] ?? null;
 
     // Ensure there is an instruction number given to find the program.
     if (!instruction) {
