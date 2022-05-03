@@ -6,6 +6,8 @@ import {
   BundlrStorageDriver,
   RpcDriver,
   Web3RpcDriver,
+  ProgramDriver,
+  CoreProgramDriver,
 } from '@/drivers';
 import {
   OperationConstructor,
@@ -40,6 +42,9 @@ export class Metaplex {
   /** Encapsulates how to read and write on-chain. */
   protected rpcDriver: RpcDriver;
 
+  /** Registers all recognised programs across clusters. */
+  protected programDriver: ProgramDriver;
+
   /** The registered handlers for read/write operations. */
   protected operationHandlers: Map<string, OperationHandler<any, any, any, any>> = new Map();
 
@@ -49,6 +54,7 @@ export class Metaplex {
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
     this.rpcDriver = new Web3RpcDriver(this);
+    this.programDriver = new CoreProgramDriver(this);
     this.registerDefaultPlugins();
   }
 
