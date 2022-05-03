@@ -115,7 +115,7 @@ test('candyMachine: init with minimal config', async (t) => {
   const config = minimalConfig;
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -150,7 +150,7 @@ test('candyMachine: init with config specifying creators', async (t) => {
   const config = { ...minimalConfig, creators };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -170,7 +170,7 @@ test('candyMachine: init with end settings - amount', async (t) => {
   };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -195,7 +195,7 @@ test('candyMachine: init with end settings - date', async (t) => {
   };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -228,7 +228,7 @@ test('candyMachine: init with invalid hidden settings (hash too short)', async (
 
   await assertThrows(
     t,
-    () => cm.initCandyMachineFromConfig(config, opts),
+    () => cm.createCandyMachineFromConfig(config, opts),
     /len.+10.+should match len.+32/i
   );
 });
@@ -249,7 +249,7 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
   };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -274,7 +274,7 @@ test('candyMachine: with gatekeeper settings', async (t) => {
   };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -300,7 +300,7 @@ test('candyMachine: with invalid gatekeeper settings (network not a public key)'
 
   await assertThrows(
     t,
-    () => cm.initCandyMachineFromConfig(config, opts),
+    () => cm.createCandyMachineFromConfig(config, opts),
     /not a valid PublicKey/i
   );
 });
@@ -324,7 +324,7 @@ test('candyMachine: with whitelistMint settings', async (t) => {
   };
 
   const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.initCandyMachineFromConfig(config, opts);
+    await cm.createCandyMachineFromConfig(config, opts);
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -357,7 +357,7 @@ test('candyMachine: with invalid whitemint settings (mint not a public key)', as
 
   await assertThrows(
     t,
-    () => cm.initCandyMachineFromConfig(config, opts),
+    () => cm.createCandyMachineFromConfig(config, opts),
     /not a valid PublicKey/i
   );
 });

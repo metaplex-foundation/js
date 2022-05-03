@@ -11,7 +11,7 @@ import { IdentityDriver } from '../../drivers';
 import assert from '../../utils/assert';
 import { Optional } from '../../utils';
 
-export type CandyMachineInitParams = Optional<
+export type CreateCandyMachineParams = Optional<
   InitCandyMachineInput,
   'payerSigner' | 'candyMachineSigner' | 'authorityAddress'
 >;
@@ -22,8 +22,8 @@ export type CandyMachineInitFromConfigOpts = {
   confirmOptions?: ConfirmOptions;
 };
 
-export function fillCandyMachineInitInput(
-  params: CandyMachineInitParams,
+export function toCandyMachineInitInput(
+  params: CreateCandyMachineParams,
   identity: IdentityDriver
 ): InitCandyMachineInput {
   const { payerSigner = identity } = params;
@@ -41,8 +41,8 @@ export function fillCandyMachineInitInput(
 }
 
 export class CandyMachineClient extends ModuleClient {
-  async initCandyMachine(params: CandyMachineInitParams) {
-    const input = fillCandyMachineInitInput(params, this.metaplex.identity());
+  async createCandyMachine(params: CreateCandyMachineParams) {
+    const input = toCandyMachineInitInput(params, this.metaplex.identity());
     const initOperation = initCandyMachineOperation(input);
     const initCandyMachineOutput: InitCandyMachineOutput = await this.metaplex.execute(
       initOperation
@@ -57,7 +57,7 @@ export class CandyMachineClient extends ModuleClient {
     return { ...rest, candyMachineSigner, candyMachine };
   }
 
-  initCandyMachineFromConfig(
+  createCandyMachineFromConfig(
     config: CandyMachineConfigWithoutStorage,
     opts: CandyMachineInitFromConfigOpts
   ) {
@@ -66,13 +66,13 @@ export class CandyMachineClient extends ModuleClient {
 
     const walletAddress = tryConvertToPublickKey(config.solTreasuryAccount);
 
-    const params: CandyMachineInitParams = {
+    const params: CreateCandyMachineParams = {
       walletAddress,
       candyMachineSigner,
       candyMachineData,
       authorityAddress: opts.authorityAddress,
     };
 
-    return this.initCandyMachine(params);
+    return this.createCandyMachine(params);
   }
 }
