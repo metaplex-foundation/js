@@ -1,4 +1,5 @@
 export * from './BaseAccount';
+export * from './Cluster';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './Model';

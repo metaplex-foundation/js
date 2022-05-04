@@ -8,6 +8,7 @@ export type MetaplexErrorInput = {
   source: MetaplexErrorSource;
   sourceDetails?: string;
   cause?: Error;
+  logs?: string[];
 };
 
 export type MetaplexErrorInputWithoutSource = Omit<MetaplexErrorInput, 'source' | 'sourceDetails'>;
@@ -21,6 +22,7 @@ export class MetaplexError extends Error {
   readonly source: MetaplexErrorSource;
   readonly sourceDetails?: string;
   readonly cause?: Error;
+  readonly logs?: string[];
 
   constructor(input: MetaplexErrorInput) {
     super(input.problem);
@@ -31,6 +33,7 @@ export class MetaplexError extends Error {
     this.source = input.source;
     this.sourceDetails = input.sourceDetails;
     this.cause = input.cause;
+    this.logs = input.logs;
     this.message = this.toString(false);
   }
 
