@@ -2,7 +2,7 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { Creator, Collection, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { useOperation, Operation } from '@/drivers';
-import { Signer } from '@/shared';
+import { Signer } from '@/types';
 
 export const createNftOperation = useOperation<CreateNftOperation>('CreateNftOperation');
 

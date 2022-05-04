@@ -1,5 +1,5 @@
 import { useOperation, Operation } from '@/drivers';
-import { Plan } from '@/shared';
+import { Plan } from '@/types';
 import { UploadMetadataInput, UploadMetadataOutput } from './uploadMetadataOperation';
 
 export const planUploadMetadataOperation = useOperation<PlanUploadMetadataOperation>(

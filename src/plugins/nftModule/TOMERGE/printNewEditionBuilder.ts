@@ -4,7 +4,7 @@ import {
   mintNewEditionFromMasterEditionViaTokenBuilder,
   mintNewEditionFromMasterEditionViaVaultProxyBuilder,
 } from '@/programs/tokenMetadata';
-import { TransactionBuilder, Signer } from '@/shared';
+import { TransactionBuilder, Signer } from '@/types';
 import BN from 'bn.js';
 
 type PrintNewEditionBuilderSharedParams = {

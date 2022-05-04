@@ -1,9 +1,9 @@
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { StorageDriver } from './StorageDriver';
-import { SolAmount } from '@/shared';
+import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
+import { MetaplexFile } from '../MetaplexFile';
+import { StorageDriver } from '../StorageDriverr';
+import { SolAmount } from '@/types';
 import { AssetNotFoundError } from '@/errors';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';

@@ -1,8 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { chunk } from '@/utils';
-import { Postpone } from './Postpone';
-import { UnparsedMaybeAccount } from '@/shared';
 import { Metaplex } from '@/Metaplex';
+import { UnparsedMaybeAccount } from '@/types';
+import { Postpone } from './Postpone';
+import { chunk } from './common';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;

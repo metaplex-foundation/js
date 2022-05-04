@@ -1,8 +1,8 @@
 import { ProgramNotRecognizedError } from '@/errors';
-import { Cluster } from '@/shared';
+import { Cluster } from '@/types';
 import { PublicKey } from '@solana/web3.js';
-import { Program } from './Program';
-import { ProgramDriver } from './ProgramDriver';
+import { Program } from '../../types/Program';
+import { ProgramDriver } from '../ProgramDriverr';
 
 export class ArrayProgramDriver extends ProgramDriver {
   protected programs: Program[] = [];

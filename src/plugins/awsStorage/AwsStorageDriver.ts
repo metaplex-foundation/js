@@ -1,9 +1,9 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { StorageDriver } from './StorageDriver';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { SolAmount } from '@/shared';
+import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
+import { StorageDriver } from '../StorageDriverr';
+import { MetaplexFile } from '../MetaplexFile';
+import { SolAmount } from '@/types';
 
 export const awsStorage = (client: S3Client, bucketName: string): MetaplexPlugin => ({
   install(metaplex: Metaplex) {

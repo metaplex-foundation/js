@@ -1,19 +1,20 @@
 import { Connection } from '@solana/web3.js';
 import {
+  MetaplexPlugin,
+  Cluster,
+  resolveClusterFromConnection,
   IdentityDriver,
-  GuestIdentityDriver,
   StorageDriver,
-  BundlrStorageDriver,
   RpcDriver,
-  Web3RpcDriver,
   ProgramDriver,
-  ArrayProgramDriver,
   OperationDriver,
-  MapOperationDriver,
 } from '@/types';
-import { Cluster, resolveClusterFromConnection } from '@/shared';
-import { MetaplexPlugin } from './types/MetaplexPluginPlugin';
-import { corePlugin } from './plugins/corePlugins/corePluginrePlugins/corePlugin';
+import { GuestIdentityDriver } from '@/plugins/guestIdentity';
+import { BundlrStorageDriver } from '@/plugins/bundlrStorage';
+import { Web3RpcDriver } from '@/plugins/web3Rpc';
+import { ArrayProgramDriver } from '@/plugins/arrayProgram';
+import { MapOperationDriver } from '@/plugins/mapOperation';
+import { corePlugin } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
   cluster?: Cluster;

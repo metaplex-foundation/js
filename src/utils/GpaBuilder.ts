@@ -2,10 +2,10 @@ import { GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from '@
 import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
+import { Metaplex } from '@/Metaplex';
+import { UnparsedAccount } from '@/types';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Postpone } from './Postpone';
-import { UnparsedAccount } from '@/shared/BaseAccount';
-import { Metaplex } from '@/Metaplex';
 
 export type GpaSortCallback = (a: UnparsedAccount, b: UnparsedAccount) => number;
 

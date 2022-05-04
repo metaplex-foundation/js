@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { MetadataAccount } from '@/programs';
-import { GmaBuilder } from '@/shared';
+import { GmaBuilder } from '@/types';
 import { OperationHandler } from '@/drivers';
 import { zipMap } from '@/utils';
 import { Nft } from '../models';

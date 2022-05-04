@@ -1,5 +1,5 @@
-import { Task, TaskOptions } from '@/shared';
-import { Driver } from '../Driver';
+import { Task, TaskOptions } from '@/utils';
+import { Driver } from './Driver';
 import {
   OperationConstructor,
   Operation,

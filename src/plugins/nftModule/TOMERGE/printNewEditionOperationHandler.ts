@@ -11,7 +11,7 @@ import { PrintNewEditionOperation } from '../operations';
 import { printNewEditionBuilder } from '../transactionBuilders';
 import { Metaplex } from '@/Metaplex';
 import { OperationHandler } from '@/drivers';
-import { TransactionBuilder } from '@/shared';
+import { TransactionBuilder } from '@/types';
 import { AccountNotFoundError } from '@/errors';
 
 export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOperation> = {

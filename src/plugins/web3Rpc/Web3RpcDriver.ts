@@ -16,12 +16,12 @@ import {
   TransactionBuilder,
   UnparsedAccount,
   UnparsedMaybeAccount,
-} from '@/shared';
+} from '@/types';
 import {
   RpcDriver,
   ConfirmTransactionResponse,
   SendAndConfirmTransactionResponse,
-} from './RpcDriver';
+} from '../RpcDriverr';
 import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
@@ -31,7 +31,7 @@ import {
   UnknownProgramError,
 } from '@/errors';
 import { zipMap } from '@/utils';
-import { isErrorWithLogs, Program } from '../programs';
+import { isErrorWithLogs, Program } from '../arrayProgram';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(

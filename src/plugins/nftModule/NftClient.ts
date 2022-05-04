@@ -1,12 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
-import { ModuleClient, Plan } from '@/shared';
+import { ModuleClient, Plan } from '@/types';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
   Nft,
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
-} from '@/modules/nfts';
+} from '@/plugins/nftModule';
 import {
   UploadMetadataInput,
   UploadMetadataOutput,

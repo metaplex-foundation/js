@@ -1,5 +1,5 @@
-import assert from '../utils/assert';
 import { PublicKey } from '@solana/web3.js';
+import { assert } from '@/utils';
 
 /**
  * Synonym for `string` to differentiate strings that should contain a base58 representation of

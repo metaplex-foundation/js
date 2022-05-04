@@ -1,5 +1,5 @@
-import { Metaplex } from '../..';
-import { DisposableScope } from '@/shared';
+import { Metaplex } from '@/Metaplex';
+import { DisposableScope } from '@/utils';
 
 export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown> ? N : never;
 export type InputOfOperation<T> = T extends Operation<string, infer I, unknown> ? I : never;

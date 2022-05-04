@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexFile, OperationHandler } from '@/drivers';
-import { Plan } from '@/shared';
+import { Plan } from '@/types';
 import { walk } from '@/utils';
 import { JsonMetadata } from '../models';
 import {

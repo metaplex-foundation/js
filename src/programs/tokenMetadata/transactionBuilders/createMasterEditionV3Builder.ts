@@ -1,7 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { createCreateMasterEditionV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
-import { TransactionBuilder, Signer } from '@/shared';
+import { Signer } from '@/types';
+import { TransactionBuilder } from '@/utils';
 
 export interface CreateMasterEditionV3BuilderParams {
   maxSupply?: bignum;

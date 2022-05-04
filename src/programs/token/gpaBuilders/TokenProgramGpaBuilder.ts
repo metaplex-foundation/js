@@ -1,4 +1,4 @@
-import { GpaBuilder } from '@/shared';
+import { GpaBuilder } from '@/utils';
 import { ACCOUNT_SIZE, MINT_SIZE } from '@solana/spl-token';
 import { MintGpaBuilder, TokenGpaBuilder } from '.';
 

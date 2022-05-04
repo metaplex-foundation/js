@@ -1,13 +1,13 @@
 import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { StorageDriver } from './StorageDriver';
-import { MetaplexFile } from '../filesystem/MetaplexFile';
-import { KeypairIdentityDriver } from '../identity/KeypairIdentityDriver';
-import { planUploadMetadataOperation } from '@/modules';
-import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetadataUsingBundlrOperationHandler';
-import { SolAmount } from '@/shared';
+import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
+import { StorageDriver } from '../StorageDriverr';
+import { MetaplexFile } from '../MetaplexFile';
+import { KeypairIdentityDriver } from '../keypairIdentity/KeypairIdentityDriver';
+import { planUploadMetadataOperation } from '@/plugins';
+import { planUploadMetadataUsingBundlrOperationHandler } from '../planUploadMetadataUsingBundlrOperationHandlerr';
+import { SolAmount } from '@/types';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,

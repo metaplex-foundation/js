@@ -3,7 +3,7 @@ import { bignum } from '@metaplex-foundation/beet';
 import { DataV2 } from '@metaplex-foundation/mpl-token-metadata';
 import { createMintAndMintToAssociatedTokenBuilder } from '@/programs/token';
 import { createMetadataV2Builder, createMasterEditionV3Builder } from '@/programs/tokenMetadata';
-import { TransactionBuilder, Signer } from '@/shared';
+import { TransactionBuilder, Signer } from '@/types';
 
 export interface CreateNftBuilderParams {
   // Data.

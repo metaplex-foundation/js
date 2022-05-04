@@ -1,4 +1,4 @@
-import { Metaplex } from './Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 export type MetaplexPlugin = {
   install(metaplex: Metaplex): any;

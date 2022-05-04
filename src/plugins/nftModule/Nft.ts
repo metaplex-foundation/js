@@ -7,7 +7,7 @@ import {
   MasterEditionV2Args,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { Model } from '@/shared';
+import { Model } from '@/types';
 import { removeEmptyChars } from '@/utils';
 import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';

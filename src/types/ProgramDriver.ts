@@ -1,7 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { Cluster, GpaBuilder } from '@/shared';
+import { Cluster } from '@/types';
+import { GpaBuilder } from '@/utils';
 import { MissingGpaBuilderError } from '@/errors';
-import { Driver } from '../Driver';
+import { Driver } from './Driver';
 import { Program } from './Program';
 
 export abstract class ProgramDriver extends Driver {

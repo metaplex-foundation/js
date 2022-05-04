@@ -9,8 +9,9 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import { Signer, TransactionBuilder, UnparsedAccount, UnparsedMaybeAccount } from '@/shared';
-import { Driver } from '../Driver';
+import { Signer, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import { TransactionBuilder } from '@/utils';
+import { Driver } from './Driver';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {

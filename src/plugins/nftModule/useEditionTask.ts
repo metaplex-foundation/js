@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { OriginalOrPrintEditionAccount } from '@/programs';
-import { useTask, Task } from '@/shared';
+import { useTask, Task } from '@/types';
 import { Nft } from './Nft';
 
 export type EditionTask = Task<OriginalOrPrintEditionAccount | null>;
