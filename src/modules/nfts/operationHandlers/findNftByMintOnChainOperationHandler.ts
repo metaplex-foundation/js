@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/drivers';
 import { Nft } from '../models';
 import { FindNftByMintOperation } from '../operations/findNftByMintOperation';
 import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs';

@@ -1,6 +1,7 @@
 import { Metaplex } from '@/Metaplex';
 import { MetadataAccount } from '@/programs';
-import { GmaBuilder, OperationHandler } from '@/shared';
+import { GmaBuilder } from '@/shared';
+import { OperationHandler } from '@/drivers';
 import { zipMap } from '@/utils';
 import { Nft } from '../models';
 import { FindNftsByMintListOperation } from '../operations/findNftsByMintListOperation';

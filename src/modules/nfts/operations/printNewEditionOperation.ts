@@ -1,5 +1,6 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { useOperation, Signer, Operation } from '@/shared';
+import { useOperation, Operation } from '@/drivers';
+import { Signer } from '@/shared';
 
 export const printNewEditionOperation = useOperation<PrintNewEditionOperation>(
   'PrintNewEditionOperation'

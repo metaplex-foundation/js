@@ -6,7 +6,7 @@ import { CreateNftInput, CreateNftOperation } from '../operations';
 import { JsonMetadata } from '../models/JsonMetadata';
 import { createNftBuilder } from '../transactionBuilders';
 import { Metaplex } from '@/Metaplex';
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/drivers';
 
 export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (operation: CreateNftOperation, metaplex: Metaplex) => {
