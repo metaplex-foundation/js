@@ -12,4 +12,3 @@ export * from './SolAmount';
 export * from './TransactionBuilder';
 export * from './useDisposable';
 export * from './useTask';
-export * from './useOperation';

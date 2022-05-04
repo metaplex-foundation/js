@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/drivers';
 import {
   planUploadMetadataOperation,
   UploadMetadataOperation,
@@ -11,7 +11,7 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
     operation: UploadMetadataOperation,
     metaplex: Metaplex
   ): Promise<UploadMetadataOutput> => {
-    const plan = await metaplex.execute(planUploadMetadataOperation(operation.input));
+    const plan = await metaplex.operations().execute(planUploadMetadataOperation(operation.input));
 
     return plan.execute();
   },

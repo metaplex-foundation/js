@@ -16,7 +16,7 @@ export interface MockStorageOptions {
 
 export const mockStorage = (options?: MockStorageOptions): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setStorage(new MockStorageDriver(metaplex, options));
+    metaplex.setStorageDriver(new MockStorageDriver(metaplex, options));
   },
 });
 

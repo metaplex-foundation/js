@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { TokenMetadataProgram } from '@/programs';
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/drivers';
 import { Nft } from '../models';
 import { findNftsByMintListOperation, FindNftsByCreatorOperation } from '../operations';
 
@@ -14,7 +14,7 @@ export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNfts
         .whereCreator(position, creator)
         .getDataAsPublicKeys();
 
-      const nfts = await metaplex.execute(findNftsByMintListOperation(mints));
+      const nfts = await metaplex.operations().execute(findNftsByMintListOperation(mints));
 
       return nfts.filter((nft): nft is Nft => nft !== null);
     },

@@ -8,7 +8,7 @@ import { Metaplex } from '@/Metaplex';
 import { TokenMetadataGpaBuilder, TokenProgramGpaBuilder } from '@/programs';
 import { ErrorWithLogs } from './Program';
 
-export const coreProgramsPlugin = {
+export const coreProgramsPlugin = () => ({
   install(metaplex: Metaplex) {
     // System Program.
     metaplex.programs().register({
@@ -33,4 +33,4 @@ export const coreProgramsPlugin = {
         new TokenMetadataGpaBuilder(metaplex, TOKEN_METADATA_PROGRAM_ID),
     });
   },
-};
+});
