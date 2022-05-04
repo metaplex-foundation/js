@@ -1,6 +1,6 @@
 import { Keypair } from '@solana/web3.js';
+import { OperationHandler } from '../../../drivers';
 import { Metaplex } from '../../../Metaplex';
-import { OperationHandler } from '../../../shared';
 import { InitCandyMachineOperation, InitCandyMachineOutput } from '../operations';
 import { initCandyMachineBuilder } from '../transactionBuilders';
 

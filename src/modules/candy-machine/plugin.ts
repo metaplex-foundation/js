@@ -6,8 +6,9 @@ import { MetaplexPlugin } from '../../MetaplexPlugin';
 
 export const candyMachinePlugin = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.register(o.initCandyMachineOperation, h.initCandyMachineOperationHandler);
-    metaplex.register(
+    const op = metaplex.operations();
+    op.register(o.initCandyMachineOperation, h.initCandyMachineOperationHandler);
+    op.register(
       o.findCandyMachineByAdddressOperation,
       h.findCandyMachineByAdddressOperationHandler
     );

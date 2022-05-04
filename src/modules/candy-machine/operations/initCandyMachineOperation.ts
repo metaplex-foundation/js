@@ -1,6 +1,7 @@
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
 import { ConfirmOptions, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
-import { Operation, Signer, useOperation } from '../../../shared';
+import { Signer } from '../../../shared';
+import { Operation, useOperation } from '../../../drivers';
 
 export type InitCandyMachineInput = {
   // Accounts

@@ -1,6 +1,6 @@
+import { OperationHandler } from '../../../drivers';
 import { Metaplex } from '../../../Metaplex';
 import { CandyMachineAccount } from '../../../programs/candyMachine';
-import { OperationHandler } from '../../../shared';
 import { CandyMachine } from '../models';
 import { FindCandyMachineByAdddressOperation } from '../operations';
 

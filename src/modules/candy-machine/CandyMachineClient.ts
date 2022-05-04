@@ -44,15 +44,15 @@ export class CandyMachineClient extends ModuleClient {
   async createCandyMachine(params: CreateCandyMachineParams) {
     const input = toCandyMachineInitInput(params, this.metaplex.identity());
     const initOperation = initCandyMachineOperation(input);
-    const initCandyMachineOutput: InitCandyMachineOutput = await this.metaplex.execute(
-      initOperation
-    );
+    const initCandyMachineOutput: InitCandyMachineOutput = await this.metaplex
+      .operations()
+      .execute(initOperation);
     const { candyMachineSigner, ...rest } = initCandyMachineOutput;
 
     const findOperation = findCandyMachineByAdddressOperation(candyMachineSigner.publicKey);
 
     // TODO(thlorenz): gracefully handle if not found
-    const candyMachine = await this.metaplex.execute(findOperation);
+    const candyMachine = await this.metaplex.operations().execute(findOperation);
 
     return { ...rest, candyMachineSigner, candyMachine };
   }
