@@ -7,7 +7,7 @@ import { KeypairSigner } from '@/shared';
 
 export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setIdentity(new KeypairIdentityDriver(metaplex, keypair));
+    metaplex.setIdentityDriver(new KeypairIdentityDriver(metaplex, keypair));
   },
 });
 

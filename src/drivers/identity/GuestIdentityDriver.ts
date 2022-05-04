@@ -6,7 +6,7 @@ import { OperationUnauthorizedForGuestsError } from '@/errors';
 
 export const guestIdentity = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setIdentity(new GuestIdentityDriver(metaplex));
+    metaplex.setIdentityDriver(new GuestIdentityDriver(metaplex));
   },
 });
 

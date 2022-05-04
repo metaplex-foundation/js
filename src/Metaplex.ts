@@ -66,7 +66,7 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver) {
+  setIdentityDriver(identity: IdentityDriver) {
     this.identityDriver = identity;
 
     return this;
@@ -76,7 +76,7 @@ export class Metaplex {
     return this.storageDriver;
   }
 
-  setStorage(storage: StorageDriver) {
+  setStorageDriver(storage: StorageDriver) {
     this.storageDriver = storage;
 
     return this;
@@ -86,7 +86,7 @@ export class Metaplex {
     return this.rpcDriver;
   }
 
-  setRpc(rpc: RpcDriver) {
+  setRpcDriver(rpc: RpcDriver) {
     this.rpcDriver = rpc;
 
     return this;
@@ -96,7 +96,7 @@ export class Metaplex {
     return this.programDriver;
   }
 
-  setPrograms(programDriver: ProgramDriver) {
+  setProgramDriver(programDriver: ProgramDriver) {
     this.programDriver = programDriver;
 
     return this;
@@ -106,7 +106,7 @@ export class Metaplex {
     return this.operationDriver;
   }
 
-  setOperations(operationDriver: OperationDriver) {
+  setOperationDriver(operationDriver: OperationDriver) {
     this.operationDriver = operationDriver;
 
     return this;

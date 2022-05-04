@@ -8,7 +8,7 @@ const init = async () => {
   const mx = await metaplex();
 
   // Ensure we are testing the Web3RpcDriver.
-  mx.setRpc(new Web3RpcDriver(mx));
+  mx.setRpcDriver(new Web3RpcDriver(mx));
 
   return { mx, rpc: mx.rpc() };
 };
