@@ -13,7 +13,6 @@ import {
   BundlrWithdrawError,
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
-  NotYetImplementedError,
 } from '@/errors';
 
 export interface BundlrOptions {
@@ -71,7 +70,7 @@ export class BundlrStorageDriver extends StorageDriver {
     const uris = await Promise.all(promises);
 
     if (this.shouldWithdrawAfterUploading) {
-      await this.withdraw();
+      await this.withdrawAll();
     }
 
     return uris;
@@ -147,31 +146,38 @@ export class BundlrStorageDriver extends StorageDriver {
   }
 
   protected async withdrawAll(): Promise<void> {
-    // TODO: Implement when available on Bundlr.
-    throw new NotYetImplementedError();
+    // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
+    const balance = await this.getBalance();
+    const minimumBalance = SolAmount.fromLamports(5000);
+
+    if (balance.isLessThan(minimumBalance)) {
+      return;
+    }
+
+    const balanceToWithdraw = balance.minus(minimumBalance).getLamports();
+    await this.withdraw(balanceToWithdraw);
   }
 
-  public async withdraw(): Promise<void> {
+  public async withdraw(lamports: BigNumber | number): Promise<void> {
     const bundlr = await this.getBundlr();
-    const balance = await this.getBalance();
 
-    if (balance.getLamports() > new BigNumber(5000)) {
-      const { status } = await bundlr.withdrawBalance(
-        balance.getLamports().minus(new BigNumber(5000))
-      );
+    const { status } = await bundlr.withdrawBalance(new BigNumber(lamports));
 
-      if (status >= 300) {
-        throw new BundlrWithdrawError(status);
-      }
+    if (status >= 300) {
+      throw new BundlrWithdrawError(status);
     }
   }
 
   public withdrawAfterUploading() {
     this.shouldWithdrawAfterUploading = true;
+
+    return this;
   }
 
   public dontWithdrawAfterUploading() {
     this.shouldWithdrawAfterUploading = false;
+
+    return this;
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
