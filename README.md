@@ -1,7 +1,7 @@
 # Metaplex JavaScript SDK
 
 ```scala
-⛔️ DO NOT USE IN PRODUCTION, THIS SDK IS IN VERY EARLY ALPHA STAGES!
+⛔️ THIS SDK IS IN EARLY ALPHA STAGES, EXPECT LOTS OF BREAKING CHANGES.
 ```
 
 This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience whilst allowing third parties to extend its features via plugins.
