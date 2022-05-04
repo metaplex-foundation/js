@@ -1,4 +1,5 @@
 export * from './BaseAccount';
+export * from './DateTimeString';
 export * from './Cluster';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
@@ -7,6 +8,7 @@ export * from './ModuleClient';
 export * from './Pda';
 export * from './Plan';
 export * from './Postpone';
+export * from './PublicKeyString';
 export * from './Signer';
 export * from './SolAmount';
 export * from './TransactionBuilder';

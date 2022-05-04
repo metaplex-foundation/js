@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 export type SolAmountInput = number | string | Uint8Array | Buffer | BN | BigNumber | SolAmount;
 
-const parseBigNumber = (
+export const parseBigNumber = (
   input: number | string | Uint8Array | Buffer | BN | BigNumber
 ): BigNumber => {
   if (input instanceof Uint8Array || input instanceof BN) {

@@ -1,4 +1,6 @@
+import { ConfirmOptions } from '@solana/web3.js';
 import test from 'tape';
+import crypto from 'crypto';
 
 /**
  * This is a workaround the fact that web3.js doesn't close it's socket connection and provides no way to do so.
@@ -11,4 +13,13 @@ export function killStuckProcess() {
   if (process.env.CI == null) {
     test.onFinish(() => process.exit(0));
   }
+}
+
+export const SKIP_PREFLIGHT: ConfirmOptions = {
+  skipPreflight: true,
+  commitment: 'confirmed',
+};
+
+export function hash32Bit(source: string) {
+  return crypto.createHash('md5').update(source).digest('hex');
 }

@@ -1,20 +1,71 @@
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
+import { cusper as cusperTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
-import { Specification } from 'spok';
+import { Specification, Specifications } from 'spok';
+import { Test } from 'tape';
+import { resolveTransactionError } from './amman';
 
-export function spokSamePubkey(a: PublicKey | null): Specification<PublicKey> {
-  const same = (b: PublicKey | null | undefined) => b != null && !!a?.equals(b);
+export function spokSamePubkey(
+  a: PublicKey | string | null | undefined
+): Specifications<PublicKey> {
+  const keyStr = typeof a === 'string' ? a : a?.toString();
+  const key = typeof a === 'string' ? new PublicKey(a) : a;
+  const same = (b: PublicKey | null | undefined) => b != null && !!key?.equals(b);
 
-  same.$spec = `spokSamePubkey(${a?.toBase58()})`;
-  same.$description = `${a?.toBase58()} equal`;
+  same.$spec = `spokSamePubkey(${keyStr})`;
+  same.$description = `${keyStr} equal`;
   return same;
 }
 
-export function spokSameBignum(a: BN | bignum): Specification<bignum> {
-  const same = (b?: BN | bignum) => b != null && new BN(a).eq(new BN(b));
+export function spokSameBignum(a: BN | bignum | number): Specification<bignum> {
+  const same = (b?: BN | bignum | number) => b != null && new BN(a).eq(new BN(b));
 
   same.$spec = `spokSameBignum(${a})`;
   same.$description = `${a} equal`;
   return same;
+}
+
+export function assertConfirmedWithoutError(
+  t: Test,
+  cusper: typeof cusperTokenMetadata,
+  confirmed: RpcResponseAndContext<SignatureResult>
+) {
+  if (confirmed.value.err == null) {
+    t.pass('confirmed without error');
+  } else {
+    t.fail(resolveTransactionError(cusper, confirmed.value.err).stack);
+  }
+}
+
+async function assertThrowsOnResolve<T>(
+  t: Test,
+  promise: Promise<T>,
+  match: RegExp
+): Promise<void> {
+  try {
+    await promise;
+    t.fail(`expected to throw ${match.toString()}`);
+  } catch {
+    t.pass(`throws ${match.toString()}`);
+  }
+}
+
+export async function assertThrows<T>(
+  t: Test,
+  fnOrPromise: (() => any) | Promise<T>,
+  match: RegExp
+): Promise<void> {
+  if (typeof fnOrPromise === 'function') {
+    try {
+      // could throw synchronously or if the function returns a promise its
+      // resolution may throw
+      await fnOrPromise();
+      t.fail(`expected to throw ${match.toString()}`);
+    } catch {
+      t.pass(`throws ${match.toString()}`);
+    }
+  } else {
+    return assertThrowsOnResolve(t, fnOrPromise, match);
+  }
 }
