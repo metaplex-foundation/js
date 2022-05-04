@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { OperationHandler } from '@/shared';
+import { OperationHandler } from '@/drivers';
 import { Nft } from '../models';
 import { FindNftsByCandyMachineOperation, findNftsByCreatorOperation } from '../operations';
 
@@ -21,7 +21,7 @@ export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<Fin
         );
       }
 
-      return metaplex.execute(
+      return metaplex.operations().execute(
         findNftsByCreatorOperation({
           creator: firstCreator,
           position: 1,

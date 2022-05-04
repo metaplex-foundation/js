@@ -1,4 +1,4 @@
-import { Operation, useOperation } from '@/shared';
+import { Operation, useOperation } from '@/drivers';
 import { PublicKey } from '@solana/web3.js';
 import { Nft } from '../models';
 

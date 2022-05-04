@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { Operation, useOperation } from '@/shared';
+import { Operation, useOperation } from '@/drivers';
 import { Nft } from '../models';
 
 export const findNftsByCandyMachineOperation = useOperation<FindNftsByCandyMachineOperation>(
