@@ -12,10 +12,8 @@ export class CandyMachineAccount extends BaseAccount<CandyMachine> {
     connection: Connection,
     address: PublicKey
   ): Promise<CandyMachineAccount> {
-    // TODO(thlorenz): solita could generate a method to get account info as we do here
-    // However this is a lot of hoops to jump through instead of just using the method that
-    // solita already provides. Having to convert things thrice (including during parse) also requires
-    // lots of object copying affecting perf.
+    // TODO(thlorenz): should pass in UnparsedAccount here which is obtained
+    // via the `metaplex.rpc()` driver
     const accountInfo = await connection.getAccountInfo(address);
     if (accountInfo == null) {
       throw new Error(`Unable to find CandyMachine account at ${address}`);
