@@ -35,7 +35,7 @@ export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;
   protected options: BundlrOptions;
-  protected shouldWithdrawAfterUploading: boolean;
+  protected _withdrawAfterUploading: boolean;
 
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
@@ -43,7 +43,7 @@ export class BundlrStorageDriver extends StorageDriver {
       providerUrl: metaplex.connection.rpcEndpoint,
       ...options,
     };
-    this.shouldWithdrawAfterUploading = options.withdrawAfterUploading ?? true;
+    this._withdrawAfterUploading = options.withdrawAfterUploading ?? true;
   }
 
   public async getBalance(): Promise<SolAmount> {
@@ -71,7 +71,7 @@ export class BundlrStorageDriver extends StorageDriver {
 
     const uris = await Promise.all(promises);
 
-    if (this.shouldWithdrawAfterUploading) {
+    if (this.shouldWithdrawAfterUploading()) {
       await this.withdrawAll();
     }
 
@@ -170,14 +170,18 @@ export class BundlrStorageDriver extends StorageDriver {
     }
   }
 
+  public shouldWithdrawAfterUploading(): boolean {
+    return this._withdrawAfterUploading;
+  }
+
   public withdrawAfterUploading() {
-    this.shouldWithdrawAfterUploading = true;
+    this._withdrawAfterUploading = true;
 
     return this;
   }
 
   public dontWithdrawAfterUploading() {
-    this.shouldWithdrawAfterUploading = false;
+    this._withdrawAfterUploading = false;
 
     return this;
   }
