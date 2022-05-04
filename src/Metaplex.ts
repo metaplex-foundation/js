@@ -8,13 +8,12 @@ import {
   Web3RpcDriver,
   ProgramDriver,
   ArrayProgramDriver,
-  coreProgramsPlugin,
   OperationDriver,
   MapOperationDriver,
 } from '@/drivers';
 import { Cluster, resolveClusterFromConnection } from '@/shared';
-import { nftPlugin } from '@/modules';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { MetaplexPlugin } from './MetaplexPlugin';
+import { corePlugin } from './corePlugin';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
@@ -50,16 +49,11 @@ export class Metaplex {
     this.rpcDriver = new Web3RpcDriver(this);
     this.programDriver = new ArrayProgramDriver(this);
     this.operationDriver = new MapOperationDriver(this);
-    this.registerDefaultPlugins();
+    this.use(corePlugin());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {
     return new this(connection, options);
-  }
-
-  registerDefaultPlugins() {
-    this.use(coreProgramsPlugin);
-    this.use(nftPlugin());
   }
 
   use(plugin: MetaplexPlugin) {
