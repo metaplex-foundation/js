@@ -57,7 +57,7 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
           name: 'Withdraw funds from the Bundlr wallet',
           hidden: true, // Hidden because it requires no approval.
           handler: async (output: UploadMetadataOutput) => {
-            // Since we've not withdrawed after each upload, we now need to
+            // Since we've not withdrawn after every upload, we now need to
             // withdraw any remaining funds. After doing so, we must not
             // forget to restore the original withdrawAfterUploading.
 
