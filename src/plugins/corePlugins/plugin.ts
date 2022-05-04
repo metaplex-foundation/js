@@ -1,6 +1,6 @@
-import { Metaplex } from './Metaplex';
+import { Metaplex } from '../../Metaplex';
 import { coreProgramsPlugin } from '@/drivers';
-import { candyMachinePlugin, nftPlugin } from '@/modules';
+import { candyMachinePlugin@/pluginsin } from '@/modules';
 
 export const corePlugin = () => ({
   install(metaplex: Metaplex) {

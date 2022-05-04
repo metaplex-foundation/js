@@ -10,10 +10,10 @@ import {
   ArrayProgramDriver,
   OperationDriver,
   MapOperationDriver,
-} from '@/drivers';
+} from '@/types';
 import { Cluster, resolveClusterFromConnection } from '@/shared';
-import { MetaplexPlugin } from './MetaplexPlugin';
-import { corePlugin } from './corePlugin';
+import { MetaplexPlugin } from './types/MetaplexPluginPlugin';
+import { corePlugin } from './plugins/corePlugins/corePluginrePlugins/corePlugin';
 
 export type MetaplexOptions = {
   cluster?: Cluster;

@@ -1,6 +1,6 @@
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { IdentityDriver } from './IdentityDriver';
+import { IdentityDriver } from '../../types/IdentityDriver';
 import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/MetaplexPlugin';
 import { KeypairSigner } from '@/shared';
