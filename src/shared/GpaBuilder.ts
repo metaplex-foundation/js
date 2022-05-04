@@ -1,24 +1,17 @@
-import {
-  Connection,
-  GetProgramAccountsConfig,
-  GetProgramAccountsFilter,
-  PublicKey,
-} from '@solana/web3.js';
+import { GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
-import { AccountInfoWithPublicKey } from './AccountInfoWithPublicKey';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Postpone } from './Postpone';
+import { UnparsedAccount } from '@/shared/BaseAccount';
+import { Metaplex } from '@/Metaplex';
 
-export type GpaSortCallback = (
-  a: AccountInfoWithPublicKey<Buffer>,
-  b: AccountInfoWithPublicKey<Buffer>
-) => number;
+export type GpaSortCallback = (a: UnparsedAccount, b: UnparsedAccount) => number;
 
 export class GpaBuilder {
   /** The connection instance to use when fetching accounts. */
-  protected readonly connection: Connection;
+  protected readonly metaplex: Metaplex;
 
   /** The public key of the program we want to retrieve accounts from. */
   protected readonly programId: PublicKey;
@@ -29,13 +22,13 @@ export class GpaBuilder {
   /** When provided, reorder accounts using this callback. */
   protected sortCallback?: GpaSortCallback;
 
-  constructor(connection: Connection, programId: PublicKey) {
-    this.connection = connection;
+  constructor(metaplex: Metaplex, programId: PublicKey) {
+    this.metaplex = metaplex;
     this.programId = programId;
   }
 
   static from<T extends typeof GpaBuilder>(this: T, builder: GpaBuilder): InstanceType<T> {
-    const newBuilder = new this(builder.connection, builder.programId) as InstanceType<T>;
+    const newBuilder = new this(builder.metaplex, builder.programId) as InstanceType<T>;
     newBuilder.mergeConfig(builder.config);
     newBuilder.sortCallback = builder.sortCallback;
 
@@ -92,12 +85,8 @@ export class GpaBuilder {
     return this;
   }
 
-  async get(): Promise<AccountInfoWithPublicKey<Buffer>[]> {
-    const rawAccounts = await this.connection.getProgramAccounts(this.programId, this.config);
-    const accounts = rawAccounts.map(({ pubkey, account }) => ({
-      pubkey,
-      ...account,
-    }));
+  async get(): Promise<UnparsedAccount[]> {
+    const accounts = await this.metaplex.rpc().getProgramAccounts(this.programId, this.config);
 
     if (this.sortCallback) {
       accounts.sort(this.sortCallback);
@@ -106,16 +95,16 @@ export class GpaBuilder {
     return accounts;
   }
 
-  lazy(): Postpone<AccountInfoWithPublicKey<Buffer>[]> {
+  lazy(): Postpone<UnparsedAccount[]> {
     return Postpone.make(() => this.get());
   }
 
-  async getAndMap<T>(callback: (account: AccountInfoWithPublicKey<Buffer>) => T): Promise<T[]> {
+  async getAndMap<T>(callback: (account: UnparsedAccount) => T): Promise<T[]> {
     return this.lazy().map(callback).run();
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
-    return this.getAndMap((account) => account.pubkey);
+    return this.getAndMap((account) => account.publicKey);
   }
 
   async getDataAsPublicKeys(): Promise<PublicKey[]> {
@@ -123,13 +112,13 @@ export class GpaBuilder {
   }
 
   getMultipleAccounts(
-    callback?: (account: AccountInfoWithPublicKey<Buffer>) => PublicKey,
+    callback?: (account: UnparsedAccount) => PublicKey,
     options?: GmaBuilderOptions
   ): Postpone<GmaBuilder> {
     const cb = callback ?? ((account) => new PublicKey(account.data));
 
     return Postpone.make(async () => {
-      return new GmaBuilder(this.connection, await this.getAndMap(cb), options);
+      return new GmaBuilder(this.metaplex, await this.getAndMap(cb), options);
     });
   }
 }

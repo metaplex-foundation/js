@@ -6,7 +6,8 @@ import {
   replaceAssetsWithUris,
   UploadMetadataOutput,
 } from '@/modules/nfts';
-import { Plan, OperationHandler, DisposableScope } from '@/shared';
+import { Plan, DisposableScope } from '@/shared';
+import { OperationHandler } from '../operations';
 import { MetaplexFile } from '../filesystem';
 import { BundlrStorageDriver } from './BundlrStorageDriver';
 

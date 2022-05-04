@@ -7,7 +7,7 @@ import { SolAmount } from '@/shared';
 
 export const awsStorage = (client: S3Client, bucketName: string): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setStorage(new AwsStorageDriver(metaplex, client, bucketName));
+    metaplex.setStorageDriver(new AwsStorageDriver(metaplex, client, bucketName));
   },
 });
 

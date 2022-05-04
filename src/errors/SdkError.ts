@@ -1,3 +1,6 @@
+import { PublicKey } from '@solana/web3.js';
+import { Cluster } from '@/shared';
+import { Program } from '@/drivers';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 export class SdkError extends MetaplexError {
@@ -18,7 +21,7 @@ export class OperationHandlerMissingError extends SdkError {
       title: 'Operation Handler Missing',
       problem: `No operation handler was registered for the [${operationKey}] operation.`,
       solution:
-        'Ensure an operation handler is registered by using the following code: ' +
+        'Did you forget to register it? You may do this by using: ' +
         '"metaplex.register(operation, operationHandler)".',
     });
   }
@@ -111,6 +114,75 @@ export class AssetNotFoundError extends SdkError {
       problem: `The asset at [${location}] could not be found.`,
       solution: 'Ensure the asset exists at the given path or URI.',
     });
+  }
+}
+
+export class AccountNotFoundError extends SdkError {
+  constructor(address: PublicKey, accountType?: string, solution?: string, cause?: Error) {
+    super({
+      cause,
+      key: 'account_not_found',
+      title: 'Account Not Found',
+      problem:
+        (accountType
+          ? `The account of type [${accountType}] was not found`
+          : 'No account was found') + ` at the provided address [${address.toBase58()}].`,
+      solution:
+        solution ??
+        'Ensure the provided address is correct and that an account exists at this address.',
+    });
+  }
+}
+
+export class UnexpectedAccountError extends SdkError {
+  constructor(address: PublicKey, accountType: string, cause?: Error) {
+    super({
+      cause,
+      key: 'unexpected_account',
+      title: 'Unexpected Account',
+      problem:
+        `The account at the provided address [${address.toBase58()}] ` +
+        `is not of the expected type [${accountType}].`,
+      solution: `Ensure the provided address is correct and that it holds an account of type [${accountType}].`,
+    });
+  }
+}
+
+export class ProgramNotRecognizedError extends SdkError {
+  nameOrAddress: string | PublicKey;
+  cluster: Cluster;
+  constructor(nameOrAddress: string | PublicKey, cluster: Cluster, cause?: Error) {
+    const isName = typeof nameOrAddress === 'string';
+    const toString = isName ? nameOrAddress : nameOrAddress.toBase58();
+    super({
+      cause,
+      key: 'program_not_recognized',
+      title: 'Program Not Recognized',
+      problem:
+        `The provided program ${isName ? 'name' : 'address'} [${toString}] ` +
+        `is not recognized in the [${cluster}] cluster.`,
+      solution:
+        'Did you forget to register this program? ' +
+        'If so, you may use "metaplex.programs().register(myProgram)" to fix this.',
+    });
+    this.nameOrAddress = nameOrAddress;
+    this.cluster = cluster;
+  }
+}
+
+export class MissingGpaBuilderError extends SdkError {
+  program: Program;
+  constructor(program: Program, cause?: Error) {
+    super({
+      cause,
+      key: 'missing_gpa_builder',
+      title: 'Missing "getProgramAccount" Builder',
+      problem: `The program [${program.name}] does not have a registered "getProgramAccount" builder.`,
+      solution:
+        'When registering a program, make sure you provide a "gpaResolver" ' +
+        'before trying to access its "getProgramAccount" builder.',
+    });
+    this.program = program;
   }
 }
 

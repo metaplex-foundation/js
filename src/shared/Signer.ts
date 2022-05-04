@@ -1,12 +1,23 @@
-import { IdentityDriver } from '@/drivers';
-import { Signer as Web3Signer } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 
-export type Signer = Web3Signer | IdentityDriver;
+export type KeypairSigner = {
+  publicKey: PublicKey;
+  secretKey: Uint8Array;
+};
+
+export type IdentitySigner = {
+  publicKey: PublicKey;
+  signMessage(message: Uint8Array): Promise<Uint8Array>;
+  signTransaction(transaction: Transaction): Promise<Transaction>;
+  signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
+};
+
+export type Signer = KeypairSigner | IdentitySigner;
 
 export interface SignerHistogram {
   all: Signer[];
-  keypairs: Web3Signer[];
-  identities: IdentityDriver[];
+  keypairs: KeypairSigner[];
+  identities: IdentitySigner[];
 }
 
 export const getSignerHistogram = (signers: Signer[]) =>

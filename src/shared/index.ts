@@ -1,5 +1,5 @@
-export * from './Account';
-export * from './AccountInfoWithPublicKey';
+export * from './BaseAccount';
+export * from './Cluster';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './Model';
@@ -12,4 +12,3 @@ export * from './SolAmount';
 export * from './TransactionBuilder';
 export * from './useDisposable';
 export * from './useTask';
-export * from './useOperation';

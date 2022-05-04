@@ -1,5 +1,4 @@
-import { MetaplexFile } from '@/drivers';
-import { Operation, useOperation } from '@/shared';
+import { MetaplexFile, Operation, useOperation } from '@/drivers';
 import { JsonMetadata } from '../models';
 
 export const uploadMetadataOperation =

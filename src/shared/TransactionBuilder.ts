@@ -1,4 +1,9 @@
-import { Transaction, TransactionCtorFields, TransactionInstruction } from '@solana/web3.js';
+import {
+  PublicKey,
+  Transaction,
+  TransactionCtorFields,
+  TransactionInstruction,
+} from '@solana/web3.js';
 import { Signer } from './Signer';
 
 export interface TransactionBuilderRecord {
@@ -13,6 +18,9 @@ export class TransactionBuilder {
 
   /** Options used when building the transaction. */
   private transactionOptions: TransactionCtorFields;
+
+  /** The signer to use to pay for transaction fees. */
+  private feePayer: Signer | undefined = undefined;
 
   constructor(transactionOptions: TransactionCtorFields = {}) {
     this.transactionOptions = transactionOptions;
@@ -77,7 +85,10 @@ export class TransactionBuilder {
   }
 
   getSigners(): Signer[] {
-    return this.records.flatMap((record) => record.signers);
+    const feePayer = this.feePayer == null ? [] : [this.feePayer];
+    const signers = this.records.flatMap((record) => record.signers);
+
+    return [...feePayer, ...signers];
   }
 
   setTransactionOptions(transactionOptions: TransactionCtorFields): TransactionBuilder {
@@ -88,6 +99,16 @@ export class TransactionBuilder {
 
   getTransactionOptions() {
     return this.transactionOptions;
+  }
+
+  setFeePayer(feePayer: Signer): TransactionBuilder {
+    this.feePayer = feePayer;
+
+    return this;
+  }
+
+  getFeePayer(): PublicKey | undefined {
+    return this.feePayer?.publicKey;
   }
 
   when(condition: boolean, callback: (tx: TransactionBuilder) => TransactionBuilder) {
@@ -101,6 +122,7 @@ export class TransactionBuilder {
   toTransaction(): Transaction {
     const tx = new Transaction(this.getTransactionOptions());
     tx.add(...this.getInstructions());
+    tx.feePayer = this.getFeePayer();
 
     return tx;
   }

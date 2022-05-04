@@ -1,7 +1,9 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Nft, MetaplexFile } from '@/index';
-import { metaplex, createNft } from '../../helpers';
+import { metaplex, createNft, killStuckProcess } from '../../helpers';
+
+killStuckProcess();
 
 test('it can update the on-chain data of an nft', async (t: Test) => {
   // Given we have a Metaplex instance.

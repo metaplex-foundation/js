@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js-next",
-  "version": "0.6.0",
+  "version": "0.7.3",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -31,7 +31,7 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "homepage": "https://metaplex.com",
   "repository": {
-    "url": "https://github.com/metaplex/js-next.git"
+    "url": "https://github.com/metaplex-foundation/js-next.git"
   },
   "scripts": {
     "check:publish-ready": "yarn build && yarn test",
@@ -51,10 +51,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
-    "@bundlr-network/client": "^0.7.1",
+    "@bundlr-network/client": "^0.7.3",
     "@metaplex-foundation/beet": "^0.1.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-token-metadata": "^2.1.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.1.1",
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.37.0",

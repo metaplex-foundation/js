@@ -1,8 +1,10 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
-import { metaplex } from '../../helpers';
+import { killStuckProcess, metaplex } from '../../helpers';
 import { awsStorage, MetaplexFile } from '@/index';
+
+killStuckProcess();
 
 const awsClient = {
   async send() {

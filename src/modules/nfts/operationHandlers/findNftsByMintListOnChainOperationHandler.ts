@@ -1,6 +1,8 @@
 import { Metaplex } from '@/Metaplex';
 import { MetadataAccount } from '@/programs';
-import { GmaBuilder, OperationHandler } from '@/shared';
+import { GmaBuilder } from '@/shared';
+import { OperationHandler } from '@/drivers';
+import { zipMap } from '@/utils';
 import { Nft } from '../models';
 import { FindNftsByMintListOperation } from '../operations/findNftsByMintListOperation';
 
@@ -12,13 +14,13 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
     ): Promise<(Nft | null)[]> => {
       const mints = operation.input;
       const metadataPdas = await Promise.all(mints.map((mint) => MetadataAccount.pda(mint)));
-      const metadataInfos = await GmaBuilder.make(metaplex.connection, metadataPdas).get();
+      const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas).get();
 
-      return metadataInfos.map((metadataInfo) => {
+      return zipMap(metadataPdas, metadataInfos, (metadataPda, metadataInfo) => {
         if (!metadataInfo || !metadataInfo.exists) return null;
 
         try {
-          const metadata = MetadataAccount.fromAccountInfo(metadataInfo);
+          const metadata = MetadataAccount.from(metadataInfo);
           return new Nft(metadata, metaplex);
         } catch (error) {
           return null;

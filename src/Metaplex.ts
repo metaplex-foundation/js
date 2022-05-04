@@ -6,30 +6,25 @@ import {
   BundlrStorageDriver,
   RpcDriver,
   Web3RpcDriver,
+  ProgramDriver,
+  ArrayProgramDriver,
+  OperationDriver,
+  MapOperationDriver,
 } from '@/drivers';
-import {
-  OperationConstructor,
-  Operation,
-  KeyOfOperation,
-  InputOfOperation,
-  OutputOfOperation,
-  OperationHandler,
-} from '@/shared';
-import { nftPlugin } from '@/modules';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
-import { Task, TaskOptions, useTask } from './shared/useTask';
-import { OperationHandlerMissingError } from '@/errors';
+import { Cluster, resolveClusterFromConnection } from '@/shared';
+import { MetaplexPlugin } from './MetaplexPlugin';
+import { corePlugin } from './corePlugin';
 
 export type MetaplexOptions = {
-  // ...
+  cluster?: Cluster;
 };
 
 export class Metaplex {
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection;
 
-  /** Options that dictate how to interact with the Metaplex SDK. */
-  public readonly options: MetaplexOptions;
+  /** The cluster in which the connection endpoint belongs to. */
+  public readonly cluster: Cluster;
 
   /** Encapsulates the identity of the users interacting with the SDK. */
   protected identityDriver: IdentityDriver;
@@ -40,24 +35,25 @@ export class Metaplex {
   /** Encapsulates how to read and write on-chain. */
   protected rpcDriver: RpcDriver;
 
-  /** The registered handlers for read/write operations. */
-  protected operationHandlers: Map<string, OperationHandler<any, any, any, any>> = new Map();
+  /** Registers all recognised programs across clusters. */
+  protected programDriver: ProgramDriver;
+
+  /** Registers handlers for read/write operations. */
+  protected operationDriver: OperationDriver;
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
-    this.options = options;
+    this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
     this.rpcDriver = new Web3RpcDriver(this);
-    this.registerDefaultPlugins();
+    this.programDriver = new ArrayProgramDriver(this);
+    this.operationDriver = new MapOperationDriver(this);
+    this.use(corePlugin());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {
     return new this(connection, options);
-  }
-
-  registerDefaultPlugins() {
-    this.use(nftPlugin());
   }
 
   use(plugin: MetaplexPlugin) {
@@ -70,7 +66,7 @@ export class Metaplex {
     return this.identityDriver;
   }
 
-  setIdentity(identity: IdentityDriver) {
+  setIdentityDriver(identity: IdentityDriver) {
     this.identityDriver = identity;
 
     return this;
@@ -80,7 +76,7 @@ export class Metaplex {
     return this.storageDriver;
   }
 
-  setStorage(storage: StorageDriver) {
+  setStorageDriver(storage: StorageDriver) {
     this.storageDriver = storage;
 
     return this;
@@ -90,62 +86,29 @@ export class Metaplex {
     return this.rpcDriver;
   }
 
-  setRpc(rpc: RpcDriver) {
+  setRpcDriver(rpc: RpcDriver) {
     this.rpcDriver = rpc;
 
     return this;
   }
 
-  register<
-    T extends Operation<K, I, O>,
-    K extends string = KeyOfOperation<T>,
-    I = InputOfOperation<T>,
-    O = OutputOfOperation<T>
-  >(
-    operationConstructor: OperationConstructor<T, K, I, O>,
-    operationHandler: OperationHandler<T, K, I, O>
-  ) {
-    this.operationHandlers.set(operationConstructor.key, operationHandler);
+  programs() {
+    return this.programDriver;
+  }
+
+  setProgramDriver(programDriver: ProgramDriver) {
+    this.programDriver = programDriver;
 
     return this;
   }
 
-  getOperationHandler<
-    T extends Operation<K, I, O>,
-    K extends string = KeyOfOperation<T>,
-    I = InputOfOperation<T>,
-    O = OutputOfOperation<T>
-  >(operation: T): OperationHandler<T, K, I, O> {
-    const operationHandler = this.operationHandlers.get(operation.key) as
-      | OperationHandler<T, K, I, O>
-      | undefined;
-
-    if (!operationHandler) {
-      throw new OperationHandlerMissingError(operation.key);
-    }
-
-    return operationHandler;
+  operations() {
+    return this.operationDriver;
   }
 
-  getTask<
-    T extends Operation<K, I, O>,
-    K extends string = KeyOfOperation<T>,
-    I = InputOfOperation<T>,
-    O = OutputOfOperation<T>
-  >(operation: T): Task<O> {
-    const operationHandler = this.getOperationHandler<T, K, I, O>(operation);
+  setOperationDriver(operationDriver: OperationDriver) {
+    this.operationDriver = operationDriver;
 
-    return useTask((scope) => {
-      return operationHandler.handle(operation, this, scope);
-    });
-  }
-
-  execute<
-    T extends Operation<K, I, O>,
-    K extends string = KeyOfOperation<T>,
-    I = InputOfOperation<T>,
-    O = OutputOfOperation<T>
-  >(operation: T, options: TaskOptions = {}): Promise<O> {
-    return this.getTask<T, K, I, O>(operation).run(options);
+    return this;
   }
 }

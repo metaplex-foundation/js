@@ -4,6 +4,7 @@ export * from './findNftsByCandyMachineOnChainOperationHandler';
 export * from './findNftsByCreatorOnChainOperationHandler';
 export * from './findNftsByMintListOnChainOperationHandler';
 export * from './findNftsByOwnerOnChainOperationHandler';
+export * from './printNewEditionOperationHandler';
 export * from './planUploadMetadataOperationHandler';
 export * from './updateNftOperationHandler';
 export * from './uploadMetadataOperationHandler';

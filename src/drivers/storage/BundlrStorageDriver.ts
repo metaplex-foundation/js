@@ -25,8 +25,10 @@ export interface BundlrOptions {
 
 export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setStorage(new BundlrStorageDriver(metaplex, options));
-    metaplex.register(planUploadMetadataOperation, planUploadMetadataUsingBundlrOperationHandler);
+    metaplex.setStorageDriver(new BundlrStorageDriver(metaplex, options));
+    metaplex
+      .operations()
+      .register(planUploadMetadataOperation, planUploadMetadataUsingBundlrOperationHandler);
   },
 });
 

@@ -1,7 +1,9 @@
 import { Metaplex } from '@/Metaplex';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplex, createNft } from 'test/helpers';
+import { metaplex, createNft, killStuckProcess } from 'test/helpers';
+
+killStuckProcess();
 
 test('it can fetch all NFTs from the first creator', async (t: Test) => {
   // Given a metaplex instance and two NFTs from two different creators.
@@ -19,7 +21,7 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.true(nftsA[0].is(nftA));
+  t.true(nftsA[0].equals(nftA));
 
   // And vice versa.
   const nftsB = await mx.nfts().findNftsByCreator(creatorB);
@@ -27,7 +29,7 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.true(nftsB[0].is(nftB));
+  t.true(nftsB[0].equals(nftB));
 });
 
 test('it can fetch all NFTs from other creator positions', async (t: Test) => {
@@ -46,7 +48,7 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.true(nftsA[0].is(nftA));
+  t.true(nftsA[0].equals(nftA));
 
   // And vice versa.
   const nftsB = await mx.nfts().findNftsByCreator(creatorB, 2);
@@ -54,7 +56,7 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.true(nftsB[0].is(nftB));
+  t.true(nftsB[0].equals(nftB));
 });
 
 const createNftWithFirstCreator = (mx: Metaplex, name: string, creator: PublicKey) => {

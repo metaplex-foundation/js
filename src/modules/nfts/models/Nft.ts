@@ -9,10 +9,11 @@ import {
 import { Metaplex } from '@/Metaplex';
 import { Model } from '@/shared';
 import { removeEmptyChars } from '@/utils';
-import { MetadataAccount, MasterEditionAccount } from '@/programs/tokenMetadata';
+import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';
 import { useJsonMetadataTask, JsonMetadataTask } from './useJsonMetadataTask';
-import { useMasterEditionTask, MasterEditionTask } from './useMasterEditionTask';
+import { useEditionTask, EditionTask } from './useEditionTask';
+import { EditionArgs } from '@metaplex-foundation/mpl-token-metadata/dist/generated/accounts/Edition';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
@@ -20,7 +21,7 @@ export class Nft extends Model {
 
   /** Tasks. */
   public readonly metadataTask: JsonMetadataTask;
-  public readonly masterEditionTask: MasterEditionTask;
+  public readonly editionTask: EditionTask;
 
   /** Data from the Metadata account. */
   public readonly updateAuthority: PublicKey;
@@ -41,7 +42,7 @@ export class Nft extends Model {
     super();
     this.metadataAccount = metadataAccount;
     this.metadataTask = useJsonMetadataTask(metaplex, this);
-    this.masterEditionTask = useMasterEditionTask(metaplex, this);
+    this.editionTask = useEditionTask(metaplex, this);
 
     this.updateAuthority = metadataAccount.data.updateAuthority;
     this.mint = metadataAccount.data.mint;
@@ -62,17 +63,37 @@ export class Nft extends Model {
     return this.metadataTask.getResult() ?? {};
   }
 
-  get masterEditionAccount(): MasterEditionAccount | null {
-    return this.masterEditionTask.getResult() ?? null;
+  get editionAccount(): OriginalOrPrintEditionAccount | null {
+    return this.editionTask.getResult() ?? null;
   }
 
-  get masterEdition(): Partial<Omit<MasterEditionV2Args, 'key'>> {
-    return this.masterEditionAccount?.data ?? {};
+  get originalEdition(): MasterEditionV2Args | null {
+    if (!this.editionAccount?.isOriginal()) {
+      return null;
+    }
+
+    return this.editionAccount.data;
   }
 
-  public is(other: Nft | PublicKey): boolean {
+  get printEdition(): EditionArgs | null {
+    if (!this.editionAccount?.isPrint()) {
+      return null;
+    }
+
+    return this.editionAccount.data;
+  }
+
+  public equals(other: Nft | PublicKey): boolean {
     const mint = other instanceof Nft ? other.mint : other;
 
     return this.mint.equals(mint);
+  }
+
+  public isOriginal(): boolean {
+    return this.editionAccount?.isOriginal() ?? false;
+  }
+
+  public isPrint(): boolean {
+    return this.editionAccount?.isPrint() ?? false;
   }
 }

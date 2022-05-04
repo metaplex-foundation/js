@@ -1,13 +1,22 @@
+import { Buffer } from 'buffer';
 import {
+  AccountInfo,
   Blockhash,
   Commitment,
   ConfirmOptions,
+  GetProgramAccountsConfig,
   PublicKey,
   SendOptions,
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import { getSignerHistogram, Signer, TransactionBuilder } from '@/shared';
+import {
+  getSignerHistogram,
+  Signer,
+  TransactionBuilder,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/shared';
 import {
   RpcDriver,
   ConfirmTransactionResponse,
@@ -17,7 +26,12 @@ import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
   FailedToSendTransactionError,
+  MetaplexError,
+  ParsedProgramError,
+  UnknownProgramError,
 } from '@/errors';
+import { zipMap } from '@/utils';
+import { isErrorWithLogs, Program } from '../programs';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(
@@ -33,7 +47,10 @@ export class Web3RpcDriver extends RpcDriver {
     transaction.feePayer ??= this.getDefaultFeePayer();
     transaction.recentBlockhash ??= await this.getLatestBlockhash();
 
-    signers = [this.metaplex.identity(), ...signers];
+    if (transaction.feePayer && this.metaplex.identity().equals(transaction.feePayer)) {
+      signers = [this.metaplex.identity(), ...signers];
+    }
+
     const { keypairs, identities } = getSignerHistogram(signers);
 
     if (keypairs.length > 0) {
@@ -49,8 +66,7 @@ export class Web3RpcDriver extends RpcDriver {
     try {
       return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
     } catch (error) {
-      // TODO: Parse using program knowledge when possible.
-      throw new FailedToSendTransactionError(error as Error);
+      throw this.parseProgramError(error, transaction);
     }
   }
 
@@ -58,18 +74,18 @@ export class Web3RpcDriver extends RpcDriver {
     signature: TransactionSignature,
     commitment?: Commitment
   ): Promise<ConfirmTransactionResponse> {
+    let rpcResponse: ConfirmTransactionResponse;
     try {
-      const rpcResponse: ConfirmTransactionResponse =
-        await this.metaplex.connection.confirmTransaction(signature, commitment);
-
-      if (rpcResponse.value.err) {
-        throw new FailedToConfirmTransactionWithResponseError(rpcResponse);
-      }
-
-      return rpcResponse;
+      rpcResponse = await this.metaplex.connection.confirmTransaction(signature, commitment);
     } catch (error) {
       throw new FailedToConfirmTransactionError(error as Error);
     }
+
+    if (rpcResponse.value.err) {
+      throw new FailedToConfirmTransactionWithResponseError(rpcResponse);
+    }
+
+    return rpcResponse;
   }
 
   async sendAndConfirmTransaction(
@@ -83,12 +99,36 @@ export class Web3RpcDriver extends RpcDriver {
     return { signature, confirmResponse };
   }
 
-  getAccountInfo(publicKey: PublicKey, commitment?: Commitment) {
-    return this.metaplex.connection.getAccountInfo(publicKey, commitment);
+  async getAccount(publicKey: PublicKey, commitment?: Commitment) {
+    const accountInfo = await this.metaplex.connection.getAccountInfo(publicKey, commitment);
+
+    return this.getUnparsedMaybeAccount(publicKey, accountInfo);
   }
 
-  getMultipleAccountsInfo(publicKeys: PublicKey[], commitment?: Commitment) {
-    return this.metaplex.connection.getMultipleAccountsInfo(publicKeys, commitment);
+  async getMultipleAccounts(publicKeys: PublicKey[], commitment?: Commitment) {
+    const accountInfos = await this.metaplex.connection.getMultipleAccountsInfo(
+      publicKeys,
+      commitment
+    );
+
+    return zipMap(publicKeys, accountInfos, (publicKey, accountInfo) => {
+      return this.getUnparsedMaybeAccount(publicKey, accountInfo);
+    });
+  }
+
+  async getProgramAccounts(
+    programId: PublicKey,
+    configOrCommitment?: GetProgramAccountsConfig | Commitment
+  ): Promise<UnparsedAccount[]> {
+    const accounts = await this.metaplex.connection.getProgramAccounts(
+      programId,
+      configOrCommitment
+    );
+
+    return accounts.map(({ pubkey, account }) => ({
+      publicKey: pubkey,
+      ...account,
+    }));
   }
 
   protected async getLatestBlockhash(): Promise<Blockhash> {
@@ -99,5 +139,62 @@ export class Web3RpcDriver extends RpcDriver {
     const identity = this.metaplex.identity().publicKey;
 
     return identity.equals(PublicKey.default) ? undefined : identity;
+  }
+
+  protected getUnparsedMaybeAccount(
+    publicKey: PublicKey,
+    accountInfo: AccountInfo<Buffer> | null
+  ): UnparsedMaybeAccount {
+    if (!accountInfo) {
+      return { publicKey, exists: false };
+    }
+
+    return { publicKey, exists: true, ...accountInfo };
+  }
+
+  protected parseProgramError(error: unknown, transaction: Transaction): MetaplexError {
+    // Ensure the error as logs.
+    if (!isErrorWithLogs(error)) {
+      return new FailedToSendTransactionError(error as Error);
+    }
+
+    // Parse the instruction number.
+    const regex = /Error processing Instruction (\d+):/;
+    const instruction: string | null = error.message.match(regex)?.[1] ?? null;
+
+    // Ensure there is an instruction number given to find the program.
+    if (!instruction) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Get the program ID from the instruction in the transaction.
+    const instructionNumber: number = parseInt(instruction, 10);
+    const programId: PublicKey | null =
+      transaction.instructions?.[instructionNumber]?.programId ?? null;
+
+    // Ensure we were able to find a program ID for the instruction.
+    if (!programId) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Find a registered program if any.
+    let program: Program;
+    try {
+      program = this.metaplex.programs().get(programId);
+    } catch (_programNotFoundError) {
+      return new FailedToSendTransactionError(error);
+    }
+
+    // Ensure an error resolver exists on the program.
+    if (!program.errorResolver) {
+      return new UnknownProgramError(program, error);
+    }
+
+    // Finally, resolve the error.
+    const resolvedError = program.errorResolver(error);
+
+    return resolvedError
+      ? new ParsedProgramError(program, resolvedError)
+      : new UnknownProgramError(program, error);
   }
 }

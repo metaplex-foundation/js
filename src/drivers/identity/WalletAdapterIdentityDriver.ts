@@ -1,7 +1,8 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
+  SendTransactionOptions,
   WalletAdapter as BaseWalletAdapter,
 } from '@solana/wallet-adapter-base';
 import { IdentityDriver } from './IdentityDriver';
@@ -19,7 +20,7 @@ type WalletAdapter = BaseWalletAdapter &
 
 export const walletAdapterIdentity = (walletAdapter: WalletAdapter): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setIdentity(new WalletAdapterIdentityDriver(metaplex, walletAdapter));
+    metaplex.setIdentityDriver(new WalletAdapterIdentityDriver(metaplex, walletAdapter));
   },
 });
 
@@ -29,7 +30,7 @@ export const walletOrGuestIdentity = (walletAdapter?: WalletAdapter | null): Met
       ? new WalletAdapterIdentityDriver(metaplex, walletAdapter)
       : new GuestIdentityDriver(metaplex);
 
-    metaplex.setIdentity(identity);
+    metaplex.setIdentityDriver(identity);
   },
 });
 
@@ -71,5 +72,17 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
+  }
+
+  public async sendTransaction(
+    transaction: Transaction,
+    _connection?: Connection,
+    options?: SendTransactionOptions
+  ): Promise<TransactionSignature> {
+    const { signers, ...sendOptions } = options || {};
+
+    // We accept a connection to match the wallet signature, but it is not used.
+    // We use the RpcDriver to send the transaction to keep the single point of failure.
+    return this.metaplex.rpc().sendTransaction(transaction, signers, sendOptions);
   }
 }
