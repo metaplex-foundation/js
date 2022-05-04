@@ -66,8 +66,8 @@ export class BundlrWithdrawError extends BundlrError {
         `The balance could not be withdrawn from the Bundlr network and ` +
         `returned the following status code [${status}].`,
       solution:
-        'This could happen for a variety of reasons. ' +
-        'Check the underlying error below for more information.',
+        'Check the provided status code for more information. For now, this is all we get ' +
+        "from Bundlr's API but we'll improve this error message as we get more information.",
     });
   }
 }
