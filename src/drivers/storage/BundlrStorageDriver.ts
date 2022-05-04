@@ -10,9 +10,9 @@ import { planUploadMetadataUsingBundlrOperationHandler } from './planUploadMetad
 import { SolAmount } from '@/shared';
 import {
   AssetUploadFailedError,
+  BundlrWithdrawError,
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
-  NotYetImplementedError,
 } from '@/errors';
 
 export interface BundlrOptions {
@@ -20,6 +20,7 @@ export interface BundlrOptions {
   timeout?: number;
   providerUrl?: string;
   priceMultiplier?: number;
+  withdrawAfterUploading?: boolean;
 }
 
 export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
@@ -34,6 +35,7 @@ export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;
   protected options: BundlrOptions;
+  protected _withdrawAfterUploading: boolean;
 
   constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     super(metaplex);
@@ -41,6 +43,7 @@ export class BundlrStorageDriver extends StorageDriver {
       providerUrl: metaplex.connection.rpcEndpoint,
       ...options,
     };
+    this._withdrawAfterUploading = options.withdrawAfterUploading ?? true;
   }
 
   public async getBalance(): Promise<SolAmount> {
@@ -65,9 +68,14 @@ export class BundlrStorageDriver extends StorageDriver {
   public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
     await this.fund(files);
     const promises = files.map((file) => this.uploadFile(file));
-    // TODO: withdraw any money left in the balance?
 
-    return Promise.all(promises);
+    const uris = await Promise.all(promises);
+
+    if (this.shouldWithdrawAfterUploading()) {
+      await this.withdrawAll();
+    }
+
+    return uris;
   }
 
   public async fundingNeeded(
@@ -139,9 +147,43 @@ export class BundlrStorageDriver extends StorageDriver {
     return `https://arweave.net/${data.id}`;
   }
 
-  protected async withdrawAll(): Promise<void> {
-    // TODO: Implement when available on Bundlr.
-    throw new NotYetImplementedError();
+  public async withdrawAll(): Promise<void> {
+    // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
+    const balance = await this.getBalance();
+    const minimumBalance = SolAmount.fromLamports(5000);
+
+    if (balance.isLessThan(minimumBalance)) {
+      return;
+    }
+
+    const balanceToWithdraw = balance.minus(minimumBalance).getLamports();
+    await this.withdraw(balanceToWithdraw);
+  }
+
+  public async withdraw(lamports: BigNumber | number): Promise<void> {
+    const bundlr = await this.getBundlr();
+
+    const { status } = await bundlr.withdrawBalance(new BigNumber(lamports));
+
+    if (status >= 300) {
+      throw new BundlrWithdrawError(status);
+    }
+  }
+
+  public shouldWithdrawAfterUploading(): boolean {
+    return this._withdrawAfterUploading;
+  }
+
+  public withdrawAfterUploading() {
+    this._withdrawAfterUploading = true;
+
+    return this;
+  }
+
+  public dontWithdrawAfterUploading() {
+    this._withdrawAfterUploading = false;
+
+    return this;
   }
 
   public async getBundlr(): Promise<WebBundlr | NodeBundlr> {

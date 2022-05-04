@@ -55,3 +55,19 @@ export class AssetUploadFailedError extends BundlrError {
     });
   }
 }
+
+export class BundlrWithdrawError extends BundlrError {
+  constructor(status: number, cause?: Error) {
+    super({
+      cause,
+      key: 'bundlr_withdraw_error',
+      title: 'Bundlr Withdraw Error',
+      problem:
+        `The balance could not be withdrawn from the Bundlr network and ` +
+        `returned the following status code [${status}].`,
+      solution:
+        'Check the provided status code for more information. For now, this is all we get ' +
+        "from Bundlr's API but we'll improve this error message as we get more information.",
+    });
+  }
+}
