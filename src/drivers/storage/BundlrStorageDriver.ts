@@ -147,7 +147,7 @@ export class BundlrStorageDriver extends StorageDriver {
     return `https://arweave.net/${data.id}`;
   }
 
-  protected async withdrawAll(): Promise<void> {
+  public async withdrawAll(): Promise<void> {
     // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
     const balance = await this.getBalance();
     const minimumBalance = SolAmount.fromLamports(5000);
