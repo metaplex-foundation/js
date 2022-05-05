@@ -1,14 +1,7 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { IdentityDriver } from './IdentityDriver';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
+import { IdentityDriver } from '@/types';
 import { OperationUnauthorizedForGuestsError } from '@/errors';
-
-export const guestIdentity = (): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    metaplex.setIdentityDriver(new GuestIdentityDriver(metaplex));
-  },
-});
 
 export class GuestIdentityDriver extends IdentityDriver {
   public readonly publicKey: PublicKey;

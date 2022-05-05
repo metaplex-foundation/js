@@ -1,11 +1,12 @@
 import { Metaplex } from '../../Metaplex';
-import { coreProgramsPlugin } from '@/drivers';
-import { candyMachinePlugin@/pluginsin } from '@/modules';
+import { corePrograms } from '../corePrograms';
+import { nftModule } from '../nftModule';
+import { candyMachineModule } from '../candyMachineModule';
 
-export const corePlugin = () => ({
+export const corePlugins = () => ({
   install(metaplex: Metaplex) {
-    metaplex.use(coreProgramsPlugin());
-    metaplex.use(nftPlugin());
-    metaplex.use(candyMachinePlugin());
+    metaplex.use(corePrograms());
+    metaplex.use(nftModule());
+    metaplex.use(candyMachineModule());
   },
 });

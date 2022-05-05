@@ -5,15 +5,15 @@ import {
   Uses,
   Creator,
   MasterEditionV2Args,
+  EditionArgs,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
+import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs';
 import { Model } from '@/types';
 import { removeEmptyChars } from '@/utils';
-import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs/tokenMetadata';
 import { JsonMetadata } from './JsonMetadata';
 import { useJsonMetadataTask, JsonMetadataTask } from './useJsonMetadataTask';
 import { useEditionTask, EditionTask } from './useEditionTask';
-import { EditionArgs } from '@metaplex-foundation/mpl-token-metadata/dist/generated/accounts/Edition';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */

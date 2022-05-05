@@ -1,29 +1,26 @@
 import { PublicKey } from '@solana/web3.js';
-import { ModuleClient, Plan } from '@/types';
+import { ModuleClient } from '@/types';
+import { Plan } from '@/utils';
+import { Nft } from './Nft';
+import { findNftByMintOperation } from './findNftByMint';
+import { findNftsByMintListOperation } from './findNftsByMintList';
+import { findNftsByOwnerOperation } from './findNftsByOwner';
+import { findNftsByCreatorOperation } from './findNftsByCreator';
+import { findNftsByCandyMachineOperation } from './findNftsByCandyMachine';
+import {
+  UploadMetadataInput,
+  uploadMetadataOperation,
+  UploadMetadataOutput,
+} from './uploadMetadata';
+import { planUploadMetadataOperation } from './planUploadMetadata';
+import { CreateNftInput, createNftOperation, CreateNftOutput } from './createNft';
+import { UpdateNftInput, updateNftOperation, UpdateNftOutput } from './updateNft';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
-  Nft,
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
-} from '@/plugins/nftModule';
-import {
-  UploadMetadataInput,
-  UploadMetadataOutput,
-  uploadMetadataOperation,
-  planUploadMetadataOperation,
-  CreateNftInput,
-  CreateNftOutput,
-  createNftOperation,
-  findNftByMintOperation,
-  UpdateNftInput,
-  UpdateNftOutput,
-  updateNftOperation,
-  findNftsByOwnerOperation,
-  findNftsByMintListOperation,
-  findNftsByCreatorOperation,
-  findNftsByCandyMachineOperation,
-} from './operations';
+} from './printNewEdition';
 
 export class NftClient extends ModuleClient {
   findNftByMint(mint: PublicKey): Promise<Nft> {

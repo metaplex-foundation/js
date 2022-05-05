@@ -6,9 +6,9 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import { TokenMetadataGpaBuilder, TokenProgramGpaBuilder } from '@/programs';
-import { ErrorWithLogs } from './Program';
+import { ErrorWithLogs } from '@/types';
 
-export const coreProgramsPlugin = () => ({
+export const corePrograms = () => ({
   install(metaplex: Metaplex) {
     // System Program.
     metaplex.programs().register({

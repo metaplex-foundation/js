@@ -1,15 +1,7 @@
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { IdentityDriver } from '../../types/IdentityDriver';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
-import { KeypairSigner } from '@/types';
-
-export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    metaplex.setIdentityDriver(new KeypairIdentityDriver(metaplex, keypair));
-  },
-});
+import { IdentityDriver, KeypairSigner } from '@/types';
 
 export class KeypairIdentityDriver extends IdentityDriver implements KeypairSigner {
   public readonly keypair: Keypair;

@@ -1,13 +1,24 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { useOperation, Operation } from '@/drivers';
-import { Signer } from '@/types';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { getAssociatedTokenAddress, getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
+import BN from 'bn.js';
+import { Metaplex } from '@/Metaplex';
+import {
+  createMintAndMintToAssociatedTokenBuilder,
+  EditionMarkerAccount,
+  MetadataAccount,
+  mintNewEditionFromMasterEditionViaTokenBuilder,
+  mintNewEditionFromMasterEditionViaVaultProxyBuilder,
+  OriginalEditionAccount,
+  PrintEditionAccount,
+} from '@/programs';
+import { useOperation, Operation, OperationHandler, Signer } from '@/types';
+import { AccountNotFoundError } from '@/errors';
+import { TransactionBuilder } from '@/utils';
 
-export const printNewEditionOperation = useOperation<PrintNewEditionOperation>(
-  'PrintNewEditionOperation'
-);
-
+const Key = 'PrintNewEditionOperation' as const;
+export const printNewEditionOperation = useOperation<PrintNewEditionOperation>(Key);
 export type PrintNewEditionOperation = Operation<
-  'PrintNewEditionOperation',
+  typeof Key,
   PrintNewEditionInput,
   PrintNewEditionOutput
 >;
@@ -48,4 +59,269 @@ export type PrintNewEditionOutput = {
   edition: PublicKey;
   associatedToken: PublicKey;
   transactionId: string;
+};
+
+export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOperation> = {
+  handle: async (operation: PrintNewEditionOperation, metaplex: Metaplex) => {
+    const {
+      originalMint,
+      newMint = Keypair.generate(),
+      newMintAuthority = metaplex.identity(),
+      newUpdateAuthority = newMintAuthority.publicKey,
+      newOwner = newMintAuthority.publicKey,
+      newFreezeAuthority,
+      payer = metaplex.identity(),
+      tokenProgram,
+      associatedTokenProgram,
+      confirmOptions,
+    } = operation.input;
+
+    // Original NFT.
+    const originalMetadata = await MetadataAccount.pda(originalMint);
+    const originalEdition = await OriginalEditionAccount.pda(originalMint);
+    const originalEditionAccount = OriginalEditionAccount.fromMaybe(
+      await metaplex.rpc().getAccount(originalEdition)
+    );
+
+    if (!originalEditionAccount.exists) {
+      throw new AccountNotFoundError(
+        originalEdition,
+        'OriginalEdition',
+        `Ensure the provided mint address for the original NFT [${originalMint.toBase58()}] ` +
+          `is correct and that it has an associated OriginalEdition PDA.`
+      );
+    }
+
+    const edition = new BN(originalEditionAccount.data.supply, 'le').add(new BN(1));
+    const originalEditionMarkPda = await EditionMarkerAccount.pda(originalMint, edition);
+
+    // New NFT.
+    const newMetadata = await MetadataAccount.pda(newMint.publicKey);
+    const newEdition = await PrintEditionAccount.pda(newMint.publicKey);
+    const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
+    const newAssociatedToken = await getAssociatedTokenAddress(
+      newMint.publicKey,
+      newOwner,
+      false,
+      tokenProgram,
+      associatedTokenProgram
+    );
+
+    const sharedInput = {
+      lamports,
+      edition,
+      newMint,
+      newMetadata,
+      newEdition,
+      newMintAuthority,
+      newUpdateAuthority,
+      newOwner,
+      newAssociatedToken,
+      newFreezeAuthority,
+      payer,
+      originalMetadata,
+      originalEdition,
+      originalEditionMarkPda,
+      tokenProgram,
+      associatedTokenProgram,
+    };
+
+    let transactionBuilder: TransactionBuilder;
+    if (operation.input.via === 'vault') {
+      transactionBuilder = printNewEditionBuilder({
+        via: 'vault',
+        vaultAuthority: operation.input.vaultAuthority,
+        safetyDepositStore: operation.input.safetyDepositStore,
+        safetyDepositBox: operation.input.safetyDepositBox,
+        vault: operation.input.vault,
+        tokenVaultProgram: operation.input.tokenVaultProgram,
+        ...sharedInput,
+      });
+    } else {
+      const originalTokenAccountOwner =
+        operation.input.originalTokenAccountOwner ?? metaplex.identity();
+      const originalTokenAccount =
+        operation.input.originalTokenAccount ??
+        (await getAssociatedTokenAddress(
+          originalMint,
+          originalTokenAccountOwner.publicKey,
+          false,
+          tokenProgram,
+          associatedTokenProgram
+        ));
+
+      transactionBuilder = printNewEditionBuilder({
+        via: 'token',
+        originalTokenAccountOwner,
+        originalTokenAccount,
+        ...sharedInput,
+      });
+    }
+
+    const { signature } = await metaplex
+      .rpc()
+      .sendAndConfirmTransaction(transactionBuilder, undefined, confirmOptions);
+
+    return {
+      mint: newMint,
+      metadata: newMetadata,
+      edition: newEdition,
+      associatedToken: newAssociatedToken,
+      transactionId: signature,
+    };
+  },
+};
+
+type PrintNewEditionBuilderSharedParams = {
+  // Data.
+  lamports: number;
+  edition: number | BN;
+
+  // New NFT.
+  newMint: Signer;
+  newMetadata: PublicKey;
+  newEdition: PublicKey;
+  newMintAuthority: Signer;
+  newUpdateAuthority: PublicKey;
+  newOwner: PublicKey;
+  newAssociatedToken: PublicKey;
+  newFreezeAuthority?: PublicKey;
+  payer: Signer;
+
+  // Master NFT.
+  originalMetadata: PublicKey;
+  originalEdition: PublicKey;
+  originalEditionMarkPda: PublicKey;
+
+  // Programs.
+  tokenProgram?: PublicKey;
+  associatedTokenProgram?: PublicKey;
+
+  // Instruction keys.
+  createAccountInstructionKey?: string;
+  initializeMintInstructionKey?: string;
+  createAssociatedTokenInstructionKey?: string;
+  mintToInstructionKey?: string;
+  printNewEditionInstructionKey?: string;
+};
+
+export type PrintNewEditionBuilderParams = PrintNewEditionBuilderSharedParams &
+  (
+    | {
+        via: 'token';
+        originalTokenAccountOwner: Signer;
+        originalTokenAccount: PublicKey;
+      }
+    | {
+        via: 'vault';
+        vaultAuthority: Signer;
+        safetyDepositStore: PublicKey;
+        safetyDepositBox: PublicKey;
+        vault: PublicKey;
+        tokenVaultProgram?: PublicKey;
+      }
+  );
+
+export const printNewEditionBuilder = (
+  params: PrintNewEditionBuilderParams
+): TransactionBuilder => {
+  const {
+    // Data.
+    lamports,
+    edition,
+
+    // New NFT.
+    newMint,
+    newMetadata,
+    newEdition,
+    newMintAuthority,
+    newUpdateAuthority,
+    newOwner,
+    newAssociatedToken,
+    newFreezeAuthority,
+    payer,
+
+    // Master NFT.
+    originalMetadata,
+    originalEdition,
+    originalEditionMarkPda,
+
+    // Programs.
+    tokenProgram,
+    associatedTokenProgram,
+
+    // Instruction keys.
+    createAccountInstructionKey,
+    initializeMintInstructionKey,
+    createAssociatedTokenInstructionKey,
+    mintToInstructionKey,
+    printNewEditionInstructionKey = 'printNewEdition',
+  } = params;
+
+  let printNewEditionViaBuilder: TransactionBuilder;
+  if (params.via === 'vault') {
+    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaVaultProxyBuilder({
+      edition,
+      newMetadata,
+      newEdition,
+      masterEdition: originalEdition,
+      newMint,
+      editionMarkPda: originalEditionMarkPda,
+      newMintAuthority,
+      payer,
+      vaultAuthority: params.vaultAuthority,
+      safetyDepositStore: params.safetyDepositStore,
+      safetyDepositBox: params.safetyDepositBox,
+      vault: params.vault,
+      newMetadataUpdateAuthority: newUpdateAuthority,
+      metadata: originalMetadata,
+      tokenVaultProgram: params.tokenVaultProgram,
+      instructionKey: printNewEditionInstructionKey,
+    });
+  } else {
+    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
+      edition,
+      newMetadata,
+      newEdition,
+      masterEdition: originalEdition,
+      newMint,
+      editionMarkPda: originalEditionMarkPda,
+      newMintAuthority,
+      payer,
+      tokenAccountOwner: params.originalTokenAccountOwner,
+      tokenAccount: params.originalTokenAccount,
+      newMetadataUpdateAuthority: newUpdateAuthority,
+      metadata: originalMetadata,
+      instructionKey: printNewEditionInstructionKey,
+    });
+  }
+
+  return (
+    TransactionBuilder.make()
+
+      // Create the mint account and send one token to the holder.
+      .add(
+        createMintAndMintToAssociatedTokenBuilder({
+          lamports,
+          decimals: 0,
+          amount: 1,
+          createAssociatedToken: true,
+          mint: newMint,
+          payer,
+          mintAuthority: newMintAuthority,
+          owner: newOwner,
+          associatedToken: newAssociatedToken,
+          freezeAuthority: newFreezeAuthority,
+          tokenProgram,
+          associatedTokenProgram,
+          createAccountInstructionKey,
+          initializeMintInstructionKey,
+          createAssociatedTokenInstructionKey,
+          mintToInstructionKey,
+        })
+      )
+
+      // Mint new edition.
+      .add(printNewEditionViaBuilder)
+  );
 };

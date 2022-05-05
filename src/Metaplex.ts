@@ -14,7 +14,7 @@ import { BundlrStorageDriver } from '@/plugins/bundlrStorage';
 import { Web3RpcDriver } from '@/plugins/web3Rpc';
 import { ArrayProgramDriver } from '@/plugins/arrayProgram';
 import { MapOperationDriver } from '@/plugins/mapOperation';
-import { corePlugin } from '@/plugins/corePlugins';
+import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
@@ -50,7 +50,7 @@ export class Metaplex {
     this.rpcDriver = new Web3RpcDriver(this);
     this.programDriver = new ArrayProgramDriver(this);
     this.operationDriver = new MapOperationDriver(this);
-    this.use(corePlugin());
+    this.use(corePlugins());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {

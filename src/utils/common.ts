@@ -61,7 +61,7 @@ export type WalkOptions = {
 
 export const walk = (
   parent: any,
-  cb: (walk: (child: any) => void, value: any, key: any, parent: any) => unknown,
+  cb: (next: (child: any) => void, value: any, key: any, parent: any) => unknown,
   options?: WalkOptions
 ): void => {
   const recursiveWalk = (child: any) => walk(child, cb, options);

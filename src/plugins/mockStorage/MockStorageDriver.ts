@@ -1,9 +1,7 @@
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
-import { MetaplexFile } from '../MetaplexFile';
-import { StorageDriver } from '../StorageDriverr';
-import { SolAmount } from '@/types';
+import { MetaplexFile, StorageDriver } from '@/types';
+import { SolAmount } from '@/utils';
 import { AssetNotFoundError } from '@/errors';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
@@ -13,12 +11,6 @@ export interface MockStorageOptions {
   baseUrl?: string;
   costPerByte?: BN | number;
 }
-
-export const mockStorage = (options?: MockStorageOptions): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    metaplex.setStorageDriver(new MockStorageDriver(metaplex, options));
-  },
-});
 
 export class MockStorageDriver extends StorageDriver {
   private cache: Record<string, MetaplexFile> = {};

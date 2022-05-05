@@ -1,12 +1,14 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { Collection, Creator, Uses } from '@metaplex-foundation/mpl-token-metadata';
-import { useOperation, Operation } from '@/drivers';
-import { Signer } from '@/types';
-import { Nft } from '../models';
+import { Collection, Creator, DataV2, Uses } from '@metaplex-foundation/mpl-token-metadata';
+import { useOperation, Operation, Signer, OperationHandler } from '@/types';
+import { Nft } from './Nft';
+import { Metaplex } from '@/Metaplex';
+import { MetadataAccount, updateMetadataV2Builder } from '@/programs';
+import { TransactionBuilder } from '@/utils';
 
-export const updateNftOperation = useOperation<UpdateNftOperation>('UpdateNftOperation');
-
-export type UpdateNftOperation = Operation<'UpdateNftOperation', UpdateNftInput, UpdateNftOutput>;
+const Key = 'UpdateNftOperation' as const;
+export const updateNftOperation = useOperation<UpdateNftOperation>(Key);
+export type UpdateNftOperation = Operation<typeof Key, UpdateNftInput, UpdateNftOutput>;
 
 export interface UpdateNftInput {
   nft: Nft;
@@ -33,3 +35,90 @@ export interface UpdateNftInput {
 export interface UpdateNftOutput {
   transactionId: string;
 }
+
+export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
+  handle: async (operation: UpdateNftOperation, metaplex: Metaplex): Promise<UpdateNftOutput> => {
+    const {
+      nft,
+      newUpdateAuthority = nft.updateAuthority,
+      primarySaleHappened = nft.primarySaleHappened,
+      isMutable = nft.isMutable,
+      updateAuthority = metaplex.identity(),
+      confirmOptions,
+    } = operation.input;
+
+    const data = resolveData(operation.input);
+
+    const metadata = await MetadataAccount.pda(nft.mint);
+
+    const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
+      updateNftBuilder({
+        data,
+        newUpdateAuthority,
+        primarySaleHappened,
+        isMutable,
+        updateAuthority,
+        metadata,
+      }),
+      undefined,
+      confirmOptions
+    );
+
+    return { transactionId: signature };
+  },
+};
+
+const resolveData = (input: UpdateNftInput): DataV2 => {
+  const { nft } = input;
+
+  return {
+    name: input.name ?? nft.name,
+    symbol: input.symbol ?? nft.symbol,
+    uri: input.uri ?? nft.uri,
+    sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+    creators: input.creators ?? nft.creators,
+    collection: input.collection ?? nft.collection,
+    uses: input.uses ?? nft.uses,
+  };
+};
+
+export interface UpdateNftBuilderParams {
+  // Data.
+  data: DataV2;
+  newUpdateAuthority: PublicKey;
+  primarySaleHappened: boolean;
+  isMutable: boolean;
+
+  // Signers.
+  updateAuthority: Signer;
+
+  // Public keys.
+  metadata: PublicKey;
+
+  // Instruction keys.
+  instructionKey?: string;
+}
+
+export const updateNftBuilder = (params: UpdateNftBuilderParams): TransactionBuilder => {
+  const {
+    data,
+    isMutable,
+    updateAuthority,
+    newUpdateAuthority,
+    primarySaleHappened,
+    metadata,
+    instructionKey,
+  } = params;
+
+  return TransactionBuilder.make().add(
+    updateMetadataV2Builder({
+      data,
+      newUpdateAuthority,
+      primarySaleHappened,
+      isMutable,
+      metadata,
+      updateAuthority,
+      instructionKey,
+    })
+  );
+};

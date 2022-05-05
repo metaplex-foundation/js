@@ -1,7 +1,7 @@
 import { Metaplex } from '@/Metaplex';
-import { useTask, Task } from '@/types';
-import { JsonMetadata } from '../models/JsonMetadata';
-import { Nft } from '../models/Nft';
+import { useTask, Task } from '@/utils';
+import { JsonMetadata } from './JsonMetadata';
+import { Nft } from './Nft';
 
 export type JsonMetadataTask = Task<JsonMetadata>;
 

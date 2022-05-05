@@ -11,17 +11,17 @@ import {
   TransactionSignature,
 } from '@solana/web3.js';
 import {
-  getSignerHistogram,
-  Signer,
-  TransactionBuilder,
-  UnparsedAccount,
-  UnparsedMaybeAccount,
-} from '@/types';
-import {
   RpcDriver,
   ConfirmTransactionResponse,
   SendAndConfirmTransactionResponse,
-} from '../RpcDriverr';
+  getSignerHistogram,
+  Signer,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+  isErrorWithLogs,
+  Program,
+} from '@/types';
+import { TransactionBuilder, zipMap } from '@/utils';
 import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
@@ -30,8 +30,6 @@ import {
   ParsedProgramError,
   UnknownProgramError,
 } from '@/errors';
-import { zipMap } from '@/utils';
-import { isErrorWithLogs, Program } from '../arrayProgram';
 
 export class Web3RpcDriver extends RpcDriver {
   async sendTransaction(

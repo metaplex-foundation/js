@@ -1,17 +1,21 @@
-import * as o from './operations';
-import * as h from './operationHandlers';
+import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/types';
 import { CandyMachineClient } from './CandyMachineClient';
-import { Metaplex } from '../../Metaplex';
-import { MetaplexPlugin } from '../../MetaplexPlugin';
+import {
+  createCandyMachineOperation,
+  createCandyMachineOperationHandler,
+} from './createCandyMachine';
+import {
+  findCandyMachineByAdddressOperation,
+  findCandyMachineByAdddressOperationHandler,
+} from './findCandyMachineByAddress';
 
-export const candyMachinePlugin = (): MetaplexPlugin => ({
+export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const op = metaplex.operations();
-    op.register(o.initCandyMachineOperation, h.initCandyMachineOperationHandler);
-    op.register(
-      o.findCandyMachineByAdddressOperation,
-      h.findCandyMachineByAdddressOperationHandler
-    );
+    op.register(createCandyMachineOperation, createCandyMachineOperationHandler);
+    op.register(findCandyMachineByAdddressOperation, findCandyMachineByAdddressOperationHandler);
+
     metaplex.candyMachine = function () {
       return new CandyMachineClient(this);
     };

@@ -1,13 +1,9 @@
 import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types/MetaplexPluginPlugin';
-import { StorageDriver } from '../StorageDriverr';
-import { MetaplexFile } from '../MetaplexFile';
-import { KeypairIdentityDriver } from '../keypairIdentity/KeypairIdentityDriver';
-import { planUploadMetadataOperation } from '@/plugins';
-import { planUploadMetadataUsingBundlrOperationHandler } from '../planUploadMetadataUsingBundlrOperationHandlerr';
-import { SolAmount } from '@/types';
+import { StorageDriver, MetaplexFile } from '@/types';
+import { SolAmount } from '@/utils';
+import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,
@@ -22,15 +18,6 @@ export interface BundlrOptions {
   priceMultiplier?: number;
   withdrawAfterUploading?: boolean;
 }
-
-export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    metaplex.setStorageDriver(new BundlrStorageDriver(metaplex, options));
-    metaplex
-      .operations()
-      .register(planUploadMetadataOperation, planUploadMetadataUsingBundlrOperationHandler);
-  },
-});
 
 export class BundlrStorageDriver extends StorageDriver {
   protected bundlr: WebBundlr | NodeBundlr | null = null;

@@ -5,34 +5,16 @@ import {
   SendTransactionOptions,
   WalletAdapter as BaseWalletAdapter,
 } from '@solana/wallet-adapter-base';
-import { IdentityDriver } from './IdentityDriver';
-import { GuestIdentityDriver } from './GuestIdentityDriver';
+import { IdentityDriver } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/MetaplexPlugin';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
 } from '@/errors';
 
-type WalletAdapter = BaseWalletAdapter &
+export type WalletAdapter = BaseWalletAdapter &
   Partial<MessageSignerWalletAdapterProps> &
   Partial<SignerWalletAdapterProps>;
-
-export const walletAdapterIdentity = (walletAdapter: WalletAdapter): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    metaplex.setIdentityDriver(new WalletAdapterIdentityDriver(metaplex, walletAdapter));
-  },
-});
-
-export const walletOrGuestIdentity = (walletAdapter?: WalletAdapter | null): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
-    const identity = walletAdapter
-      ? new WalletAdapterIdentityDriver(metaplex, walletAdapter)
-      : new GuestIdentityDriver(metaplex);
-
-    metaplex.setIdentityDriver(identity);
-  },
-});
 
 export class WalletAdapterIdentityDriver extends IdentityDriver {
   public readonly walletAdapter: WalletAdapter;

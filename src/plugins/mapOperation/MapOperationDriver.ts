@@ -1,14 +1,14 @@
-import { Task, TaskOptions, useTask } from '@/types';
-import { OperationHandlerMissingError } from '@/errors';
-import { OperationDriver } from '../OperationDriverr';
 import {
+  OperationDriver,
   OperationConstructor,
   Operation,
   KeyOfOperation,
   InputOfOperation,
   OutputOfOperation,
   OperationHandler,
-} from '../../types/Operation';
+} from '@/types';
+import { Task, TaskOptions, useTask } from '@/utils';
+import { OperationHandlerMissingError } from '@/errors';
 
 export class MapOperationDriver extends OperationDriver {
   /**

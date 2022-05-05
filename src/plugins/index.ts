@@ -9,5 +9,5 @@ export * from './keypairIdentity';
 export * from './mapOperation';
 export * from './mockStorage';
 export * from './nftModule';
-export * from './walletIdentity';
+export * from './walletAdapterIdentity';
 export * from './web3Rpc';

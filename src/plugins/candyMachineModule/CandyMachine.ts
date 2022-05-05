@@ -1,3 +1,4 @@
+import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import {
   Creator,
@@ -6,9 +7,8 @@ import {
   HiddenSettings,
   WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { PublicKey } from '@solana/web3.js';
-import { CandyMachineAccount } from '../../../programs/candyMachine';
-import { Model } from '../../../shared';
+import { CandyMachineAccount } from '@/programs';
+import { Model } from '@/types';
 
 export class CandyMachine extends Model {
   // -----------------

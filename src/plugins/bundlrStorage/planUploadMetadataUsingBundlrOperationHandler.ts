@@ -5,11 +5,10 @@ import {
   planUploadMetadataOperationHandler,
   replaceAssetsWithUris,
   UploadMetadataOutput,
-} from '@/plugins/nftModule';
-import { Plan, DisposableScope } from '@/types';
-import { OperationHandler } from '../mapOperation';
-import { MetaplexFile } from '../filesystem';
-import { BundlrStorageDriver } from './bundlrStorage/BundlrStorageDriverrStorageDriver';
+} from '../nftModule';
+import { MetaplexFile, OperationHandler } from '@/types';
+import { Plan, DisposableScope } from '@/utils';
+import { BundlrStorageDriver } from './BundlrStorageDriver';
 
 export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<PlanUploadMetadataOperation> =
   {
