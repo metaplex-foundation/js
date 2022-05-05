@@ -11,9 +11,9 @@ import {
 } from '@/types';
 import { GuestIdentityDriver } from '@/plugins/guestIdentity';
 import { BundlrStorageDriver } from '@/plugins/bundlrStorage';
-import { Web3RpcDriver } from '@/plugins/web3Rpc';
-import { ArrayProgramDriver } from '@/plugins/arrayProgram';
-import { MapOperationDriver } from '@/plugins/mapOperation';
+import { CoreRpcDriver } from '@/plugins/coreRpcDriver';
+import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
+import { CoreOperationDriver } from '@/plugins/coreOperationDriver';
 import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
@@ -47,9 +47,9 @@ export class Metaplex {
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
-    this.rpcDriver = new Web3RpcDriver(this);
-    this.programDriver = new ArrayProgramDriver(this);
-    this.operationDriver = new MapOperationDriver(this);
+    this.rpcDriver = new CoreRpcDriver(this);
+    this.programDriver = new CoreProgramDriver(this);
+    this.operationDriver = new CoreOperationDriver(this);
     this.use(corePlugins());
   }
 

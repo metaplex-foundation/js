@@ -10,7 +10,7 @@ import {
 import { Task, TaskOptions, useTask } from '@/utils';
 import { OperationHandlerMissingError } from '@/errors';
 
-export class MapOperationDriver extends OperationDriver {
+export class CoreOperationDriver extends OperationDriver {
   /**
    * Maps the name of an operation with its operation handler.
    * Whilst the types on the Map are relatively loose, we ensure

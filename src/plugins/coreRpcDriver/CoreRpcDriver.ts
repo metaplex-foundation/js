@@ -31,7 +31,7 @@ import {
   UnknownProgramError,
 } from '@/errors';
 
-export class Web3RpcDriver extends RpcDriver {
+export class CoreRpcDriver extends RpcDriver {
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,
     signers: Signer[] = [],

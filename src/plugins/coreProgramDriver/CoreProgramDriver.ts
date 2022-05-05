@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { ProgramNotRecognizedError } from '@/errors';
 import { ProgramDriver, Program, Cluster } from '@/types';
 
-export class ArrayProgramDriver extends ProgramDriver {
+export class CoreProgramDriver extends ProgramDriver {
   protected programs: Program[] = [];
 
   public register(program: Program): void {
