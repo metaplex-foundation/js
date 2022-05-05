@@ -1,24 +1,19 @@
 import {
   ConfirmOptions,
-  Connection,
   Keypair,
-  LAMPORTS_PER_SOL,
   PublicKey,
   RpcResponseAndContext,
   SignatureResult,
 } from '@solana/web3.js';
 import {
   CandyMachineData,
-  createInitializeCandyMachineInstruction,
-  InitializeCandyMachineInstructionAccounts,
-  InitializeCandyMachineInstructionArgs,
   PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Metaplex } from '@/Metaplex';
-import { Operation, useOperation, Signer, OperationHandler } from '@/types';
-import { logDebug, TransactionBuilder } from '@/utils';
+import { Operation, useOperation, Signer, OperationHandler, MetaplexAware } from '@/types';
+import { TransactionBuilder } from '@/utils';
+import { createAccountBuilder, initializeCandyMachineBuilder } from '@/programs';
 import { getSpaceForCandy } from '@/programs/candyMachine/accounts/candyMachineSpace';
-import { createAccountBuilder } from '@/programs';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation = useOperation<CreateCandyMachineOperation>(Key);
@@ -29,25 +24,28 @@ export type CreateCandyMachineOperation = Operation<
 >;
 
 export type CreateCandyMachineInput = {
-  // Accounts
-  payerSigner: Signer;
-  // solTreasuryAccount
-  walletAddress: PublicKey;
-  candyMachineSigner: Signer;
-  authorityAddress: PublicKey;
-  // Accounts
+  // Data.
+  // TODO(loris): spread data into the input directly.
   candyMachineData: CandyMachineData;
-  // Transaction Options
+
+  // Accounts.
+  candyMachineSigner: Signer;
+  payerSigner: Signer;
+  walletAddress: PublicKey;
+  authorityAddress: PublicKey;
+
+  // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
 
 export type CreateCandyMachineOutput = {
-  // Accounts
+  // Accounts.
+  candyMachineSigner: Signer;
   payerSigner: Signer;
   walletAddress: PublicKey;
-  candyMachineSigner: Signer;
   authorityAddress: PublicKey;
-  // Transaction Result
+
+  // Transaction Result.
   transactionId: string;
   confirmResponse: RpcResponseAndContext<SignatureResult>;
 };
@@ -57,25 +55,24 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     operation: CreateCandyMachineOperation,
     metaplex: Metaplex
   ): Promise<CreateCandyMachineOutput> {
-    const { payerSigner: payer = metaplex.identity() } = operation.input;
+    const { payerSigner = metaplex.identity() } = operation.input;
     const {
-      candyMachineSigner: candyMachine = Keypair.generate(),
-      walletAddress: wallet = payer.publicKey,
-      authorityAddress: authority = payer.publicKey,
-      candyMachineData: candyMachineAccount,
+      candyMachineSigner = Keypair.generate(),
+      walletAddress = payerSigner.publicKey,
+      authorityAddress = payerSigner.publicKey,
+      candyMachineData,
       confirmOptions,
     } = operation.input;
 
-    const connection = metaplex.connection;
     const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
       await createCandyMachineBuilder({
-        payerSigner: payer,
-        candyMachineSigner: candyMachine,
-        walletAddress: wallet,
-        authorityAddress: authority,
-        candyMachineData: candyMachineAccount,
+        metaplex,
+        payerSigner,
+        candyMachineSigner,
+        walletAddress,
+        authorityAddress,
+        candyMachineData,
         confirmOptions,
-        connection,
       }),
       undefined,
       confirmOptions
@@ -83,10 +80,10 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
 
     return {
       // Accounts.
-      payerSigner: payer,
-      candyMachineSigner: candyMachine,
-      walletAddress: wallet,
-      authorityAddress: authority,
+      payerSigner,
+      candyMachineSigner,
+      walletAddress,
+      authorityAddress,
 
       // Transaction Result.
       transactionId: signature,
@@ -95,63 +92,60 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
   },
 };
 
-export type CreateCandyMachineBuilderParams = Omit<CreateCandyMachineInput, 'confirmOptions'> & {
-  confirmOptions: CreateCandyMachineInput['confirmOptions'];
-  connection: Connection;
+export type CreateCandyMachineBuilderParams = MetaplexAware & {
+  // Data.
+  candyMachineData: CandyMachineData;
+
+  // Accounts.
+  candyMachineSigner: Signer;
+  payerSigner: Signer;
+  walletAddress: PublicKey;
+  authorityAddress: PublicKey;
+
+  // Instruction keys.
+  createAccountInstructionKey?: string;
+  initializeCandyMachineInstructionKey?: string;
+
+  // Transaction Options.
+  confirmOptions?: ConfirmOptions;
 };
 
 export const createCandyMachineBuilder = async (
   params: CreateCandyMachineBuilderParams
 ): Promise<TransactionBuilder> => {
   const {
+    metaplex,
     candyMachineData,
     candyMachineSigner,
     walletAddress,
-    payerSigner: payer,
+    payerSigner,
     authorityAddress,
-    connection,
+    createAccountInstructionKey,
+    initializeCandyMachineInstructionKey,
   } = params;
-  const args: InitializeCandyMachineInstructionArgs = { data: candyMachineData };
-  const accounts: InitializeCandyMachineInstructionAccounts = {
-    candyMachine: candyMachineSigner.publicKey,
-    wallet: walletAddress,
-    payer: payer.publicKey,
-    authority: authorityAddress,
-  };
-  const initCandyMachineIx = createInitializeCandyMachineInstruction(accounts, args);
-  const createCandyMachine = await createCandyMachineAccountBuilder(
-    payer,
-    candyMachineSigner,
-    candyMachineData,
-    connection
-  );
+
+  const space = getSpaceForCandy(candyMachineData);
+  const lamports = await metaplex.connection.getMinimumBalanceForRentExemption(space);
 
   return TransactionBuilder.make()
-    .add(createCandyMachine)
-    .add({
-      instruction: initCandyMachineIx,
-      signers: [payer],
-      key: 'initializeCandyMachine',
-    });
+    .add(
+      createAccountBuilder({
+        payer: payerSigner,
+        newAccount: candyMachineSigner,
+        space,
+        lamports,
+        program: CANDY_MACHINE_PROGRAM_ID,
+        instructionKey: createAccountInstructionKey,
+      })
+    )
+    .add(
+      initializeCandyMachineBuilder({
+        data: candyMachineData,
+        candyMachine: candyMachineSigner,
+        payer: payerSigner,
+        wallet: walletAddress,
+        authority: authorityAddress,
+        instructionKey: initializeCandyMachineInstructionKey,
+      })
+    );
 };
-
-async function createCandyMachineAccountBuilder(
-  payer: Signer,
-  candyMachine: Signer,
-  candyMachineData: CandyMachineData,
-  connection: Connection
-) {
-  const space = getSpaceForCandy(candyMachineData);
-  const lamports = await connection.getMinimumBalanceForRentExemption(space);
-  logDebug(
-    `Creating candy machine account with space ${space} ` +
-      `and balance of ${lamports / LAMPORTS_PER_SOL} SOL`
-  );
-  return createAccountBuilder({
-    payer,
-    newAccount: candyMachine,
-    space,
-    lamports,
-    program: CANDY_MACHINE_PROGRAM_ID,
-  });
-}

@@ -13,10 +13,13 @@ export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCa
   {
     handle: async (operation: FindCandyMachineByAdddressOperation, metaplex: Metaplex) => {
       const candyMachineAddress = operation.input;
+
+      // TODO(loris): Always use the metaplex.rpc() to interact with the cluster.
       const account = await CandyMachineAccount.fromAccountAddress(
         metaplex.connection,
         candyMachineAddress
       );
+
       return CandyMachine.fromAccount(account);
     },
   };
