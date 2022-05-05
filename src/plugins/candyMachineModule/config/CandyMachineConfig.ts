@@ -1,4 +1,4 @@
-import { PublicKeyString } from '../../../shared';
+import { PublicKeyString } from '@/types';
 import { CreatorsConfig } from './Creators';
 import { EndSettingsConfig } from './EndSettings';
 import { GatekeeperSettingsConfig } from './Gatekeeper';

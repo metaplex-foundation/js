@@ -1,4 +1,4 @@
-import { Program } from '@/drivers';
+import { Program } from '@/types';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 type UnderlyingProgramError = Error & { code?: number; logs?: string[] };

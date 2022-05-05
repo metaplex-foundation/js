@@ -1,6 +1,6 @@
 import { EndSettings, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
-import { tryConvertToMillisecondsSinceEpoch } from '../../../shared';
+import { tryConvertToMillisecondsSinceEpoch } from '@/types';
 
 export const ENDSETTING_DATE = 'date';
 export const ENDSETTING_AMOUNT = 'amount';

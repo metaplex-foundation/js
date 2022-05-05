@@ -6,7 +6,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { tryConvertToMillisecondsSinceEpoch, tryConvertToPublickKey } from '../../../shared';
+import { tryConvertToMillisecondsSinceEpoch, tryConvertToPublickKey } from '@/types';
 import { CandyMachineConfigWithoutStorage } from './CandyMachineConfig';
 import { creatorsConfigDefault } from './Creators';
 import { endSettingsFromConfig } from './EndSettings';
