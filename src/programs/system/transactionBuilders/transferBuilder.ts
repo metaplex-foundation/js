@@ -1,5 +1,6 @@
 import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { TransactionBuilder, Signer } from '@/shared';
+import { Signer } from '@/types';
+import { TransactionBuilder } from '@/utils';
 
 export interface transferBuilderParams {
   from: Signer;

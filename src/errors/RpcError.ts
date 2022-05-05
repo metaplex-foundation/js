@@ -1,5 +1,5 @@
 import { SendTransactionError, TransactionError } from '@solana/web3.js';
-import { ConfirmTransactionResponse } from '../drivers/rpc/RpcDriver';
+import { ConfirmTransactionResponse } from '@/types';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 export class RpcError extends MetaplexError {

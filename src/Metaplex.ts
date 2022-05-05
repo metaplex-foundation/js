@@ -1,19 +1,20 @@
 import { Connection } from '@solana/web3.js';
 import {
+  MetaplexPlugin,
+  Cluster,
+  resolveClusterFromConnection,
   IdentityDriver,
-  GuestIdentityDriver,
   StorageDriver,
-  BundlrStorageDriver,
   RpcDriver,
-  Web3RpcDriver,
   ProgramDriver,
-  ArrayProgramDriver,
   OperationDriver,
-  MapOperationDriver,
-} from '@/drivers';
-import { Cluster, resolveClusterFromConnection } from '@/shared';
-import { MetaplexPlugin } from './MetaplexPlugin';
-import { corePlugin } from './corePlugin';
+} from '@/types';
+import { GuestIdentityDriver } from '@/plugins/guestIdentity';
+import { BundlrStorageDriver } from '@/plugins/bundlrStorage';
+import { CoreRpcDriver } from '@/plugins/coreRpcDriver';
+import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
+import { CoreOperationDriver } from '@/plugins/coreOperationDriver';
+import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
@@ -46,10 +47,10 @@ export class Metaplex {
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.identityDriver = new GuestIdentityDriver(this);
     this.storageDriver = new BundlrStorageDriver(this);
-    this.rpcDriver = new Web3RpcDriver(this);
-    this.programDriver = new ArrayProgramDriver(this);
-    this.operationDriver = new MapOperationDriver(this);
-    this.use(corePlugin());
+    this.rpcDriver = new CoreRpcDriver(this);
+    this.programDriver = new CoreProgramDriver(this);
+    this.operationDriver = new CoreOperationDriver(this);
+    this.use(corePlugins());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {

@@ -1,6 +1,6 @@
-import { CandyMachine } from '@metaplex-foundation/mpl-candy-machine';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { BaseAccount } from '../../../shared';
+import { CandyMachine } from '@metaplex-foundation/mpl-candy-machine';
+import { BaseAccount } from '@/types';
 import { getSpaceForCandy } from './candyMachineSpace';
 
 export class CandyMachineAccount extends BaseAccount<CandyMachine> {

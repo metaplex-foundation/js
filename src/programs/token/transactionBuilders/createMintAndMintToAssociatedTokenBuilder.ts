@@ -4,7 +4,8 @@ import {
   createAssociatedTokenAccountBuilder,
   mintToBuilder,
 } from '@/programs/token';
-import { TransactionBuilder, Signer } from '@/shared';
+import { Signer } from '@/types';
+import { TransactionBuilder } from '@/utils';
 
 export interface CreateMintAndMintToAssociatedTokenBuilderParams {
   // Data.

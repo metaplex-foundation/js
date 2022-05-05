@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { createSetAuthorityInstruction, TOKEN_PROGRAM_ID, AuthorityType } from '@solana/spl-token';
-import { TransactionBuilder, Signer, KeypairSigner } from '@/shared';
+import { Signer, KeypairSigner } from '@/types';
+import { TransactionBuilder } from '@/utils';
 
 export interface SetAuthorityBuilderParams {
   mint: PublicKey;

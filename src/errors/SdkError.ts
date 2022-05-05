@@ -1,6 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { Cluster } from '@/shared';
-import { Program } from '@/drivers';
+import { Cluster, Program } from '@/types';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
 
 export class SdkError extends MetaplexError {
