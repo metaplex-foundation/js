@@ -1,4 +1,13 @@
 import test from 'tape';
+import spok from 'spok';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import {
+  cusper,
+  EndSettingType,
+  GatekeeperConfig,
+  WhitelistMintMode,
+  WhitelistMintSettings,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   amman,
   assertConfirmedWithoutError,
@@ -10,22 +19,13 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import {
-  cusper,
-  EndSettingType,
-  GatekeeperConfig,
-  WhitelistMintMode,
-  WhitelistMintSettings,
-} from '@metaplex-foundation/mpl-candy-machine';
-import { Keypair, PublicKey } from '@solana/web3.js';
-import spok from 'spok';
-import { Signer } from '../../../src/shared';
+import { Signer } from '@/types';
 import {
   CandyMachineConfigWithoutStorage,
   creatorsConfigDefault,
-} from '../../../src/modules/candy-machine/config';
-import { assertCreators } from '../../helpers/candy-machine';
-import { CandyMachine } from '../../../src/modules';
+} from '@/plugins/candyMachineModule/config';
+import { assertCreators } from './helpers';
+import { CandyMachine } from '@/plugins';
 
 killStuckProcess();
 
