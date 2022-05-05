@@ -1,3 +1,4 @@
+export * from './config';
 export * from './CandyMachine';
 export * from './CandyMachineClient';
 export * from './createCandyMachine';
