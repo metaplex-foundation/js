@@ -1,6 +1,6 @@
 export * from './BaseAccount';
 export * from './Cluster';
-export * from './DatetimeString';
+export * from './DateTimeString';
 export * from './Driver';
 export * from './IdentityDriver';
 export * from './MetaplexAware';
