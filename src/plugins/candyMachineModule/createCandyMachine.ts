@@ -29,10 +29,10 @@ export type CreateCandyMachineInput = {
   candyMachineData: CandyMachineData;
 
   // Accounts.
-  candyMachineSigner: Signer;
-  payerSigner: Signer;
-  walletAddress: PublicKey;
-  authorityAddress: PublicKey;
+  candyMachineSigner?: Signer;
+  payerSigner?: Signer;
+  walletAddress?: PublicKey;
+  authorityAddress?: PublicKey;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -55,23 +55,23 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     operation: CreateCandyMachineOperation,
     metaplex: Metaplex
   ): Promise<CreateCandyMachineOutput> {
-    const { payerSigner = metaplex.identity() } = operation.input;
     const {
+      candyMachineData,
       candyMachineSigner = Keypair.generate(),
+      payerSigner = metaplex.identity(),
       walletAddress = payerSigner.publicKey,
       authorityAddress = payerSigner.publicKey,
-      candyMachineData,
       confirmOptions,
     } = operation.input;
 
     const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
       await createCandyMachineBuilder({
         metaplex,
+        candyMachineData,
         payerSigner,
         candyMachineSigner,
         walletAddress,
         authorityAddress,
-        candyMachineData,
         confirmOptions,
       }),
       undefined,
@@ -117,8 +117,8 @@ export const createCandyMachineBuilder = async (
     metaplex,
     candyMachineData,
     candyMachineSigner,
-    walletAddress,
     payerSigner,
+    walletAddress,
     authorityAddress,
     createAccountInstructionKey,
     initializeCandyMachineInstructionKey,

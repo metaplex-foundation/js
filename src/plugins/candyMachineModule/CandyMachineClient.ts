@@ -1,6 +1,5 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { ModuleClient, Signer, tryConvertToPublickKey, IdentityDriver } from '@/types';
-import { Optional, assert } from '@/utils';
+import { ModuleClient, Signer, tryConvertToPublickKey } from '@/types';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
 import {
   CreateCandyMachineInput,
@@ -8,11 +7,7 @@ import {
   CreateCandyMachineOutput,
 } from './createCandyMachine';
 import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
-
-export type CreateCandyMachineParams = Optional<
-  CreateCandyMachineInput,
-  'payerSigner' | 'candyMachineSigner' | 'authorityAddress'
->;
+import { CandyMachine } from './CandyMachine';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
@@ -20,57 +15,37 @@ export type CandyMachineInitFromConfigOpts = {
   confirmOptions?: ConfirmOptions;
 };
 
-export function toCandyMachineInitInput(
-  params: CreateCandyMachineParams,
-  identity: IdentityDriver
-): CreateCandyMachineInput {
-  const { payerSigner = identity } = params;
-  assert(payerSigner != null, 'params.payer or identityDriver is required');
-
-  const { candyMachineSigner = Keypair.generate(), authorityAddress = payerSigner.publicKey } =
-    params;
-
-  return {
-    ...params,
-    payerSigner,
-    candyMachineSigner,
-    authorityAddress,
-  };
-}
-
 export class CandyMachineClient extends ModuleClient {
-  async createCandyMachine(params: CreateCandyMachineParams) {
-    const input = toCandyMachineInitInput(params, this.metaplex.identity());
-    const initOperation = createCandyMachineOperation(input);
-    const initCandyMachineOutput: CreateCandyMachineOutput = await this.metaplex
-      .operations()
-      .execute(initOperation);
-    const { candyMachineSigner, ...rest } = initCandyMachineOutput;
+  findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine> {
+    const operation = findCandyMachineByAdddressOperation(address);
+    return this.metaplex.operations().execute(operation);
+  }
 
-    const findOperation = findCandyMachineByAdddressOperation(candyMachineSigner.publicKey);
+  async createCandyMachine(
+    input: CreateCandyMachineInput
+  ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
+    const operation = createCandyMachineOperation(input);
+    const output = await this.metaplex.operations().execute(operation);
 
-    // TODO(thlorenz): gracefully handle if not found
-    const candyMachine = await this.metaplex.operations().execute(findOperation);
+    // TODO(thlorenz): gracefully handle if not found.
+    const candyMachine = await this.findCandyMachineByAddress(output.candyMachineSigner.publicKey);
 
-    return { ...rest, candyMachineSigner, candyMachine };
+    return { candyMachine, ...output };
   }
 
   createCandyMachineFromConfig(
     config: CandyMachineConfigWithoutStorage,
     opts: CandyMachineInitFromConfigOpts
-  ) {
+  ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     const { candyMachineSigner = Keypair.generate() } = opts;
     const candyMachineData = candyMachineDataFromConfig(config, candyMachineSigner.publicKey);
-
     const walletAddress = tryConvertToPublickKey(config.solTreasuryAccount);
 
-    const params: CreateCandyMachineParams = {
-      walletAddress,
-      candyMachineSigner,
+    return this.createCandyMachine({
       candyMachineData,
+      candyMachineSigner,
+      walletAddress,
       authorityAddress: opts.authorityAddress,
-    };
-
-    return this.createCandyMachine(params);
+    });
   }
 }
