@@ -14,7 +14,7 @@ export abstract class IdentityDriver extends Driver implements IdentitySigner {
   }
 
   public equals(that: Signer | PublicKey): boolean {
-    if (!(that instanceof PublicKey)) {
+    if ('publicKey' in that) {
       that = that.publicKey;
     }
 
