@@ -60,6 +60,7 @@
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/web3.js": "^1.37.0",
     "abort-controller": "^3.0.0",
+    "assert": "^2.0.0",
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",

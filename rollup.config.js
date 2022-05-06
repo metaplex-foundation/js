@@ -50,6 +50,7 @@ const dependenciesToBundle = [
   '@metaplex-foundation/beet-solana',
   '@metaplex-foundation/mpl-candy-machine',
   '@metaplex-foundation/mpl-token-metadata',
+  'assert',
   'buffer',
 ];
 
