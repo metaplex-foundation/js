@@ -1,6 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import { terser } from 'rollup-plugin-terser';
 
 const env = process.env.NODE_ENV;
 const extensions = ['.js', '.ts'];
@@ -26,12 +27,14 @@ const builds = [
   {
     file: 'dist/iife/index.js',
     format: 'iife',
+    name: 'MetaplexSDK',
     browser: true,
     bundle: true,
   },
   {
     file: 'dist/iife/index.min.js',
     format: 'iife',
+    name: 'MetaplexSDK',
     browser: true,
     bundle: true,
     minified: true,
@@ -48,6 +51,7 @@ const globals = {
   '@solana/spl-token': 'SolanaSplToken',
   '@solana/wallet-adapter-base': 'SolanaWalletAdapterBase',
   '@solana/web3.js': 'SolanaWeb3',
+  assert: 'Assert',
   'abort-controller': 'AbortController',
   'bignumber.js': 'BigNumber',
   'bn.js': 'BN',
@@ -70,7 +74,7 @@ const dependenciesToBundle = [
 ];
 
 const createConfig = (build) => {
-  const { file, dir, format, browser = false, bundle = false, minified = false } = build;
+  const { file, dir, format, name, browser = false, bundle = false, minified = false } = build;
 
   const external = Object.keys(globals).filter((dependency) => {
     return !bundle || !dependenciesToBundle.includes(dependency);
@@ -82,8 +86,9 @@ const createConfig = (build) => {
       dir,
       file,
       format,
+      name,
       exports: 'named',
-      preserveModules: !browser,
+      preserveModules: !bundle,
       sourcemap: true,
       globals,
     },
@@ -105,6 +110,7 @@ const createConfig = (build) => {
         babelHelpers: bundle ? 'bundled' : 'runtime',
         plugins: bundle ? [] : ['@babel/plugin-transform-runtime'],
       }),
+      ...(minified ? [terser()] : []),
     ],
   };
 };

@@ -94,6 +94,7 @@
     "prettier": "^2.6.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.72.0",
+    "rollup-plugin-terser": "^7.0.2",
     "sinon": "^13.0.1",
     "spok": "^1.4.3",
     "tape": "^5.5.2",
