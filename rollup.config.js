@@ -1,5 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
@@ -44,14 +45,21 @@ const builds = [
 
 const extensions = ['.js', '.ts'];
 const allDependencies = Object.keys(pkg.dependencies);
-const dependenciesToDedupes = ['bn.js', 'buffer'];
-const dependenciesToBundle = [
-  '@metaplex-foundation/beet',
-  '@metaplex-foundation/beet-solana',
-  '@metaplex-foundation/mpl-candy-machine',
-  '@metaplex-foundation/mpl-token-metadata',
-  'assert',
+const dependenciesToExcludeInBundle = ['@aws-sdk/client-s3'];
+const dependenciesToDedupes = [
+  '@solana/spl-token',
+  '@solana/wallet-adapter-base',
+  '@solana/web3.js',
+  'abort-controller',
+  'bignumber.js',
+  'bn.js',
+  'bs58',
   'buffer',
+  'cross-fetch',
+  'debug',
+  'eventemitter3',
+  'mime',
+  'tweetnacl',
 ];
 
 const globals = {
@@ -82,7 +90,7 @@ const createConfig = (build) => {
   const { file, dir, format, name, browser = false, bundle = false, minified = false } = build;
 
   const external = allDependencies.filter((dependency) => {
-    return !bundle || !dependenciesToBundle.includes(dependency);
+    return !bundle || dependenciesToExcludeInBundle.includes(dependency);
   });
 
   return {
@@ -122,6 +130,8 @@ const createConfig = (build) => {
           'process.env.BROWSER': JSON.stringify(browser),
         },
       }),
+      ...(bundle ? [json()] : []),
+      ...(minified ? [terser()] : []),
       ...(!bundle && dir
         ? [
             generatePackageJson({
@@ -131,7 +141,6 @@ const createConfig = (build) => {
             }),
           ]
         : []),
-      ...(minified ? [terser()] : []),
     ],
   };
 };
