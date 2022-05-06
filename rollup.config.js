@@ -142,6 +142,12 @@ const createConfig = (build) => {
           ]
         : []),
     ],
+    onwarn: function (warning, rollupWarn) {
+      // TODO(loris): Properly remove circular dependencies and remove this.
+      if (warning.code !== 'CIRCULAR_DEPENDENCY') {
+        rollupWarn(warning);
+      }
+    },
   };
 };
 
