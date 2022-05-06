@@ -72,16 +72,28 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-private-methods": "^7.16.11",
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
+    "@babel/plugin-transform-runtime": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-typescript": "^7.16.7",
     "@metaplex-foundation/amman": "^0.6.1",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@types/bn.js": "^5.1.0",
     "@types/debug": "^4.1.7",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/mime": "^2.0.3",
     "@types/sinon": "^10.0.11",
     "@types/tape": "^4.13.2",
+    "babel-plugin-module-resolver": "^4.1.0",
     "prettier": "^2.6.0",
     "rimraf": "^3.0.2",
+    "rollup": "^2.72.0",
     "sinon": "^13.0.1",
     "spok": "^1.4.3",
     "tape": "^5.5.2",
@@ -90,5 +102,10 @@
   },
   "engines": {
     "node": "^14.0 || >=16.0"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ]
 }
