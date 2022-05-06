@@ -1,9 +1,9 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
 
-const env = process.env.NODE_ENV;
 const extensions = ['.js', '.ts'];
 const builds = [
   {
@@ -65,6 +65,8 @@ const globals = {
   tweetnacl: 'Tweetnacl',
 };
 
+const dedupes = ['bn.js', 'buffer'];
+
 const dependenciesToBundle = [
   '@metaplex-foundation/beet',
   '@metaplex-foundation/beet-solana',
@@ -109,6 +111,13 @@ const createConfig = (build) => {
         extensions,
         babelHelpers: bundle ? 'bundled' : 'runtime',
         plugins: bundle ? [] : ['@babel/plugin-transform-runtime'],
+      }),
+      replace({
+        preventAssignment: true,
+        values: {
+          'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+          'process.env.BROWSER': JSON.stringify(browser),
+        },
       }),
       ...(minified ? [terser()] : []),
     ],
