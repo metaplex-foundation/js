@@ -3,8 +3,9 @@ import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
+import generatePackageJson from 'rollup-plugin-generate-package-json';
+import pkg from './package.json';
 
-const extensions = ['.js', '.ts'];
 const builds = [
   {
     dir: 'dist/esm',
@@ -41,6 +42,17 @@ const builds = [
   },
 ];
 
+const extensions = ['.js', '.ts'];
+const allDependencies = Object.keys(pkg.dependencies);
+const dependenciesToDedupes = ['bn.js', 'buffer'];
+const dependenciesToBundle = [
+  '@metaplex-foundation/beet',
+  '@metaplex-foundation/beet-solana',
+  '@metaplex-foundation/mpl-candy-machine',
+  '@metaplex-foundation/mpl-token-metadata',
+  'buffer',
+];
+
 const globals = {
   '@aws-sdk/client-s3': 'AwsS3Client',
   '@bundlr-network/client': 'BundlrNetworkClient',
@@ -65,20 +77,10 @@ const globals = {
   tweetnacl: 'Tweetnacl',
 };
 
-const dedupes = ['bn.js', 'buffer'];
-
-const dependenciesToBundle = [
-  '@metaplex-foundation/beet',
-  '@metaplex-foundation/beet-solana',
-  '@metaplex-foundation/mpl-candy-machine',
-  '@metaplex-foundation/mpl-token-metadata',
-  'buffer',
-];
-
 const createConfig = (build) => {
   const { file, dir, format, name, browser = false, bundle = false, minified = false } = build;
 
-  const external = Object.keys(globals).filter((dependency) => {
+  const external = allDependencies.filter((dependency) => {
     return !bundle || !dependenciesToBundle.includes(dependency);
   });
 
@@ -102,7 +104,7 @@ const createConfig = (build) => {
       commonjs(),
       nodeResolve({
         browser,
-        dedupe: ['bn.js', 'buffer'],
+        dedupe: dependenciesToDedupes,
         extensions,
         preferBuiltins: !browser,
       }),
@@ -119,6 +121,15 @@ const createConfig = (build) => {
           'process.env.BROWSER': JSON.stringify(browser),
         },
       }),
+      ...(!bundle && dir
+        ? [
+            generatePackageJson({
+              baseContents: {
+                type: format === 'cjs' ? 'commonjs' : 'module',
+              },
+            }),
+          ]
+        : []),
       ...(minified ? [terser()] : []),
     ],
   };
