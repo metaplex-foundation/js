@@ -73,7 +73,6 @@ const globals = {
   '@solana/spl-token': 'SolanaSplToken',
   '@solana/wallet-adapter-base': 'SolanaWalletAdapterBase',
   '@solana/web3.js': 'SolanaWeb3',
-  assert: 'Assert',
   'abort-controller': 'AbortController',
   'bignumber.js': 'BigNumber',
   'bn.js': 'BN',
