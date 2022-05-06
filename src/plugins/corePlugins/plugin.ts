@@ -1,7 +1,7 @@
 import { Metaplex } from '../../Metaplex';
-import { corePrograms } from '../corePrograms';
-import { nftModule } from '../nftModule';
-import { candyMachineModule } from '../candyMachineModule';
+import { corePrograms } from '../corePrograms/plugin';
+import { nftModule } from '../nftModule/plugin';
+import { candyMachineModule } from '../candyMachineModule/plugin';
 
 export const corePlugins = () => ({
   install(metaplex: Metaplex) {
