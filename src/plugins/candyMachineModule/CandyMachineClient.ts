@@ -42,10 +42,10 @@ export class CandyMachineClient extends ModuleClient {
     const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
     return this.createCandyMachine({
-      candyMachineData,
       candyMachineSigner,
       walletAddress,
       authorityAddress: opts.authorityAddress,
+      ...candyMachineData,
     });
   }
 }
