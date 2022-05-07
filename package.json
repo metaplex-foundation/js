@@ -45,7 +45,7 @@
     "preversion": "yarn check:publish-ready",
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
-    "build": "yarn clean && rollup -c && ttsc",
+    "build": "yarn clean && ttsc && rollup -c",
     "build:test": "ttsc -p test/tsconfig.json",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
