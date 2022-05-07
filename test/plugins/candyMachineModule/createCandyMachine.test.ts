@@ -52,7 +52,7 @@ async function init() {
   };
   await amman.addr.addLabels({ ...minimalConfig, ...opts, payer });
 
-  const cm = mx.candyMachine();
+  const cm = mx.candyMachines();
   return { cm, payer, solTreasuryAccount, minimalConfig, opts };
 }
 
