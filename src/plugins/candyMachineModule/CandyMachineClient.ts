@@ -1,5 +1,6 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
+import { CreatedCandyMachineNotFoundError } from '@/errors';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
 import {
   CreateCandyMachineInput,
@@ -16,7 +17,7 @@ export type CandyMachineInitFromConfigOpts = {
 };
 
 export class CandyMachineClient extends ModuleClient {
-  findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine> {
+  findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine | null> {
     const operation = findCandyMachineByAdddressOperation(address);
     return this.metaplex.operations().execute(operation);
   }
@@ -27,8 +28,10 @@ export class CandyMachineClient extends ModuleClient {
     const operation = createCandyMachineOperation(input);
     const output = await this.metaplex.operations().execute(operation);
 
-    // TODO(thlorenz): gracefully handle if not found.
     const candyMachine = await this.findCandyMachineByAddress(output.candyMachineSigner.publicKey);
+    if (candyMachine === null) {
+      throw new CreatedCandyMachineNotFoundError(output.candyMachineSigner.publicKey);
+    }
 
     return { candyMachine, ...output };
   }
