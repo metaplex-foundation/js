@@ -1,22 +1,15 @@
 import BN from 'bn.js';
-import { Key } from '@metaplex-foundation/mpl-token-metadata';
+import { Key, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { GpaBuilder } from '@/utils';
-import { MetadataV1GpaBuilder } from './MetadataV1GpaBuilder';
+import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@/Metaplex';
 
 export class TokenMetadataGpaBuilder extends GpaBuilder {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
+    super(metaplex, programId ?? PROGRAM_ID);
+  }
+
   whereKey(key: Key) {
     return this.where(0, new BN(key, 'le'));
-  }
-
-  metadataV1Accounts() {
-    return MetadataV1GpaBuilder.from(this).whereKey(Key.MetadataV1);
-  }
-
-  masterEditionV1Accounts() {
-    return this.whereKey(Key.MasterEditionV1);
-  }
-
-  masterEditionV2Accounts() {
-    return this.whereKey(Key.MasterEditionV1);
   }
 }

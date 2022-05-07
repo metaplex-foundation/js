@@ -1,8 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
+import { ACCOUNT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import BN from 'bn.js';
-import { TokenProgramGpaBuilder } from './TokenProgramGpaBuilder';
+import { Metaplex } from '@/Metaplex';
+import { GpaBuilder } from '@/utils';
 
-export class TokenGpaBuilder extends TokenProgramGpaBuilder {
+export class TokenGpaBuilder extends GpaBuilder {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
+    super(metaplex, programId ?? TOKEN_PROGRAM_ID);
+    this.whereSize(ACCOUNT_SIZE);
+  }
+
   selectMint() {
     return this.slice(0, 32);
   }
