@@ -202,9 +202,10 @@ export class UnreachableCaseError extends SdkError {
     super({
       cause,
       key: 'unreachable_case',
-      title: 'A Case in a Switch or If Statement Is Unreachable.',
-      problem: 'The developer is not handling that case yet.',
-      solution: 'Check your inputs or file an issue to have all cases handled.',
+      title: `The Case '${value}' in a Switch or If Statement went Unhandled.`,
+      problem:
+        'The developer is not handling that case yet or is missing a `break` or `return` statement.',
+      solution: 'Check your inputs or file an issue to have all cases handled properly.',
     });
   }
 }
