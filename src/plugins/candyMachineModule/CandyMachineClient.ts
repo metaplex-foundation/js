@@ -8,6 +8,7 @@ import {
   CreateCandyMachineOutput,
 } from './createCandyMachine';
 import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
+import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 
 export type CandyMachineInitFromConfigOpts = {
@@ -20,6 +21,24 @@ export class CandyMachineClient extends ModuleClient {
   findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine | null> {
     const operation = findCandyMachineByAdddressOperation(address);
     return this.metaplex.operations().execute(operation);
+  }
+
+  findCandyMachinesByWallet(wallet: PublicKey): Promise<CandyMachine[]> {
+    return this.metaplex.operations().execute(
+      findCandyMachinesByPublicKeyFieldOperation({
+        type: 'wallet',
+        publicKey: wallet,
+      })
+    );
+  }
+
+  findCandyMachinesByAuthority(authority: PublicKey): Promise<CandyMachine[]> {
+    return this.metaplex.operations().execute(
+      findCandyMachinesByPublicKeyFieldOperation({
+        type: 'authority',
+        publicKey: authority,
+      })
+    );
   }
 
   async createCandyMachine(
