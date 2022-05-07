@@ -144,7 +144,7 @@ const createConfig = (build) => {
     ],
     onwarn: function (warning, rollupWarn) {
       rollupWarn(warning);
-      if (warning.code === 'CIRCULAR_DEPENDENCY') {
+      if (!bundle && warning.code === 'CIRCULAR_DEPENDENCY') {
         const msg = 'Please eliminate the circular dependencies listed above and retry the build';
         throw new Error(msg);
       }
