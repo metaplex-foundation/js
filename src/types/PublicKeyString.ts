@@ -45,8 +45,9 @@ export function isPublicKeyString(value: string): value is PublicKeyString {
  * @throws {@link AssertionError} if the {@link value} is not a valid base58 string for a PublicKey of a Solana
  * Account.
  * @private
+ * @throws if value is not a valid PublicKey address
  */
-export function tryConvertToPublickKey(value: PublicKeyString): PublicKey {
+export function convertToPublickKey(value: PublicKeyString): PublicKey {
   assert(isPublicKeyString(value), `${value} is not a valid PublicKey`);
   return new PublicKey(value);
 }

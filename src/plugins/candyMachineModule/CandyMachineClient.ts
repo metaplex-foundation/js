@@ -1,5 +1,5 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { ModuleClient, Signer, tryConvertToPublickKey } from '@/types';
+import { ModuleClient, Signer, convertToPublickKey } from '@/types';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
 import {
   CreateCandyMachineInput,
@@ -39,7 +39,7 @@ export class CandyMachineClient extends ModuleClient {
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     const { candyMachineSigner = Keypair.generate() } = opts;
     const candyMachineData = candyMachineDataFromConfig(config, candyMachineSigner.publicKey);
-    const walletAddress = tryConvertToPublickKey(config.solTreasuryAccount);
+    const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
     return this.createCandyMachine({
       candyMachineData,

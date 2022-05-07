@@ -1,6 +1,6 @@
 import { WhitelistMintMode, WhitelistMintSettings } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
-import { PublicKeyString, tryConvertToPublickKey } from '@/types';
+import { PublicKeyString, convertToPublickKey } from '@/types';
 import { UnreachableCaseError } from '@/utils';
 
 export const BURN_EVERY_TIME = 'burnEveryTime';
@@ -50,7 +50,7 @@ export function whiteListMintSettingsFromConfig(
     default:
       throw new UnreachableCaseError(config.mode);
   }
-  const mint = tryConvertToPublickKey(config.mint);
+  const mint = convertToPublickKey(config.mint);
   const discountPrice = new BN(config.discountPrice);
 
   return { ...config, mode, mint, discountPrice };
