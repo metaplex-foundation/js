@@ -29,7 +29,7 @@ export async function createCandyMachineWithMinimalConfig(mx: Metaplex) {
   };
   await amman.addr.addLabels({ ...config, ...opts, payer });
 
-  const cm = mx.candyMachine();
+  const cm = mx.candyMachines();
   const {
     transactionId,
     confirmResponse,

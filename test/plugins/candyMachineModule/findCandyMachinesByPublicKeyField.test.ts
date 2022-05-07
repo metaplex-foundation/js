@@ -13,7 +13,7 @@ test('candyMachineGPA: candyMachineAccountsForWallet for wallet with one candy m
   const { candyMachineSigner, authorityAddress, walletAddress } =
     await createCandyMachineWithMinimalConfig(mx);
 
-  const candyMachines = await mx.candyMachine().findCandyMachinesByWallet(walletAddress);
+  const candyMachines = await mx.candyMachines().findCandyMachinesByWallet(walletAddress);
 
   t.equal(candyMachines.length, 1, 'returns one account');
   const cm = candyMachines[0];
@@ -42,7 +42,7 @@ test('candyMachineGPA: candyMachineAccountsForWallet for wallet with two candy m
     await createCandyMachineWithMinimalConfig(mx);
   }
 
-  const candyMachines = await mx.candyMachine().findCandyMachinesByWallet(mx.identity().publicKey);
+  const candyMachines = await mx.candyMachines().findCandyMachinesByWallet(mx.identity().publicKey);
 
   t.equal(candyMachines.length, 2, 'returns two machines');
 
@@ -59,7 +59,7 @@ test('candyMachineGPA: candyMachineAccountsForAuthority for authority with one c
   const { candyMachineSigner, authorityAddress, walletAddress } =
     await createCandyMachineWithMinimalConfig(mx);
 
-  const candyMachines = await mx.candyMachine().findCandyMachinesByAuthority(authorityAddress);
+  const candyMachines = await mx.candyMachines().findCandyMachinesByAuthority(authorityAddress);
 
   t.equal(candyMachines.length, 1, 'returns one account');
   const cm = candyMachines[0];
