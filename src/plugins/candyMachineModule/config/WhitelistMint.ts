@@ -1,7 +1,7 @@
 import { WhitelistMintMode, WhitelistMintSettings } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { PublicKeyString, convertToPublickKey } from '@/types';
-import { UnreachableCaseError } from '@/utils';
+import { UnreachableCaseError } from '@/errors';
 
 export const BURN_EVERY_TIME = 'burnEveryTime';
 export const NEVER_BURN = 'neverBurn';

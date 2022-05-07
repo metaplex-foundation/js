@@ -196,3 +196,15 @@ export class NotYetImplementedError extends SdkError {
     });
   }
 }
+
+export class UnreachableCaseError extends SdkError {
+  constructor(value: never, cause?: Error) {
+    super({
+      cause,
+      key: 'unreachable_case',
+      title: 'A Case in a Switch or If Statement Is Unreachable.',
+      problem: 'The developer is not handling that case yet.',
+      solution: 'Check your inputs or file an issue to have all cases handled.',
+    });
+  }
+}
