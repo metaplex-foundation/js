@@ -1,6 +1,5 @@
-import { Connection, PublicKey } from '@solana/web3.js';
 import { CandyMachine } from '@metaplex-foundation/mpl-candy-machine';
-import { BaseAccount } from '@/types';
+import { BaseAccount, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
 import { getSpaceForCandy } from './candyMachineSpace';
 
 export class CandyMachineAccount extends BaseAccount<CandyMachine> {
@@ -8,18 +7,11 @@ export class CandyMachineAccount extends BaseAccount<CandyMachine> {
     return getSpaceForCandy(this.data.data);
   }
 
-  static async fromAccountAddress(
-    connection: Connection,
-    address: PublicKey
-  ): Promise<CandyMachineAccount> {
-    // TODO(thlorenz): should pass in UnparsedAccount here which is obtained
-    // via the `metaplex.rpc()` driver
-    const accountInfo = await connection.getAccountInfo(address);
-    if (accountInfo == null) {
-      throw new Error(`Unable to find CandyMachine account at ${address}`);
-    }
-    const unparsedAccount = { ...accountInfo, publicKey: address };
-    const parsed = CandyMachineAccount.parse(unparsedAccount, CandyMachine);
-    return new CandyMachineAccount(parsed);
+  static from(unparsedAccount: UnparsedAccount) {
+    return new CandyMachineAccount(CandyMachineAccount.parse(unparsedAccount, CandyMachine));
+  }
+
+  static fromMaybe(maybe: UnparsedMaybeAccount) {
+    return maybe.exists ? CandyMachineAccount.from(maybe) : maybe;
   }
 }
