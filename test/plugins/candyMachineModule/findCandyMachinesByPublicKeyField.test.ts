@@ -9,12 +9,15 @@ killStuckProcess();
 // Wallet
 // -----------------
 test('candyMachineGPA: candyMachineAccountsForWallet for wallet with one candy machine created', async (t) => {
+  // Given I create one candy machine with a wallet
   const mx = await metaplex();
   const { candyMachineSigner, authorityAddress, walletAddress } =
     await createCandyMachineWithMinimalConfig(mx);
 
+  // When I get the candy machines for the wallet
   const candyMachines = await mx.candyMachines().findCandyMachinesByWallet(walletAddress);
 
+  // It returns that candy machine
   t.equal(candyMachines.length, 1, 'returns one account');
   const cm = candyMachines[0];
   spok(t, cm, {
@@ -29,6 +32,8 @@ test('candyMachineGPA: candyMachineAccountsForWallet for wallet with one candy m
 });
 
 test('candyMachineGPA: candyMachineAccountsForWallet for wallet with two candy machines created for that wallet and one for another', async (t) => {
+  // Given I create one candy machine with wallet1 and two with wallet2
+
   // Other wallet
   {
     const mx = await metaplex();
@@ -42,8 +47,10 @@ test('candyMachineGPA: candyMachineAccountsForWallet for wallet with two candy m
     await createCandyMachineWithMinimalConfig(mx);
   }
 
+  // When I get the candy machines for the wallet
   const candyMachines = await mx.candyMachines().findCandyMachinesByWallet(mx.identity().publicKey);
 
+  // It returns the two candy machine of wallet2
   t.equal(candyMachines.length, 2, 'returns two machines');
 
   for (const cm of candyMachines) {
@@ -55,12 +62,15 @@ test('candyMachineGPA: candyMachineAccountsForWallet for wallet with two candy m
 // Authority
 // -----------------
 test('candyMachineGPA: candyMachineAccountsForAuthority for authority with one candy machine created', async (t) => {
+  // Given I create a candy machine with a specific auhority
   const mx = await metaplex();
   const { candyMachineSigner, authorityAddress, walletAddress } =
     await createCandyMachineWithMinimalConfig(mx);
 
+  // When I get the candy machines for that authority
   const candyMachines = await mx.candyMachines().findCandyMachinesByAuthority(authorityAddress);
 
+  // It returns that one candy machine for that authority
   t.equal(candyMachines.length, 1, 'returns one account');
   const cm = candyMachines[0];
   spok(t, cm, {
