@@ -5,10 +5,10 @@ export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
       ...input,
-      key: `plugin.candy machine.${input.key}`,
-      title: `NFT > ${input.title}`,
+      key: `plugin.candy_machine.${input.key}`,
+      title: `Candy Machine > ${input.title}`,
       source: 'plugin',
-      sourceDetails: 'NFT',
+      sourceDetails: 'Candy Machine',
     });
   }
 }
