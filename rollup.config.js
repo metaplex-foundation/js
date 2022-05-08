@@ -120,8 +120,7 @@ const createConfig = (build) => {
       babel({
         exclude: '**/node_modules/**',
         extensions,
-        babelHelpers: bundle ? 'bundled' : 'runtime',
-        plugins: bundle ? [] : ['@babel/plugin-transform-runtime'],
+        babelHelpers: 'bundled',
       }),
       replace({
         preventAssignment: true,
