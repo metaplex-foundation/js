@@ -1,6 +1,6 @@
 import { EndSettings, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
-import { tryConvertToMillisecondsSinceEpoch } from '@/types';
+import { convertToMillisecondsSinceEpoch } from '@/types';
 
 export const ENDSETTING_DATE = 'date';
 export const ENDSETTING_AMOUNT = 'amount';
@@ -34,7 +34,7 @@ export function endSettingsFromConfig(config?: EndSettingsConfig): EndSettings |
 
   const value =
     config.endSettingType === ENDSETTING_DATE
-      ? tryConvertToMillisecondsSinceEpoch(config.value)
+      ? convertToMillisecondsSinceEpoch(config.value)
       : new BN(config.value);
   return {
     endSettingType,

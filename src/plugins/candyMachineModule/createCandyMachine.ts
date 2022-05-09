@@ -23,11 +23,7 @@ export type CreateCandyMachineOperation = Operation<
   CreateCandyMachineOutput
 >;
 
-export type CreateCandyMachineInput = {
-  // Data.
-  // TODO(loris): spread data into the input directly.
-  candyMachineData: CandyMachineData;
-
+export type CreateCandyMachineInput = CandyMachineData & {
   // Accounts.
   candyMachineSigner?: Signer;
   payerSigner?: Signer;
@@ -56,23 +52,23 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     metaplex: Metaplex
   ): Promise<CreateCandyMachineOutput> {
     const {
-      candyMachineData,
       candyMachineSigner = Keypair.generate(),
       payerSigner = metaplex.identity(),
       walletAddress = payerSigner.publicKey,
       authorityAddress = payerSigner.publicKey,
       confirmOptions,
+      ...candyMachineData
     } = operation.input;
 
     const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
       await createCandyMachineBuilder({
         metaplex,
-        candyMachineData,
         payerSigner,
         candyMachineSigner,
         walletAddress,
         authorityAddress,
         confirmOptions,
+        ...candyMachineData,
       }),
       undefined,
       confirmOptions
@@ -92,36 +88,35 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
   },
 };
 
-export type CreateCandyMachineBuilderParams = MetaplexAware & {
-  // Data.
-  candyMachineData: CandyMachineData;
+export type CreateCandyMachineBuilderParams = MetaplexAware &
+  CandyMachineData & {
+    // Accounts.
+    candyMachineSigner: Signer;
+    payerSigner: Signer;
+    walletAddress: PublicKey;
+    authorityAddress: PublicKey;
 
-  // Accounts.
-  candyMachineSigner: Signer;
-  payerSigner: Signer;
-  walletAddress: PublicKey;
-  authorityAddress: PublicKey;
+    // Instruction keys.
+    createAccountInstructionKey?: string;
+    initializeCandyMachineInstructionKey?: string;
 
-  // Instruction keys.
-  createAccountInstructionKey?: string;
-  initializeCandyMachineInstructionKey?: string;
-
-  // Transaction Options.
-  confirmOptions?: ConfirmOptions;
-};
+    // Transaction Options.
+    confirmOptions?: ConfirmOptions;
+  };
 
 export const createCandyMachineBuilder = async (
   params: CreateCandyMachineBuilderParams
 ): Promise<TransactionBuilder> => {
   const {
     metaplex,
-    candyMachineData,
     candyMachineSigner,
     payerSigner,
     walletAddress,
     authorityAddress,
     createAccountInstructionKey,
     initializeCandyMachineInstructionKey,
+
+    ...candyMachineData
   } = params;
 
   const space = getSpaceForCandy(candyMachineData);

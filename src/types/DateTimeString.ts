@@ -14,7 +14,7 @@ export type DateTimeString = string;
  * @throws {@link Error} if the {@link dateTimeString} is not a valid date/time string.
  * @private
  */
-export function tryConvertToMillisecondsSinceEpoch(dateTimeString: DateTimeString): BN {
+export function convertToMillisecondsSinceEpoch(dateTimeString: DateTimeString): BN {
   const date = new Date(dateTimeString);
   const msSinceEpoch = date.valueOf();
   return new BN(msSinceEpoch);

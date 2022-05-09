@@ -4,22 +4,31 @@ import { CandyMachine } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
 import { CandyMachineAccount } from '@/programs';
 
+// -----------------
+// Operation
+// -----------------
 const Key = 'FindCandyMachineByAdddressOperation' as const;
+
 export const findCandyMachineByAdddressOperation =
   useOperation<FindCandyMachineByAdddressOperation>(Key);
-export type FindCandyMachineByAdddressOperation = Operation<typeof Key, PublicKey, CandyMachine>;
 
+export type FindCandyMachineByAdddressOperation = Operation<
+  typeof Key,
+  PublicKey,
+  CandyMachine | null
+>;
+
+// -----------------
+// Handler
+// -----------------
 export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCandyMachineByAdddressOperation> =
   {
     handle: async (operation: FindCandyMachineByAdddressOperation, metaplex: Metaplex) => {
       const candyMachineAddress = operation.input;
+      const unparsedAccount = await metaplex.rpc().getAccount(candyMachineAddress);
 
-      // TODO(loris): Always use the metaplex.rpc() to interact with the cluster.
-      const account = await CandyMachineAccount.fromAccountAddress(
-        metaplex.connection,
-        candyMachineAddress
-      );
+      const account = CandyMachineAccount.fromMaybe(unparsedAccount);
 
-      return CandyMachine.fromAccount(account);
+      return account.exists ? CandyMachine.fromAccount(account) : null;
     },
   };

@@ -6,7 +6,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { tryConvertToMillisecondsSinceEpoch, tryConvertToPublickKey } from '@/types';
+import { convertToMillisecondsSinceEpoch, convertToPublickKey } from '@/types';
 import { CandyMachineConfigWithoutStorage } from './CandyMachineConfig';
 import { creatorsConfigDefault } from './Creators';
 import { endSettingsFromConfig } from './EndSettings';
@@ -28,10 +28,10 @@ export function candyMachineDataFromConfig(
   const configCreators = config.creators ?? creatorsConfigDefault(config.solTreasuryAccount);
   const creators: Creator[] = configCreators.map((creatorConfig) => ({
     ...creatorConfig,
-    address: tryConvertToPublickKey(creatorConfig.address),
+    address: convertToPublickKey(creatorConfig.address),
   }));
 
-  const goLiveDate = tryConvertToMillisecondsSinceEpoch(config.goLiveDate);
+  const goLiveDate = convertToMillisecondsSinceEpoch(config.goLiveDate);
 
   const hiddenSettings = hiddenSettingsFromConfig(config.hiddenSettings) ?? null;
   const endSettings = endSettingsFromConfig(config.endSettings) ?? null;

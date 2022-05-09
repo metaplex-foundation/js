@@ -16,7 +16,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     op.register(createCandyMachineOperation, createCandyMachineOperationHandler);
     op.register(findCandyMachineByAdddressOperation, findCandyMachineByAdddressOperationHandler);
 
-    metaplex.candyMachine = function () {
+    metaplex.candyMachines = function () {
       return new CandyMachineClient(this);
     };
   },
@@ -24,6 +24,6 @@ export const candyMachineModule = (): MetaplexPlugin => ({
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    candyMachine(): CandyMachineClient;
+    candyMachines(): CandyMachineClient;
   }
 }
