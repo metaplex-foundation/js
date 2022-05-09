@@ -2,18 +2,18 @@
   "name": "@metaplex-foundation/js-next",
   "version": "0.8.1",
   "sideEffects": false,
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.mjs",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
       "browser": {
-        "import": "./dist/esm-browser/index.js",
-        "require": "./dist/cjs-browser/index.js"
+        "import": "./dist/esm-browser/index.mjs",
+        "require": "./dist/cjs-browser/index.cjs"
       },
       "node": {
-        "import": "./dist/esm/index.js",
-        "require": "./dist/cjs/index.js"
+        "import": "./dist/esm/index.mjs",
+        "require": "./dist/cjs/index.cjs"
       }
     }
   },
@@ -53,6 +53,7 @@
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "test": "yarn build:test && tape dist/test/**/*.test.js",
+    "test:exports": "node ./test/assert-cjs-exports.test.cjs && node ./test/assert-esm-exports.test.mjs",
     "lint": "prettier -c .",
     "lint:fix": "prettier --write ."
   },
