@@ -27,14 +27,6 @@ export class GpaBuilder {
     this.programId = programId;
   }
 
-  static from<T extends typeof GpaBuilder>(this: T, builder: GpaBuilder): InstanceType<T> {
-    const newBuilder = new this(builder.metaplex, builder.programId) as InstanceType<T>;
-    newBuilder.mergeConfig(builder.config);
-    newBuilder.sortCallback = builder.sortCallback;
-
-    return newBuilder;
-  }
-
   mergeConfig(config: GetProgramAccountsConfig) {
     this.config = { ...this.config, ...config };
 

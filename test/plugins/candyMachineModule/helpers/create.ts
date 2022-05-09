@@ -1,4 +1,3 @@
-import { Keypair } from '@solana/web3.js';
 import { amman, SKIP_PREFLIGHT } from '../../../helpers';
 import { CandyMachineConfigWithoutStorage } from '@/plugins/candyMachineModule/config';
 import { Metaplex } from '@/Metaplex';

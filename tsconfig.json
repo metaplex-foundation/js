@@ -8,6 +8,7 @@
     "sourceMap": true,
     "noEmit": false,
     "noEmitOnError": true,
+    "emitDeclarationOnly": true,
     "paths": {
       "@/*": ["src/*"]
     },

@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
