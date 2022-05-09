@@ -77,9 +77,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
-    "@babel/plugin-proposal-class-properties": "^7.16.7",
-    "@babel/plugin-proposal-private-methods": "^7.16.11",
-    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.16.7",
     "@metaplex-foundation/amman": "^0.6.1",
