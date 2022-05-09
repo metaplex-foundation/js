@@ -1,8 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Edition, Key } from '@metaplex-foundation/mpl-token-metadata';
-import { OriginalEditionAccount } from './OriginalEditionAccount';
 import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import { OriginalEditionAccount } from './OriginalEditionAccount';
 
 export class PrintEditionAccount extends BaseAccount<Edition> {
   static async pda(mint: PublicKey): Promise<Pda> {

@@ -7,8 +7,14 @@
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "browser": {
+        "import": "./dist/esm-browser/index.js",
+        "require": "./dist/cjs-browser/index.js"
+      },
+      "node": {
+        "import": "./dist/esm/index.js",
+        "require": "./dist/cjs/index.js"
+      }
     }
   },
   "files": [
@@ -39,9 +45,7 @@
     "preversion": "yarn check:publish-ready",
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
-    "build": "yarn clean && yarn build:esm && yarn build:cjs",
-    "build:esm": "ttsc -p tsconfig.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
-    "build:cjs": "ttsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "build": "yarn clean && ttsc && rollup -c",
     "build:test": "ttsc -p test/tsconfig.json",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
@@ -72,16 +76,29 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-typescript": "^7.16.7",
     "@metaplex-foundation/amman": "^0.6.1",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^4.0.0",
     "@types/bn.js": "^5.1.0",
     "@types/debug": "^4.1.7",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/mime": "^2.0.3",
     "@types/sinon": "^10.0.11",
     "@types/tape": "^4.13.2",
+    "babel-plugin-module-resolver": "^4.1.0",
     "prettier": "^2.6.0",
     "rimraf": "^3.0.2",
+    "rollup": "^2.72.0",
+    "rollup-plugin-generate-package-json": "^3.2.0",
+    "rollup-plugin-polyfill-node": "^0.9.0",
+    "rollup-plugin-terser": "^7.0.2",
     "sinon": "^13.0.1",
     "spok": "^1.4.3",
     "tape": "^5.5.2",
@@ -90,5 +107,10 @@
   },
   "engines": {
     "node": "^14.0 || >=16.0"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ]
 }

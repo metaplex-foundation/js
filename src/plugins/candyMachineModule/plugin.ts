@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 import { CandyMachineClient } from './CandyMachineClient';
 import {

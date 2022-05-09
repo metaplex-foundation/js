@@ -1,14 +1,14 @@
 import { Metaplex } from '@/Metaplex';
+import { MetaplexFile, OperationHandler } from '@/types';
+import { Plan, DisposableScope } from '@/utils';
+import { BundlrStorageDriver } from './BundlrStorageDriver';
+import { UploadMetadataOutput } from '../nftModule/uploadMetadata';
 import {
   getAssetsFromJsonMetadata,
   PlanUploadMetadataOperation,
   planUploadMetadataOperationHandler,
   replaceAssetsWithUris,
-  UploadMetadataOutput,
-} from '../nftModule';
-import { MetaplexFile, OperationHandler } from '@/types';
-import { Plan, DisposableScope } from '@/utils';
-import { BundlrStorageDriver } from './BundlrStorageDriver';
+} from '../nftModule/planUploadMetadata';
 
 export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<PlanUploadMetadataOperation> =
   {

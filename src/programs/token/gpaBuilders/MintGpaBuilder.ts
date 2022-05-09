@@ -1,8 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
+import { MINT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import BN from 'bn.js';
-import { TokenProgramGpaBuilder } from './TokenProgramGpaBuilder';
+import { Metaplex } from '@/Metaplex';
+import { GpaBuilder } from '@/utils';
 
-export class MintGpaBuilder extends TokenProgramGpaBuilder {
+export class MintGpaBuilder extends GpaBuilder {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
+    super(metaplex, programId ?? TOKEN_PROGRAM_ID);
+    this.whereSize(MINT_SIZE);
+  }
+
   whereDoesntHaveMintAuthority() {
     return this.where(0, 0);
   }

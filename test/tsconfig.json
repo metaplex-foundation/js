@@ -1,9 +1,12 @@
 {
-  "extends": "../tsconfig.cjs.json",
+  "extends": "../tsconfig.json",
   "include": ["./**/*"],
   "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
     "outDir": "../dist/test",
     "declarationDir": null,
-    "declaration": false
+    "declaration": false,
+    "emitDeclarationOnly": false,
   }
 }

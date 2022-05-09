@@ -5,7 +5,7 @@ import {
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { TokenMetadataGpaBuilder, TokenProgramGpaBuilder } from '@/programs';
+import { TokenMetadataGpaBuilder } from '@/programs';
 import { ErrorWithLogs } from '@/types';
 
 export const corePrograms = () => ({
@@ -20,7 +20,6 @@ export const corePrograms = () => ({
     metaplex.programs().register({
       name: 'TokenProgram',
       address: TOKEN_PROGRAM_ID,
-      gpaResolver: (metaplex: Metaplex) => new TokenProgramGpaBuilder(metaplex, TOKEN_PROGRAM_ID),
     });
 
     // Token Metadata Program.
