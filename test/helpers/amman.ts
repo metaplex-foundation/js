@@ -4,9 +4,11 @@ import {
   cusper as cusperTokenMetadata,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { TransactionError } from '@solana/web3.js';
+import { logDebug } from '../../src/utils/log';
 
 export const amman = Amman.instance({
   knownLabels: { [TOKEN_METADATA_ADDRESS]: 'Token Metadata' },
+  log: logDebug,
 });
 
 // -----------------
