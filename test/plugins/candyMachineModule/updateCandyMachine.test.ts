@@ -43,6 +43,8 @@ type ValueOf<T> = T[keyof T];
 test('update: candy machine single property', async (t) => {
   // Given I create one candy machine
   const mx = await metaplex();
+  const cm = mx.candyMachines();
+
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
 
@@ -61,15 +63,11 @@ test('update: candy machine single property', async (t) => {
     t.comment(`+++ Updating ${key}`);
 
     // When I update that candy machine's property
-    const candyMachineData = currentCandyMachine.candyMachineData;
-    (candyMachineData as Record<keyof CandyMachineData, ValueOf<CandyMachineData>>)[key] = value;
-
-    const cm = mx.candyMachines();
     const { transactionId, confirmResponse } = await cm.updateCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
-      ...candyMachineData,
+      [key]: value,
     });
     await amman.addr.addLabel(`tx: update-cm-${key}`, transactionId);
 
@@ -86,9 +84,10 @@ test('update: candy machine single property', async (t) => {
   }
 });
 
-test.only('update: candy machine multiple properties', async (t) => {
+test('update: candy machine multiple properties', async (t) => {
   // Given I create one candy machine
   const mx = await metaplex();
+  const cm = mx.candyMachines();
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
 
@@ -122,21 +121,19 @@ test.only('update: candy machine multiple properties', async (t) => {
   let currentCandyMachine = candyMachine;
   for (const changeSet of changes) {
     const keys = changeSet.map(([key]) => key);
+    const keyValues = changeSet.reduce((acc, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {} as Record<keyof CandyMachineData, ValueOf<CandyMachineData>>) as Partial<CandyMachineData>;
 
     t.comment(`+++ Updating ${keys.join(', ')}`);
 
     // When I update that candy machine's property
-    const candyMachineData = currentCandyMachine.candyMachineData;
-    for (const [key, value] of changeSet) {
-      (candyMachineData as Record<keyof CandyMachineData, ValueOf<CandyMachineData>>)[key] = value;
-    }
-
-    const cm = mx.candyMachines();
     const { transactionId, confirmResponse } = await cm.updateCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
-      ...candyMachineData,
+      ...keyValues,
     });
     await amman.addr.addLabel(`tx: update-cm-${keys.join(', ')}`, transactionId);
 

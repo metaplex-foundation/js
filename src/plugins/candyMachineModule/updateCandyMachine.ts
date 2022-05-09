@@ -16,7 +16,7 @@ export type UpdateCandyMachineOperation = Operation<
   UpdateCandyMachineOutput
 >;
 
-export type UpdateCandyMachineInput = CandyMachineData & {
+export type UpdateCandyMachineInputWithoutCandyMachineData = {
   // Accounts
   candyMachineAddress: PublicKey;
   walletAddress: PublicKey;
@@ -25,6 +25,9 @@ export type UpdateCandyMachineInput = CandyMachineData & {
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
+
+export type UpdateCandyMachineInput = UpdateCandyMachineInputWithoutCandyMachineData &
+  CandyMachineData;
 
 export type UpdateCandyMachineOutput = {
   // Transaction Result.

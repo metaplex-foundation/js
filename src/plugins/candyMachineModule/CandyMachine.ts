@@ -94,6 +94,18 @@ export class CandyMachine extends Model {
     };
   }
 
+  updatedCandyMachineData(
+    update: Partial<CandyMachineData> & Record<string, any>
+  ): CandyMachineData {
+    const candyUpdate = Object.entries(update).reduce((acc, [key, value]) => {
+      if (this.candyMachineData.hasOwnProperty(key)) {
+        acc[key as keyof CandyMachineData] = value;
+      }
+      return acc;
+    }, {} as Partial<CandyMachineData>);
+    return { ...this.candyMachineData, ...candyUpdate };
+  }
+
   static fromAccount(candyMachineAccount: CandyMachineAccount): CandyMachine {
     return new CandyMachine(candyMachineAccount);
   }

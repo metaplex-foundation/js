@@ -1,6 +1,10 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
-import { CreatedCandyMachineNotFoundError, UpdatedCandyMachineNotFoundError } from '@/errors';
+import {
+  CandyMachineToUpdateNotFoundError,
+  CreatedCandyMachineNotFoundError,
+  UpdatedCandyMachineNotFoundError,
+} from '@/errors';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
 import {
   CreateCandyMachineInput,
@@ -12,15 +16,19 @@ import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesB
 import { CandyMachine } from './CandyMachine';
 import {
   UpdateCandyMachineInput,
+  UpdateCandyMachineInputWithoutCandyMachineData,
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
+import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
   authorityAddress?: PublicKey;
   confirmOptions?: ConfirmOptions;
 };
+export type UpdateCandyMachineParams = UpdateCandyMachineInputWithoutCandyMachineData &
+  Partial<CandyMachineData>;
 
 export class CandyMachineClient extends ModuleClient {
   // -----------------
@@ -86,9 +94,16 @@ export class CandyMachineClient extends ModuleClient {
   // Update
   // -----------------
   async updateCandyMachine(
-    input: UpdateCandyMachineInput
+    input: UpdateCandyMachineParams
   ): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
-    const operation = updateCandyMachineOperation(input);
+    const currentCandyMachine = await this.findCandyMachineByAddress(input.candyMachineAddress);
+    if (currentCandyMachine === null) {
+      throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
+    }
+
+    const updatedData = currentCandyMachine.updatedCandyMachineData(input);
+
+    const operation = updateCandyMachineOperation({ ...input, ...updatedData });
     const output = await this.metaplex.operations().execute(operation);
 
     const candyMachine = await this.findCandyMachineByAddress(input.candyMachineAddress);

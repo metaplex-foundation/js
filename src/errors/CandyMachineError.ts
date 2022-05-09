@@ -45,6 +45,19 @@ export class CreatedCandyMachineNotFoundError extends CandyMachineError {
   }
 }
 
+export class CandyMachineToUpdateNotFoundError extends CandyMachineError {
+  constructor(candyMachineAddress: PublicKey, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_to_update_not_found',
+      title: 'CandyMachine to update Not Found',
+      problem:
+        'No account could be found for the candy machine that the client is trying to update: ' +
+        `[${candyMachineAddress.toBase58()}].`,
+      solution: 'Ensure that the candy machine exists at the provided address.',
+    });
+  }
+}
 export class UpdatedCandyMachineNotFoundError extends CandyMachineError {
   constructor(candyMachineAddress: PublicKey, cause?: Error) {
     super({
