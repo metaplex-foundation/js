@@ -216,7 +216,7 @@ Note that `MetaplexFile`s can be created in various different ways based on wher
 
 ### createNft
 
-The `createNft` method accepts [a variety of parameters](/src/modules/nfts/operations/createNftOperation.ts#L10) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `createNft` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
@@ -235,7 +235,7 @@ Additionally, since no other optional parameters were provided, it will do its b
 - It will try to fetch the secondary sales royalties from the downloaded JSON metadata or will default to 5%.
 - It will default to making the NFT immutable — meaning you won't be able to update it later on.
 
-If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/modules/nfts/operations/createNftOperation.ts#L10) accepted by the `createNft` method.
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/plugins/nftModule/createNft.ts) accepted by the `createNft` method.
 
 ### updateNft
 
@@ -294,7 +294,7 @@ const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalMint, 
 
 All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
 
-You can see [its full data representation by checking the code](/src/modules/nfts/models/Nft.ts) but here is an overview of the properties that are available on the `Nft` object.
+You can see [its full data representation by checking the code](/src/plugins/nftModule/Nft.ts) but here is an overview of the properties that are available on the `Nft` object.
 
 ```ts
 // Always loaded.

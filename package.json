@@ -19,7 +19,10 @@
   },
   "files": [
     "/dist/cjs",
+    "/dist/cjs-browser",
     "/dist/esm",
+    "/dist/esm-browser",
+    "/dist/iife",
     "/dist/types",
     "/src"
   ],
