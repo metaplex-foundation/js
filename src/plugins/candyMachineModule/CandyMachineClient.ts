@@ -1,6 +1,6 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
-import { CreatedCandyMachineNotFoundError } from '@/errors';
+import { CreatedCandyMachineNotFoundError, UpdatedCandyMachineNotFoundError } from '@/errors';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
 import {
   CreateCandyMachineInput,
@@ -10,6 +10,11 @@ import {
 import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
+import {
+  UpdateCandyMachineInput,
+  updateCandyMachineOperation,
+  UpdateCandyMachineOutput,
+} from './updateCandyMachine';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
@@ -18,6 +23,9 @@ export type CandyMachineInitFromConfigOpts = {
 };
 
 export class CandyMachineClient extends ModuleClient {
+  // -----------------
+  // Queries
+  // -----------------
   findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine | null> {
     const operation = findCandyMachineByAdddressOperation(address);
     return this.metaplex.operations().execute(operation);
@@ -41,6 +49,9 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
+  // -----------------
+  // Create
+  // -----------------
   async createCandyMachine(
     input: CreateCandyMachineInput
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
@@ -69,5 +80,22 @@ export class CandyMachineClient extends ModuleClient {
       authorityAddress: opts.authorityAddress,
       ...candyMachineData,
     });
+  }
+
+  // -----------------
+  // Update
+  // -----------------
+  async updateCandyMachine(
+    input: UpdateCandyMachineInput
+  ): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
+    const operation = updateCandyMachineOperation(input);
+    const output = await this.metaplex.operations().execute(operation);
+
+    const candyMachine = await this.findCandyMachineByAddress(input.candyMachineAddress);
+    if (candyMachine === null) {
+      throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
+    }
+
+    return { candyMachine, ...output };
   }
 }

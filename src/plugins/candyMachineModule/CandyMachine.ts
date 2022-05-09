@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import {
+  CandyMachineData,
   Creator,
   EndSettings,
   GatekeeperConfig,
@@ -72,6 +73,25 @@ export class CandyMachine extends Model {
     this.authorityAddress = accountData.authority;
     this.walletAddress = accountData.wallet;
     this.tokenMintAddress = accountData.tokenMint ?? undefined;
+  }
+
+  get candyMachineData(): CandyMachineData {
+    return {
+      uuid: this.uuid,
+      price: this.price,
+      symbol: this.symbol,
+      sellerFeeBasisPoints: this.sellerFeeBasisPoints,
+      maxSupply: this.maxSupply,
+      isMutable: this.isMutable,
+      retainAuthority: this.retainAuthority,
+      goLiveDate: this.goLiveDate ?? null,
+      itemsAvailable: this.itemsAvailable,
+      endSettings: this.endSettings ?? null,
+      hiddenSettings: this.hiddenSettings ?? null,
+      whitelistMintSettings: this.whitelistMintSettings ?? null,
+      gatekeeper: this.gatekeeper ?? null,
+      creators: this.creators,
+    };
   }
 
   static fromAccount(candyMachineAccount: CandyMachineAccount): CandyMachine {

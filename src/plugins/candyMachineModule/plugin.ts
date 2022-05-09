@@ -13,6 +13,10 @@ import {
   findCandyMachinesByPublicKeyFieldOperation,
   findCandyMachinesByPublicKeyFieldOnChainOperationHandler,
 } from './findCandyMachinesByPublicKeyField';
+import {
+  updateCandyMachineOperation,
+  updateCandyMachineOperationHandler,
+} from './updateCandyMachine';
 
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -23,6 +27,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       findCandyMachinesByPublicKeyFieldOperation,
       findCandyMachinesByPublicKeyFieldOnChainOperationHandler
     );
+    op.register(updateCandyMachineOperation, updateCandyMachineOperationHandler);
 
     metaplex.candyMachines = function () {
       return new CandyMachineClient(this);
