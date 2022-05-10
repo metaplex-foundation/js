@@ -38,7 +38,7 @@ export async function createCandyMachineWithMinimalConfig(mx: Metaplex) {
     candyMachineSigner,
     authorityAddress,
     walletAddress,
-  } = await cm.createFromConfig(config, opts);
+  } = await cm.createCandyMachineFromConfig(config, opts);
 
   await amman.addr.addLabel('create: candy-machine', transactionId);
 
