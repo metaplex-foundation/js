@@ -5,7 +5,6 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
-import generatePackageJson from 'rollup-plugin-generate-package-json';
 import pkg from './package.json';
 
 const builds = [
@@ -17,74 +16,15 @@ const builds = [
     dir: 'dist/cjs',
     format: 'cjs',
   },
-  {
-    dir: 'dist/esm-browser',
-    format: 'es',
-    browser: true,
-  },
-  {
-    dir: 'dist/cjs-browser',
-    format: 'cjs',
-    browser: true,
-  },
-  {
-    file: 'dist/iife/index.js',
-    format: 'iife',
-    name: 'MetaplexSDK',
-    browser: true,
-    bundle: true,
-  },
-  {
-    file: 'dist/iife/index.min.js',
-    format: 'iife',
-    name: 'MetaplexSDK',
-    browser: true,
-    bundle: true,
-    minified: true,
-  },
 ];
 
+// The options below can be used to configure what should be bundled.
+// Currently, we're not bundling our library to support tree-shaking.
 const extensions = ['.js', '.ts'];
+const globals = {};
 const allDependencies = Object.keys(pkg.dependencies);
-const dependenciesToExcludeInBundle = ['@aws-sdk/client-s3'];
-const dependenciesToDedupes = [
-  '@solana/spl-token',
-  '@solana/wallet-adapter-base',
-  '@solana/web3.js',
-  'abort-controller',
-  'bignumber.js',
-  'bn.js',
-  'bs58',
-  'buffer',
-  'cross-fetch',
-  'debug',
-  'eventemitter3',
-  'mime',
-  'tweetnacl',
-];
-
-const globals = {
-  '@aws-sdk/client-s3': 'AwsS3Client',
-  '@bundlr-network/client': 'BundlrNetworkClient',
-  '@metaplex-foundation/beet': 'MetaplexBeet',
-  '@metaplex-foundation/beet-solana': 'MetaplexBeetSolana',
-  '@metaplex-foundation/mpl-candy-machine': 'MetaplexMplCandyMachine',
-  '@metaplex-foundation/mpl-token-metadata': 'MetaplexMplTokenMetadata',
-  '@solana/spl-token': 'SolanaSplToken',
-  '@solana/wallet-adapter-base': 'SolanaWalletAdapterBase',
-  '@solana/web3.js': 'SolanaWeb3',
-  'abort-controller': 'AbortController',
-  'bignumber.js': 'BigNumber',
-  'bn.js': 'BN',
-  bs58: 'Bs58',
-  buffer: 'Buffer',
-  'cross-fetch': 'CrossFetch',
-  debug: 'Debug',
-  eventemitter3: 'EventEmitter3',
-  'lodash.clonedeep': 'LodashClonedeep',
-  mime: 'Mime',
-  tweetnacl: 'Tweetnacl',
-};
+const dependenciesToExcludeInBundle = [];
+const dependenciesToDedupes = [];
 
 const createConfig = (build) => {
   const { file, dir, format, name, browser = false, bundle = false, minified = false } = build;
@@ -93,6 +33,9 @@ const createConfig = (build) => {
     return !bundle || dependenciesToExcludeInBundle.includes(dependency);
   });
 
+  const outputExtension = format === 'es' ? 'mjs' : 'cjs';
+  const entryFileNames = bundle ? undefined : `[name].${outputExtension}`;
+
   return {
     input: ['src/index.ts'],
     output: {
@@ -100,6 +43,7 @@ const createConfig = (build) => {
       file,
       format,
       name,
+      entryFileNames,
       exports: 'named',
       preserveModules: !bundle,
       sourcemap: true,
@@ -131,15 +75,6 @@ const createConfig = (build) => {
       }),
       ...(bundle ? [json(), nodePolyfills()] : []),
       ...(minified ? [terser()] : []),
-      ...(!bundle && dir
-        ? [
-            generatePackageJson({
-              baseContents: {
-                type: format === 'cjs' ? 'commonjs' : 'module',
-              },
-            }),
-          ]
-        : []),
     ],
     onwarn: function (warning, rollupWarn) {
       rollupWarn(warning);
