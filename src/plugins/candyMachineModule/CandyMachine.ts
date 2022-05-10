@@ -43,6 +43,11 @@ export class CandyMachine extends Model {
   readonly walletAddress: PublicKey;
   readonly tokenMintAddress?: PublicKey;
 
+  /**
+   * Address at which the Candy Machine is stored on chain.
+   */
+  readonly candyMachineAddress: PublicKey;
+
   private constructor(readonly candyMachineAccount: CandyMachineAccount) {
     super();
 
@@ -73,6 +78,7 @@ export class CandyMachine extends Model {
     this.authorityAddress = accountData.authority;
     this.walletAddress = accountData.wallet;
     this.tokenMintAddress = accountData.tokenMint ?? undefined;
+    this.candyMachineAddress = candyMachineAccount.publicKey;
   }
 
   get candyMachineData(): CandyMachineData {
