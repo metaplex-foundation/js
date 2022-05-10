@@ -8,7 +8,7 @@ import {
   spokSameBignum,
 } from '../../helpers';
 import { createCandyMachineWithMinimalConfig } from './helpers';
-import { CandyMachineData, cusper } from '@metaplex-foundation/mpl-candy-machine';
+import { CandyMachineData, cusper, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachine } from '@/plugins';
 
 killStuckProcess();
@@ -153,4 +153,40 @@ test('update: candy machine multiple properties', async (t) => {
     assertProperlyUpdated(t, currentCandyMachine, updatedMachine!, expectedChanges);
     currentCandyMachine = updatedMachine!;
   }
+});
+
+test('update: candy machine end setting', async (t) => {
+  // Given I create one candy machine
+  const mx = await metaplex();
+  const cm = mx.candyMachines();
+
+  const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
+    await createCandyMachineWithMinimalConfig(mx);
+  console.log(candyMachineSigner.publicKey.toBase58());
+
+  const changes: Partial<CandyMachine> = {
+    endSettings: {
+      endSettingType: EndSettingType.Date,
+      number: new Date('25 Jan 2022 00:00:00 GMT').valueOf(),
+    },
+  };
+
+  // When I update that candy machine's property
+  const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    authoritySigner: payerSigner,
+    candyMachineAddress: candyMachineSigner.publicKey,
+    walletAddress,
+    ...changes,
+  });
+  await amman.addr.addLabel('tx: update-cm-end-settings', transactionId);
+
+  // Then the transaction succeeds
+  assertConfirmedWithoutError(t, cusper, confirmResponse);
+
+  // And the candy machine is updated
+  const updatedMachine = await mx
+    .candyMachines()
+    .findCandyMachineByAddress(candyMachineSigner.publicKey);
+
+  console.log(updatedMachine?.endSettings);
 });
