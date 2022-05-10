@@ -73,3 +73,63 @@ export class UpdatedCandyMachineNotFoundError extends CandyMachineError {
     });
   }
 }
+
+export class CandyMachinesNotFoundByAuthority extends CandyMachineError {
+  constructor(authorityAddress: PublicKey, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_by_authority_not_found',
+      title: 'CandyMachine By Authority Not Found',
+      problem:
+        'No candy machine account could be found for the authority: ' +
+        `[${authorityAddress.toBase58()}].`,
+      solution:
+        'Ensure that you entered the correct authority and are connecting to the cluster where you created the candy machine.' +
+        `Navigate to https://explorer.solana.com/address/${authorityAddress.toBase58()} find candy machines with the authority.`,
+    });
+  }
+}
+
+export class NoCandyMachineFoundForAuthorityMatchesUuid extends CandyMachineError {
+  constructor(
+    authorityAddress: PublicKey,
+    uuid: string,
+    candyMachineAddresses: PublicKey[],
+    cause?: Error
+  ) {
+    const addresses = candyMachineAddresses.map((address) => address.toBase58());
+    super({
+      cause,
+      key: 'no_candy_machine_found_for_authority_matches_uuid',
+      title: 'No Candy Machine Found for Authority Matches Uuid',
+      problem:
+        'None of the candy machines for the authority matched the provided uuid: ' +
+        `[ uuid: ${uuid}, authority: ${authorityAddress.toBase58()}].`,
+      solution:
+        `Investigate which of the following candy machines is the correct one: [${addresses}]` +
+        ` and correct the uuid accordingly.`,
+    });
+  }
+}
+
+export class MoreThanOneCandyMachineFoundByAuthorityAndUuid extends CandyMachineError {
+  constructor(
+    authorityAddress: PublicKey,
+    uuid: string,
+    candyMachineAddresses: PublicKey[],
+    cause?: Error
+  ) {
+    const addresses = candyMachineAddresses.map((address) => address.toBase58());
+    super({
+      cause,
+      key: 'more_than_one_candy_machine_found_by_authority_and_uuid',
+      title: 'More Than One Candy Machine Found By Authority And Uuid',
+      problem:
+        'More than one candy machine matched the provided uuid and authority: ' +
+        `[${uuid} and ${authorityAddress.toBase58()}].`,
+      solution:
+        `Investigate which of the following candy machines is the correct one: [${addresses}]` +
+        ` and load find them directly by CandyMachineAddress.`,
+    });
+  }
+}

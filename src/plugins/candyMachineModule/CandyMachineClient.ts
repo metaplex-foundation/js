@@ -1,8 +1,11 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
 import {
+  CandyMachinesNotFoundByAuthority,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
+  MoreThanOneCandyMachineFoundByAuthorityAndUuid,
+  NoCandyMachineFoundForAuthorityMatchesUuid,
   UpdatedCandyMachineNotFoundError,
 } from '@/errors';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
@@ -15,7 +18,6 @@ import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 import {
-  UpdateCandyMachineInput,
   UpdateCandyMachineInputWithoutCandyMachineData,
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
@@ -39,22 +41,48 @@ export class CandyMachineClient extends ModuleClient {
     return this.metaplex.operations().execute(operation);
   }
 
-  findCandyMachinesByWallet(wallet: PublicKey): Promise<CandyMachine[]> {
+  findCandyMachinesByWallet(walletAddress: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'wallet',
-        publicKey: wallet,
+        publicKey: walletAddress,
       })
     );
   }
 
-  findCandyMachinesByAuthority(authority: PublicKey): Promise<CandyMachine[]> {
+  findCandyMachinesByAuthority(authorityAddress: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'authority',
-        publicKey: authority,
+        publicKey: authorityAddress,
       })
     );
+  }
+
+  async findCandyMachinesByAuthorityAndUuid(
+    authorityAddress: PublicKey,
+    uuid: string
+  ): Promise<CandyMachine> {
+    const candyMachinesForAuthority = await this.findCandyMachinesByAuthority(authorityAddress);
+    if (candyMachinesForAuthority.length === 0) {
+      throw new CandyMachinesNotFoundByAuthority(authorityAddress);
+    }
+    const matchingUUid = candyMachinesForAuthority.filter(
+      (candyMachine) => candyMachine.uuid === uuid
+    );
+    if (matchingUUid.length === 0) {
+      const addresses = candyMachinesForAuthority.map(
+        (candyMachine) => candyMachine.candyMachineAccount.publicKey
+      );
+      throw new NoCandyMachineFoundForAuthorityMatchesUuid(authorityAddress, uuid, addresses);
+    }
+    if (matchingUUid.length > 1) {
+      const addresses = matchingUUid.map(
+        (candyMachine) => candyMachine.candyMachineAccount.publicKey
+      );
+      throw new MoreThanOneCandyMachineFoundByAuthorityAndUuid(authorityAddress, uuid, addresses);
+    }
+    return matchingUUid[0];
   }
 
   // -----------------
