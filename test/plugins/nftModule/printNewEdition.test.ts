@@ -44,7 +44,7 @@ test('it can print a new edition from an original edition', async (t: Test) => {
   spok(t, printNft, { $topic: 'nft', ...expectedNft });
 
   // And the data was stored in the blockchain.
-  const retrievedNft = await mx.nfts().findNftByMint(printNft.mint);
+  const retrievedNft = await mx.nfts().findByMint(printNft.mint);
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 });
 

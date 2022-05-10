@@ -74,7 +74,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   await mx.rpc().sendAndConfirmTransaction(tx);
 
   // Then the transaction succeeded and the NFT was created.
-  const nft = await mx.nfts().findNftByMint(mint.publicKey);
+  const nft = await mx.nfts().findByMint(mint.publicKey);
   t.equal(nft.name, 'My NFT');
   t.equal(nft.metadataAccount.publicKey.toBase58(), metadata.toBase58());
 });

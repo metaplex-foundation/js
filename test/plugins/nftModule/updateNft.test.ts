@@ -31,7 +31,7 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
   });
 
   // When we update the NFT with new on-chain data.
-  const { nft: updatedNft } = await mx.nfts().updateNft(nft, {
+  const { nft: updatedNft } = await mx.nfts().update(nft, {
     name: 'Updated On-chain NFT name',
     primarySaleHappened: true,
     uri: updatedUri,
@@ -52,7 +52,7 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 
   // And the same goes if we try to fetch the NFT again.
-  const foundUpdatedNft = await mx.nfts().findNftByMint(nft.mint);
+  const foundUpdatedNft = await mx.nfts().findByMint(nft.mint);
   spok(t, foundUpdatedNft, {
     $topic: 'check-downloaded-nft',
     name: 'Updated On-chain NFT name',
