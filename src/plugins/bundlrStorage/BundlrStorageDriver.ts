@@ -1,4 +1,5 @@
-import NodeBundlr, { WebBundlr } from '@bundlr-network/client';
+import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
+import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import { Metaplex } from '@/Metaplex';
 import { StorageDriver, MetaplexFile } from '@/types';
@@ -186,8 +187,8 @@ export class BundlrStorageDriver extends StorageDriver {
     const identity = this.metaplex.identity();
     const bundlr =
       identity instanceof KeypairIdentityDriver
-        ? new NodeBundlr(address, currency, identity.keypair.secretKey, options)
-        : new WebBundlr(address, currency, identity, options);
+        ? new BundlrPackage.default(address, currency, identity.keypair.secretKey, options)
+        : new BundlrPackage.WebBundlr(address, currency, identity, options);
 
     try {
       // Check for valid bundlr node.
@@ -196,7 +197,7 @@ export class BundlrStorageDriver extends StorageDriver {
       throw new FailedToConnectToBundlrAddressError(address, error as Error);
     }
 
-    if (bundlr instanceof WebBundlr) {
+    if (bundlr instanceof BundlrPackage.WebBundlr) {
       try {
         // Try to initiate bundlr.
         await bundlr.ready();
