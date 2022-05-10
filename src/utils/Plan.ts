@@ -1,4 +1,5 @@
-import EventEmitter from 'eventemitter3';
+import type EventEmitter from 'eventemitter3';
+import EventEmitterPackage from 'eventemitter3';
 
 export type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
 
@@ -32,7 +33,7 @@ export class Plan<I, O> {
   private constructor(plan: InputPlan<I, O>) {
     this.promise = plan.promise;
     this.steps = plan.steps ?? [];
-    this.eventEmitter = plan.eventEmitter ?? new EventEmitter();
+    this.eventEmitter = plan.eventEmitter ?? new EventEmitterPackage.EventEmitter();
   }
 
   public static make<T = undefined>(): Plan<T, T> {

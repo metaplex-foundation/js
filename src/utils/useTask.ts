@@ -1,5 +1,5 @@
 import { AbortSignal } from 'abort-controller';
-import { EventEmitter } from 'eventemitter3';
+import EventEmitterPackage from 'eventemitter3';
 import { TaskIsAlreadyRunningError } from '@/errors';
 import { useDisposable, DisposableScope } from './useDisposable';
 
@@ -36,7 +36,7 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
   let status: TaskStatus = 'pending';
   let result: T | undefined = undefined;
   let error: unknown = undefined;
-  const eventEmitter = new EventEmitter();
+  const eventEmitter = new EventEmitterPackage.EventEmitter();
 
   // Getters.
   const getStatus = () => status;

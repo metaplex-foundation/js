@@ -93,6 +93,9 @@ const createConfig = (build) => {
     return !bundle || dependenciesToExcludeInBundle.includes(dependency);
   });
 
+  const outputExtension = format === 'es' ? 'mjs' : 'cjs';
+  const entryFileNames = bundle ? undefined : `[name].${outputExtension}`;
+
   return {
     input: ['src/index.ts'],
     output: {
@@ -100,6 +103,7 @@ const createConfig = (build) => {
       file,
       format,
       name,
+      entryFileNames,
       exports: 'named',
       preserveModules: !bundle,
       sourcemap: true,
