@@ -23,7 +23,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
   });
 
   // When we create a new NFT with minimum configuration.
-  const { nft } = await mx.nfts().createNft({
+  const { nft } = await mx.nfts().create({
     uri: metadataUri,
     name: 'On-chain NFT name',
   });
@@ -53,7 +53,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
   spok(t, nft, { $topic: 'nft', ...expectedNft });
 
   // When we then retrieve that NFT.
-  const retrievedNft = await mx.nfts().findNftByMint(nft.mint);
+  const retrievedNft = await mx.nfts().findByMint(nft.mint);
 
   // Then it matches what createNft returned.
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
@@ -79,7 +79,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
   const otherCreator = Keypair.generate();
 
   // When we create a new NFT with minimum configuration.
-  const { nft } = await mx.nfts().createNft({
+  const { nft } = await mx.nfts().create({
     uri,
     name: 'On-chain NFT name',
     symbol: 'MYNFT',
@@ -186,7 +186,7 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
   });
 
   // When we create a new NFT using that JSON metadata only.
-  const { nft } = await mx.nfts().createNft({ uri });
+  const { nft } = await mx.nfts().create({ uri });
 
   // Then the created NFT used some of the JSON metadata to fill some on-chain data.
   spok(t, nft, {
@@ -228,7 +228,7 @@ test('it can make another signer wallet pay for the storage and transaction fees
 
   // When we create a new NFT using that account as a payer.
   const { uri } = await mx.nfts().uploadMetadata({ name: 'My NFT' });
-  const { nft } = await mx.nfts().createNft({ uri, payer });
+  const { nft } = await mx.nfts().create({ uri, payer });
 
   // Then the payer has less lamports than it used to.
   t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
@@ -256,7 +256,7 @@ test('it can create an NFT for other signer wallets without using the identity',
 
   // When we create a new NFT using these accounts.
   const { uri } = await mx.nfts().uploadMetadata({ name: 'My NFT' });
-  const { nft } = await mx.nfts().createNft({
+  const { nft } = await mx.nfts().create({
     uri,
     payer,
     mintAuthority,
@@ -277,7 +277,7 @@ test('it can create an NFT with an invalid URI', async (t: Test) => {
   const mx = await metaplex();
 
   // When we create an NFT with an invalid URI.
-  const { nft } = await mx.nfts().createNft({
+  const { nft } = await mx.nfts().create({
     name: 'My NFT with an invalid URI',
     uri: 'https://example.com/some/invalid/uri',
   });

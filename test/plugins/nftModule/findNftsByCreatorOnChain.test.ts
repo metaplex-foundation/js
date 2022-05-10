@@ -14,7 +14,7 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
   const nftB = await createNftWithFirstCreator(mx, 'NFT B', creatorB);
 
   // When we fetch the NFTs by creator A.
-  const nftsA = await mx.nfts().findNftsByCreator(creatorA);
+  const nftsA = await mx.nfts().findAllByCreator(creatorA);
 
   // Then we don't get the NFTs from creator B.
   t.same(
@@ -24,7 +24,7 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
   t.true(nftsA[0].equals(nftA));
 
   // And vice versa.
-  const nftsB = await mx.nfts().findNftsByCreator(creatorB);
+  const nftsB = await mx.nfts().findAllByCreator(creatorB);
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']
@@ -41,7 +41,7 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
   const nftB = await createNftWithSecondCreator(mx, 'NFT B', creatorB);
 
   // When we fetch the NFTs by second creator A.
-  const nftsA = await mx.nfts().findNftsByCreator(creatorA, 2);
+  const nftsA = await mx.nfts().findAllByCreator(creatorA, 2);
 
   // Then we don't get the NFTs from second creator B.
   t.same(
@@ -51,7 +51,7 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
   t.true(nftsA[0].equals(nftA));
 
   // And vice versa.
-  const nftsB = await mx.nfts().findNftsByCreator(creatorB, 2);
+  const nftsB = await mx.nfts().findAllByCreator(creatorB, 2);
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']

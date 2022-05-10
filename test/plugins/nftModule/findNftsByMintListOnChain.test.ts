@@ -11,7 +11,7 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   const nftB = await createNft(mx, { name: 'NFT B' });
 
   // When we fetch these NFTs by mint addresses.
-  const nfts = await mx.nfts().findNftsByMintList([nftA.mint, nftB.mint]);
+  const nfts = await mx.nfts().findAllByMintList([nftA.mint, nftB.mint]);
 
   // Then we get the right NFTs.
   t.same(
@@ -32,7 +32,7 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   const emptyMintB = Keypair.generate().publicKey;
 
   // When we fetch NFTs matching all these addresses.
-  const nfts = await mx.nfts().findNftsByMintList([emptyMintA, nft.mint, emptyMintB]);
+  const nfts = await mx.nfts().findAllByMintList([emptyMintA, nft.mint, emptyMintB]);
 
   // Then we get null for mint not associated to any NFT.
   t.same(
@@ -47,7 +47,7 @@ test('it does not load the NFT metadata or master edition by default', async (t:
   const nft = await createNft(mx, { name: 'Some NFT' });
 
   // When we fetch all NFTs in the wallet.
-  const [fetchedNft] = await mx.nfts().findNftsByMintList([nft.mint]);
+  const [fetchedNft] = await mx.nfts().findAllByMintList([nft.mint]);
 
   // Then the fetched NFTs do not have metadata.
   t.true(fetchedNft?.metadataTask.isPending());

@@ -18,12 +18,12 @@ export type CandyMachineInitFromConfigOpts = {
 };
 
 export class CandyMachineClient extends ModuleClient {
-  findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine | null> {
+  findByAddress(address: PublicKey): Promise<CandyMachine | null> {
     const operation = findCandyMachineByAdddressOperation(address);
     return this.metaplex.operations().execute(operation);
   }
 
-  findCandyMachinesByWallet(wallet: PublicKey): Promise<CandyMachine[]> {
+  findAllByWallet(wallet: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'wallet',
@@ -32,7 +32,7 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  findCandyMachinesByAuthority(authority: PublicKey): Promise<CandyMachine[]> {
+  findAllByAuthority(authority: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'authority',
@@ -41,13 +41,13 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  async createCandyMachine(
+  async create(
     input: CreateCandyMachineInput
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     const operation = createCandyMachineOperation(input);
     const output = await this.metaplex.operations().execute(operation);
 
-    const candyMachine = await this.findCandyMachineByAddress(output.candyMachineSigner.publicKey);
+    const candyMachine = await this.findByAddress(output.candyMachineSigner.publicKey);
     if (candyMachine === null) {
       throw new CreatedCandyMachineNotFoundError(output.candyMachineSigner.publicKey);
     }
@@ -55,7 +55,7 @@ export class CandyMachineClient extends ModuleClient {
     return { candyMachine, ...output };
   }
 
-  createCandyMachineFromConfig(
+  createFromConfig(
     config: CandyMachineConfigWithoutStorage,
     opts: CandyMachineInitFromConfigOpts
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
@@ -63,7 +63,7 @@ export class CandyMachineClient extends ModuleClient {
     const candyMachineData = candyMachineDataFromConfig(config, candyMachineSigner.publicKey);
     const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
-    return this.createCandyMachine({
+    return this.create({
       candyMachineSigner,
       walletAddress,
       authorityAddress: opts.authorityAddress,
