@@ -12,8 +12,10 @@ However, feel free to play with it and provide some early feedback if you wish t
 
 ## Installation
 ```sh
-npm install @metaplex-foundation/js-next
+npm install @metaplex-foundation/js-next @solana/web3.js
 ```
+
+🔥 **Pro Tip**: Check out our examples and starter kits on the ["JS Examples" repository](https://github.com/metaplex-foundation/js-examples).
 
 ## Setup
 The entry point to the JavaScript SDK is a `Metaplex` instance that will give you access to its API.
