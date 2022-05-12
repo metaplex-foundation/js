@@ -1,14 +1,8 @@
 # Metaplex JavaScript SDK
 
-```scala
-⛔️ THIS SDK IS IN EARLY ALPHA STAGES, EXPECT LOTS OF BREAKING CHANGES.
-```
-
 This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience whilst allowing third parties to extend its features via plugins.
 
-Please note that this SDK has been re-implemented from scratch and is currently in alpha. This means some of the core API and interfaces might change from one version to another and therefore **we do not recommend that you use it in production** just yet.
-
-However, feel free to play with it and provide some early feedback if you wish to contribute to the direction of this project.
+⚠️ Please note that this SDK has been re-implemented from scratch and is currently in alpha. This means **some of the core API and interfaces might change from one version to another**. However, feel free to use it and provide some early feedback if you wish to contribute to the direction of this project.
 
 ## Installation
 ```sh
@@ -51,35 +45,35 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 
 Here is a little visual representation of the SDK in its current state.
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/164747006-35914b02-bbc3-4c14-98c2-eccf062468cc.png)
+![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/167716670-16c6ec5e-76ba-4c15-9dfc-7790d90099dd.png)
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
 ## NFTs
 The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
 
-- [`findNftByMint(mint)`](#findNftByMint)
-- [`findNftsByMintList(mints)`](#findNftsByMintList)
-- [`findNftsByOwner(owner)`](#findNftsByOwner)
-- [`findNftsByCreator(creator, position = 1)`](#findNftsByCreator)
-- [`findNftsByCandyMachine(candyMachine, version = 2)`](#findNftsByCandyMachine)
+- [`findByMint(mint)`](#findByMint)
+- [`findAllByMintList(mints)`](#findAllByMintList)
+- [`findAllByOwner(owner)`](#findAllByOwner)
+- [`findAllByCreator(creator, position = 1)`](#findAllByCreator)
+- [`findAllByCandyMachine(candyMachine, version = 2)`](#findAllByCandyMachine)
 - [`uploadMetadata(metadata)`](#uploadMetadata)
-- [`createNft(onChainData)`](#createNft)
-- [`updateNft(nft, onChainData)`](#updateNft)
+- [`create(onChainData)`](#create)
+- [`update(nft, onChainData)`](#update)
 - [`printNewEdition(originalMint, params)`](#printNewEdition)
 
 And the following model, either returned or used by the above methods.
 
 - [The `Nft` model](#the-nft-model)
 
-### findNftByMint
+### findByMint
 
-The `findNftByMint` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
+The `findByMint` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
 
 ```ts
 const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findNftByMint(mint);
+const nft = await metaplex.nfts().findByMint(mint);
 ```
 
 The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
@@ -97,17 +91,17 @@ const maxSupply = nft.originalEdition.maxSupply;
 
 You can [read more about the `NFT` model below](#the-nft-model).
 
-### findNftsByMintList
+### findAllByMintList
 
-The `findNftsByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+The `findAllByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
 
-Note that this is much more efficient than calling `findNftByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
+Note that this is much more efficient than calling `findByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
 
 ```ts
-const [nftA, nftB] = await metaplex.nfts().findNftsByMintList([mintA, mintB]);
+const [nftA, nftB] = await metaplex.nfts().findAllByMintList([mintA, mintB]);
 ```
 
-NFTs retrieved via `findNftsByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `Edition` account which might be irrelevant until the user clicks on the NFT.
+NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `Edition` account which might be irrelevant until the user clicks on the NFT.
 
 Thus, if you want to load the JSON metadata and/or the `Edition` account of an NFT, you may do this like so.
 
@@ -134,43 +128,43 @@ if (nft.isPrint()) {
 
 We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-model).
 
-### findNftsByOwner
+### findAllByOwner
 
-The `findNftsByOwner` method accepts a public key and returns all `Nft`s owned by that public key.
-
-```ts
-const myNfts = await metaplex.nfts().findNftsByOwner(metaplex.identity().publicKey);
-```
-
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
-
-### findNftsByCreator
-
-The `findNftsByCreator` method accepts a public key and returns all `Nft`s that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
+The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by that public key.
 
 ```ts
-const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey);
-const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 1); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findNftsByCreator(creatorPublicKey, 2); // Now matching the second creator field.
+const myNfts = await metaplex.nfts().findAllByOwner(metaplex.identity().publicKey);
 ```
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
+Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
-### findNftsByCandyMachine
+### findAllByCreator
 
-The `findNftsByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+The `findAllByCreator` method accepts a public key and returns all `Nft`s that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
+
+```ts
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey);
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, 1); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, 2); // Now matching the second creator field.
+```
+
+Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
+
+### findAllByCandyMachine
+
+The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
 
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey);
-const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findNftsByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
 ```
 
-Note that the current implementation of this method delegates to `findNftsByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
 
-Similarly to `findNftsByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
+Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
 
 ### uploadMetadata
 
@@ -216,14 +210,14 @@ console.log(uri) // https://arweave.net/789
 
 Note that `MetaplexFile`s can be created in various different ways based on where the file is coming from. You can [read more about `MetaplexFile` objects and how to use them here](#MetaplexFile).
 
-### createNft
+### create
 
-The `createNft` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
 ```ts
-const { nft } = await metaplex.nfts().createNft({
+const { nft } = await metaplex.nfts().create({
     uri: "https://arweave.net/123",
 });
 ```
@@ -237,16 +231,16 @@ Additionally, since no other optional parameters were provided, it will do its b
 - It will try to fetch the secondary sales royalties from the downloaded JSON metadata or will default to 5%.
 - It will default to making the NFT immutable — meaning you won't be able to update it later on.
 
-If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/plugins/nftModule/createNft.ts) accepted by the `createNft` method.
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/plugins/nftModule/createNft.ts) accepted by the `create` method.
 
-### updateNft
+### update
 
-The `updateNft` method accepts an `Nft` object and a set of parameters to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
+The `update` method accepts an `Nft` object and a set of parameters to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
 
 For instance, here is how you would change the on-chain name of an NFT.
 
 ```ts
-const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
+const { nft: updatedNft } = await metaplex.nfts().update(nft, {
     name: "My Updated Name",
 });
 ```
@@ -262,7 +256,7 @@ const { uri: newUri } = await metaplex.nfts().uploadMetadata({
     description: "My Updated Metadata Description",
 });
 
-const { nft: updatedNft } = await metaplex.nfts().updateNft(nft, {
+const { nft: updatedNft } = await metaplex.nfts().update(nft, {
     uri: newUri,
 });
 ```
@@ -328,8 +322,8 @@ printEdition: null | {
 ```
 
 As you can see, some of the properties — such as `metadata` — are loaded on demand. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
-- If you're only fetching one NFT — e.g. by using `findNftByMint` — then these properties will already be loaded.
-- If you're fetching multiple NFTs — e.g. by using `findNftsByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
+- If you're only fetching one NFT — e.g. by using `findByMint` — then these properties will already be loaded.
+- If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
 
 In order to load these properties, you may run the `metadataTask` and `editionTask` properties of the `Nft` object.
 
