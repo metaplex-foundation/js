@@ -66,7 +66,7 @@ test('update: candy machine single property', async (t) => {
     t.comment(`Updating ${key}`);
 
     // When I update that candy machine's property
-    const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    const { transactionId, confirmResponse } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -78,9 +78,7 @@ test('update: candy machine single property', async (t) => {
     assertConfirmedWithoutError(t, cusper, confirmResponse);
 
     // And the candy machine is updated
-    const updatedMachine = await mx
-      .candyMachines()
-      .findCandyMachineByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
     t.ok(updatedMachine != null, 'finds updated machine');
     assertProperlyUpdatedScalars(t, currentCandyMachine, updatedMachine!, { [key]: value });
     currentCandyMachine = updatedMachine!;
@@ -132,7 +130,7 @@ test('update: candy machine multiple scalar properties', async (t) => {
     t.comment(`Updating ${keys.join(', ')}`);
 
     // When I update that candy machine's property
-    const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    const { transactionId, confirmResponse } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -144,9 +142,7 @@ test('update: candy machine multiple scalar properties', async (t) => {
     assertConfirmedWithoutError(t, cusper, confirmResponse);
 
     // And the candy machine is updated
-    const updatedMachine = await mx
-      .candyMachines()
-      .findCandyMachineByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
     t.ok(updatedMachine != null, 'finds updated machine');
 
     const expectedChanges = changeSet.reduce((acc, [key, val]) => {
@@ -179,7 +175,7 @@ test('update: candy machine end settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    const { transactionId, confirmResponse } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -191,9 +187,7 @@ test('update: candy machine end settings', async (t) => {
     assertConfirmedWithoutError(t, cusper, confirmResponse);
 
     // And the candy machine is updated
-    const updatedMachine = await mx
-      .candyMachines()
-      .findCandyMachineByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -215,7 +209,7 @@ test('update: candy machine end settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    const { transactionId, confirmResponse } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -227,9 +221,7 @@ test('update: candy machine end settings', async (t) => {
     assertConfirmedWithoutError(t, cusper, confirmResponse);
 
     // And the candy machine is updated
-    const updatedMachine = await mx
-      .candyMachines()
-      .findCandyMachineByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -248,7 +240,7 @@ test('update: candy machine end settings', async (t) => {
       endSettings: undefined,
     };
 
-    const { transactionId, confirmResponse } = await cm.updateCandyMachine({
+    const { transactionId, confirmResponse } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -260,9 +252,7 @@ test('update: candy machine end settings', async (t) => {
     assertConfirmedWithoutError(t, cusper, confirmResponse);
 
     // And the candy machine is updated
-    const updatedMachine = await mx
-      .candyMachines()
-      .findCandyMachineByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});

@@ -36,12 +36,12 @@ export class CandyMachineClient extends ModuleClient {
   // -----------------
   // Queries
   // -----------------
-  findCandyMachineByAddress(address: PublicKey): Promise<CandyMachine | null> {
+  findByAddress(address: PublicKey): Promise<CandyMachine | null> {
     const operation = findCandyMachineByAdddressOperation(address);
     return this.metaplex.operations().execute(operation);
   }
 
-  findCandyMachinesByWallet(walletAddress: PublicKey): Promise<CandyMachine[]> {
+  findAllByWallet(walletAddress: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'wallet',
@@ -50,7 +50,7 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  findCandyMachinesByAuthority(authorityAddress: PublicKey): Promise<CandyMachine[]> {
+  findAllByAuthority(authorityAddress: PublicKey): Promise<CandyMachine[]> {
     return this.metaplex.operations().execute(
       findCandyMachinesByPublicKeyFieldOperation({
         type: 'authority',
@@ -59,11 +59,11 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  async findCandyMachinesByAuthorityAndUuid(
+  async findAllByAuthorityAndUuid(
     authorityAddress: PublicKey,
     uuid: string
   ): Promise<CandyMachine> {
-    const candyMachinesForAuthority = await this.findCandyMachinesByAuthority(authorityAddress);
+    const candyMachinesForAuthority = await this.findAllByAuthority(authorityAddress);
     if (candyMachinesForAuthority.length === 0) {
       throw new CandyMachinesNotFoundByAuthority(authorityAddress);
     }
@@ -88,13 +88,13 @@ export class CandyMachineClient extends ModuleClient {
   // -----------------
   // Create
   // -----------------
-  async createCandyMachine(
+  async create(
     input: CreateCandyMachineInput
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     const operation = createCandyMachineOperation(input);
     const output = await this.metaplex.operations().execute(operation);
 
-    const candyMachine = await this.findCandyMachineByAddress(output.candyMachineSigner.publicKey);
+    const candyMachine = await this.findByAddress(output.candyMachineSigner.publicKey);
     if (candyMachine === null) {
       throw new CreatedCandyMachineNotFoundError(output.candyMachineSigner.publicKey);
     }
@@ -102,7 +102,7 @@ export class CandyMachineClient extends ModuleClient {
     return { candyMachine, ...output };
   }
 
-  createCandyMachineFromConfig(
+  createFromConfig(
     config: CandyMachineConfigWithoutStorage,
     opts: CandyMachineInitFromConfigOpts
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
@@ -110,7 +110,7 @@ export class CandyMachineClient extends ModuleClient {
     const candyMachineData = candyMachineDataFromConfig(config, candyMachineSigner.publicKey);
     const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
-    return this.createCandyMachine({
+    return this.create({
       candyMachineSigner,
       walletAddress,
       authorityAddress: opts.authorityAddress,
@@ -121,10 +121,10 @@ export class CandyMachineClient extends ModuleClient {
   // -----------------
   // Update
   // -----------------
-  async updateCandyMachine(
+  async update(
     input: UpdateCandyMachineParams
   ): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
-    const currentCandyMachine = await this.findCandyMachineByAddress(input.candyMachineAddress);
+    const currentCandyMachine = await this.findByAddress(input.candyMachineAddress);
     if (currentCandyMachine === null) {
       throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
     }
@@ -134,7 +134,7 @@ export class CandyMachineClient extends ModuleClient {
     const operation = updateCandyMachineOperation({ ...input, ...updatedData });
     const output = await this.metaplex.operations().execute(operation);
 
-    const candyMachine = await this.findCandyMachineByAddress(input.candyMachineAddress);
+    const candyMachine = await this.findByAddress(input.candyMachineAddress);
     if (candyMachine === null) {
       throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
     }
