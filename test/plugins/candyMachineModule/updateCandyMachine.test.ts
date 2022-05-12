@@ -6,6 +6,7 @@ import {
   killStuckProcess,
   metaplex,
   spokSameBignum,
+  spokSamePubkey,
 } from '../../helpers';
 import { createCandyMachineWithMinimalConfig } from './helpers';
 import { CandyMachineData, cusper, EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
@@ -181,7 +182,7 @@ test('update: candy machine end settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: update-cm-end-settings', transactionId);
+    await amman.addr.addLabel('tx: add-cm-end-settings', transactionId);
 
     // Then the transaction succeeds
     assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -246,7 +247,7 @@ test('update: candy machine end settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: update-cm-end-settings', transactionId);
+    await amman.addr.addLabel('tx: remove-cm-end-settings', transactionId);
 
     // Then the transaction succeeds
     assertConfirmedWithoutError(t, cusper, confirmResponse);
@@ -259,5 +260,115 @@ test('update: candy machine end settings', async (t) => {
 
     // and settings removed
     t.ok(updatedMachine?.endSettings == null, 'end settings undefined');
+  }
+});
+
+// -----------------
+// Hidden Settings
+// -----------------
+// TODO(thlorenz): add these tests once the program correctly handles these settings
+
+// -----------------
+// Gatekeeper Settings
+// -----------------
+test('update: candy machine gatekeeper settings', async (t) => {
+  // Given I create one candy machine without gatekeeper settings
+  const mx = await metaplex();
+  const cm = mx.candyMachines();
+
+  const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
+    await createCandyMachineWithMinimalConfig(mx);
+
+  {
+    const [gateKeeper] = await amman.genLabeledKeypair('added-gateKeeper');
+
+    // When I add gatekeeper settings to that candy machine
+    t.comment('adding settings');
+    const changes: Partial<CandyMachine> = {
+      gatekeeper: { expireOnUse: true, gatekeeperNetwork: gateKeeper },
+    };
+
+    const { transactionId, confirmResponse } = await cm.update({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      walletAddress,
+      ...changes,
+    });
+    await amman.addr.addLabel('tx: add-cm-gatekeeper-settings', transactionId);
+
+    // Then the transaction succeeds
+    assertConfirmedWithoutError(t, cusper, confirmResponse);
+
+    // And the candy machine is updated
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+
+    // with scalar values unchanged
+    assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
+
+    // and settings configured
+    spok(t, updatedMachine?.gatekeeper, {
+      expireOnUse: changes.gatekeeper?.expireOnUse,
+      gatekeeperNetwork: spokSamePubkey(changes.gatekeeper?.gatekeeperNetwork),
+    });
+  }
+
+  {
+    const [gateKeeper] = await amman.genLabeledKeypair('changed-gateKeeper');
+    // When I then change the settings
+    t.comment('changing settings');
+    const changes: Partial<CandyMachine> = {
+      gatekeeper: { expireOnUse: false, gatekeeperNetwork: gateKeeper },
+    };
+
+    const { transactionId, confirmResponse } = await cm.update({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      walletAddress,
+      ...changes,
+    });
+    await amman.addr.addLabel('tx: update-cm-gatekeeper-settings', transactionId);
+
+    // Then the transaction succeeds
+    assertConfirmedWithoutError(t, cusper, confirmResponse);
+
+    // And the candy machine is updated
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+
+    // with scalar values unchanged
+    assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
+
+    // and settings re-configured
+    spok(t, updatedMachine?.gatekeeper, {
+      expireOnUse: changes.gatekeeper?.expireOnUse,
+      gatekeeperNetwork: spokSamePubkey(changes.gatekeeper?.gatekeeperNetwork),
+    });
+  }
+
+  {
+    // When I then remove the settings
+    t.comment('removing settings');
+    const changes: Partial<CandyMachine> = {
+      gatekeeper: undefined,
+    };
+
+    const { transactionId, confirmResponse } = await cm.update({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      walletAddress,
+      ...changes,
+    });
+    await amman.addr.addLabel('tx: remove-cm-gatekeeper-settings', transactionId);
+
+    // Then the transaction succeeds
+    assertConfirmedWithoutError(t, cusper, confirmResponse);
+
+    // And the candy machine is updated
+    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+
+    // with scalar values unchanged
+    assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
+
+    // and settings removed
+    t.ok(updatedMachine?.gatekeeper == null, 'gatekeeper settings undefined');
   }
 });
