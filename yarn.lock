@@ -2212,10 +2212,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@metaplex-foundation/amman@^0.6.1":
-  version "0.6.3"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/amman/-/amman-0.6.3.tgz"
-  integrity sha512-a0ZdSpTIh6QVFsZY5pnlXnLNXG18FPBcBDotNqFkGqHBZ3YppCcqDulo7wyGufWmunxGK+LJn7cGcC3awyQLhQ==
+"@metaplex-foundation/amman@^0.8.2":
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.8.2.tgz#b850bcce862d64e0b6dfa3b030c840b38b79f28d"
+  integrity sha512-PxlpATuWxXF3+wr8LkYPhnTc3w6tK19BFtlgenyVOSb0vOS+DEGHS1/9m1OgK7sCM/+zO5UvMWiM2ZRb9xj/NQ==
   dependencies:
     "@metaplex-foundation/cusper" "^0.0.2"
     "@metaplex-foundation/js-next" "^0.7.2"
@@ -2228,6 +2228,7 @@
     date-fns "^2.28.0"
     debug "^4.3.3"
     deep-diff "^1.0.2"
+    diff "^5.0.0"
     numeral "^2.0.6"
     port-pid "^0.0.7"
     socket.io "^4.4.1"
@@ -2246,9 +2247,9 @@
     "@metaplex-foundation/beet" ">=0.1.0"
     "@solana/web3.js" "^1.31.0"
 
-"@metaplex-foundation/beet@>=0.1.0":
+"@metaplex-foundation/beet@>=0.1.0", "@metaplex-foundation/beet@^0.2.0":
   version "0.2.0"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/beet/-/beet-0.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.2.0.tgz#e543e17fd1c4dc1251e9aea481a7429bc73f70b8"
   integrity sha512-H570hkJxmx/FxET1OggPPLkPL7psYQa71rNI9NJjYRM8WXdrEvmI/IRIEUW2KR6RqwWWN3FvlRHnKoQUV/lQtA==
   dependencies:
     ansicolors "^0.3.2"
