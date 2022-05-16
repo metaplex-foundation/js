@@ -1,11 +1,11 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
 import {
-  CandyMachinesNotFoundByAuthority,
+  CandyMachinesNotFoundByAuthorityError,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
-  MoreThanOneCandyMachineFoundByAuthorityAndUuid,
-  NoCandyMachineFoundForAuthorityMatchesUuid,
+  MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
+  NoCandyMachineFoundForAuthorityMatchesUuidError,
   UpdatedCandyMachineNotFoundError,
 } from '@/errors';
 import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
@@ -59,13 +59,10 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  async findAllByAuthorityAndUuid(
-    authorityAddress: PublicKey,
-    uuid: string
-  ): Promise<CandyMachine> {
+  async findByAuthorityAndUuid(authorityAddress: PublicKey, uuid: string): Promise<CandyMachine> {
     const candyMachinesForAuthority = await this.findAllByAuthority(authorityAddress);
     if (candyMachinesForAuthority.length === 0) {
-      throw new CandyMachinesNotFoundByAuthority(authorityAddress);
+      throw new CandyMachinesNotFoundByAuthorityError(authorityAddress);
     }
     const matchingUUid = candyMachinesForAuthority.filter(
       (candyMachine) => candyMachine.uuid === uuid
@@ -74,13 +71,17 @@ export class CandyMachineClient extends ModuleClient {
       const addresses = candyMachinesForAuthority.map(
         (candyMachine) => candyMachine.candyMachineAccount.publicKey
       );
-      throw new NoCandyMachineFoundForAuthorityMatchesUuid(authorityAddress, uuid, addresses);
+      throw new NoCandyMachineFoundForAuthorityMatchesUuidError(authorityAddress, uuid, addresses);
     }
     if (matchingUUid.length > 1) {
       const addresses = matchingUUid.map(
         (candyMachine) => candyMachine.candyMachineAccount.publicKey
       );
-      throw new MoreThanOneCandyMachineFoundByAuthorityAndUuid(authorityAddress, uuid, addresses);
+      throw new MoreThanOneCandyMachineFoundByAuthorityAndUuidError(
+        authorityAddress,
+        uuid,
+        addresses
+      );
     }
     return matchingUUid[0];
   }

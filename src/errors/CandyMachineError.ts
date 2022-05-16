@@ -74,7 +74,7 @@ export class UpdatedCandyMachineNotFoundError extends CandyMachineError {
   }
 }
 
-export class CandyMachinesNotFoundByAuthority extends CandyMachineError {
+export class CandyMachinesNotFoundByAuthorityError extends CandyMachineError {
   constructor(authorityAddress: PublicKey, cause?: Error) {
     super({
       cause,
@@ -90,7 +90,7 @@ export class CandyMachinesNotFoundByAuthority extends CandyMachineError {
   }
 }
 
-export class NoCandyMachineFoundForAuthorityMatchesUuid extends CandyMachineError {
+export class NoCandyMachineFoundForAuthorityMatchesUuidError extends CandyMachineError {
   constructor(
     authorityAddress: PublicKey,
     uuid: string,
@@ -112,7 +112,7 @@ export class NoCandyMachineFoundForAuthorityMatchesUuid extends CandyMachineErro
   }
 }
 
-export class MoreThanOneCandyMachineFoundByAuthorityAndUuid extends CandyMachineError {
+export class MoreThanOneCandyMachineFoundByAuthorityAndUuidError extends CandyMachineError {
   constructor(
     authorityAddress: PublicKey,
     uuid: string,
