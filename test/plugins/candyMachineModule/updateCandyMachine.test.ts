@@ -1,17 +1,9 @@
 import test from 'tape';
 import spok from 'spok';
-import {
-  amman,
-  assertConfirmedWithoutError,
-  killStuckProcess,
-  metaplex,
-  spokSameBignum,
-  spokSamePubkey,
-} from '../../helpers';
+import { amman, killStuckProcess, metaplex, spokSameBignum, spokSamePubkey } from '../../helpers';
 import { createCandyMachineWithMinimalConfig } from './helpers';
 import {
   CandyMachineData,
-  cusper,
   EndSettingType,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
@@ -53,6 +45,7 @@ test('update: candy machine single property', async (t) => {
   // Given I create one candy machine
   const mx = await metaplex();
   const cm = mx.candyMachines();
+  const tc = amman.transactionChecker(mx.connection);
 
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
@@ -72,7 +65,7 @@ test('update: candy machine single property', async (t) => {
     t.comment(`Updating ${key}`);
 
     // When I update that candy machine's property
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -81,7 +74,7 @@ test('update: candy machine single property', async (t) => {
     await amman.addr.addLabel(`tx: update-cm-${key}`, transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -95,6 +88,7 @@ test('update: candy machine multiple scalar properties', async (t) => {
   // Given I create one candy machine
   const mx = await metaplex();
   const cm = mx.candyMachines();
+  const tc = amman.transactionChecker(mx.connection);
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
 
@@ -136,7 +130,7 @@ test('update: candy machine multiple scalar properties', async (t) => {
     t.comment(`Updating ${keys.join(', ')}`);
 
     // When I update that candy machine's property
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -145,7 +139,7 @@ test('update: candy machine multiple scalar properties', async (t) => {
     await amman.addr.addLabel(`tx: update-cm-${keys.join(', ')}`, transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -167,6 +161,7 @@ test('update: candy machine end settings', async (t) => {
   // Given I create one candy machine without end settings
   const mx = await metaplex();
   const cm = mx.candyMachines();
+  const tc = amman.transactionChecker(mx.connection);
 
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
@@ -181,7 +176,7 @@ test('update: candy machine end settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -190,7 +185,7 @@ test('update: candy machine end settings', async (t) => {
     await amman.addr.addLabel('tx: add-cm-end-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -215,7 +210,7 @@ test('update: candy machine end settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -224,7 +219,7 @@ test('update: candy machine end settings', async (t) => {
     await amman.addr.addLabel('tx: update-cm-end-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -246,7 +241,7 @@ test('update: candy machine end settings', async (t) => {
       endSettings: undefined,
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -255,7 +250,7 @@ test('update: candy machine end settings', async (t) => {
     await amman.addr.addLabel('tx: remove-cm-end-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -280,6 +275,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
   // Given I create one candy machine without gatekeeper settings
   const mx = await metaplex();
   const cm = mx.candyMachines();
+  const tc = amman.transactionChecker(mx.connection);
 
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
@@ -293,7 +289,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
       gatekeeper: { expireOnUse: true, gatekeeperNetwork: gateKeeper },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -302,7 +298,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
     await amman.addr.addLabel('tx: add-cm-gatekeeper-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -325,7 +321,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
       gatekeeper: { expireOnUse: false, gatekeeperNetwork: gateKeeper },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -334,7 +330,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
     await amman.addr.addLabel('tx: update-cm-gatekeeper-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -356,7 +352,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
       gatekeeper: undefined,
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -365,7 +361,7 @@ test('update: candy machine gatekeeper settings', async (t) => {
     await amman.addr.addLabel('tx: remove-cm-gatekeeper-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -385,6 +381,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
   // Given I create one candy machine without whitelist mint settings
   const mx = await metaplex();
   const cm = mx.candyMachines();
+  const tc = amman.transactionChecker(mx.connection);
 
   const { candyMachineSigner, payerSigner, walletAddress, candyMachine } =
     await createCandyMachineWithMinimalConfig(mx);
@@ -403,7 +400,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -412,7 +409,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     await amman.addr.addLabel('tx: add-cm-whitelist-mint-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -442,7 +439,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
       },
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -451,7 +448,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     await amman.addr.addLabel('tx: update-cm-whitelist-mint-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
@@ -475,7 +472,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
       whitelistMintSettings: undefined,
     };
 
-    const { transactionId, confirmResponse } = await cm.update({
+    const { transactionId } = await cm.update({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       walletAddress,
@@ -484,7 +481,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     await amman.addr.addLabel('tx: remove-cm-whitelist-mint-settings', transactionId);
 
     // Then the transaction succeeds
-    assertConfirmedWithoutError(t, cusper, confirmResponse);
+    tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
