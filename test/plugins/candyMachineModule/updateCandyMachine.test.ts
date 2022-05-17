@@ -1,6 +1,12 @@
 import test from 'tape';
 import spok from 'spok';
-import { amman, killStuckProcess, metaplex, spokSameBignum, spokSamePubkey } from '../../helpers';
+import {
+  amman,
+  killStuckProcess,
+  metaplex,
+  spokSameBignum,
+  spokSamePubkey,
+} from '../../helpers';
 import { createCandyMachineWithMinimalConfig } from './helpers';
 import {
   CandyMachineData,
@@ -77,9 +83,13 @@ test('update: candy machine single property', async (t) => {
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
     t.ok(updatedMachine != null, 'finds updated machine');
-    assertProperlyUpdatedScalars(t, currentCandyMachine, updatedMachine!, { [key]: value });
+    assertProperlyUpdatedScalars(t, currentCandyMachine, updatedMachine!, {
+      [key]: value,
+    });
     currentCandyMachine = updatedMachine!;
   }
 });
@@ -136,20 +146,31 @@ test('update: candy machine multiple scalar properties', async (t) => {
       walletAddress,
       ...keyValues,
     });
-    await amman.addr.addLabel(`tx: update-cm-${keys.join(', ')}`, transactionId);
+    await amman.addr.addLabel(
+      `tx: update-cm-${keys.join(', ')}`,
+      transactionId
+    );
 
     // Then the transaction succeeds
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
     t.ok(updatedMachine != null, 'finds updated machine');
 
     const expectedChanges = changeSet.reduce((acc, [key, val]) => {
-      (acc as Record<keyof CandyMachineData, ValueOf<CandyMachineData>>)[key] = val;
+      (acc as Record<keyof CandyMachineData, ValueOf<CandyMachineData>>)[key] =
+        val;
       return acc;
     }, {});
-    assertProperlyUpdatedScalars(t, currentCandyMachine, updatedMachine!, expectedChanges);
+    assertProperlyUpdatedScalars(
+      t,
+      currentCandyMachine,
+      updatedMachine!,
+      expectedChanges
+    );
     currentCandyMachine = updatedMachine!;
   }
 });
@@ -188,7 +209,9 @@ test('update: candy machine end settings', async (t) => {
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -222,7 +245,9 @@ test('update: candy machine end settings', async (t) => {
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -253,7 +278,9 @@ test('update: candy machine end settings', async (t) => {
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -301,7 +328,9 @@ test('update: candy machine gatekeeper settings', async (t) => {
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -327,13 +356,18 @@ test('update: candy machine gatekeeper settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: update-cm-gatekeeper-settings', transactionId);
+    await amman.addr.addLabel(
+      'tx: update-cm-gatekeeper-settings',
+      transactionId
+    );
 
     // Then the transaction succeeds
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -358,13 +392,18 @@ test('update: candy machine gatekeeper settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: remove-cm-gatekeeper-settings', transactionId);
+    await amman.addr.addLabel(
+      'tx: remove-cm-gatekeeper-settings',
+      transactionId
+    );
 
     // Then the transaction succeeds
     await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -406,13 +445,18 @@ test('update: candy machine whitelist mint settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: add-cm-whitelist-mint-settings', transactionId);
+    await amman.addr.addLabel(
+      'tx: add-cm-whitelist-mint-settings',
+      transactionId
+    );
 
     // Then the transaction succeeds
     tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -420,7 +464,9 @@ test('update: candy machine whitelist mint settings', async (t) => {
     // and settings configured
     spok(t, updatedMachine?.whitelistMintSettings, {
       mode: changes.whitelistMintSettings?.mode,
-      discountPrice: spokSameBignum(changes.whitelistMintSettings?.discountPrice),
+      discountPrice: spokSameBignum(
+        changes.whitelistMintSettings?.discountPrice
+      ),
       mint: changes.whitelistMintSettings?.mint,
       presale: changes.whitelistMintSettings?.presale,
     });
@@ -445,13 +491,18 @@ test('update: candy machine whitelist mint settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: update-cm-whitelist-mint-settings', transactionId);
+    await amman.addr.addLabel(
+      'tx: update-cm-whitelist-mint-settings',
+      transactionId
+    );
 
     // Then the transaction succeeds
     tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
@@ -459,7 +510,9 @@ test('update: candy machine whitelist mint settings', async (t) => {
     // and settings re-configured
     spok(t, updatedMachine?.whitelistMintSettings, {
       mode: changes.whitelistMintSettings?.mode,
-      discountPrice: spokSameBignum(changes.whitelistMintSettings?.discountPrice),
+      discountPrice: spokSameBignum(
+        changes.whitelistMintSettings?.discountPrice
+      ),
       mint: changes.whitelistMintSettings?.mint,
       presale: changes.whitelistMintSettings?.presale,
     });
@@ -478,18 +531,26 @@ test('update: candy machine whitelist mint settings', async (t) => {
       walletAddress,
       ...changes,
     });
-    await amman.addr.addLabel('tx: remove-cm-whitelist-mint-settings', transactionId);
+    await amman.addr.addLabel(
+      'tx: remove-cm-whitelist-mint-settings',
+      transactionId
+    );
 
     // Then the transaction succeeds
     tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
-    const updatedMachine = await mx.candyMachines().findByAddress(candyMachineSigner.publicKey);
+    const updatedMachine = await mx
+      .candyMachines()
+      .findByAddress(candyMachineSigner.publicKey);
 
     // with scalar values unchanged
     assertProperlyUpdatedScalars(t, candyMachine, updatedMachine!, {});
 
     // and settings removed
-    t.ok(updatedMachine?.whitelistMintSettings == null, 'whitelist mint settings undefined');
+    t.ok(
+      updatedMachine?.whitelistMintSettings == null,
+      'whitelist mint settings undefined'
+    );
   }
 });

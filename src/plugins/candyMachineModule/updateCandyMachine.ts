@@ -1,5 +1,10 @@
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
-import { ConfirmOptions, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
+import {
+  ConfirmOptions,
+  PublicKey,
+  RpcResponseAndContext,
+  SignatureResult,
+} from '@solana/web3.js';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { updateCandyMachineBuilder } from '@/programs';
 import { Metaplex } from '@/Metaplex';
@@ -8,7 +13,8 @@ import { Metaplex } from '@/Metaplex';
 // Operation
 // -----------------
 const Key = 'UpdateCandyMachineOperation' as const;
-export const updateCandyMachineOperation = useOperation<UpdateCandyMachineOperation>(Key);
+export const updateCandyMachineOperation =
+  useOperation<UpdateCandyMachineOperation>(Key);
 
 export type UpdateCandyMachineOperation = Operation<
   typeof Key,
@@ -26,8 +32,8 @@ export type UpdateCandyMachineInputWithoutCandyMachineData = {
   confirmOptions?: ConfirmOptions;
 };
 
-export type UpdateCandyMachineInput = UpdateCandyMachineInputWithoutCandyMachineData &
-  CandyMachineData;
+export type UpdateCandyMachineInput =
+  UpdateCandyMachineInputWithoutCandyMachineData & CandyMachineData;
 
 export type UpdateCandyMachineOutput = {
   // Transaction Result.
@@ -38,33 +44,36 @@ export type UpdateCandyMachineOutput = {
 // -----------------
 // Handler
 // -----------------
-export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> = {
-  async handle(
-    operation: UpdateCandyMachineOperation,
-    metaplex: Metaplex
-  ): Promise<UpdateCandyMachineOutput> {
-    const {
-      candyMachineAddress,
-      walletAddress,
-      authoritySigner,
-      confirmOptions,
-      ...candyMachineData
-    } = operation.input;
+export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
+  {
+    async handle(
+      operation: UpdateCandyMachineOperation,
+      metaplex: Metaplex
+    ): Promise<UpdateCandyMachineOutput> {
+      const {
+        candyMachineAddress,
+        walletAddress,
+        authoritySigner,
+        confirmOptions,
+        ...candyMachineData
+      } = operation.input;
 
-    const { signature, confirmResponse } = await metaplex.rpc().sendAndConfirmTransaction(
-      updateCandyMachineBuilder({
-        candyMachine: candyMachineAddress,
-        wallet: walletAddress,
-        authority: authoritySigner,
-        data: candyMachineData,
-      }),
-      undefined,
-      confirmOptions
-    );
+      const { signature, confirmResponse } = await metaplex
+        .rpc()
+        .sendAndConfirmTransaction(
+          updateCandyMachineBuilder({
+            candyMachine: candyMachineAddress,
+            wallet: walletAddress,
+            authority: authoritySigner,
+            data: candyMachineData,
+          }),
+          undefined,
+          confirmOptions
+        );
 
-    return {
-      transactionId: signature,
-      confirmResponse,
-    };
-  },
-};
+      return {
+        transactionId: signature,
+        confirmResponse,
+      };
+    },
+  };

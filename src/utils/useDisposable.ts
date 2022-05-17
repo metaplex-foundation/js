@@ -38,7 +38,9 @@ export const useDisposable = (signal: AbortSignal | undefined) => {
       }
     },
   };
-  const run = async <T = unknown>(callback: (scope: DisposableScope) => T): Promise<T> => {
+  const run = async <T = unknown>(
+    callback: (scope: DisposableScope) => T
+  ): Promise<T> => {
     try {
       return await Promise.resolve(callback(scope));
     } finally {

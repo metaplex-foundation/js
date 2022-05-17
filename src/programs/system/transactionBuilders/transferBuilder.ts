@@ -12,7 +12,9 @@ export interface transferBuilderParams {
   instructionKey?: string;
 }
 
-export const transferBuilder = (params: transferBuilderParams): TransactionBuilder => {
+export const transferBuilder = (
+  params: transferBuilderParams
+): TransactionBuilder => {
   const {
     from,
     to,

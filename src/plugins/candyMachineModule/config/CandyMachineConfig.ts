@@ -79,4 +79,7 @@ export type CandyMachineConfig = {
   hiddenSettings?: HiddenSettingsConfig;
 } & StorageConfig;
 
-export type CandyMachineConfigWithoutStorage = Omit<CandyMachineConfig, keyof StorageConfig>;
+export type CandyMachineConfigWithoutStorage = Omit<
+  CandyMachineConfig,
+  keyof StorageConfig
+>;

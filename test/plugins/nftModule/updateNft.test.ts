@@ -24,11 +24,13 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
   );
 
   // And some new updated metadata that has been uploadeds.
-  const { uri: updatedUri, metadata: updatedMetadata } = await mx.nfts().uploadMetadata({
-    name: 'Updated JSON NFT name',
-    description: 'Updated JSON NFT description',
-    image: new MetaplexFile('updated image', 'updated-image.jpg'),
-  });
+  const { uri: updatedUri, metadata: updatedMetadata } = await mx
+    .nfts()
+    .uploadMetadata({
+      name: 'Updated JSON NFT name',
+      description: 'Updated JSON NFT description',
+      image: new MetaplexFile('updated image', 'updated-image.jpg'),
+    });
 
   // When we update the NFT with new on-chain data.
   const { nft: updatedNft } = await mx.nfts().update(nft, {

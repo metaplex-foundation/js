@@ -9,14 +9,17 @@ export function spokSamePubkey(
 ): Specifications<PublicKey> {
   const keyStr = typeof a === 'string' ? a : a?.toString();
   const key = typeof a === 'string' ? new PublicKey(a) : a;
-  const same = (b: PublicKey | null | undefined) => b != null && !!key?.equals(b);
+  const same = (b: PublicKey | null | undefined) =>
+    b != null && !!key?.equals(b);
 
   same.$spec = `spokSamePubkey(${keyStr})`;
   same.$description = `${keyStr} equal`;
   return same;
 }
 
-export function spokSameBignum(a: BN | bignum | number | null | undefined): Specification<bignum> {
+export function spokSameBignum(
+  a: BN | bignum | number | null | undefined
+): Specification<bignum> {
   const same = (b?: BN | bignum | number) => {
     if (a == null) return b == null;
     return b != null && new BN(a).eq(new BN(b));

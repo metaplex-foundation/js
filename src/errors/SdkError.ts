@@ -1,6 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
 import { Cluster, Program } from '@/types';
-import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+} from './MetaplexError';
 
 export class SdkError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -87,7 +90,8 @@ export class OperationNotSupportedByWalletAdapterError extends SdkError {
       key: 'operation_not_supported_by_wallet_adapter',
       title: 'Operation Not Supported By Wallet Adapter',
       problem: `The current wallet adapter does not support the following operation: [${operation}].`,
-      solution: 'Ensure your wallet is connected using a compatible wallet adapter.',
+      solution:
+        'Ensure your wallet is connected using a compatible wallet adapter.',
     });
   }
 }
@@ -99,7 +103,8 @@ export class TaskIsAlreadyRunningError extends SdkError {
       key: 'task_is_already_running',
       title: 'Task Is Already Running',
       problem: "Trying to re-run a task that hasn't completed yet.",
-      solution: 'Ensure the task has completed using "await" before trying to run it again.',
+      solution:
+        'Ensure the task has completed using "await" before trying to run it again.',
     });
   }
 }
@@ -117,7 +122,12 @@ export class AssetNotFoundError extends SdkError {
 }
 
 export class AccountNotFoundError extends SdkError {
-  constructor(address: PublicKey, accountType?: string, solution?: string, cause?: Error) {
+  constructor(
+    address: PublicKey,
+    accountType?: string,
+    solution?: string,
+    cause?: Error
+  ) {
     super({
       cause,
       key: 'account_not_found',
@@ -125,7 +135,8 @@ export class AccountNotFoundError extends SdkError {
       problem:
         (accountType
           ? `The account of type [${accountType}] was not found`
-          : 'No account was found') + ` at the provided address [${address.toBase58()}].`,
+          : 'No account was found') +
+        ` at the provided address [${address.toBase58()}].`,
       solution:
         solution ??
         'Ensure the provided address is correct and that an account exists at this address.',
@@ -150,7 +161,11 @@ export class UnexpectedAccountError extends SdkError {
 export class ProgramNotRecognizedError extends SdkError {
   nameOrAddress: string | PublicKey;
   cluster: Cluster;
-  constructor(nameOrAddress: string | PublicKey, cluster: Cluster, cause?: Error) {
+  constructor(
+    nameOrAddress: string | PublicKey,
+    cluster: Cluster,
+    cause?: Error
+  ) {
     const isName = typeof nameOrAddress === 'string';
     const toString = isName ? nameOrAddress : nameOrAddress.toBase58();
     super({
@@ -205,7 +220,8 @@ export class UnreachableCaseError extends SdkError {
       title: `The Case '${value}' in a Switch or If Statement went Unhandled.`,
       problem:
         'The developer is not handling that case yet or is missing a `break` or `return` statement.',
-      solution: 'Check your inputs or file an issue to have all cases handled properly.',
+      solution:
+        'Check your inputs or file an issue to have all cases handled properly.',
     });
   }
 }

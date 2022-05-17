@@ -7,7 +7,10 @@ import {
 } from '@/programs';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
 import { Keypair } from '@solana/web3.js';
-import { getAssociatedTokenAddress, getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
+import {
+  getAssociatedTokenAddress,
+  getMinimumBalanceForRentExemptMint,
+} from '@solana/spl-token';
 
 killStuckProcess();
 
@@ -19,7 +22,10 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   // Given we have everything we need to create a Metadata account.
   const mx = await metaplex();
   const mint = Keypair.generate();
-  const associatedToken = await getAssociatedTokenAddress(mint.publicKey, mx.identity().publicKey);
+  const associatedToken = await getAssociatedTokenAddress(
+    mint.publicKey,
+    mx.identity().publicKey
+  );
   const metadata = await MetadataAccount.pda(mint.publicKey);
   const lamports = await getMinimumBalanceForRentExemptMint(mx.connection);
   const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });

@@ -1,5 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+} from './MetaplexError';
 
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -97,7 +100,9 @@ export class NoCandyMachineFoundForAuthorityMatchesUuidError extends CandyMachin
     candyMachineAddresses: PublicKey[],
     cause?: Error
   ) {
-    const addresses = candyMachineAddresses.map((address) => address.toBase58());
+    const addresses = candyMachineAddresses.map((address) =>
+      address.toBase58()
+    );
     super({
       cause,
       key: 'no_candy_machine_found_for_authority_matches_uuid',
@@ -119,7 +124,9 @@ export class MoreThanOneCandyMachineFoundByAuthorityAndUuidError extends CandyMa
     candyMachineAddresses: PublicKey[],
     cause?: Error
   ) {
-    const addresses = candyMachineAddresses.map((address) => address.toBase58());
+    const addresses = candyMachineAddresses.map((address) =>
+      address.toBase58()
+    );
     super({
       cause,
       key: 'more_than_one_candy_machine_found_by_authority_and_uuid',

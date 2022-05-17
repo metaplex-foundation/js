@@ -42,7 +42,10 @@ export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
   }
 
   whereName(name: string) {
-    return this.where(NAME_START, Buffer.from(padEmptyChars(name, MAX_NAME_LENGTH)));
+    return this.where(
+      NAME_START,
+      Buffer.from(padEmptyChars(name, MAX_NAME_LENGTH))
+    );
   }
 
   selectSymbol() {
@@ -50,7 +53,10 @@ export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
   }
 
   whereSymbol(symbol: string) {
-    return this.where(SYMBOL_START, Buffer.from(padEmptyChars(symbol, MAX_SYMBOL_LENGTH)));
+    return this.where(
+      SYMBOL_START,
+      Buffer.from(padEmptyChars(symbol, MAX_SYMBOL_LENGTH))
+    );
   }
 
   selectUri() {
@@ -58,7 +64,10 @@ export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
   }
 
   whereUri(uri: string) {
-    return this.where(URI_START, Buffer.from(padEmptyChars(uri, MAX_URI_LENGTH)));
+    return this.where(
+      URI_START,
+      Buffer.from(padEmptyChars(uri, MAX_URI_LENGTH))
+    );
   }
 
   selectCreator(position: number) {
@@ -69,7 +78,10 @@ export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
   }
 
   whereCreator(position: number, creator: PublicKey) {
-    return this.where(CREATORS_START + (position - 1) * MAX_CREATOR_LEN, creator);
+    return this.where(
+      CREATORS_START + (position - 1) * MAX_CREATOR_LEN,
+      creator
+    );
   }
 
   selectFirstCreator() {

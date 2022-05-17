@@ -1,5 +1,8 @@
 // TODO(thlorenz): the mpl modules should export those as 'accountProviders'
-import { CandyMachine, CollectionPDA } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  CandyMachine,
+  CollectionPDA,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   CollectionAuthorityRecord,
   Edition,

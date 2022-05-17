@@ -17,14 +17,20 @@ export abstract class StorageDriver extends Driver {
     return this.upload(MetaplexFile.fromJson(json));
   }
 
-  public async download(uri: string, options?: RequestInit): Promise<MetaplexFile> {
+  public async download(
+    uri: string,
+    options?: RequestInit
+  ): Promise<MetaplexFile> {
     const response = await fetch(uri, options);
     const buffer = await response.arrayBuffer();
 
     return new MetaplexFile(buffer, uri);
   }
 
-  public async downloadJson<T extends object>(uri: string, options?: RequestInit): Promise<T> {
+  public async downloadJson<T extends object>(
+    uri: string,
+    options?: RequestInit
+  ): Promise<T> {
     const response = await fetch(uri, options);
 
     return await response.json();

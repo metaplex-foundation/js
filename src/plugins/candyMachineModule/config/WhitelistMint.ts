@@ -1,4 +1,7 @@
-import { WhitelistMintMode, WhitelistMintSettings } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  WhitelistMintMode,
+  WhitelistMintSettings,
+} from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { PublicKeyString, convertToPublickKey } from '@/types';
 import { UnreachableCaseError } from '@/errors';

@@ -79,14 +79,19 @@ export class BundlrStorageDriver extends StorageDriver {
     const bundlr = await this.getBundlr();
     const balance = await bundlr.getLoadedBalance();
 
-    return price.isGreaterThan(balance) ? price.minus(balance) : new BigNumber(0);
+    return price.isGreaterThan(balance)
+      ? price.minus(balance)
+      : new BigNumber(0);
   }
 
   public async needsFunding(
     filesOrBytes: MetaplexFile[] | number,
     skipBalanceCheck = false
   ): Promise<boolean> {
-    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+    const fundingNeeded = await this.fundingNeeded(
+      filesOrBytes,
+      skipBalanceCheck
+    );
 
     return fundingNeeded.isGreaterThan(0);
   }
@@ -96,7 +101,10 @@ export class BundlrStorageDriver extends StorageDriver {
     skipBalanceCheck = false
   ): Promise<void> {
     const bundlr = await this.getBundlr();
-    const fundingNeeded = await this.fundingNeeded(filesOrBytes, skipBalanceCheck);
+    const fundingNeeded = await this.fundingNeeded(
+      filesOrBytes,
+      skipBalanceCheck
+    );
 
     if (!fundingNeeded.isGreaterThan(0)) {
       return;
@@ -118,7 +126,9 @@ export class BundlrStorageDriver extends StorageDriver {
     const bundlr = await this.getBundlr();
     const price = await bundlr.getPrice(bytes);
 
-    return price.multipliedBy(this.options.priceMultiplier ?? 1.5).decimalPlaces(0);
+    return price
+      .multipliedBy(this.options.priceMultiplier ?? 1.5)
+      .decimalPlaces(0);
   }
 
   protected async uploadFile(file: MetaplexFile): Promise<string> {
@@ -187,7 +197,12 @@ export class BundlrStorageDriver extends StorageDriver {
     const identity = this.metaplex.identity();
     const bundlr =
       identity instanceof KeypairIdentityDriver
-        ? new BundlrPackage.default(address, currency, identity.keypair.secretKey, options)
+        ? new BundlrPackage.default(
+            address,
+            currency,
+            identity.keypair.secretKey,
+            options
+          )
         : new BundlrPackage.WebBundlr(address, currency, identity, options);
 
     try {

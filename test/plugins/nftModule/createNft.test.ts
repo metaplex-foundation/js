@@ -3,7 +3,13 @@ import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { JsonMetadata, MetaplexFile, Nft } from '@/index';
-import { metaplex, spokSamePubkey, spokSameBignum, killStuckProcess, amman } from '../../helpers';
+import {
+  metaplex,
+  spokSamePubkey,
+  spokSameBignum,
+  killStuckProcess,
+  amman,
+} from '../../helpers';
 
 killStuckProcess();
 
@@ -219,7 +225,9 @@ test('it fill missing on-chain data from the JSON metadata', async (t: Test) => 
 test('it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
-  const initialIdentityBalance = await mx.connection.getBalance(mx.identity().publicKey);
+  const initialIdentityBalance = await mx.connection.getBalance(
+    mx.identity().publicKey
+  );
 
   // And a keypair that will pay for the storage.
   const payer = Keypair.generate();
@@ -234,7 +242,10 @@ test('it can make another signer wallet pay for the storage and transaction fees
   t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
 
   // And the identity did not lose any lamports.
-  t.equal(await mx.connection.getBalance(mx.identity().publicKey), initialIdentityBalance);
+  t.equal(
+    await mx.connection.getBalance(mx.identity().publicKey),
+    initialIdentityBalance
+  );
 
   // And the NFT was successfully created.
   spok(t, nft, {

@@ -2,7 +2,10 @@ import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
-import { findNftByMintOnChainOperationHandler, findNftByMintOperation } from './findNftByMint';
+import {
+  findNftByMintOnChainOperationHandler,
+  findNftByMintOperation,
+} from './findNftByMint';
 import {
   findNftsByCandyMachineOnChainOperationHandler,
   findNftsByCandyMachineOperation,
@@ -19,25 +22,46 @@ import {
   findNftsByOwnerOnChainOperationHandler,
   findNftsByOwnerOperation,
 } from './findNftsByOwner';
-import { printNewEditionOperation, printNewEditionOperationHandler } from './printNewEdition';
+import {
+  printNewEditionOperation,
+  printNewEditionOperationHandler,
+} from './printNewEdition';
 import {
   planUploadMetadataOperation,
   planUploadMetadataOperationHandler,
 } from './planUploadMetadata';
 import { updateNftOperation, updateNftOperationHandler } from './updateNft';
-import { uploadMetadataOperation, uploadMetadataOperationHandler } from './uploadMetadata';
+import {
+  uploadMetadataOperation,
+  uploadMetadataOperationHandler,
+} from './uploadMetadata';
 
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const op = metaplex.operations();
     op.register(createNftOperation, createNftOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOnChainOperationHandler);
-    op.register(findNftsByCandyMachineOperation, findNftsByCandyMachineOnChainOperationHandler);
-    op.register(findNftsByCreatorOperation, findNftsByCreatorOnChainOperationHandler);
-    op.register(findNftsByMintListOperation, findNftsByMintListOnChainOperationHandler);
-    op.register(findNftsByOwnerOperation, findNftsByOwnerOnChainOperationHandler);
+    op.register(
+      findNftsByCandyMachineOperation,
+      findNftsByCandyMachineOnChainOperationHandler
+    );
+    op.register(
+      findNftsByCreatorOperation,
+      findNftsByCreatorOnChainOperationHandler
+    );
+    op.register(
+      findNftsByMintListOperation,
+      findNftsByMintListOnChainOperationHandler
+    );
+    op.register(
+      findNftsByOwnerOperation,
+      findNftsByOwnerOnChainOperationHandler
+    );
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
-    op.register(planUploadMetadataOperation, planUploadMetadataOperationHandler);
+    op.register(
+      planUploadMetadataOperation,
+      planUploadMetadataOperationHandler
+    );
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
 

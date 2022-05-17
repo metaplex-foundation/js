@@ -2,7 +2,12 @@ import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import BN from 'bn.js';
 import { EditionMarker } from '@metaplex-foundation/mpl-token-metadata';
-import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import {
+  BaseAccount,
+  Pda,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/types';
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 
 export class EditionMarkerAccount extends BaseAccount<EditionMarker> {

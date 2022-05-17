@@ -23,9 +23,14 @@ export type FindCandyMachineByAdddressOperation = Operation<
 // -----------------
 export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCandyMachineByAdddressOperation> =
   {
-    handle: async (operation: FindCandyMachineByAdddressOperation, metaplex: Metaplex) => {
+    handle: async (
+      operation: FindCandyMachineByAdddressOperation,
+      metaplex: Metaplex
+    ) => {
       const candyMachineAddress = operation.input;
-      const unparsedAccount = await metaplex.rpc().getAccount(candyMachineAddress);
+      const unparsedAccount = await metaplex
+        .rpc()
+        .getAccount(candyMachineAddress);
 
       const account = CandyMachineAccount.fromMaybe(unparsedAccount);
 

@@ -21,7 +21,13 @@ export type UpdateCandyMachineBuilderParams = {
 export function updateCandyMachineBuilder(
   params: UpdateCandyMachineBuilderParams
 ): TransactionBuilder {
-  const { candyMachine, authority, wallet, data, instructionKey = 'updateCandyMachine' } = params;
+  const {
+    candyMachine,
+    authority,
+    wallet,
+    data,
+    instructionKey = 'updateCandyMachine',
+  } = params;
 
   return TransactionBuilder.make().add({
     instruction: createUpdateCandyMachineInstruction(

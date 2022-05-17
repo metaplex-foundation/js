@@ -2,7 +2,14 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
 import BigNumber from 'bignumber.js';
 
-export type SolAmountInput = number | string | Uint8Array | Buffer | BN | BigNumber | SolAmount;
+export type SolAmountInput =
+  | number
+  | string
+  | Uint8Array
+  | Buffer
+  | BN
+  | BigNumber
+  | SolAmount;
 
 export const parseBigNumber = (
   input: number | string | Uint8Array | Buffer | BN | BigNumber
@@ -49,11 +56,15 @@ export class SolAmount {
   }
 
   minus(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.getLamports().minus(b.getLamports()));
+    return this.execute(other, (a, b) =>
+      a.getLamports().minus(b.getLamports())
+    );
   }
 
   multipliedBy(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.getLamports().multipliedBy(b.getSol()));
+    return this.execute(other, (a, b) =>
+      a.getLamports().multipliedBy(b.getSol())
+    );
   }
 
   dividedBy(other: SolAmountInput): SolAmount {
@@ -61,7 +72,9 @@ export class SolAmount {
   }
 
   modulo(other: SolAmountInput): SolAmount {
-    return this.execute(other, (a, b) => a.getLamports().modulo(b.getLamports()));
+    return this.execute(other, (a, b) =>
+      a.getLamports().modulo(b.getLamports())
+    );
   }
 
   isEqualTo(other: SolAmountInput): boolean {
@@ -73,7 +86,9 @@ export class SolAmount {
   }
 
   isLessThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.lamports.isLessThanOrEqualTo(SolAmount.fromSol(other).getLamports());
+    return this.lamports.isLessThanOrEqualTo(
+      SolAmount.fromSol(other).getLamports()
+    );
   }
 
   isGreaterThan(other: SolAmountInput): boolean {
@@ -81,7 +96,9 @@ export class SolAmount {
   }
 
   isGreaterThanOrEqualTo(other: SolAmountInput): boolean {
-    return this.lamports.isGreaterThanOrEqualTo(SolAmount.fromSol(other).getLamports());
+    return this.lamports.isGreaterThanOrEqualTo(
+      SolAmount.fromSol(other).getLamports()
+    );
   }
 
   isNegative(): boolean {

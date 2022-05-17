@@ -1,5 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { createInitializeMintInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import {
+  createInitializeMintInstruction,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
 import { Signer } from '@/types';
 import { TransactionBuilder } from '@/utils';
 
@@ -12,7 +15,9 @@ export interface InitializeMintBuilderParams {
   instructionKey?: string;
 }
 
-export const initializeMintBuilder = (params: InitializeMintBuilderParams): TransactionBuilder => {
+export const initializeMintBuilder = (
+  params: InitializeMintBuilderParams
+): TransactionBuilder => {
   const {
     decimals,
     mint,

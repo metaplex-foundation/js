@@ -25,7 +25,8 @@ export function candyMachineDataFromConfig(
   config: CandyMachineConfigWithoutStorage,
   candyMachineAddress: PublicKey
 ): CandyMachineData {
-  const configCreators = config.creators ?? creatorsConfigDefault(config.solTreasuryAccount);
+  const configCreators =
+    config.creators ?? creatorsConfigDefault(config.solTreasuryAccount);
   const creators: Creator[] = configCreators.map((creatorConfig) => ({
     ...creatorConfig,
     address: convertToPublickKey(creatorConfig.address),
@@ -33,7 +34,8 @@ export function candyMachineDataFromConfig(
 
   const goLiveDate = convertToMillisecondsSinceEpoch(config.goLiveDate);
 
-  const hiddenSettings = hiddenSettingsFromConfig(config.hiddenSettings) ?? null;
+  const hiddenSettings =
+    hiddenSettingsFromConfig(config.hiddenSettings) ?? null;
   const endSettings = endSettingsFromConfig(config.endSettings) ?? null;
   const whitelistMintSettings =
     whiteListMintSettingsFromConfig(config.whitelistMintSettings) ?? null;
@@ -64,7 +66,10 @@ export function candyMachineAccountDataFromConfig(
   config: CandyMachineConfigWithoutStorage,
   addresses: CandyMachineAddresses
 ) {
-  const data = candyMachineDataFromConfig(config, addresses.candyMachineAddress);
+  const data = candyMachineDataFromConfig(
+    config,
+    addresses.candyMachineAddress
+  );
   const args: CandyMachineArgs = {
     authority: addresses.authorityAddress,
     wallet: addresses.walletAddress,

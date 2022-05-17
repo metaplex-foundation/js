@@ -18,7 +18,11 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
       scope: DisposableScope
     ): Promise<Plan<any, UploadMetadataOutput>> => {
       const metadata = operation.input;
-      const plan = await planUploadMetadataOperationHandler.handle(operation, metaplex, scope);
+      const plan = await planUploadMetadataOperationHandler.handle(
+        operation,
+        metaplex,
+        scope
+      );
       const storage = metaplex.storage();
 
       if (!(storage instanceof BundlrStorageDriver)) {
@@ -29,8 +33,12 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
       const mockUri = 'x'.repeat(100);
       const mockUris = assets.map(() => mockUri);
       const mockedMetadata = replaceAssetsWithUris(metadata, mockUris);
-      const files: MetaplexFile[] = [...assets, MetaplexFile.fromJson(mockedMetadata)];
-      let originalWithdrawAfterUploading = storage.shouldWithdrawAfterUploading();
+      const files: MetaplexFile[] = [
+        ...assets,
+        MetaplexFile.fromJson(mockedMetadata),
+      ];
+      let originalWithdrawAfterUploading =
+        storage.shouldWithdrawAfterUploading();
 
       return plan
         .prependStep<any>({
@@ -40,7 +48,8 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
             // uploads. We also disable withdrawing after each upload and keep track of its
             // initial state. This prevents having to fund many times within this plan.
 
-            originalWithdrawAfterUploading = storage.shouldWithdrawAfterUploading();
+            originalWithdrawAfterUploading =
+              storage.shouldWithdrawAfterUploading();
             storage.dontWithdrawAfterUploading();
 
             const needsFunding = await storage.needsFunding(files);

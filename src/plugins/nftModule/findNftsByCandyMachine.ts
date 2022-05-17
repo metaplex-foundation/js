@@ -5,7 +5,8 @@ import { findNftsByCreatorOperation } from './findNftsByCreator';
 import { Nft } from './Nft';
 
 const Key = 'FindNftsByCandyMachineOperation' as const;
-export const findNftsByCandyMachineOperation = useOperation<FindNftsByCandyMachineOperation>(Key);
+export const findNftsByCandyMachineOperation =
+  useOperation<FindNftsByCandyMachineOperation>(Key);
 export type FindNftsByCandyMachineOperation = Operation<
   typeof Key,
   FindNftsByCandyMachineInput,

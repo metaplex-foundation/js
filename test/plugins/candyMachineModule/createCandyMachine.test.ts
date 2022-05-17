@@ -113,10 +113,8 @@ test('candyMachine: init with minimal config', async (t) => {
   const config = minimalConfig;
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -155,10 +153,8 @@ test('candyMachine: init with config specifying creators', async (t) => {
   const config = { ...minimalConfig, creators };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -186,10 +182,8 @@ test('candyMachine: init with end settings - amount', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -204,7 +198,9 @@ test('candyMachine: init with end settings - amount', async (t) => {
   spok(t, candyMachine.endSettings, {
     $topic: 'end settings',
     endSettingType: EndSettingType.Amount,
-    number: spokSameBignum(new Date(config.endSettings?.value! as number).valueOf()),
+    number: spokSameBignum(
+      new Date(config.endSettings?.value! as number).valueOf()
+    ),
   });
 });
 
@@ -218,10 +214,8 @@ test('candyMachine: init with end settings - date', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -236,7 +230,9 @@ test('candyMachine: init with end settings - date', async (t) => {
   spok(t, candyMachine.endSettings, {
     $topic: 'end settings',
     endSettingType: EndSettingType.Date,
-    number: spokSameBignum(new Date(config.endSettings?.value! as string).valueOf()),
+    number: spokSameBignum(
+      new Date(config.endSettings?.value! as string).valueOf()
+    ),
   });
 });
 
@@ -257,7 +253,11 @@ test('candyMachine: init with invalid hidden settings (hash too short)', async (
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(t, () => cm.createFromConfig(config, opts), /len.+10.+should match len.+32/i);
+  await assertThrows(
+    t,
+    () => cm.createFromConfig(config, opts),
+    /len.+10.+should match len.+32/i
+  );
 });
 
 test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
@@ -276,7 +276,10 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
   };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, ...rest } = await cm.createFromConfig(config, opts);
+  const { transactionId, candyMachine, ...rest } = await cm.createFromConfig(
+    config,
+    opts
+  );
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   // Then we created the Candy Machine as configured
@@ -303,10 +306,8 @@ test('candyMachine: with gatekeeper settings', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -335,7 +336,11 @@ test('candyMachine: with invalid gatekeeper settings (network not a public key)'
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(t, () => cm.createFromConfig(config, opts), /not a valid PublicKey/i);
+  await assertThrows(
+    t,
+    () => cm.createFromConfig(config, opts),
+    /not a valid PublicKey/i
+  );
 });
 
 // -----------------
@@ -358,10 +363,8 @@ test('candyMachine: with whitelistMint settings', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, candyMachine, candyMachineSigner, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
+  const { transactionId, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
   await amman.addr.addLabel('tx: create candy-machine', transactionId);
   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
@@ -397,5 +400,9 @@ test('candyMachine: with invalid whitemint settings (mint not a public key)', as
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(t, () => cm.createFromConfig(config, opts), /not a valid PublicKey/i);
+  await assertThrows(
+    t,
+    () => cm.createFromConfig(config, opts),
+    /not a valid PublicKey/i
+  );
 });

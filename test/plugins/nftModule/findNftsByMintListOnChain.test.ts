@@ -32,7 +32,9 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   const emptyMintB = Keypair.generate().publicKey;
 
   // When we fetch NFTs matching all these addresses.
-  const nfts = await mx.nfts().findAllByMintList([emptyMintA, nft.mint, emptyMintB]);
+  const nfts = await mx
+    .nfts()
+    .findAllByMintList([emptyMintA, nft.mint, emptyMintB]);
 
   // Then we get null for mint not associated to any NFT.
   t.same(

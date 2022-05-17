@@ -45,7 +45,10 @@ export class CoreRpcDriver extends RpcDriver {
     transaction.feePayer ??= this.getDefaultFeePayer();
     transaction.recentBlockhash ??= await this.getLatestBlockhash();
 
-    if (transaction.feePayer && this.metaplex.identity().equals(transaction.feePayer)) {
+    if (
+      transaction.feePayer &&
+      this.metaplex.identity().equals(transaction.feePayer)
+    ) {
       signers = [this.metaplex.identity(), ...signers];
     }
 
@@ -62,7 +65,10 @@ export class CoreRpcDriver extends RpcDriver {
     const rawTransaction = transaction.serialize();
 
     try {
-      return await this.metaplex.connection.sendRawTransaction(rawTransaction, sendOptions);
+      return await this.metaplex.connection.sendRawTransaction(
+        rawTransaction,
+        sendOptions
+      );
     } catch (error) {
       throw this.parseProgramError(error, transaction);
     }
@@ -74,7 +80,10 @@ export class CoreRpcDriver extends RpcDriver {
   ): Promise<ConfirmTransactionResponse> {
     let rpcResponse: ConfirmTransactionResponse;
     try {
-      rpcResponse = await this.metaplex.connection.confirmTransaction(signature, commitment);
+      rpcResponse = await this.metaplex.connection.confirmTransaction(
+        signature,
+        commitment
+      );
     } catch (error) {
       throw new FailedToConfirmTransactionError(error as Error);
     }
@@ -91,14 +100,24 @@ export class CoreRpcDriver extends RpcDriver {
     signers?: Signer[],
     confirmOptions?: ConfirmOptions
   ): Promise<SendAndConfirmTransactionResponse> {
-    const signature = await this.sendTransaction(transaction, signers, confirmOptions);
-    const confirmResponse = await this.confirmTransaction(signature, confirmOptions?.commitment);
+    const signature = await this.sendTransaction(
+      transaction,
+      signers,
+      confirmOptions
+    );
+    const confirmResponse = await this.confirmTransaction(
+      signature,
+      confirmOptions?.commitment
+    );
 
     return { signature, confirmResponse };
   }
 
   async getAccount(publicKey: PublicKey, commitment?: Commitment) {
-    const accountInfo = await this.metaplex.connection.getAccountInfo(publicKey, commitment);
+    const accountInfo = await this.metaplex.connection.getAccountInfo(
+      publicKey,
+      commitment
+    );
 
     return this.getUnparsedMaybeAccount(publicKey, accountInfo);
   }
@@ -130,7 +149,8 @@ export class CoreRpcDriver extends RpcDriver {
   }
 
   protected async getLatestBlockhash(): Promise<Blockhash> {
-    return (await this.metaplex.connection.getLatestBlockhash('finalized')).blockhash;
+    return (await this.metaplex.connection.getLatestBlockhash('finalized'))
+      .blockhash;
   }
 
   protected getDefaultFeePayer(): PublicKey | undefined {
@@ -150,7 +170,10 @@ export class CoreRpcDriver extends RpcDriver {
     return { publicKey, exists: true, ...accountInfo };
   }
 
-  protected parseProgramError(error: unknown, transaction: Transaction): MetaplexError {
+  protected parseProgramError(
+    error: unknown,
+    transaction: Transaction
+  ): MetaplexError {
     // Ensure the error as logs.
     if (!isErrorWithLogs(error)) {
       return new FailedToSendTransactionError(error as Error);

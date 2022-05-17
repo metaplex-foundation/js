@@ -1,4 +1,8 @@
-import { GetProgramAccountsConfig, GetProgramAccountsFilter, PublicKey } from '@solana/web3.js';
+import {
+  GetProgramAccountsConfig,
+  GetProgramAccountsFilter,
+  PublicKey,
+} from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
@@ -7,7 +11,10 @@ import { UnparsedAccount } from '@/types';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Postpone } from './Postpone';
 
-export type GpaSortCallback = (a: UnparsedAccount, b: UnparsedAccount) => number;
+export type GpaSortCallback = (
+  a: UnparsedAccount,
+  b: UnparsedAccount
+) => number;
 
 export class GpaBuilder {
   /** The connection instance to use when fetching accounts. */
@@ -78,7 +85,9 @@ export class GpaBuilder {
   }
 
   async get(): Promise<UnparsedAccount[]> {
-    const accounts = await this.metaplex.rpc().getProgramAccounts(this.programId, this.config);
+    const accounts = await this.metaplex
+      .rpc()
+      .getProgramAccounts(this.programId, this.config);
 
     if (this.sortCallback) {
       accounts.sort(this.sortCallback);

@@ -14,7 +14,10 @@ export class AssertionError extends Error {
 /**
  * Assserts that the provided condition is true.
  */
-export default function assert(condition: boolean, message?: string): asserts condition {
+export default function assert(
+  condition: boolean,
+  message?: string
+): asserts condition {
   if (!condition) {
     throw new AssertionError(message ?? 'Assertion failed');
   }

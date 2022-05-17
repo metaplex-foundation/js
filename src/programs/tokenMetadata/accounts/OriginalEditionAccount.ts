@@ -1,11 +1,22 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { MasterEditionV1, MasterEditionV2, Key } from '@metaplex-foundation/mpl-token-metadata';
-import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import {
+  MasterEditionV1,
+  MasterEditionV2,
+  Key,
+} from '@metaplex-foundation/mpl-token-metadata';
+import {
+  BaseAccount,
+  Pda,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/types';
 import { UnexpectedAccountError } from '@/errors';
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 
-export class OriginalEditionAccount extends BaseAccount<MasterEditionV1 | MasterEditionV2> {
+export class OriginalEditionAccount extends BaseAccount<
+  MasterEditionV1 | MasterEditionV2
+> {
   static async pda(mint: PublicKey): Promise<Pda> {
     return Pda.find(TokenMetadataProgram.publicKey, [
       Buffer.from('metadata', 'utf8'),
@@ -35,7 +46,9 @@ export class OriginalEditionAccount extends BaseAccount<MasterEditionV1 | Master
       );
     }
 
-    const accountData = this.recognizesV1(unparsedAccount.data) ? MasterEditionV1 : MasterEditionV2;
+    const accountData = this.recognizesV1(unparsedAccount.data)
+      ? MasterEditionV1
+      : MasterEditionV2;
     return new OriginalEditionAccount(this.parse(unparsedAccount, accountData));
   }
 

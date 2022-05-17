@@ -41,7 +41,9 @@ export const mintNewEditionFromMasterEditionViaVaultProxyBuilder = (
     vault,
     newMetadataUpdateAuthority,
     metadata,
-    tokenVaultProgram = new PublicKey('vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn'),
+    tokenVaultProgram = new PublicKey(
+      'vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn'
+    ),
     instructionKey = 'mintNewEditionFromMasterEditionViaVaultProxy',
   } = params;
 
