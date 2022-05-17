@@ -24,7 +24,12 @@ export const AWS = 'aws';
 const ArweaveStorages = [ARWEAVE_SOL, ARWEAVE_BUNDLE] as const;
 
 /** The existing storage options */
-export const CandyMachineStorages = [...ArweaveStorages, IPFS, NFT_STORAGE, AWS] as const;
+export const CandyMachineStorages = [
+  ...ArweaveStorages,
+  IPFS,
+  NFT_STORAGE,
+  AWS,
+] as const;
 
 /** Available storage options */
 export type CandyMachineStorage = typeof CandyMachineStorages[number];

@@ -21,11 +21,16 @@ export class MockStorageDriver extends StorageDriver {
     super(metaplex);
     this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
     this.costPerByte =
-      options?.costPerByte != null ? new BN(options?.costPerByte) : DEFAULT_COST_PER_BYTE;
+      options?.costPerByte != null
+        ? new BN(options?.costPerByte)
+        : DEFAULT_COST_PER_BYTE;
   }
 
   public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const bytes = files.reduce((total, file) => total + file.toBuffer().byteLength, 0);
+    const bytes = files.reduce(
+      (total, file) => total + file.toBuffer().byteLength,
+      0
+    );
 
     return SolAmount.fromLamports(bytes).multipliedBy(this.costPerByte);
   }

@@ -13,13 +13,21 @@ export class GmaBuilder {
   protected readonly publicKeys: PublicKey[];
   protected chunkSize: number;
 
-  constructor(metaplex: Metaplex, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+  constructor(
+    metaplex: Metaplex,
+    publicKeys: PublicKey[],
+    options: GmaBuilderOptions = {}
+  ) {
     this.metaplex = metaplex;
     this.chunkSize = options.chunkSize ?? 100;
     this.publicKeys = publicKeys;
   }
 
-  static make(metaplex: Metaplex, publicKeys: PublicKey[], options: GmaBuilderOptions = {}) {
+  static make(
+    metaplex: Metaplex,
+    publicKeys: PublicKey[],
+    options: GmaBuilderOptions = {}
+  ) {
     return new GmaBuilder(metaplex, publicKeys, options);
   }
 
@@ -56,7 +64,10 @@ export class GmaBuilder {
     return this.getChunks(this.getPublicKeys().slice(-start));
   }
 
-  async getBetween(start: number, end: number): Promise<UnparsedMaybeAccount[]> {
+  async getBetween(
+    start: number,
+    end: number
+  ): Promise<UnparsedMaybeAccount[]> {
     start = this.boundNumber(start);
     end = this.boundNumber(end);
     [start, end] = start > end ? [end, start] : [start, end];
@@ -64,7 +75,10 @@ export class GmaBuilder {
     return this.getChunks(this.getPublicKeys().slice(start, end));
   }
 
-  async getPage(page: number, perPage: number): Promise<UnparsedMaybeAccount[]> {
+  async getPage(
+    page: number,
+    perPage: number
+  ): Promise<UnparsedMaybeAccount[]> {
     return this.getBetween((page - 1) * perPage, page * perPage);
   }
 
@@ -76,19 +90,27 @@ export class GmaBuilder {
     return Postpone.make(async () => this.get());
   }
 
-  async getAndMap<T>(callback: (account: UnparsedMaybeAccount) => T): Promise<T[]> {
+  async getAndMap<T>(
+    callback: (account: UnparsedMaybeAccount) => T
+  ): Promise<T[]> {
     return this.lazy().map(callback).run();
   }
 
-  protected async getChunks(publicKeys: PublicKey[]): Promise<UnparsedMaybeAccount[]> {
+  protected async getChunks(
+    publicKeys: PublicKey[]
+  ): Promise<UnparsedMaybeAccount[]> {
     const chunks = chunk(publicKeys, this.chunkSize);
     const chunkPromises = chunks.map((chunk) => this.getChunk(chunk));
     const resolvedChunks = await Promise.allSettled(chunkPromises);
 
-    return resolvedChunks.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+    return resolvedChunks.flatMap((result) =>
+      result.status === 'fulfilled' ? result.value : []
+    );
   }
 
-  protected async getChunk(publicKeys: PublicKey[]): Promise<UnparsedMaybeAccount[]> {
+  protected async getChunk(
+    publicKeys: PublicKey[]
+  ): Promise<UnparsedMaybeAccount[]> {
     try {
       // TODO: Use lower level RPC call to add dataSlice support.
       return await this.metaplex.rpc().getMultipleAccounts(publicKeys);
@@ -107,7 +129,8 @@ export class GmaBuilder {
 
   protected boundIndex(index: number): number {
     index = index < 0 ? 0 : index;
-    index = index >= this.publicKeys.length ? this.publicKeys.length - 1 : index;
+    index =
+      index >= this.publicKeys.length ? this.publicKeys.length - 1 : index;
 
     return index;
   }

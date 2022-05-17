@@ -3,7 +3,10 @@ import nacl from 'tweetnacl';
 import { Metaplex } from '@/Metaplex';
 import { IdentityDriver, KeypairSigner } from '@/types';
 
-export class KeypairIdentityDriver extends IdentityDriver implements KeypairSigner {
+export class KeypairIdentityDriver
+  extends IdentityDriver
+  implements KeypairSigner
+{
   public readonly keypair: Keypair;
   public readonly publicKey: PublicKey;
   public readonly secretKey: Uint8Array;
@@ -27,7 +30,11 @@ export class KeypairIdentityDriver extends IdentityDriver implements KeypairSign
     return transaction;
   }
 
-  public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
-    return Promise.all(transactions.map((transaction) => this.signTransaction(transaction)));
+  public async signAllTransactions(
+    transactions: Transaction[]
+  ): Promise<Transaction[]> {
+    return Promise.all(
+      transactions.map((transaction) => this.signTransaction(transaction))
+    );
   }
 }

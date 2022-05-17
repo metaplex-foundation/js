@@ -1,4 +1,9 @@
-export type MetaplexErrorSource = 'sdk' | 'network' | 'rpc' | 'plugin' | 'program';
+export type MetaplexErrorSource =
+  | 'sdk'
+  | 'network'
+  | 'rpc'
+  | 'plugin'
+  | 'program';
 
 export type MetaplexErrorInput = {
   key: string;
@@ -11,7 +16,10 @@ export type MetaplexErrorInput = {
   logs?: string[];
 };
 
-export type MetaplexErrorInputWithoutSource = Omit<MetaplexErrorInput, 'source' | 'sourceDetails'>;
+export type MetaplexErrorInputWithoutSource = Omit<
+  MetaplexErrorInput,
+  'source' | 'sourceDetails'
+>;
 
 export class MetaplexError extends Error {
   readonly name: 'MetaplexError' = 'MetaplexError';

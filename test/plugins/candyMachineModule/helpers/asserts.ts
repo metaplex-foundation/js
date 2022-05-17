@@ -3,11 +3,17 @@ import spok from 'spok';
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import { CreatorsConfig } from '@/plugins/candyMachineModule/config';
 
-export function assertCreators(t: Test, creators: Creator[], config: CreatorsConfig) {
+export function assertCreators(
+  t: Test,
+  creators: Creator[],
+  config: CreatorsConfig
+) {
   t.equal(creators.length, config.length, 'creators.length');
 
   creators = Array.from(creators);
-  creators.sort((a, b) => a.address.toBase58().localeCompare(b.address.toBase58()));
+  creators.sort((a, b) =>
+    a.address.toBase58().localeCompare(b.address.toBase58())
+  );
   config = Array.from(config);
   config.sort((a, b) => a.address.localeCompare(b.address));
 

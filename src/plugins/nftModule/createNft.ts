@@ -1,7 +1,15 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { getAssociatedTokenAddress, getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
+import {
+  getAssociatedTokenAddress,
+  getMinimumBalanceForRentExemptMint,
+} from '@solana/spl-token';
 import { bignum } from '@metaplex-foundation/beet';
-import { Creator, Collection, Uses, DataV2 } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  Creator,
+  Collection,
+  Uses,
+  DataV2,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { JsonMetadata } from './JsonMetadata';
@@ -16,7 +24,11 @@ import { TransactionBuilder } from '@/utils';
 
 const Key = 'CreateNftOperation' as const;
 export const createNftOperation = useOperation<CreateNftOperation>(Key);
-export type CreateNftOperation = Operation<typeof Key, CreateNftInput, CreateNftOutput>;
+export type CreateNftOperation = Operation<
+  typeof Key,
+  CreateNftInput,
+  CreateNftOutput
+>;
 
 export interface CreateNftInput {
   // Data.
@@ -82,11 +94,17 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       metadata = {};
     }
 
-    const data = resolveData(operation.input, metadata, updateAuthority.publicKey);
+    const data = resolveData(
+      operation.input,
+      metadata,
+      updateAuthority.publicKey
+    );
 
     const metadataPda = await MetadataAccount.pda(mint.publicKey);
     const masterEditionPda = await OriginalEditionAccount.pda(mint.publicKey);
-    const lamports = await getMinimumBalanceForRentExemptMint(metaplex.connection);
+    const lamports = await getMinimumBalanceForRentExemptMint(
+      metaplex.connection
+    );
     const associatedToken = await getAssociatedTokenAddress(
       mint.publicKey,
       owner,
@@ -164,7 +182,8 @@ const resolveData = (
     name: input.name ?? metadata.name ?? '',
     symbol: input.symbol ?? metadata.symbol ?? '',
     uri: input.uri,
-    sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
+    sellerFeeBasisPoints:
+      input.sellerFeeBasisPoints ?? metadata.seller_fee_basis_points ?? 500,
     creators,
     collection: input.collection ?? null,
     uses: input.uses ?? null,
@@ -204,7 +223,9 @@ export interface CreateNftBuilderParams {
   createMasterEditionInstructionKey?: string;
 }
 
-export const createNftBuilder = (params: CreateNftBuilderParams): TransactionBuilder => {
+export const createNftBuilder = (
+  params: CreateNftBuilderParams
+): TransactionBuilder => {
   const {
     lamports,
     data,

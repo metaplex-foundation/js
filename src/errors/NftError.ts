@@ -1,5 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+} from './MetaplexError';
 
 export class NftError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {

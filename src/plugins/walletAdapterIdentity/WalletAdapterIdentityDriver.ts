@@ -1,4 +1,9 @@
-import { Connection, PublicKey, Transaction, TransactionSignature } from '@solana/web3.js';
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
 import {
   MessageSignerWalletAdapterProps,
   SignerWalletAdapterProps,
@@ -48,9 +53,13 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     return this.walletAdapter.signTransaction(transaction);
   }
 
-  public async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
+  public async signAllTransactions(
+    transactions: Transaction[]
+  ): Promise<Transaction[]> {
     if (this.walletAdapter.signAllTransactions === undefined) {
-      throw new OperationNotSupportedByWalletAdapterError('signAllTransactions');
+      throw new OperationNotSupportedByWalletAdapterError(
+        'signAllTransactions'
+      );
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
@@ -65,6 +74,8 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
 
     // We accept a connection to match the wallet signature, but it is not used.
     // We use the RpcDriver to send the transaction to keep the single point of failure.
-    return this.metaplex.rpc().sendTransaction(transaction, signers, sendOptions);
+    return this.metaplex
+      .rpc()
+      .sendTransaction(transaction, signers, sendOptions);
   }
 }

@@ -11,7 +11,11 @@ test('cluster: it can be resolved from the connection', async (t: Test) => {
   assertCluster(t, clusterApiUrl('mainnet-beta'), 'mainnet-beta');
   assertCluster(t, 'https://api.mainnet-beta.solana.com', 'mainnet-beta');
   assertCluster(t, 'https://api.mainnet-beta.solana.com/', 'mainnet-beta');
-  assertCluster(t, 'https://api.mainnet-beta.solana.com?foo=bar', 'mainnet-beta');
+  assertCluster(
+    t,
+    'https://api.mainnet-beta.solana.com?foo=bar',
+    'mainnet-beta'
+  );
   assertCluster(t, 'http://api.mainnet-beta.solana.com', 'mainnet-beta');
   assertCluster(t, 'http://api.mainnet-beta.solana.com/', 'mainnet-beta');
   assertCluster(t, 'https://ssc-dao.genesysgo.net', 'mainnet-beta');
@@ -24,7 +28,11 @@ test('cluster: it can be resolved from the connection', async (t: Test) => {
   assertCluster(t, 'https://api.devnet.solana.com?foo=bar', 'devnet');
   assertCluster(t, 'http://api.devnet.solana.com', 'devnet');
   assertCluster(t, 'http://api.devnet.solana.com/', 'devnet');
-  assertCluster(t, 'https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899', 'devnet');
+  assertCluster(
+    t,
+    'https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899',
+    'devnet'
+  );
   assertCluster(t, 'http://devnet.solana.com/', 'custom');
 
   // It can resolve the testnet cluster.

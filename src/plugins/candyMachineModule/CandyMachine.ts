@@ -66,7 +66,8 @@ export class CandyMachine extends Model {
 
     this.endSettings = accountData.data.endSettings ?? undefined;
     this.hiddenSettings = accountData.data.hiddenSettings ?? undefined;
-    this.whitelistMintSettings = accountData.data.whitelistMintSettings ?? undefined;
+    this.whitelistMintSettings =
+      accountData.data.whitelistMintSettings ?? undefined;
     this.gatekeeper = accountData.data.gatekeeper ?? undefined;
 
     this.creators = accountData.data.creators;

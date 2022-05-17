@@ -1,4 +1,7 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from './MetaplexError';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+} from './MetaplexError';
 
 export class BundlrError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {

@@ -12,7 +12,9 @@ export abstract class ProgramDriver extends Driver {
   public abstract allForCurrentCluster(): Program[];
   public abstract get(nameOrAddress: string | PublicKey): Program;
 
-  public getGpaBuilder<T extends GpaBuilder>(nameOrAddress: string | PublicKey): T {
+  public getGpaBuilder<T extends GpaBuilder>(
+    nameOrAddress: string | PublicKey
+  ): T {
     const program = this.get(nameOrAddress);
 
     if (!program.gpaResolver) {

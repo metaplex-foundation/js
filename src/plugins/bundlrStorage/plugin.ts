@@ -9,6 +9,9 @@ export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
     metaplex.setStorageDriver(new BundlrStorageDriver(metaplex, options));
     metaplex
       .operations()
-      .register(planUploadMetadataOperation, planUploadMetadataUsingBundlrOperationHandler);
+      .register(
+        planUploadMetadataOperation,
+        planUploadMetadataUsingBundlrOperationHandler
+      );
   },
 });

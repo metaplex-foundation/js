@@ -4,7 +4,11 @@ type ArrayElement<ArrayType> = ArrayType extends readonly (infer ElementType)[]
   ? ElementType
   : never;
 type AsArray<T> = ArrayElement<T>[];
-type ArrayCallback<T, U> = (item: ArrayElement<T>, index: number, array: AsArray<T>) => U;
+type ArrayCallback<T, U> = (
+  item: ArrayElement<T>,
+  index: number,
+  array: AsArray<T>
+) => U;
 
 export class Postpone<T> {
   protected readonly value: () => Promise<T>;
@@ -41,11 +45,17 @@ export class Postpone<T> {
     return this.tap((v) => console.log(v));
   }
 
-  map<U>(this: Postpone<AsArray<T>>, callback: ArrayCallback<T, U>): Postpone<U[]> {
+  map<U>(
+    this: Postpone<AsArray<T>>,
+    callback: ArrayCallback<T, U>
+  ): Postpone<U[]> {
     return this.pipe((t) => t.map(callback));
   }
 
-  flatMap<U>(this: Postpone<AsArray<T>>, callback: ArrayCallback<T, U[]>): Postpone<U[]> {
+  flatMap<U>(
+    this: Postpone<AsArray<T>>,
+    callback: ArrayCallback<T, U[]>
+  ): Postpone<U[]> {
     return this.pipe((t) => t.flatMap(callback));
   }
 

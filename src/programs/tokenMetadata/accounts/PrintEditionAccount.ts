@@ -1,7 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Edition, Key } from '@metaplex-foundation/mpl-token-metadata';
-import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import {
+  BaseAccount,
+  Pda,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/types';
 import { OriginalEditionAccount } from './OriginalEditionAccount';
 
 export class PrintEditionAccount extends BaseAccount<Edition> {

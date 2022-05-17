@@ -15,11 +15,15 @@ export class GuestIdentityDriver extends IdentityDriver {
     throw new OperationUnauthorizedForGuestsError('signMessage');
   }
 
-  public async signTransaction(_transaction: Transaction): Promise<Transaction> {
+  public async signTransaction(
+    _transaction: Transaction
+  ): Promise<Transaction> {
     throw new OperationUnauthorizedForGuestsError('signTransaction');
   }
 
-  public async signAllTransactions(_transactions: Transaction[]): Promise<Transaction[]> {
+  public async signAllTransactions(
+    _transactions: Transaction[]
+  ): Promise<Transaction[]> {
     throw new OperationUnauthorizedForGuestsError('signAllTransactions');
   }
 }

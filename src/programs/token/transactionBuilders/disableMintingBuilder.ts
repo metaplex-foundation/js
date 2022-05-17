@@ -12,7 +12,9 @@ export interface DisableMintingBuilderParams {
   instructionKey?: string;
 }
 
-export const disableMintingBuilder = (params: DisableMintingBuilderParams): TransactionBuilder => {
+export const disableMintingBuilder = (
+  params: DisableMintingBuilderParams
+): TransactionBuilder => {
   const {
     mint,
     mintAuthority,

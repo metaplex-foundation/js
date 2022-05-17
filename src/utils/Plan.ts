@@ -1,7 +1,12 @@
 import type EventEmitter from 'eventemitter3';
 import EventEmitterPackage from 'eventemitter3';
 
-export type StepStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export type StepStatus =
+  | 'pending'
+  | 'running'
+  | 'successful'
+  | 'failed'
+  | 'canceled';
 
 export interface Step {
   name: string;
@@ -11,7 +16,10 @@ export interface Step {
   onError?: (error: unknown) => void;
 }
 
-export type InputStepHandler<From, To> = (state: From, plan: Plan<any, any>) => Promise<To>;
+export type InputStepHandler<From, To> = (
+  state: From,
+  plan: Plan<any, any>
+) => Promise<To>;
 
 export type InputStepOptions = Partial<Omit<Step, 'name' | 'status'>>;
 
@@ -33,7 +41,8 @@ export class Plan<I, O> {
   private constructor(plan: InputPlan<I, O>) {
     this.promise = plan.promise;
     this.steps = plan.steps ?? [];
-    this.eventEmitter = plan.eventEmitter ?? new EventEmitterPackage.EventEmitter();
+    this.eventEmitter =
+      plan.eventEmitter ?? new EventEmitterPackage.EventEmitter();
   }
 
   public static make<T = undefined>(): Plan<T, T> {
@@ -53,7 +62,11 @@ export class Plan<I, O> {
     stepHandler?: InputStepHandler<O, T>,
     stepOptions?: InputStepOptions
   ): Plan<I, T> {
-    const { newStep, handler } = Plan.parseInputStep(stepOrName, stepHandler, stepOptions);
+    const { newStep, handler } = Plan.parseInputStep(
+      stepOrName,
+      stepHandler,
+      stepOptions
+    );
 
     const promise = async (initialState: I, plan: Plan<any, any>) => {
       let state: O;
@@ -85,14 +98,25 @@ export class Plan<I, O> {
     stepHandler?: InputStepHandler<T, I>,
     stepOptions?: InputStepOptions
   ): Plan<T, O> {
-    const { newStep, handler } = Plan.parseInputStep(stepOrName, stepHandler, stepOptions);
+    const { newStep, handler } = Plan.parseInputStep(
+      stepOrName,
+      stepHandler,
+      stepOptions
+    );
 
     const promise = async (newInitialState: T, plan: Plan<any, any>) => {
       let initialState: I;
       try {
-        initialState = await Plan.processStep(plan, newInitialState, newStep, handler);
+        initialState = await Plan.processStep(
+          plan,
+          newInitialState,
+          newStep,
+          handler
+        );
       } catch (error) {
-        this.steps.forEach((step) => Plan.changeStepStatus(plan, step, 'canceled'));
+        this.steps.forEach((step) =>
+          Plan.changeStepStatus(plan, step, 'canceled')
+        );
         throw error;
       }
 
@@ -197,7 +221,11 @@ export class Plan<I, O> {
     plan.eventEmitter.emit('change', step, plan);
   }
 
-  private static changeStepStatus(plan: Plan<any, any>, step: Step, newStatus: StepStatus): void {
+  private static changeStepStatus(
+    plan: Plan<any, any>,
+    step: Step,
+    newStatus: StepStatus
+  ): void {
     step.status = newStatus;
     this.notifyChange(plan, step);
   }

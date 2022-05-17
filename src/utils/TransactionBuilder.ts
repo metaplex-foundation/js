@@ -30,7 +30,9 @@ export class TransactionBuilder {
     return new TransactionBuilder(transactionOptions);
   }
 
-  prepend(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+  prepend(
+    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+  ): TransactionBuilder {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
     );
@@ -39,7 +41,9 @@ export class TransactionBuilder {
     return this;
   }
 
-  append(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+  append(
+    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+  ): TransactionBuilder {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
     );
@@ -48,11 +52,16 @@ export class TransactionBuilder {
     return this;
   }
 
-  add(...txs: (TransactionBuilderRecord | TransactionBuilder)[]): TransactionBuilder {
+  add(
+    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+  ): TransactionBuilder {
     return this.append(...txs);
   }
 
-  splitUsingKey(key: string, include: boolean = true): [TransactionBuilder, TransactionBuilder] {
+  splitUsingKey(
+    key: string,
+    include: boolean = true
+  ): [TransactionBuilder, TransactionBuilder] {
     const firstBuilder = new TransactionBuilder(this.transactionOptions);
     const secondBuilder = new TransactionBuilder(this.transactionOptions);
     let keyPosition = this.records.findIndex((record) => record.key === key);
@@ -91,7 +100,9 @@ export class TransactionBuilder {
     return [...feePayer, ...signers];
   }
 
-  setTransactionOptions(transactionOptions: TransactionCtorFields): TransactionBuilder {
+  setTransactionOptions(
+    transactionOptions: TransactionCtorFields
+  ): TransactionBuilder {
     this.transactionOptions = transactionOptions;
 
     return this;
@@ -111,11 +122,17 @@ export class TransactionBuilder {
     return this.feePayer?.publicKey;
   }
 
-  when(condition: boolean, callback: (tx: TransactionBuilder) => TransactionBuilder) {
+  when(
+    condition: boolean,
+    callback: (tx: TransactionBuilder) => TransactionBuilder
+  ) {
     return condition ? callback(this) : this;
   }
 
-  unless(condition: boolean, callback: (tx: TransactionBuilder) => TransactionBuilder) {
+  unless(
+    condition: boolean,
+    callback: (tx: TransactionBuilder) => TransactionBuilder
+  ) {
     return this.when(!condition, callback);
   }
 

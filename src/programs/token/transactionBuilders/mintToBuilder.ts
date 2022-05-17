@@ -13,7 +13,9 @@ export interface MintToBuilderParams {
   instructionKey?: string;
 }
 
-export const mintToBuilder = (params: MintToBuilderParams): TransactionBuilder => {
+export const mintToBuilder = (
+  params: MintToBuilderParams
+): TransactionBuilder => {
   const {
     mint,
     destination,

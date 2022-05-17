@@ -1,7 +1,16 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { MasterEditionV1, MasterEditionV2, Edition } from '@metaplex-foundation/mpl-token-metadata';
-import { BaseAccount, Pda, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
+import {
+  MasterEditionV1,
+  MasterEditionV2,
+  Edition,
+} from '@metaplex-foundation/mpl-token-metadata';
+import {
+  BaseAccount,
+  Pda,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/types';
 import { UnexpectedAccountError } from '@/errors';
 import { OriginalEditionAccount } from './OriginalEditionAccount';
 import { PrintEditionAccount } from './PrintEditionAccount';
@@ -14,7 +23,10 @@ export class OriginalOrPrintEditionAccount extends BaseAccount<
   }
 
   static recognizes(buffer: Buffer): boolean {
-    return OriginalEditionAccount.recognizes(buffer) || PrintEditionAccount.recognizes(buffer);
+    return (
+      OriginalEditionAccount.recognizes(buffer) ||
+      PrintEditionAccount.recognizes(buffer)
+    );
   }
 
   static from(unparsedAccount: UnparsedAccount) {

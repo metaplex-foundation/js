@@ -1,5 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
-import { createSetAuthorityInstruction, TOKEN_PROGRAM_ID, AuthorityType } from '@solana/spl-token';
+import {
+  createSetAuthorityInstruction,
+  TOKEN_PROGRAM_ID,
+  AuthorityType,
+} from '@solana/spl-token';
 import { Signer, KeypairSigner } from '@/types';
 import { TransactionBuilder } from '@/utils';
 
@@ -13,7 +17,9 @@ export interface SetAuthorityBuilderParams {
   instructionKey?: string;
 }
 
-export const setAuthorityBuilder = (params: SetAuthorityBuilderParams): TransactionBuilder => {
+export const setAuthorityBuilder = (
+  params: SetAuthorityBuilderParams
+): TransactionBuilder => {
   const {
     mint,
     currentAuthority,

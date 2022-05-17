@@ -27,7 +27,11 @@ export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
 export const metaplex = async (options: MetaplexTestOptions = {}) => {
   const wallet = Keypair.generate();
   const mx = metaplexGuest(options).use(keypairIdentity(wallet));
-  await amman.airdrop(mx.connection, wallet.publicKey, options.solsToAirdrop ?? 100);
+  await amman.airdrop(
+    mx.connection,
+    wallet.publicKey,
+    options.solsToAirdrop ?? 100
+  );
 
   return mx;
 };

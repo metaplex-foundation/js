@@ -17,7 +17,9 @@ export interface CreateMintBuilderParams {
   initializeMintInstructionKey?: string;
 }
 
-export const createMintBuilder = (params: CreateMintBuilderParams): TransactionBuilder => {
+export const createMintBuilder = (
+  params: CreateMintBuilderParams
+): TransactionBuilder => {
   const {
     lamports,
     decimals,

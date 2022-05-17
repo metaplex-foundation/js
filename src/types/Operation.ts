@@ -1,9 +1,15 @@
 import { Metaplex } from '@/Metaplex';
 import { DisposableScope } from '@/utils';
 
-export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown> ? N : never;
-export type InputOfOperation<T> = T extends Operation<string, infer I, unknown> ? I : never;
-export type OutputOfOperation<T> = T extends Operation<string, unknown, infer O> ? O : never;
+export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown>
+  ? N
+  : never;
+export type InputOfOperation<T> = T extends Operation<string, infer I, unknown>
+  ? I
+  : never;
+export type OutputOfOperation<T> = T extends Operation<string, unknown, infer O>
+  ? O
+  : never;
 
 export type Operation<K extends string, I, O> = {
   key: K;
@@ -29,7 +35,11 @@ export type OperationHandler<
   I = InputOfOperation<T>,
   O = OutputOfOperation<T>
 > = {
-  handle: (operation: T, metaplex: Metaplex, scope: DisposableScope) => O | Promise<O>;
+  handle: (
+    operation: T,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => O | Promise<O>;
 };
 
 export const useOperation = <

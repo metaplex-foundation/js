@@ -28,6 +28,10 @@ test('rpc-driver: it parses program errors when sending transactions', async (t:
     await promise;
   } catch (error) {
     t.ok(error instanceof ParsedProgramError);
-    t.ok((error as ParsedProgramError).message.includes('TokenMetadataProgram > Name too long'));
+    t.ok(
+      (error as ParsedProgramError).message.includes(
+        'TokenMetadataProgram > Name too long'
+      )
+    );
   }
 });

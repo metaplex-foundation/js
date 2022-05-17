@@ -14,12 +14,15 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
   let firstUuid;
   {
     // Given I create one candy machine with a particular authority
-    const { authorityAddress, candyMachine } = await createCandyMachineWithMinimalConfig(mx);
+    const { authorityAddress, candyMachine } =
+      await createCandyMachineWithMinimalConfig(mx);
 
     firstUuid = candyMachine.uuid;
 
     // When I get the candy machines for the authority and uuid
-    const cm = await mx.candyMachines().findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
+    const cm = await mx
+      .candyMachines()
+      .findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
 
     // It returns that candy machine
     t.ok(cm != null, 'returns candy machine');
@@ -35,7 +38,9 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
       await createCandyMachineWithMinimalConfig(mx);
 
     // When I get the candy machines for the authority and uuid
-    const cm = await mx.candyMachines().findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
+    const cm = await mx
+      .candyMachines()
+      .findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
 
     // It returns the other candy machine
     t.ok(cm != null, 'returns candy machine');
@@ -46,7 +51,9 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
     });
 
     // When I then set the uuid of the other candy machine to equal to the first
-    t.comment('Updating second candy machine to have the same uuid as the first');
+    t.comment(
+      'Updating second candy machine to have the same uuid as the first'
+    );
     await mx.candyMachines().update({
       candyMachineAddress: cm.candyMachineAddress,
       walletAddress,
@@ -57,7 +64,9 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
     // And I get the candy machines for the authority for previuous uuid again
     try {
       t.comment('Getting cany machine for authority and second uuid');
-      await mx.candyMachines().findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
+      await mx
+        .candyMachines()
+        .findByAuthorityAndUuid(authorityAddress, candyMachine.uuid);
       t.fail('should have thrown');
     } catch (err: any) {
       // Then it does not find that candy machine
@@ -70,7 +79,9 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
     // And when I get the candy machines for the authority for first uuid again
     try {
       t.comment('Getting cany machine for authority and first uuid');
-      await mx.candyMachines().findByAuthorityAndUuid(authorityAddress, firstUuid);
+      await mx
+        .candyMachines()
+        .findByAuthorityAndUuid(authorityAddress, firstUuid);
       t.fail('should have thrown');
     } catch (err: any) {
       // Then it finds two candy machines and throws

@@ -8,7 +8,9 @@ export class CandyMachineAccount extends BaseAccount<CandyMachine> {
   }
 
   static from(unparsedAccount: UnparsedAccount) {
-    return new CandyMachineAccount(CandyMachineAccount.parse(unparsedAccount, CandyMachine));
+    return new CandyMachineAccount(
+      CandyMachineAccount.parse(unparsedAccount, CandyMachine)
+    );
   }
 
   static fromMaybe(maybe: UnparsedMaybeAccount) {

@@ -55,7 +55,9 @@ export class MetaplexFile {
     return new this(jsonString, fileName, options);
   }
 
-  protected static parseContent(content: string | Buffer | Uint8Array | ArrayBuffer) {
+  protected static parseContent(
+    content: string | Buffer | Uint8Array | ArrayBuffer
+  ) {
     if (content instanceof ArrayBuffer) {
       return Buffer.from(new Uint8Array(content));
     }

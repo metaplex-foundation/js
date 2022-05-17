@@ -1,5 +1,10 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { Collection, Creator, DataV2, Uses } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  Collection,
+  Creator,
+  DataV2,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
@@ -8,7 +13,11 @@ import { TransactionBuilder } from '@/utils';
 
 const Key = 'UpdateNftOperation' as const;
 export const updateNftOperation = useOperation<UpdateNftOperation>(Key);
-export type UpdateNftOperation = Operation<typeof Key, UpdateNftInput, UpdateNftOutput>;
+export type UpdateNftOperation = Operation<
+  typeof Key,
+  UpdateNftInput,
+  UpdateNftOutput
+>;
 
 export interface UpdateNftInput {
   nft: Nft;
@@ -37,7 +46,10 @@ export interface UpdateNftOutput {
 }
 
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
-  handle: async (operation: UpdateNftOperation, metaplex: Metaplex): Promise<UpdateNftOutput> => {
+  handle: async (
+    operation: UpdateNftOperation,
+    metaplex: Metaplex
+  ): Promise<UpdateNftOutput> => {
     const {
       nft,
       newUpdateAuthority = nft.updateAuthority,
@@ -75,7 +87,8 @@ const resolveData = (input: UpdateNftInput): DataV2 => {
     name: input.name ?? nft.name,
     symbol: input.symbol ?? nft.symbol,
     uri: input.uri ?? nft.uri,
-    sellerFeeBasisPoints: input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+    sellerFeeBasisPoints:
+      input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
     creators: input.creators ?? nft.creators,
     collection: input.collection ?? nft.collection,
     uses: input.uses ?? nft.uses,
@@ -99,7 +112,9 @@ export interface UpdateNftBuilderParams {
   instructionKey?: string;
 }
 
-export const updateNftBuilder = (params: UpdateNftBuilderParams): TransactionBuilder => {
+export const updateNftBuilder = (
+  params: UpdateNftBuilderParams
+): TransactionBuilder => {
   const {
     data,
     isMutable,

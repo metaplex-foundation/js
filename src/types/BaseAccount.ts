@@ -4,7 +4,10 @@ import { UnexpectedAccountError } from '@/errors';
 
 type AccountDataConstructor<T> = {
   name: string;
-  fromAccountInfo(accountInfo: AccountInfo<Buffer>, offset?: number): [T, number];
+  fromAccountInfo(
+    accountInfo: AccountInfo<Buffer>,
+    offset?: number
+  ): [T, number];
 };
 
 export type Account<T> = AccountInfo<T> & {
@@ -44,7 +47,11 @@ export abstract class BaseAccount<T> implements Account<T> {
       const data: T = accountData.fromAccountInfo(unparsedAccount)[0];
       return { ...unparsedAccount, data };
     } catch (error) {
-      throw new UnexpectedAccountError(unparsedAccount.publicKey, accountData.name, error as Error);
+      throw new UnexpectedAccountError(
+        unparsedAccount.publicKey,
+        accountData.name,
+        error as Error
+      );
     }
   }
 

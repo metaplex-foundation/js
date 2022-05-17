@@ -11,7 +11,9 @@ export interface CreateAccountBuilderParams {
   instructionKey?: string;
 }
 
-export const createAccountBuilder = (params: CreateAccountBuilderParams): TransactionBuilder => {
+export const createAccountBuilder = (
+  params: CreateAccountBuilderParams
+): TransactionBuilder => {
   const {
     space,
     lamports,

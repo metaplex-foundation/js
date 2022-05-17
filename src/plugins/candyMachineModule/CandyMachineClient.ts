@@ -8,7 +8,10 @@ import {
   NoCandyMachineFoundForAuthorityMatchesUuidError,
   UpdatedCandyMachineNotFoundError,
 } from '@/errors';
-import { CandyMachineConfigWithoutStorage, candyMachineDataFromConfig } from './config';
+import {
+  CandyMachineConfigWithoutStorage,
+  candyMachineDataFromConfig,
+} from './config';
 import {
   CreateCandyMachineInput,
   createCandyMachineOperation,
@@ -29,8 +32,8 @@ export type CandyMachineInitFromConfigOpts = {
   authorityAddress?: PublicKey;
   confirmOptions?: ConfirmOptions;
 };
-export type UpdateCandyMachineParams = UpdateCandyMachineInputWithoutCandyMachineData &
-  Partial<CandyMachineData>;
+export type UpdateCandyMachineParams =
+  UpdateCandyMachineInputWithoutCandyMachineData & Partial<CandyMachineData>;
 
 export class CandyMachineClient extends ModuleClient {
   // -----------------
@@ -59,8 +62,13 @@ export class CandyMachineClient extends ModuleClient {
     );
   }
 
-  async findByAuthorityAndUuid(authorityAddress: PublicKey, uuid: string): Promise<CandyMachine> {
-    const candyMachinesForAuthority = await this.findAllByAuthority(authorityAddress);
+  async findByAuthorityAndUuid(
+    authorityAddress: PublicKey,
+    uuid: string
+  ): Promise<CandyMachine> {
+    const candyMachinesForAuthority = await this.findAllByAuthority(
+      authorityAddress
+    );
     if (candyMachinesForAuthority.length === 0) {
       throw new CandyMachinesNotFoundByAuthorityError(authorityAddress);
     }
@@ -71,7 +79,11 @@ export class CandyMachineClient extends ModuleClient {
       const addresses = candyMachinesForAuthority.map(
         (candyMachine) => candyMachine.candyMachineAccount.publicKey
       );
-      throw new NoCandyMachineFoundForAuthorityMatchesUuidError(authorityAddress, uuid, addresses);
+      throw new NoCandyMachineFoundForAuthorityMatchesUuidError(
+        authorityAddress,
+        uuid,
+        addresses
+      );
     }
     if (matchingUUid.length > 1) {
       const addresses = matchingUUid.map(
@@ -95,9 +107,13 @@ export class CandyMachineClient extends ModuleClient {
     const operation = createCandyMachineOperation(input);
     const output = await this.metaplex.operations().execute(operation);
 
-    const candyMachine = await this.findByAddress(output.candyMachineSigner.publicKey);
+    const candyMachine = await this.findByAddress(
+      output.candyMachineSigner.publicKey
+    );
     if (candyMachine === null) {
-      throw new CreatedCandyMachineNotFoundError(output.candyMachineSigner.publicKey);
+      throw new CreatedCandyMachineNotFoundError(
+        output.candyMachineSigner.publicKey
+      );
     }
 
     return { candyMachine, ...output };
@@ -108,7 +124,10 @@ export class CandyMachineClient extends ModuleClient {
     opts: CandyMachineInitFromConfigOpts
   ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     const { candyMachineSigner = Keypair.generate() } = opts;
-    const candyMachineData = candyMachineDataFromConfig(config, candyMachineSigner.publicKey);
+    const candyMachineData = candyMachineDataFromConfig(
+      config,
+      candyMachineSigner.publicKey
+    );
     const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
     return this.create({
@@ -125,7 +144,9 @@ export class CandyMachineClient extends ModuleClient {
   async update(
     input: UpdateCandyMachineParams
   ): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
-    const currentCandyMachine = await this.findByAddress(input.candyMachineAddress);
+    const currentCandyMachine = await this.findByAddress(
+      input.candyMachineAddress
+    );
     if (currentCandyMachine === null) {
       throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
     }

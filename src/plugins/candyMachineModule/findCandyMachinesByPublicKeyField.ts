@@ -37,7 +37,8 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
       let candyMachineQuery;
       switch (type) {
         case 'authority':
-          candyMachineQuery = accounts.candyMachineAccountsForAuthority(publicKey);
+          candyMachineQuery =
+            accounts.candyMachineAccountsForAuthority(publicKey);
           break;
         case 'wallet':
           candyMachineQuery = accounts.candyMachineAccountsForWallet(publicKey);
@@ -47,6 +48,8 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
       }
 
       const candyMachineUnparseds = await candyMachineQuery.get();
-      return candyMachineUnparseds.map(CandyMachineAccount.from).map(CandyMachine.fromAccount);
+      return candyMachineUnparseds
+        .map(CandyMachineAccount.from)
+        .map(CandyMachine.fromAccount);
     },
   };

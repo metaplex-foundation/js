@@ -21,13 +21,22 @@ import {
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const op = metaplex.operations();
-    op.register(createCandyMachineOperation, createCandyMachineOperationHandler);
-    op.register(findCandyMachineByAdddressOperation, findCandyMachineByAdddressOperationHandler);
+    op.register(
+      createCandyMachineOperation,
+      createCandyMachineOperationHandler
+    );
+    op.register(
+      findCandyMachineByAdddressOperation,
+      findCandyMachineByAdddressOperationHandler
+    );
     op.register(
       findCandyMachinesByPublicKeyFieldOperation,
       findCandyMachinesByPublicKeyFieldOnChainOperationHandler
     );
-    op.register(updateCandyMachineOperation, updateCandyMachineOperationHandler);
+    op.register(
+      updateCandyMachineOperation,
+      updateCandyMachineOperationHandler
+    );
 
     metaplex.candyMachines = function () {
       return new CandyMachineClient(this);

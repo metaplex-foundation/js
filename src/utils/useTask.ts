@@ -3,7 +3,12 @@ import EventEmitterPackage from 'eventemitter3';
 import { TaskIsAlreadyRunningError } from '@/errors';
 import { useDisposable, DisposableScope } from './useDisposable';
 
-export type TaskStatus = 'pending' | 'running' | 'successful' | 'failed' | 'canceled';
+export type TaskStatus =
+  | 'pending'
+  | 'running'
+  | 'successful'
+  | 'failed'
+  | 'canceled';
 export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
 export type TaskOptions = {
@@ -136,7 +141,9 @@ export const useTask = <T>(callback: TaskCallback<T>) => {
       return this;
     },
     onStatusChangeTo(status: TaskStatus, callback: () => unknown) {
-      return this.onStatusChange((newStatus) => (status === newStatus ? callback() : undefined));
+      return this.onStatusChange((newStatus) =>
+        status === newStatus ? callback() : undefined
+      );
     },
     onSuccess(callback: () => unknown) {
       return this.onStatusChangeTo('successful', callback);

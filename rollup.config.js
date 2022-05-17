@@ -27,7 +27,15 @@ const dependenciesToExcludeInBundle = [];
 const dependenciesToDedupes = [];
 
 const createConfig = (build) => {
-  const { file, dir, format, name, browser = false, bundle = false, minified = false } = build;
+  const {
+    file,
+    dir,
+    format,
+    name,
+    browser = false,
+    bundle = false,
+    minified = false,
+  } = build;
 
   const external = allDependencies.filter((dependency) => {
     return !bundle || dependenciesToExcludeInBundle.includes(dependency);
@@ -79,7 +87,8 @@ const createConfig = (build) => {
     onwarn: function (warning, rollupWarn) {
       rollupWarn(warning);
       if (!bundle && warning.code === 'CIRCULAR_DEPENDENCY') {
-        const msg = 'Please eliminate the circular dependencies listed above and retry the build';
+        const msg =
+          'Please eliminate the circular dependencies listed above and retry the build';
         throw new Error(msg);
       }
     },

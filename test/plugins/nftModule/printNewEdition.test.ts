@@ -92,7 +92,12 @@ test('it cannot print when the maxSupply is zero', async (t: Test) => {
   }
 });
 
-const isPrintOfOriginal = (t: Test, print: Nft, original: Nft, edition: number) => {
+const isPrintOfOriginal = (
+  t: Test,
+  print: Nft,
+  original: Nft,
+  edition: number
+) => {
   spok(t, print, {
     $topic: 'print NFT #' + edition,
     printEdition: {

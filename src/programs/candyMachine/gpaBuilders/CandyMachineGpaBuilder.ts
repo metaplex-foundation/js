@@ -1,10 +1,21 @@
 import { GpaBuilder } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 
-type AccountDiscriminator = [number, number, number, number, number, number, number, number];
+type AccountDiscriminator = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+];
 // TODO(thlorenz): copied from candy machine SDK
 // SDK should either provide a GPA builder or expose this discriminator
-const candyMachineDiscriminator: AccountDiscriminator = [51, 173, 177, 113, 25, 241, 109, 189];
+const candyMachineDiscriminator: AccountDiscriminator = [
+  51, 173, 177, 113, 25, 241, 109, 189,
+];
 
 const AUTHORITY = candyMachineDiscriminator.length;
 const WALLET = AUTHORITY + PublicKey.default.toBytes().byteLength;

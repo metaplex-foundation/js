@@ -59,7 +59,11 @@ test('it can fetch all NFTs from other creator positions', async (t: Test) => {
   t.true(nftsB[0].equals(nftB));
 });
 
-const createNftWithFirstCreator = (mx: Metaplex, name: string, creator: PublicKey) => {
+const createNftWithFirstCreator = (
+  mx: Metaplex,
+  name: string,
+  creator: PublicKey
+) => {
   return createNft(
     mx,
     { name },
@@ -72,7 +76,11 @@ const createNftWithFirstCreator = (mx: Metaplex, name: string, creator: PublicKe
   );
 };
 
-const createNftWithSecondCreator = (mx: Metaplex, name: string, creator: PublicKey) => {
+const createNftWithSecondCreator = (
+  mx: Metaplex,
+  name: string,
+  creator: PublicKey
+) => {
   return createNft(
     mx,
     { name },
