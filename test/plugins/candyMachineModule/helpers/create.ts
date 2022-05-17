@@ -1,4 +1,3 @@
-import { Keypair } from '@solana/web3.js';
 import { amman, SKIP_PREFLIGHT } from '../../../helpers';
 import { CandyMachineConfigWithoutStorage } from '@/plugins/candyMachineModule/config';
 import { Metaplex } from '@/Metaplex';
@@ -23,11 +22,8 @@ export async function createCandyMachineWithMinimalConfig(mx: Metaplex) {
     isMutable: false,
   };
 
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...config, ...opts, payer });
+  const opts = { confirmOptions: SKIP_PREFLIGHT };
+  await amman.addr.addLabels({ ...config, payer });
 
   const cm = mx.candyMachines();
   const {
@@ -38,9 +34,9 @@ export async function createCandyMachineWithMinimalConfig(mx: Metaplex) {
     candyMachineSigner,
     authorityAddress,
     walletAddress,
-  } = await cm.createCandyMachineFromConfig(config, opts);
-
-  await amman.addr.addLabel('create: candy-machine', transactionId);
+  } = await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
 
   return {
     cm,

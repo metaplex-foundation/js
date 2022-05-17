@@ -18,7 +18,7 @@ export interface MetaplexTestOptions {
 
 export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
   const connection = new Connection(options.rpcEndpoint ?? LOCALHOST, {
-    commitment: options.commitment ?? 'singleGossip',
+    commitment: options.commitment ?? 'confirmed',
   });
 
   return Metaplex.make(connection).use(guestIdentity()).use(mockStorage());

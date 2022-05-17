@@ -46,11 +46,8 @@ async function init() {
     isMutable: false,
   };
 
-  const opts = {
-    candyMachine: Keypair.generate(),
-    confirmOptions: SKIP_PREFLIGHT,
-  };
-  await amman.addr.addLabels({ ...minimalConfig, ...opts, payer });
+  const opts = { confirmOptions: SKIP_PREFLIGHT };
+  await amman.addr.addLabels({ ...minimalConfig, payer });
 
   const cm = mx.candyMachines();
   return { cm, payer, solTreasuryAccount, minimalConfig, opts };
@@ -116,15 +113,17 @@ test('candyMachine: init with minimal config', async (t) => {
   const config = minimalConfig;
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
+    candyMachineSigner,
     tokenMintAddress: null,
   });
   assertCreators(
@@ -154,13 +153,19 @@ test('candyMachine: init with config specifying creators', async (t) => {
   const config = { ...minimalConfig, creators };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
-  assertProperlyInitialized(t, candyMachine, { ...rest, ...config, tokenMintAddress: null });
+  assertProperlyInitialized(t, candyMachine, {
+    ...rest,
+    ...config,
+    candyMachineSigner,
+    tokenMintAddress: null,
+  });
   assertCreators(t, candyMachine.creators, config.creators);
 });
 
@@ -177,15 +182,17 @@ test('candyMachine: init with end settings - amount', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
+    candyMachineSigner,
     tokenMintAddress: null,
   });
   spok(t, candyMachine.endSettings, {
@@ -205,15 +212,17 @@ test('candyMachine: init with end settings - date', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
+    candyMachineSigner,
     tokenMintAddress: null,
   });
   spok(t, candyMachine.endSettings, {
@@ -240,11 +249,7 @@ test('candyMachine: init with invalid hidden settings (hash too short)', async (
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(
-    t,
-    () => cm.createCandyMachineFromConfig(config, opts),
-    /len.+10.+should match len.+32/i
-  );
+  await assertThrows(t, () => cm.createFromConfig(config, opts), /len.+10.+should match len.+32/i);
 });
 
 test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
@@ -263,8 +268,10 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
   };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
+  const { transactionId, confirmResponse, candyMachine, ...rest } = await cm.createFromConfig(
+    config,
+    opts
+  );
   await amman.addr.addLabel('initCandyMachine', transactionId);
 
   // Then we created the Candy Machine as configured
@@ -291,15 +298,17 @@ test('candyMachine: with gatekeeper settings', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
+    candyMachineSigner,
     tokenMintAddress: null,
   });
   spok(t, candyMachine.gatekeeper as GatekeeperConfig, {
@@ -319,11 +328,7 @@ test('candyMachine: with invalid gatekeeper settings (network not a public key)'
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(
-    t,
-    () => cm.createCandyMachineFromConfig(config, opts),
-    /not a valid PublicKey/i
-  );
+  await assertThrows(t, () => cm.createFromConfig(config, opts), /not a valid PublicKey/i);
 });
 
 // -----------------
@@ -346,15 +351,17 @@ test('candyMachine: with whitelistMint settings', async (t) => {
   };
 
   // When we create that Candy Machine
-  const { transactionId, confirmResponse, candyMachine, ...rest } =
-    await cm.createCandyMachineFromConfig(config, opts);
-  await amman.addr.addLabel('initCandyMachine', transactionId);
+  const { transactionId, confirmResponse, candyMachine, candyMachineSigner, ...rest } =
+    await cm.createFromConfig(config, opts);
+  await amman.addr.addLabel('tx: create candy-machine', transactionId);
+  await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
 
   // Then we created the Candy Machine as configured
   assertConfirmedWithoutError(t, cusper, confirmResponse);
   assertProperlyInitialized(t, candyMachine, {
     ...rest,
     ...config,
+    candyMachineSigner,
     tokenMintAddress: null,
   });
   spok(t, candyMachine.whitelistMintSettings as WhitelistMintSettings, {
@@ -381,9 +388,5 @@ test('candyMachine: with invalid whitemint settings (mint not a public key)', as
   };
 
   // When we create that Candy Machine it fails
-  await assertThrows(
-    t,
-    () => cm.createCandyMachineFromConfig(config, opts),
-    /not a valid PublicKey/i
-  );
+  await assertThrows(t, () => cm.createFromConfig(config, opts), /not a valid PublicKey/i);
 });

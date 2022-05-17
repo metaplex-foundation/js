@@ -18,8 +18,11 @@ export function spokSamePubkey(
   return same;
 }
 
-export function spokSameBignum(a: BN | bignum | number): Specification<bignum> {
-  const same = (b?: BN | bignum | number) => b != null && new BN(a).eq(new BN(b));
+export function spokSameBignum(a: BN | bignum | number | null | undefined): Specification<bignum> {
+  const same = (b?: BN | bignum | number) => {
+    if (a == null) return b == null;
+    return b != null && new BN(a).eq(new BN(b));
+  };
 
   same.$spec = `spokSameBignum(${a})`;
   same.$description = `${a} equal`;
