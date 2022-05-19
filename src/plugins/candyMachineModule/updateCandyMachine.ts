@@ -67,7 +67,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
             authority: authoritySigner,
             data: candyMachineData,
           }),
-          [authoritySigner],
+          undefined,
           confirmOptions
         );
 
