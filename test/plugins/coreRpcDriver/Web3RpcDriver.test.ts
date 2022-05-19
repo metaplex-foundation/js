@@ -26,6 +26,7 @@ test('rpc-driver: it parses program errors when sending transactions', async (t:
   // Then we receive a parsed program error.
   try {
     await promise;
+    t.fail('Expected a ParsedProgramError');
   } catch (error) {
     t.ok(error instanceof ParsedProgramError);
     t.ok(
