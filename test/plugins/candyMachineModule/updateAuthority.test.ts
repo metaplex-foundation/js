@@ -7,6 +7,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createCandyMachineWithMinimalConfig } from './helpers';
+import { CandyMachineAlreadyHasThisAuthorityError } from '../../../src';
 
 killStuckProcess();
 
@@ -47,29 +48,24 @@ test('update: candy machine authority to same authority', async (t) => {
   // Given I create one candy machine
   const mx = await metaplex();
   const cm = mx.candyMachines();
-  const tc = amman.transactionChecker(mx.connection);
 
   const { candyMachineSigner, payerSigner, walletAddress } =
     await createCandyMachineWithMinimalConfig(mx);
 
   // When I update that candy machine's authority
-  const { transactionId } = await cm.updateAuthority({
-    authoritySigner: payerSigner,
-    candyMachineAddress: candyMachineSigner.publicKey,
-    walletAddress,
-    newAuthorityAddress: payerSigner.publicKey,
-  });
-  await amman.addr.addLabel(`tx: update-cm-authority`, transactionId);
-
-  // Then the transaction succeeds
-  await tc.assertSuccess(t, transactionId);
-
-  // And the candy machine authority stayed the same
-  const updatedMachine = await mx
-    .candyMachines()
-    .findByAddress(candyMachineSigner.publicKey);
-
-  spok(t, updatedMachine, {
-    authorityAddress: spokSamePubkey(payerSigner.publicKey),
-  });
+  try {
+    await cm.updateAuthority({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      walletAddress,
+      newAuthorityAddress: payerSigner.publicKey,
+    });
+    t.fail('should have thrown');
+  } catch (err: any) {
+    // Then the transaction doesn't run and an error is thrown instead
+    t.ok(
+      err instanceof CandyMachineAlreadyHasThisAuthorityError,
+      'throws CandyMachineAlreadyHasThisAuthorityError'
+    );
+  }
 });

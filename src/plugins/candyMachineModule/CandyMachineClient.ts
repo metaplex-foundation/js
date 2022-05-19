@@ -1,6 +1,7 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
 import {
+  CandyMachineAlreadyHasThisAuthorityError,
   CandyMachinesNotFoundByAuthorityError,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
@@ -154,7 +155,7 @@ export class CandyMachineClient extends ModuleClient {
     const currentCandyMachine = await this.findByAddress(
       input.candyMachineAddress
     );
-    if (currentCandyMachine === null) {
+    if (currentCandyMachine == null) {
       throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
     }
 
@@ -174,6 +175,21 @@ export class CandyMachineClient extends ModuleClient {
   async updateAuthority(
     input: UpdateCandyMachineAuthorityParams
   ): Promise<UpdateAuthorityOutput & { candyMachine: CandyMachine }> {
+    const currentCandyMachine = await this.findByAddress(
+      input.candyMachineAddress
+    );
+    if (currentCandyMachine == null) {
+      throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
+    }
+
+    if (
+      currentCandyMachine.authorityAddress.equals(input.newAuthorityAddress)
+    ) {
+      throw new CandyMachineAlreadyHasThisAuthorityError(
+        input.newAuthorityAddress
+      );
+    }
+
     const operation = updateAuthorityOperation(input);
     const output = await this.metaplex.operations().execute(operation);
 
