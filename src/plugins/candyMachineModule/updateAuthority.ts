@@ -1,41 +1,39 @@
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex } from '@/Metaplex';
+import { updateAuthorityBuilder } from '@/programs';
 import {
   ConfirmOptions,
   PublicKey,
   RpcResponseAndContext,
   SignatureResult,
 } from '@solana/web3.js';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { updateCandyMachineBuilder } from '@/programs';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
 // -----------------
-const Key = 'UpdateCandyMachineOperation' as const;
-export const updateCandyMachineOperation =
-  useOperation<UpdateCandyMachineOperation>(Key);
+const Key = 'UpdateAuthorityOperation' as const;
+export const updateAuthorityOperation =
+  useOperation<UpdateAuthorityOperation>(Key);
 
-export type UpdateCandyMachineOperation = Operation<
+export type UpdateAuthorityOperation = Operation<
   typeof Key,
-  UpdateCandyMachineInput,
-  UpdateCandyMachineOutput
+  UpdateAuthorityInput,
+  UpdateAuthorityOutput
 >;
 
-export type UpdateCandyMachineInputWithoutCandyMachineData = {
+export type UpdateAuthorityInput = {
   // Accounts
   candyMachineAddress: PublicKey;
   walletAddress: PublicKey;
   authoritySigner: Signer;
 
+  // Args
+  newAuthorityAddress: PublicKey;
+
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
-
-export type UpdateCandyMachineInput =
-  UpdateCandyMachineInputWithoutCandyMachineData & CandyMachineData;
-
-export type UpdateCandyMachineOutput = {
+export type UpdateAuthorityOutput = {
   // Transaction Result.
   transactionId: string;
   confirmResponse: RpcResponseAndContext<SignatureResult>;
@@ -44,30 +42,30 @@ export type UpdateCandyMachineOutput = {
 // -----------------
 // Handler
 // -----------------
-export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
+export const updateAuthorityOperationHandler: OperationHandler<UpdateAuthorityOperation> =
   {
     async handle(
-      operation: UpdateCandyMachineOperation,
+      operation: UpdateAuthorityOperation,
       metaplex: Metaplex
-    ): Promise<UpdateCandyMachineOutput> {
+    ): Promise<UpdateAuthorityOutput> {
       const {
         candyMachineAddress,
         walletAddress,
         authoritySigner,
         confirmOptions,
-        ...candyMachineData
+        newAuthorityAddress,
       } = operation.input;
 
       const { signature, confirmResponse } = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          updateCandyMachineBuilder({
+          updateAuthorityBuilder({
             candyMachine: candyMachineAddress,
             wallet: walletAddress,
             authority: authoritySigner,
-            data: candyMachineData,
+            newAuthority: newAuthorityAddress,
           }),
-          [authoritySigner],
+          undefined,
           confirmOptions
         );
 
