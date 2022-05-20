@@ -1,7 +1,14 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { ModuleClient, Signer, convertToPublickKey } from '@/types';
+import {
+  ModuleClient,
+  Signer,
+  convertToPublickKey,
+  MetaplexFile,
+} from '@/types';
 import {
   CandyMachineAlreadyHasThisAuthorityError,
+  CandyMachineCannotAddAmountError,
+  CandyMachineIsFullError,
   CandyMachinesNotFoundByAuthorityError,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
@@ -26,12 +33,18 @@ import {
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  CandyMachineData,
+  ConfigLine,
+  Creator,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   UpdateAuthorityInput,
   updateAuthorityOperation,
   UpdateAuthorityOutput,
 } from './updateAuthority';
+import { JsonMetadataFile, UploadMetadataInput } from '@/plugins/nftModule';
+import { AddConfigLinesInput, addConfigLinesOperation } from './addConfigLines';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
@@ -42,6 +55,33 @@ export type UpdateCandyMachineParams =
   UpdateCandyMachineInputWithoutCandyMachineData & Partial<CandyMachineData>;
 
 export type UpdateCandyMachineAuthorityParams = UpdateAuthorityInput;
+
+export type AddAssetsToCandyMachineParams = {
+  // Accounts
+  candyMachineAddress: PublicKey;
+  authoritySigner: Signer;
+
+  // Args
+  assets: ConfigLine[];
+
+  // Transaction Options.
+  confirmOptions?: ConfirmOptions;
+};
+export type UploadOneAssetToCandyMachineParams = UploadMetadataInput & {
+  // Accounts
+  candyMachineAddress: PublicKey;
+  authoritySigner: Signer;
+
+  // NFT
+  properties?: {
+    creators?: Creator[];
+    files?: JsonMetadataFile<MetaplexFile | string>[];
+    [key: string]: unknown;
+  };
+
+  // Transaction Options.
+  confirmOptions?: ConfirmOptions;
+};
 
 export class CandyMachineClient extends ModuleClient {
   // -----------------
@@ -199,5 +239,66 @@ export class CandyMachineClient extends ModuleClient {
     }
 
     return { candyMachine, ...output };
+  }
+
+  // -----------------
+  // Add and Upload Assets
+  // -----------------
+  async addAssets(params: AddAssetsToCandyMachineParams) {
+    const currentCandyMachine = await this.findByAddress(
+      params.candyMachineAddress
+    );
+    if (currentCandyMachine == null) {
+      throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
+    }
+
+    const index = currentCandyMachine.assetsCount;
+
+    assertNotFull(currentCandyMachine, index);
+    assertCanAdd(currentCandyMachine, index, params.assets.length);
+
+    const addConfigLinesInput: AddConfigLinesInput = {
+      candyMachineAddress: params.candyMachineAddress,
+      authoritySigner: params.authoritySigner,
+      index,
+      configLines: params.assets,
+    };
+
+    const addConfigLinesOutput = await this.metaplex
+      .operations()
+      .execute(addConfigLinesOperation(addConfigLinesInput));
+
+    const candyMachine = await this.findByAddress(params.candyMachineAddress);
+    if (currentCandyMachine == null) {
+      throw new UpdatedCandyMachineNotFoundError(params.candyMachineAddress);
+    }
+
+    return {
+      candyMachine,
+      ...addConfigLinesOutput,
+    };
+  }
+}
+
+// -----------------
+// Helpers
+// -----------------
+function assertNotFull(candyMachine: CandyMachine, index: number) {
+  if (candyMachine.isFull) {
+    throw new CandyMachineIsFullError(index, candyMachine.maxSupply);
+  }
+}
+
+function assertCanAdd(
+  candyMachine: CandyMachine,
+  index: number,
+  amount: number
+) {
+  if (index + amount > candyMachine.maxSupply) {
+    throw new CandyMachineCannotAddAmountError(
+      index,
+      amount,
+      candyMachine.maxSupply
+    );
   }
 }

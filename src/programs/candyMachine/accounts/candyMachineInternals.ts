@@ -1,4 +1,8 @@
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  CandyMachineData,
+  ConfigLine,
+  configLineBeet,
+} from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 
 // NOTE: The below is adapted from the Rust program, thus duplicating business
@@ -65,4 +69,18 @@ export function getConfigLinesCount(rawData: Buffer) {
   return rawData
     .slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4)
     .readUInt32LE();
+}
+
+export function getConfigLines(rawData: Buffer): ConfigLine[] {
+  const configLinesStart = CONFIG_ARRAY_START + 4;
+  const lines = [];
+  const count = getConfigLinesCount(rawData);
+  for (let i = 0; i < count; i++) {
+    const [line] = configLineBeet.deserialize(
+      rawData,
+      configLinesStart + i * CONFIG_LINE_SIZE
+    );
+    lines.push(line);
+  }
+  return lines;
 }

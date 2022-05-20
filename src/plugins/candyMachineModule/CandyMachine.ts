@@ -2,6 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import {
   CandyMachineData,
+  ConfigLine,
   Creator,
   EndSettings,
   GatekeeperConfig,
@@ -85,8 +86,16 @@ export class CandyMachine extends Model {
     this.candyMachineAddress = candyMachineAccount.publicKey;
   }
 
-  get configLinesCount(): number {
+  get assetsCount(): number {
     return CandyMachineAccount.getConfigLinesCount(this.rawData);
+  }
+
+  get assets(): ConfigLine[] {
+    return CandyMachineAccount.getConfigLines(this.rawData);
+  }
+
+  get isFull(): boolean {
+    return this.assetsCount >= this.maxSupply;
   }
 
   get candyMachineData(): CandyMachineData {

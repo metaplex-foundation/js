@@ -1,6 +1,10 @@
 import { CandyMachine } from '@metaplex-foundation/mpl-candy-machine';
 import { BaseAccount, UnparsedAccount, UnparsedMaybeAccount } from '@/types';
-import { getConfigLinesCount, getSpaceForCandy } from './candyMachineInternals';
+import {
+  getConfigLines,
+  getConfigLinesCount,
+  getSpaceForCandy,
+} from './candyMachineInternals';
 
 export class CandyMachineAccount extends BaseAccount<CandyMachine> {
   get size() {
@@ -9,6 +13,10 @@ export class CandyMachineAccount extends BaseAccount<CandyMachine> {
 
   static getConfigLinesCount(rawData: Buffer) {
     return getConfigLinesCount(rawData);
+  }
+
+  static getConfigLines(rawData: Buffer) {
+    return getConfigLines(rawData);
   }
 
   static from(unparsedAccount: UnparsedAccount) {

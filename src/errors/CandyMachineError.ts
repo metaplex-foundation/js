@@ -1,3 +1,4 @@
+import { bignum } from '@metaplex-foundation/beet';
 import { PublicKey } from '@solana/web3.js';
 import {
   MetaplexError,
@@ -61,6 +62,7 @@ export class CandyMachineToUpdateNotFoundError extends CandyMachineError {
     });
   }
 }
+
 export class UpdatedCandyMachineNotFoundError extends CandyMachineError {
   constructor(candyMachineAddress: PublicKey, cause?: Error) {
     super({
@@ -152,6 +154,33 @@ export class CandyMachineAlreadyHasThisAuthorityError extends CandyMachineError 
         `[${authorityAddress.toBase58()}].`,
       solution:
         'Double check the new authority you want to use for this Candy Machine.',
+    });
+  }
+}
+
+export class CandyMachineIsFullError extends CandyMachineError {
+  constructor(index: number, maxSupply: bignum, cause?: Error) {
+    const asset = index + 1;
+    super({
+      cause,
+      key: 'candy_machine_is_full',
+      title: 'Candy Machine Is Full',
+      problem: `Trying to add asset number ${asset}, but candy machine only can hold ${maxSupply} assets.`,
+      solution:
+        'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
+    });
+  }
+}
+
+export class CandyMachineCannotAddAmountError extends CandyMachineError {
+  constructor(index: number, amount: number, maxSupply: bignum, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_cannot_add_amount',
+      title: 'Candy Machine Cannot Add Amount',
+      problem: `Trying to add ${amount} assets to candy machine that already has ${index} assets and can only hold ${maxSupply} assets.`,
+      solution:
+        'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
     });
   }
 }
