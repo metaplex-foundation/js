@@ -48,7 +48,10 @@ export class CandyMachine extends Model {
    */
   readonly candyMachineAddress: PublicKey;
 
-  private constructor(readonly candyMachineAccount: CandyMachineAccount) {
+  private constructor(
+    readonly candyMachineAccount: CandyMachineAccount,
+    readonly rawData: Buffer
+  ) {
     super();
 
     // CandyMachine inner Data
@@ -82,6 +85,10 @@ export class CandyMachine extends Model {
     this.candyMachineAddress = candyMachineAccount.publicKey;
   }
 
+  get configLinesCount(): number {
+    return CandyMachineAccount.getConfigLinesCount(this.rawData);
+  }
+
   get candyMachineData(): CandyMachineData {
     return {
       uuid: this.uuid,
@@ -113,7 +120,10 @@ export class CandyMachine extends Model {
     return { ...this.candyMachineData, ...candyUpdate };
   }
 
-  static fromAccount(candyMachineAccount: CandyMachineAccount): CandyMachine {
-    return new CandyMachine(candyMachineAccount);
+  static fromAccount(
+    candyMachineAccount: CandyMachineAccount,
+    rawData: Buffer
+  ): CandyMachine {
+    return new CandyMachine(candyMachineAccount, rawData);
   }
 }

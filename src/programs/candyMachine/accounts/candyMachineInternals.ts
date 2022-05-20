@@ -59,3 +59,10 @@ export function getSpaceForCandy(data: CandyMachineData) {
     );
   }
 }
+
+// https://github.com/metaplex-foundation/metaplex-program-library/blob/681f22d7cff37149ac70a374990587a189ebc6c2/candy-machine/program/src/lib.rs#L1321-L1323
+export function getConfigLinesCount(rawData: Buffer) {
+  return rawData
+    .slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4)
+    .readUInt32LE();
+}
