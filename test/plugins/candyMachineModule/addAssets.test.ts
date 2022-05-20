@@ -1,57 +1,13 @@
 import test from 'tape';
 import spok from 'spok';
-import {
-  amman,
-  killStuckProcess,
-  metaplex,
-  SKIP_PREFLIGHT,
-} from '../../helpers';
+import { amman, killStuckProcess, metaplex } from '../../helpers';
 import {
   CandyMachineCannotAddAmountError,
-  CandyMachineConfigWithoutStorage,
   CandyMachineIsFullError,
-  Metaplex,
 } from '../../../src';
+import { createCandyMachineWithMaxSupply } from './helpers';
 
 killStuckProcess();
-
-export async function createCandyMachine(mx: Metaplex, number: number) {
-  const payer = mx.identity();
-
-  const solTreasurySigner = payer;
-  await amman.airdrop(mx.connection, solTreasurySigner.publicKey, 100);
-
-  const config: CandyMachineConfigWithoutStorage = {
-    price: 1.0,
-    number,
-    sellerFeeBasisPoints: 0,
-    solTreasuryAccount: solTreasurySigner.publicKey.toBase58(),
-    goLiveDate: '25 Dec 2021 00:00:00 GMT',
-    retainAuthority: true,
-    isMutable: false,
-  };
-
-  const opts = { confirmOptions: SKIP_PREFLIGHT };
-  await amman.addr.addLabels({ ...config, payer });
-
-  const cm = mx.candyMachines();
-  const { transactionId, payerSigner, candyMachineSigner } =
-    await cm.createFromConfig(config, opts);
-
-  await amman.addr.addLabel(
-    `candy-machine-holds-${number}`,
-    candyMachineSigner.publicKey
-  );
-  await amman.addr.addLabel(
-    `tx: create-cm holding ${number} assets`,
-    transactionId
-  );
-
-  return {
-    payerSigner,
-    candyMachineSigner,
-  };
-}
 
 test('addAssets: candy machine that can hold 7 assets', async (t) => {
   // Given I create a candy machine holing 7 assets
@@ -59,7 +15,8 @@ test('addAssets: candy machine that can hold 7 assets', async (t) => {
   const cm = mx.candyMachines();
   const tc = amman.transactionChecker(mx.connection);
 
-  const { candyMachineSigner, payerSigner } = await createCandyMachine(mx, 7);
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 7);
 
   {
     // When I add one asset
@@ -191,7 +148,8 @@ test('addAssets: candy machine that can hold 0 assets adding one', async (t) => 
   const mx = await metaplex();
   const cm = mx.candyMachines();
 
-  const { candyMachineSigner, payerSigner } = await createCandyMachine(mx, 0);
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 0);
 
   // When I add one asset
   t.comment('Adding one asset');
@@ -222,7 +180,8 @@ test('addAssets: candy machine that can hold 2 assets adding 5', async (t) => {
   const mx = await metaplex();
   const cm = mx.candyMachines();
 
-  const { candyMachineSigner, payerSigner } = await createCandyMachine(mx, 4);
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 4);
 
   // When I add five assets
   t.comment('Adding five assets');
@@ -260,7 +219,8 @@ test('addAssets: candy machine that can hold 4 assets adding 3 and then 2', asyn
   const cm = mx.candyMachines();
   const tc = amman.transactionChecker(mx.connection);
 
-  const { candyMachineSigner, payerSigner } = await createCandyMachine(mx, 4);
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 4);
 
   {
     // When I add three assets
@@ -312,7 +272,8 @@ test('addAssets: candy machine that can hold 3 assets adding 3 and then 2', asyn
   const cm = mx.candyMachines();
   const tc = amman.transactionChecker(mx.connection);
 
-  const { candyMachineSigner, payerSigner } = await createCandyMachine(mx, 3);
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 3);
 
   {
     // When I add three assets

@@ -37,6 +37,7 @@ import {
   CandyMachineData,
   ConfigLine,
   Creator,
+  cusper,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
   UpdateAuthorityInput,
@@ -278,11 +279,66 @@ export class CandyMachineClient extends ModuleClient {
       ...addConfigLinesOutput,
     };
   }
+
+  async uploadOneAssetForCandyMachine(
+    params: UploadOneAssetToCandyMachineParams
+  ) {
+    const candyMachine = await this.findByAddress(params.candyMachineAddress);
+    if (candyMachine == null) {
+      throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
+    }
+
+    assertNotFull(candyMachine, candyMachine.assetsCount);
+
+    // Default NFT creators to equal those of the Candy Machine
+    const creators = params.properties?.creators ?? candyMachine.creators;
+    const uploadProperties = {
+      ...params.properties,
+      creators: creatorsToJsonMetadataCreators(creators),
+    };
+    // TODO(thlorenz): Is this correct?
+    const seller_fee_basis_points =
+      params.seller_fee_basis_points ?? candyMachine.sellerFeeBasisPoints;
+
+    // -----------------
+    // 1. Upload Asset and Metadata
+    // -----------------
+    const {
+      candyMachineAddress,
+      authoritySigner,
+      properties,
+      ...uploadInputParams
+    } = params;
+
+    const uploadInput: UploadMetadataInput = {
+      ...uploadInputParams,
+      properties: uploadProperties,
+      seller_fee_basis_points,
+    };
+
+    const { uri, metadata } = await this.metaplex
+      .nfts()
+      .uploadMetadata(uploadInput);
+
+    return {
+      candyMachine,
+      metadata,
+      uri,
+    };
+  }
 }
 
 // -----------------
 // Helpers
 // -----------------
+function creatorsToJsonMetadataCreators(creators: Creator[]) {
+  return creators.map((creator: Creator) => ({
+    address: creator.address.toBase58(),
+    share: creator.share,
+    verified: creator.verified,
+  }));
+}
+
 function assertNotFull(candyMachine: CandyMachine, index: number) {
   if (candyMachine.isFull) {
     throw new CandyMachineIsFullError(index, candyMachine.maxSupply);

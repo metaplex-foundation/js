@@ -1,5 +1,6 @@
 const { LOCALHOST, tmpLedgerDir } = require('@metaplex-foundation/amman');
 const path = require('path');
+const MOCK_STORAGE_ID = 'js-next-sdk';
 
 const { accountProviders } = require('./dist/cjs/accountProviders.cjs');
 
@@ -42,5 +43,9 @@ module.exports = {
   },
   relay: {
     accountProviders,
+  },
+  storage: {
+    storageId: MOCK_STORAGE_ID,
+    clearOnStart: true,
   },
 };

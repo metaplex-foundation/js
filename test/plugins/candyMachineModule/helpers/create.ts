@@ -53,3 +53,45 @@ export async function createCandyMachineWithMinimalConfig(mx: Metaplex) {
     walletAddress,
   };
 }
+
+export async function createCandyMachineWithMaxSupply(
+  mx: Metaplex,
+  number: number
+) {
+  const payer = mx.identity();
+
+  const solTreasurySigner = payer;
+  await amman.airdrop(mx.connection, solTreasurySigner.publicKey, 100);
+
+  const config: CandyMachineConfigWithoutStorage = {
+    price: 1.0,
+    number,
+    sellerFeeBasisPoints: 0,
+    solTreasuryAccount: solTreasurySigner.publicKey.toBase58(),
+    goLiveDate: '25 Dec 2021 00:00:00 GMT',
+    retainAuthority: true,
+    isMutable: false,
+  };
+
+  const opts = { confirmOptions: SKIP_PREFLIGHT };
+  await amman.addr.addLabels({ ...config, payer });
+
+  const cm = mx.candyMachines();
+  const { transactionId, candyMachine, payerSigner, candyMachineSigner } =
+    await cm.createFromConfig(config, opts);
+
+  await amman.addr.addLabel(
+    `candy-machine-holds-${number}`,
+    candyMachineSigner.publicKey
+  );
+  await amman.addr.addLabel(
+    `tx: create-cm holding ${number} assets`,
+    transactionId
+  );
+
+  return {
+    candyMachine,
+    payerSigner,
+    candyMachineSigner,
+  };
+}
