@@ -140,3 +140,18 @@ export class MoreThanOneCandyMachineFoundByAuthorityAndUuidError extends CandyMa
     });
   }
 }
+
+export class CandyMachineAlreadyHasThisAuthorityError extends CandyMachineError {
+  constructor(authorityAddress: PublicKey, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_already_has_this_authority',
+      title: 'Candy Machine Already Has This Authority',
+      problem:
+        'The current authority of the candy machine is the same as the new authority provided: ' +
+        `[${authorityAddress.toBase58()}].`,
+      solution:
+        'Double check the new authority you want to use for this Candy Machine.',
+    });
+  }
+}

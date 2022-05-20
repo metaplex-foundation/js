@@ -451,7 +451,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     );
 
     // Then the transaction succeeds
-    tc.assertSuccess(t, transactionId);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx
@@ -497,7 +497,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     );
 
     // Then the transaction succeeds
-    tc.assertSuccess(t, transactionId);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx
@@ -537,7 +537,7 @@ test('update: candy machine whitelist mint settings', async (t) => {
     );
 
     // Then the transaction succeeds
-    tc.assertSuccess(t, transactionId);
+    await tc.assertSuccess(t, transactionId);
 
     // And the candy machine is updated
     const updatedMachine = await mx

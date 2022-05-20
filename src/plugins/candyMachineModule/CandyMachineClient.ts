@@ -1,6 +1,7 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { ModuleClient, Signer, convertToPublickKey } from '@/types';
 import {
+  CandyMachineAlreadyHasThisAuthorityError,
   CandyMachinesNotFoundByAuthorityError,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
@@ -26,6 +27,11 @@ import {
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  UpdateAuthorityInput,
+  updateAuthorityOperation,
+  UpdateAuthorityOutput,
+} from './updateAuthority';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
@@ -34,6 +40,8 @@ export type CandyMachineInitFromConfigOpts = {
 };
 export type UpdateCandyMachineParams =
   UpdateCandyMachineInputWithoutCandyMachineData & Partial<CandyMachineData>;
+
+export type UpdateCandyMachineAuthorityParams = UpdateAuthorityInput;
 
 export class CandyMachineClient extends ModuleClient {
   // -----------------
@@ -147,7 +155,7 @@ export class CandyMachineClient extends ModuleClient {
     const currentCandyMachine = await this.findByAddress(
       input.candyMachineAddress
     );
-    if (currentCandyMachine === null) {
+    if (currentCandyMachine == null) {
       throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
     }
 
@@ -157,7 +165,36 @@ export class CandyMachineClient extends ModuleClient {
     const output = await this.metaplex.operations().execute(operation);
 
     const candyMachine = await this.findByAddress(input.candyMachineAddress);
-    if (candyMachine === null) {
+    if (candyMachine == null) {
+      throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
+    }
+
+    return { candyMachine, ...output };
+  }
+
+  async updateAuthority(
+    input: UpdateCandyMachineAuthorityParams
+  ): Promise<UpdateAuthorityOutput & { candyMachine: CandyMachine }> {
+    const currentCandyMachine = await this.findByAddress(
+      input.candyMachineAddress
+    );
+    if (currentCandyMachine == null) {
+      throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
+    }
+
+    if (
+      currentCandyMachine.authorityAddress.equals(input.newAuthorityAddress)
+    ) {
+      throw new CandyMachineAlreadyHasThisAuthorityError(
+        input.newAuthorityAddress
+      );
+    }
+
+    const operation = updateAuthorityOperation(input);
+    const output = await this.metaplex.operations().execute(operation);
+
+    const candyMachine = await this.findByAddress(input.candyMachineAddress);
+    if (candyMachine == null) {
       throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
     }
 
