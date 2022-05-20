@@ -37,7 +37,6 @@ import {
   CandyMachineData,
   ConfigLine,
   Creator,
-  cusper,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
   UpdateAuthorityInput,
@@ -300,9 +299,6 @@ export class CandyMachineClient extends ModuleClient {
     const seller_fee_basis_points =
       params.seller_fee_basis_points ?? candyMachine.sellerFeeBasisPoints;
 
-    // -----------------
-    // 1. Upload Asset and Metadata
-    // -----------------
     const {
       candyMachineAddress,
       authoritySigner,
