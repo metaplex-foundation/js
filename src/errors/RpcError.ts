@@ -23,6 +23,7 @@ export class FailedToSendTransactionError extends RpcError {
       title: 'Failed to Send Transaction',
       problem: `The transaction could not be sent successfully to the network.`,
       solution: 'Check the error below for more information.',
+      logs: (cause as SendTransactionError).logs,
     });
   }
 

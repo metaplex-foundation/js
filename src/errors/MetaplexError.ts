@@ -61,6 +61,8 @@ export class MetaplexError extends Error {
   }
 
   toString(withName: boolean = true) {
+    const logs =
+      this.logs != null ? `\n\n[ Logs: ${this.logs.join(' |$> ')} ]` : '';
     const causedBy = this.cause ? `\n\nCaused By: ${this.cause}` : '';
 
     return (
@@ -70,6 +72,7 @@ export class MetaplexError extends Error {
       `\n>> Problem: ${this.problem}` +
       `\n>> Solution: ${this.solution}` +
       causedBy +
+      logs +
       '\n'
     );
   }
