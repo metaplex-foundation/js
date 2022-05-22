@@ -2,6 +2,7 @@ import test from 'tape';
 import spok from 'spok';
 import { amman, killStuckProcess, metaplex } from '../../helpers';
 import {
+  CandyMachineAddConfigConstraintsViolatedError,
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
 } from '../../../src';
@@ -317,4 +318,54 @@ test('addAssets: candy machine that can hold 3 assets adding 3 and then 2', asyn
     .findByAddress(candyMachineSigner.publicKey);
 
   t.equal(candyMachine?.assetsCount, 3, 'first three assets added');
+});
+
+test('addAssets: fails when name or uri too long', async (t) => {
+  // Given I create a candy machine holing 1 assets
+  const mx = await metaplex();
+  const cm = mx.candyMachines();
+
+  const { candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 1);
+
+  // When I add one asset with a name that is longer than 32 characters
+  try {
+    t.comment('Adding one asset with a name that is longer than 32 characters');
+    await cm.addAssets({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      assets: [
+        { name: 'asset - 012345678901234567890123456789', uri: 'first uri' },
+      ],
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    // Then it fails
+    t.ok(
+      err instanceof CandyMachineAddConfigConstraintsViolatedError,
+      'throws CandyMachineAddConfigConstraintsViolatedError'
+    );
+  }
+  //
+  // When I add one asset with a uri that is longer than 200 characters
+  try {
+    t.comment('Adding one asset with a uri that is longer than 200 characters');
+    await cm.addAssets({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      assets: [
+        {
+          name: 'asset',
+          uri: 'uri - 0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|0123456789|',
+        },
+      ],
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    // Then it fails
+    t.ok(
+      err instanceof CandyMachineAddConfigConstraintsViolatedError,
+      'throws CandyMachineAddConfigConstraintsViolatedError'
+    );
+  }
 });

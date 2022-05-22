@@ -2,6 +2,7 @@ import {
   CandyMachineData,
   ConfigLine,
   configLineBeet,
+  Creator,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 
@@ -83,4 +84,36 @@ export function getConfigLines(rawData: Buffer): ConfigLine[] {
     lines.push(line);
   }
   return lines;
+}
+
+export function assertName(name: string) {
+  if (name.length > MAX_NAME_LENGTH) {
+    throw new Error(
+      `Candy Machine name too long: ${name} (max ${MAX_NAME_LENGTH})`
+    );
+  }
+}
+
+export function assertSymbol(symbol: string) {
+  if (symbol.length > MAX_SYMBOL_LENGTH) {
+    throw new Error(
+      `Candy Machine symbol too long: ${symbol} (max ${MAX_SYMBOL_LENGTH})`
+    );
+  }
+}
+
+export function assertUri(uri: string) {
+  if (uri.length > MAX_URI_LENGTH) {
+    throw new Error(
+      `Candy Machine URI too long: ${uri} (max ${MAX_URI_LENGTH})`
+    );
+  }
+}
+
+export function assertCreators(creators: Creator[]) {
+  if (creators.length > MAX_CREATOR_LIMIT) {
+    throw new Error(
+      `Candy Machine creators too long: ${creators} (max ${MAX_CREATOR_LIMIT})`
+    );
+  }
 }

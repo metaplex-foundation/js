@@ -1,4 +1,5 @@
 import { bignum } from '@metaplex-foundation/beet';
+import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
 import {
   MetaplexError,
@@ -181,6 +182,18 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
       problem: `Trying to add ${amount} assets to candy machine that already has ${index} assets and can only hold ${maxSupply} assets.`,
       solution:
         'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
+    });
+  }
+}
+
+export class CandyMachineAddConfigConstraintsViolatedError extends CandyMachineError {
+  constructor(index: number, configLine: ConfigLine, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_add_config_constraints_violated',
+      title: 'Candy Machine Add Config Constraints Violated',
+      problem: `Trying to add an asset with name "${configLine.name}" and uri: "${configLine.uri}" to candy machine at index ${index} that violates constraints.`,
+      solution: 'Fix the name or URI of this asset and try again.',
     });
   }
 }
