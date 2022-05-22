@@ -61,7 +61,7 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
 
   // When I upload one asset for it
   const asset = new MetaplexFile(rockPng, 'rock.png');
-  const { uri } = await cm.uploadOneAssetForCandyMachine({
+  const { uri } = await cm.uploadAssetForCandyMachine({
     authoritySigner: payerSigner,
     candyMachineAddress: candyMachineSigner.publicKey,
     image: asset,
@@ -90,7 +90,7 @@ test.only('uploadAsset: candy machine that can hold 2 assets add three assets on
     // When I upload the first asset for it
     t.comment('uploading first asset');
     const asset = new MetaplexFile(rockPng, 'rock.png');
-    const { uri, metadata } = await cm.uploadOneAssetForCandyMachine({
+    const { uri, metadata } = await cm.uploadAssetForCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       image: asset,
@@ -116,7 +116,7 @@ test.only('uploadAsset: candy machine that can hold 2 assets add three assets on
     // When I upload the second asset for it
     t.comment('uploading second asset');
     const asset = new MetaplexFile(benchPng, 'bench.png');
-    const { uri, metadata } = await cm.uploadOneAssetForCandyMachine({
+    const { uri, metadata } = await cm.uploadAssetForCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
       image: asset,
@@ -143,7 +143,7 @@ test.only('uploadAsset: candy machine that can hold 2 assets add three assets on
     t.comment('uploading third asset');
     const asset = new MetaplexFile(walrusPng, 'walrus.png');
     try {
-      await cm.uploadOneAssetForCandyMachine({
+      await cm.uploadAssetForCandyMachine({
         authoritySigner: payerSigner,
         candyMachineAddress: candyMachineSigner.publicKey,
         image: asset,
