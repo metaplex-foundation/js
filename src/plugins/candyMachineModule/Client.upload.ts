@@ -7,7 +7,7 @@ import {
   JsonMetadataFile,
   UploadMetadataInput,
 } from '@/plugins/nftModule';
-import { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachineClient } from './CandyMachineClient';
 import {
   assertCanAdd,
   assertNotFull,

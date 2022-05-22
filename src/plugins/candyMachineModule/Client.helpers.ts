@@ -3,7 +3,7 @@ import {
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
 } from '@/errors';
-import { CandyMachine } from './CandyMachine';
+import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachineAccount } from '../../programs/candyMachine';
 

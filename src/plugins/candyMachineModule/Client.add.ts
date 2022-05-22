@@ -11,7 +11,7 @@ import {
   assertCanAdd,
   assertNotFull,
 } from './Client.helpers';
-import { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachineClient } from './CandyMachineClient';
 
 export type AddAssetsToCandyMachineParams = {
   // Accounts

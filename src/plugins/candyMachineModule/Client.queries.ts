@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
-import { ModuleClient } from '@/types';
+import type { ModuleClient } from '@/types';
+import type { CandyMachineClient } from './CandyMachineClient';
 import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
@@ -8,7 +9,6 @@ import {
   MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
   NoCandyMachineFoundForAuthorityMatchesUuidError,
 } from '../../errors/CandyMachineError';
-import { CandyMachineClient } from './CandyMachineClient';
 
 export function findByAddress(
   this: ModuleClient,

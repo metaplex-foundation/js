@@ -11,7 +11,7 @@ import {
   CreateCandyMachineOutput,
 } from './createCandyMachine';
 import { CandyMachine } from './CandyMachine';
-import { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachineClient } from './CandyMachineClient';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;

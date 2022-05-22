@@ -1,4 +1,4 @@
-import { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachineClient } from './CandyMachineClient';
 import {
   CandyMachineAlreadyHasThisAuthorityError,
   CandyMachineToUpdateNotFoundError,
