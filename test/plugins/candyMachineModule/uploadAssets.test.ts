@@ -133,7 +133,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
         },
       ],
     });
-    tc.assertSuccess(t, transactionId);
+    await tc.assertSuccess(t, transactionId);
   }
   {
     // When I upload the second asset for it
@@ -159,7 +159,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
         },
       ],
     });
-    tc.assertSuccess(t, transactionId);
+    await tc.assertSuccess(t, transactionId);
   }
   {
     // When I upload the third asset for it
@@ -174,7 +174,6 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
       t.fail('should throw');
     } catch (err) {
       // Then it fails because the candy machine is full
-
       t.ok(
         err instanceof CandyMachineIsFullError,
         'throws CandyMachineIsFullError'
