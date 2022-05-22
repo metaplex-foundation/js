@@ -3,7 +3,11 @@ import spok from 'spok';
 
 import fetch from 'cross-fetch';
 
-import { CandyMachineIsFullError, MetaplexFile } from '../../../src';
+import {
+  CandyMachineIsFullError,
+  MetaplexFile,
+  UploadedAsset,
+} from '../../../src';
 import {
   amman,
   killStuckProcess,
@@ -44,6 +48,19 @@ async function verifyProperlyUploaded(
     asset.buffer.equals(Buffer.from(imageData)),
     'asset.buffer === imageData'
   );
+}
+
+async function verifyUploadedAssets(
+  t: test.Test,
+  assets: MetaplexFile[],
+  uploadedAssets: UploadedAsset[],
+  creators: Creator[]
+) {
+  for (const x of uploadedAssets) {
+    const asset = assets.find((y) => y.displayName === x.name);
+    t.ok(asset != null, 'asset was named correctly');
+    await verifyProperlyUploaded(t, x.uri, asset!, creators);
+  }
 }
 
 test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
@@ -211,46 +228,51 @@ const assets = [
   }),
 ];
 
-test.only('uploadAndAddAssets: candy machine that can hold 4 assets upload 4 sequentially and add', async (t) => {
-  // Given I create a candy machine holding 4 assets
-  const mx = await metaplex();
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  storageDriver.install(mx as any);
+test('uploadAndAddAssets: candy machine that can hold 4 assets upload 4 and add', async (t) => {
+  for (const parallel of [false, true]) {
+    t.comment(`Uploading ${parallel ? 'in parallel' : 'sequentially'}`);
 
-  const cm = mx.candyMachines();
-
-  const { candyMachine, candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 4);
-
-  // When I upload one asset for it and have it added to the candy machine
-  const { addAssetsTransactionId, uploadedAssets } =
-    await cm.uploadAssetsForCandyMachine({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: assets,
-      addToCandyMachine: true,
+    // Given I create a candy machine holding 4 assets
+    const mx = await metaplex();
+    const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
+      costPerByte: 0.001,
     });
+    storageDriver.install(mx as any);
 
-  await amman.addr.addLabel(
-    addAssetsTransactionId!,
-    'tx: upload+add 4 assets sequentially'
-  );
+    const cm = mx.candyMachines();
 
-  // Then the asset is uploaded properly
-  t.ok(
-    addAssetsTransactionId != null,
-    'run transaction to add assets to candy machine'
-  );
-  for (const x of uploadedAssets) {
-    const asset = assets.find((y) => y.displayName === x.name);
-    t.ok(asset != null, 'asset was named correctly');
-    await verifyProperlyUploaded(t, x.uri, asset!, candyMachine.creators);
+    const { candyMachine, candyMachineSigner, payerSigner } =
+      await createCandyMachineWithMaxSupply(mx, 4);
+
+    // When I upload 4 assets to it sequentially and have it added to the candy machine
+    const { addAssetsTransactionId, uploadedAssets } =
+      await cm.uploadAssetsForCandyMachine({
+        authoritySigner: payerSigner,
+        candyMachineAddress: candyMachineSigner.publicKey,
+        assets: assets,
+        addToCandyMachine: true,
+      });
+
+    await amman.addr.addLabel(
+      addAssetsTransactionId!,
+      'tx: upload+add 4 assets sequentially'
+    );
+
+    // Then the asset is uploaded properly
+    t.ok(
+      addAssetsTransactionId != null,
+      'run transaction to add assets to candy machine'
+    );
+    await verifyUploadedAssets(
+      t,
+      assets,
+      uploadedAssets,
+      candyMachine.creators
+    );
+
+    // And the asset is added to the candy machine
+    const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
+    t.ok(addAssetsTransactionId != null, 'did add assets to candy machine');
+    t.equal(updatedCm?.assetsCount, 4, 'candy machine has 4 assets');
   }
-
-  // And the asset is added to the candy machine
-  const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
-  t.ok(addAssetsTransactionId != null, 'did add assets to candy machine');
-  t.equal(updatedCm?.assetsCount, 4, 'candy machine has 4 assets');
 });
