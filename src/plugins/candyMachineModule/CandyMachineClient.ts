@@ -9,11 +9,8 @@ import {
   CandyMachineAlreadyHasThisAuthorityError,
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
-  CandyMachinesNotFoundByAuthorityError,
   CandyMachineToUpdateNotFoundError,
   CreatedCandyMachineNotFoundError,
-  MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
-  NoCandyMachineFoundForAuthorityMatchesUuidError,
   UpdatedCandyMachineNotFoundError,
 } from '@/errors';
 import {
@@ -25,8 +22,6 @@ import {
   createCandyMachineOperation,
   CreateCandyMachineOutput,
 } from './createCandyMachine';
-import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
-import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 import {
   UpdateCandyMachineInputWithoutCandyMachineData,
@@ -49,6 +44,12 @@ import {
   UploadMetadataInput,
 } from '@/plugins/nftModule';
 import { AddConfigLinesInput, addConfigLinesOperation } from './addConfigLines';
+import {
+  findAllByAuthority,
+  findAllByWallet,
+  findByAddress,
+  findByAuthorityAndUuid,
+} from './Client.queries';
 
 export type CandyMachineInitFromConfigOpts = {
   candyMachineSigner?: Signer;
@@ -121,64 +122,10 @@ export class CandyMachineClient extends ModuleClient {
   // -----------------
   // Queries
   // -----------------
-  findByAddress(address: PublicKey): Promise<CandyMachine | null> {
-    const operation = findCandyMachineByAdddressOperation(address);
-    return this.metaplex.operations().execute(operation);
-  }
-
-  findAllByWallet(walletAddress: PublicKey): Promise<CandyMachine[]> {
-    return this.metaplex.operations().execute(
-      findCandyMachinesByPublicKeyFieldOperation({
-        type: 'wallet',
-        publicKey: walletAddress,
-      })
-    );
-  }
-
-  findAllByAuthority(authorityAddress: PublicKey): Promise<CandyMachine[]> {
-    return this.metaplex.operations().execute(
-      findCandyMachinesByPublicKeyFieldOperation({
-        type: 'authority',
-        publicKey: authorityAddress,
-      })
-    );
-  }
-
-  async findByAuthorityAndUuid(
-    authorityAddress: PublicKey,
-    uuid: string
-  ): Promise<CandyMachine> {
-    const candyMachinesForAuthority = await this.findAllByAuthority(
-      authorityAddress
-    );
-    if (candyMachinesForAuthority.length === 0) {
-      throw new CandyMachinesNotFoundByAuthorityError(authorityAddress);
-    }
-    const matchingUUid = candyMachinesForAuthority.filter(
-      (candyMachine) => candyMachine.uuid === uuid
-    );
-    if (matchingUUid.length === 0) {
-      const addresses = candyMachinesForAuthority.map(
-        (candyMachine) => candyMachine.candyMachineAccount.publicKey
-      );
-      throw new NoCandyMachineFoundForAuthorityMatchesUuidError(
-        authorityAddress,
-        uuid,
-        addresses
-      );
-    }
-    if (matchingUUid.length > 1) {
-      const addresses = matchingUUid.map(
-        (candyMachine) => candyMachine.candyMachineAccount.publicKey
-      );
-      throw new MoreThanOneCandyMachineFoundByAuthorityAndUuidError(
-        authorityAddress,
-        uuid,
-        addresses
-      );
-    }
-    return matchingUUid[0];
-  }
+  findByAddress = findByAddress;
+  findAllByWallet = findAllByWallet;
+  findAllByAuthority = findAllByAuthority;
+  findByAuthorityAndUuid = findByAuthorityAndUuid;
 
   // -----------------
   // Create
