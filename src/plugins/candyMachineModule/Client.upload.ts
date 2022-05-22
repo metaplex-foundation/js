@@ -13,6 +13,16 @@ import {
   assertNotFull,
   creatorsToJsonMetadataCreators,
 } from './Client.helpers';
+import { randomStr } from '../../utils';
+
+// -----------------
+// uploadAssetForCandyMachine (single)
+// -----------------
+export type UploadAssetProperties = {
+  creators?: Creator[];
+  files?: JsonMetadataFile<MetaplexFile | string>[];
+  [key: string]: unknown;
+};
 
 export type UploadAssetToCandyMachineParams = UploadMetadataInput & {
   // Accounts
@@ -20,11 +30,7 @@ export type UploadAssetToCandyMachineParams = UploadMetadataInput & {
   authoritySigner: Signer;
 
   // Asset
-  properties?: {
-    creators?: Creator[];
-    files?: JsonMetadataFile<MetaplexFile | string>[];
-    [key: string]: unknown;
-  };
+  properties?: UploadAssetProperties;
 
   // If `true` the successfully uploaded asset is added to the candy machine
   addToCandyMachine?: boolean;
@@ -33,31 +39,6 @@ export type UploadAssetToCandyMachineParams = UploadMetadataInput & {
   confirmOptions?: ConfirmOptions;
 };
 
-// NOTE: the `[key: string]: unknown;` that is part of `UploadMetadataInput` breaks type safety once
-// we extend a derived type, thus we don't get intellisense for `CandyMachineAsset` either
-export type CandyMachineAsset = Omit<
-  UploadAssetToCandyMachineParams,
-  'candyMachineAddress' | 'authoritySigner'
->;
-
-export type UploadAssetsToCandyMachineParams = {
-  // Accounts
-  candyMachineAddress: PublicKey;
-  authoritySigner: Signer;
-
-  // Assets
-  assets: CandyMachineAsset[];
-
-  // If `true` then the assets are uploaded in parallel, however note that this
-  // can result in some successfully uploading while others fail
-  parallel?: boolean;
-
-  // If `true` all successfully uploaded assets are added to the candy machine
-  addToCandyMachine?: boolean;
-
-  // Transaction Options.
-  confirmOptions?: ConfirmOptions;
-};
 export async function uploadAssetForCandyMachine(
   this: CandyMachineClient,
   params: UploadAssetToCandyMachineParams
@@ -98,7 +79,7 @@ export async function uploadAssetForCandyMachine(
 
   let addAssetsTransactionId;
   if (params.addToCandyMachine) {
-    const assetName = selectAssetName(metadata, params, uri);
+    const assetName = selectAssetName(metadata, params);
     const { transactionId } = await this.addAssets({
       candyMachineAddress: params.candyMachineAddress,
       authoritySigner: params.authoritySigner,
@@ -109,12 +90,47 @@ export async function uploadAssetForCandyMachine(
   }
 
   return {
-    candyMachine,
     metadata,
     uri,
     addAssetsTransactionId,
   };
 }
+
+// -----------------
+// uploadAssetsForCandyMachine (multiple)
+// -----------------
+
+// NOTE: the `[key: string]: unknown;` that is part of `UploadMetadataInput` breaks type safety once
+// we extend a derived type, thus we don't get intellisense for `CandyMachineAsset` either
+export type CandyMachineAsset = Omit<
+  UploadAssetToCandyMachineParams,
+  'candyMachineAddress' | 'authoritySigner'
+>;
+
+export type UploadAssetsToCandyMachineParams = {
+  // Accounts
+  candyMachineAddress: PublicKey;
+  authoritySigner: Signer;
+
+  // Assets
+  assets: MetaplexFile[];
+
+  // If `true` then the assets are uploaded in parallel, however note that this
+  // can result in some successfully uploading while others fail
+  parallel?: boolean;
+
+  // If `true` all successfully uploaded assets are added to the candy machine
+  addToCandyMachine?: boolean;
+
+  // Transaction Options.
+  confirmOptions?: ConfirmOptions;
+};
+
+export type UploadedAsset = {
+  uri: string;
+  metadata: JsonMetadata<string>;
+  name: string;
+};
 
 export async function uploadAssetsForCandyMachine(
   this: CandyMachineClient,
@@ -130,22 +146,27 @@ export async function uploadAssetsForCandyMachine(
 
   const { parallel = false, addToCandyMachine = false } = params;
 
-  type UploadedAsset = {
-    uri: string;
-    metadata: JsonMetadata<string>;
-    name: string;
-  };
+  const uploadParams = params.assets.map((x) => {
+    const param: UploadAssetToCandyMachineParams = {
+      ...params,
+      image: x,
+      name: x.displayName,
+      // We add them all in one transaction after all assets are uploaded
+      addToCandyMachine: false,
+    };
+    return param;
+  });
   let uploadedAssets: UploadedAsset[] = [];
   const errors = [];
 
   if (parallel) {
     // NOTE: we are uploading in parallel here but if only one upload was to fail
     // all the other ones still happen as we cannot cancel promises
-    const promises = params.assets.map(async (asset) => {
+    const promises = uploadParams.map(async (assetParam) => {
       let uploaded;
       let err;
       try {
-        uploaded = await _uploadAssetAndSelectName(this, params, asset);
+        uploaded = await _uploadAssetAndSelectName(this, params, assetParam);
       } catch (e) {
         errors.push(e);
       }
@@ -162,10 +183,10 @@ export async function uploadAssetsForCandyMachine(
       }
     }
   } else {
-    for (const asset of params.assets) {
+    for (const assetParam of uploadParams) {
       try {
         uploadedAssets.push(
-          await _uploadAssetAndSelectName(this, params, asset)
+          await _uploadAssetAndSelectName(this, params, assetParam)
         );
       } catch (err) {
         errors.push(err);
@@ -173,25 +194,29 @@ export async function uploadAssetsForCandyMachine(
       }
     }
   }
-  const configLines: ConfigLine[] = uploadedAssets.map((x) => ({
-    uri: x.uri,
-    name: x.name,
-  }));
 
-  const {
-    transactionId,
-    candyMachine: updatedCandyMachine,
-    confirmResponse,
-  } = await this.addAssets({
-    ...params,
-    assets: configLines,
-  });
+  let addAssetsTransactionId;
+  let updatedCandyMachine = candyMachine;
+  if (addToCandyMachine) {
+    const configLines: ConfigLine[] = uploadedAssets.map((x) => ({
+      uri: x.uri,
+      name: x.name,
+    }));
+
+    const { transactionId, candyMachine } = await this.addAssets({
+      ...params,
+      assets: configLines,
+    });
+    addAssetsTransactionId = transactionId;
+    if (candyMachine != null) {
+      updatedCandyMachine = candyMachine;
+    }
+  }
 
   return {
-    addToCandyMachine,
-    transactionId,
+    addAssetsTransactionId,
+    uploadedAssets,
     candyMachine: updatedCandyMachine,
-    confirmResponse,
   };
 }
 
@@ -207,18 +232,15 @@ async function _uploadAssetAndSelectName(
   return {
     uri,
     metadata,
-    name: selectAssetName(metadata, asset, uri),
+    name: selectAssetName(metadata, asset),
   };
 }
 
 function selectAssetName(
   metadata: JsonMetadata<string>,
-  asset: CandyMachineAsset,
-  uri: string
-) {
+  asset: CandyMachineAsset
+): string {
   return (
-    metadata.name ??
-    (typeof asset.name === 'string' ? asset.name : undefined) ??
-    randomStr()
+    metadata.name ?? (typeof asset.name === 'string' ? asset.name : randomStr())
   );
 }

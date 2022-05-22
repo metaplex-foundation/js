@@ -12,6 +12,7 @@ import {
 } from '../../helpers';
 import {
   benchPng,
+  bridgePng,
   createCandyMachineWithMaxSupply,
   rockPng,
   walrusPng,
@@ -61,7 +62,7 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
 
   // When I upload one asset for it
   const asset = new MetaplexFile(rockPng, 'rock.png');
-  const { uri } = await cm.uploadAssetForCandyMachine({
+  const { uri, addAssetsTransactionId } = await cm.uploadAssetForCandyMachine({
     authoritySigner: payerSigner,
     candyMachineAddress: candyMachineSigner.publicKey,
     image: asset,
@@ -69,9 +70,14 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
 
   // Then the asset is uploaded properly
   await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+
+  // And the asset is not added to the candy machine
+  const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
+  t.ok(addAssetsTransactionId == null, 'did not add asset to candy machine');
+  t.equal(updatedCm?.assetsCount, 0, 'candy machine has 1 asset');
 });
 
-test.only('uploadAsset: candy machine that can hold 2 assets add three assets one at a time', async (t) => {
+test('uploadAsset: candy machine that can hold 2 assets add three assets one at a time', async (t) => {
   // Given I create a candy machine that can hold 2 assets
   const mx = await metaplex();
   const tc = amman.transactionChecker(mx.connection);
@@ -158,4 +164,93 @@ test.only('uploadAsset: candy machine that can hold 2 assets add three assets on
       );
     }
   }
+});
+
+test('uploadAndAddAsset: candy machine that can hold 2 assets upload one', async (t) => {
+  // Given I create a candy machine holding 2 assets
+  const mx = await metaplex();
+  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
+    costPerByte: 0.001,
+  });
+  storageDriver.install(mx as any);
+
+  const cm = mx.candyMachines();
+
+  const { candyMachine, candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 2);
+
+  // When I upload one asset for it and have it added to the candy machine
+  const asset = new MetaplexFile(rockPng, 'rock.png');
+  const { uri, addAssetsTransactionId } = await cm.uploadAssetForCandyMachine({
+    authoritySigner: payerSigner,
+    candyMachineAddress: candyMachineSigner.publicKey,
+    image: asset,
+    addToCandyMachine: true,
+  });
+
+  // Then the asset is uploaded properly
+  await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+
+  // And the asset is added to the candy machine
+  const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
+  t.ok(addAssetsTransactionId != null, 'did add asset to candy machine');
+  t.equal(updatedCm?.assetsCount, 1, 'candy machine has 1 asset');
+});
+
+// -----------------
+// upload multiple
+// -----------------
+const assets = [
+  new MetaplexFile(rockPng, 'rock.png', { displayName: 'rock' }),
+  new MetaplexFile(bridgePng, 'bridge.png', {
+    displayName: 'bridge',
+  }),
+  new MetaplexFile(benchPng, 'bench.png', { displayName: 'bench' }),
+  new MetaplexFile(walrusPng, 'walrus.png', {
+    displayName: 'Creature of the sea',
+  }),
+];
+
+test.only('uploadAndAddAssets: candy machine that can hold 4 assets upload 4 sequentially and add', async (t) => {
+  // Given I create a candy machine holding 4 assets
+  const mx = await metaplex();
+  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
+    costPerByte: 0.001,
+  });
+  storageDriver.install(mx as any);
+
+  const cm = mx.candyMachines();
+
+  const { candyMachine, candyMachineSigner, payerSigner } =
+    await createCandyMachineWithMaxSupply(mx, 4);
+
+  // When I upload one asset for it and have it added to the candy machine
+  const { addAssetsTransactionId, uploadedAssets } =
+    await cm.uploadAssetsForCandyMachine({
+      authoritySigner: payerSigner,
+      candyMachineAddress: candyMachineSigner.publicKey,
+      assets: assets,
+      addToCandyMachine: true,
+    });
+
+  await amman.addr.addLabel(
+    addAssetsTransactionId!,
+    'tx: upload+add 4 assets sequentially'
+  );
+
+  // Then the asset is uploaded properly
+  t.ok(
+    addAssetsTransactionId != null,
+    'run transaction to add assets to candy machine'
+  );
+  for (const x of uploadedAssets) {
+    const asset = assets.find((y) => y.displayName === x.name);
+    t.ok(asset != null, 'asset was named correctly');
+    await verifyProperlyUploaded(t, x.uri, asset!, candyMachine.creators);
+  }
+
+  // And the asset is added to the candy machine
+  const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
+  t.ok(addAssetsTransactionId != null, 'did add assets to candy machine');
+  t.equal(updatedCm?.assetsCount, 4, 'candy machine has 4 assets');
 });
