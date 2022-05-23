@@ -69,7 +69,7 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
     costPerByte: 0.001,
   });
-  // TODO(thlorenz): why do we have to do as any?
+  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
   storageDriver.install(mx as any);
 
   const cm = mx.candyMachines();
