@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { Nft, MetaplexFile } from '@/index';
+import { Nft, useMetaplexFile } from '@/index';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
@@ -15,7 +15,7 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
     {
       name: 'JSON NFT name',
       description: 'JSON NFT description',
-      image: new MetaplexFile('some image', 'some-image.jpg'),
+      image: useMetaplexFile('some image', 'some-image.jpg'),
     },
     {
       name: 'On-chain NFT name',
@@ -29,7 +29,7 @@ test('it can update the on-chain data of an nft', async (t: Test) => {
     .uploadMetadata({
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
-      image: new MetaplexFile('updated image', 'updated-image.jpg'),
+      image: useMetaplexFile('updated image', 'updated-image.jpg'),
     });
 
   // When we update the NFT with new on-chain data.

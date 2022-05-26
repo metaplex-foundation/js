@@ -1,12 +1,8 @@
 import { Metaplex } from '@/Metaplex';
-import {
-  MetaplexFile,
-  Operation,
-  OperationHandler,
-  useOperation,
-} from '@/types';
+import { Operation, OperationHandler, useOperation } from '@/types';
 import { JsonMetadata } from './JsonMetadata';
 import { planUploadMetadataOperation } from './planUploadMetadata';
+import { MetaplexFile } from '../storageModule';
 
 const Key = 'UploadMetadataOperation' as const;
 export const uploadMetadataOperation =

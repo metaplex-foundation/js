@@ -1,12 +1,8 @@
 import { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  MetaplexFile,
-} from '@/types';
+import { useOperation, Operation, OperationHandler } from '@/types';
 import { Plan, walk } from '@/utils';
 import cloneDeep from 'lodash.clonedeep';
+import { isMetaplexFile, MetaplexFile } from '../storageModule';
 import { JsonMetadata } from './JsonMetadata';
 import { UploadMetadataInput, UploadMetadataOutput } from './uploadMetadata';
 
@@ -72,7 +68,7 @@ export const getAssetsFromJsonMetadata = (
   const files: MetaplexFile[] = [];
 
   walk(input, (next, value) => {
-    if (value instanceof MetaplexFile) {
+    if (isMetaplexFile(value)) {
       files.push(value);
     } else {
       next(value);
@@ -90,7 +86,7 @@ export const replaceAssetsWithUris = (
   let index = 0;
 
   walk(clone, (next, value, key, parent) => {
-    if (value instanceof MetaplexFile && index < replacements.length) {
+    if (isMetaplexFile(value) && index < replacements.length) {
       parent[key] = replacements[index++];
     }
 

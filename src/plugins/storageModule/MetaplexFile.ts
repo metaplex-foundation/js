@@ -102,3 +102,18 @@ export const parseMetaplexFileContent = (
 
   return Buffer.from(content);
 };
+
+export const isMetaplexFile = (
+  metaplexFile: any
+): metaplexFile is MetaplexFile => {
+  return (
+    typeof metaplexFile === 'object' &&
+    'buffer' in metaplexFile &&
+    'fileName' in metaplexFile &&
+    'displayName' in metaplexFile &&
+    'uniqueName' in metaplexFile &&
+    'contentType' in metaplexFile &&
+    'extension' in metaplexFile &&
+    'tags' in metaplexFile
+  );
+};
