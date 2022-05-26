@@ -1,7 +1,7 @@
 import { Metaplex } from '@/Metaplex';
 import { OperationHandler } from '@/types';
 import { Plan, DisposableScope } from '@/utils';
-import { BundlrStorageDriver } from './BundlrStorageDriver';
+import { isBundlrStorageDriver } from './BundlrStorageDriver';
 import { UploadMetadataOutput } from '../nftModule/uploadMetadata';
 import {
   getAssetsFromJsonMetadata,
@@ -9,11 +9,7 @@ import {
   planUploadMetadataOperationHandler,
   replaceAssetsWithUris,
 } from '../nftModule/planUploadMetadata';
-import {
-  MetaplexFile,
-  useMetaplexFileFromJson,
-  StorageDriver,
-} from '../storageModule';
+import { MetaplexFile, useMetaplexFileFromJson } from '../storageModule';
 
 export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<PlanUploadMetadataOperation> =
   {
@@ -80,15 +76,3 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
         });
     },
   };
-
-const isBundlrStorageDriver = (
-  storageDriver: StorageDriver
-): storageDriver is BundlrStorageDriver => {
-  return (
-    'fund' in storageDriver &&
-    'withdrawAll' in storageDriver &&
-    'shouldWithdrawAfterUploading' in storageDriver &&
-    'withdrawAfterUploading' in storageDriver &&
-    'dontWithdrawAfterUploading' in storageDriver
-  );
-};

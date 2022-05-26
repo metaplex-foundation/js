@@ -179,6 +179,18 @@ export const useBundlrStorageDriver = (
   };
 };
 
+export const isBundlrStorageDriver = (
+  storageDriver: StorageDriver
+): storageDriver is BundlrStorageDriver => {
+  return (
+    'fund' in storageDriver &&
+    'withdrawAll' in storageDriver &&
+    'shouldWithdrawAfterUploading' in storageDriver &&
+    'withdrawAfterUploading' in storageDriver &&
+    'dontWithdrawAfterUploading' in storageDriver
+  );
+};
+
 const initBundlr = async (
   metaplex: Metaplex,
   options: BundlrOptions
