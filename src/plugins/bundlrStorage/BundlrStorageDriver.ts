@@ -16,10 +16,6 @@ import { MetaplexFile } from '../storageModule';
 export type BundlrStorageDriver = StorageDriver & {
   uploadAll: (files: MetaplexFile[]) => Promise<string[]>;
   getBalance: () => Promise<Amount>;
-  fundingNeeded: (
-    amount: Amount,
-    skipBalanceCheck?: boolean
-  ) => Promise<Amount>;
   fund: (amount: Amount, skipBalanceCheck?: boolean) => Promise<void>;
   withdrawAll(): Promise<void>;
   withdraw(amount: Amount): Promise<void>;
@@ -105,34 +101,24 @@ export const useBundlrStorageDriver = (
       return bigNumberToAmount(balance);
     },
 
-    async fundingNeeded(
-      amount: Amount,
-      skipBalanceCheck = false
-    ): Promise<Amount> {
-      if (skipBalanceCheck) {
-        return amount;
-      }
-
-      const bundlr = await getBundlr();
-      const balance = await bundlr.getLoadedBalance();
-      const price = amountToBigNumber(amount);
-      const fundingNeeded = price.isGreaterThan(balance)
-        ? price.minus(balance)
-        : new BigNumber(0);
-
-      return bigNumberToAmount(fundingNeeded);
-    },
-
     async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
       const bundlr = await getBundlr();
-      const fundingNeeded = await this.fundingNeeded(amount, skipBalanceCheck);
+      let toFund = amountToBigNumber(amount);
 
-      if (fundingNeeded.basisPoints.lten(0)) {
+      if (!skipBalanceCheck) {
+        const balance = await bundlr.getLoadedBalance();
+
+        toFund = toFund.isGreaterThan(balance)
+          ? toFund.minus(balance)
+          : new BigNumber(0);
+      }
+
+      if (toFund.isLessThanOrEqualTo(0)) {
         return;
       }
 
       // TODO: Catch errors and wrap in BundlrErrors.
-      await bundlr.fund(amountToBigNumber(fundingNeeded));
+      await bundlr.fund(toFund);
     },
 
     async withdrawAll(): Promise<void> {
