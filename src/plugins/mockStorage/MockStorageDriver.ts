@@ -1,5 +1,4 @@
 import BN from 'bn.js';
-import { Metaplex } from '@/Metaplex';
 import { Amount, useLamports } from '@/types';
 import { AssetNotFoundError } from '@/errors';
 import { MetaplexFile, StorageDriver } from '../storageModule';
@@ -13,7 +12,6 @@ export type MockStorageOptions = {
 };
 
 export const useMockStorageDriver = (
-  metaplex: Metaplex,
   options?: MockStorageOptions
 ): StorageDriver => {
   const cache: Record<string, MetaplexFile> = {};
@@ -24,8 +22,6 @@ export const useMockStorageDriver = (
       : DEFAULT_COST_PER_BYTE;
 
   return {
-    metaplex,
-
     getUploadPrice: async (bytes: number): Promise<Amount> => {
       return useLamports(costPerByte.muln(bytes));
     },

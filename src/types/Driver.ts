@@ -1,7 +1,6 @@
 import { Metaplex } from '@/Metaplex';
-import { MetaplexAware } from './MetaplexAware';
 
-export type DriverType = MetaplexAware;
+export type DriverType = {};
 
 export type DriverAware<T extends DriverType> = {
   driver: () => T;

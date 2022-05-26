@@ -1,10 +1,8 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { Metaplex } from '@/Metaplex';
 import { StorageDriver, useLamports, Amount } from '@/types';
 import { MetaplexFile } from '../storageModule';
 
 export const useAwsStorageDriver = (
-  metaplex: Metaplex,
   client: S3Client,
   bucketName: string
 ): StorageDriver => {
@@ -16,8 +14,6 @@ export const useAwsStorageDriver = (
   };
 
   return {
-    metaplex,
-
     getUploadPrice: async (_bytes: number): Promise<Amount> => {
       return useLamports(0);
     },

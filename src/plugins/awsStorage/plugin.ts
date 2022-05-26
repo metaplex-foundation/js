@@ -8,8 +8,6 @@ export const awsStorage = (
   bucketName: string
 ): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex
-      .storage()
-      .setDriver(useAwsStorageDriver(metaplex, client, bucketName));
+    metaplex.storage().setDriver(useAwsStorageDriver(client, bucketName));
   },
 });
