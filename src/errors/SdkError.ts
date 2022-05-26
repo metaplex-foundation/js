@@ -29,6 +29,19 @@ export class OperationHandlerMissingError extends SdkError {
   }
 }
 
+export class DriverNotProvidedError extends SdkError {
+  constructor(driver: string, cause?: Error) {
+    super({
+      cause,
+      key: 'driver_not_provided',
+      title: 'Driver Not Provided',
+      problem: `The SDK tried to access the driver [${driver}] but was not provided.`,
+      solution:
+        'Make sure the driver is registered by using the "setDriver(myDriver)" method.',
+    });
+  }
+}
+
 export class InvalidJsonVariableError extends SdkError {
   constructor(cause?: Error) {
     super({
