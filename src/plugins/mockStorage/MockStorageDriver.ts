@@ -1,60 +1,50 @@
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { MetaplexFile, StorageDriver } from '@/types';
-import { SolAmount } from '@/utils';
+import { Amount, useLamports } from '@/types';
 import { AssetNotFoundError } from '@/errors';
+import { MetaplexFile, StorageDriver } from '../storageModule';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = new BN(1);
 
-export interface MockStorageOptions {
+export type MockStorageOptions = {
   baseUrl?: string;
   costPerByte?: BN | number;
-}
+};
 
-export class MockStorageDriver extends StorageDriver {
-  private cache: Record<string, MetaplexFile> = {};
-  public readonly baseUrl: string;
-  public readonly costPerByte: BN;
+export const useMockStorageDriver = (
+  metaplex: Metaplex,
+  options?: MockStorageOptions
+): StorageDriver => {
+  const cache: Record<string, MetaplexFile> = {};
+  const baseUrl: string = options?.baseUrl ?? DEFAULT_BASE_URL;
+  const costPerByte: BN =
+    options?.costPerByte != null
+      ? new BN(options?.costPerByte)
+      : DEFAULT_COST_PER_BYTE;
 
-  constructor(metaplex: Metaplex, options?: MockStorageOptions) {
-    super(metaplex);
-    this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
-    this.costPerByte =
-      options?.costPerByte != null
-        ? new BN(options?.costPerByte)
-        : DEFAULT_COST_PER_BYTE;
-  }
+  return {
+    metaplex,
 
-  public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const bytes = files.reduce(
-      (total, file) => total + file.toBuffer().byteLength,
-      0
-    );
+    getUploadPrice: async (bytes: number): Promise<Amount> => {
+      return useLamports(costPerByte.muln(bytes));
+    },
 
-    return SolAmount.fromLamports(bytes).multipliedBy(this.costPerByte);
-  }
+    upload: async (file: MetaplexFile): Promise<string> => {
+      const uri = `${baseUrl}${file.uniqueName}`;
+      cache[uri] = file;
 
-  public async upload(file: MetaplexFile): Promise<string> {
-    const uri = `${this.baseUrl}${file.uniqueName}`;
-    this.cache[uri] = file;
+      return uri;
+    },
 
-    return uri;
-  }
+    download: async (uri: string): Promise<MetaplexFile> => {
+      const file = cache[uri];
 
-  public async download(uri: string): Promise<MetaplexFile> {
-    const file = this.cache[uri];
+      if (!file) {
+        throw new AssetNotFoundError(uri);
+      }
 
-    if (!file) {
-      throw new AssetNotFoundError(uri);
-    }
-
-    return file;
-  }
-
-  public async downloadJson<T extends object>(uri: string): Promise<T> {
-    const file = await this.download(uri);
-
-    return JSON.parse(file.toString());
-  }
-}
+      return file;
+    },
+  };
+};

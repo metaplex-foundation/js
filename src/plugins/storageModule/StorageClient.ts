@@ -1,4 +1,4 @@
-import { DriverNotProvidedError } from '@/errors';
+import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
 import { DriverAware, Amount } from '@/types';
 import {
   MetaplexFile,
@@ -76,6 +76,12 @@ export const useStorageClient = (): StorageClient => {
     },
 
     async download(uri: string, options?: RequestInit): Promise<MetaplexFile> {
+      const download = this.driver().download;
+
+      if (download) {
+        return download(uri, options);
+      }
+
       const response = await fetch(uri, options);
       const buffer = await response.arrayBuffer();
 
@@ -86,9 +92,13 @@ export const useStorageClient = (): StorageClient => {
       uri: string,
       options?: RequestInit
     ): Promise<T> {
-      const response = await fetch(uri, options);
+      const file = await this.download(uri, options);
 
-      return await response.json();
+      try {
+        return JSON.parse(file.toString());
+      } catch (error) {
+        throw new InvalidJsonStringError(error as Error);
+      }
     },
   };
 };
