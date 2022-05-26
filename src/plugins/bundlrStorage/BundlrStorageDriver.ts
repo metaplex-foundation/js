@@ -1,9 +1,9 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
+import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { StorageDriver, MetaplexFile } from '@/types';
-import { SolAmount } from '@/utils';
+import { Amount, StorageDriver, useLamports } from '@/types';
 import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   AssetUploadFailedError,
@@ -11,218 +11,223 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
+import { MetaplexFile } from '../storageModule';
 
-export interface BundlrOptions {
+export type BundlrStorageDriver = StorageDriver & {
+  uploadAll: (files: MetaplexFile[]) => Promise<string[]>;
+  getBalance: () => Promise<Amount>;
+  fundingNeeded: (
+    amount: Amount,
+    skipBalanceCheck?: boolean
+  ) => Promise<Amount>;
+  fund: (amount: Amount, skipBalanceCheck?: boolean) => Promise<void>;
+  withdrawAll(): Promise<void>;
+  withdraw(amount: Amount): Promise<void>;
+  shouldWithdrawAfterUploading(): boolean;
+  withdrawAfterUploading(): BundlrStorageDriver;
+  dontWithdrawAfterUploading(): BundlrStorageDriver;
+};
+
+export type BundlrOptions = {
   address?: string;
   timeout?: number;
   providerUrl?: string;
   priceMultiplier?: number;
   withdrawAfterUploading?: boolean;
-}
+};
 
-export class BundlrStorageDriver extends StorageDriver {
-  protected bundlr: WebBundlr | NodeBundlr | null = null;
-  protected options: BundlrOptions;
-  protected _withdrawAfterUploading: boolean;
+export const useBundlrStorageDriver = (
+  metaplex: Metaplex,
+  options: BundlrOptions = {}
+): BundlrStorageDriver => {
+  let bundlr: WebBundlr | NodeBundlr | null = null;
+  let _withdrawAfterUploading: boolean = options.withdrawAfterUploading ?? true;
+  options = {
+    providerUrl: metaplex.connection.rpcEndpoint,
+    ...options,
+  };
 
-  constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
-    super(metaplex);
-    this.options = {
-      providerUrl: metaplex.connection.rpcEndpoint,
-      ...options,
-    };
-    this._withdrawAfterUploading = options.withdrawAfterUploading ?? true;
-  }
-
-  public async getBalance(): Promise<SolAmount> {
-    const bundlr = await this.getBundlr();
-    const balance = await bundlr.getLoadedBalance();
-
-    return SolAmount.fromLamports(balance);
-  }
-
-  public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const price = await this.getMultipliedPrice(this.getBytes(files));
-
-    return SolAmount.fromLamports(price);
-  }
-
-  public async upload(file: MetaplexFile): Promise<string> {
-    const [uri] = await this.uploadAll([file]);
-
-    return uri;
-  }
-
-  public async uploadAll(files: MetaplexFile[]): Promise<string[]> {
-    await this.fund(files);
-    const promises = files.map((file) => this.uploadFile(file));
-
-    const uris = await Promise.all(promises);
-
-    if (this.shouldWithdrawAfterUploading()) {
-      await this.withdrawAll();
+  const getBundlr = async (): Promise<WebBundlr | NodeBundlr> => {
+    if (bundlr) {
+      return bundlr;
     }
 
-    return uris;
-  }
+    return (bundlr = await initBundlr(metaplex, options));
+  };
 
-  public async fundingNeeded(
-    filesOrBytes: MetaplexFile[] | number,
-    skipBalanceCheck = false
-  ): Promise<BigNumber> {
-    const price = await this.getMultipliedPrice(this.getBytes(filesOrBytes));
+  return {
+    async getUploadPrice(bytes: number): Promise<Amount> {
+      const bundlr = await getBundlr();
+      const price = await bundlr.getPrice(bytes);
 
-    if (skipBalanceCheck) {
-      return price;
-    }
+      return bigNumberToAmount(
+        price.multipliedBy(options.priceMultiplier ?? 1.5)
+      );
+    },
 
-    const bundlr = await this.getBundlr();
-    const balance = await bundlr.getLoadedBalance();
+    async upload(file: MetaplexFile): Promise<string> {
+      const [uri] = await this.uploadAll([file]);
 
-    return price.isGreaterThan(balance)
-      ? price.minus(balance)
-      : new BigNumber(0);
-  }
+      return uri;
+    },
 
-  public async needsFunding(
-    filesOrBytes: MetaplexFile[] | number,
-    skipBalanceCheck = false
-  ): Promise<boolean> {
-    const fundingNeeded = await this.fundingNeeded(
-      filesOrBytes,
-      skipBalanceCheck
-    );
+    async uploadAll(files: MetaplexFile[]): Promise<string[]> {
+      const bundlr = await getBundlr();
+      const amount = await this.getUploadPrice(getBytes(...files));
+      await this.fund(amount);
 
-    return fundingNeeded.isGreaterThan(0);
-  }
+      const promises = files.map(async (file) => {
+        const { status, data } = await bundlr.uploader.upload(
+          file.toBuffer(),
+          file.getTagsWithContentType()
+        );
 
-  public async fund(
-    filesOrBytes: MetaplexFile[] | number,
-    skipBalanceCheck = false
-  ): Promise<void> {
-    const bundlr = await this.getBundlr();
-    const fundingNeeded = await this.fundingNeeded(
-      filesOrBytes,
-      skipBalanceCheck
-    );
+        if (status >= 300) {
+          throw new AssetUploadFailedError(status);
+        }
 
-    if (!fundingNeeded.isGreaterThan(0)) {
-      return;
-    }
+        return `https://arweave.net/${data.id}`;
+      });
 
-    // TODO: Catch errors and wrap in BundlrErrors.
-    await bundlr.fund(fundingNeeded);
-  }
+      const uris = await Promise.all(promises);
 
-  protected getBytes(filesOrBytes: MetaplexFile[] | number): number {
-    if (typeof filesOrBytes === 'number') {
-      return filesOrBytes;
-    }
-
-    return filesOrBytes.reduce((total, file) => total + file.getBytes(), 0);
-  }
-
-  protected async getMultipliedPrice(bytes: number): Promise<BigNumber> {
-    const bundlr = await this.getBundlr();
-    const price = await bundlr.getPrice(bytes);
-
-    return price
-      .multipliedBy(this.options.priceMultiplier ?? 1.5)
-      .decimalPlaces(0);
-  }
-
-  protected async uploadFile(file: MetaplexFile): Promise<string> {
-    const bundlr = await this.getBundlr();
-    const { status, data } = await bundlr.uploader.upload(
-      file.toBuffer(),
-      file.getTagsWithContentType()
-    );
-
-    if (status >= 300) {
-      throw new AssetUploadFailedError(status);
-    }
-
-    return `https://arweave.net/${data.id}`;
-  }
-
-  public async withdrawAll(): Promise<void> {
-    // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
-    const balance = await this.getBalance();
-    const minimumBalance = SolAmount.fromLamports(5000);
-
-    if (balance.isLessThan(minimumBalance)) {
-      return;
-    }
-
-    const balanceToWithdraw = balance.minus(minimumBalance).getLamports();
-    await this.withdraw(balanceToWithdraw);
-  }
-
-  public async withdraw(lamports: BigNumber | number): Promise<void> {
-    const bundlr = await this.getBundlr();
-
-    const { status } = await bundlr.withdrawBalance(new BigNumber(lamports));
-
-    if (status >= 300) {
-      throw new BundlrWithdrawError(status);
-    }
-  }
-
-  public shouldWithdrawAfterUploading(): boolean {
-    return this._withdrawAfterUploading;
-  }
-
-  public withdrawAfterUploading() {
-    this._withdrawAfterUploading = true;
-
-    return this;
-  }
-
-  public dontWithdrawAfterUploading() {
-    this._withdrawAfterUploading = false;
-
-    return this;
-  }
-
-  public async getBundlr(): Promise<WebBundlr | NodeBundlr> {
-    if (this.bundlr) return this.bundlr;
-
-    const currency = 'solana';
-    const address = this.options?.address ?? 'https://node1.bundlr.network';
-    const options = {
-      timeout: this.options.timeout,
-      providerUrl: this.options.providerUrl,
-    };
-
-    const identity = this.metaplex.identity();
-    const bundlr =
-      identity instanceof KeypairIdentityDriver
-        ? new BundlrPackage.default(
-            address,
-            currency,
-            identity.keypair.secretKey,
-            options
-          )
-        : new BundlrPackage.WebBundlr(address, currency, identity, options);
-
-    try {
-      // Check for valid bundlr node.
-      await bundlr.utils.getBundlerAddress(currency);
-    } catch (error) {
-      throw new FailedToConnectToBundlrAddressError(address, error as Error);
-    }
-
-    if (bundlr instanceof BundlrPackage.WebBundlr) {
-      try {
-        // Try to initiate bundlr.
-        await bundlr.ready();
-      } catch (error) {
-        throw new FailedToInitializeBundlrError(error as Error);
+      if (this.shouldWithdrawAfterUploading()) {
+        await this.withdrawAll();
       }
-    }
 
-    this.bundlr = bundlr;
+      return uris;
+    },
 
-    return bundlr;
+    async getBalance(): Promise<Amount> {
+      const bundlr = await getBundlr();
+      const balance = await bundlr.getLoadedBalance();
+
+      return bigNumberToAmount(balance);
+    },
+
+    async fundingNeeded(
+      amount: Amount,
+      skipBalanceCheck = false
+    ): Promise<Amount> {
+      if (skipBalanceCheck) {
+        return amount;
+      }
+
+      const bundlr = await getBundlr();
+      const balance = await bundlr.getLoadedBalance();
+      const price = amountToBigNumber(amount);
+      const fundingNeeded = price.isGreaterThan(balance)
+        ? price.minus(balance)
+        : new BigNumber(0);
+
+      return bigNumberToAmount(fundingNeeded);
+    },
+
+    async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
+      const bundlr = await getBundlr();
+      const fundingNeeded = await this.fundingNeeded(amount, skipBalanceCheck);
+
+      if (fundingNeeded.basisPoints.lten(0)) {
+        return;
+      }
+
+      // TODO: Catch errors and wrap in BundlrErrors.
+      await bundlr.fund(amountToBigNumber(fundingNeeded));
+    },
+
+    async withdrawAll(): Promise<void> {
+      // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
+      const bundlr = await getBundlr();
+      const balance = await bundlr.getLoadedBalance();
+      const minimumBalance = new BigNumber(5000);
+
+      if (balance.isLessThan(minimumBalance)) {
+        return;
+      }
+
+      const balanceToWithdraw = balance.minus(minimumBalance);
+      await this.withdraw(bigNumberToAmount(balanceToWithdraw));
+    },
+
+    async withdraw(amount: Amount): Promise<void> {
+      const bundlr = await getBundlr();
+
+      const { status } = await bundlr.withdrawBalance(
+        amountToBigNumber(amount)
+      );
+
+      if (status >= 300) {
+        throw new BundlrWithdrawError(status);
+      }
+    },
+
+    shouldWithdrawAfterUploading(): boolean {
+      return _withdrawAfterUploading;
+    },
+
+    withdrawAfterUploading() {
+      _withdrawAfterUploading = true;
+
+      return this;
+    },
+
+    dontWithdrawAfterUploading() {
+      _withdrawAfterUploading = false;
+
+      return this;
+    },
+  };
+};
+
+const initBundlr = async (
+  metaplex: Metaplex,
+  options: BundlrOptions
+): Promise<WebBundlr | NodeBundlr> => {
+  const currency = 'solana';
+  const address = options?.address ?? 'https://node1.bundlr.network';
+  options = {
+    timeout: options.timeout,
+    providerUrl: options.providerUrl,
+  };
+
+  const identity = metaplex.identity();
+  const bundlr =
+    identity instanceof KeypairIdentityDriver
+      ? new BundlrPackage.default(
+          address,
+          currency,
+          identity.keypair.secretKey,
+          options
+        )
+      : new BundlrPackage.WebBundlr(address, currency, identity, options);
+
+  try {
+    // Check for valid bundlr node.
+    await bundlr.utils.getBundlerAddress(currency);
+  } catch (error) {
+    throw new FailedToConnectToBundlrAddressError(address, error as Error);
   }
-}
+
+  if (bundlr instanceof BundlrPackage.WebBundlr) {
+    try {
+      // Try to initiate bundlr.
+      await bundlr.ready();
+    } catch (error) {
+      throw new FailedToInitializeBundlrError(error as Error);
+    }
+  }
+
+  return bundlr;
+};
+
+const getBytes = (...files: MetaplexFile[]): number => {
+  return files.reduce((acc, file) => acc + file.getBytes(), 0);
+};
+
+const bigNumberToAmount = (bigNumber: BigNumber): Amount => {
+  return useLamports(new BN(bigNumber.decimalPlaces(0).toString()));
+};
+
+const amountToBigNumber = (amount: Amount): BigNumber => {
+  return new BigNumber(amount.basisPoints.toString());
+};

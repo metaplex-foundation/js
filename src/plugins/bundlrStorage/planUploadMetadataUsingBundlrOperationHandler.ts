@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { MetaplexFile, OperationHandler } from '@/types';
+import { OperationHandler } from '@/types';
 import { Plan, DisposableScope } from '@/utils';
 import { BundlrStorageDriver } from './BundlrStorageDriver';
 import { UploadMetadataOutput } from '../nftModule/uploadMetadata';
@@ -9,6 +9,11 @@ import {
   planUploadMetadataOperationHandler,
   replaceAssetsWithUris,
 } from '../nftModule/planUploadMetadata';
+import {
+  MetaplexFile,
+  useMetaplexFileFromJson,
+  StorageDriver,
+} from '../storageModule';
 
 export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<PlanUploadMetadataOperation> =
   {
@@ -24,8 +29,9 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
         scope
       );
       const storage = metaplex.storage();
+      const storageDriver = metaplex.storage().driver();
 
-      if (!(storage instanceof BundlrStorageDriver)) {
+      if (!isBundlrStorageDriver(storageDriver)) {
         return plan;
       }
 
@@ -35,10 +41,10 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
       const mockedMetadata = replaceAssetsWithUris(metadata, mockUris);
       const files: MetaplexFile[] = [
         ...assets,
-        MetaplexFile.fromJson(mockedMetadata),
+        useMetaplexFileFromJson(mockedMetadata),
       ];
       let originalWithdrawAfterUploading =
-        storage.shouldWithdrawAfterUploading();
+        storageDriver.shouldWithdrawAfterUploading();
 
       return plan
         .prependStep<any>({
@@ -49,16 +55,11 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
             // initial state. This prevents having to fund many times within this plan.
 
             originalWithdrawAfterUploading =
-              storage.shouldWithdrawAfterUploading();
-            storage.dontWithdrawAfterUploading();
+              storageDriver.shouldWithdrawAfterUploading();
+            storageDriver.dontWithdrawAfterUploading();
 
-            const needsFunding = await storage.needsFunding(files);
-
-            if (!needsFunding) {
-              return;
-            }
-
-            await storage.fund(files);
+            const fundsNeeded = await storage.getUploadPriceForFiles(files);
+            await storageDriver.fund(fundsNeeded);
           },
         })
         .addStep({
@@ -68,14 +69,26 @@ export const planUploadMetadataUsingBundlrOperationHandler: OperationHandler<Pla
             // withdraw any remaining funds. After doing so, we must not
             // forget to restore the original withdrawAfterUploading.
 
-            await storage.withdrawAll();
+            await storageDriver.withdrawAll();
 
             originalWithdrawAfterUploading
-              ? storage.withdrawAfterUploading()
-              : storage.dontWithdrawAfterUploading();
+              ? storageDriver.withdrawAfterUploading()
+              : storageDriver.dontWithdrawAfterUploading();
 
             return output;
           },
         });
     },
   };
+
+const isBundlrStorageDriver = (
+  storageDriver: StorageDriver
+): storageDriver is BundlrStorageDriver => {
+  return (
+    'fund' in storageDriver &&
+    'withdrawAll' in storageDriver &&
+    'shouldWithdrawAfterUploading' in storageDriver &&
+    'withdrawAfterUploading' in storageDriver &&
+    'dontWithdrawAfterUploading' in storageDriver
+  );
+};
