@@ -70,15 +70,6 @@ export class BundlrStorageDriver implements StorageDriver {
     return await Promise.all(promises);
   }
 
-  async beforeUpload(files: MetaplexFile[]): Promise<void> {
-    const price = await this.getUploadPrice(getBytes(...files));
-    await this.fund(price);
-  }
-
-  async afterUpload(): Promise<void> {
-    this.withdrawAll();
-  }
-
   async getBalance(): Promise<Amount> {
     const bundlr = await this.bundlr();
     const balance = await bundlr.getLoadedBalance();
