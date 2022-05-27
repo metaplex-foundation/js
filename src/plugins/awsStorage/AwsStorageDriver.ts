@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { StorageDriver, lamports, Amount } from '@/types';
-import { MetaplexFile } from '../storageModule';
+import { lamports, Amount } from '@/types';
+import { MetaplexFile, StorageDriver } from '../storageModule';
 
 export class AwsStorageDriver implements StorageDriver {
   protected client: S3Client;

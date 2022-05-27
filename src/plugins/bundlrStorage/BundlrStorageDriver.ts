@@ -3,7 +3,7 @@ import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { Amount, StorageDriver, lamports } from '@/types';
+import { Amount, lamports } from '@/types';
 import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   AssetUploadFailedError,
@@ -15,6 +15,7 @@ import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
   MetaplexFileTag,
+  StorageDriver,
 } from '../storageModule';
 
 export type BundlrOptions = {
