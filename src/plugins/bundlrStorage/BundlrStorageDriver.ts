@@ -13,19 +13,6 @@ import {
 } from '@/errors';
 import { MetaplexFile } from '../storageModule';
 
-export type BundlrStorageDriver = StorageDriver &
-  Required<
-    Pick<StorageDriver, 'uploadAll' | 'beforeUpload' | 'afterUpload'>
-  > & {
-    getBalance: () => Promise<Amount>;
-    fund: (amount: Amount, skipBalanceCheck?: boolean) => Promise<void>;
-    withdrawAll(): Promise<void>;
-    withdraw(amount: Amount): Promise<void>;
-    shouldWithdrawAfterUploading(): boolean;
-    withdrawAfterUploading(): BundlrStorageDriver;
-    dontWithdrawAfterUploading(): BundlrStorageDriver;
-  };
-
 export type BundlrOptions = {
   address?: string;
   timeout?: number;
@@ -34,147 +21,161 @@ export type BundlrOptions = {
   withdrawAfterUploading?: boolean;
 };
 
-export const useBundlrStorageDriver = (
-  metaplex: Metaplex,
-  options: BundlrOptions = {}
-): BundlrStorageDriver => {
-  let bundlr: WebBundlr | NodeBundlr | null = null;
-  let _withdrawAfterUploading: boolean = options.withdrawAfterUploading ?? true;
-  options = {
-    providerUrl: metaplex.connection.rpcEndpoint,
-    ...options,
-  };
+export class BundlrStorageDriver implements StorageDriver {
+  protected _metaplex: Metaplex;
+  protected _bundlr: WebBundlr | NodeBundlr | null = null;
+  protected _options: BundlrOptions;
 
-  const getBundlr = async (): Promise<WebBundlr | NodeBundlr> => {
-    if (bundlr) {
-      return bundlr;
-    }
+  constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
+    this._metaplex = metaplex;
+    this._options = {
+      providerUrl: metaplex.connection.rpcEndpoint,
+      ...options,
+    };
+  }
 
-    return (bundlr = await initBundlr(metaplex, options));
-  };
+  async getUploadPrice(bytes: number): Promise<Amount> {
+    const bundlr = await this.bundlr();
+    const price = await bundlr.getPrice(bytes);
 
-  return {
-    async getUploadPrice(bytes: number): Promise<Amount> {
-      const bundlr = await getBundlr();
-      const price = await bundlr.getPrice(bytes);
+    return bigNumberToAmount(
+      price.multipliedBy(this._options.priceMultiplier ?? 1.5)
+    );
+  }
 
-      return bigNumberToAmount(
-        price.multipliedBy(options.priceMultiplier ?? 1.5)
-      );
-    },
+  async upload(file: MetaplexFile): Promise<string> {
+    const [uri] = await this.uploadAll([file]);
 
-    async upload(file: MetaplexFile): Promise<string> {
-      const [uri] = await this.uploadAll([file]);
+    return uri;
+  }
 
-      return uri;
-    },
+  async uploadAll(files: MetaplexFile[]): Promise<string[]> {
+    const bundlr = await this.bundlr();
+    const amount = await this.getUploadPrice(getBytes(...files));
+    await this.fund(amount);
 
-    async uploadAll(files: MetaplexFile[]): Promise<string[]> {
-      const bundlr = await getBundlr();
-      const amount = await this.getUploadPrice(getBytes(...files));
-      await this.fund(amount);
-
-      const promises = files.map(async (file) => {
-        const { status, data } = await bundlr.uploader.upload(
-          file.toBuffer(),
-          file.getTagsWithContentType()
-        );
-
-        if (status >= 300) {
-          throw new AssetUploadFailedError(status);
-        }
-
-        return `https://arweave.net/${data.id}`;
-      });
-
-      const uris = await Promise.all(promises);
-
-      if (this.shouldWithdrawAfterUploading()) {
-        await this.withdrawAll();
-      }
-
-      return uris;
-    },
-
-    async beforeUpload(files: MetaplexFile[]): Promise<void> {
-      const price = await this.getUploadPrice(getBytes(...files));
-      await this.fund(price);
-    },
-
-    async afterUpload(): Promise<void> {
-      this.withdrawAll();
-    },
-
-    async getBalance(): Promise<Amount> {
-      const bundlr = await getBundlr();
-      const balance = await bundlr.getLoadedBalance();
-
-      return bigNumberToAmount(balance);
-    },
-
-    async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
-      const bundlr = await getBundlr();
-      let toFund = amountToBigNumber(amount);
-
-      if (!skipBalanceCheck) {
-        const balance = await bundlr.getLoadedBalance();
-
-        toFund = toFund.isGreaterThan(balance)
-          ? toFund.minus(balance)
-          : new BigNumber(0);
-      }
-
-      if (toFund.isLessThanOrEqualTo(0)) {
-        return;
-      }
-
-      // TODO: Catch errors and wrap in BundlrErrors.
-      await bundlr.fund(toFund);
-    },
-
-    async withdrawAll(): Promise<void> {
-      // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
-      const bundlr = await getBundlr();
-      const balance = await bundlr.getLoadedBalance();
-      const minimumBalance = new BigNumber(5000);
-
-      if (balance.isLessThan(minimumBalance)) {
-        return;
-      }
-
-      const balanceToWithdraw = balance.minus(minimumBalance);
-      await this.withdraw(bigNumberToAmount(balanceToWithdraw));
-    },
-
-    async withdraw(amount: Amount): Promise<void> {
-      const bundlr = await getBundlr();
-
-      const { status } = await bundlr.withdrawBalance(
-        amountToBigNumber(amount)
+    const promises = files.map(async (file) => {
+      const { status, data } = await bundlr.uploader.upload(
+        file.toBuffer(),
+        file.getTagsWithContentType()
       );
 
       if (status >= 300) {
-        throw new BundlrWithdrawError(status);
+        throw new AssetUploadFailedError(status);
       }
-    },
 
-    shouldWithdrawAfterUploading(): boolean {
-      return _withdrawAfterUploading;
-    },
+      return `https://arweave.net/${data.id}`;
+    });
 
-    withdrawAfterUploading() {
-      _withdrawAfterUploading = true;
+    return await Promise.all(promises);
+  }
 
-      return this;
-    },
+  async beforeUpload(files: MetaplexFile[]): Promise<void> {
+    const price = await this.getUploadPrice(getBytes(...files));
+    await this.fund(price);
+  }
 
-    dontWithdrawAfterUploading() {
-      _withdrawAfterUploading = false;
+  async afterUpload(): Promise<void> {
+    this.withdrawAll();
+  }
 
-      return this;
-    },
-  };
-};
+  async getBalance(): Promise<Amount> {
+    const bundlr = await this.bundlr();
+    const balance = await bundlr.getLoadedBalance();
+
+    return bigNumberToAmount(balance);
+  }
+
+  async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
+    const bundlr = await this.bundlr();
+    let toFund = amountToBigNumber(amount);
+
+    if (!skipBalanceCheck) {
+      const balance = await bundlr.getLoadedBalance();
+
+      toFund = toFund.isGreaterThan(balance)
+        ? toFund.minus(balance)
+        : new BigNumber(0);
+    }
+
+    if (toFund.isLessThanOrEqualTo(0)) {
+      return;
+    }
+
+    // TODO: Catch errors and wrap in BundlrErrors.
+    await bundlr.fund(toFund);
+  }
+
+  async withdrawAll(): Promise<void> {
+    // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
+    const bundlr = await this.bundlr();
+    const balance = await bundlr.getLoadedBalance();
+    const minimumBalance = new BigNumber(5000);
+
+    if (balance.isLessThan(minimumBalance)) {
+      return;
+    }
+
+    const balanceToWithdraw = balance.minus(minimumBalance);
+    await this.withdraw(bigNumberToAmount(balanceToWithdraw));
+  }
+
+  async withdraw(amount: Amount): Promise<void> {
+    const bundlr = await this.bundlr();
+
+    const { status } = await bundlr.withdrawBalance(amountToBigNumber(amount));
+
+    if (status >= 300) {
+      throw new BundlrWithdrawError(status);
+    }
+  }
+
+  async bundlr(): Promise<WebBundlr | NodeBundlr> {
+    if (this._bundlr) {
+      return this._bundlr;
+    }
+
+    return (this._bundlr = await this.initBundlr());
+  }
+
+  async initBundlr(): Promise<WebBundlr | NodeBundlr> {
+    const currency = 'solana';
+    const address = this._options?.address ?? 'https://node1.bundlr.network';
+    const options = {
+      timeout: this._options.timeout,
+      providerUrl: this._options.providerUrl,
+    };
+
+    const identity = this._metaplex.identity();
+    const bundlr =
+      identity instanceof KeypairIdentityDriver
+        ? new BundlrPackage.default(
+            address,
+            currency,
+            identity.keypair.secretKey,
+            options
+          )
+        : new BundlrPackage.WebBundlr(address, currency, identity, options);
+
+    try {
+      // Check for valid bundlr node.
+      await bundlr.utils.getBundlerAddress(currency);
+    } catch (error) {
+      throw new FailedToConnectToBundlrAddressError(address, error as Error);
+    }
+
+    if (bundlr instanceof BundlrPackage.WebBundlr) {
+      try {
+        // Try to initiate bundlr.
+        await bundlr.ready();
+      } catch (error) {
+        throw new FailedToInitializeBundlrError(error as Error);
+      }
+    }
+
+    return bundlr;
+  }
+}
 
 export const isBundlrStorageDriver = (
   storageDriver: StorageDriver
@@ -186,47 +187,6 @@ export const isBundlrStorageDriver = (
     'withdrawAfterUploading' in storageDriver &&
     'dontWithdrawAfterUploading' in storageDriver
   );
-};
-
-const initBundlr = async (
-  metaplex: Metaplex,
-  options: BundlrOptions
-): Promise<WebBundlr | NodeBundlr> => {
-  const currency = 'solana';
-  const address = options?.address ?? 'https://node1.bundlr.network';
-  options = {
-    timeout: options.timeout,
-    providerUrl: options.providerUrl,
-  };
-
-  const identity = metaplex.identity();
-  const bundlr =
-    identity instanceof KeypairIdentityDriver
-      ? new BundlrPackage.default(
-          address,
-          currency,
-          identity.keypair.secretKey,
-          options
-        )
-      : new BundlrPackage.WebBundlr(address, currency, identity, options);
-
-  try {
-    // Check for valid bundlr node.
-    await bundlr.utils.getBundlerAddress(currency);
-  } catch (error) {
-    throw new FailedToConnectToBundlrAddressError(address, error as Error);
-  }
-
-  if (bundlr instanceof BundlrPackage.WebBundlr) {
-    try {
-      // Try to initiate bundlr.
-      await bundlr.ready();
-    } catch (error) {
-      throw new FailedToInitializeBundlrError(error as Error);
-    }
-  }
-
-  return bundlr;
 };
 
 const getBytes = (...files: MetaplexFile[]): number => {
