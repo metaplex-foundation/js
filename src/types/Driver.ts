@@ -1,10 +1,11 @@
 import { Metaplex } from '@/Metaplex';
 
-export type DriverAware<T> = {
+export type HasDriver<T> = {
   driver: () => T;
   setDriver: (newDriver: T) => void;
 };
 
+/** @deprecated */
 export abstract class Driver {
   protected readonly metaplex: Metaplex;
 

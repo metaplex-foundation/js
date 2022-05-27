@@ -1,5 +1,5 @@
 import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
-import { DriverAware, Amount } from '@/types';
+import { HasDriver, Amount } from '@/types';
 import {
   MetaplexFile,
   useMetaplexFile,
@@ -7,7 +7,7 @@ import {
 } from './MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 
-export type StorageClient = DriverAware<StorageDriver> & {
+export type StorageClient = HasDriver<StorageDriver> & {
   // Uploads.
   getUploadPriceForBytes: (bytes: number) => Promise<Amount>;
   getUploadPriceForFile: (file: MetaplexFile) => Promise<Amount>;

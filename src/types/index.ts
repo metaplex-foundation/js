@@ -4,7 +4,7 @@ export * from './Cluster';
 export * from './DateTimeString';
 export * from './Driver';
 export * from './IdentityDriver';
-export * from './MetaplexAware';
+export * from './HasMetaplex';
 export * from './MetaplexPlugin';
 export * from './Model';
 export * from './ModuleClient';
