@@ -172,11 +172,10 @@ export const isBundlrStorageDriver = (
   storageDriver: StorageDriver
 ): storageDriver is BundlrStorageDriver => {
   return (
+    'bundlr' in storageDriver &&
+    'getBalance' in storageDriver &&
     'fund' in storageDriver &&
-    'withdrawAll' in storageDriver &&
-    'shouldWithdrawAfterUploading' in storageDriver &&
-    'withdrawAfterUploading' in storageDriver &&
-    'dontWithdrawAfterUploading' in storageDriver
+    'withdrawAll' in storageDriver
   );
 };
 
