@@ -1,6 +1,7 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
 import { Opaque } from '@/utils';
+import { CurrencyMismatchError } from '@/errors';
 
 export type Amount = {
   basisPoints: BasisPoints;
@@ -79,9 +80,16 @@ export const assertSameCurrencies = (
   right: Currency | Amount,
   operation?: string
 ) => {
+  if ('currency' in left) {
+    left = left.currency;
+  }
+
+  if ('currency' in right) {
+    right = right.currency;
+  }
+
   if (!sameCurrencies(left, right)) {
-    // TODO: Custom errors.
-    throw new Error(`Trying to ${operation} amounts with different currencies`);
+    throw new CurrencyMismatchError(left, right, operation);
   }
 };
 

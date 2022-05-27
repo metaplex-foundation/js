@@ -20,6 +20,7 @@ import {
   lamports,
   USD,
   SOL,
+  CurrencyMismatchError,
 } from '@/index';
 
 test('Amount: it can create amounts from any currencies', (t: Test) => {
@@ -73,10 +74,11 @@ test('Amount: it fail to operate on amounts of different currencies', (t: Test) 
     addAmounts(sol(1), usd(1));
     t.fail();
   } catch (error) {
-    t.equal(
-      (error as Error).message,
-      'Trying to add amounts with different currencies'
-    );
+    t.true(error instanceof CurrencyMismatchError);
+    const customError = error as CurrencyMismatchError;
+    t.equal(customError.left, SOL);
+    t.equal(customError.right, USD);
+    t.equal(customError.operation, 'add');
     t.end();
   }
 });
