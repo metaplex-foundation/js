@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { Cluster, Program } from '@/types';
+import { Cluster, Program, Currency } from '@/types';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
@@ -26,6 +26,46 @@ export class OperationHandlerMissingError extends SdkError {
         'Did you forget to register it? You may do this by using: ' +
         '"metaplex.register(operation, operationHandler)".',
     });
+  }
+}
+
+export class DriverNotProvidedError extends SdkError {
+  constructor(driver: string, cause?: Error) {
+    super({
+      cause,
+      key: 'driver_not_provided',
+      title: 'Driver Not Provided',
+      problem: `The SDK tried to access the driver [${driver}] but was not provided.`,
+      solution:
+        'Make sure the driver is registered by using the "setDriver(myDriver)" method.',
+    });
+  }
+}
+
+export class CurrencyMismatchError extends SdkError {
+  left: Currency;
+  right: Currency;
+  operation?: string;
+  constructor(
+    left: Currency,
+    right: Currency,
+    operation?: string,
+    cause?: Error
+  ) {
+    const wrappedOperation = operation ? ` [${operation}]` : '';
+    super({
+      cause,
+      key: 'currency_mismatch',
+      title: 'Currency Mismatch',
+      problem:
+        `The SDK tried to execute an operation${wrappedOperation} on two different currencies: ` +
+        `${left.symbol} and ${right.symbol}.`,
+      solution:
+        'Provide both amounts in the same currency to perform this operation.',
+    });
+    this.left = left;
+    this.right = right;
+    this.operation = operation;
   }
 }
 

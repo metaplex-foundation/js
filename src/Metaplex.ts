@@ -4,13 +4,11 @@ import {
   Cluster,
   resolveClusterFromConnection,
   IdentityDriver,
-  StorageDriver,
   RpcDriver,
   ProgramDriver,
   OperationDriver,
 } from '@/types';
 import { GuestIdentityDriver } from '@/plugins/guestIdentity';
-import { BundlrStorageDriver } from '@/plugins/bundlrStorage';
 import { CoreRpcDriver } from '@/plugins/coreRpcDriver';
 import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
 import { CoreOperationDriver } from '@/plugins/coreOperationDriver';
@@ -30,9 +28,6 @@ export class Metaplex {
   /** Encapsulates the identity of the users interacting with the SDK. */
   protected identityDriver: IdentityDriver;
 
-  /** Encapsulates where assets should be uploaded. */
-  protected storageDriver: StorageDriver;
-
   /** Encapsulates how to read and write on-chain. */
   protected rpcDriver: RpcDriver;
 
@@ -46,7 +41,6 @@ export class Metaplex {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.identityDriver = new GuestIdentityDriver(this);
-    this.storageDriver = new BundlrStorageDriver(this);
     this.rpcDriver = new CoreRpcDriver(this);
     this.programDriver = new CoreProgramDriver(this);
     this.operationDriver = new CoreOperationDriver(this);
@@ -69,16 +63,6 @@ export class Metaplex {
 
   setIdentityDriver(identity: IdentityDriver) {
     this.identityDriver = identity;
-
-    return this;
-  }
-
-  storage() {
-    return this.storageDriver;
-  }
-
-  setStorageDriver(storage: StorageDriver) {
-    this.storageDriver = storage;
 
     return this;
   }

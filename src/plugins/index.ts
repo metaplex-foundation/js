@@ -10,4 +10,5 @@ export * from './guestIdentity';
 export * from './keypairIdentity';
 export * from './mockStorage';
 export * from './nftModule';
+export * from './storageModule';
 export * from './walletAdapterIdentity';

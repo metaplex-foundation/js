@@ -7,7 +7,6 @@ export * from './findNftsByOwner';
 export * from './JsonMetadata';
 export * from './Nft';
 export * from './NftClient';
-export * from './planUploadMetadata';
 export * from './plugin';
 export * from './printNewEdition';
 export * from './updateNft';

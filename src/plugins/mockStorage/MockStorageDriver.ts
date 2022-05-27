@@ -1,24 +1,22 @@
 import BN from 'bn.js';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexFile, StorageDriver } from '@/types';
-import { SolAmount } from '@/utils';
+import { Amount, lamports } from '@/types';
 import { AssetNotFoundError } from '@/errors';
+import { MetaplexFile, StorageDriver } from '../storageModule';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = new BN(1);
 
-export interface MockStorageOptions {
+export type MockStorageOptions = {
   baseUrl?: string;
   costPerByte?: BN | number;
-}
+};
 
-export class MockStorageDriver extends StorageDriver {
+export class MockStorageDriver implements StorageDriver {
   private cache: Record<string, MetaplexFile> = {};
   public readonly baseUrl: string;
   public readonly costPerByte: BN;
 
-  constructor(metaplex: Metaplex, options?: MockStorageOptions) {
-    super(metaplex);
+  constructor(options?: MockStorageOptions) {
     this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
     this.costPerByte =
       options?.costPerByte != null
@@ -26,23 +24,18 @@ export class MockStorageDriver extends StorageDriver {
         : DEFAULT_COST_PER_BYTE;
   }
 
-  public async getPrice(...files: MetaplexFile[]): Promise<SolAmount> {
-    const bytes = files.reduce(
-      (total, file) => total + file.toBuffer().byteLength,
-      0
-    );
-
-    return SolAmount.fromLamports(bytes).multipliedBy(this.costPerByte);
+  async getUploadPrice(bytes: number): Promise<Amount> {
+    return lamports(this.costPerByte.muln(bytes));
   }
 
-  public async upload(file: MetaplexFile): Promise<string> {
+  async upload(file: MetaplexFile): Promise<string> {
     const uri = `${this.baseUrl}${file.uniqueName}`;
     this.cache[uri] = file;
 
     return uri;
   }
 
-  public async download(uri: string): Promise<MetaplexFile> {
+  async download(uri: string): Promise<MetaplexFile> {
     const file = this.cache[uri];
 
     if (!file) {
@@ -50,11 +43,5 @@ export class MockStorageDriver extends StorageDriver {
     }
 
     return file;
-  }
-
-  public async downloadJson<T extends object>(uri: string): Promise<T> {
-    const file = await this.download(uri);
-
-    return JSON.parse(file.toString());
   }
 }

@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
 
-export type MetaplexAware = {
+export type HasMetaplex = Readonly<{
   metaplex: Metaplex;
-};
+}>;

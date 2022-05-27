@@ -1,6 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
 import { ModuleClient } from '@/types';
-import { Plan } from '@/utils';
 import { Nft } from './Nft';
 import { findNftByMintOperation } from './findNftByMint';
 import { findNftsByMintListOperation } from './findNftsByMintList';
@@ -12,7 +11,6 @@ import {
   uploadMetadataOperation,
   UploadMetadataOutput,
 } from './uploadMetadata';
-import { planUploadMetadataOperation } from './planUploadMetadata';
 import {
   CreateNftInput,
   createNftOperation,
@@ -62,14 +60,6 @@ export class NftClient extends ModuleClient {
 
   uploadMetadata(input: UploadMetadataInput): Promise<UploadMetadataOutput> {
     return this.metaplex.operations().execute(uploadMetadataOperation(input));
-  }
-
-  planUploadMetadata(
-    input: UploadMetadataInput
-  ): Promise<Plan<undefined, UploadMetadataOutput>> {
-    return this.metaplex
-      .operations()
-      .execute(planUploadMetadataOperation(input));
   }
 
   async create(input: CreateNftInput): Promise<{ nft: Nft } & CreateNftOutput> {

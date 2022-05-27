@@ -30,6 +30,7 @@ export type InputStep<From, To> = Pick<Step, 'name'> &
 
 type InputPlan<I, O> = Pick<Plan<I, O>, 'promise'> & Partial<Plan<I, O>>;
 
+/** @deprecated */
 export class Plan<I, O> {
   public readonly promise: (state: I, plan: Plan<any, any>) => Promise<O>;
   public readonly steps: Step[];
