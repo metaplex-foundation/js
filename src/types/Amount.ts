@@ -20,6 +20,11 @@ export const SOL = {
   decimals: 9,
 };
 
+export const USD = {
+  symbol: 'USD',
+  decimals: 2,
+};
+
 export const amount = (
   basisPoints: number | BN,
   currency: Currency
@@ -34,12 +39,16 @@ export const lamports = (lamports: number | BN): Amount => {
   return amount(lamports, SOL);
 };
 
-export const sol = (sol: number | BN): Amount => {
-  return lamports(toBasisPoints(sol).muln(LAMPORTS_PER_SOL));
+export const sol = (sol: number): Amount => {
+  return lamports(sol * LAMPORTS_PER_SOL);
+};
+
+export const usd = (usd: number): Amount => {
+  return amount(usd * 100, USD);
 };
 
 export const toBasisPoints = (value: number | BN): BasisPoints => {
-  return new BN(value, 'le') as BasisPoints;
+  return new BN(value) as BasisPoints;
 };
 
 export const isSol = (currencyOrAmount: Currency | Amount): boolean => {
@@ -129,3 +138,15 @@ export const isPositiveAmount = (value: Amount): boolean =>
 
 export const isNegativeAmount = (value: Amount): boolean =>
   compareAmounts(value, amount(0, value.currency)) < 0;
+
+export const formatAmount = (value: Amount): string => {
+  const power = new BN(10).pow(new BN(value.currency.decimals));
+  const basisPoints = value.basisPoints as unknown as BN & {
+    divmod: (other: BN) => { div: BN; mod: BN };
+  };
+
+  const { div, mod } = basisPoints.divmod(power);
+  const units = `${div.toString()}.${mod.abs().toString()}`;
+
+  return `${value.currency.symbol} ${units}`;
+};
