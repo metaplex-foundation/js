@@ -13,16 +13,18 @@ import {
 } from '@/errors';
 import { MetaplexFile } from '../storageModule';
 
-export type BundlrStorageDriver = StorageDriver & {
-  uploadAll: (files: MetaplexFile[]) => Promise<string[]>;
-  getBalance: () => Promise<Amount>;
-  fund: (amount: Amount, skipBalanceCheck?: boolean) => Promise<void>;
-  withdrawAll(): Promise<void>;
-  withdraw(amount: Amount): Promise<void>;
-  shouldWithdrawAfterUploading(): boolean;
-  withdrawAfterUploading(): BundlrStorageDriver;
-  dontWithdrawAfterUploading(): BundlrStorageDriver;
-};
+export type BundlrStorageDriver = StorageDriver &
+  Required<
+    Pick<StorageDriver, 'uploadAll' | 'beforeUpload' | 'afterUpload'>
+  > & {
+    getBalance: () => Promise<Amount>;
+    fund: (amount: Amount, skipBalanceCheck?: boolean) => Promise<void>;
+    withdrawAll(): Promise<void>;
+    withdraw(amount: Amount): Promise<void>;
+    shouldWithdrawAfterUploading(): boolean;
+    withdrawAfterUploading(): BundlrStorageDriver;
+    dontWithdrawAfterUploading(): BundlrStorageDriver;
+  };
 
 export type BundlrOptions = {
   address?: string;
@@ -92,6 +94,15 @@ export const useBundlrStorageDriver = (
       }
 
       return uris;
+    },
+
+    async beforeUpload(files: MetaplexFile[]): Promise<void> {
+      const price = await this.getUploadPrice(getBytes(...files));
+      await this.fund(price);
+    },
+
+    async afterUpload(): Promise<void> {
+      this.withdrawAll();
     },
 
     async getBalance(): Promise<Amount> {
