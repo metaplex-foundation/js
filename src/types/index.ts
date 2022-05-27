@@ -16,4 +16,3 @@ export * from './ProgramDriver';
 export * from './PublicKeyString';
 export * from './RpcDriver';
 export * from './Signer';
-export * from '../plugins/storageModule/StorageDriver';
