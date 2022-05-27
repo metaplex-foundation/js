@@ -91,7 +91,7 @@ export class CoreStorageClient implements StorageClient {
     const file = await this.download(uri, options);
 
     try {
-      return JSON.parse(file.toString());
+      return JSON.parse(file.buffer.toString());
     } catch (error) {
       throw new InvalidJsonStringError(error as Error);
     }
