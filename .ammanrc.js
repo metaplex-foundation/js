@@ -48,4 +48,7 @@ module.exports = {
     storageId: MOCK_STORAGE_ID,
     clearOnStart: true,
   },
+  snapshot: {
+    snapshotFolder: path.join(__dirname, 'snapshots'),
+  },
 };
