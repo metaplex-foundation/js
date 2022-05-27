@@ -2,37 +2,40 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { StorageDriver, useLamports, Amount } from '@/types';
 import { MetaplexFile } from '../storageModule';
 
-export const useAwsStorageDriver = (
-  client: S3Client,
-  bucketName: string
-): StorageDriver => {
-  const getUrl = async (key: string) => {
-    const region = await client.config.region();
+export class AwsStorageDriver implements StorageDriver {
+  protected client: S3Client;
+  protected bucketName: string;
+
+  constructor(client: S3Client, bucketName: string) {
+    this.client = client;
+    this.bucketName = bucketName;
+  }
+
+  async getUploadPrice(_bytes: number): Promise<Amount> {
+    return useLamports(0);
+  }
+
+  async upload(file: MetaplexFile): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: file.uniqueName,
+      Body: file.toBuffer(),
+    });
+
+    try {
+      await this.client.send(command);
+
+      return await this.getUrl(file.uniqueName);
+    } catch (err) {
+      // TODO: Custom errors.
+      throw err;
+    }
+  }
+
+  async getUrl(key: string) {
+    const region = await this.client.config.region();
     const encodedKey = encodeURIComponent(key);
 
-    return `https://s3.${region}.amazonaws.com/${bucketName}/${encodedKey}`;
-  };
-
-  return {
-    getUploadPrice: async (_bytes: number): Promise<Amount> => {
-      return useLamports(0);
-    },
-
-    upload: async (file: MetaplexFile): Promise<string> => {
-      const command = new PutObjectCommand({
-        Bucket: bucketName,
-        Key: file.uniqueName,
-        Body: file.toBuffer(),
-      });
-
-      try {
-        await client.send(command);
-
-        return await getUrl(file.uniqueName);
-      } catch (err) {
-        // TODO: Custom errors.
-        throw err;
-      }
-    },
-  };
-};
+    return `https://s3.${region}.amazonaws.com/${this.bucketName}/${encodedKey}`;
+  }
+}

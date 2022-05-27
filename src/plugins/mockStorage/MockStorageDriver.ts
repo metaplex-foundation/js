@@ -11,36 +11,37 @@ export type MockStorageOptions = {
   costPerByte?: BN | number;
 };
 
-export const useMockStorageDriver = (
-  options?: MockStorageOptions
-): StorageDriver => {
-  const cache: Record<string, MetaplexFile> = {};
-  const baseUrl: string = options?.baseUrl ?? DEFAULT_BASE_URL;
-  const costPerByte: BN =
-    options?.costPerByte != null
-      ? new BN(options?.costPerByte)
-      : DEFAULT_COST_PER_BYTE;
+export class MockStorageDriver implements StorageDriver {
+  private cache: Record<string, MetaplexFile> = {};
+  public readonly baseUrl: string;
+  public readonly costPerByte: BN;
 
-  return {
-    getUploadPrice: async (bytes: number): Promise<Amount> => {
-      return useLamports(costPerByte.muln(bytes));
-    },
+  constructor(options?: MockStorageOptions) {
+    this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
+    this.costPerByte =
+      options?.costPerByte != null
+        ? new BN(options?.costPerByte)
+        : DEFAULT_COST_PER_BYTE;
+  }
 
-    upload: async (file: MetaplexFile): Promise<string> => {
-      const uri = `${baseUrl}${file.uniqueName}`;
-      cache[uri] = file;
+  async getUploadPrice(bytes: number): Promise<Amount> {
+    return useLamports(this.costPerByte.muln(bytes));
+  }
 
-      return uri;
-    },
+  async upload(file: MetaplexFile): Promise<string> {
+    const uri = `${this.baseUrl}${file.uniqueName}`;
+    this.cache[uri] = file;
 
-    download: async (uri: string): Promise<MetaplexFile> => {
-      const file = cache[uri];
+    return uri;
+  }
 
-      if (!file) {
-        throw new AssetNotFoundError(uri);
-      }
+  async download(uri: string): Promise<MetaplexFile> {
+    const file = this.cache[uri];
 
-      return file;
-    },
-  };
-};
+    if (!file) {
+      throw new AssetNotFoundError(uri);
+    }
+
+    return file;
+  }
+}
