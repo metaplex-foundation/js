@@ -11,7 +11,11 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
-import { MetaplexFile } from '../storageModule';
+import {
+  getBytesFromMetaplexFiles,
+  MetaplexFile,
+  MetaplexFileTag,
+} from '../storageModule';
 
 export type BundlrOptions = {
   address?: string;
@@ -51,13 +55,15 @@ export class BundlrStorageDriver implements StorageDriver {
 
   async uploadAll(files: MetaplexFile[]): Promise<string[]> {
     const bundlr = await this.bundlr();
-    const amount = await this.getUploadPrice(getBytes(...files));
+    const amount = await this.getUploadPrice(
+      getBytesFromMetaplexFiles(...files)
+    );
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
       const { status, data } = await bundlr.uploader.upload(
-        file.toBuffer(),
-        file.getTagsWithContentType()
+        file.buffer,
+        getMetaplexFileTagsWithContentType(file)
       );
 
       if (status >= 300) {
@@ -179,14 +185,20 @@ export const isBundlrStorageDriver = (
   );
 };
 
-const getBytes = (...files: MetaplexFile[]): number => {
-  return files.reduce((acc, file) => acc + file.getBytes(), 0);
-};
-
 const bigNumberToAmount = (bigNumber: BigNumber): Amount => {
   return lamports(new BN(bigNumber.decimalPlaces(0).toString()));
 };
 
 const amountToBigNumber = (amount: Amount): BigNumber => {
   return new BigNumber(amount.basisPoints.toString());
+};
+
+const getMetaplexFileTagsWithContentType = (
+  file: MetaplexFile
+): MetaplexFileTag[] => {
+  if (!file.contentType) {
+    return file.tags;
+  }
+
+  return [{ name: 'Content-Type', value: file.contentType }, ...file.tags];
 };

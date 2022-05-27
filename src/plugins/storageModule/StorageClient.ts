@@ -1,6 +1,7 @@
 import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
 import { HasDriver, Amount } from '@/types';
 import {
+  getBytesFromMetaplexFiles,
   MetaplexFile,
   useMetaplexFile,
   useMetaplexFileFromJson,
@@ -48,12 +49,7 @@ export class CoreStorageClient implements StorageClient {
   }
 
   getUploadPriceForFiles(files: MetaplexFile[]): Promise<Amount> {
-    const totalBytes = files.reduce(
-      (acc: number, file: MetaplexFile) => acc + file.getBytes(),
-      0
-    );
-
-    return this.getUploadPriceForBytes(totalBytes);
+    return this.getUploadPriceForBytes(getBytesFromMetaplexFiles(...files));
   }
 
   upload(file: MetaplexFile): Promise<string> {

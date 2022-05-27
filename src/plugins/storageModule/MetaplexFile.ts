@@ -10,12 +10,6 @@ export type MetaplexFile = Readonly<{
   contentType: string | null;
   extension: string | null;
   tags: MetaplexFileTag[];
-
-  getTagsWithContentType(): MetaplexFileTag[];
-  getBytes(): number;
-  toBuffer(): Buffer;
-  toString(): string;
-  toGlobalFile(): File;
 }>;
 
 export type MetaplexFileContent = string | Buffer | Uint8Array | ArrayBuffer;
@@ -42,30 +36,6 @@ export const useMetaplexFile = (
   contentType: options.contentType ?? getContentType(fileName),
   extension: options.extension ?? getExtension(fileName),
   tags: options.tags ?? [],
-
-  getTagsWithContentType(): MetaplexFileTag[] {
-    if (!this.contentType) {
-      return this.tags;
-    }
-
-    return [{ name: 'Content-Type', value: this.contentType }, ...this.tags];
-  },
-
-  getBytes(): number {
-    return this.buffer.byteLength;
-  },
-
-  toBuffer(): Buffer {
-    return this.buffer;
-  },
-
-  toString(): string {
-    return this.buffer.toString();
-  },
-
-  toGlobalFile(): File {
-    return new File([this.buffer as BlobPart], this.fileName);
-  },
 });
 
 export const useMetaplexFileFromBrowser = async (
@@ -102,6 +72,12 @@ export const parseMetaplexFileContent = (
 
   return Buffer.from(content);
 };
+
+export const getBytesFromMetaplexFiles = (...files: MetaplexFile[]): number =>
+  files.reduce((acc, file) => acc + file.buffer.byteLength, 0);
+
+export const getBrowserFileFromMetaplexFile = (file: MetaplexFile): File =>
+  new File([file.buffer as BlobPart], file.fileName);
 
 export const isMetaplexFile = (
   metaplexFile: any

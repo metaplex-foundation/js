@@ -19,7 +19,7 @@ export class AwsStorageDriver implements StorageDriver {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: file.uniqueName,
-      Body: file.toBuffer(),
+      Body: file.buffer,
     });
 
     try {
