@@ -6,4 +6,6 @@ export type StorageDriver = DriverType & {
   upload: (file: MetaplexFile) => Promise<string>;
   uploadAll?: (files: MetaplexFile[]) => Promise<string[]>;
   download?: (uri: string, options?: RequestInit) => Promise<MetaplexFile>;
+  beforeUpload?: (files: MetaplexFile[]) => Promise<void>;
+  afterUpload?: (files: MetaplexFile[], uris: string[]) => Promise<void>;
 };

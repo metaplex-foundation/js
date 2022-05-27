@@ -12,9 +12,16 @@ export type StorageClient = DriverAware<StorageDriver> & {
   getUploadPriceForBytes: (bytes: number) => Promise<Amount>;
   getUploadPriceForFile: (file: MetaplexFile) => Promise<Amount>;
   getUploadPriceForFiles: (files: MetaplexFile[]) => Promise<Amount>;
-  upload: (file: MetaplexFile) => Promise<string>;
-  uploadAll: (files: MetaplexFile[]) => Promise<string[]>;
+  upload: (file: MetaplexFile, triggerEvents?: boolean) => Promise<string>;
+  uploadAll: (
+    files: MetaplexFile[],
+    triggerEvents?: boolean
+  ) => Promise<string[]>;
   uploadJson: <T extends object = object>(json: T) => Promise<string>;
+
+  // UploadEvents.
+  triggerBeforeUpload(files: MetaplexFile[]): Promise<void>;
+  triggerAfterUpload(files: MetaplexFile[], uris: string[]): Promise<void>;
 
   // Downloads.
   download: (uri: string, options?: RequestInit) => Promise<MetaplexFile>;
@@ -57,18 +64,57 @@ export const useStorageClient = (): StorageClient => {
       return this.getUploadPriceForBytes(totalBytes);
     },
 
-    upload(file: MetaplexFile): Promise<string> {
-      return this.driver().upload(file);
-    },
-
-    uploadAll(files: MetaplexFile[]): Promise<string[]> {
-      const uploadAll = this.driver().uploadAll;
-
-      if (uploadAll) {
-        return uploadAll(files);
+    async upload(file: MetaplexFile, triggerEvents = true): Promise<string> {
+      if (triggerEvents) {
+        this.triggerBeforeUpload([file]);
       }
 
-      return Promise.all(files.map((file) => this.upload(file)));
+      const uri = await this.driver().upload(file);
+
+      if (triggerEvents) {
+        this.triggerAfterUpload([file], [uri]);
+      }
+
+      return uri;
+    },
+
+    async uploadAll(
+      files: MetaplexFile[],
+      triggerEvents = true
+    ): Promise<string[]> {
+      if (triggerEvents) {
+        this.triggerBeforeUpload(files);
+      }
+
+      const uploadAll = this.driver().uploadAll;
+      const uris = uploadAll
+        ? await uploadAll(files)
+        : await Promise.all(files.map((file) => this.upload(file)));
+
+      if (triggerEvents) {
+        this.triggerAfterUpload(files, uris);
+      }
+
+      return uris;
+    },
+
+    async triggerBeforeUpload(files: MetaplexFile[]): Promise<void> {
+      const beforeUpload = this.driver().beforeUpload;
+
+      if (beforeUpload) {
+        await beforeUpload(files);
+      }
+    },
+
+    async triggerAfterUpload(
+      files: MetaplexFile[],
+      uris: string[]
+    ): Promise<void> {
+      const afterUpload = this.driver().afterUpload;
+
+      if (afterUpload) {
+        await afterUpload(files, uris);
+      }
     },
 
     uploadJson<T extends object = object>(json: T): Promise<string> {
