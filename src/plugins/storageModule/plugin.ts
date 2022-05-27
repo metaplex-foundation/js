@@ -1,10 +1,10 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
-import { StorageClient, useStorageClient } from './StorageClient';
+import { StorageClient, CoreStorageClient } from './StorageClient';
 
 export const storageModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    const storageClient = useStorageClient();
+    const storageClient = new CoreStorageClient();
     metaplex.storage = () => storageClient;
   },
 });
