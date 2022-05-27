@@ -47,10 +47,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
       : Promise.all(files.map((file) => this.driver().upload(file)));
   }
 
-  uploadJson<T extends object = object>(
-    json: T,
-    triggerEvents = true
-  ): Promise<string> {
+  uploadJson<T extends object = object>(json: T): Promise<string> {
     return this.upload(useMetaplexFileFromJson<T>(json));
   }
 
