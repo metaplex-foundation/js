@@ -8,24 +8,7 @@ import {
 } from './MetaplexFile';
 import { StorageDriver } from './StorageDriver';
 
-export type StorageClient = HasDriver<StorageDriver> & {
-  // Uploads.
-  getUploadPriceForBytes: (bytes: number) => Promise<Amount>;
-  getUploadPriceForFile: (file: MetaplexFile) => Promise<Amount>;
-  getUploadPriceForFiles: (files: MetaplexFile[]) => Promise<Amount>;
-  upload: (file: MetaplexFile) => Promise<string>;
-  uploadAll: (files: MetaplexFile[]) => Promise<string[]>;
-  uploadJson: <T extends object = object>(json: T) => Promise<string>;
-
-  // Downloads.
-  download: (uri: string, options?: RequestInit) => Promise<MetaplexFile>;
-  downloadJson: <T extends object = object>(
-    uri: string,
-    options?: RequestInit
-  ) => Promise<T>;
-};
-
-export class CoreStorageClient implements StorageClient {
+export class StorageClient implements HasDriver<StorageDriver> {
   private _driver: StorageDriver | null = null;
 
   driver(): StorageDriver {
