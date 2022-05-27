@@ -61,10 +61,10 @@ export class CoreStorageClient implements StorageClient {
   }
 
   uploadAll(files: MetaplexFile[]): Promise<string[]> {
-    const uploadAll = this.driver().uploadAll;
+    const driver = this.driver();
 
-    return uploadAll
-      ? uploadAll(files)
+    return driver.uploadAll
+      ? driver.uploadAll(files)
       : Promise.all(files.map((file) => this.driver().upload(file)));
   }
 
@@ -76,10 +76,10 @@ export class CoreStorageClient implements StorageClient {
   }
 
   async download(uri: string, options?: RequestInit): Promise<MetaplexFile> {
-    const download = this.driver().download;
+    const driver = this.driver();
 
-    if (download) {
-      return download(uri, options);
+    if (driver.download) {
+      return driver.download(uri, options);
     }
 
     const response = await fetch(uri, options);
