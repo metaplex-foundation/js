@@ -3,7 +3,7 @@ import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { Amount, StorageDriver, useLamports } from '@/types';
+import { Amount, StorageDriver, lamports } from '@/types';
 import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   AssetUploadFailedError,
@@ -185,7 +185,7 @@ const getBytes = (...files: MetaplexFile[]): number => {
 };
 
 const bigNumberToAmount = (bigNumber: BigNumber): Amount => {
-  return useLamports(new BN(bigNumber.decimalPlaces(0).toString()));
+  return lamports(new BN(bigNumber.decimalPlaces(0).toString()));
 };
 
 const amountToBigNumber = (amount: Amount): BigNumber => {

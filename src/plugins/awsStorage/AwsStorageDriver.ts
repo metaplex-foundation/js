@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { StorageDriver, useLamports, Amount } from '@/types';
+import { StorageDriver, lamports, Amount } from '@/types';
 import { MetaplexFile } from '../storageModule';
 
 export class AwsStorageDriver implements StorageDriver {
@@ -12,7 +12,7 @@ export class AwsStorageDriver implements StorageDriver {
   }
 
   async getUploadPrice(_bytes: number): Promise<Amount> {
-    return useLamports(0);
+    return lamports(0);
   }
 
   async upload(file: MetaplexFile): Promise<string> {

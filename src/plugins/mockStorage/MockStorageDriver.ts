@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { Amount, useLamports } from '@/types';
+import { Amount, lamports } from '@/types';
 import { AssetNotFoundError } from '@/errors';
 import { MetaplexFile, StorageDriver } from '../storageModule';
 
@@ -25,7 +25,7 @@ export class MockStorageDriver implements StorageDriver {
   }
 
   async getUploadPrice(bytes: number): Promise<Amount> {
-    return useLamports(this.costPerByte.muln(bytes));
+    return lamports(this.costPerByte.muln(bytes));
   }
 
   async upload(file: MetaplexFile): Promise<string> {
