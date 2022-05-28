@@ -1,6 +1,7 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { Signer, MetaplexFile } from '@/types';
+import { Signer } from '@/types';
 import { CandyMachineToUpdateNotFoundError } from '@/errors';
+import { MetaplexFile } from '@/plugins/storageModule';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
 import {
   JsonMetadata,
