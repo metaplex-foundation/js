@@ -1,20 +1,14 @@
 import test from 'tape';
 import spok from 'spok';
 
-import fetch from 'cross-fetch';
-
 import {
   CandyMachineIsFullError,
   Metaplex,
   MetaplexFile,
+  mockStorage,
   UploadedAsset,
 } from '../../../src';
-import {
-  amman,
-  killStuckProcess,
-  metaplex,
-  MOCK_STORAGE_ID,
-} from '../../helpers';
+import { amman, killStuckProcess, metaplex } from '../../helpers';
 import {
   benchPng,
   bridgePng,
@@ -29,11 +23,12 @@ killStuckProcess();
 
 async function verifyProperlyUploaded(
   t: test.Test,
+  mx: Metaplex,
   uri: string,
   asset: MetaplexFile,
   creators: Creator[]
 ) {
-  const { image, properties } = await fetch(uri).then((res) => res.json());
+  const { image, properties } = await mx.storage().downloadJson(uri);
   spok(
     t,
     properties.creators as Creator[],
@@ -44,23 +39,15 @@ async function verifyProperlyUploaded(
     }))
   );
 
-  const imageData = await fetch(image).then((res) => res.arrayBuffer());
+  const metaplexFile = await mx.storage().download(image);
   t.ok(
-    asset.buffer.equals(Buffer.from(imageData)),
-    'asset.buffer === imageData'
+    asset.buffer.equals(Buffer.from(metaplexFile.buffer)),
+    'asset.buffer === metaplexFile.buffer'
   );
 }
-
-function setupMockStorage(mx: Metaplex) {
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
-  storageDriver.install(mx as any);
-}
-
 async function verifyUploadedAssets(
   t: test.Test,
+  mx: Metaplex,
   assets: MetaplexFile[],
   uploadedAssets: UploadedAsset[],
   creators: Creator[]
@@ -68,8 +55,21 @@ async function verifyUploadedAssets(
   for (const x of uploadedAssets) {
     const asset = assets.find((y) => y.displayName === x.name);
     t.ok(asset != null, 'asset was named correctly');
-    await verifyProperlyUploaded(t, x.uri, asset!, creators);
+    await verifyProperlyUploaded(t, mx, x.uri, asset!, creators);
   }
+}
+
+function setupMockStorage(mx: Metaplex) {
+  // TODO(thlorenz): Once amman supports a mock driver again we can use that
+  // here when not running in CI
+  /*
+  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
+    costPerByte: 0.001,
+  });
+  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
+  storageDriver.install(mx as any);
+  */
+  mx.use(mockStorage());
 }
 
 test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
@@ -91,7 +91,7 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   });
 
   // Then the asset is uploaded properly
-  await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+  await verifyProperlyUploaded(t, mx, uri, asset, candyMachine.creators);
 
   // And the asset is not added to the candy machine
   const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
@@ -121,7 +121,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
     });
 
     // Then the asset is uploaded properly
-    await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+    await verifyProperlyUploaded(t, mx, uri, asset, candyMachine.creators);
 
     // And I can add the asset to the candy machine
     const { transactionId } = await cm.addAssets({
@@ -147,7 +147,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
     });
 
     // Then the asset is uploaded properly
-    await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+    await verifyProperlyUploaded(t, mx, uri, asset, candyMachine.creators);
 
     // And I can add the asset to the candy machine
     const { transactionId } = await cm.addAssets({
@@ -203,7 +203,7 @@ test('uploadAndAddAsset: candy machine that can hold 2 assets upload one', async
   });
 
   // Then the asset is uploaded properly
-  await verifyProperlyUploaded(t, uri, asset, candyMachine.creators);
+  await verifyProperlyUploaded(t, mx, uri, asset, candyMachine.creators);
 
   // And the asset is added to the candy machine
   const updatedCm = await cm.findByAddress(candyMachine.candyMachineAddress);
@@ -259,6 +259,7 @@ test('uploadAndAddAssets: candy machine that can hold 4 assets upload 4 and add'
     );
     await verifyUploadedAssets(
       t,
+      mx,
       assets,
       uploadedAssets,
       candyMachine.creators
