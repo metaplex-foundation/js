@@ -15,7 +15,7 @@ import {
   useOperation,
   Signer,
   OperationHandler,
-  MetaplexAware,
+  HasMetaplex,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -101,7 +101,7 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     },
   };
 
-export type CreateCandyMachineBuilderParams = MetaplexAware &
+export type CreateCandyMachineBuilderParams = HasMetaplex &
   CandyMachineData & {
     // Accounts.
     candyMachineSigner: Signer;

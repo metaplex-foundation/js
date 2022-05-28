@@ -3,23 +3,30 @@ import {
   PublicKey,
   Transaction,
   TransactionSignature,
+  SendOptions,
 } from '@solana/web3.js';
-import {
-  MessageSignerWalletAdapterProps,
-  SignerWalletAdapterProps,
-  SendTransactionOptions,
-  WalletAdapter as BaseWalletAdapter,
-} from '@solana/wallet-adapter-base';
-import { IdentityDriver } from '@/types';
+import { IdentityDriver, KeypairSigner } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
 } from '@/errors';
 
-export type WalletAdapter = BaseWalletAdapter &
-  Partial<MessageSignerWalletAdapterProps> &
-  Partial<SignerWalletAdapterProps>;
+type SendTransactionOptions = SendOptions & {
+  signers?: KeypairSigner[];
+};
+
+export type WalletAdapter = {
+  publicKey: PublicKey | null;
+  sendTransaction: (
+    transaction: Transaction,
+    connection: Connection,
+    options?: SendTransactionOptions
+  ) => Promise<TransactionSignature>;
+  signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
+  signTransaction?: (transaction: Transaction) => Promise<Transaction>;
+  signAllTransactions?: (transaction: Transaction[]) => Promise<Transaction[]>;
+};
 
 export class WalletAdapterIdentityDriver extends IdentityDriver {
   public readonly walletAdapter: WalletAdapter;

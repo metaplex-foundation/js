@@ -26,10 +26,6 @@ import {
   printNewEditionOperation,
   printNewEditionOperationHandler,
 } from './printNewEdition';
-import {
-  planUploadMetadataOperation,
-  planUploadMetadataOperationHandler,
-} from './planUploadMetadata';
 import { updateNftOperation, updateNftOperationHandler } from './updateNft';
 import {
   uploadMetadataOperation,
@@ -58,10 +54,6 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByOwnerOnChainOperationHandler
     );
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
-    op.register(
-      planUploadMetadataOperation,
-      planUploadMetadataOperationHandler
-    );
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
 

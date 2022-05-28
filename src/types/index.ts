@@ -1,10 +1,10 @@
+export * from './Amount';
 export * from './BaseAccount';
 export * from './Cluster';
 export * from './DateTimeString';
 export * from './Driver';
 export * from './IdentityDriver';
-export * from './MetaplexAware';
-export * from './MetaplexFile';
+export * from './HasMetaplex';
 export * from './MetaplexPlugin';
 export * from './Model';
 export * from './ModuleClient';
@@ -16,4 +16,3 @@ export * from './ProgramDriver';
 export * from './PublicKeyString';
 export * from './RpcDriver';
 export * from './Signer';
-export * from './StorageDriver';
