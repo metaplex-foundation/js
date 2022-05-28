@@ -77,6 +77,7 @@
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.16.7",
     "@metaplex-foundation/amman": "^0.8.2",
+    "@metaplex-foundation/amman-client": "^0.0.0",
     "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.0",

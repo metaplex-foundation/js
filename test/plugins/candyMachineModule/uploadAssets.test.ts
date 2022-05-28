@@ -5,6 +5,7 @@ import fetch from 'cross-fetch';
 
 import {
   CandyMachineIsFullError,
+  Metaplex,
   MetaplexFile,
   UploadedAsset,
 } from '../../../src';
@@ -50,6 +51,14 @@ async function verifyProperlyUploaded(
   );
 }
 
+function setupMockStorage(mx: Metaplex) {
+  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
+    costPerByte: 0.001,
+  });
+  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
+  storageDriver.install(mx as any);
+}
+
 async function verifyUploadedAssets(
   t: test.Test,
   assets: MetaplexFile[],
@@ -66,11 +75,7 @@ async function verifyUploadedAssets(
 test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   // Given I create a candy machine holing 2 assets
   const mx = await metaplex();
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
-  storageDriver.install(mx as any);
+  setupMockStorage(mx);
 
   const cm = mx.candyMachines();
 
@@ -98,11 +103,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
   // Given I create a candy machine that can hold 2 assets
   const mx = await metaplex();
   const tc = amman.transactionChecker(mx.connection);
-
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  storageDriver.install(mx as any);
+  setupMockStorage(mx);
 
   const cm = mx.candyMachines();
 
@@ -185,10 +186,7 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
 test('uploadAndAddAsset: candy machine that can hold 2 assets upload one', async (t) => {
   // Given I create a candy machine holding 2 assets
   const mx = await metaplex();
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  storageDriver.install(mx as any);
+  setupMockStorage(mx);
 
   const cm = mx.candyMachines();
 
@@ -233,10 +231,7 @@ test('uploadAndAddAssets: candy machine that can hold 4 assets upload 4 and add'
 
     // Given I create a candy machine holding 4 assets
     const mx = await metaplex();
-    const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-      costPerByte: 0.001,
-    });
-    storageDriver.install(mx as any);
+    setupMockStorage(mx);
 
     const cm = mx.candyMachines();
 
