@@ -6,12 +6,14 @@ import { storageModule } from '../storageModule';
 import { identityModule } from '../identityModule';
 import { guestIdentity } from '../guestIdentity';
 import { bundlrStorage } from '../bundlrStorage';
+import { operationModule } from '../operationModule';
 
 export const corePlugins = () => ({
   install(metaplex: Metaplex) {
     // Low-level modules.
     metaplex.use(identityModule());
     metaplex.use(storageModule());
+    metaplex.use(operationModule());
 
     // Default drivers.
     metaplex.use(guestIdentity());

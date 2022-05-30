@@ -5,11 +5,9 @@ import {
   resolveClusterFromConnection,
   RpcDriver,
   ProgramDriver,
-  OperationDriver,
 } from '@/types';
 import { CoreRpcDriver } from '@/plugins/coreRpcDriver';
 import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
-import { CoreOperationDriver } from '@/plugins/coreOperationDriver';
 import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
@@ -29,15 +27,11 @@ export class Metaplex {
   /** Registers all recognised programs across clusters. */
   protected programDriver: ProgramDriver;
 
-  /** Registers handlers for read/write operations. */
-  protected operationDriver: OperationDriver;
-
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
     this.rpcDriver = new CoreRpcDriver(this);
     this.programDriver = new CoreProgramDriver(this);
-    this.operationDriver = new CoreOperationDriver(this);
     this.use(corePlugins());
   }
 
@@ -67,16 +61,6 @@ export class Metaplex {
 
   setProgramDriver(programDriver: ProgramDriver) {
     this.programDriver = programDriver;
-
-    return this;
-  }
-
-  operations() {
-    return this.operationDriver;
-  }
-
-  setOperationDriver(operationDriver: OperationDriver) {
-    this.operationDriver = operationDriver;
 
     return this;
   }

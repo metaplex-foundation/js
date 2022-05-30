@@ -1,7 +1,6 @@
 export * from './awsStorage';
 export * from './bundlrStorage';
 export * from './candyMachineModule';
-export * from './coreOperationDriver';
 export * from './corePlugins';
 export * from './coreProgramDriver';
 export * from './corePrograms';
@@ -10,5 +9,6 @@ export * from './guestIdentity';
 export * from './keypairIdentity';
 export * from './mockStorage';
 export * from './nftModule';
+export * from './operationModule';
 export * from './storageModule';
 export * from './walletAdapterIdentity';

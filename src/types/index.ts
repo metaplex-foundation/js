@@ -8,7 +8,6 @@ export * from './MetaplexPlugin';
 export * from './Model';
 export * from './ModuleClient';
 export * from './Operation';
-export * from './OperationDriver';
 export * from './Pda';
 export * from './Program';
 export * from './ProgramDriver';

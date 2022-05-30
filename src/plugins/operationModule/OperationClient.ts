@@ -1,5 +1,4 @@
 import {
-  OperationDriver,
   OperationConstructor,
   Operation,
   KeyOfOperation,
@@ -9,8 +8,15 @@ import {
 } from '@/types';
 import { Task, TaskOptions, useTask } from '@/utils';
 import { OperationHandlerMissingError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
 
-export class CoreOperationDriver extends OperationDriver {
+export class OperationClient {
+  protected readonly metaplex: Metaplex;
+
+  constructor(metaplex: Metaplex) {
+    this.metaplex = metaplex;
+  }
+
   /**
    * Maps the name of an operation with its operation handler.
    * Whilst the types on the Map are relatively loose, we ensure
