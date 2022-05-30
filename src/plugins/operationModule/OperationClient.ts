@@ -1,3 +1,4 @@
+import type { Metaplex } from '@/Metaplex';
 import {
   OperationConstructor,
   Operation,
@@ -8,14 +9,9 @@ import {
 } from '@/types';
 import { Task, TaskOptions, useTask } from '@/utils';
 import { OperationHandlerMissingError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
 
 export class OperationClient {
-  protected readonly metaplex: Metaplex;
-
-  constructor(metaplex: Metaplex) {
-    this.metaplex = metaplex;
-  }
+  constructor(protected readonly metaplex: Metaplex) {}
 
   /**
    * Maps the name of an operation with its operation handler.

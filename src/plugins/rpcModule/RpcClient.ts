@@ -10,8 +10,8 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
 import {
-  RpcDriver,
   ConfirmTransactionResponse,
   SendAndConfirmTransactionResponse,
   getSignerHistogram,
@@ -31,7 +31,9 @@ import {
   UnknownProgramError,
 } from '@/errors';
 
-export class CoreRpcDriver extends RpcDriver {
+export class RpcClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,
     signers: Signer[] = [],
@@ -148,7 +150,7 @@ export class CoreRpcDriver extends RpcDriver {
     }));
   }
 
-  protected async getLatestBlockhash(): Promise<Blockhash> {
+  async getLatestBlockhash(): Promise<Blockhash> {
     return (await this.metaplex.connection.getLatestBlockhash('finalized'))
       .blockhash;
   }

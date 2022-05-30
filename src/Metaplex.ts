@@ -3,10 +3,8 @@ import {
   MetaplexPlugin,
   Cluster,
   resolveClusterFromConnection,
-  RpcDriver,
   ProgramDriver,
 } from '@/types';
-import { CoreRpcDriver } from '@/plugins/coreRpcDriver';
 import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
 import { corePlugins } from '@/plugins/corePlugins';
 
@@ -21,16 +19,12 @@ export class Metaplex {
   /** The cluster in which the connection endpoint belongs to. */
   public readonly cluster: Cluster;
 
-  /** Encapsulates how to read and write on-chain. */
-  protected rpcDriver: RpcDriver;
-
   /** Registers all recognised programs across clusters. */
   protected programDriver: ProgramDriver;
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
-    this.rpcDriver = new CoreRpcDriver(this);
     this.programDriver = new CoreProgramDriver(this);
     this.use(corePlugins());
   }
@@ -41,16 +35,6 @@ export class Metaplex {
 
   use(plugin: MetaplexPlugin) {
     plugin.install(this);
-
-    return this;
-  }
-
-  rpc() {
-    return this.rpcDriver;
-  }
-
-  setRpcDriver(rpc: RpcDriver) {
-    this.rpcDriver = rpc;
 
     return this;
   }
