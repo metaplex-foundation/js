@@ -25,6 +25,10 @@ export class IdentityClient
     return this.driver().publicKey;
   }
 
+  get secretKey(): Uint8Array | undefined {
+    return this.driver().secretKey;
+  }
+
   signMessage(message: Uint8Array): Promise<Uint8Array> {
     return this.driver().signMessage(message);
   }
@@ -46,6 +50,10 @@ export class IdentityClient
       signature,
       this.publicKey.toBytes()
     );
+  }
+
+  hasSecretKey(): boolean {
+    return this.secretKey != null;
   }
 
   public equals(that: Signer | PublicKey): boolean {
