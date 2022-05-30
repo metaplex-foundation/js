@@ -1,11 +1,5 @@
 import { Connection } from '@solana/web3.js';
-import {
-  MetaplexPlugin,
-  Cluster,
-  resolveClusterFromConnection,
-  ProgramDriver,
-} from '@/types';
-import { CoreProgramDriver } from '@/plugins/coreProgramDriver';
+import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
@@ -19,13 +13,9 @@ export class Metaplex {
   /** The cluster in which the connection endpoint belongs to. */
   public readonly cluster: Cluster;
 
-  /** Registers all recognised programs across clusters. */
-  protected programDriver: ProgramDriver;
-
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
-    this.programDriver = new CoreProgramDriver(this);
     this.use(corePlugins());
   }
 
@@ -35,16 +25,6 @@ export class Metaplex {
 
   use(plugin: MetaplexPlugin) {
     plugin.install(this);
-
-    return this;
-  }
-
-  programs() {
-    return this.programDriver;
-  }
-
-  setProgramDriver(programDriver: ProgramDriver) {
-    this.programDriver = programDriver;
 
     return this;
   }

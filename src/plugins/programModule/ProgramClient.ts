@@ -1,29 +1,32 @@
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
 import { ProgramNotRecognizedError } from '@/errors';
-import { ProgramDriver, Program, Cluster } from '@/types';
+import { Program, Cluster } from '@/types';
 
-export class CoreProgramDriver extends ProgramDriver {
+export class ProgramClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   protected programs: Program[] = [];
 
-  public register(program: Program): void {
+  register(program: Program): void {
     this.programs.push(program);
   }
 
-  public all(): Program[] {
+  all(): Program[] {
     return this.programs;
   }
 
-  public allForCluster(cluster: Cluster): Program[] {
+  allForCluster(cluster: Cluster): Program[] {
     return this.programs.filter((program) => {
       return program.clusterFilter?.(cluster) ?? true;
     });
   }
 
-  public allForCurrentCluster(): Program[] {
+  allForCurrentCluster(): Program[] {
     return this.allForCluster(this.metaplex.cluster);
   }
 
-  public get(nameOrAddress: string | PublicKey): Program {
+  get(nameOrAddress: string | PublicKey): Program {
     const programs = this.allForCurrentCluster();
     const program =
       typeof nameOrAddress === 'string'
