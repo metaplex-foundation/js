@@ -1,21 +1,12 @@
 import test, { Test } from 'tape';
-import { CoreRpcDriver, ParsedProgramError } from '@/index';
+import { ParsedProgramError } from '@/index';
 import { metaplex, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-const init = async () => {
-  const mx = await metaplex();
-
-  // Ensure we are testing the CoreRpcDriver.
-  mx.setRpcDriver(new CoreRpcDriver(mx));
-
-  return { mx, rpc: mx.rpc() };
-};
-
-test('rpc-driver: it parses program errors when sending transactions', async (t: Test) => {
+test('rpc-client: it parses program errors when sending transactions', async (t: Test) => {
   // Given a Metaplex instance using a CoreRpcDriver.
-  const { mx } = await init();
+  const mx = await metaplex();
 
   // When we try to create an NFT with a name that's too long.
   const promise = mx.nfts().create({
