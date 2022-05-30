@@ -1,7 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { ProgramNotRecognizedError } from '@/errors';
+import { MissingGpaBuilderError, ProgramNotRecognizedError } from '@/errors';
 import { Program, Cluster } from '@/types';
+import { GpaBuilder } from '@/utils';
 
 export class ProgramClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -38,5 +39,17 @@ export class ProgramClient {
     }
 
     return program;
+  }
+
+  public getGpaBuilder<T extends GpaBuilder>(
+    nameOrAddress: string | PublicKey
+  ): T {
+    const program = this.get(nameOrAddress);
+
+    if (!program.gpaResolver) {
+      throw new MissingGpaBuilderError(program);
+    }
+
+    return program.gpaResolver(this.metaplex) as T;
   }
 }
