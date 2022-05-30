@@ -10,9 +10,9 @@ export const walletAdapterIdentity = (
   walletAdapter: WalletAdapter
 ): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setIdentityDriver(
-      new WalletAdapterIdentityDriver(metaplex, walletAdapter)
-    );
+    metaplex
+      .identity()
+      .setDriver(new WalletAdapterIdentityDriver(walletAdapter));
   },
 });
 
@@ -21,9 +21,9 @@ export const walletOrGuestIdentity = (
 ): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const identity = walletAdapter
-      ? new WalletAdapterIdentityDriver(metaplex, walletAdapter)
-      : new GuestIdentityDriver(metaplex);
+      ? new WalletAdapterIdentityDriver(walletAdapter)
+      : new GuestIdentityDriver();
 
-    metaplex.setIdentityDriver(identity);
+    metaplex.identity().setDriver(identity);
   },
 });
