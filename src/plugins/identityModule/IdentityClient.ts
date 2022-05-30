@@ -1,7 +1,7 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { DriverNotProvidedError } from '@/errors';
-import { HasDriver, IdentitySigner, Signer } from '@/types';
+import { HasDriver, IdentitySigner, KeypairSigner, Signer } from '@/types';
 import { IdentityDriver } from './IdentityDriver';
 
 export class IdentityClient
@@ -52,7 +52,7 @@ export class IdentityClient
     );
   }
 
-  hasSecretKey(): boolean {
+  hasSecretKey(): this is KeypairSigner {
     return this.secretKey != null;
   }
 
