@@ -9,7 +9,7 @@ export type WalletAdapter = {
   publicKey: PublicKey | null;
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction?: (transaction: Transaction) => Promise<Transaction>;
-  signAllTransactions?: (transaction: Transaction[]) => Promise<Transaction[]>;
+  signAllTransactions?: (transactions: Transaction[]) => Promise<Transaction[]>;
 };
 
 export class WalletAdapterIdentityDriver implements IdentityDriver {

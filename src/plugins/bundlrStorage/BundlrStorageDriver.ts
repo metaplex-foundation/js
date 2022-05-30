@@ -37,7 +37,7 @@ export type BundlrWalletAdapter = {
   publicKey: PublicKey | null;
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction?: (transaction: Transaction) => Promise<Transaction>;
-  signAllTransactions?: (transaction: Transaction[]) => Promise<Transaction[]>;
+  signAllTransactions?: (transactions: Transaction[]) => Promise<Transaction[]>;
   sendTransaction: (
     transaction: Transaction,
     connection: Connection,
@@ -182,13 +182,13 @@ export class BundlrStorageDriver implements StorageDriver {
   initNodeBundlr(
     address: string,
     currency: string,
-    identity: KeypairSigner,
+    keypair: KeypairSigner,
     options: any
   ): NodeBundlr {
     return new BundlrPackage.default(
       address,
       currency,
-      identity.secretKey,
+      keypair.secretKey,
       options
     );
   }
@@ -200,8 +200,12 @@ export class BundlrStorageDriver implements StorageDriver {
     options: any
   ): Promise<WebBundlr> {
     const wallet: BundlrWalletAdapter = {
-      ...identity,
       publicKey: identity.publicKey,
+      signMessage: (message: Uint8Array) => identity.signMessage(message),
+      signTransaction: (transaction: Transaction) =>
+        identity.signTransaction(transaction),
+      signAllTransactions: (transactions: Transaction[]) =>
+        identity.signAllTransactions(transactions),
       sendTransaction: (
         transaction: Transaction,
         connection: Connection,
