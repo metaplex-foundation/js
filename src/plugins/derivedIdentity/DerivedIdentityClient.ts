@@ -2,7 +2,8 @@ import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
-import { Amount, IdentitySigner, KeypairSigner } from '@/types';
+import { Amount, assertSol, IdentitySigner, KeypairSigner } from '@/types';
+import { transferBuilder } from '@/programs';
 
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   protected readonly metaplex: Metaplex;
@@ -13,10 +14,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   get publicKey(): PublicKey {
-    if (this.derivedKeypair === null) {
-      // TODO: Custom errors.
-      throw new Error('Uninitialized derived identity');
-    }
+    this.assertDerivedKeypairInitialized();
 
     return this.derivedKeypair.publicKey;
   }
@@ -40,11 +38,22 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     this.derivedKeypair = Keypair.fromSeed(seeds);
   }
 
-  fund(amount: Amount): void {
-    // TODO
+  async fund(amount: Amount): Promise<void> {
+    this.assertDerivedKeypairInitialized();
+    assertSol(amount);
+
+    const transfer = transferBuilder({
+      from: this.metaplex.identity(),
+      to: this.derivedKeypair.publicKey,
+      lamports: amount.basisPoints.toNumber(),
+    });
+
+    this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
   withdraw(amount: Amount): void {
+    assertSol(amount);
+
     // TODO
   }
 
@@ -52,11 +61,11 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     // TODO
   }
 
-  public async signMessage(message: Uint8Array): Promise<Uint8Array> {
+  async signMessage(message: Uint8Array): Promise<Uint8Array> {
     return nacl.sign.detached(message, this.secretKey);
   }
 
-  public async signTransaction(transaction: Transaction): Promise<Transaction> {
+  async signTransaction(transaction: Transaction): Promise<Transaction> {
     // TODO: Handle Error: Transaction recentBlockhash required.
 
     transaction.partialSign(this);
@@ -64,11 +73,20 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     return transaction;
   }
 
-  public async signAllTransactions(
+  async signAllTransactions(
     transactions: Transaction[]
   ): Promise<Transaction[]> {
     return Promise.all(
       transactions.map((transaction) => this.signTransaction(transaction))
     );
+  }
+
+  protected assertDerivedKeypairInitialized(): asserts this is {
+    derivedKeypair: Keypair;
+  } {
+    if (this.derivedKeypair === null) {
+      // TODO: Custom errors.
+      throw new Error('Uninitialized derived identity');
+    }
   }
 }
