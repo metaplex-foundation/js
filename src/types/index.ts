@@ -11,5 +11,4 @@ export * from './Pda';
 export * from './Program';
 export * from './ProgramDriver';
 export * from './PublicKeyString';
-export * from './RpcDriver';
 export * from './Signer';

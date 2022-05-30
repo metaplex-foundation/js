@@ -6,14 +6,14 @@ import {
   ConfirmOptions,
   GetProgramAccountsConfig,
   PublicKey,
+  RpcResponseAndContext,
   SendOptions,
+  SignatureResult,
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
-  ConfirmTransactionResponse,
-  SendAndConfirmTransactionResponse,
   getSignerHistogram,
   Signer,
   UnparsedAccount,
@@ -30,6 +30,12 @@ import {
   ParsedProgramError,
   UnknownProgramError,
 } from '@/errors';
+
+export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
+export type SendAndConfirmTransactionResponse = {
+  signature: TransactionSignature;
+  confirmResponse: ConfirmTransactionResponse;
+};
 
 export class RpcClient {
   constructor(protected readonly metaplex: Metaplex) {}
