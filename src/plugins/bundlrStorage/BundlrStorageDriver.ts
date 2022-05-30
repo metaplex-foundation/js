@@ -201,6 +201,7 @@ export class BundlrStorageDriver implements StorageDriver {
   ): Promise<WebBundlr> {
     const wallet: BundlrWalletAdapter = {
       ...identity,
+      publicKey: identity.publicKey,
       sendTransaction: (
         transaction: Transaction,
         connection: Connection,
