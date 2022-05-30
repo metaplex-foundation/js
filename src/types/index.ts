@@ -3,7 +3,6 @@ export * from './BaseAccount';
 export * from './Cluster';
 export * from './DateTimeString';
 export * from './Driver';
-export * from './IdentityDriver';
 export * from './HasMetaplex';
 export * from './MetaplexPlugin';
 export * from './Model';
