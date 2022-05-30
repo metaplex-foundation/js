@@ -1,5 +1,6 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { ModuleClient, Signer, convertToPublickKey } from '@/types';
+import { Signer, convertToPublickKey } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 import {
   CandyMachineAlreadyHasThisAuthorityError,
   CandyMachinesNotFoundByAuthorityError,
@@ -43,7 +44,9 @@ export type UpdateCandyMachineParams =
 
 export type UpdateCandyMachineAuthorityParams = UpdateAuthorityInput;
 
-export class CandyMachineClient extends ModuleClient {
+export class CandyMachineClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   // -----------------
   // Queries
   // -----------------

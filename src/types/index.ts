@@ -6,7 +6,6 @@ export * from './Driver';
 export * from './HasMetaplex';
 export * from './MetaplexPlugin';
 export * from './Model';
-export * from './ModuleClient';
 export * from './Operation';
 export * from './Pda';
 export * from './Program';

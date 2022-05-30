@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { ModuleClient } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 import { Nft } from './Nft';
 import { findNftByMintOperation } from './findNftByMint';
 import { findNftsByMintListOperation } from './findNftsByMintList';
@@ -28,7 +28,9 @@ import {
   PrintNewEditionViaInput,
 } from './printNewEdition';
 
-export class NftClient extends ModuleClient {
+export class NftClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   findByMint(mint: PublicKey): Promise<Nft> {
     return this.metaplex.operations().execute(findNftByMintOperation(mint));
   }
