@@ -33,8 +33,17 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     return this.derivedKeypair.secretKey;
   }
 
-  async deriveFrom(message: string | Uint8Array): Promise<void> {
-    this.originalSigner = this.metaplex.identity();
+  get originalPublicKey(): PublicKey {
+    this.assertInitialized();
+
+    return this.originalSigner.publicKey;
+  }
+
+  async deriveFrom(
+    message: string | Uint8Array,
+    originalSigner?: IdentitySigner
+  ): Promise<void> {
+    this.originalSigner = originalSigner ?? this.metaplex.identity().driver();
 
     const signature = await this.originalSigner.signMessage(
       Buffer.from(message)
