@@ -22,6 +22,7 @@ import {
   Program,
   lamports,
   Amount,
+  assertSol,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
 import {
@@ -156,6 +157,26 @@ export class RpcClient {
       publicKey: pubkey,
       ...account,
     }));
+  }
+
+  async airdrop(
+    publicKey: PublicKey,
+    amount: Amount,
+    commitment?: Commitment
+  ): Promise<SendAndConfirmTransactionResponse> {
+    assertSol(amount);
+
+    const signature = await this.metaplex.connection.requestAirdrop(
+      publicKey,
+      amount.basisPoints.toNumber()
+    );
+
+    const confirmResponse = await this.confirmTransaction(
+      signature,
+      commitment
+    );
+
+    return { signature, confirmResponse };
   }
 
   async getBalance(
