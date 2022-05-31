@@ -10,7 +10,7 @@ import {
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 
 export class MetadataAccount extends BaseAccount<Metadata> {
-  static async pda(mint: PublicKey): Promise<Pda> {
+  static pda(mint: PublicKey): Pda {
     return Pda.find(TokenMetadataProgram.publicKey, [
       Buffer.from('metadata', 'utf8'),
       TokenMetadataProgram.publicKey.toBuffer(),

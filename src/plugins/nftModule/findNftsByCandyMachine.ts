@@ -29,7 +29,7 @@ export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<Fin
 
       if (version === 2) {
         // TODO: Refactor when we have a CandyMachine program in the SDK.
-        [firstCreator] = await PublicKey.findProgramAddress(
+        [firstCreator] = PublicKey.findProgramAddressSync(
           [Buffer.from('candy_machine'), candyMachine.toBuffer()],
           new PublicKey('cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ')
         );

@@ -19,8 +19,8 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       const [metadata, edition] = await metaplex
         .rpc()
         .getMultipleAccounts([
-          await MetadataAccount.pda(mint),
-          await OriginalOrPrintEditionAccount.pda(mint),
+          MetadataAccount.pda(mint),
+          OriginalOrPrintEditionAccount.pda(mint),
         ]);
 
       const metadataAccount = MetadataAccount.fromMaybe(metadata);
