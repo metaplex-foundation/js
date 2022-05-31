@@ -1,7 +1,8 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex, MetaplexTestOptions } from '../../helpers';
+import { amman, killStuckProcess, metaplex } from '../../helpers';
 import {
+  Metaplex,
   derivedIdentity,
   keypairIdentity,
   KeypairIdentityDriver,
@@ -14,9 +15,13 @@ import {
 killStuckProcess();
 
 const init = async (
-  options: MetaplexTestOptions & { message?: string } = {}
+  options: {
+    message?: string;
+    identityAirdrop?: number;
+    derivedAirdrop?: number;
+  } = {}
 ) => {
-  const mx = await metaplex(options);
+  const mx = await metaplex({ solsToAirdrop: options.identityAirdrop });
 
   mx.use(derivedIdentity());
 
@@ -24,7 +29,24 @@ const init = async (
     await mx.derivedIdentity().deriveFrom(options.message);
   }
 
+  if (options.derivedAirdrop != null) {
+    await amman.airdrop(
+      mx.connection,
+      mx.derivedIdentity().publicKey,
+      options.derivedAirdrop
+    );
+  }
+
   return mx;
+};
+
+const getBalances = async (mx: Metaplex) => {
+  const identityBalance = await mx.rpc().getBalance(mx.identity().publicKey);
+  const derivedBalance = await mx
+    .rpc()
+    .getBalance(mx.derivedIdentity().publicKey);
+
+  return { identityBalance, derivedBalance };
 };
 
 test('[derivedIdentity] it derives a Keypair from the current identity', async (t: Test) => {
@@ -105,21 +127,43 @@ test('[derivedIdentity] it derives different addresses from different messages',
 });
 
 test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
-  // Given a Metaplex instance with a derived identity
-  // and an identity airdropped with 5 SOLs.
-  const mx = await init({ message: 'fund', solsToAirdrop: 5 });
+  // Given a Metaplex instance with:
+  // - an identity airdropped with 5 SOLs.
+  // - a derived identity with no SOLs.
+  const mx = await init({ message: 'fund', identityAirdrop: 5 });
 
   // When we fund the derived identity by 1 SOL.
   await mx.derivedIdentity().fund(sol(1));
 
   // And fetch the balances of both the identity and the derived identity.
-  const identityBalance = await mx.rpc().getBalance(mx.identity().publicKey);
-  const derivedBalance = await mx
-    .rpc()
-    .getBalance(mx.derivedIdentity().publicKey);
+  const { identityBalance, derivedBalance } = await getBalances(mx);
 
   // Then we can see that 1 SOL was transferred from the identity to the derived identity.
+  // It's a little less due to the transaction fee.
   t.true(isLessThanAmount(identityBalance, sol(4)));
   t.true(isGreaterThanAmount(identityBalance, sol(3.9)));
+  t.true(isEqualToAmount(derivedBalance, sol(1)));
+});
+
+test('[derivedIdentity] it can withdraw from the derived identity', async (t: Test) => {
+  // Given a Metaplex instance with:
+  // - an identity airdropped with 5 SOLs.
+  // - a derived identity airdropped with 2 SOLs.
+  const mx = await init({
+    message: 'withdraw',
+    identityAirdrop: 5,
+    derivedAirdrop: 2,
+  });
+
+  // When we withdraw 1 SOL from the derived identity.
+  await mx.derivedIdentity().withdraw(sol(1));
+
+  // And fetch the balances of both the identity and the derived identity.
+  const { identityBalance, derivedBalance } = await getBalances(mx);
+
+  // Then we can see that 1 SOL was transferred from the derived identity to the identity.
+  // It's a little less due to the transaction fee.
+  t.true(isLessThanAmount(identityBalance, sol(6)));
+  t.true(isGreaterThanAmount(identityBalance, sol(5.9)));
   t.true(isEqualToAmount(derivedBalance, sol(1)));
 });
