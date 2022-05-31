@@ -83,8 +83,8 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       } = operation.input;
 
       // Original NFT.
-      const originalMetadata = await MetadataAccount.pda(originalMint);
-      const originalEdition = await OriginalEditionAccount.pda(originalMint);
+      const originalMetadata = MetadataAccount.pda(originalMint);
+      const originalEdition = OriginalEditionAccount.pda(originalMint);
       const originalEditionAccount = OriginalEditionAccount.fromMaybe(
         await metaplex.rpc().getAccount(originalEdition)
       );
@@ -101,14 +101,14 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       const edition = new BN(originalEditionAccount.data.supply, 'le').add(
         new BN(1)
       );
-      const originalEditionMarkPda = await EditionMarkerAccount.pda(
+      const originalEditionMarkPda = EditionMarkerAccount.pda(
         originalMint,
         edition
       );
 
       // New NFT.
-      const newMetadata = await MetadataAccount.pda(newMint.publicKey);
-      const newEdition = await PrintEditionAccount.pda(newMint.publicKey);
+      const newMetadata = MetadataAccount.pda(newMint.publicKey);
+      const newEdition = PrintEditionAccount.pda(newMint.publicKey);
       const lamports = await getMinimumBalanceForRentExemptMint(
         metaplex.connection
       );

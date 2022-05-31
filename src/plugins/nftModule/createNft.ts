@@ -100,8 +100,8 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       updateAuthority.publicKey
     );
 
-    const metadataPda = await MetadataAccount.pda(mint.publicKey);
-    const masterEditionPda = await OriginalEditionAccount.pda(mint.publicKey);
+    const metadataPda = MetadataAccount.pda(mint.publicKey);
+    const masterEditionPda = OriginalEditionAccount.pda(mint.publicKey);
     const lamports = await getMinimumBalanceForRentExemptMint(
       metaplex.connection
     );
