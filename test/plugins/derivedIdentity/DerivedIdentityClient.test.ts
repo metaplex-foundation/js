@@ -135,11 +135,9 @@ test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
   // When we fund the derived identity by 1 SOL.
   await mx.derivedIdentity().fund(sol(1));
 
-  // And fetch the balances of both the identity and the derived identity.
-  const { identityBalance, derivedBalance } = await getBalances(mx);
-
   // Then we can see that 1 SOL was transferred from the identity to the derived identity.
   // It's a little less due to the transaction fee.
+  const { identityBalance, derivedBalance } = await getBalances(mx);
   t.true(isLessThanAmount(identityBalance, sol(4)));
   t.true(isGreaterThanAmount(identityBalance, sol(3.9)));
   t.true(isEqualToAmount(derivedBalance, sol(1)));
@@ -158,12 +156,31 @@ test('[derivedIdentity] it can withdraw from the derived identity', async (t: Te
   // When we withdraw 1 SOL from the derived identity.
   await mx.derivedIdentity().withdraw(sol(1));
 
-  // And fetch the balances of both the identity and the derived identity.
-  const { identityBalance, derivedBalance } = await getBalances(mx);
-
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.
+  const { identityBalance, derivedBalance } = await getBalances(mx);
   t.true(isLessThanAmount(identityBalance, sol(6)));
   t.true(isGreaterThanAmount(identityBalance, sol(5.9)));
   t.true(isEqualToAmount(derivedBalance, sol(1)));
+});
+
+test('[derivedIdentity] it can withdraw everything from the derived identity', async (t: Test) => {
+  // Given a Metaplex instance with:
+  // - an identity airdropped with 5 SOLs.
+  // - a derived identity airdropped with 2 SOLs.
+  const mx = await init({
+    message: 'withdraw',
+    identityAirdrop: 5,
+    derivedAirdrop: 2,
+  });
+
+  // When we withdraw everything from the derived identity.
+  await mx.derivedIdentity().withdrawAll();
+
+  // Then we can see that 1 SOL was transferred from the derived identity to the identity.
+  // It's a little less due to the transaction fee.
+  const { identityBalance, derivedBalance } = await getBalances(mx);
+  t.true(isLessThanAmount(identityBalance, sol(7)));
+  t.true(isGreaterThanAmount(identityBalance, sol(6.9)));
+  t.true(isEqualToAmount(derivedBalance, sol(0)));
 });
