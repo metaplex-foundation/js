@@ -1,7 +1,7 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
 import { Opaque } from '@/utils';
-import { CurrencyMismatchError } from '@/errors';
+import { CurrencyMismatchError, UnexpectedCurrencyError } from '@/errors';
 
 export type Amount = {
   basisPoints: BasisPoints;
@@ -73,6 +73,23 @@ export const sameCurrencies = (
     left.decimals === right.decimals &&
     left.namespace === right.namespace
   );
+};
+
+export const assertCurrency = (
+  actual: Currency | Amount,
+  expected: Currency
+) => {
+  if ('currency' in actual) {
+    actual = actual.currency;
+  }
+
+  if (!sameCurrencies(actual, expected)) {
+    throw new UnexpectedCurrencyError(actual, expected);
+  }
+};
+
+export const assertSol = (actual: Currency | Amount) => {
+  assertCurrency(actual, SOL);
 };
 
 export const assertSameCurrencies = (

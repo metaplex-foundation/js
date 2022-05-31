@@ -20,6 +20,8 @@ import {
   UnparsedMaybeAccount,
   isErrorWithLogs,
   Program,
+  lamports,
+  Amount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
 import {
@@ -154,6 +156,18 @@ export class RpcClient {
       publicKey: pubkey,
       ...account,
     }));
+  }
+
+  async getBalance(
+    publicKey: PublicKey,
+    commitment?: Commitment
+  ): Promise<Amount> {
+    const balance = await this.metaplex.connection.getBalance(
+      publicKey,
+      commitment
+    );
+
+    return lamports(balance);
   }
 
   async getLatestBlockhash(): Promise<Blockhash> {
