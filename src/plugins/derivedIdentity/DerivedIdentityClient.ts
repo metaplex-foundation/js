@@ -2,11 +2,18 @@ import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
-import { Amount, assertSol, IdentitySigner, KeypairSigner } from '@/types';
+import {
+  Amount,
+  assertSol,
+  IdentitySigner,
+  KeypairSigner,
+  Signer,
+} from '@/types';
 import { transferBuilder } from '@/programs';
 
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   protected readonly metaplex: Metaplex;
+  protected originalSigner: Signer | null = null;
   protected derivedKeypair: Keypair | null = null;
 
   constructor(metaplex: Metaplex) {
@@ -14,24 +21,23 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   get publicKey(): PublicKey {
-    this.assertDerivedKeypairInitialized();
+    this.assertInitialized();
 
     return this.derivedKeypair.publicKey;
   }
 
   get secretKey(): Uint8Array {
-    if (this.derivedKeypair === null) {
-      // TODO: Custom errors.
-      throw new Error('Uninitialized derived identity');
-    }
+    this.assertInitialized();
 
     return this.derivedKeypair.secretKey;
   }
 
-  async deriveFrom(message: string): Promise<void> {
-    const signature = await this.metaplex
-      .identity()
-      .signMessage(Buffer.from(message));
+  async deriveFrom(message: string | Uint8Array): Promise<void> {
+    this.originalSigner = this.metaplex.identity();
+
+    const signature = await this.originalSigner.signMessage(
+      Buffer.from(message)
+    );
 
     const seeds = nacl.hash(signature).slice(0, 32);
 
@@ -39,11 +45,11 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   async fund(amount: Amount): Promise<void> {
-    this.assertDerivedKeypairInitialized();
+    this.assertInitialized();
     assertSol(amount);
 
     const transfer = transferBuilder({
-      from: this.metaplex.identity(),
+      from: this.originalSigner,
       to: this.derivedKeypair.publicKey,
       lamports: amount.basisPoints.toNumber(),
     });
@@ -51,14 +57,27 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
-  withdraw(amount: Amount): void {
+  async withdraw(amount: Amount): Promise<void> {
+    this.assertInitialized();
     assertSol(amount);
 
-    // TODO
+    const transfer = transferBuilder({
+      from: this.derivedKeypair,
+      to: this.originalSigner.publicKey,
+      lamports: amount.basisPoints.toNumber(),
+    });
+
+    this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
-  withdrawAll(): void {
-    // TODO
+  async withdrawAll(): Promise<void> {
+    this.assertInitialized();
+
+    const balance = await this.metaplex
+      .rpc()
+      .getBalance(this.derivedKeypair.publicKey);
+
+    this.withdraw(balance);
   }
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
@@ -81,10 +100,11 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     );
   }
 
-  protected assertDerivedKeypairInitialized(): asserts this is {
+  protected assertInitialized(): asserts this is {
+    originalSigner: Signer;
     derivedKeypair: Keypair;
   } {
-    if (this.derivedKeypair === null) {
+    if (this.derivedKeypair === null || this.originalSigner === null) {
       // TODO: Custom errors.
       throw new Error('Uninitialized derived identity');
     }
