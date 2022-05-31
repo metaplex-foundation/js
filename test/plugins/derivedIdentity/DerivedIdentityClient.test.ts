@@ -58,7 +58,7 @@ test('[derivedIdentity] it derives a Keypair from the current identity', async (
 
   // Then we get a Signer Keypair.
   t.ok(mx.derivedIdentity().publicKey, 'derived identity has a public key');
-  t.ok(mx.derivedIdentity().secretKey, 'derived identity has a public key');
+  t.ok(mx.derivedIdentity().secretKey, 'derived identity has a secret key');
 
   // And it is different from the original identity.
   t.notOk(
