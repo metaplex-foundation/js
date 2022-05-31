@@ -3,6 +3,7 @@ export * from './bundlrStorage';
 export * from './candyMachineModule';
 export * from './corePlugins';
 export * from './corePrograms';
+export * from './derivedIdentity';
 export * from './guestIdentity';
 export * from './keypairIdentity';
 export * from './mockStorage';

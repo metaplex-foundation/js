@@ -41,10 +41,7 @@ export class IdentityClient
     return this.driver().signAllTransactions(transactions);
   }
 
-  public async verifyMessage(
-    message: Uint8Array,
-    signature: Uint8Array
-  ): Promise<boolean> {
+  verifyMessage(message: Uint8Array, signature: Uint8Array): boolean {
     return nacl.sign.detached.verify(
       message,
       signature,
@@ -52,15 +49,15 @@ export class IdentityClient
     );
   }
 
-  hasSecretKey(): this is KeypairSigner {
-    return this.secretKey != null;
-  }
-
-  public equals(that: Signer | PublicKey): boolean {
+  equals(that: Signer | PublicKey): boolean {
     if ('publicKey' in that) {
       that = that.publicKey;
     }
 
     return this.publicKey.equals(that);
+  }
+
+  hasSecretKey(): this is KeypairSigner {
+    return this.secretKey != null;
   }
 }
