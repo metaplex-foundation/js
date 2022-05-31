@@ -64,7 +64,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
       lamports: amount.basisPoints.toNumber(),
     });
 
-    this.metaplex.rpc().sendAndConfirmTransaction(transfer);
+    await this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
   async withdraw(amount: Amount): Promise<void> {
@@ -77,7 +77,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
       lamports: amount.basisPoints.toNumber(),
     });
 
-    this.metaplex.rpc().sendAndConfirmTransaction(transfer);
+    await this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
   async withdrawAll(): Promise<void> {
@@ -87,7 +87,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
       .rpc()
       .getBalance(this.derivedKeypair.publicKey);
 
-    this.withdraw(balance);
+    await this.withdraw(balance);
   }
 
   close(): void {

@@ -1,21 +1,27 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
+import { killStuckProcess, metaplex, MetaplexTestOptions } from '../../helpers';
 import {
   derivedIdentity,
   keypairIdentity,
   KeypairIdentityDriver,
+  sol,
+  isEqualToAmount,
+  isLessThanAmount,
+  isGreaterThanAmount,
 } from '@/index';
 
 killStuckProcess();
 
-const init = async (message?: string) => {
-  const mx = await metaplex();
+const init = async (
+  options: MetaplexTestOptions & { message?: string } = {}
+) => {
+  const mx = await metaplex(options);
 
   mx.use(derivedIdentity());
 
-  if (message != null) {
-    await mx.derivedIdentity().deriveFrom(message);
+  if (options.message != null) {
+    await mx.derivedIdentity().deriveFrom(options.message);
   }
 
   return mx;
@@ -96,4 +102,24 @@ test('[derivedIdentity] it derives different addresses from different messages',
 
   // Then we get the different Keypairs.
   t.false(derivedPublicKeyA.equals(derivedPubliKeyB));
+});
+
+test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
+  // Given a Metaplex instance with a derived identity
+  // and an identity airdropped with 5 SOLs.
+  const mx = await init({ message: 'fund', solsToAirdrop: 5 });
+
+  // When we fund the derived identity by 1 SOL.
+  await mx.derivedIdentity().fund(sol(1));
+
+  // And fetch the balances of both the identity and the derived identity.
+  const identityBalance = await mx.rpc().getBalance(mx.identity().publicKey);
+  const derivedBalance = await mx
+    .rpc()
+    .getBalance(mx.derivedIdentity().publicKey);
+
+  // Then we can see that 1 SOL was transferred from the identity to the derived identity.
+  t.true(isLessThanAmount(identityBalance, sol(4)));
+  t.true(isGreaterThanAmount(identityBalance, sol(3.9)));
+  t.true(isEqualToAmount(derivedBalance, sol(1)));
 });
