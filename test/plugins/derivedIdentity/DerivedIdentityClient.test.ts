@@ -57,11 +57,14 @@ test('[derivedIdentity] it derives a Keypair from the current identity', async (
   await mx.derivedIdentity().deriveFrom('Hello World');
 
   // Then we get a Signer Keypair.
-  t.true(mx.derivedIdentity().publicKey);
-  t.true(mx.derivedIdentity().secretKey);
+  t.ok(mx.derivedIdentity().publicKey, 'derived identity has a public key');
+  t.ok(mx.derivedIdentity().secretKey, 'derived identity has a public key');
 
   // And it is different from the original identity.
-  t.false(mx.derivedIdentity().equals(mx.identity()));
+  t.notOk(
+    mx.derivedIdentity().equals(mx.identity()),
+    'derived identity is different from original identity'
+  );
 });
 
 test('[derivedIdentity] it keeps track of the identity it originates from', async (t: Test) => {
@@ -73,12 +76,21 @@ test('[derivedIdentity] it keeps track of the identity it originates from', asyn
   await mx.derivedIdentity().deriveFrom('Hello World');
 
   // Then the derived identity kept track of the identity it originated from.
-  t.true(identityPublicKey.equals(mx.derivedIdentity().originalPublicKey));
+  t.ok(
+    identityPublicKey.equals(mx.derivedIdentity().originalPublicKey),
+    'derived identity stores the public key of the identity it originated from'
+  );
 
   // Even if we end up updating the identity.
   mx.use(keypairIdentity(Keypair.generate()));
-  t.true(identityPublicKey.equals(mx.derivedIdentity().originalPublicKey));
-  t.false(mx.identity().equals(mx.derivedIdentity().originalPublicKey));
+  t.ok(
+    identityPublicKey.equals(mx.derivedIdentity().originalPublicKey),
+    'derived identity stores the public key of the identity it originated from even after it changed'
+  );
+  t.notOk(
+    mx.identity().equals(mx.derivedIdentity().originalPublicKey),
+    "derived identity's stored identity is different to the new identity"
+  );
 });
 
 test('[derivedIdentity] it can derive a Keypair from an explicit IdentitySigner', async (t: Test) => {
@@ -90,10 +102,16 @@ test('[derivedIdentity] it can derive a Keypair from an explicit IdentitySigner'
   await mx.derivedIdentity().deriveFrom('Hello World', signer);
 
   // Then a new derived identity was created for that signer.
-  t.true(signer.publicKey.equals(mx.derivedIdentity().originalPublicKey));
+  t.ok(
+    signer.publicKey.equals(mx.derivedIdentity().originalPublicKey),
+    'derived identity stores the public key of the provided signer'
+  );
 
   // But not for the current identity.
-  t.false(mx.identity().equals(mx.derivedIdentity().originalPublicKey));
+  t.notOk(
+    mx.identity().equals(mx.derivedIdentity().originalPublicKey),
+    'derived identity does not store the public key of the current identity'
+  );
 });
 
 test('[derivedIdentity] it derives the same address when using the same message', async (t: Test) => {
@@ -108,7 +126,10 @@ test('[derivedIdentity] it derives the same address when using the same message'
   const derivedPubliKeyB = mx.derivedIdentity().publicKey;
 
   // Then we get the same Keypair.
-  t.true(derivedPublicKeyA.equals(derivedPubliKeyB));
+  t.ok(
+    derivedPublicKeyA.equals(derivedPubliKeyB),
+    'the two derived identities are the same'
+  );
 });
 
 test('[derivedIdentity] it derives different addresses from different messages', async (t: Test) => {
@@ -123,7 +144,10 @@ test('[derivedIdentity] it derives different addresses from different messages',
   const derivedPubliKeyB = mx.derivedIdentity().publicKey;
 
   // Then we get the different Keypairs.
-  t.false(derivedPublicKeyA.equals(derivedPubliKeyB));
+  t.notOk(
+    derivedPublicKeyA.equals(derivedPubliKeyB),
+    'the two derived identities are different'
+  );
 });
 
 test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
@@ -138,9 +162,15 @@ test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
   // Then we can see that 1 SOL was transferred from the identity to the derived identity.
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
-  t.true(isLessThanAmount(identityBalance, sol(4)));
-  t.true(isGreaterThanAmount(identityBalance, sol(3.9)));
-  t.true(isEqualToAmount(derivedBalance, sol(1)));
+  t.ok(
+    isLessThanAmount(identityBalance, sol(4)),
+    'identity balance is less than 4'
+  );
+  t.ok(
+    isGreaterThanAmount(identityBalance, sol(3.9)),
+    'identity balance is greater than 3.9'
+  );
+  t.ok(isEqualToAmount(derivedBalance, sol(1)), 'derived balance is 1');
 });
 
 test('[derivedIdentity] it can withdraw from the derived identity', async (t: Test) => {
@@ -159,9 +189,15 @@ test('[derivedIdentity] it can withdraw from the derived identity', async (t: Te
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
-  t.true(isLessThanAmount(identityBalance, sol(6)));
-  t.true(isGreaterThanAmount(identityBalance, sol(5.9)));
-  t.true(isEqualToAmount(derivedBalance, sol(1)));
+  t.ok(
+    isLessThanAmount(identityBalance, sol(6)),
+    'identity balance is less than 6'
+  );
+  t.ok(
+    isGreaterThanAmount(identityBalance, sol(5.9)),
+    'identity balance is greater than 5.9'
+  );
+  t.ok(isEqualToAmount(derivedBalance, sol(1)), 'derived balance is 1');
 });
 
 test('[derivedIdentity] it can withdraw everything from the derived identity', async (t: Test) => {
@@ -180,7 +216,13 @@ test('[derivedIdentity] it can withdraw everything from the derived identity', a
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
-  t.true(isLessThanAmount(identityBalance, sol(7)));
-  t.true(isGreaterThanAmount(identityBalance, sol(6.9)));
-  t.true(isEqualToAmount(derivedBalance, sol(0)));
+  t.ok(
+    isLessThanAmount(identityBalance, sol(7)),
+    'identity balance is less than 7'
+  );
+  t.ok(
+    isGreaterThanAmount(identityBalance, sol(6.9)),
+    'identity balance is greater than 6.9'
+  );
+  t.ok(isEqualToAmount(derivedBalance, sol(0)), 'derived balance is 0');
 });
