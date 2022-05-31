@@ -9,7 +9,12 @@ import {
   UploadedAsset,
   useMetaplexFile,
 } from '../../../src';
-import { amman, killStuckProcess, metaplex } from '../../helpers';
+import {
+  amman,
+  killStuckProcess,
+  metaplex,
+  MOCK_STORAGE_ID,
+} from '../../helpers';
 import {
   benchPng,
   bridgePng,
@@ -19,6 +24,7 @@ import {
 } from './helpers';
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
+import { ammanMockStorage } from '@metaplex-foundation/amman-client';
 
 killStuckProcess();
 
@@ -46,6 +52,7 @@ async function verifyProperlyUploaded(
     'asset.buffer === metaplexFile.buffer'
   );
 }
+
 async function verifyUploadedAssets(
   t: test.Test,
   mx: Metaplex,
@@ -61,19 +68,14 @@ async function verifyUploadedAssets(
 }
 
 function setupMockStorage(mx: Metaplex) {
-  // TODO(thlorenz): Once amman supports a mock driver again we can use that
-  // here when not running in CI
-  /*
-  const storageDriver = amman.createMockStorageDriver(MOCK_STORAGE_ID, {
-    costPerByte: 0.001,
-  });
-  // TODO(thlorenz): why do we have to do as any (mx.use doesn't work for similar reasons)?
-  storageDriver.install(mx as any);
-  */
-  mx.use(mockStorage());
+  if (process.env.CI == null) {
+    mx.use(ammanMockStorage(MOCK_STORAGE_ID));
+  } else {
+    mx.use(mockStorage());
+  }
 }
 
-test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
+test.only('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   // Given I create a candy machine holing 2 assets
   const mx = await metaplex();
   setupMockStorage(mx);
