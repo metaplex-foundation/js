@@ -81,6 +81,11 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     this.withdraw(balance);
   }
 
+  close(): void {
+    this.originalSigner = null;
+    this.derivedKeypair = null;
+  }
+
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
     return nacl.sign.detached(message, this.secretKey);
   }
@@ -99,7 +104,23 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     );
   }
 
-  protected assertInitialized(): asserts this is {
+  verifyMessage(message: Uint8Array, signature: Uint8Array): boolean {
+    return nacl.sign.detached.verify(
+      message,
+      signature,
+      this.publicKey.toBytes()
+    );
+  }
+
+  equals(that: Signer | PublicKey): boolean {
+    if ('publicKey' in that) {
+      that = that.publicKey;
+    }
+
+    return this.publicKey.equals(that);
+  }
+
+  assertInitialized(): asserts this is {
     originalSigner: Signer;
     derivedKeypair: Keypair;
   } {
