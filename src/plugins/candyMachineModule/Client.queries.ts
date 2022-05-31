@@ -1,5 +1,4 @@
 import { PublicKey } from '@solana/web3.js';
-import type { ModuleClient } from '@/types';
 import type { CandyMachineClient } from './CandyMachineClient';
 import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
@@ -11,7 +10,7 @@ import {
 } from '../../errors/CandyMachineError';
 
 export function findByAddress(
-  this: ModuleClient,
+  this: CandyMachineClient,
   address: PublicKey
 ): Promise<CandyMachine | null> {
   const operation = findCandyMachineByAdddressOperation(address);
@@ -19,7 +18,7 @@ export function findByAddress(
 }
 
 export function findAllByWallet(
-  this: ModuleClient,
+  this: CandyMachineClient,
   walletAddress: PublicKey
 ): Promise<CandyMachine[]> {
   return this.metaplex.operations().execute(
@@ -31,7 +30,7 @@ export function findAllByWallet(
 }
 
 export function findAllByAuthority(
-  this: ModuleClient,
+  this: CandyMachineClient,
   authorityAddress: PublicKey
 ): Promise<CandyMachine[]> {
   return this.metaplex.operations().execute(

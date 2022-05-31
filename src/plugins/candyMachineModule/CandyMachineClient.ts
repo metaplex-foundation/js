@@ -14,7 +14,7 @@ import {
 import { addAssets } from './Client.add';
 
 export class CandyMachineClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(readonly metaplex: Metaplex) {}
 
   // -----------------
   // Queries
