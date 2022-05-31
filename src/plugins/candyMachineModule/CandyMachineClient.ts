@@ -1,4 +1,4 @@
-import { ModuleClient } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 import {
   findAllByAuthority,
   findAllByWallet,
@@ -13,7 +13,9 @@ import {
 } from './Client.upload';
 import { addAssets } from './Client.add';
 
-export class CandyMachineClient extends ModuleClient {
+export class CandyMachineClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   // -----------------
   // Queries
   // -----------------

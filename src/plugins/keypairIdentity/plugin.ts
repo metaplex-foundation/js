@@ -5,6 +5,6 @@ import { KeypairIdentityDriver } from './KeypairIdentityDriver';
 
 export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.setIdentityDriver(new KeypairIdentityDriver(metaplex, keypair));
+    metaplex.identity().setDriver(new KeypairIdentityDriver(keypair));
   },
 });

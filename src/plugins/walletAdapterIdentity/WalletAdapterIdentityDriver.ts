@@ -1,38 +1,21 @@
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  TransactionSignature,
-  SendOptions,
-} from '@solana/web3.js';
-import { IdentityDriver, KeypairSigner } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
 } from '@/errors';
-
-type SendTransactionOptions = SendOptions & {
-  signers?: KeypairSigner[];
-};
+import { IdentityDriver } from '../identityModule';
 
 export type WalletAdapter = {
   publicKey: PublicKey | null;
-  sendTransaction: (
-    transaction: Transaction,
-    connection: Connection,
-    options?: SendTransactionOptions
-  ) => Promise<TransactionSignature>;
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction?: (transaction: Transaction) => Promise<Transaction>;
-  signAllTransactions?: (transaction: Transaction[]) => Promise<Transaction[]>;
+  signAllTransactions?: (transactions: Transaction[]) => Promise<Transaction[]>;
 };
 
-export class WalletAdapterIdentityDriver extends IdentityDriver {
+export class WalletAdapterIdentityDriver implements IdentityDriver {
   public readonly walletAdapter: WalletAdapter;
 
-  constructor(metaplex: Metaplex, walletAdapter: WalletAdapter) {
-    super(metaplex);
+  constructor(walletAdapter: WalletAdapter) {
     this.walletAdapter = walletAdapter;
   }
 
@@ -70,19 +53,5 @@ export class WalletAdapterIdentityDriver extends IdentityDriver {
     }
 
     return this.walletAdapter.signAllTransactions(transactions);
-  }
-
-  public async sendTransaction(
-    transaction: Transaction,
-    _connection?: Connection,
-    options?: SendTransactionOptions
-  ): Promise<TransactionSignature> {
-    const { signers, ...sendOptions } = options || {};
-
-    // We accept a connection to match the wallet signature, but it is not used.
-    // We use the RpcDriver to send the transaction to keep the single point of failure.
-    return this.metaplex
-      .rpc()
-      .sendTransaction(transaction, signers, sendOptions);
   }
 }

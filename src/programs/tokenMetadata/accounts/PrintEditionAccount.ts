@@ -10,7 +10,7 @@ import {
 import { OriginalEditionAccount } from './OriginalEditionAccount';
 
 export class PrintEditionAccount extends BaseAccount<Edition> {
-  static async pda(mint: PublicKey): Promise<Pda> {
+  static pda(mint: PublicKey): Pda {
     return OriginalEditionAccount.pda(mint);
   }
 

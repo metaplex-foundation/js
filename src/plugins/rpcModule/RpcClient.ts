@@ -6,20 +6,22 @@ import {
   ConfirmOptions,
   GetProgramAccountsConfig,
   PublicKey,
+  RpcResponseAndContext,
   SendOptions,
+  SignatureResult,
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
 import {
-  RpcDriver,
-  ConfirmTransactionResponse,
-  SendAndConfirmTransactionResponse,
   getSignerHistogram,
   Signer,
   UnparsedAccount,
   UnparsedMaybeAccount,
   isErrorWithLogs,
   Program,
+  lamports,
+  Amount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
 import {
@@ -31,7 +33,15 @@ import {
   UnknownProgramError,
 } from '@/errors';
 
-export class CoreRpcDriver extends RpcDriver {
+export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
+export type SendAndConfirmTransactionResponse = {
+  signature: TransactionSignature;
+  confirmResponse: ConfirmTransactionResponse;
+};
+
+export class RpcClient {
+  constructor(protected readonly metaplex: Metaplex) {}
+
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,
     signers: Signer[] = [],
@@ -148,7 +158,19 @@ export class CoreRpcDriver extends RpcDriver {
     }));
   }
 
-  protected async getLatestBlockhash(): Promise<Blockhash> {
+  async getBalance(
+    publicKey: PublicKey,
+    commitment?: Commitment
+  ): Promise<Amount> {
+    const balance = await this.metaplex.connection.getBalance(
+      publicKey,
+      commitment
+    );
+
+    return lamports(balance);
+  }
+
+  async getLatestBlockhash(): Promise<Blockhash> {
     return (await this.metaplex.connection.getLatestBlockhash('finalized'))
       .blockhash;
   }
