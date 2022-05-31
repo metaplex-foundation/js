@@ -19,8 +19,6 @@ export class KeypairIdentityDriver implements IdentityDriver, KeypairSigner {
   }
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
-    // TODO: Handle Error: Transaction recentBlockhash required.
-
     transaction.partialSign(this.keypair);
 
     return transaction;

@@ -10,6 +10,7 @@ import {
   Signer,
 } from '@/types';
 import { transferBuilder } from '@/programs';
+import { UninitializedDerivedIdentityError } from './errors';
 
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   protected readonly metaplex: Metaplex;
@@ -85,8 +86,6 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   async signTransaction(transaction: Transaction): Promise<Transaction> {
-    // TODO: Handle Error: Transaction recentBlockhash required.
-
     transaction.partialSign(this);
 
     return transaction;
@@ -105,8 +104,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     derivedKeypair: Keypair;
   } {
     if (this.derivedKeypair === null || this.originalSigner === null) {
-      // TODO: Custom errors.
-      throw new Error('Uninitialized derived identity');
+      throw new UninitializedDerivedIdentityError();
     }
   }
 }
