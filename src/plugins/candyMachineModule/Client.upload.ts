@@ -65,6 +65,9 @@ export async function uploadAssetForCandyMachine(
     candyMachineAddress,
     authoritySigner,
     properties,
+    // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
+    // API improves to have clearly separated properties
+    assets,
     ...uploadInputParams
   } = params;
 
@@ -73,7 +76,6 @@ export async function uploadAssetForCandyMachine(
     properties: uploadProperties,
     seller_fee_basis_points,
   };
-
   const { uri, metadata } = await this.metaplex
     .nfts()
     .uploadMetadata(uploadInput);
@@ -147,9 +149,12 @@ export async function uploadAssetsForCandyMachine(
 
   const { parallel = false, addToCandyMachine = false } = params;
 
-  const uploadParams = params.assets.map((x) => {
+  // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
+  // API improves to have clearly separated properties
+  const { assets, ...assetLessParams } = params;
+  const uploadParams = assets.map((x) => {
     const param: UploadAssetToCandyMachineParams = {
-      ...params,
+      ...assetLessParams,
       image: x,
       name: x.displayName,
       // We add them all in one transaction after all assets are uploaded
