@@ -15,13 +15,8 @@ import {
   metaplex,
   MOCK_STORAGE_ID,
 } from '../../helpers';
-import {
-  benchPng,
-  bridgePng,
-  createCandyMachineWithMaxSupply,
-  rockPng,
-  walrusPng,
-} from './helpers';
+import { benchPng, bridgePng, rockPng, walrusPng } from '../../helpers';
+import { createCandyMachineWithMaxSupply } from './helpers';
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
 import BN from 'bn.js';
 import { ammanMockStorage } from '@metaplex-foundation/amman-client';

@@ -3,7 +3,7 @@ import {
   bridge_80x80,
   rock_80x80,
   walrus_80x80,
-} from '../../../fixtures/images';
+} from '../fixtures/images';
 
 export const rockPng = Buffer.from(rock_80x80, 'base64');
 export const bridgePng = Buffer.from(bridge_80x80, 'base64');
