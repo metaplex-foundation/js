@@ -203,7 +203,7 @@ export async function uploadAssetsForCandyMachine(
 
   let addAssetsTransactionId;
   let updatedCandyMachine = candyMachine;
-  if (addToCandyMachine) {
+  if (addToCandyMachine && uploadedAssets.length > 0) {
     const configLines: ConfigLine[] = uploadedAssets.map((x) => ({
       uri: x.uri,
       name: x.name,
@@ -223,6 +223,7 @@ export async function uploadAssetsForCandyMachine(
     addAssetsTransactionId,
     uploadedAssets,
     candyMachine: updatedCandyMachine,
+    errors,
   };
 }
 
