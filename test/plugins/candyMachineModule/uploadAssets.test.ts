@@ -75,7 +75,7 @@ function setupMockStorage(mx: Metaplex) {
   }
 }
 
-test.only('uploadAsset: candy machine that can hold 2 assets', async (t) => {
+test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   // Given I create a candy machine holing 2 assets
   const mx = await metaplex();
   setupMockStorage(mx);
@@ -138,6 +138,11 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
       ],
     });
     await tc.assertSuccess(t, transactionId);
+    t.equal(
+      (await cm.findByAddress(candyMachine.candyMachineAddress))?.assetsCount,
+      1,
+      'candy machine has 1 asset'
+    );
   }
   {
     // When I upload the second asset for it
@@ -164,6 +169,11 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
       ],
     });
     await tc.assertSuccess(t, transactionId);
+    t.equal(
+      (await cm.findByAddress(candyMachine.candyMachineAddress))?.assetsCount,
+      2,
+      'candy machine has 2 assets'
+    );
   }
   {
     // When I upload the third asset for it
