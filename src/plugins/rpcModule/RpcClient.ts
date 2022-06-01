@@ -191,6 +191,16 @@ export class RpcClient {
     return lamports(balance);
   }
 
+  async getRent(bytes: number, commitment?: Commitment): Promise<Amount> {
+    const rent =
+      await this.metaplex.connection.getMinimumBalanceForRentExemption(
+        bytes,
+        commitment
+      );
+
+    return lamports(rent);
+  }
+
   async getLatestBlockhash(): Promise<Blockhash> {
     return (await this.metaplex.connection.getLatestBlockhash('finalized'))
       .blockhash;
