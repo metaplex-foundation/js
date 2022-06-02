@@ -7,7 +7,7 @@ import {
   OutputOfOperation,
   OperationHandler,
 } from '@/types';
-import { Task, TaskOptions, useTask } from '@/utils';
+import { Task, TaskOptions } from '@/utils';
 import { OperationHandlerMissingError } from '@/errors';
 
 export class OperationClient {
@@ -62,7 +62,7 @@ export class OperationClient {
   >(operation: T): Task<O> {
     const operationHandler = this.get<T, K, I, O>(operation);
 
-    return useTask((scope) => {
+    return new Task((scope) => {
       return operationHandler.handle(operation, this.metaplex, scope);
     });
   }

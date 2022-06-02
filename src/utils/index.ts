@@ -10,5 +10,3 @@ export * from './Postpone';
 export * from './Task';
 export * from './TransactionBuilder';
 export * from './types';
-export * from './useDisposable';
-export * from './useTask';
