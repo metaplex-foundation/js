@@ -1,7 +1,8 @@
 import { AbortSignal } from 'abort-controller';
 import EventEmitterPackage from 'eventemitter3';
 import { TaskIsAlreadyRunningError } from '@/errors';
-import { useDisposable, DisposableScope } from './useDisposable';
+import { useDisposable } from './useDisposable';
+import { DisposableScope } from './Disposable';
 
 export type TaskStatus =
   | 'pending'

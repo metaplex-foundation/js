@@ -33,7 +33,7 @@ export class Disposable {
       return await Promise.resolve(callback(this.getScope()));
     } finally {
       if (thenCloseDisposable) {
-        close();
+        this.close();
       }
     }
   }
