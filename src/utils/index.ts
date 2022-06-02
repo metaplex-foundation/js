@@ -1,6 +1,7 @@
 export * from './assert';
 export { default as assert } from './assert';
 export * from './common';
+export * from './Disposable';
 export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './log';

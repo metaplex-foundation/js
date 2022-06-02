@@ -9,6 +9,7 @@ export type TaskStatus =
   | 'successful'
   | 'failed'
   | 'canceled';
+
 export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
 
 export type TaskOptions = {
