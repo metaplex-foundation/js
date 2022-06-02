@@ -7,6 +7,7 @@ export * from './GpaBuilder';
 export * from './log';
 export * from './Plan';
 export * from './Postpone';
+export * from './Task';
 export * from './TransactionBuilder';
 export * from './types';
 export * from './useDisposable';
