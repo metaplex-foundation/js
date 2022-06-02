@@ -159,3 +159,20 @@ test('[Task] it can listen to status changes', async (t: Test) => {
   l4.reset();
   t.deepEqual(h4, ['successful', 'pending']);
 });
+
+test('[Task] it can be given additional context', async (t: Test) => {
+  // Given a test task that returns a number.
+  const task = new Task(() => 42);
+
+  // When we provide additional context to that task
+  task.setContext({
+    name: 'Computing the answer to the universe',
+    accuracy: 100,
+  });
+
+  // Then we can fetch that context at any time later on.
+  t.same(task.getContext<{ name: string; accuracy: number }>(), {
+    name: 'Computing the answer to the universe',
+    accuracy: 100,
+  });
+});

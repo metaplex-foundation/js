@@ -21,14 +21,20 @@ export type TaskOptions = {
 export class Task<T> {
   protected callback: TaskCallback<T>;
   protected children: Task<any>[];
+  protected context: object;
   protected status: TaskStatus = 'pending';
   protected result: T | undefined = undefined;
   protected error: unknown = undefined;
   protected eventEmitter: EventEmitter;
 
-  constructor(callback: TaskCallback<T>, children: Task<any>[] = []) {
+  constructor(
+    callback: TaskCallback<T>,
+    children: Task<any>[] = [],
+    context: object = {}
+  ) {
     this.callback = callback;
     this.children = children;
+    this.context = context;
     this.eventEmitter = new EventEmitterPackage.EventEmitter();
   }
 
@@ -100,8 +106,28 @@ export class Task<T> {
     return this;
   }
 
+  setChildren(children: Task<any>[]) {
+    this.children = children;
+
+    return this;
+  }
+
   getChildren(): Task<any>[] {
     return this.children;
+  }
+
+  getDescendants(): Task<any>[] {
+    return this.children.flatMap((child) => [child, ...child.getDescendants()]);
+  }
+
+  setContext(context: object) {
+    this.context = context;
+
+    return this;
+  }
+
+  getContext<C extends object = object>(): C {
+    return this.context as C;
   }
 
   getStatus(): TaskStatus {
