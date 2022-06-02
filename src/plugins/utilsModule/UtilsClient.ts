@@ -1,10 +1,17 @@
 import type { Metaplex } from '@/Metaplex';
-import { addAmounts, Amount, lamports, multiplyAmount } from '@/types';
+import {
+  addAmounts,
+  Amount,
+  lamports,
+  multiplyAmount,
+  subtractAmounts,
+} from '@/types';
 
 const TRANSACTION_FEE = 5000;
 
 export class UtilsClient {
   protected readonly metaplex: Metaplex;
+  protected cachedRentPerEmptyAccount: Amount | null = null;
   protected cachedRentPerByte: Amount | null = null;
 
   constructor(metaplex: Metaplex) {
@@ -13,28 +20,43 @@ export class UtilsClient {
 
   async estimate(
     bytes: number,
+    numberOfAccounts: number = 1,
     numberOfTransactions: number = 1,
     useCache = true
   ): Promise<Amount> {
-    const rent = await this.estimateRent(bytes, useCache);
+    const rent = await this.estimateRent(bytes, numberOfAccounts, useCache);
     const transactionFees = this.estimateTransactionFee(numberOfTransactions);
 
     return addAmounts(rent, transactionFees);
   }
 
-  async estimateRent(bytes: number, useCache = true): Promise<Amount> {
-    if (bytes === 0) {
-      return lamports(0);
+  async estimateRent(
+    bytes: number,
+    numberOfAccounts: number = 1,
+    useCache: boolean = true
+  ): Promise<Amount> {
+    if (
+      !useCache ||
+      this.cachedRentPerEmptyAccount === null ||
+      this.cachedRentPerByte === null
+    ) {
+      const rentFor0bytes = await this.metaplex.rpc().getRent(0);
+      const rentFor1byte = await this.metaplex.rpc().getRent(1);
+      this.cachedRentPerEmptyAccount = rentFor0bytes;
+      this.cachedRentPerByte = subtractAmounts(rentFor1byte, rentFor0bytes);
     }
 
-    if (!useCache || this.cachedRentPerByte === null) {
-      this.cachedRentPerByte = await this.metaplex.rpc().getRent(1);
-    }
+    const rentForAccounts = multiplyAmount(
+      this.cachedRentPerEmptyAccount,
+      numberOfAccounts
+    );
+    const rentForBytes = multiplyAmount(this.cachedRentPerByte, bytes);
 
-    return multiplyAmount(this.cachedRentPerByte, bytes);
+    return addAmounts(rentForAccounts, rentForBytes);
   }
 
   estimateTransactionFee(numberOfTransactions: number = 1): Amount {
+    // TODO(loris): Improve with an RPC call to get the current transaction fee.
     return lamports(numberOfTransactions * TRANSACTION_FEE);
   }
 }
