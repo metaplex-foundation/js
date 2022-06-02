@@ -2,7 +2,7 @@ import test, { Test } from 'tape';
 import { AbortController } from 'abort-controller';
 import { Disposable } from '@/index';
 
-test.only('[Disposable] it can cancel callbacks', async (t: Test) => {
+test('[Disposable] it can cancel callbacks', async (t: Test) => {
   // Given a disposable.
   const abortController = new AbortController();
   const disposable = new Disposable(abortController.signal);
@@ -35,15 +35,59 @@ test.only('[Disposable] it can cancel callbacks', async (t: Test) => {
 });
 
 test('[Disposable] it provides a useful scope to the callback', async (t: Test) => {
-  // Given
-  // When
-  // Then
+  // Given a disposable.
+  const abortController = new AbortController();
+  const disposable = new Disposable(abortController.signal);
+
+  // When we use it to run a callback.
+  await disposable.run(async (scope) => {
+    // Then we get a useful scope.
+    t.equals(typeof scope.throwIfCanceled, 'function');
+    t.equal(scope.signal, abortController.signal);
+    t.false(scope.isCanceled(), 'isCanceled returns false');
+    t.equals(scope.getCancelationError(), null);
+
+    // And that scope returns different values based on the disposable state.
+    abortController.abort();
+    t.true(scope.isCanceled(), 'isCanceled returns true');
+  });
 });
 
-test('[Disposable] it can close the abort listener', async (t: Test) => {
-  // Given
-  // When
-  // Then
+test('[Disposable] it can listen to the disposable cancellation', async (t: Test) => {
+  // Given a disposable.
+  const abortController = new AbortController();
+  const disposable = new Disposable(abortController.signal);
+
+  // With an abort listener registered.
+  let abortListenerExecuted = false;
+  disposable.onCancel(() => {
+    abortListenerExecuted = true;
+  });
+
+  // When we abort the disposable.
+  abortController.abort();
+
+  // Then the abort listener was executed.
+  t.true(abortListenerExecuted, 'abort listener was executed');
+});
+
+test.only('[Disposable] it can close the abort listener', async (t: Test) => {
+  // Given a disposable.
+  const abortController = new AbortController();
+  const disposable = new Disposable(abortController.signal);
+
+  // With an abort listener registered.
+  let abortListenerExecuted = false;
+  disposable.onCancel(() => {
+    abortListenerExecuted = true;
+  });
+
+  // When we close the disposable before aborting it.
+  disposable.close();
+  abortController.abort();
+
+  // Then the abort listener was executed.
+  t.false(abortListenerExecuted, 'abort listener was not executed');
 });
 
 test('[Disposable] it closes the abort listener after running a callback by default', async (t: Test) => {

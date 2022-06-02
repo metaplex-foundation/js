@@ -23,6 +23,7 @@ export class Disposable {
       this.eventEmitter.emit('cancel', error);
       this.close();
     };
+    this.signal.addEventListener('abort', this.abortListener);
   }
 
   async run<T>(
@@ -65,7 +66,7 @@ export class Disposable {
     return this;
   }
 
-  protected close() {
+  close() {
     this.signal.removeEventListener('abort', this.abortListener);
     this.eventEmitter.removeAllListeners();
   }
