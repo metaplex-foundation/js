@@ -224,3 +224,39 @@ test('[Task] it can return nested tasks recursively', async (t: Test) => {
     grandChildB1,
   ]);
 });
+
+const useHistoryWithNamedTasks = (tasks: Task<any>[]) => {
+  const history: { name: string; status: string }[] = [];
+  tasks.forEach((task) => {
+    const name = task.getContext<{ name: string }>().name;
+    task.onStatusChange((status) => history.push({ name, status }));
+  });
+
+  return history;
+};
+
+test('[Task] it be used to execute tasks sequentially', async (t: Test) => {
+  // Given two child tasks.
+  const childA = new Task(() => {}, [], { name: 'Child A' });
+  const childB = new Task(() => {}, [], { name: 'Child B' });
+
+  // And one parent task that use them sequentially.
+  const parent = new Task(async () => {
+    await childA.run();
+    await childB.run();
+  }, [childA, childB]);
+
+  // And an history that keeps track of the child executions.
+  const history = useHistoryWithNamedTasks([childA, childB]);
+
+  // When we execute the parent task.
+  await parent.run();
+
+  // Then we got the right execution history.
+  t.deepEqual(history, [
+    { name: 'Child A', status: 'running' },
+    { name: 'Child A', status: 'successful' },
+    { name: 'Child B', status: 'running' },
+    { name: 'Child B', status: 'successful' },
+  ]);
+});
