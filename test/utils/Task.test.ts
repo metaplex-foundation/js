@@ -176,3 +176,29 @@ test('[Task] it can be given additional context', async (t: Test) => {
     accuracy: 100,
   });
 });
+
+test('[Task] it can have nested tasks', async (t: Test) => {
+  // Given simple child tasks that return numbers.
+  const childA = new Task(() => 1);
+  const childB = new Task(() => 2);
+
+  // When we create a parent task that use these child tasks
+  const parent = new Task(
+    async (options) => {
+      const resultA = await childA.run(options);
+      const resultB = await childB.run(options);
+      return resultA + resultB;
+    },
+    [childA, childB]
+  );
+
+  // Then we can access its children and their progress at any time.
+  t.deepEqual(parent.getChildren(), [childA, childB]);
+
+  // And running the parent task executes the child tasks as well.
+  const result = await parent.run();
+  t.equal(result, 3);
+  t.equal(parent.getStatus(), 'successful');
+  t.equal(childA.getStatus(), 'successful');
+  t.equal(childB.getStatus(), 'successful');
+});
