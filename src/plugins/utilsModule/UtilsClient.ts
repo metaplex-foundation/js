@@ -40,10 +40,10 @@ export class UtilsClient {
       this.cachedRentPerEmptyAccount === null ||
       this.cachedRentPerByte === null
     ) {
-      const rentFor0bytes = await this.metaplex.rpc().getRent(0);
-      const rentFor1byte = await this.metaplex.rpc().getRent(1);
-      this.cachedRentPerEmptyAccount = rentFor0bytes;
-      this.cachedRentPerByte = subtractAmounts(rentFor1byte, rentFor0bytes);
+      const rentFor0Bytes = await this.metaplex.rpc().getRent(0);
+      const rentFor1Byte = await this.metaplex.rpc().getRent(1);
+      this.cachedRentPerEmptyAccount = rentFor0Bytes;
+      this.cachedRentPerByte = subtractAmounts(rentFor1Byte, rentFor0Bytes);
     }
 
     const rentForAccounts = multiplyAmount(
