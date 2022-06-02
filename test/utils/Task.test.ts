@@ -260,3 +260,34 @@ test('[Task] it be used to execute tasks sequentially', async (t: Test) => {
     { name: 'Child B', status: 'successful' },
   ]);
 });
+
+test('[Task] it be used to execute tasks in parallel', async (t: Test) => {
+  // Given two child tasks that resolve at different times.
+  const childA = new Task(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  });
+  childA.setContext({ name: 'Child A' });
+  const childB = new Task(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  });
+  childB.setContext({ name: 'Child B' });
+
+  // And one parent task that use them in parallel.
+  const parent = new Task(async () => {
+    await Promise.all([childA.run(), childB.run()]);
+  }, [childA, childB]);
+
+  // And an history that keeps track of the child executions.
+  const history = useHistoryWithNamedTasks([childA, childB]);
+
+  // When we execute the parent task.
+  await parent.run();
+
+  // Then we got the right execution history.
+  t.deepEqual(history, [
+    { name: 'Child A', status: 'running' },
+    { name: 'Child B', status: 'running' },
+    { name: 'Child B', status: 'successful' },
+    { name: 'Child A', status: 'successful' },
+  ]);
+});
