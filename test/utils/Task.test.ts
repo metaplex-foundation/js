@@ -202,3 +202,25 @@ test('[Task] it can have nested tasks', async (t: Test) => {
   t.equal(childA.getStatus(), 'successful');
   t.equal(childB.getStatus(), 'successful');
 });
+
+test('[Task] it can return nested tasks recursively', async (t: Test) => {
+  // Given a hierarchy of tasks containing more than two levels.
+  const grandChildA1 = new Task(() => {});
+  const grandChildA2 = new Task(() => {});
+  const childA = new Task(() => {}, [grandChildA1, grandChildA2]);
+  const grandChildB1 = new Task(() => {});
+  const childB = new Task(() => {}, [grandChildB1]);
+  const parent = new Task(() => {}, [childA, childB]);
+
+  // When we get the descendants of the parent task.
+  const descendants = parent.getDescendants();
+
+  // Then we get all nested children in a flat array.
+  t.deepEqual(descendants, [
+    childA,
+    grandChildA1,
+    grandChildA2,
+    childB,
+    grandChildB1,
+  ]);
+});
