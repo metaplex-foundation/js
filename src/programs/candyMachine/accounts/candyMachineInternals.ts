@@ -5,6 +5,7 @@ import {
   Creator,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
+import { assert } from '@/utils';
 
 // NOTE: The below is adapted from the Rust program, thus duplicating business
 // logic which isn't ideal
@@ -87,33 +88,29 @@ export function getConfigLines(rawData: Buffer): ConfigLine[] {
 }
 
 export function assertName(name: string) {
-  if (name.length > MAX_NAME_LENGTH) {
-    throw new Error(
-      `Candy Machine name too long: ${name} (max ${MAX_NAME_LENGTH})`
-    );
-  }
+  assert(
+    name.length <= MAX_NAME_LENGTH,
+    `Candy Machine name too long: ${name} (max ${MAX_NAME_LENGTH})`
+  );
 }
 
 export function assertSymbol(symbol: string) {
-  if (symbol.length > MAX_SYMBOL_LENGTH) {
-    throw new Error(
-      `Candy Machine symbol too long: ${symbol} (max ${MAX_SYMBOL_LENGTH})`
-    );
-  }
+  assert(
+    symbol.length <= MAX_SYMBOL_LENGTH,
+    `Candy Machine symbol too long: ${symbol} (max ${MAX_SYMBOL_LENGTH})`
+  );
 }
 
 export function assertUri(uri: string) {
-  if (uri.length > MAX_URI_LENGTH) {
-    throw new Error(
-      `Candy Machine URI too long: ${uri} (max ${MAX_URI_LENGTH})`
-    );
-  }
+  assert(
+    uri.length <= MAX_URI_LENGTH,
+    `Candy Machine URI too long: ${uri} (max ${MAX_URI_LENGTH})`
+  );
 }
 
 export function assertCreators(creators: Creator[]) {
-  if (creators.length > MAX_CREATOR_LIMIT) {
-    throw new Error(
-      `Candy Machine creators too long: ${creators} (max ${MAX_CREATOR_LIMIT})`
-    );
-  }
+  assert(
+    creators.length <= MAX_CREATOR_LIMIT,
+    `Candy Machine creators too long: ${creators} (max ${MAX_CREATOR_LIMIT})`
+  );
 }
