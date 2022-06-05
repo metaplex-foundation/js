@@ -1,7 +1,8 @@
 import {
+  Blockhash,
   PublicKey,
+  SignaturePubkeyPair,
   Transaction,
-  TransactionCtorFields_DEPRECATED,
   TransactionInstruction,
 } from '@solana/web3.js';
 import { Signer } from '@/types';
@@ -12,21 +13,32 @@ export interface TransactionBuilderRecord {
   signers: Signer[];
 }
 
+type TransactionOptions = {
+  /** The transaction fee payer */
+  feePayer?: PublicKey | null;
+  /** One or more signatures */
+  signatures?: Array<SignaturePubkeyPair>;
+  /** A recent blockhash */
+  blockhash: Blockhash;
+  /** the last block chain can advance to before tx is exportd expired */
+  lastValidBlockHeight: number;
+};
+
 export class TransactionBuilder {
   /** The list of all instructions and their respective signers. */
   private records: TransactionBuilderRecord[] = [];
 
   /** Options used when building the transaction. */
-  private transactionOptions: TransactionCtorFields_DEPRECATED;
+  private transactionOptions?: TransactionOptions;
 
   /** The signer to use to pay for transaction fees. */
   private feePayer: Signer | undefined = undefined;
 
-  constructor(transactionOptions: TransactionCtorFields_DEPRECATED = {}) {
+  constructor(transactionOptions?: TransactionOptions) {
     this.transactionOptions = transactionOptions;
   }
 
-  static make(transactionOptions: TransactionCtorFields_DEPRECATED = {}) {
+  static make(transactionOptions?: TransactionOptions) {
     return new TransactionBuilder(transactionOptions);
   }
 
@@ -101,14 +113,14 @@ export class TransactionBuilder {
   }
 
   setTransactionOptions(
-    transactionOptions: TransactionCtorFields_DEPRECATED
+    transactionOptions: TransactionOptions
   ): TransactionBuilder {
     this.transactionOptions = transactionOptions;
 
     return this;
   }
 
-  getTransactionOptions() {
+  getTransactionOptions(): TransactionOptions | undefined {
     return this.transactionOptions;
   }
 
