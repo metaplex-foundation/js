@@ -4,7 +4,7 @@ import { metaplex, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-test('rpc-client: it parses program errors when sending transactions', async (t: Test) => {
+test('[rpcModule] it parses program errors when sending transactions', async (t: Test) => {
   // Given a Metaplex instance using a CoreRpcDriver.
   const mx = await metaplex();
 

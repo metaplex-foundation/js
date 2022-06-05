@@ -22,6 +22,7 @@ import {
   Program,
   lamports,
   Amount,
+  assertSol,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
 import {
@@ -158,6 +159,26 @@ export class RpcClient {
     }));
   }
 
+  async airdrop(
+    publicKey: PublicKey,
+    amount: Amount,
+    commitment?: Commitment
+  ): Promise<SendAndConfirmTransactionResponse> {
+    assertSol(amount);
+
+    const signature = await this.metaplex.connection.requestAirdrop(
+      publicKey,
+      amount.basisPoints.toNumber()
+    );
+
+    const confirmResponse = await this.confirmTransaction(
+      signature,
+      commitment
+    );
+
+    return { signature, confirmResponse };
+  }
+
   async getBalance(
     publicKey: PublicKey,
     commitment?: Commitment
@@ -168,6 +189,16 @@ export class RpcClient {
     );
 
     return lamports(balance);
+  }
+
+  async getRent(bytes: number, commitment?: Commitment): Promise<Amount> {
+    const rent =
+      await this.metaplex.connection.getMinimumBalanceForRentExemption(
+        bytes,
+        commitment
+      );
+
+    return lamports(rent);
   }
 
   async getLatestBlockhash(): Promise<Blockhash> {
