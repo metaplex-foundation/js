@@ -1,4 +1,4 @@
-import { Amman } from '@metaplex-foundation/amman';
+import { Amman } from '@metaplex-foundation/amman-client';
 import {
   PROGRAM_ADDRESS as TOKEN_METADATA_ADDRESS,
   cusper as cusperTokenMetadata,

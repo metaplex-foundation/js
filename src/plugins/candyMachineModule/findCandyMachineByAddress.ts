@@ -34,6 +34,8 @@ export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCa
 
       const account = CandyMachineAccount.fromMaybe(unparsedAccount);
 
-      return account.exists ? CandyMachine.fromAccount(account) : null;
+      return unparsedAccount.exists && account.exists
+        ? CandyMachine.fromAccount(account, unparsedAccount.data)
+        : null;
     },
   };

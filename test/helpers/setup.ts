@@ -1,5 +1,5 @@
 import { Commitment, Connection, Keypair } from '@solana/web3.js';
-import { LOCALHOST } from '@metaplex-foundation/amman';
+import { LOCALHOST } from '@metaplex-foundation/amman-client';
 import {
   Metaplex,
   guestIdentity,

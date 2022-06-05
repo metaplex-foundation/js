@@ -1,7 +1,7 @@
 import {
   PublicKey,
   Transaction,
-  TransactionCtorFields,
+  TransactionCtorFields_DEPRECATED,
   TransactionInstruction,
 } from '@solana/web3.js';
 import { Signer } from '@/types';
@@ -17,16 +17,16 @@ export class TransactionBuilder {
   private records: TransactionBuilderRecord[] = [];
 
   /** Options used when building the transaction. */
-  private transactionOptions: TransactionCtorFields;
+  private transactionOptions: TransactionCtorFields_DEPRECATED;
 
   /** The signer to use to pay for transaction fees. */
   private feePayer: Signer | undefined = undefined;
 
-  constructor(transactionOptions: TransactionCtorFields = {}) {
+  constructor(transactionOptions: TransactionCtorFields_DEPRECATED = {}) {
     this.transactionOptions = transactionOptions;
   }
 
-  static make(transactionOptions: TransactionCtorFields = {}) {
+  static make(transactionOptions: TransactionCtorFields_DEPRECATED = {}) {
     return new TransactionBuilder(transactionOptions);
   }
 
@@ -101,7 +101,7 @@ export class TransactionBuilder {
   }
 
   setTransactionOptions(
-    transactionOptions: TransactionCtorFields
+    transactionOptions: TransactionCtorFields_DEPRECATED
   ): TransactionBuilder {
     this.transactionOptions = transactionOptions;
 

@@ -1,5 +1,11 @@
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  CandyMachineData,
+  ConfigLine,
+  configLineBeet,
+  Creator,
+} from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
+import { assert } from '@/utils';
 
 // NOTE: The below is adapted from the Rust program, thus duplicating business
 // logic which isn't ideal
@@ -58,4 +64,53 @@ export function getSpaceForCandy(data: CandyMachineData) {
       2 * (itemsAvailable / 8 + 1)
     );
   }
+}
+
+// https://github.com/metaplex-foundation/metaplex-program-library/blob/681f22d7cff37149ac70a374990587a189ebc6c2/candy-machine/program/src/lib.rs#L1321-L1323
+export function getConfigLinesCount(rawData: Buffer) {
+  return rawData
+    .slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4)
+    .readUInt32LE();
+}
+
+export function getConfigLines(rawData: Buffer): ConfigLine[] {
+  const configLinesStart = CONFIG_ARRAY_START + 4;
+  const lines = [];
+  const count = getConfigLinesCount(rawData);
+  for (let i = 0; i < count; i++) {
+    const [line] = configLineBeet.deserialize(
+      rawData,
+      configLinesStart + i * CONFIG_LINE_SIZE
+    );
+    lines.push(line);
+  }
+  return lines;
+}
+
+export function assertName(name: string) {
+  assert(
+    name.length <= MAX_NAME_LENGTH,
+    `Candy Machine name too long: ${name} (max ${MAX_NAME_LENGTH})`
+  );
+}
+
+export function assertSymbol(symbol: string) {
+  assert(
+    symbol.length <= MAX_SYMBOL_LENGTH,
+    `Candy Machine symbol too long: ${symbol} (max ${MAX_SYMBOL_LENGTH})`
+  );
+}
+
+export function assertUri(uri: string) {
+  assert(
+    uri.length <= MAX_URI_LENGTH,
+    `Candy Machine URI too long: ${uri} (max ${MAX_URI_LENGTH})`
+  );
+}
+
+export function assertCreators(creators: Creator[]) {
+  assert(
+    creators.length <= MAX_CREATOR_LIMIT,
+    `Candy Machine creators too long: ${creators} (max ${MAX_CREATOR_LIMIT})`
+  );
 }

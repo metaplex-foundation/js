@@ -83,6 +83,7 @@ export const isMetaplexFile = (
   metaplexFile: any
 ): metaplexFile is MetaplexFile => {
   return (
+    metaplexFile != null &&
     typeof metaplexFile === 'object' &&
     'buffer' in metaplexFile &&
     'fileName' in metaplexFile &&
