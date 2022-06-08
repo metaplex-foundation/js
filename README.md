@@ -337,7 +337,7 @@ After these two promises resolve, you should have access to the `metadata`, `edi
 Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
 ```ts
-export type Task<T> = {
+class Task<T> = {
     getStatus: () => TaskStatus;
     getResult: () => T | undefined;
     getError: () => unknown;
@@ -355,6 +355,11 @@ export type Task<T> = {
     onSuccess: (callback: () => unknown) => Task<T>;
     onFailure: (callback: () => unknown) => Task<T>;
     onCancel: (callback: () => unknown) => Task<T>;
+    setChildren: (children: Task<any>[]) => Task<T>;
+    getChildren: () => Task<any>[];
+    getDescendants: () => Task<any>[];
+    setContext: (context: object) => Task<T>;
+    getContext: () => object;
 };
 
 export type TaskOptions = {
@@ -363,27 +368,35 @@ export type TaskOptions = {
 };
 ```
 
-As you can see, you get a bunch of methods to check the status of a task, to listen to its changes, to run it and to reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
+As you can see, you get a bunch of methods to check the status of a task, listen to its changes, run it and reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
 
-Finally, you may provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
+You may also provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
+
+Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
+
+Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
 
-This method returns an identity object with the following interface.
+This method returns an identity client with the following interface.
 
 ```ts
-class IdentityDriver {
+class IdentityClient {
+    driver(): IdentityDriver;
+    setDriver(newDriver: IdentityDriver): void;
     publicKey: PublicKey;
+    secretKey?: Uint8Array;
     signMessage(message: Uint8Array): Promise<Uint8Array>;
-    verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
+    verifyMessage(message: Uint8Array, signature: Uint8Array): boolean;
     signTransaction(transaction: Transaction): Promise<Transaction>;
     signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
-    is(that: IdentityDriver): boolean;
+    equals(that: Signer | PublicKey): boolean;
+    hasSecretKey(): this is KeypairSigner;
 }
 ```
 
-The implementation of these methods depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
+The `IdentityClient` delegates to whichever `IdentityDriver` is currently set to provide this set of methods. Thus, the implementation of these methods depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
 
 Let’s have a quick look at the concrete identity drivers available to us.
 
@@ -442,20 +455,24 @@ metaplex.use(walletOrGuestIdentity(wallet));
 ```
 
 ## Storage
-You may access the current storage driver using `metaplex.storage()` which will give you access to the following interface.
+You may access the storage client using `metaplex.storage()` which will give you access to the following interface.
 
 ```ts
-class StorageDriver {
-    getPrice(...files: MetaplexFile[]): Promise<Amount>;
+class StorageClient {
+    driver(): StorageDriver
+    setDriver(newDriver: StorageDriver): void;
+    getUploadPriceForBytes(bytes: number): Promise<Amount>;
+    getUploadPriceForFile(file: MetaplexFile): Promise<Amount>;
+    getUploadPriceForFiles(files: MetaplexFile[]): Promise<Amount>;
     upload(file: MetaplexFile): Promise<string>;
     uploadAll(files: MetaplexFile[]): Promise<string[]>;
-    uploadJson<T extends object>(json: T): Promise<string>;
-    download(uri: string): Promise<MetaplexFile>;
-    downloadJson<T extends object>(uri: string): Promise<T>;
+    uploadJson<T extends object = object>(json: T): Promise<string>;
+    download(uri: string, options?: RequestInit): Promise<MetaplexFile>;
+    downloadJson<T extends object = object>(uri: string, options?: RequestInit): Promise<T>;
 }
 ```
 
-The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. But first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
+Similarly to the `IdentityClient`, the `StorageClient` delegates to the current `StorageDriver` when executing these methods. We'll take a look at the storage drivers available to us, but first, let's talk about the `MetaplexFile` class which is being used throughout the StorageClient API.
 
 ### MetaplexFile
 
@@ -565,16 +582,3 @@ import { mockStorage } from "@metaplex-foundation/js-next";
 
 metaplex.use(mockStorage());
 ```
-
-## Next steps
-As mentioned above, this SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
-- New features in the NFT module.
-- New modules such as an NFT Collections module, a Candy Machine module, an Action House module, etc.
-- More storage drivers.
-- More identity drivers.
-- New types of drivers such as error handling, logging, etc.
-- Extracting some of the SDK logic to external libraries for developers to reuse them in their own projects.
-- Adding more services and abstractions in order to encapsulate some of the quirky behaviour of the cluster and improve the user experience.
-- More documentation, tutorials, starter kits, etc.
-
-Stay tuned. 🔥
