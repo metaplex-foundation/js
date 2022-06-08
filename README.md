@@ -363,8 +363,8 @@ class Task<T> = {
 };
 
 export type TaskOptions = {
-  signal?: AbortSignal;
-  force?: boolean;
+    signal?: AbortSignal;
+    force?: boolean;
 };
 ```
 
