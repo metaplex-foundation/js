@@ -146,7 +146,11 @@ export async function uploadAssetsForCandyMachine(
       let uploaded;
       let err;
       try {
-        uploaded = await _uploadAssetAndSelectName(this, params, assetParam);
+        uploaded = await _uploadAssetAndSelectName(
+          this,
+          params,
+          assetParam.metadata
+        );
       } catch (e) {
         errors.push(e);
       }
@@ -166,7 +170,7 @@ export async function uploadAssetsForCandyMachine(
     for (const assetParam of uploadParams) {
       try {
         uploadedAssets.push(
-          await _uploadAssetAndSelectName(this, params, assetParam)
+          await _uploadAssetAndSelectName(this, params, assetParam.metadata)
         );
       } catch (err) {
         errors.push(err);
@@ -204,7 +208,7 @@ export async function uploadAssetsForCandyMachine(
 async function _uploadAssetAndSelectName(
   candyMachine: CandyMachineClient,
   params: UploadAssetsToCandyMachineParams,
-  metadata: JsonMetadata
+  metadata: UploadMetadataInput
 ): Promise<UploadedAsset> {
   const { uri, metadata: parseMetadata } =
     await candyMachine.uploadAssetForCandyMachine({
