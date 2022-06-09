@@ -124,18 +124,18 @@ export async function uploadAssetsForCandyMachine(
 
   // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
   // API improves to have clearly separated properties
-  const uploadParams = assets.map((x) => {
-    const param: UploadAssetToCandyMachineParams = {
+  const uploadParams = assets.map(
+    (file: MetaplexFile): UploadAssetToCandyMachineParams => ({
       ...params,
       metadata: {
-        image: x,
-        name: x.displayName,
+        image: file,
+        name: file.displayName,
       },
       // We add them all in one transaction after all assets are uploaded
       addToCandyMachine: false,
-    };
-    return param;
-  });
+    })
+  );
+
   let uploadedAssets: UploadedAsset[] = [];
   const errors = [];
 
@@ -146,11 +146,7 @@ export async function uploadAssetsForCandyMachine(
       let uploaded;
       let err;
       try {
-        uploaded = await _uploadAssetAndSelectName(
-          this,
-          params,
-          assetParam.metadata
-        );
+        uploaded = await _uploadAssetAndSelectName(this, assetParam);
       } catch (e) {
         errors.push(e);
       }
@@ -169,9 +165,7 @@ export async function uploadAssetsForCandyMachine(
   } else {
     for (const assetParam of uploadParams) {
       try {
-        uploadedAssets.push(
-          await _uploadAssetAndSelectName(this, params, assetParam.metadata)
-        );
+        uploadedAssets.push(await _uploadAssetAndSelectName(this, assetParam));
       } catch (err) {
         errors.push(err);
         continue;
@@ -207,18 +201,14 @@ export async function uploadAssetsForCandyMachine(
 
 async function _uploadAssetAndSelectName(
   candyMachine: CandyMachineClient,
-  params: UploadAssetsToCandyMachineParams,
-  metadata: UploadMetadataInput
+  params: UploadAssetToCandyMachineParams
 ): Promise<UploadedAsset> {
   const { uri, metadata: parseMetadata } =
-    await candyMachine.uploadAssetForCandyMachine({
-      ...params,
-      metadata,
-    });
+    await candyMachine.uploadAssetForCandyMachine(params);
 
   return {
     uri,
     metadata: parseMetadata,
-    name: metadata.name ?? randomStr(),
+    name: parseMetadata.name ?? randomStr(),
   };
 }
