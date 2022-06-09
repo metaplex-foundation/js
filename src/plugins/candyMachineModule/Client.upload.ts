@@ -109,11 +109,9 @@ export async function uploadAssetsForCandyMachine(
 ) {
   const {
     candyMachineAddress,
-    authoritySigner,
     assets,
     parallel = false,
     addToCandyMachine = false,
-    confirmOptions,
   } = params;
 
   const candyMachine = await this.findByAddress(candyMachineAddress);
@@ -122,15 +120,17 @@ export async function uploadAssetsForCandyMachine(
   }
 
   assertNotFull(candyMachine, candyMachine.assetsCount);
-  assertCanAdd(candyMachine, candyMachine.assetsCount, params.assets.length);
+  assertCanAdd(candyMachine, candyMachine.assetsCount, assets.length);
 
   // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
   // API improves to have clearly separated properties
   const uploadParams = assets.map((x) => {
     const param: UploadAssetToCandyMachineParams = {
-      ...assetLessParams,
-      image: x,
-      name: x.displayName,
+      ...params,
+      metadata: {
+        image: x,
+        name: x.displayName,
+      },
       // We add them all in one transaction after all assets are uploaded
       addToCandyMachine: false,
     };
@@ -204,16 +204,17 @@ export async function uploadAssetsForCandyMachine(
 async function _uploadAssetAndSelectName(
   candyMachine: CandyMachineClient,
   params: UploadAssetsToCandyMachineParams,
-  asset: JsonMetadata
-) {
-  const { uri, metadata } = await candyMachine.uploadAssetForCandyMachine({
-    ...params,
-    ...asset,
-  });
+  metadata: JsonMetadata
+): Promise<UploadedAsset> {
+  const { uri, metadata: parseMetadata } =
+    await candyMachine.uploadAssetForCandyMachine({
+      ...params,
+      metadata,
+    });
 
   return {
     uri,
-    metadata,
+    metadata: parseMetadata,
     name: metadata.name ?? randomStr(),
   };
 }
