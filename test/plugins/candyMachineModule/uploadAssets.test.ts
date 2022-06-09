@@ -85,7 +85,9 @@ test('uploadAsset: candy machine that can hold 2 assets', async (t) => {
   const { uri, addAssetsTransactionId } = await cm.uploadAssetForCandyMachine({
     authoritySigner: payerSigner,
     candyMachineAddress: candyMachineSigner.publicKey,
-    image: asset,
+    metadata: {
+      image: asset,
+    },
   });
 
   // Then the asset is uploaded properly
@@ -115,7 +117,9 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
     const { uri, metadata } = await cm.uploadAssetForCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
-      image: asset,
+      metadata: {
+        image: asset,
+      },
     });
 
     // Then the asset is uploaded properly
@@ -146,7 +150,9 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
     const { uri, metadata } = await cm.uploadAssetForCandyMachine({
       authoritySigner: payerSigner,
       candyMachineAddress: candyMachineSigner.publicKey,
-      image: asset,
+      metadata: {
+        image: asset,
+      },
     });
 
     // Then the asset is uploaded properly
@@ -178,7 +184,9 @@ test('uploadAsset: candy machine that can hold 2 assets add three assets one at 
       await cm.uploadAssetForCandyMachine({
         authoritySigner: payerSigner,
         candyMachineAddress: candyMachineSigner.publicKey,
-        image: asset,
+        metadata: {
+          image: asset,
+        },
       });
       t.fail('should throw');
     } catch (err) {
@@ -206,7 +214,9 @@ test('uploadAndAddAsset: candy machine that can hold 2 assets upload one', async
   const { uri, addAssetsTransactionId } = await cm.uploadAssetForCandyMachine({
     authoritySigner: payerSigner,
     candyMachineAddress: candyMachineSigner.publicKey,
-    image: asset,
+    metadata: {
+      image: asset,
+    },
     addToCandyMachine: true,
   });
 
