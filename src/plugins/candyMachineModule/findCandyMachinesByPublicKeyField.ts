@@ -48,8 +48,9 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
       }
 
       const candyMachineUnparseds = await candyMachineQuery.get();
-      return candyMachineUnparseds
-        .map(CandyMachineAccount.from)
-        .map(CandyMachine.fromAccount);
+      return candyMachineUnparseds.map((unparsedAccount) => {
+        const account = CandyMachineAccount.from(unparsedAccount);
+        return CandyMachine.fromAccount(account, unparsedAccount.data);
+      });
     },
   };

@@ -3,8 +3,7 @@ import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { Amount, lamports } from '@/types';
-import { KeypairIdentityDriver } from '../keypairIdentity';
+import { Amount, IdentitySigner, KeypairSigner, lamports } from '@/types';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,
@@ -17,6 +16,14 @@ import {
   MetaplexFileTag,
   StorageDriver,
 } from '../storageModule';
+import {
+  Connection,
+  PublicKey,
+  SendOptions,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
 
 export type BundlrOptions = {
   address?: string;
@@ -24,6 +31,18 @@ export type BundlrOptions = {
   providerUrl?: string;
   priceMultiplier?: number;
   withdrawAfterUploading?: boolean;
+};
+
+export type BundlrWalletAdapter = {
+  publicKey: PublicKey | null;
+  signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
+  signTransaction?: (transaction: Transaction) => Promise<Transaction>;
+  signAllTransactions?: (transactions: Transaction[]) => Promise<Transaction[]>;
+  sendTransaction: (
+    transaction: Transaction,
+    connection: Connection,
+    options?: SendOptions & { signers?: Web3Signer[] }
+  ) => Promise<TransactionSignature>;
 };
 
 export class BundlrStorageDriver implements StorageDriver {
@@ -145,15 +164,10 @@ export class BundlrStorageDriver implements StorageDriver {
     };
 
     const identity = this._metaplex.identity();
-    const bundlr =
-      identity instanceof KeypairIdentityDriver
-        ? new BundlrPackage.default(
-            address,
-            currency,
-            identity.keypair.secretKey,
-            options
-          )
-        : new BundlrPackage.WebBundlr(address, currency, identity, options);
+    const identityIsKeypair = identity.hasSecretKey();
+    const bundlr = identityIsKeypair
+      ? this.initNodeBundlr(address, currency, identity, options)
+      : await this.initWebBundlr(address, currency, identity, options);
 
     try {
       // Check for valid bundlr node.
@@ -162,13 +176,69 @@ export class BundlrStorageDriver implements StorageDriver {
       throw new FailedToConnectToBundlrAddressError(address, error as Error);
     }
 
-    if (bundlr instanceof BundlrPackage.WebBundlr) {
-      try {
-        // Try to initiate bundlr.
-        await bundlr.ready();
-      } catch (error) {
-        throw new FailedToInitializeBundlrError(error as Error);
-      }
+    return bundlr;
+  }
+
+  initNodeBundlr(
+    address: string,
+    currency: string,
+    keypair: KeypairSigner,
+    options: any
+  ): NodeBundlr {
+    return new BundlrPackage.default(
+      address,
+      currency,
+      keypair.secretKey,
+      options
+    );
+  }
+
+  async initWebBundlr(
+    address: string,
+    currency: string,
+    identity: IdentitySigner,
+    options: any
+  ): Promise<WebBundlr> {
+    const wallet: BundlrWalletAdapter = {
+      publicKey: identity.publicKey,
+      signMessage: (message: Uint8Array) => identity.signMessage(message),
+      signTransaction: (transaction: Transaction) =>
+        identity.signTransaction(transaction),
+      signAllTransactions: (transactions: Transaction[]) =>
+        identity.signAllTransactions(transactions),
+      sendTransaction: (
+        transaction: Transaction,
+        connection: Connection,
+        options: SendOptions & { signers?: Web3Signer[] } = {}
+      ): Promise<TransactionSignature> => {
+        const { signers, ...sendOptions } = options;
+
+        if ('rpc' in this._metaplex) {
+          return this._metaplex
+            .rpc()
+            .sendTransaction(transaction, signers, sendOptions);
+        }
+
+        return connection.sendTransaction(
+          transaction,
+          signers ?? [],
+          sendOptions
+        );
+      },
+    };
+
+    const bundlr = new BundlrPackage.WebBundlr(
+      address,
+      currency,
+      wallet,
+      options
+    );
+
+    try {
+      // Try to initiate bundlr.
+      await bundlr.ready();
+    } catch (error) {
+      throw new FailedToInitializeBundlrError(error as Error);
     }
 
     return bundlr;

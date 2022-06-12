@@ -1,5 +1,5 @@
 import { SendTransactionError, TransactionError } from '@solana/web3.js';
-import { ConfirmTransactionResponse } from '@/types';
+import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
@@ -23,6 +23,7 @@ export class FailedToSendTransactionError extends RpcError {
       title: 'Failed to Send Transaction',
       problem: `The transaction could not be sent successfully to the network.`,
       solution: 'Check the error below for more information.',
+      logs: (cause as SendTransactionError).logs,
     });
   }
 

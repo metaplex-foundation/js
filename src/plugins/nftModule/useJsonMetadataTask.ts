@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { useTask, Task } from '@/utils';
+import { Task } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { Nft } from './Nft';
 
@@ -9,6 +9,6 @@ export const useJsonMetadataTask = (
   metaplex: Metaplex,
   nft: Nft
 ): JsonMetadataTask =>
-  useTask(({ signal }) => {
+  new Task(({ signal }) => {
     return metaplex.storage().downloadJson<JsonMetadata>(nft.uri, { signal });
   });

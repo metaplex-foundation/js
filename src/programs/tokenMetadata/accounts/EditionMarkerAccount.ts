@@ -11,7 +11,7 @@ import {
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 
 export class EditionMarkerAccount extends BaseAccount<EditionMarker> {
-  static async pda(mint: PublicKey, edition: BN): Promise<Pda> {
+  static pda(mint: PublicKey, edition: BN): Pda {
     return Pda.find(TokenMetadataProgram.publicKey, [
       Buffer.from('metadata', 'utf8'),
       TokenMetadataProgram.publicKey.toBuffer(),

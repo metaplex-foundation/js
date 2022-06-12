@@ -42,6 +42,23 @@ export class DriverNotProvidedError extends SdkError {
   }
 }
 
+export class UnexpectedCurrencyError extends SdkError {
+  actual: Currency;
+  expected: Currency;
+  constructor(actual: Currency, expected: Currency, cause?: Error) {
+    super({
+      cause,
+      key: 'unexpected_currency',
+      title: 'Unexpected Currency',
+      problem: `Expected currency [${expected}] but got [${actual}].`,
+      solution:
+        'Ensure the provided Amount or Currency is of the expected type.',
+    });
+    this.actual = actual;
+    this.expected = expected;
+  }
+}
+
 export class CurrencyMismatchError extends SdkError {
   left: Currency;
   right: Currency;

@@ -1,5 +1,7 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 
+export type Signer = KeypairSigner | IdentitySigner;
+
 export type KeypairSigner = {
   publicKey: PublicKey;
   secretKey: Uint8Array;
@@ -12,7 +14,13 @@ export type IdentitySigner = {
   signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
 };
 
-export type Signer = KeypairSigner | IdentitySigner;
+export const isKeypairSigner = (signer: Signer): signer is KeypairSigner => {
+  return 'secretKey' in signer && signer.secretKey != null;
+};
+
+export const isIdentitySigner = (signer: Signer): signer is IdentitySigner => {
+  return !isKeypairSigner(signer);
+};
 
 export interface SignerHistogram {
   all: Signer[];
@@ -28,9 +36,9 @@ export const getSignerHistogram = (signers: Signer[]) =>
       );
       const duplicate = signers.all[duplicateIndex] ?? null;
       const duplicateIsIdentity = duplicate
-        ? !('secretKey' in duplicate)
+        ? isIdentitySigner(duplicate)
         : false;
-      const signerIsIdentity = !('secretKey' in signer);
+      const signerIsIdentity = isIdentitySigner(signer);
 
       if (!duplicate) {
         signers.all.push(signer);

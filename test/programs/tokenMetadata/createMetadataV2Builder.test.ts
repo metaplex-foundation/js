@@ -26,7 +26,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
     mint.publicKey,
     mx.identity().publicKey
   );
-  const metadata = await MetadataAccount.pda(mint.publicKey);
+  const metadata = MetadataAccount.pda(mint.publicKey);
   const lamports = await getMinimumBalanceForRentExemptMint(mx.connection);
   const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
   const data = {

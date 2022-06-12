@@ -2,6 +2,10 @@ import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 import { CandyMachineClient } from './CandyMachineClient';
 import {
+  addConfigLinesOperation,
+  addConfigLinesOperationHandler,
+} from './addConfigLines';
+import {
   createCandyMachineOperation,
   createCandyMachineOperationHandler,
 } from './createCandyMachine';
@@ -42,6 +46,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       updateCandyMachineOperationHandler
     );
     op.register(updateAuthorityOperation, updateAuthorityOperationHandler);
+    op.register(addConfigLinesOperation, addConfigLinesOperationHandler);
 
     metaplex.candyMachines = function () {
       return new CandyMachineClient(this);

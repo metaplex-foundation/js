@@ -50,7 +50,7 @@ Here is a little visual representation of the SDK in its current state.
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
 ## NFTs
-The NFT module can be accessed via `Metaplex.nfts()` and provide the following methods.
+The NFT module can be accessed via `metaplex.nfts()` and provide the following methods.
 
 - [`findByMint(mint)`](#findByMint)
 - [`findAllByMintList(mints)`](#findAllByMintList)
@@ -192,12 +192,12 @@ const browserFiles = event.target.files;
 
 const { uri, metadata } = await metaplex.nfts().uploadMetadata({
     name: "My NFT",
-    image: await MetaplexFile.fromFile(browserFiles[0]),
+    image: await useMetaplexFileFromBrowser(browserFiles[0]),
     properties: {
         files: [
             {
                 type: "video/mp4",
-                uri: await MetaplexFile.fromFile(browserFiles[1]),
+                uri: await useMetaplexFileFromBrowser(browserFiles[1]),
             },
         ]
     }
@@ -337,7 +337,7 @@ After these two promises resolve, you should have access to the `metadata`, `edi
 Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
 ```ts
-export type Task<T> = {
+class Task<T> = {
     getStatus: () => TaskStatus;
     getResult: () => T | undefined;
     getError: () => unknown;
@@ -355,35 +355,48 @@ export type Task<T> = {
     onSuccess: (callback: () => unknown) => Task<T>;
     onFailure: (callback: () => unknown) => Task<T>;
     onCancel: (callback: () => unknown) => Task<T>;
+    setChildren: (children: Task<any>[]) => Task<T>;
+    getChildren: () => Task<any>[];
+    getDescendants: () => Task<any>[];
+    setContext: (context: object) => Task<T>;
+    getContext: () => object;
 };
 
 export type TaskOptions = {
-  signal?: AbortSignal;
-  force?: boolean;
+    signal?: AbortSignal;
+    force?: boolean;
 };
 ```
 
-As you can see, you get a bunch of methods to check the status of a task, to listen to its changes, to run it and to reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
+As you can see, you get a bunch of methods to check the status of a task, listen to its changes, run it and reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
 
-Finally, you may provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
+You may also provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
+
+Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
+
+Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
 
-This method returns an identity object with the following interface.
+This method returns an identity client with the following interface.
 
 ```ts
-class IdentityDriver {
+class IdentityClient {
+    driver(): IdentityDriver;
+    setDriver(newDriver: IdentityDriver): void;
     publicKey: PublicKey;
+    secretKey?: Uint8Array;
     signMessage(message: Uint8Array): Promise<Uint8Array>;
-    verifyMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
+    verifyMessage(message: Uint8Array, signature: Uint8Array): boolean;
     signTransaction(transaction: Transaction): Promise<Transaction>;
     signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
-    is(that: IdentityDriver): boolean;
+    equals(that: Signer | PublicKey): boolean;
+    hasSecretKey(): this is KeypairSigner;
 }
 ```
 
-The implementation of these methods depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
+The `IdentityClient` delegates to whichever `IdentityDriver` is currently set to provide this set of methods. Thus, the implementation of these methods depends on the concrete identity driver being used. For instance, in the CLI, these methods will directly use a key pair whereas, in the browser, they will delegate to a wallet adapter.
 
 Let’s have a quick look at the concrete identity drivers available to us.
 
@@ -442,47 +455,51 @@ metaplex.use(walletOrGuestIdentity(wallet));
 ```
 
 ## Storage
-You may access the current storage driver using `metaplex.storage()` which will give you access to the following interface.
+You may access the storage client using `metaplex.storage()` which will give you access to the following interface.
 
 ```ts
-class StorageDriver {
-    getPrice(...files: MetaplexFile[]): Promise<Amount>;
+class StorageClient {
+    driver(): StorageDriver
+    setDriver(newDriver: StorageDriver): void;
+    getUploadPriceForBytes(bytes: number): Promise<Amount>;
+    getUploadPriceForFile(file: MetaplexFile): Promise<Amount>;
+    getUploadPriceForFiles(files: MetaplexFile[]): Promise<Amount>;
     upload(file: MetaplexFile): Promise<string>;
     uploadAll(files: MetaplexFile[]): Promise<string[]>;
-    uploadJson<T extends object>(json: T): Promise<string>;
-    download(uri: string): Promise<MetaplexFile>;
-    downloadJson<T extends object>(uri: string): Promise<T>;
+    uploadJson<T extends object = object>(json: T): Promise<string>;
+    download(uri: string, options?: RequestInit): Promise<MetaplexFile>;
+    downloadJson<T extends object = object>(uri: string, options?: RequestInit): Promise<T>;
 }
 ```
 
-The implementation of these storage methods depends on the concrete storage driver being used. Let’s take a look at the storage drivers available to us. But first, let's talk about the `MetaplexFile` class which is being used in the API of every storage driver.
+Similarly to the `IdentityClient`, the `StorageClient` delegates to the current `StorageDriver` when executing these methods. We'll take a look at the storage drivers available to us, but first, let's talk about the `MetaplexFile` class which is being used throughout the StorageClient API.
 
 ### MetaplexFile
 
-The `MetaplexFile` class is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
+The `MetaplexFile` type is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
 
 ```ts
-class MetaplexFile {
-  public readonly buffer: Buffer;
-  public readonly fileName: string;
-  public readonly displayName: string;
-  public readonly uniqueName: string;
-  public readonly contentType: string | null;
-  public readonly extension: string | null;
-  public readonly tags: { name: string; value: string }[];
+type MetaplexFile {
+    readonly buffer: Buffer;
+    readonly fileName: string;
+    readonly displayName: string;
+    readonly uniqueName: string;
+    readonly contentType: string | null;
+    readonly extension: string | null;
+    readonly tags: { name: string; value: string }[];
 }
 ```
 
-There are many ways of creating a `MetaplexFile`. The simplest way is to pass a `string` to the constructor with a filename. The filename is necessary to infer the extension and the mime type of the provided file.
+You may use the `useMetaplexFile` function to create a `MetaplexFile` object from a `Buffer` instance (or content `string`) and a filename. The filename is necessary to infer the extension and the mime type of the provided file.
 
 ```ts
-const file = new MetaplexFile('The content of my file', 'my-file.txt');
+const file = useMetaplexFile('The content of my file', 'my-file.txt');
 ```
 
 You may also explicitly provide these options by passing a third parameter to the constructor.
 
 ```ts
-const file = new MetaplexFile('The content of my file', 'my-file.txt', {
+const file = useMetaplexFile('The content of my file', 'my-file.txt', {
     displayName = 'A Nice Title For My File'; // Defaults to the filename.
     uniqueName = 'my-company/files/some-identifier'; // Defaults to a random string.
     contentType = 'text/plain'; // Infer it from filename by default.
@@ -491,7 +508,7 @@ const file = new MetaplexFile('The content of my file', 'my-file.txt', {
 });
 ```
 
-Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a static `fromJson` method that you can use like so.
+Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a `useMetaplexFileFromJson` helper method that you can use like so.
 
 ```ts
 const file = MetaplexFile.fromJson({ foo: 42 });
@@ -501,14 +518,14 @@ In practice, you will most likely be creating `MetaplexFile`s from files either 
 
 ```ts
 const buffer = fs.readFileSync('/path/to/my-file.txt');
-const file = new MetaplexFile(buffer, 'my-file.txt');
+const file = useMetaplexFile(buffer, 'my-file.txt');
 ```
 
-And the latter by using the `fromFile` static method which accepts a `File` object as defined in the browser.
+And the latter by using the `useMetaplexFileFromBrowser` helper method which accepts a `File` object as defined in the browser.
 
 ```ts
 const browserFile: File = event.target.files[0];
-const file: MetaplexFile = await MetaplexFile.fromFile(browserFile);
+const file: MetaplexFile = await useMetaplexFileFromBrowser(browserFile);
 ```
 
 Okay, now let’s talk about the concrete storage drivers available to us and how to set them up.
@@ -549,7 +566,7 @@ metaplex.use(awsStorage(awsClient, 'my-nft-bucket'));
 When uploading a `MetaplexFile` using `metaplex.storage().upload(file)`, the unique name of the file will be used as the AWS key. By default, this will be a random string generated by the SDK but you may explicitly provide your own like so.
 
 ```ts
-const file = new MetaplexFile('file-content', 'filename.jpg', {
+const file = useMetaplexFile('file-content', 'filename.jpg', {
     uniqueName: 'my-unique-aws-key',
 })
 
@@ -565,16 +582,3 @@ import { mockStorage } from "@metaplex-foundation/js-next";
 
 metaplex.use(mockStorage());
 ```
-
-## Next steps
-As mentioned above, this SDK is still in very early stages. We plan to add a lot more features to it. Here’s a quick overview of what we plan to work on next.
-- New features in the NFT module.
-- New modules such as an NFT Collections module, a Candy Machine module, an Action House module, etc.
-- More storage drivers.
-- More identity drivers.
-- New types of drivers such as error handling, logging, etc.
-- Extracting some of the SDK logic to external libraries for developers to reuse them in their own projects.
-- Adding more services and abstractions in order to encapsulate some of the quirky behaviour of the cluster and improve the user experience.
-- More documentation, tutorials, starter kits, etc.
-
-Stay tuned. 🔥

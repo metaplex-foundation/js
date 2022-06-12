@@ -5,7 +5,7 @@ import { TransactionBuilder } from '@/utils';
 export interface transferBuilderParams {
   from: Signer;
   to: PublicKey;
-  lamports: number;
+  lamports: number | bigint;
   basePubkey?: PublicKey;
   seed?: string;
   program?: PublicKey;
