@@ -9,9 +9,7 @@ export type {
   UpdateCandyMachineAuthorityParams,
 } from './Client.update';
 export type {
-  UploadAssetProperties,
   UploadAssetToCandyMachineParams,
-  CandyMachineAsset,
   UploadAssetsToCandyMachineParams,
   UploadedAsset,
 } from './Client.upload';
