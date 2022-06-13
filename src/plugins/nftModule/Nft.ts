@@ -17,7 +17,7 @@ import {
   OriginalOrPrintEditionAccount,
   PrintEditionAccount,
 } from '@/programs';
-import { Account, Model } from '@/types';
+import { Model } from '@/types';
 import { removeEmptyChars } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { useJsonMetadataTask, JsonMetadataTask } from './useJsonMetadataTask';
@@ -25,7 +25,7 @@ import { useEditionTask, EditionTask } from './useEditionTask';
 
 export class Nft extends Model {
   /** The Metadata PDA account defining the NFT. */
-  public readonly metadataAccount: Account<Metadata>;
+  public readonly metadataAccount: MetadataAccount;
 
   /** Tasks. */
   public readonly metadataTask: JsonMetadataTask;
