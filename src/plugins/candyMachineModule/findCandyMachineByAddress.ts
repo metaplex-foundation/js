@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { CandyMachine } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
-import { CandyMachineAccount } from '@/programs';
+import { parseCandyMachineAccount } from '@/programs';
 
 // -----------------
 // Operation
@@ -32,7 +32,7 @@ export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCa
         .rpc()
         .getAccount(candyMachineAddress);
 
-      const account = CandyMachineAccount.fromMaybe(unparsedAccount);
+      const account = parseCandyMachineAccount(unparsedAccount);
 
       return unparsedAccount.exists && account.exists
         ? CandyMachine.fromAccount(account, unparsedAccount.data)

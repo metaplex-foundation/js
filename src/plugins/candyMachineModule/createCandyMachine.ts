@@ -20,7 +20,7 @@ import {
 import { TransactionBuilder } from '@/utils';
 import {
   createAccountBuilder,
-  initializeCandyMachineBuilder,
+  createInitializeCandyMachineInstructionWithSigners,
 } from '@/programs';
 import { getSpaceForCandy } from '@/programs/candyMachine/accounts/candyMachineInternals';
 
@@ -149,7 +149,7 @@ export const createCandyMachineBuilder = async (
       })
     )
     .add(
-      initializeCandyMachineBuilder({
+      createInitializeCandyMachineInstructionWithSigners({
         data: candyMachineData,
         candyMachine: candyMachineSigner,
         payer: payerSigner,

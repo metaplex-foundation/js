@@ -1,9 +1,9 @@
 import { createUpdateAuthorityInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import { Signer } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 
-export type UpdateAuthorityBuilderParams = {
+export type CreateUpdateAuthorityInstructionWithSignersParams = {
   // Accounts
   candyMachine: PublicKey;
   authority: Signer;
@@ -15,9 +15,9 @@ export type UpdateAuthorityBuilderParams = {
   instructionKey?: string;
 };
 
-export function updateAuthorityBuilder(
-  params: UpdateAuthorityBuilderParams
-): TransactionBuilder {
+export function createUpdateAuthorityInstructionWithSigners(
+  params: CreateUpdateAuthorityInstructionWithSignersParams
+): InstructionWithSigners {
   const {
     candyMachine,
     authority,
@@ -26,7 +26,7 @@ export function updateAuthorityBuilder(
     instructionKey = 'updateCandyMachineAuthority',
   } = params;
 
-  return TransactionBuilder.make().add({
+  return {
     instruction: createUpdateAuthorityInstruction(
       {
         candyMachine,
@@ -37,5 +37,5 @@ export function updateAuthorityBuilder(
     ),
     signers: [authority],
     key: instructionKey,
-  });
+  };
 }

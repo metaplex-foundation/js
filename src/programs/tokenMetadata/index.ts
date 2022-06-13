@@ -1,4 +1,5 @@
 export * from './accounts';
 export * from './gpaBuilders';
-export * from './transactionBuilders';
+export * from './instructions';
+export * from './pdas';
 export * from './TokenMetadataProgram';

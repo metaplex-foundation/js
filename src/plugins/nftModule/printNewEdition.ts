@@ -7,16 +7,17 @@ import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
   createMintAndMintToAssociatedTokenBuilder,
-  EditionMarkerAccount,
-  MetadataAccount,
-  mintNewEditionFromMasterEditionViaTokenBuilder,
-  mintNewEditionFromMasterEditionViaVaultProxyBuilder,
-  OriginalEditionAccount,
-  PrintEditionAccount,
+  createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
+  createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
+  parseOriginalEditionAccount,
+  findEditionMarkerPda,
+  findEditionPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
 import { AccountNotFoundError } from '@/errors';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
 const Key = 'PrintNewEditionOperation' as const;
 export const printNewEditionOperation =
@@ -83,9 +84,9 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       } = operation.input;
 
       // Original NFT.
-      const originalMetadata = MetadataAccount.pda(originalMint);
-      const originalEdition = OriginalEditionAccount.pda(originalMint);
-      const originalEditionAccount = OriginalEditionAccount.fromMaybe(
+      const originalMetadata = findMetadataPda(originalMint);
+      const originalEdition = findMasterEditionV2Pda(originalMint);
+      const originalEditionAccount = parseOriginalEditionAccount(
         await metaplex.rpc().getAccount(originalEdition)
       );
 
@@ -101,14 +102,14 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       const edition = new BN(originalEditionAccount.data.supply, 'le').add(
         new BN(1)
       );
-      const originalEditionMarkPda = EditionMarkerAccount.pda(
+      const originalEditionMarkPda = findEditionMarkerPda(
         originalMint,
         edition
       );
 
       // New NFT.
-      const newMetadata = MetadataAccount.pda(newMint.publicKey);
-      const newEdition = PrintEditionAccount.pda(newMint.publicKey);
+      const newMetadata = findMetadataPda(newMint.publicKey);
+      const newEdition = findEditionPda(newMint.publicKey);
       const lamports = await getMinimumBalanceForRentExemptMint(
         metaplex.connection
       );
@@ -275,10 +276,10 @@ export const printNewEditionBuilder = (
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
 
-  let printNewEditionViaBuilder: TransactionBuilder;
+  let printNewEditionInstructionWithSigners: InstructionWithSigners;
   if (params.via === 'vault') {
-    printNewEditionViaBuilder =
-      mintNewEditionFromMasterEditionViaVaultProxyBuilder({
+    printNewEditionInstructionWithSigners =
+      createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners({
         edition,
         newMetadata,
         newEdition,
@@ -297,21 +298,22 @@ export const printNewEditionBuilder = (
         instructionKey: printNewEditionInstructionKey,
       });
   } else {
-    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
-      edition,
-      newMetadata,
-      newEdition,
-      masterEdition: originalEdition,
-      newMint,
-      editionMarkPda: originalEditionMarkPda,
-      newMintAuthority,
-      payer,
-      tokenAccountOwner: params.originalTokenAccountOwner,
-      tokenAccount: params.originalTokenAccount,
-      newMetadataUpdateAuthority: newUpdateAuthority,
-      metadata: originalMetadata,
-      instructionKey: printNewEditionInstructionKey,
-    });
+    printNewEditionInstructionWithSigners =
+      createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners({
+        edition,
+        newMetadata,
+        newEdition,
+        masterEdition: originalEdition,
+        newMint,
+        editionMarkPda: originalEditionMarkPda,
+        newMintAuthority,
+        payer,
+        tokenAccountOwner: params.originalTokenAccountOwner,
+        tokenAccount: params.originalTokenAccount,
+        newMetadataUpdateAuthority: newUpdateAuthority,
+        metadata: originalMetadata,
+        instructionKey: printNewEditionInstructionKey,
+      });
   }
 
   return (
@@ -340,6 +342,6 @@ export const printNewEditionBuilder = (
       )
 
       // Mint new edition.
-      .add(printNewEditionViaBuilder)
+      .add(printNewEditionInstructionWithSigners)
   );
 };

@@ -14,11 +14,11 @@ import { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { JsonMetadata } from './JsonMetadata';
 import {
-  createMasterEditionV3Builder,
-  createMetadataV2Builder,
+  createCreateMasterEditionV3InstructionWithSigners,
+  createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
-  MetadataAccount,
-  OriginalEditionAccount,
+  findMasterEditionV2Pda,
+  findMetadataPda,
 } from '@/programs';
 import { TransactionBuilder } from '@/utils';
 
@@ -100,8 +100,8 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       updateAuthority.publicKey
     );
 
-    const metadataPda = MetadataAccount.pda(mint.publicKey);
-    const masterEditionPda = OriginalEditionAccount.pda(mint.publicKey);
+    const metadataPda = findMetadataPda(mint.publicKey);
+    const masterEditionPda = findMasterEditionV2Pda(mint.publicKey);
     const lamports = await getMinimumBalanceForRentExemptMint(
       metaplex.connection
     );
@@ -278,7 +278,7 @@ export const createNftBuilder = (
 
       // Create metadata account.
       .add(
-        createMetadataV2Builder({
+        createCreateMetadataAccountV2InstructionWithSigners({
           data,
           isMutable,
           mintAuthority,
@@ -292,7 +292,7 @@ export const createNftBuilder = (
 
       // Create master edition account (prevents further minting).
       .add(
-        createMasterEditionV3Builder({
+        createCreateMasterEditionV3InstructionWithSigners({
           maxSupply,
           payer,
           mintAuthority,

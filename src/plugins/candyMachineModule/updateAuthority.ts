@@ -1,12 +1,13 @@
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { updateAuthorityBuilder } from '@/programs';
+import { createUpdateAuthorityInstructionWithSigners } from '@/programs';
 import {
   ConfirmOptions,
   PublicKey,
   RpcResponseAndContext,
   SignatureResult,
 } from '@solana/web3.js';
+import { TransactionBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -59,12 +60,14 @@ export const updateAuthorityOperationHandler: OperationHandler<UpdateAuthorityOp
       const { signature, confirmResponse } = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          updateAuthorityBuilder({
-            candyMachine: candyMachineAddress,
-            wallet: walletAddress,
-            authority: authoritySigner,
-            newAuthority: newAuthorityAddress,
-          }),
+          TransactionBuilder.make().add(
+            createUpdateAuthorityInstructionWithSigners({
+              candyMachine: candyMachineAddress,
+              wallet: walletAddress,
+              authority: authoritySigner,
+              newAuthority: newAuthorityAddress,
+            })
+          ),
           undefined,
           confirmOptions
         );

@@ -1,6 +1,6 @@
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { addConfigLinesBuilder } from '@/programs';
+import { createAddConfigLinesInstructionWithSigners } from '@/programs';
 import {
   ConfirmOptions,
   PublicKey,
@@ -8,6 +8,7 @@ import {
   SignatureResult,
 } from '@solana/web3.js';
 import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
+import { TransactionBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -60,12 +61,14 @@ export const addConfigLinesOperationHandler: OperationHandler<AddConfigLinesOper
       const { signature, confirmResponse } = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          addConfigLinesBuilder({
-            candyMachine: candyMachineAddress,
-            authority: authoritySigner,
-            index,
-            configLines,
-          }),
+          TransactionBuilder.make().add(
+            createAddConfigLinesInstructionWithSigners({
+              candyMachine: candyMachineAddress,
+              authority: authoritySigner,
+              index,
+              configLines,
+            })
+          ),
           undefined,
           confirmOptions
         );

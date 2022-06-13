@@ -3,10 +3,10 @@ import {
   createAddConfigLinesInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Signer } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 
-export type AddConfigLinesBuilderParams = {
+export type CreateAddConfigLinesInstructionWithSignersParams = {
   // Accounts
   candyMachine: PublicKey;
   authority: Signer;
@@ -18,9 +18,9 @@ export type AddConfigLinesBuilderParams = {
   instructionKey?: string;
 };
 
-export function addConfigLinesBuilder(
-  params: AddConfigLinesBuilderParams
-): TransactionBuilder {
+export function createAddConfigLinesInstructionWithSigners(
+  params: CreateAddConfigLinesInstructionWithSignersParams
+): InstructionWithSigners {
   const {
     candyMachine,
     authority,
@@ -29,7 +29,7 @@ export function addConfigLinesBuilder(
     instructionKey = 'addConfigLinesToCandyMachine',
   } = params;
 
-  return TransactionBuilder.make().add({
+  return {
     instruction: createAddConfigLinesInstruction(
       {
         candyMachine,
@@ -39,5 +39,5 @@ export function addConfigLinesBuilder(
     ),
     signers: [authority],
     key: instructionKey,
-  });
+  };
 }

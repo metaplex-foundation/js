@@ -7,7 +7,7 @@ import {
 } from '@solana/web3.js';
 import { Signer } from '@/types';
 
-export interface TransactionBuilderRecord {
+export interface InstructionWithSigners {
   key?: string;
   instruction: TransactionInstruction;
   signers: Signer[];
@@ -26,7 +26,7 @@ type TransactionOptions = {
 
 export class TransactionBuilder {
   /** The list of all instructions and their respective signers. */
-  private records: TransactionBuilderRecord[] = [];
+  private records: InstructionWithSigners[] = [];
 
   /** Options used when building the transaction. */
   private transactionOptions?: TransactionOptions;
@@ -43,10 +43,10 @@ export class TransactionBuilder {
   }
 
   prepend(
-    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+    ...txs: (InstructionWithSigners | TransactionBuilder)[]
   ): TransactionBuilder {
     const newRecords = txs.flatMap((tx) =>
-      tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
+      tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
     this.records = [...newRecords, ...this.records];
 
@@ -54,10 +54,10 @@ export class TransactionBuilder {
   }
 
   append(
-    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+    ...txs: (InstructionWithSigners | TransactionBuilder)[]
   ): TransactionBuilder {
     const newRecords = txs.flatMap((tx) =>
-      tx instanceof TransactionBuilder ? tx.getRecords() : [tx]
+      tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
     this.records = [...this.records, ...newRecords];
 
@@ -65,7 +65,7 @@ export class TransactionBuilder {
   }
 
   add(
-    ...txs: (TransactionBuilderRecord | TransactionBuilder)[]
+    ...txs: (InstructionWithSigners | TransactionBuilder)[]
   ): TransactionBuilder {
     return this.append(...txs);
   }
@@ -97,7 +97,7 @@ export class TransactionBuilder {
     return this.splitUsingKey(key, true);
   }
 
-  getRecords(): TransactionBuilderRecord[] {
+  getInstructionsWithSigners(): InstructionWithSigners[] {
     return this.records;
   }
 

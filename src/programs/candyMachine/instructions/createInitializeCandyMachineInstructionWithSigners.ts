@@ -4,9 +4,9 @@ import {
   createInitializeCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Signer } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners } from '@/utils';
 
-export type InitializeCandyMachineBuilderParams = {
+export type CreateInitializeCandyMachineInstructionWithSignersParams = {
   data: CandyMachineData;
   candyMachine: Signer;
   payer: Signer;
@@ -15,9 +15,9 @@ export type InitializeCandyMachineBuilderParams = {
   instructionKey?: string;
 };
 
-export const initializeCandyMachineBuilder = (
-  params: InitializeCandyMachineBuilderParams
-): TransactionBuilder => {
+export const createInitializeCandyMachineInstructionWithSigners = (
+  params: CreateInitializeCandyMachineInstructionWithSignersParams
+): InstructionWithSigners => {
   const {
     data,
     candyMachine,
@@ -27,7 +27,7 @@ export const initializeCandyMachineBuilder = (
     instructionKey = 'initializeCandyMachine',
   } = params;
 
-  return TransactionBuilder.make().add({
+  return {
     instruction: createInitializeCandyMachineInstruction(
       {
         candyMachine: candyMachine.publicKey,
@@ -39,5 +39,5 @@ export const initializeCandyMachineBuilder = (
     ),
     signers: [candyMachine, payer],
     key: instructionKey,
-  });
+  };
 };

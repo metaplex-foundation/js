@@ -1,5 +1,5 @@
+export * from './Account';
 export * from './Amount';
-export * from './BaseAccount';
 export * from './Cluster';
 export * from './DateTimeString';
 export * from './HasDriver';

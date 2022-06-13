@@ -8,7 +8,14 @@ import {
   EditionArgs,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs';
+import {
+  isOriginalEditionAccount,
+  isPrintEditionAccount,
+  MetadataAccount,
+  OriginalEditionAccount,
+  OriginalOrPrintEditionAccount,
+  PrintEditionAccount,
+} from '@/programs';
 import { Model } from '@/types';
 import { removeEmptyChars } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
@@ -68,7 +75,7 @@ export class Nft extends Model {
   }
 
   get originalEdition(): MasterEditionV2Args | null {
-    if (!this.editionAccount?.isOriginal()) {
+    if (!this.isOriginal()) {
       return null;
     }
 
@@ -76,7 +83,7 @@ export class Nft extends Model {
   }
 
   get printEdition(): EditionArgs | null {
-    if (!this.editionAccount?.isPrint()) {
+    if (!this.isPrint()) {
       return null;
     }
 
@@ -89,11 +96,16 @@ export class Nft extends Model {
     return this.mint.equals(mint);
   }
 
-  public isOriginal(): boolean {
-    return this.editionAccount?.isOriginal() ?? false;
+  public isOriginal(): this is { editionAccount: OriginalEditionAccount } {
+    return (
+      this.editionAccount != null &&
+      isOriginalEditionAccount(this.editionAccount)
+    );
   }
 
-  public isPrint(): boolean {
-    return this.editionAccount?.isPrint() ?? false;
+  public isPrint(): this is { editionAccount: PrintEditionAccount } {
+    return (
+      this.editionAccount != null && isPrintEditionAccount(this.editionAccount)
+    );
   }
 }
