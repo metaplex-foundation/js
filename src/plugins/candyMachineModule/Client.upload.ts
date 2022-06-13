@@ -2,12 +2,8 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Signer } from '@/types';
 import { CandyMachineToUpdateNotFoundError } from '@/errors';
 import { MetaplexFile } from '@/plugins/storageModule';
-import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
-import {
-  JsonMetadata,
-  JsonMetadataFile,
-  UploadMetadataInput,
-} from '@/plugins/nftModule';
+import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
+import { JsonMetadata, UploadMetadataInput } from '@/plugins/nftModule';
 import type { CandyMachineClient } from './CandyMachineClient';
 import {
   assertCanAdd,
@@ -16,24 +12,15 @@ import {
 } from './Client.helpers';
 import { randomStr } from '../../utils';
 
-// -----------------
-// uploadAssetForCandyMachine (single)
-// -----------------
-export type UploadAssetProperties = {
-  creators?: Creator[];
-  files?: JsonMetadataFile<MetaplexFile | string>[];
-  [key: string]: unknown;
-};
-
-export type UploadAssetToCandyMachineParams = UploadMetadataInput & {
-  // Accounts
+export type UploadAssetToCandyMachineParams = {
+  // Accounts.
   candyMachineAddress: PublicKey;
   authoritySigner: Signer;
 
-  // Asset
-  properties?: UploadAssetProperties;
+  // Data.
+  metadata: UploadMetadataInput;
 
-  // If `true` the successfully uploaded asset is added to the candy machine
+  // If `true` the successfully uploaded asset is added to the candy machine.
   addToCandyMachine?: boolean;
 
   // Transaction Options.
@@ -44,50 +31,42 @@ export async function uploadAssetForCandyMachine(
   this: CandyMachineClient,
   params: UploadAssetToCandyMachineParams
 ) {
-  const candyMachine = await this.findByAddress(params.candyMachineAddress);
+  const {
+    candyMachineAddress,
+    authoritySigner,
+    metadata: rawMetadata,
+    addToCandyMachine = false,
+    confirmOptions,
+  } = params;
+
+  const candyMachine = await this.findByAddress(candyMachineAddress);
   if (candyMachine == null) {
-    throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
+    throw new CandyMachineToUpdateNotFoundError(candyMachineAddress);
   }
 
   assertNotFull(candyMachine, candyMachine.assetsCount);
 
-  // Default NFT creators to equal those of the Candy Machine
-  const creators = params.properties?.creators ?? candyMachine.creators;
-  const uploadProperties = {
-    ...params.properties,
-    creators: creatorsToJsonMetadataCreators(creators),
-  };
-  // TODO(thlorenz): Is this correct?
-  const seller_fee_basis_points =
-    params.seller_fee_basis_points ?? candyMachine.sellerFeeBasisPoints;
-
-  const {
-    candyMachineAddress,
-    authoritySigner,
-    properties,
-    // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
-    // API improves to have clearly separated properties
-    assets,
-    ...uploadInputParams
-  } = params;
-
-  const uploadInput: UploadMetadataInput = {
-    ...uploadInputParams,
-    properties: uploadProperties,
-    seller_fee_basis_points,
-  };
-  const { uri, metadata } = await this.metaplex
-    .nfts()
-    .uploadMetadata(uploadInput);
+  const { uri, metadata } = await this.metaplex.nfts().uploadMetadata({
+    ...rawMetadata,
+    // TODO(thlorenz): Is this correct?
+    seller_fee_basis_points:
+      rawMetadata.seller_fee_basis_points ?? candyMachine.sellerFeeBasisPoints,
+    properties: {
+      ...rawMetadata.properties,
+      // Default NFT creators to equal those of the Candy Machine
+      creators:
+        rawMetadata.properties?.creators ??
+        creatorsToJsonMetadataCreators(candyMachine.creators),
+    },
+  });
 
   let addAssetsTransactionId;
-  if (params.addToCandyMachine) {
-    const assetName = selectAssetName(metadata, params);
+  if (addToCandyMachine) {
     const { transactionId } = await this.addAssets({
-      candyMachineAddress: params.candyMachineAddress,
-      authoritySigner: params.authoritySigner,
-      assets: [{ uri, name: assetName }],
-      confirmOptions: params.confirmOptions,
+      candyMachineAddress: candyMachineAddress,
+      authoritySigner: authoritySigner,
+      assets: [{ uri, name: metadata.name ?? randomStr() }],
+      confirmOptions,
     });
     addAssetsTransactionId = transactionId;
   }
@@ -98,17 +77,6 @@ export async function uploadAssetForCandyMachine(
     addAssetsTransactionId,
   };
 }
-
-// -----------------
-// uploadAssetsForCandyMachine (multiple)
-// -----------------
-
-// NOTE: the `[key: string]: unknown;` that is part of `UploadMetadataInput` breaks type safety once
-// we extend a derived type, thus we don't get intellisense for `CandyMachineAsset` either
-export type CandyMachineAsset = Omit<
-  UploadAssetToCandyMachineParams,
-  'candyMachineAddress' | 'authoritySigner'
->;
 
 export type UploadAssetsToCandyMachineParams = {
   // Accounts
@@ -139,29 +107,35 @@ export async function uploadAssetsForCandyMachine(
   this: CandyMachineClient,
   params: UploadAssetsToCandyMachineParams
 ) {
-  const candyMachine = await this.findByAddress(params.candyMachineAddress);
+  const {
+    candyMachineAddress,
+    assets,
+    parallel = false,
+    addToCandyMachine = false,
+  } = params;
+
+  const candyMachine = await this.findByAddress(candyMachineAddress);
   if (candyMachine == null) {
-    throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
+    throw new CandyMachineToUpdateNotFoundError(candyMachineAddress);
   }
 
   assertNotFull(candyMachine, candyMachine.assetsCount);
-  assertCanAdd(candyMachine, candyMachine.assetsCount, params.assets.length);
-
-  const { parallel = false, addToCandyMachine = false } = params;
+  assertCanAdd(candyMachine, candyMachine.assetsCount, assets.length);
 
   // TODO(thlorenz): prevent same asset from being uploaded twice, remove once
   // API improves to have clearly separated properties
-  const { assets, ...assetLessParams } = params;
-  const uploadParams = assets.map((x) => {
-    const param: UploadAssetToCandyMachineParams = {
-      ...assetLessParams,
-      image: x,
-      name: x.displayName,
+  const uploadParams = assets.map(
+    (file: MetaplexFile): UploadAssetToCandyMachineParams => ({
+      ...params,
+      metadata: {
+        image: file,
+        name: file.displayName,
+      },
       // We add them all in one transaction after all assets are uploaded
       addToCandyMachine: false,
-    };
-    return param;
-  });
+    })
+  );
+
   let uploadedAssets: UploadedAsset[] = [];
   const errors = [];
 
@@ -172,7 +146,7 @@ export async function uploadAssetsForCandyMachine(
       let uploaded;
       let err;
       try {
-        uploaded = await _uploadAssetAndSelectName(this, params, assetParam);
+        uploaded = await _uploadAssetAndSelectName(this, assetParam);
       } catch (e) {
         errors.push(e);
       }
@@ -191,9 +165,7 @@ export async function uploadAssetsForCandyMachine(
   } else {
     for (const assetParam of uploadParams) {
       try {
-        uploadedAssets.push(
-          await _uploadAssetAndSelectName(this, params, assetParam)
-        );
+        uploadedAssets.push(await _uploadAssetAndSelectName(this, assetParam));
       } catch (err) {
         errors.push(err);
         continue;
@@ -229,25 +201,14 @@ export async function uploadAssetsForCandyMachine(
 
 async function _uploadAssetAndSelectName(
   candyMachine: CandyMachineClient,
-  params: UploadAssetsToCandyMachineParams,
-  asset: CandyMachineAsset
-) {
-  const { uri, metadata } = await candyMachine.uploadAssetForCandyMachine({
-    ...params,
-    ...asset,
-  });
+  params: UploadAssetToCandyMachineParams
+): Promise<UploadedAsset> {
+  const { uri, metadata: parseMetadata } =
+    await candyMachine.uploadAssetForCandyMachine(params);
+
   return {
     uri,
-    metadata,
-    name: selectAssetName(metadata, asset),
+    metadata: parseMetadata,
+    name: parseMetadata.name ?? randomStr(),
   };
-}
-
-function selectAssetName(
-  metadata: JsonMetadata<string>,
-  asset: CandyMachineAsset
-): string {
-  return (
-    metadata.name ?? (typeof asset.name === 'string' ? asset.name : randomStr())
-  );
 }

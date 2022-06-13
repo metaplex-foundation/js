@@ -6,11 +6,7 @@ export interface JsonMetadata<Uri = string> {
   image?: Uri;
   external_url?: Uri;
   attributes?: JsonMetadataAttribute[];
-  properties?: {
-    creators?: JsonMetadataCreator[];
-    files?: JsonMetadataFile<Uri>[];
-    [key: string]: unknown;
-  };
+  properties?: JsonMetadataProperties<Uri>;
   collection?: {
     name?: string;
     family?: string;
@@ -22,6 +18,12 @@ export interface JsonMetadata<Uri = string> {
 export interface JsonMetadataAttribute {
   trait_type?: string;
   value?: unknown;
+  [key: string]: unknown;
+}
+
+export interface JsonMetadataProperties<Uri> {
+  creators?: JsonMetadataCreator[];
+  files?: JsonMetadataFile<Uri>[];
   [key: string]: unknown;
 }
 
