@@ -114,3 +114,14 @@ export function assertCreators(creators: Creator[]) {
     `Candy Machine creators too long: ${creators} (max ${MAX_CREATOR_LIMIT})`
   );
 }
+
+export function assertConfigLineConstraints({
+  name,
+  uri,
+}: {
+  name: string;
+  uri: string;
+}) {
+  assertName(name);
+  assertUri(uri);
+}

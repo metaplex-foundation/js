@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { CandyMachine } from './CandyMachine';
-import { CandyMachineAccount, CandyMachineProgram } from '../../programs';
+import { CandyMachineProgram, parseCandyMachineAccount } from '../../programs';
 import { UnreachableCaseError } from '../../errors';
 
 // -----------------
@@ -49,7 +49,7 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
 
       const candyMachineUnparseds = await candyMachineQuery.get();
       return candyMachineUnparseds.map((unparsedAccount) => {
-        const account = CandyMachineAccount.from(unparsedAccount);
+        const account = parseCandyMachineAccount(unparsedAccount);
         return CandyMachine.fromAccount(account, unparsedAccount.data);
       });
     },

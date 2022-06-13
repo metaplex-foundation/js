@@ -11,6 +11,10 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachineAccount } from '@/programs';
 import { Model } from '@/types';
+import {
+  getConfigLines,
+  getConfigLinesCount,
+} from '@/programs/candyMachine/accounts/candyMachineInternals';
 
 export class CandyMachine extends Model {
   // -----------------
@@ -87,11 +91,11 @@ export class CandyMachine extends Model {
   }
 
   get assetsCount(): number {
-    return CandyMachineAccount.getConfigLinesCount(this.rawData);
+    return getConfigLinesCount(this.rawData);
   }
 
   get assets(): ConfigLine[] {
-    return CandyMachineAccount.getConfigLines(this.rawData);
+    return getConfigLines(this.rawData);
   }
 
   get isFull(): boolean {

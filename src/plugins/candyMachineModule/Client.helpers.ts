@@ -5,7 +5,7 @@ import {
 } from '@/errors';
 import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
-import { CandyMachineAccount } from '../../programs/candyMachine';
+import { assertConfigLineConstraints } from '../../programs/candyMachine/accounts/candyMachineInternals';
 
 export function creatorsToJsonMetadataCreators(creators: Creator[]) {
   return creators.map((creator: Creator) => ({
@@ -37,18 +37,14 @@ export function assertCanAdd(
 
 export function assertAllConfigLineConstraints(configLines: ConfigLine[]) {
   for (let i = 0; i < configLines.length; i++) {
-    assertConfigLineConstraints(configLines[i], i);
-  }
-}
-
-function assertConfigLineConstraints(configLine: ConfigLine, index: number) {
-  try {
-    CandyMachineAccount.assertConfigLineConstraints(configLine);
-  } catch (err: any) {
-    throw new CandyMachineAddConfigConstraintsViolatedError(
-      index,
-      configLine,
-      err
-    );
+    try {
+      assertConfigLineConstraints(configLines[i]);
+    } catch (err: any) {
+      throw new CandyMachineAddConfigConstraintsViolatedError(
+        i,
+        configLines[i],
+        err
+      );
+    }
   }
 }
