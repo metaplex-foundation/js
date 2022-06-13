@@ -4,9 +4,9 @@ import {
   createCreateMetadataAccountV2Instruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Signer } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners } from '@/utils';
 
-export interface CreateMetadataV2BuilderParams {
+export interface CreateCreateMetadataAccountV2InstructionWithSignersParams {
   data: DataV2;
   isMutable?: boolean;
   mintAuthority: Signer;
@@ -17,9 +17,9 @@ export interface CreateMetadataV2BuilderParams {
   instructionKey?: string;
 }
 
-export const createMetadataV2Builder = (
-  params: CreateMetadataV2BuilderParams
-): TransactionBuilder => {
+export const createCreateMetadataAccountV2InstructionWithSigners = (
+  params: CreateCreateMetadataAccountV2InstructionWithSignersParams
+): InstructionWithSigners => {
   const {
     data,
     isMutable = false,
@@ -31,7 +31,7 @@ export const createMetadataV2Builder = (
     instructionKey = 'createMetadataV2',
   } = params;
 
-  return TransactionBuilder.make().add({
+  return {
     instruction: createCreateMetadataAccountV2Instruction(
       {
         metadata,
@@ -44,5 +44,5 @@ export const createMetadataV2Builder = (
     ),
     signers: [payer, mintAuthority],
     key: instructionKey,
-  });
+  };
 };

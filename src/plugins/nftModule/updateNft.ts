@@ -8,7 +8,10 @@ import {
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount, updateMetadataV2Builder } from '@/programs';
+import {
+  createUpdateMetadataAccountV2InstructionWithSigners,
+  MetadataAccount,
+} from '@/programs';
 import { TransactionBuilder } from '@/utils';
 
 const Key = 'UpdateNftOperation' as const;
@@ -126,7 +129,7 @@ export const updateNftBuilder = (
   } = params;
 
   return TransactionBuilder.make().add(
-    updateMetadataV2Builder({
+    createUpdateMetadataAccountV2InstructionWithSigners({
       data,
       newUpdateAuthority,
       primarySaleHappened,

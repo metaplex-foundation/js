@@ -14,8 +14,8 @@ import { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { JsonMetadata } from './JsonMetadata';
 import {
-  createMasterEditionV3Builder,
-  createMetadataV2Builder,
+  createCreateMasterEditionV3InstructionWithSigners,
+  createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
   MetadataAccount,
   OriginalEditionAccount,
@@ -278,7 +278,7 @@ export const createNftBuilder = (
 
       // Create metadata account.
       .add(
-        createMetadataV2Builder({
+        createCreateMetadataAccountV2InstructionWithSigners({
           data,
           isMutable,
           mintAuthority,
@@ -292,7 +292,7 @@ export const createNftBuilder = (
 
       // Create master edition account (prevents further minting).
       .add(
-        createMasterEditionV3Builder({
+        createCreateMasterEditionV3InstructionWithSigners({
           maxSupply,
           payer,
           mintAuthority,

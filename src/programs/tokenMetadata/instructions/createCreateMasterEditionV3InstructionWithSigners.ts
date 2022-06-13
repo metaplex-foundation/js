@@ -2,9 +2,9 @@ import { PublicKey } from '@solana/web3.js';
 import { bignum } from '@metaplex-foundation/beet';
 import { createCreateMasterEditionV3Instruction } from '@metaplex-foundation/mpl-token-metadata';
 import { Signer } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners } from '@/utils';
 
-export interface CreateMasterEditionV3BuilderParams {
+export interface CreateCreateMasterEditionV3InstructionWithSignersParams {
   maxSupply?: bignum;
   payer: Signer;
   mintAuthority: Signer;
@@ -15,9 +15,9 @@ export interface CreateMasterEditionV3BuilderParams {
   instructionKey?: string;
 }
 
-export const createMasterEditionV3Builder = (
-  params: CreateMasterEditionV3BuilderParams
-): TransactionBuilder => {
+export const createCreateMasterEditionV3InstructionWithSigners = (
+  params: CreateCreateMasterEditionV3InstructionWithSignersParams
+): InstructionWithSigners => {
   const {
     maxSupply = null,
     payer,
@@ -29,7 +29,7 @@ export const createMasterEditionV3Builder = (
     instructionKey = 'createMasterEditionV3',
   } = params;
 
-  return TransactionBuilder.make().add({
+  return {
     instruction: createCreateMasterEditionV3Instruction(
       {
         edition: masterEdition,
@@ -43,5 +43,5 @@ export const createMasterEditionV3Builder = (
     ),
     signers: [payer, mintAuthority, updateAuthority],
     key: instructionKey,
-  });
+  };
 };

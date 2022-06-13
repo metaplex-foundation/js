@@ -7,16 +7,16 @@ import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
   createMintAndMintToAssociatedTokenBuilder,
+  createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
+  createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
   EditionMarkerAccount,
   MetadataAccount,
-  mintNewEditionFromMasterEditionViaTokenBuilder,
-  mintNewEditionFromMasterEditionViaVaultProxyBuilder,
   OriginalEditionAccount,
   PrintEditionAccount,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
 import { AccountNotFoundError } from '@/errors';
-import { TransactionBuilder } from '@/utils';
+import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
 const Key = 'PrintNewEditionOperation' as const;
 export const printNewEditionOperation =
@@ -275,10 +275,10 @@ export const printNewEditionBuilder = (
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
 
-  let printNewEditionViaBuilder: TransactionBuilder;
+  let printNewEditionInstructionWithSigners: InstructionWithSigners;
   if (params.via === 'vault') {
-    printNewEditionViaBuilder =
-      mintNewEditionFromMasterEditionViaVaultProxyBuilder({
+    printNewEditionInstructionWithSigners =
+      createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners({
         edition,
         newMetadata,
         newEdition,
@@ -297,21 +297,22 @@ export const printNewEditionBuilder = (
         instructionKey: printNewEditionInstructionKey,
       });
   } else {
-    printNewEditionViaBuilder = mintNewEditionFromMasterEditionViaTokenBuilder({
-      edition,
-      newMetadata,
-      newEdition,
-      masterEdition: originalEdition,
-      newMint,
-      editionMarkPda: originalEditionMarkPda,
-      newMintAuthority,
-      payer,
-      tokenAccountOwner: params.originalTokenAccountOwner,
-      tokenAccount: params.originalTokenAccount,
-      newMetadataUpdateAuthority: newUpdateAuthority,
-      metadata: originalMetadata,
-      instructionKey: printNewEditionInstructionKey,
-    });
+    printNewEditionInstructionWithSigners =
+      createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners({
+        edition,
+        newMetadata,
+        newEdition,
+        masterEdition: originalEdition,
+        newMint,
+        editionMarkPda: originalEditionMarkPda,
+        newMintAuthority,
+        payer,
+        tokenAccountOwner: params.originalTokenAccountOwner,
+        tokenAccount: params.originalTokenAccount,
+        newMetadataUpdateAuthority: newUpdateAuthority,
+        metadata: originalMetadata,
+        instructionKey: printNewEditionInstructionKey,
+      });
   }
 
   return (
@@ -340,6 +341,6 @@ export const printNewEditionBuilder = (
       )
 
       // Mint new edition.
-      .add(printNewEditionViaBuilder)
+      .add(printNewEditionInstructionWithSigners)
   );
 };

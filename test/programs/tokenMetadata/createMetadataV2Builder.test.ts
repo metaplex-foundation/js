@@ -1,7 +1,7 @@
 import test, { Test } from 'tape';
 import { TransactionBuilder } from '@/index';
 import {
-  createMetadataV2Builder,
+  createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
   MetadataAccount,
 } from '@/programs';
@@ -65,7 +65,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
       })
     )
     .add(
-      createMetadataV2Builder({
+      createCreateMetadataAccountV2InstructionWithSigners({
         data,
         isMutable: false,
         mintAuthority: mx.identity(),
