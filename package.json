@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js-next",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
