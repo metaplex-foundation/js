@@ -6,7 +6,6 @@ import {
   Creator,
   MasterEditionV2Args,
   EditionArgs,
-  Metadata,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import {

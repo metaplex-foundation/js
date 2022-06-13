@@ -13,37 +13,37 @@ export type OriginalEditionAccount = Account<OriginalEditionAccountData>;
 export type PrintEditionAccountData = Edition;
 export type PrintEditionAccount = Account<PrintEditionAccountData>;
 
-export type OriginalOrPrintEditionAccount = Account<
-  OriginalEditionAccountData | PrintEditionAccountData
->;
+export type OriginalOrPrintEditionAccountData =
+  | OriginalEditionAccountData
+  | PrintEditionAccountData;
+export type OriginalOrPrintEditionAccount =
+  Account<OriginalOrPrintEditionAccountData>;
 
-export const parseOriginalOrPrintEditionAccount = getAccountParsingFunction<
-  MasterEditionV1 | MasterEditionV2 | Edition
->({
-  name: 'MasterEditionV1 | MasterEditionV2 | Edition',
-  deserialize: (data: Buffer, offset = 0) => {
-    if (data?.[0] === Key.MasterEditionV1) {
-      return MasterEditionV1.deserialize(data, offset);
-    } else if (data?.[0] === Key.MasterEditionV2) {
-      return MasterEditionV2.deserialize(data, offset);
-    } else {
-      return Edition.deserialize(data, offset);
-    }
-  },
-});
+export const parseOriginalOrPrintEditionAccount =
+  getAccountParsingFunction<OriginalOrPrintEditionAccountData>({
+    name: 'MasterEditionV1 | MasterEditionV2 | Edition',
+    deserialize: (data: Buffer, offset = 0) => {
+      if (data?.[0] === Key.MasterEditionV1) {
+        return MasterEditionV1.deserialize(data, offset);
+      } else if (data?.[0] === Key.MasterEditionV2) {
+        return MasterEditionV2.deserialize(data, offset);
+      } else {
+        return Edition.deserialize(data, offset);
+      }
+    },
+  });
 
-export const parseOriginalEditionAccount = getAccountParsingFunction<
-  MasterEditionV1 | MasterEditionV2
->({
-  name: 'MasterEditionV1 | MasterEditionV2',
-  deserialize: (data: Buffer, offset = 0) => {
-    if (data?.[0] === Key.MasterEditionV1) {
-      return MasterEditionV1.deserialize(data, offset);
-    } else {
-      return MasterEditionV2.deserialize(data, offset);
-    }
-  },
-});
+export const parseOriginalEditionAccount =
+  getAccountParsingFunction<OriginalEditionAccountData>({
+    name: 'MasterEditionV1 | MasterEditionV2',
+    deserialize: (data: Buffer, offset = 0) => {
+      if (data?.[0] === Key.MasterEditionV1) {
+        return MasterEditionV1.deserialize(data, offset);
+      } else {
+        return MasterEditionV2.deserialize(data, offset);
+      }
+    },
+  });
 
 export const parsePrintEditionAccount = getAccountParsingFunction(Edition);
 
