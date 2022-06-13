@@ -17,10 +17,12 @@ import {
   createCreateMasterEditionV3InstructionWithSigners,
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
-  MetadataAccount,
-  OriginalEditionAccount,
 } from '@/programs';
 import { TransactionBuilder } from '@/utils';
+import {
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/programs/tokenMetadata/pdas';
 
 const Key = 'CreateNftOperation' as const;
 export const createNftOperation = useOperation<CreateNftOperation>(Key);
@@ -100,8 +102,8 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       updateAuthority.publicKey
     );
 
-    const metadataPda = MetadataAccount.pda(mint.publicKey);
-    const masterEditionPda = OriginalEditionAccount.pda(mint.publicKey);
+    const metadataPda = findMetadataPda(mint.publicKey);
+    const masterEditionPda = findMasterEditionV2Pda(mint.publicKey);
     const lamports = await getMinimumBalanceForRentExemptMint(
       metaplex.connection
     );

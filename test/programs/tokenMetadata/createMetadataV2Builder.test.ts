@@ -3,7 +3,6 @@ import { TransactionBuilder } from '@/index';
 import {
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
-  MetadataAccount,
 } from '@/programs';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
 import { Keypair } from '@solana/web3.js';
@@ -11,6 +10,7 @@ import {
   getAssociatedTokenAddress,
   getMinimumBalanceForRentExemptMint,
 } from '@solana/spl-token';
+import { findMetadataPda } from '@/programs/tokenMetadata/pdas';
 
 killStuckProcess();
 
@@ -26,7 +26,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
     mint.publicKey,
     mx.identity().publicKey
   );
-  const metadata = MetadataAccount.pda(mint.publicKey);
+  const metadata = findMetadataPda(mint.publicKey);
   const lamports = await getMinimumBalanceForRentExemptMint(mx.connection);
   const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
   const data = {

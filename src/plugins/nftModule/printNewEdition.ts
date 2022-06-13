@@ -9,14 +9,17 @@ import {
   createMintAndMintToAssociatedTokenBuilder,
   createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
   createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
-  EditionMarkerAccount,
-  MetadataAccount,
-  OriginalEditionAccount,
-  PrintEditionAccount,
+  parseOriginalEditionAccount,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
 import { AccountNotFoundError } from '@/errors';
 import { InstructionWithSigners, TransactionBuilder } from '@/utils';
+import {
+  findEditionMarkerPda,
+  findEditionPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/programs/tokenMetadata/pdas';
 
 const Key = 'PrintNewEditionOperation' as const;
 export const printNewEditionOperation =
@@ -83,9 +86,9 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       } = operation.input;
 
       // Original NFT.
-      const originalMetadata = MetadataAccount.pda(originalMint);
-      const originalEdition = OriginalEditionAccount.pda(originalMint);
-      const originalEditionAccount = OriginalEditionAccount.fromMaybe(
+      const originalMetadata = findMetadataPda(originalMint);
+      const originalEdition = findMasterEditionV2Pda(originalMint);
+      const originalEditionAccount = parseOriginalEditionAccount(
         await metaplex.rpc().getAccount(originalEdition)
       );
 
@@ -101,14 +104,14 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       const edition = new BN(originalEditionAccount.data.supply, 'le').add(
         new BN(1)
       );
-      const originalEditionMarkPda = EditionMarkerAccount.pda(
+      const originalEditionMarkPda = findEditionMarkerPda(
         originalMint,
         edition
       );
 
       // New NFT.
-      const newMetadata = MetadataAccount.pda(newMint.publicKey);
-      const newEdition = PrintEditionAccount.pda(newMint.publicKey);
+      const newMetadata = findMetadataPda(newMint.publicKey);
+      const newEdition = findEditionPda(newMint.publicKey);
       const lamports = await getMinimumBalanceForRentExemptMint(
         metaplex.connection
       );

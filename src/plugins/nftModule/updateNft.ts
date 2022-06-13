@@ -8,11 +8,9 @@ import {
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
-import {
-  createUpdateMetadataAccountV2InstructionWithSigners,
-  MetadataAccount,
-} from '@/programs';
+import { createUpdateMetadataAccountV2InstructionWithSigners } from '@/programs';
 import { TransactionBuilder } from '@/utils';
+import { findMetadataPda } from '@/programs/tokenMetadata/pdas';
 
 const Key = 'UpdateNftOperation' as const;
 export const updateNftOperation = useOperation<UpdateNftOperation>(Key);
@@ -64,7 +62,7 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
 
     const data = resolveData(operation.input);
 
-    const metadata = MetadataAccount.pda(nft.mint);
+    const metadata = findMetadataPda(nft.mint);
 
     const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
       updateNftBuilder({

@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { Pda } from '@/types';
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 

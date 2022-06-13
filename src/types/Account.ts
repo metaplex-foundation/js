@@ -1,4 +1,4 @@
-import { AccountInfo, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { UnexpectedAccountError } from '@/errors';
 
@@ -18,38 +18,57 @@ export type MaybeAccount<T> =
 export type UnparsedAccount = Account<Buffer>;
 export type UnparsedMaybeAccount = MaybeAccount<Buffer>;
 
-type AccountDataConstructor<T> = {
+export type AccountParser<T> = {
   name: string;
-  fromAccountInfo(
-    accountInfo: AccountInfo<Buffer>,
-    offset?: number
-  ): [T, number];
+  deserialize: (data: Buffer, offset?: number) => [T, number];
+};
+
+export type AccountParsingFunction<T> = {
+  (unparsedAccount: UnparsedAccount): Account<T>;
+  (unparsedAccount: UnparsedMaybeAccount): MaybeAccount<T>;
 };
 
 export function parseAccount<T>(
-  unparsedAccount: UnparsedMaybeAccount,
-  accountData: AccountDataConstructor<T>
+  account: UnparsedMaybeAccount,
+  parser: AccountParser<T>
 ): MaybeAccount<T>;
 export function parseAccount<T>(
-  unparsedAccount: UnparsedAccount,
-  accountData: AccountDataConstructor<T>
+  account: UnparsedAccount,
+  parser: AccountParser<T>
 ): Account<T>;
 export function parseAccount<T>(
-  unparsedAccount: UnparsedAccount | UnparsedMaybeAccount,
-  accountData: AccountDataConstructor<T>
+  account: UnparsedAccount | UnparsedMaybeAccount,
+  parser: AccountParser<T>
 ): Account<T> | MaybeAccount<T> {
-  if ('exists' in unparsedAccount && !unparsedAccount.exists) {
-    return unparsedAccount;
+  if ('exists' in account && !account.exists) {
+    return account;
+  }
+  return getAccountParsingFunction(parser)(account);
+}
+
+export function getAccountParsingFunction<T>(
+  parser: AccountParser<T>
+): AccountParsingFunction<T> {
+  function parse(account: UnparsedAccount): Account<T>;
+  function parse(account: UnparsedMaybeAccount): MaybeAccount<T>;
+  function parse(
+    account: UnparsedAccount | UnparsedMaybeAccount
+  ): Account<T> | MaybeAccount<T> {
+    if ('exists' in account && !account.exists) {
+      return account;
+    }
+
+    try {
+      const data: T = parser.deserialize(account.data)[0];
+      return { ...account, data };
+    } catch (error) {
+      throw new UnexpectedAccountError(
+        account.publicKey,
+        parser.name,
+        error as Error
+      );
+    }
   }
 
-  try {
-    const data: T = accountData.fromAccountInfo(unparsedAccount)[0];
-    return { ...unparsedAccount, data };
-  } catch (error) {
-    throw new UnexpectedAccountError(
-      unparsedAccount.publicKey,
-      accountData.name,
-      error as Error
-    );
-  }
+  return parse;
 }
