@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount } from '@/programs';
+import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { GmaBuilder, zipMap } from '@/utils';
 import { Nft } from './Nft';
@@ -21,7 +21,7 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
       metaplex: Metaplex
     ): Promise<(Nft | null)[]> => {
       const mints = operation.input;
-      const metadataPdas = mints.map((mint) => MetadataAccount.pda(mint));
+      const metadataPdas = mints.map((mint) => findMetadataPda(mint));
       const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas).get();
 
       return zipMap(
@@ -31,7 +31,7 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
           if (!metadataInfo || !metadataInfo.exists) return null;
 
           try {
-            const metadata = MetadataAccount.from(metadataInfo);
+            const metadata = parseMetadataAccount(metadataInfo);
             return new Nft(metadata, metaplex);
           } catch (error) {
             return null;

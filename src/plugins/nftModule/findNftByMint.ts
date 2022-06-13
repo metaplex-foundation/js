@@ -1,6 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { MetadataAccount, OriginalOrPrintEditionAccount } from '@/programs';
+import {
+  parseMetadataAccount,
+  parseOriginalOrPrintEditionAccount,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/programs';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { NftNotFoundError } from '@/errors';
 import { Nft } from './Nft';
@@ -19,12 +24,12 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       const [metadata, edition] = await metaplex
         .rpc()
         .getMultipleAccounts([
-          MetadataAccount.pda(mint),
-          OriginalOrPrintEditionAccount.pda(mint),
+          findMetadataPda(mint),
+          findMasterEditionV2Pda(mint),
         ]);
 
-      const metadataAccount = MetadataAccount.fromMaybe(metadata);
-      const editionAccount = OriginalOrPrintEditionAccount.fromMaybe(edition);
+      const metadataAccount = parseMetadataAccount(metadata);
+      const editionAccount = parseOriginalOrPrintEditionAccount(edition);
 
       if (!metadataAccount.exists) {
         throw new NftNotFoundError(mint);

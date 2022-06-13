@@ -17,12 +17,10 @@ import {
   createCreateMasterEditionV3InstructionWithSigners,
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
-} from '@/programs';
-import { TransactionBuilder } from '@/utils';
-import {
   findMasterEditionV2Pda,
   findMetadataPda,
-} from '@/programs/tokenMetadata/pdas';
+} from '@/programs';
+import { TransactionBuilder } from '@/utils';
 
 const Key = 'CreateNftOperation' as const;
 export const createNftOperation = useOperation<CreateNftOperation>(Key);

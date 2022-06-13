@@ -3,6 +3,7 @@ import { TransactionBuilder } from '@/index';
 import {
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
+  findMetadataPda,
 } from '@/programs';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
 import { Keypair } from '@solana/web3.js';
@@ -10,7 +11,6 @@ import {
   getAssociatedTokenAddress,
   getMinimumBalanceForRentExemptMint,
 } from '@solana/spl-token';
-import { findMetadataPda } from '@/programs/tokenMetadata/pdas';
 
 killStuckProcess();
 

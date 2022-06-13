@@ -10,16 +10,14 @@ import {
   createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
   createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
   parseOriginalEditionAccount,
-} from '@/programs';
-import { useOperation, Operation, OperationHandler, Signer } from '@/types';
-import { AccountNotFoundError } from '@/errors';
-import { InstructionWithSigners, TransactionBuilder } from '@/utils';
-import {
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-} from '@/programs/tokenMetadata/pdas';
+} from '@/programs';
+import { useOperation, Operation, OperationHandler, Signer } from '@/types';
+import { AccountNotFoundError } from '@/errors';
+import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
 const Key = 'PrintNewEditionOperation' as const;
 export const printNewEditionOperation =

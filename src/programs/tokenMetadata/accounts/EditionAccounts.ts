@@ -7,13 +7,34 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Account, getAccountParsingFunction } from '@/types';
 
-export type OriginalEditionAccount = Account<MasterEditionV1 | MasterEditionV2>;
-export type PrintEditionAccount = Account<Edition>;
-export type OriginalOrPrintEditionAccount =
-  | OriginalEditionAccount
-  | PrintEditionAccount;
+export type OriginalEditionAccountData = MasterEditionV1 | MasterEditionV2;
+export type OriginalEditionAccount = Account<OriginalEditionAccountData>;
 
-export const parseOriginalEditionAccount = getAccountParsingFunction({
+export type PrintEditionAccountData = Edition;
+export type PrintEditionAccount = Account<PrintEditionAccountData>;
+
+export type OriginalOrPrintEditionAccount = Account<
+  OriginalEditionAccountData | PrintEditionAccountData
+>;
+
+export const parseOriginalOrPrintEditionAccount = getAccountParsingFunction<
+  MasterEditionV1 | MasterEditionV2 | Edition
+>({
+  name: 'MasterEditionV1 | MasterEditionV2 | Edition',
+  deserialize: (data: Buffer, offset = 0) => {
+    if (data?.[0] === Key.MasterEditionV1) {
+      return MasterEditionV1.deserialize(data, offset);
+    } else if (data?.[0] === Key.MasterEditionV2) {
+      return MasterEditionV2.deserialize(data, offset);
+    } else {
+      return Edition.deserialize(data, offset);
+    }
+  },
+});
+
+export const parseOriginalEditionAccount = getAccountParsingFunction<
+  MasterEditionV1 | MasterEditionV2
+>({
   name: 'MasterEditionV1 | MasterEditionV2',
   deserialize: (data: Buffer, offset = 0) => {
     if (data?.[0] === Key.MasterEditionV1) {
@@ -23,6 +44,8 @@ export const parseOriginalEditionAccount = getAccountParsingFunction({
     }
   },
 });
+
+export const parsePrintEditionAccount = getAccountParsingFunction(Edition);
 
 export const isOriginalEditionAccount = (
   account: OriginalOrPrintEditionAccount
