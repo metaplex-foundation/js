@@ -6,8 +6,9 @@ import {
   SignatureResult,
 } from '@solana/web3.js';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { updateCandyMachineBuilder } from '@/programs';
+import { createUpdateCandyMachineInstructionWithSigners } from '@/programs';
 import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -61,12 +62,14 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       const { signature, confirmResponse } = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          updateCandyMachineBuilder({
-            candyMachine: candyMachineAddress,
-            wallet: walletAddress,
-            authority: authoritySigner,
-            data: candyMachineData,
-          }),
+          TransactionBuilder.make().add(
+            createUpdateCandyMachineInstructionWithSigners({
+              candyMachine: candyMachineAddress,
+              wallet: walletAddress,
+              authority: authoritySigner,
+              data: candyMachineData,
+            })
+          ),
           undefined,
           confirmOptions
         );
