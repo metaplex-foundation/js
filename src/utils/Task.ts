@@ -1,4 +1,5 @@
-import { AbortController, AbortSignal } from 'abort-controller';
+import AbortController from 'abort-controller';
+import type { AbortSignal } from 'abort-controller';
 import EventEmitterPackage from 'eventemitter3';
 import type EventEmitter from 'eventemitter3';
 import { TaskIsAlreadyRunningError } from '@/errors';
