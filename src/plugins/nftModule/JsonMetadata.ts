@@ -17,7 +17,7 @@ export interface JsonMetadata<Uri = string> {
 
 export interface JsonMetadataAttribute {
   trait_type?: string;
-  value?: unknown;
+  value?: string;
   [key: string]: unknown;
 }
 
