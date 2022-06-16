@@ -3,7 +3,14 @@ import * as BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
-import { Amount, IdentitySigner, KeypairSigner, lamports } from '@/types';
+import {
+  Amount,
+  IdentitySigner,
+  isKeypairSigner,
+  KeypairSigner,
+  lamports,
+  Signer,
+} from '@/types';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,
@@ -30,7 +37,7 @@ export type BundlrOptions = {
   timeout?: number;
   providerUrl?: string;
   priceMultiplier?: number;
-  withdrawAfterUploading?: boolean;
+  identity?: Signer;
 };
 
 export type BundlrWalletAdapter = {
@@ -163,9 +170,9 @@ export class BundlrStorageDriver implements StorageDriver {
       providerUrl: this._options.providerUrl,
     };
 
-    const identity = this._metaplex.identity();
-    const identityIsKeypair = identity.hasSecretKey();
-    const bundlr = identityIsKeypair
+    const identity: Signer =
+      this._options.identity ?? this._metaplex.identity();
+    const bundlr = isKeypairSigner(identity)
       ? this.initNodeBundlr(address, currency, identity, options)
       : await this.initWebBundlr(address, currency, identity, options);
 
