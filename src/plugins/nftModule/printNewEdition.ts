@@ -318,6 +318,7 @@ export const printNewEditionBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Create the mint account and send one token to the holder.
       .add(
