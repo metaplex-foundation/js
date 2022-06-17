@@ -307,7 +307,7 @@ test('[Task] it can require input parameters', async (t: Test) => {
   t.equal(result, 22);
 });
 
-test.only('[Task] nested tasks can depend on each other via input parameters', async (t: Test) => {
+test('[Task] nested tasks can depend on each other via input parameters', async (t: Test) => {
   // Given two child tasks:
   // - One that takes a text and returns its length.
   // - One that takes a number and returns its power.
