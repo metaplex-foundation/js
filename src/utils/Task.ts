@@ -12,15 +12,17 @@ export type TaskStatus =
   | 'failed'
   | 'canceled';
 
-export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
+export type TaskCallback<T, I = undefined> = I extends undefined
+  ? (scope: DisposableScope) => T | Promise<T>
+  : (input: I, scope: DisposableScope) => T | Promise<T>;
 
 export type TaskOptions = {
   signal?: AbortSignal;
   force?: boolean;
 };
 
-export class Task<T> {
-  protected callback: TaskCallback<T>;
+export class Task<T, I = undefined> {
+  protected callback: TaskCallback<T, I>;
   protected children: Task<any>[];
   protected context: object;
   protected status: TaskStatus = 'pending';
@@ -29,7 +31,7 @@ export class Task<T> {
   protected eventEmitter: EventEmitter;
 
   constructor(
-    callback: TaskCallback<T>,
+    callback: TaskCallback<T, I>,
     children: Task<any>[] = [],
     context: object = {}
   ) {
@@ -39,13 +41,15 @@ export class Task<T> {
     this.eventEmitter = new EventEmitterPackage.EventEmitter();
   }
 
-  async run(options: TaskOptions = {}): Promise<T> {
+  async run(this: Task<T, undefined>, options?: TaskOptions): Promise<T>;
+  async run(this: Task<T, I>, input: I, options?: TaskOptions): Promise<T>;
+  async run(input?: I, options: TaskOptions = {}): Promise<T> {
     if (this.isRunning()) {
       throw new TaskIsAlreadyRunningError();
     }
 
     if (this.isPending() || (options.force ?? false)) {
-      return this.forceRun(options);
+      return this.forceRun(input, options);
     }
 
     if (this.isSuccessful()) {
@@ -55,7 +59,7 @@ export class Task<T> {
     throw this.getError();
   }
 
-  protected async forceRun(options: TaskOptions = {}): Promise<T> {
+  protected async forceRun(input?: I, options: TaskOptions = {}): Promise<T> {
     const disposable = new Disposable(
       options.signal ?? new AbortController().signal
     );
@@ -73,7 +77,7 @@ export class Task<T> {
         this.setStatus('running');
         this.result = undefined;
         this.error = undefined;
-        this.result = await Promise.resolve(this.callback(scope));
+        this.result = await Promise.resolve(this.callback(scope, input as I));
         throwIfCanceled();
         this.setStatus('successful');
 
