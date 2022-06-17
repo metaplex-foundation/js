@@ -24,7 +24,7 @@ export type TaskOptions = {
 
 export class Task<T, I extends any[] = []> {
   protected callback: TaskCallback<T, I>;
-  protected children: Task<any>[];
+  protected children: Task<any, any[]>[];
   protected context: object;
   protected status: TaskStatus = 'pending';
   protected result: T | undefined = undefined;
@@ -33,7 +33,7 @@ export class Task<T, I extends any[] = []> {
 
   constructor(
     callback: TaskCallback<T, I>,
-    children: Task<any>[] = [],
+    children: Task<any, any[]>[] = [],
     context: object = {}
   ) {
     this.callback = callback;
@@ -113,17 +113,17 @@ export class Task<T, I extends any[] = []> {
     return this;
   }
 
-  setChildren(children: Task<any>[]) {
+  setChildren(children: Task<any, any[]>[]) {
     this.children = children;
 
     return this;
   }
 
-  getChildren(): Task<any>[] {
+  getChildren(): Task<any, any[]>[] {
     return this.children;
   }
 
-  getDescendants(): Task<any>[] {
+  getDescendants(): Task<any, any[]>[] {
     return this.children.flatMap((child) => [child, ...child.getDescendants()]);
   }
 
