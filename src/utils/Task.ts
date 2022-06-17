@@ -12,16 +12,17 @@ export type TaskStatus =
   | 'failed'
   | 'canceled';
 
-export type TaskCallback<T, I = undefined> = I extends undefined
-  ? (scope: DisposableScope) => T | Promise<T>
-  : (input: I, scope: DisposableScope) => T | Promise<T>;
+export type TaskCallback<T, I extends any[]> = (
+  scope: DisposableScope,
+  ...inputs: I
+) => T | Promise<T>;
 
 export type TaskOptions = {
   signal?: AbortSignal;
   force?: boolean;
 };
 
-export class Task<T, I = undefined> {
+export class Task<T, I extends any[] = []> {
   protected callback: TaskCallback<T, I>;
   protected children: Task<any>[];
   protected context: object;
@@ -41,15 +42,13 @@ export class Task<T, I = undefined> {
     this.eventEmitter = new EventEmitterPackage.EventEmitter();
   }
 
-  async run(this: Task<T, undefined>, options?: TaskOptions): Promise<T>;
-  async run(this: Task<T, I>, input: I, options?: TaskOptions): Promise<T>;
-  async run(input?: I, options: TaskOptions = {}): Promise<T> {
+  async run(options: TaskOptions = {}, ...inputs: I): Promise<T> {
     if (this.isRunning()) {
       throw new TaskIsAlreadyRunningError();
     }
 
     if (this.isPending() || (options.force ?? false)) {
-      return this.forceRun(input, options);
+      return this.forceRun(options, ...inputs);
     }
 
     if (this.isSuccessful()) {
@@ -59,7 +58,10 @@ export class Task<T, I = undefined> {
     throw this.getError();
   }
 
-  protected async forceRun(input?: I, options: TaskOptions = {}): Promise<T> {
+  protected async forceRun(
+    options: TaskOptions = {},
+    ...inputs: I
+  ): Promise<T> {
     const disposable = new Disposable(
       options.signal ?? new AbortController().signal
     );
@@ -77,7 +79,7 @@ export class Task<T, I = undefined> {
         this.setStatus('running');
         this.result = undefined;
         this.error = undefined;
-        this.result = await Promise.resolve(this.callback(scope, input as I));
+        this.result = await Promise.resolve(this.callback(scope, ...inputs));
         throwIfCanceled();
         this.setStatus('successful');
 

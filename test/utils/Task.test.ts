@@ -181,7 +181,6 @@ test('[Task] it can have nested tasks', async (t: Test) => {
   // Given simple child tasks that return numbers.
   const childA = new Task(() => 1);
   const childB = new Task(() => 2);
-  // childA.run('foo', {});
 
   // When we create a parent task that use these child tasks
   const parent = new Task(
