@@ -12,16 +12,19 @@ export type TaskStatus =
   | 'failed'
   | 'canceled';
 
-export type TaskCallback<T> = (scope: DisposableScope) => T | Promise<T>;
+export type TaskCallback<T, I extends any[]> = (
+  scope: DisposableScope,
+  ...inputs: I
+) => T | Promise<T>;
 
 export type TaskOptions = {
   signal?: AbortSignal;
   force?: boolean;
 };
 
-export class Task<T> {
-  protected callback: TaskCallback<T>;
-  protected children: Task<any>[];
+export class Task<T, I extends any[] = []> {
+  protected callback: TaskCallback<T, I>;
+  protected children: Task<any, any[]>[];
   protected context: object;
   protected status: TaskStatus = 'pending';
   protected result: T | undefined = undefined;
@@ -29,8 +32,8 @@ export class Task<T> {
   protected eventEmitter: EventEmitter;
 
   constructor(
-    callback: TaskCallback<T>,
-    children: Task<any>[] = [],
+    callback: TaskCallback<T, I>,
+    children: Task<any, any[]>[] = [],
     context: object = {}
   ) {
     this.callback = callback;
@@ -39,13 +42,13 @@ export class Task<T> {
     this.eventEmitter = new EventEmitterPackage.EventEmitter();
   }
 
-  async run(options: TaskOptions = {}): Promise<T> {
+  async run(options: TaskOptions = {}, ...inputs: I): Promise<T> {
     if (this.isRunning()) {
       throw new TaskIsAlreadyRunningError();
     }
 
     if (this.isPending() || (options.force ?? false)) {
-      return this.forceRun(options);
+      return this.forceRun(options, ...inputs);
     }
 
     if (this.isSuccessful()) {
@@ -55,7 +58,10 @@ export class Task<T> {
     throw this.getError();
   }
 
-  protected async forceRun(options: TaskOptions = {}): Promise<T> {
+  protected async forceRun(
+    options: TaskOptions = {},
+    ...inputs: I
+  ): Promise<T> {
     const disposable = new Disposable(
       options.signal ?? new AbortController().signal
     );
@@ -73,7 +79,7 @@ export class Task<T> {
         this.setStatus('running');
         this.result = undefined;
         this.error = undefined;
-        this.result = await Promise.resolve(this.callback(scope));
+        this.result = await Promise.resolve(this.callback(scope, ...inputs));
         throwIfCanceled();
         this.setStatus('successful');
 
@@ -107,17 +113,17 @@ export class Task<T> {
     return this;
   }
 
-  setChildren(children: Task<any>[]) {
+  setChildren(children: Task<any, any[]>[]) {
     this.children = children;
 
     return this;
   }
 
-  getChildren(): Task<any>[] {
+  getChildren(): Task<any, any[]>[] {
     return this.children;
   }
 
-  getDescendants(): Task<any>[] {
+  getDescendants(): Task<any, any[]>[] {
     return this.children.flatMap((child) => [child, ...child.getDescendants()]);
   }
 

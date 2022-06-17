@@ -291,3 +291,43 @@ test('[Task] it be used to execute tasks in parallel', async (t: Test) => {
     { name: 'Child A', status: 'successful' },
   ]);
 });
+
+test('[Task] it can require input parameters', async (t: Test) => {
+  // Given task that accepts a text and a multiplier as inputs
+  // and returns the length of the text multiplied by the multiplier.
+  const task = new Task((scope, text: string, multiplier: number) => {
+    return text.length * multiplier;
+  });
+
+  // When we run that task by giving it the right inputs.
+  const result = await task.run({}, 'Hello World', 2);
+
+  // Then the task was successful and returned the right result.
+  t.equal(task.getStatus(), 'successful');
+  t.equal(result, 22);
+});
+
+test('[Task] nested tasks can depend on each other via input parameters', async (t: Test) => {
+  // Given two child tasks:
+  // - One that takes a text and returns its length.
+  // - One that takes a number and returns its power.
+  const childA = new Task((scope, text: string) => text.length);
+  const childB = new Task((scope, value: number) => value * value);
+
+  // And a parent task that composes the two child tasks.
+  const parent = new Task(
+    async (options) => {
+      const resultA = await childA.run(options, 'Hello World');
+      const resultB = await childB.run(options, resultA);
+      return resultB;
+    },
+    [childA, childB]
+  );
+
+  // When we run that parent task.
+  const result = await parent.run();
+
+  // Then the parent task was successful and returned the right result.
+  t.equal(parent.getStatus(), 'successful');
+  t.equal(result, 121);
+});
