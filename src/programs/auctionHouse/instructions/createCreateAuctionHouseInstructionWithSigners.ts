@@ -6,7 +6,7 @@ import {
   createCreateAuctionHouseInstruction,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
 
-export interface CreateCreateAuctionHouseInstructionWithSignersParams {
+export type CreateCreateAuctionHouseInstructionWithSignersParams = {
   treasuryMint: PublicKey;
   payer: Signer;
   authority: PublicKey;
@@ -18,7 +18,7 @@ export interface CreateCreateAuctionHouseInstructionWithSignersParams {
   auctionHouseTreasury: PublicKey;
   args: CreateAuctionHouseInstructionArgs;
   instructionKey?: string;
-}
+};
 
 export const createCreateAuctionHouseInstructionWithSigners = (
   params: CreateCreateAuctionHouseInstructionWithSignersParams
