@@ -15,6 +15,7 @@ import {
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from '@/programs';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
 
 // -----------------
 // Operation
@@ -29,7 +30,7 @@ export type CreateAuctionHouseOperation = Operation<
   CreateAuctionHouseOutput
 >;
 
-export interface CreateAuctionHouseInput {
+export type CreateAuctionHouseInput = {
   // Data.
   sellerFeeBasisPoints: number;
   requiresSignOff?: boolean;
@@ -44,15 +45,15 @@ export interface CreateAuctionHouseInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface CreateAuctionHouseOutput {
-  transactionId: string;
+export type CreateAuctionHouseOutput = {
+  response: SendAndConfirmTransactionResponse;
   auctionHouse: Pda;
   auctionHouseFeeAccount: Pda;
   auctionHouseTreasury: Pda;
   treasuryWithdrawalDestinationAta: PublicKey;
-}
+};
 
 // -----------------
 // Handler
@@ -69,7 +70,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
         operation.input
       );
 
-      const { signature } = await metaplex
+      const response = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
           builder,
@@ -78,9 +79,8 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
         );
 
       return {
-        transactionId: signature,
+        response,
         ...context,
-        // TODO: Add Model...
       };
     },
   };
@@ -103,9 +103,7 @@ const WRAPPED_SOL_MINT = new PublicKey(
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
-): TransactionBuilderResponse<
-  Omit<CreateAuctionHouseOutput, 'transactionId'>
-> => {
+): TransactionBuilderResponse<Omit<CreateAuctionHouseOutput, 'response'>> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
