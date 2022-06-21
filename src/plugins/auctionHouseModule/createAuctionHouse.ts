@@ -1,7 +1,13 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import {
+  useOperation,
+  Operation,
+  Signer,
+  OperationHandler,
+  Pda,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderResponse } from '@/utils';
 import {
   createCreateAuctionHouseInstructionWithSigners,
   findAssociatedTokenAccountPda,
@@ -9,6 +15,10 @@ import {
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from '@/programs';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'CreateAuctionHouseOperation' as const;
 export const createAuctionHouseOperation =
@@ -38,7 +48,15 @@ export interface CreateAuctionHouseInput {
 
 export interface CreateAuctionHouseOutput {
   transactionId: string;
+  auctionHouse: Pda;
+  auctionHouseFeeAccount: Pda;
+  auctionHouseTreasury: Pda;
+  treasuryWithdrawalDestinationAta: PublicKey;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionHouseOperation> =
   {
@@ -46,20 +64,30 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
       operation: CreateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
+      const { builder, context } = createAuctionHouseBuilder(
+        metaplex,
+        operation.input
+      );
+
       const { signature } = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          createAuctionHouseBuilder(metaplex, operation.input).builder,
+          builder,
           undefined,
           operation.input.confirmOptions
         );
 
       return {
         transactionId: signature,
-        // TODO: Add PDAs and Models...
+        ...context,
+        // TODO: Add Model...
       };
     },
   };
+
+// -----------------
+// Builder
+// -----------------
 
 export type CreateAuctionHouseBuilderParams = Omit<
   CreateAuctionHouseInput,
@@ -75,7 +103,9 @@ const WRAPPED_SOL_MINT = new PublicKey(
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
-): { builder: TransactionBuilder; context: any } => {
+): TransactionBuilderResponse<
+  Omit<CreateAuctionHouseOutput, 'transactionId'>
+> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;

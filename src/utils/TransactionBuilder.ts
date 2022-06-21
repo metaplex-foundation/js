@@ -7,11 +7,11 @@ import {
 } from '@solana/web3.js';
 import { Signer } from '@/types';
 
-export interface InstructionWithSigners {
-  key?: string;
+export type InstructionWithSigners = {
   instruction: TransactionInstruction;
   signers: Signer[];
-}
+  key?: string;
+};
 
 type TransactionOptions = {
   /** The transaction fee payer */
@@ -22,6 +22,11 @@ type TransactionOptions = {
   blockhash: Blockhash;
   /** the last block chain can advance to before tx is exportd expired */
   lastValidBlockHeight: number;
+};
+
+export type TransactionBuilderResponse<T = {}> = {
+  builder: TransactionBuilder;
+  context: T;
 };
 
 export class TransactionBuilder {
