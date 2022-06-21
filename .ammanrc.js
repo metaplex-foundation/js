@@ -15,6 +15,7 @@ const programIds = {
   metaplex: 'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98',
   fixedPriceSaleToken: 'SaLeTjyUa5wXHnGuewUSyJ5JWZaHwz3TxqUntCE9czo',
   candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ',
+  auctionHouse: 'hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk',
 };
 
 const programs = [
@@ -27,6 +28,11 @@ const programs = [
     label: 'Candy Machine',
     programId: programIds.candyMachine,
     deployPath: localDeployPath('mpl_candy_machine'),
+  },
+  {
+    label: 'Auction House',
+    programId: programIds.auctionHouse,
+    deployPath: localDeployPath('mpl_auction_house'),
   },
 ];
 
