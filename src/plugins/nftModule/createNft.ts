@@ -1,8 +1,5 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  getAssociatedTokenAddress,
-  getMinimumBalanceForRentExemptMint,
-} from '@solana/spl-token';
+import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 import { bignum } from '@metaplex-foundation/beet';
 import {
   Creator,
@@ -17,6 +14,7 @@ import {
   createCreateMasterEditionV3InstructionWithSigners,
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
+  findAssociatedTokenAccountPda,
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '@/programs';
@@ -41,7 +39,6 @@ export interface CreateNftInput {
   uses?: Uses;
   isMutable?: boolean;
   maxSupply?: bignum;
-  allowHolderOffCurve?: boolean;
 
   // Signers.
   mint?: Signer;
@@ -75,7 +72,6 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       uri,
       isMutable,
       maxSupply,
-      allowHolderOffCurve = false,
       mint = Keypair.generate(),
       payer = metaplex.identity(),
       mintAuthority = metaplex.identity(),
@@ -105,10 +101,9 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     const lamports = await getMinimumBalanceForRentExemptMint(
       metaplex.connection
     );
-    const associatedToken = await getAssociatedTokenAddress(
+    const associatedToken = findAssociatedTokenAccountPda(
       mint.publicKey,
       owner,
-      allowHolderOffCurve,
       tokenProgram,
       associatedTokenProgram
     );

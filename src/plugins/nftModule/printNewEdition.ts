@@ -1,8 +1,5 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  getAssociatedTokenAddress,
-  getMinimumBalanceForRentExemptMint,
-} from '@solana/spl-token';
+import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -14,6 +11,7 @@ import {
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
+  findAssociatedTokenAccountPda,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
 import { AccountNotFoundError } from '@/errors';
@@ -113,10 +111,9 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       const lamports = await getMinimumBalanceForRentExemptMint(
         metaplex.connection
       );
-      const newAssociatedToken = await getAssociatedTokenAddress(
+      const newAssociatedToken = findAssociatedTokenAccountPda(
         newMint.publicKey,
         newOwner,
-        false,
         tokenProgram,
         associatedTokenProgram
       );
@@ -156,13 +153,12 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
           operation.input.originalTokenAccountOwner ?? metaplex.identity();
         const originalTokenAccount =
           operation.input.originalTokenAccount ??
-          (await getAssociatedTokenAddress(
+          findAssociatedTokenAccountPda(
             originalMint,
             originalTokenAccountOwner.publicKey,
-            false,
             tokenProgram,
             associatedTokenProgram
-          ));
+          );
 
         transactionBuilder = printNewEditionBuilder({
           via: 'token',
