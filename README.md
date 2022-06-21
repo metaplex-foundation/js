@@ -548,6 +548,21 @@ metaplex.use(bundlrStorage({
 }));
 ```
 
+To fund your bundlr storage account you can cast it in TypeScript like so:
+
+```ts
+const bundlrStorage = metaplex.storage().driver() as BundlrStorageDriver;
+```
+
+This gives you access to useful public methods such as:
+
+```ts
+bundlrStorage.fund([metaplexFile1, metaplexFile2]); // Fund using file size.
+bundlrStorage.fund(1000); // Fund using byte size.
+(await bundlrStorage.bundlr()).fund(1000); // Fund using lamports directly.
+```
+
+
 ### awsStorage
 
 The `awsStorage` driver uploads assets off-chain to an S3 bucket of your choice.
