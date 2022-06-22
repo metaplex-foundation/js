@@ -10,6 +10,7 @@ import { guestIdentity } from '../guestIdentity';
 import { bundlrStorage } from '../bundlrStorage';
 import { nftModule } from '../nftModule';
 import { candyMachineModule } from '../candyMachineModule';
+import { auctionHouseModule } from '../auctionHouseModule';
 
 export const corePlugins = () => ({
   install(metaplex: Metaplex) {
@@ -31,5 +32,6 @@ export const corePlugins = () => ({
     // Verticals.
     metaplex.use(nftModule());
     metaplex.use(candyMachineModule());
+    metaplex.use(auctionHouseModule());
   },
 });
