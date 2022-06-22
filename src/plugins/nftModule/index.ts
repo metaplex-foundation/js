@@ -13,3 +13,4 @@ export * from './updateNft';
 export * from './uploadMetadata';
 export * from './useEditionTask';
 export * from './useJsonMetadataTask';
+export * from './verifyCollection';
