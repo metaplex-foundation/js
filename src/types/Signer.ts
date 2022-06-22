@@ -50,8 +50,8 @@ export const getSignerHistogram = (signers: Signer[]) =>
         const duplicateIdentitiesIndex = signers.identities.findIndex(
           ({ publicKey }) => publicKey.equals(signer.publicKey)
         );
-        delete signers.all[duplicateIndex];
-        delete signers.identities[duplicateIdentitiesIndex];
+        signers.all.splice(duplicateIndex, 1);
+        signers.identities.splice(duplicateIdentitiesIndex, 1);
         signers.all.push(signer);
         signers.keypairs.push(signer);
       }
