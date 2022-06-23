@@ -12,6 +12,9 @@ export class AuctionHouse extends Model {
   public readonly treasuryAccount: Pda;
   public readonly feeWithdrawalDestination: PublicKey;
   public readonly treasuryWithdrawalDestination: PublicKey;
+  public readonly sellerFeeBasisPoints: number;
+  public readonly requiresSignOff: boolean;
+  public readonly canChangeSalePrice: boolean;
 
   constructor(account: AuctionHouseAccount) {
     super();
@@ -30,6 +33,9 @@ export class AuctionHouse extends Model {
     this.feeWithdrawalDestination = account.data.feeWithdrawalDestination;
     this.treasuryWithdrawalDestination =
       account.data.treasuryWithdrawalDestination;
+    this.sellerFeeBasisPoints = account.data.sellerFeeBasisPoints;
+    this.requiresSignOff = account.data.requiresSignOff;
+    this.canChangeSalePrice = account.data.canChangeSalePrice;
   }
 
   usesSol(): boolean {

@@ -33,6 +33,9 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
     ),
     feeWithdrawalDestination: spokSamePubkey(expectedCreator),
     treasuryWithdrawalDestination: spokSamePubkey(expectedCreator),
+    sellerFeeBasisPoints: 200,
+    requiresSignOff: false,
+    canChangeSalePrice: false,
   };
 
   spok(t, auctionHouse, { $topic: 'AuctionHouse', ...expectedAuctionHouse });
