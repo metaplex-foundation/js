@@ -24,7 +24,7 @@ type TransactionOptions = {
   lastValidBlockHeight: number;
 };
 
-export type TransactionBuilderResponse<T = {}> = {
+export type TransactionBuilderResponse<T extends object = object> = {
   builder: TransactionBuilder;
   context: T;
 };

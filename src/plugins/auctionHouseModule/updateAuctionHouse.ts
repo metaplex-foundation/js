@@ -1,21 +1,14 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  Pda,
-} from '@/types';
+import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { TransactionBuilder, TransactionBuilderResponse } from '@/utils';
 import {
   findAssociatedTokenAccountPda,
-  findAuctionHouseFeePda,
-  findAuctionHousePda,
-  findAuctionHouseTreasuryPda,
+  createUpdateAuctionHouseInstructionWithSigners,
 } from '@/programs';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from './constants';
+import { AuctionHouse } from './AuctionHouse';
 
 // -----------------
 // Operation
@@ -31,15 +24,17 @@ export type UpdateAuctionHouseOperation = Operation<
 >;
 
 export type UpdateAuctionHouseInput = {
-  // Data.
-  sellerFeeBasisPoints: number;
-  requiresSignOff?: boolean;
-  canChangeSalePrice?: boolean;
-
-  // Accounts.
-  treasuryMint?: PublicKey;
+  // Main Accounts.
+  actionHouse: AuctionHouse;
+  authority: Signer;
   payer?: Signer;
-  authority?: PublicKey;
+
+  // Updatable Data.
+  sellerFeeBasisPoints?: number | null;
+  requiresSignOff?: boolean | null;
+  canChangeSalePrice?: boolean | null;
+  newAuthority?: PublicKey;
+  treasuryMint?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestination?: PublicKey;
 
@@ -49,10 +44,6 @@ export type UpdateAuctionHouseInput = {
 
 export type UpdateAuctionHouseOutput = {
   response: SendAndConfirmTransactionResponse;
-  auctionHouse: Pda;
-  auctionHouseFeeAccount: Pda;
-  auctionHouseTreasury: Pda;
-  treasuryWithdrawalDestinationAta: PublicKey;
 };
 
 // -----------------
@@ -65,10 +56,7 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const { builder, context } = updateAuctionHouseBuilder(
-        metaplex,
-        operation.input
-      );
+      const { builder } = updateAuctionHouseBuilder(metaplex, operation.input);
 
       const response = await metaplex
         .rpc()
@@ -80,7 +68,6 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
 
       return {
         response,
-        ...context,
       };
     },
   };
@@ -99,24 +86,18 @@ export type UpdateAuctionHouseBuilderParams = Omit<
 export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams
-): TransactionBuilderResponse<Omit<UpdateAuctionHouseOutput, 'response'>> => {
-  // Data.
-  const canChangeSalePrice = params.canChangeSalePrice ?? false;
-  const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
-
-  // Accounts.
-  const authority = params.authority ?? metaplex.identity().publicKey;
+): TransactionBuilderResponse => {
   const payer = params.payer ?? metaplex.identity();
-  const treasuryMint = params.treasuryMint ?? WRAPPED_SOL_MINT;
+  const auctionHouse = params.actionHouse;
+  const newAuthority = params.newAuthority ?? auctionHouse.authority;
+  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint;
   const treasuryWithdrawalDestination =
-    params.treasuryWithdrawalDestination ?? metaplex.identity().publicKey;
+    params.treasuryWithdrawalDestination ??
+    auctionHouse.treasuryWithdrawalDestination;
   const feeWithdrawalDestination =
-    params.feeWithdrawalDestination ?? metaplex.identity().publicKey;
+    params.feeWithdrawalDestination ?? auctionHouse.feeWithdrawalDestination;
 
   // PDAs.
-  const auctionHouse = findAuctionHousePda(authority, treasuryMint);
-  const auctionHouseFeeAccount = findAuctionHouseFeePda(auctionHouse);
-  const auctionHouseTreasury = findAuctionHouseTreasuryPda(auctionHouse);
   const treasuryWithdrawalDestinationAta = treasuryMint.equals(WRAPPED_SOL_MINT)
     ? treasuryWithdrawalDestination
     : findAssociatedTokenAccountPda(
@@ -130,20 +111,16 @@ export const updateAuctionHouseBuilder = (
       createUpdateAuctionHouseInstructionWithSigners({
         treasuryMint,
         payer,
-        authority,
+        authority: params.authority,
+        newAuthority,
         feeWithdrawalDestination,
         treasuryWithdrawalDestination: treasuryWithdrawalDestinationAta,
         treasuryWithdrawalDestinationOwner: treasuryWithdrawalDestination,
-        auctionHouse,
-        auctionHouseFeeAccount,
-        auctionHouseTreasury,
+        auctionHouse: auctionHouse.address,
         args: {
-          bump: auctionHouse.bump,
-          feePayerBump: auctionHouseFeeAccount.bump,
-          treasuryBump: auctionHouseTreasury.bump,
-          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-          requiresSignOff,
-          canChangeSalePrice,
+          sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
+          requiresSignOff: params.requiresSignOff ?? null,
+          canChangeSalePrice: params.canChangeSalePrice ?? null,
         },
         instructionKey: params.instructionKey,
       })
@@ -151,11 +128,6 @@ export const updateAuctionHouseBuilder = (
 
   return {
     builder,
-    context: {
-      auctionHouse,
-      auctionHouseFeeAccount,
-      auctionHouseTreasury,
-      treasuryWithdrawalDestinationAta,
-    },
+    context: {},
   };
 };
