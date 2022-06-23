@@ -1,4 +1,5 @@
 import type { Metaplex } from '@/Metaplex';
+import { findAuctionHousePda } from '@/programs';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
@@ -28,5 +29,15 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .execute(findAuctionHouseByAddressOperation({ address, commitment }));
+  }
+
+  findAuctionHouseByCreatorAndMint(
+    creator: PublicKey,
+    treasuryMint: PublicKey,
+    commitment?: Commitment
+  ): Promise<AuctionHouse> {
+    const address = findAuctionHousePda(creator, treasuryMint);
+
+    return this.findAuctionHouseByAddress(address, commitment);
   }
 }
