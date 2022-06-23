@@ -14,4 +14,5 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
 
   // Then
   console.log(foo);
+  console.log(foo.data.treasuryMint.toBase58());
 });

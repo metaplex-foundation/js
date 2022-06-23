@@ -1,12 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  parseAccount,
-} from '@/types';
-import { AuctionHouse } from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
+import { useOperation, Operation, OperationHandler } from '@/types';
+import { parseAuctionHouseAccount } from '@/programs';
+import { AuctionHouse } from './AuctionHouse';
+import { AccountNotFoundError } from '@/errors';
 
 // -----------------
 // Operation
@@ -18,7 +15,7 @@ export const findAuctionHouseByAddressOperation =
 export type FindAuctionHouseByAddressOperation = Operation<
   typeof Key,
   FindAuctionHouseByAddressOperationInput,
-  any
+  AuctionHouse
 >;
 
 export type FindAuctionHouseByAddressOperationInput = {
@@ -37,13 +34,16 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
-
       const unparsedAccount = await metaplex
         .rpc()
         .getAccount(address, commitment);
 
-      const account = parseAccount(unparsedAccount, AuctionHouse);
+      if (!unparsedAccount.exists) {
+        throw new AccountNotFoundError(address, 'AuctionHouse');
+      }
 
-      return account;
+      const account = parseAuctionHouseAccount(unparsedAccount);
+
+      return new AuctionHouse(account);
     },
   };

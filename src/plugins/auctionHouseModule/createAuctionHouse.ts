@@ -16,6 +16,7 @@ import {
   findAuctionHouseTreasuryPda,
 } from '@/programs';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { WRAPPED_SOL_MINT } from './constants';
 
 // -----------------
 // Operation
@@ -95,10 +96,6 @@ export type CreateAuctionHouseBuilderParams = Omit<
 > & {
   instructionKey?: string;
 };
-
-const WRAPPED_SOL_MINT = new PublicKey(
-  'So11111111111111111111111111111111111111112'
-);
 
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
