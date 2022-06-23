@@ -26,7 +26,7 @@ export type UpdateAuctionHouseOperation = Operation<
 
 export type UpdateAuctionHouseInput = {
   // Main Accounts.
-  actionHouse: AuctionHouse;
+  auctionHouse: AuctionHouse;
   authority: Signer;
   payer?: Signer;
 
@@ -89,7 +89,7 @@ export const updateAuctionHouseBuilder = (
   params: UpdateAuctionHouseBuilderParams
 ): TransactionBuilderResponse => {
   const payer = params.payer ?? metaplex.identity();
-  const auctionHouse = params.actionHouse;
+  const auctionHouse = params.auctionHouse;
   const newAuthority = params.newAuthority ?? auctionHouse.authority;
   const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint;
   const feeWithdrawalDestination =

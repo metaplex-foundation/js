@@ -8,18 +8,45 @@ import {
   CreateAuctionHouseOutput,
 } from './createAuctionHouse';
 import { findAuctionHouseByAddressOperation } from './findAuctionHouseByAddress';
+import {
+  UpdateAuctionHouseInput,
+  updateAuctionHouseOperation,
+  UpdateAuctionHouseOutput,
+} from './updateAuctionHouse';
 
 export class AuctionHouseClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  async createAuctionHouse(input: CreateAuctionHouseInput): Promise<any> {
-    const { auctionHouse }: CreateAuctionHouseOutput = await this.metaplex
+  async createAuctionHouse(input: CreateAuctionHouseInput): Promise<
+    Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
+      auctionHouse: AuctionHouse;
+    }
+  > {
+    const output = await this.metaplex
       .operations()
       .execute(createAuctionHouseOperation(input));
 
-    const foo = this.findAuctionHouseByAddress(auctionHouse);
+    const auctionHouse = await this.findAuctionHouseByAddress(
+      output.auctionHouse
+    );
 
-    return foo;
+    return { ...output, auctionHouse };
+  }
+
+  async updateAuctionHouse(input: UpdateAuctionHouseInput): Promise<
+    UpdateAuctionHouseOutput & {
+      auctionHouse: AuctionHouse;
+    }
+  > {
+    const output = await this.metaplex
+      .operations()
+      .execute(updateAuctionHouseOperation(input));
+
+    const auctionHouse = await this.findAuctionHouseByAddress(
+      input.auctionHouse.address
+    );
+
+    return { ...output, auctionHouse };
   }
 
   findAuctionHouseByAddress(

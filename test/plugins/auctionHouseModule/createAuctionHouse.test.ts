@@ -16,7 +16,7 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   const mx = await metaplex();
 
   // When we create a new Auction House with minimum configuration.
-  const auctionHouse = await mx.auctions().createAuctionHouse({
+  const { auctionHouse } = await mx.auctions().createAuctionHouse({
     sellerFeeBasisPoints: 200, // 2.00%
   });
 
@@ -62,7 +62,7 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const authority = mx.identity();
   const feeWithdrawalDestination = Keypair.generate();
   const treasuryWithdrawalDestinationOwner = Keypair.generate();
-  const auctionHouse = await mx.auctions().createAuctionHouse({
+  const { auctionHouse } = await mx.auctions().createAuctionHouse({
     sellerFeeBasisPoints: 200, // 2.00%
     requiresSignOff: true,
     canChangeSalePrice: true,
