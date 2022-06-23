@@ -42,7 +42,7 @@ export type CreateAuctionHouseInput = {
   payer?: Signer;
   authority?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
-  treasuryWithdrawalDestination?: PublicKey;
+  treasuryWithdrawalDestinationOwner?: PublicKey;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -53,7 +53,7 @@ export type CreateAuctionHouseOutput = {
   auctionHouse: Pda;
   auctionHouseFeeAccount: Pda;
   auctionHouseTreasury: Pda;
-  treasuryWithdrawalDestinationAta: PublicKey;
+  treasuryWithdrawalDestination: PublicKey;
 };
 
 // -----------------
@@ -109,8 +109,8 @@ export const createAuctionHouseBuilder = (
   const authority = params.authority ?? metaplex.identity().publicKey;
   const payer = params.payer ?? metaplex.identity();
   const treasuryMint = params.treasuryMint ?? WRAPPED_SOL_MINT;
-  const treasuryWithdrawalDestination =
-    params.treasuryWithdrawalDestination ?? metaplex.identity().publicKey;
+  const treasuryWithdrawalDestinationOwner =
+    params.treasuryWithdrawalDestinationOwner ?? metaplex.identity().publicKey;
   const feeWithdrawalDestination =
     params.feeWithdrawalDestination ?? metaplex.identity().publicKey;
 
@@ -118,11 +118,11 @@ export const createAuctionHouseBuilder = (
   const auctionHouse = findAuctionHousePda(authority, treasuryMint);
   const auctionHouseFeeAccount = findAuctionHouseFeePda(auctionHouse);
   const auctionHouseTreasury = findAuctionHouseTreasuryPda(auctionHouse);
-  const treasuryWithdrawalDestinationAta = treasuryMint.equals(WRAPPED_SOL_MINT)
-    ? treasuryWithdrawalDestination
+  const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
+    ? treasuryWithdrawalDestinationOwner
     : findAssociatedTokenAccountPda(
         treasuryMint,
-        treasuryWithdrawalDestination
+        treasuryWithdrawalDestinationOwner
       );
 
   const builder = TransactionBuilder.make()
@@ -133,8 +133,8 @@ export const createAuctionHouseBuilder = (
         payer,
         authority,
         feeWithdrawalDestination,
-        treasuryWithdrawalDestination: treasuryWithdrawalDestinationAta,
-        treasuryWithdrawalDestinationOwner: treasuryWithdrawalDestination,
+        treasuryWithdrawalDestination,
+        treasuryWithdrawalDestinationOwner,
         auctionHouse,
         auctionHouseFeeAccount,
         auctionHouseTreasury,
@@ -156,7 +156,7 @@ export const createAuctionHouseBuilder = (
       auctionHouse,
       auctionHouseFeeAccount,
       auctionHouseTreasury,
-      treasuryWithdrawalDestinationAta,
+      treasuryWithdrawalDestination,
     },
   };
 };

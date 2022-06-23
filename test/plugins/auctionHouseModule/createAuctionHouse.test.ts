@@ -61,7 +61,7 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const treasuryMint = WRAPPED_SOL_MINT;
   const authority = mx.identity();
   const feeWithdrawalDestination = Keypair.generate();
-  const treasuryWithdrawalDestination = Keypair.generate();
+  const treasuryWithdrawalDestinationOwner = Keypair.generate();
   const auctionHouse = await mx.auctions().createAuctionHouse({
     sellerFeeBasisPoints: 200, // 2.00%
     requiresSignOff: true,
@@ -70,7 +70,8 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
     payer: authority,
     authority: authority.publicKey,
     feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
-    treasuryWithdrawalDestination: treasuryWithdrawalDestination.publicKey,
+    treasuryWithdrawalDestinationOwner:
+      treasuryWithdrawalDestinationOwner.publicKey,
   });
 
   // Then the created Auction House has the expected configuration.
@@ -91,7 +92,7 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
       feeWithdrawalDestination.publicKey
     ),
     treasuryWithdrawalDestination: spokSamePubkey(
-      treasuryWithdrawalDestination.publicKey
+      treasuryWithdrawalDestinationOwner.publicKey
     ),
     sellerFeeBasisPoints: 200,
     requiresSignOff: true,
