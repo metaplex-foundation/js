@@ -1,5 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { findAuctionHousePda } from '@/programs';
+import { Task } from '@/utils';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
@@ -22,55 +23,59 @@ export class AuctionHouseClient {
     return new AuctionHouseBuildersClient(this.metaplex);
   }
 
-  async createAuctionHouse(input: CreateAuctionHouseInput): Promise<
+  createAuctionHouse(input: CreateAuctionHouseInput): Task<
     Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
       auctionHouse: AuctionHouse;
     }
   > {
-    const output = await this.metaplex
-      .operations()
-      .execute(createAuctionHouseOperation(input));
-
-    const auctionHouse = await this.findAuctionHouseByAddress(
-      output.auctionHouse
-    );
-
-    return { ...output, auctionHouse };
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .getTask(createAuctionHouseOperation(input))
+        .run(scope);
+      scope.throwIfCanceled();
+      const auctionHouse = await this.findAuctionHouseByAddress(
+        output.auctionHouse
+      ).run(scope);
+      return { ...output, auctionHouse };
+    });
   }
 
-  async updateAuctionHouse(
+  updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Promise<
+  ): Task<
     UpdateAuctionHouseOutput & {
       auctionHouse: AuctionHouse;
     }
   > {
-    const output = await this.metaplex
-      .operations()
-      .execute(updateAuctionHouseOperation({ auctionHouse, ...input }));
-
-    const updatedAuctionHouse = await this.findAuctionHouseByAddress(
-      auctionHouse.address
-    );
-
-    return { ...output, auctionHouse: updatedAuctionHouse };
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
+        .run(scope);
+      scope.throwIfCanceled();
+      const updatedAuctionHouse = await this.findAuctionHouseByAddress(
+        auctionHouse.address
+      ).run(scope);
+      return { ...output, auctionHouse: updatedAuctionHouse };
+    });
   }
 
   findAuctionHouseByAddress(
     address: PublicKey,
     commitment?: Commitment
-  ): Promise<AuctionHouse> {
+  ): Task<AuctionHouse> {
     return this.metaplex
       .operations()
-      .execute(findAuctionHouseByAddressOperation({ address, commitment }));
+      .getTask(findAuctionHouseByAddressOperation({ address, commitment }));
   }
 
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
     commitment?: Commitment
-  ): Promise<AuctionHouse> {
+  ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),
       commitment

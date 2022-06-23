@@ -16,9 +16,10 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   const mx = await metaplex();
 
   // When we create a new Auction House with minimum configuration.
-  const { auctionHouse } = await mx.auctions().createAuctionHouse({
-    sellerFeeBasisPoints: 200, // 2.00%
-  });
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({ sellerFeeBasisPoints: 200 })
+    .run();
 
   // Then we created and returned the new Auction House and it has appropriate defaults.
   const expectedCreator = mx.identity().publicKey;
@@ -45,7 +46,8 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   // And we get the same result when we fetch the Auction House by address.
   const retrievedAuctionHouse = await mx
     .auctions()
-    .findAuctionHouseByAddress(auctionHouse.address);
+    .findAuctionHouseByAddress(auctionHouse.address)
+    .run();
 
   spok(t, retrievedAuctionHouse, {
     $topic: 'Retrieved AuctionHouse',
@@ -62,17 +64,20 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const authority = mx.identity();
   const feeWithdrawalDestination = Keypair.generate();
   const treasuryWithdrawalDestinationOwner = Keypair.generate();
-  const { auctionHouse } = await mx.auctions().createAuctionHouse({
-    sellerFeeBasisPoints: 200, // 2.00%
-    requiresSignOff: true,
-    canChangeSalePrice: true,
-    treasuryMint: treasuryMint,
-    payer: authority,
-    authority: authority.publicKey,
-    feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
-    treasuryWithdrawalDestinationOwner:
-      treasuryWithdrawalDestinationOwner.publicKey,
-  });
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      requiresSignOff: true,
+      canChangeSalePrice: true,
+      treasuryMint: treasuryMint,
+      payer: authority,
+      authority: authority.publicKey,
+      feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
+      treasuryWithdrawalDestinationOwner:
+        treasuryWithdrawalDestinationOwner.publicKey,
+    })
+    .run();
 
   // Then the created Auction House has the expected configuration.
   const expectedAddress = findAuctionHousePda(

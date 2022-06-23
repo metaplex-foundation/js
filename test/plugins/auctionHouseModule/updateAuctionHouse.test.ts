@@ -18,9 +18,8 @@ test('[auctionHouseModule] update all fields of an Auction House', async (t: Tes
   // And an existing Auction House.
   const { auctionHouse: originalAuctionHouse } = await mx
     .auctions()
-    .createAuctionHouse({
-      sellerFeeBasisPoints: 200, // 2.00%
-    });
+    .createAuctionHouse({ sellerFeeBasisPoints: 200 })
+    .run();
   const originalCreator = mx.identity().publicKey;
   const originalMint = WRAPPED_SOL_MINT;
   const originalAddress = findAuctionHousePda(originalCreator, originalMint);
@@ -48,13 +47,14 @@ test('[auctionHouseModule] update all fields of an Auction House', async (t: Tes
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctions()
     .updateAuctionHouse(originalAuctionHouse, {
-      sellerFeeBasisPoints: 300, // 3.00%
+      sellerFeeBasisPoints: 300,
       requiresSignOff: true,
       canChangeSalePrice: true,
       newAuthority,
       feeWithdrawalDestination: newFeeWithdrawalDestination,
       treasuryWithdrawalDestinationOwner: newTreasuryWithdrawalDestinationOwner,
-    });
+    })
+    .run();
 
   // Then all changes have been correctly applied.
   spok(t, updatedAuctionHouse, {
@@ -85,14 +85,14 @@ test('[auctionHouseModule] providing no changes updates nothing on the Auction H
   // And an existing Auction House.
   const { auctionHouse: originalAuctionHouse } = await mx
     .auctions()
-    .createAuctionHouse({
-      sellerFeeBasisPoints: 200, // 2.00%
-    });
+    .createAuctionHouse({ sellerFeeBasisPoints: 200 })
+    .run();
 
   // When we update the Auction House with no changes.
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctions()
-    .updateAuctionHouse(originalAuctionHouse, {});
+    .updateAuctionHouse(originalAuctionHouse, {})
+    .run();
 
   // Then all original fields were left unchanged.
   const originalCreator = mx.identity().publicKey;
