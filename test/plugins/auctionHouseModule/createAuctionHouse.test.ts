@@ -3,7 +3,6 @@ import spok from 'spok';
 import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
 import { WRAPPED_SOL_MINT } from '@/plugins/auctionHouseModule/constants';
 import {
-  createMintBuilder,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
