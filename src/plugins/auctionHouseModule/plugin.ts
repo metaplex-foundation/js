@@ -9,6 +9,10 @@ import {
   findAuctionHouseByAddressOperation,
   findAuctionHouseByAddressOperationHandler,
 } from './findAuctionHouseByAddress';
+import {
+  updateAuctionHouseOperation,
+  updateAuctionHouseOperationHandler,
+} from './updateAuctionHouse';
 
 export const auctionHouseModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -16,6 +20,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     op.register(
       createAuctionHouseOperation,
       createAuctionHouseOperationHandler
+    );
+    op.register(
+      updateAuctionHouseOperation,
+      updateAuctionHouseOperationHandler
     );
     op.register(
       findAuctionHouseByAddressOperation,

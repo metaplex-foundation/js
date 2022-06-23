@@ -33,20 +33,23 @@ export class AuctionHouseClient {
     return { ...output, auctionHouse };
   }
 
-  async updateAuctionHouse(input: UpdateAuctionHouseInput): Promise<
+  async updateAuctionHouse(
+    auctionHouse: AuctionHouse,
+    input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
+  ): Promise<
     UpdateAuctionHouseOutput & {
       auctionHouse: AuctionHouse;
     }
   > {
     const output = await this.metaplex
       .operations()
-      .execute(updateAuctionHouseOperation(input));
+      .execute(updateAuctionHouseOperation({ auctionHouse, ...input }));
 
-    const auctionHouse = await this.findAuctionHouseByAddress(
-      input.auctionHouse.address
+    const updatedAuctionHouse = await this.findAuctionHouseByAddress(
+      auctionHouse.address
     );
 
-    return { ...output, auctionHouse };
+    return { ...output, auctionHouse: updatedAuctionHouse };
   }
 
   findAuctionHouseByAddress(
