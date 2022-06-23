@@ -27,6 +27,11 @@ import {
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
 } from './printNewEdition';
+import {
+  VerifyCollectionInput,
+  verifyCollectionOperation,
+  VerifyCollectionOutput,
+} from './verifyCollection';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -95,5 +100,18 @@ export class NftClient {
     const nft = await this.findByMint(printNewEditionOutput.mint.publicKey);
 
     return { ...printNewEditionOutput, nft };
+  }
+
+  async verifyCollection(
+    nft: Nft,
+    input: Omit<VerifyCollectionInput, 'nft'>
+  ): Promise<{ nft: Nft } & VerifyCollectionOutput> {
+    const operation = verifyCollectionOperation({ nft, ...input });
+    const verifyCollectionOutput = await this.metaplex
+      .operations()
+      .execute(operation);
+    const verifiedNft = await this.findByMint(nft.mint);
+
+    return { ...verifyCollectionOutput, nft: verifiedNft };
   }
 }

@@ -1,9 +1,16 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { Nft } from './Nft';
+import { NftNotFoundError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import {
+  findMasterEditionV2Pda,
+  findMetadataPda,
+  parseMetadataAccount,
+  parseOriginalOrPrintEditionAccount,
+} from '@/programs';
 import { createVerifyCollectionInstructionWithSigners } from '@/programs/tokenMetadata/instructions/createVerifyCollectionInstruction';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { TransactionBuilder } from '@/utils';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { Nft } from './Nft';
 
 const Key = 'VerifyCollectionOperation' as const;
 export const verifyCollectionOperation =
@@ -18,13 +25,9 @@ export type VerifyCollectionOperation = Operation<
 export interface VerifyCollectionInput {
   nft: Nft;
 
-  // Data.
-  collection: PublicKey;
-  collectionMasterEditionAccount: PublicKey;
-
   // Signers.
   collectionAuthority: Signer;
-  payer: Signer;
+  payer?: Signer;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -42,21 +45,37 @@ export const verifyCollectionOperationHandler: OperationHandler<VerifyCollection
     ): Promise<VerifyCollectionOutput> => {
       const {
         nft,
-        collection,
-        collectionMasterEditionAccount,
         collectionAuthority,
-        payer,
+        payer = metaplex.identity(),
         confirmOptions,
       } = operation.input;
 
+      // TOODO COLLECTION ERROR
       if (!nft.collection) throw new Error('collection not found');
+
+      const collectionMint = nft.collection.key;
+      const [collectionMetadata, collectionEdition] = await metaplex
+        .rpc()
+        .getMultipleAccounts([
+          findMetadataPda(collectionMint),
+          findMasterEditionV2Pda(collectionMint),
+        ]);
+
+      const collectionMetadataAccount =
+        parseMetadataAccount(collectionMetadata);
+      const collectionEditionAccount =
+        parseOriginalOrPrintEditionAccount(collectionEdition);
+
+      if (!collectionMetadataAccount.exists) {
+        throw new Error('collection not found');
+      }
 
       const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
         verifyCollectionBuilder({
           metadata: nft.metadataAccount.publicKey,
-          collectionMint: nft.collection?.key,
-          collection,
-          collectionMasterEditionAccount,
+          collectionMint,
+          collection: collectionMetadataAccount.publicKey,
+          collectionMasterEditionAccount: collectionEditionAccount.publicKey,
           collectionAuthority,
           payer,
         }),
