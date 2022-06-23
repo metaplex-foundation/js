@@ -10,8 +10,8 @@ export const findAssociatedTokenAccountPda = (
   associatedTokenProgramId: PublicKey = ASSOCIATED_TOKEN_PROGRAM_ID
 ): Pda => {
   return Pda.find(associatedTokenProgramId, [
-    mint.toBuffer(),
-    tokenProgramId.toBuffer(),
     owner.toBuffer(),
+    tokenProgramId.toBuffer(),
+    mint.toBuffer(),
   ]);
 };
