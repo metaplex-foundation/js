@@ -7,7 +7,6 @@ import {
   createUpdateAuctionHouseInstructionWithSigners,
 } from '@/programs';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { WRAPPED_SOL_MINT } from './constants';
 import { AuctionHouse } from './AuctionHouse';
 import { TreasureDestinationOwnerRequiredError } from './errors';
 
@@ -96,7 +95,7 @@ export const updateAuctionHouseBuilder = (
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;
-  if (treasuryMint.equals(WRAPPED_SOL_MINT)) {
+  if (auctionHouse.usesSol()) {
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner ??
       auctionHouse.treasuryWithdrawalDestination;
