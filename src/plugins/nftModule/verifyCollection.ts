@@ -1,4 +1,3 @@
-import { NftNotFoundError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   findMasterEditionV2Pda,
