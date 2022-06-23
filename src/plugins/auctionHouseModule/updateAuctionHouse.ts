@@ -1,7 +1,7 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { TransactionBuilder, TransactionBuilderResponse } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import {
   findAssociatedTokenAccountPda,
   createUpdateAuctionHouseInstructionWithSigners,
@@ -57,12 +57,10 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const { builder } = updateAuctionHouseBuilder(metaplex, operation.input);
-
       const response = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          builder,
+          updateAuctionHouseBuilder(metaplex, operation.input),
           undefined,
           operation.input.confirmOptions
         );
@@ -87,7 +85,7 @@ export type UpdateAuctionHouseBuilderParams = Omit<
 export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams
-): TransactionBuilderResponse => {
+): TransactionBuilder => {
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
   const newAuthority = params.newAuthority ?? auctionHouse.authority;
@@ -113,7 +111,7 @@ export const updateAuctionHouseBuilder = (
     throw new TreasureDestinationOwnerRequiredError();
   }
 
-  const builder = TransactionBuilder.make()
+  return TransactionBuilder.make()
     .setFeePayer(payer)
     .add(
       createUpdateAuctionHouseInstructionWithSigners({
@@ -133,9 +131,4 @@ export const updateAuctionHouseBuilder = (
         instructionKey: params.instructionKey,
       })
     );
-
-  return {
-    builder,
-    context: {},
-  };
 };

@@ -7,7 +7,7 @@ import {
   OperationHandler,
   Pda,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderResponse } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import {
   createCreateAuctionHouseInstructionWithSigners,
   findAssociatedTokenAccountPda,
@@ -66,10 +66,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
       operation: CreateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const { builder, context } = createAuctionHouseBuilder(
-        metaplex,
-        operation.input
-      );
+      const builder = createAuctionHouseBuilder(metaplex, operation.input);
 
       const response = await metaplex
         .rpc()
@@ -81,7 +78,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
 
       return {
         response,
-        ...context,
+        ...builder.getContext(),
       };
     },
   };
@@ -97,10 +94,15 @@ export type CreateAuctionHouseBuilderParams = Omit<
   instructionKey?: string;
 };
 
+export type CreateAuctionHouseBuilderContext = Omit<
+  CreateAuctionHouseOutput,
+  'response'
+>;
+
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
-): TransactionBuilderResponse<Omit<CreateAuctionHouseOutput, 'response'>> => {
+): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
@@ -125,8 +127,14 @@ export const createAuctionHouseBuilder = (
         treasuryWithdrawalDestinationOwner
       );
 
-  const builder = TransactionBuilder.make()
+  return TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
     .setFeePayer(payer)
+    .setContext({
+      auctionHouse,
+      auctionHouseFeeAccount,
+      auctionHouseTreasury,
+      treasuryWithdrawalDestination,
+    })
     .add(
       createCreateAuctionHouseInstructionWithSigners({
         treasuryMint,
@@ -149,14 +157,4 @@ export const createAuctionHouseBuilder = (
         instructionKey: params.instructionKey,
       })
     );
-
-  return {
-    builder,
-    context: {
-      auctionHouse,
-      auctionHouseFeeAccount,
-      auctionHouseTreasury,
-      treasuryWithdrawalDestination,
-    },
-  };
 };

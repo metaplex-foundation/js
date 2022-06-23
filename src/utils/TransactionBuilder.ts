@@ -24,12 +24,7 @@ type TransactionOptions = {
   lastValidBlockHeight: number;
 };
 
-export type TransactionBuilderResponse<T extends object = object> = {
-  builder: TransactionBuilder;
-  context: T;
-};
-
-export class TransactionBuilder {
+export class TransactionBuilder<C extends object = object> {
   /** The list of all instructions and their respective signers. */
   private records: InstructionWithSigners[] = [];
 
@@ -39,17 +34,22 @@ export class TransactionBuilder {
   /** The signer to use to pay for transaction fees. */
   private feePayer: Signer | undefined = undefined;
 
+  /** Any additional context gathered when creating the transaction builder. */
+  private context: C = {} as C;
+
   constructor(transactionOptions?: TransactionOptions) {
     this.transactionOptions = transactionOptions;
   }
 
-  static make(transactionOptions?: TransactionOptions) {
-    return new TransactionBuilder(transactionOptions);
+  static make<C extends object = object>(
+    transactionOptions?: TransactionOptions
+  ): TransactionBuilder<C> {
+    return new TransactionBuilder<C>(transactionOptions);
   }
 
   prepend(
     ...txs: (InstructionWithSigners | TransactionBuilder)[]
-  ): TransactionBuilder {
+  ): TransactionBuilder<C> {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
@@ -60,7 +60,7 @@ export class TransactionBuilder {
 
   append(
     ...txs: (InstructionWithSigners | TransactionBuilder)[]
-  ): TransactionBuilder {
+  ): TransactionBuilder<C> {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
@@ -71,7 +71,7 @@ export class TransactionBuilder {
 
   add(
     ...txs: (InstructionWithSigners | TransactionBuilder)[]
-  ): TransactionBuilder {
+  ): TransactionBuilder<C> {
     return this.append(...txs);
   }
 
@@ -119,7 +119,7 @@ export class TransactionBuilder {
 
   setTransactionOptions(
     transactionOptions: TransactionOptions
-  ): TransactionBuilder {
+  ): TransactionBuilder<C> {
     this.transactionOptions = transactionOptions;
 
     return this;
@@ -129,7 +129,7 @@ export class TransactionBuilder {
     return this.transactionOptions;
   }
 
-  setFeePayer(feePayer: Signer): TransactionBuilder {
+  setFeePayer(feePayer: Signer): TransactionBuilder<C> {
     this.feePayer = feePayer;
 
     return this;
@@ -139,16 +139,26 @@ export class TransactionBuilder {
     return this.feePayer?.publicKey;
   }
 
+  setContext(context: C): TransactionBuilder<C> {
+    this.context = context;
+
+    return this;
+  }
+
+  getContext(): C {
+    return this.context;
+  }
+
   when(
     condition: boolean,
-    callback: (tx: TransactionBuilder) => TransactionBuilder
+    callback: (tx: TransactionBuilder<C>) => TransactionBuilder<C>
   ) {
     return condition ? callback(this) : this;
   }
 
   unless(
     condition: boolean,
-    callback: (tx: TransactionBuilder) => TransactionBuilder
+    callback: (tx: TransactionBuilder<C>) => TransactionBuilder<C>
   ) {
     return this.when(!condition, callback);
   }
