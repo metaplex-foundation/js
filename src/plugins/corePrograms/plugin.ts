@@ -1,6 +1,7 @@
 import { SystemProgram } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { cusper as tokenMetadataCusper } from '@metaplex-foundation/mpl-token-metadata';
+import { cusper as auctionHouseCusper } from '@metaplex-foundation/mpl-auction-house';
 import { Metaplex } from '@/Metaplex';
 import { TokenMetadataGpaBuilder, TokenMetadataProgram } from '@/programs';
 import { ErrorWithLogs } from '@/types';
@@ -34,6 +35,8 @@ export const corePrograms = () => ({
     metaplex.programs().register({
       name: 'AuctionHouseProgram',
       address: AuctionHouseProgram.publicKey,
+      errorResolver: (error: ErrorWithLogs) =>
+        auctionHouseCusper.errorFromProgramLogs(error.logs, false),
     });
   },
 });

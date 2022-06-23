@@ -4,7 +4,7 @@ import { InstructionWithSigners } from '@/utils';
 import {
   CreateAuctionHouseInstructionArgs,
   createCreateAuctionHouseInstruction,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
+} from '@metaplex-foundation/mpl-auction-house';
 
 export type CreateCreateAuctionHouseInstructionWithSignersParams = {
   treasuryMint: PublicKey;
