@@ -9,6 +9,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from './constants';
 import { AuctionHouse } from './AuctionHouse';
+import { TreasureDestinationOwnerRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -36,7 +37,7 @@ export type UpdateAuctionHouseInput = {
   newAuthority?: PublicKey;
   treasuryMint?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
-  treasuryWithdrawalDestination?: PublicKey;
+  treasuryWithdrawalDestinationOwner?: PublicKey;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -91,19 +92,26 @@ export const updateAuctionHouseBuilder = (
   const auctionHouse = params.actionHouse;
   const newAuthority = params.newAuthority ?? auctionHouse.authority;
   const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint;
-  const treasuryWithdrawalDestination =
-    params.treasuryWithdrawalDestination ??
-    auctionHouse.treasuryWithdrawalDestination;
   const feeWithdrawalDestination =
     params.feeWithdrawalDestination ?? auctionHouse.feeWithdrawalDestination;
 
-  // PDAs.
-  const treasuryWithdrawalDestinationAta = treasuryMint.equals(WRAPPED_SOL_MINT)
-    ? treasuryWithdrawalDestination
-    : findAssociatedTokenAccountPda(
-        treasuryMint,
-        treasuryWithdrawalDestination
-      );
+  let treasuryWithdrawalDestinationOwner: PublicKey;
+  let treasuryWithdrawalDestination: PublicKey;
+  if (treasuryMint.equals(WRAPPED_SOL_MINT)) {
+    treasuryWithdrawalDestinationOwner =
+      params.treasuryWithdrawalDestinationOwner ??
+      auctionHouse.treasuryWithdrawalDestination;
+    treasuryWithdrawalDestination = treasuryWithdrawalDestinationOwner;
+  } else if (params.treasuryWithdrawalDestinationOwner) {
+    treasuryWithdrawalDestinationOwner =
+      params.treasuryWithdrawalDestinationOwner;
+    treasuryWithdrawalDestination = findAssociatedTokenAccountPda(
+      treasuryMint,
+      treasuryWithdrawalDestinationOwner
+    );
+  } else {
+    throw new TreasureDestinationOwnerRequiredError();
+  }
 
   const builder = TransactionBuilder.make()
     .setFeePayer(payer)
@@ -114,8 +122,8 @@ export const updateAuctionHouseBuilder = (
         authority: params.authority,
         newAuthority,
         feeWithdrawalDestination,
-        treasuryWithdrawalDestination: treasuryWithdrawalDestinationAta,
-        treasuryWithdrawalDestinationOwner: treasuryWithdrawalDestination,
+        treasuryWithdrawalDestination,
+        treasuryWithdrawalDestinationOwner,
         auctionHouse: auctionHouse.address,
         args: {
           sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
