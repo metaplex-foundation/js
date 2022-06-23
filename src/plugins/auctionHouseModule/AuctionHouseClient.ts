@@ -2,6 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { findAuctionHousePda } from '@/programs';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
   CreateAuctionHouseInput,
   createAuctionHouseOperation,
@@ -16,6 +17,10 @@ import {
 
 export class AuctionHouseClient {
   constructor(protected readonly metaplex: Metaplex) {}
+
+  builders() {
+    return new AuctionHouseBuildersClient(this.metaplex);
+  }
 
   async createAuctionHouse(input: CreateAuctionHouseInput): Promise<
     Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
