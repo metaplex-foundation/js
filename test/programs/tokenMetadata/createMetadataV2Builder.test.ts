@@ -3,14 +3,12 @@ import { TransactionBuilder } from '@/index';
 import {
   createCreateMetadataAccountV2InstructionWithSigners,
   createMintAndMintToAssociatedTokenBuilder,
+  findAssociatedTokenAccountPda,
   findMetadataPda,
 } from '@/programs';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
 import { Keypair } from '@solana/web3.js';
-import {
-  getAssociatedTokenAddress,
-  getMinimumBalanceForRentExemptMint,
-} from '@solana/spl-token';
+import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 
 killStuckProcess();
 
@@ -22,7 +20,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   // Given we have everything we need to create a Metadata account.
   const mx = await metaplex();
   const mint = Keypair.generate();
-  const associatedToken = await getAssociatedTokenAddress(
+  const associatedToken = findAssociatedTokenAccountPda(
     mint.publicKey,
     mx.identity().publicKey
   );

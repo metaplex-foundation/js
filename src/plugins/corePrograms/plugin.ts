@@ -1,11 +1,13 @@
 import { SystemProgram } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  cusper as tokenMetadataCusper,
-  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { cusper as tokenMetadataCusper } from '@metaplex-foundation/mpl-token-metadata';
+import { cusper as auctionHouseCusper } from '@metaplex-foundation/mpl-auction-house';
 import { Metaplex } from '@/Metaplex';
-import { TokenMetadataGpaBuilder } from '@/programs';
+import {
+  TokenMetadataGpaBuilder,
+  TokenMetadataProgram,
+  AuctionHouseProgram,
+} from '@/programs';
 import { ErrorWithLogs } from '@/types';
 
 export const corePrograms = () => ({
@@ -25,11 +27,19 @@ export const corePrograms = () => ({
     // Token Metadata Program.
     metaplex.programs().register({
       name: 'TokenMetadataProgram',
-      address: TOKEN_METADATA_PROGRAM_ID,
+      address: TokenMetadataProgram.publicKey,
       errorResolver: (error: ErrorWithLogs) =>
         tokenMetadataCusper.errorFromProgramLogs(error.logs, false),
       gpaResolver: (metaplex: Metaplex) =>
-        new TokenMetadataGpaBuilder(metaplex, TOKEN_METADATA_PROGRAM_ID),
+        new TokenMetadataGpaBuilder(metaplex, TokenMetadataProgram.publicKey),
+    });
+
+    // Auction House Program.
+    metaplex.programs().register({
+      name: 'AuctionHouseProgram',
+      address: AuctionHouseProgram.publicKey,
+      errorResolver: (error: ErrorWithLogs) =>
+        auctionHouseCusper.errorFromProgramLogs(error.logs, false),
     });
   },
 });

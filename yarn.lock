@@ -2281,6 +2281,17 @@
   resolved "https://registry.npmjs.org/@metaplex-foundation/cusper/-/cusper-0.0.2.tgz"
   integrity sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==
 
+"@metaplex-foundation/mpl-auction-house@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-auction-house/-/mpl-auction-house-2.0.0.tgz#c572cdabcdf6ac8f05cc98aa9fe1ec038ad1843c"
+  integrity sha512-MsLovXWVG5a1uPnw03/HKkkqokiZ/TLq2BrmeN79q5sqS/q/rbsVBy2ooJ3dAJeLG+Gs8+UUwpfwcAv13QD1rQ==
+  dependencies:
+    "@metaplex-foundation/beet" "^0.1.0"
+    "@metaplex-foundation/beet-solana" "^0.1.1"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@solana/web3.js" "^1.35.1"
+    bn.js "^5.2.0"
+
 "@metaplex-foundation/mpl-candy-machine@^4.2.0":
   version "4.2.0"
   resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.2.0.tgz"
