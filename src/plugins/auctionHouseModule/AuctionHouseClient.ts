@@ -71,8 +71,9 @@ export class AuctionHouseClient {
     treasuryMint: PublicKey,
     commitment?: Commitment
   ): Promise<AuctionHouse> {
-    const address = findAuctionHousePda(creator, treasuryMint);
-
-    return this.findAuctionHouseByAddress(address, commitment);
+    return this.findAuctionHouseByAddress(
+      findAuctionHousePda(creator, treasuryMint),
+      commitment
+    );
   }
 }
