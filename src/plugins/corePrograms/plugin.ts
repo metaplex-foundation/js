@@ -3,9 +3,12 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { cusper as tokenMetadataCusper } from '@metaplex-foundation/mpl-token-metadata';
 import { cusper as auctionHouseCusper } from '@metaplex-foundation/mpl-auction-house';
 import { Metaplex } from '@/Metaplex';
-import { TokenMetadataGpaBuilder, TokenMetadataProgram } from '@/programs';
+import {
+  TokenMetadataGpaBuilder,
+  TokenMetadataProgram,
+  AuctionHouseProgram,
+} from '@/programs';
 import { ErrorWithLogs } from '@/types';
-import { AuctionHouseProgram } from '@/programs/auctionHouse/AuctionHouseProgram';
 
 export const corePrograms = () => ({
   install(metaplex: Metaplex) {
