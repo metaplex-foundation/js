@@ -1,3 +1,4 @@
+import { CollectionNotFoundError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   findMasterEditionV2Pda,
@@ -49,8 +50,9 @@ export const verifyCollectionOperationHandler: OperationHandler<VerifyCollection
         confirmOptions,
       } = operation.input;
 
-      // TOODO COLLECTION ERROR
-      if (!nft.collection) throw new Error('collection not found');
+      if (!nft.collection) {
+        throw new CollectionNotFoundError(nft.mint);
+      }
 
       const collectionMint = nft.collection.key;
       const [collectionMetadata, collectionEdition] = await metaplex
@@ -66,7 +68,11 @@ export const verifyCollectionOperationHandler: OperationHandler<VerifyCollection
         parseOriginalOrPrintEditionAccount(collectionEdition);
 
       if (!collectionMetadataAccount.exists) {
-        throw new Error('collection not found');
+        throw new CollectionNotFoundError(nft.mint);
+      }
+
+      if (!collectionEditionAccount.exists) {
+        throw new CollectionNotFoundError(nft.mint);
       }
 
       const { signature } = await metaplex.rpc().sendAndConfirmTransaction(

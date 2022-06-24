@@ -31,3 +31,19 @@ export class NftNotFoundError extends NftError {
     });
   }
 }
+
+export class CollectionNotFoundError extends NftError {
+  constructor(mint: PublicKey, cause?: Error) {
+    super({
+      cause,
+      key: 'collection_not_found',
+      title: 'Collection Not Found',
+      problem:
+        'No collection could be found for the provided mint address: ' +
+        `[${mint.toBase58()}].`,
+      solution:
+        'Ensure the provided mint address has Collection' +
+        'Collection exists on the blockchain',
+    });
+  }
+}
