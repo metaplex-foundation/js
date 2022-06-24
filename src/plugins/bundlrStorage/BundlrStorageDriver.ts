@@ -1,5 +1,5 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
-import * as BundlrPackage from '@bundlr-network/client';
+import BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
@@ -192,12 +192,7 @@ export class BundlrStorageDriver implements StorageDriver {
     keypair: KeypairSigner,
     options: any
   ): NodeBundlr {
-    return new BundlrPackage.default(
-      address,
-      currency,
-      keypair.secretKey,
-      options
-    );
+    return new BundlrPackage(address, currency, keypair.secretKey, options);
   }
 
   async initWebBundlr(
@@ -234,6 +229,7 @@ export class BundlrStorageDriver implements StorageDriver {
       },
     };
 
+    /** @ts-ignore */
     const bundlr = new BundlrPackage.WebBundlr(
       address,
       currency,

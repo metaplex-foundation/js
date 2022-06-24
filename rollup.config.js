@@ -79,6 +79,8 @@ const createConfig = (build) => {
         values: {
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
           'process.env.BROWSER': JSON.stringify(browser),
+          'BundlrPackage__default["default"].WebBundlr':
+            'BundlrPackage__default["WebBundlr"]',
         },
       }),
       ...(bundle ? [json(), nodePolyfills()] : []),
