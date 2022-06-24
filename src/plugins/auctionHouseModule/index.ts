@@ -4,5 +4,6 @@ export * from './AuctionHouseClient';
 export * from './createAuctionHouse';
 export * from './errors';
 export * from './findAuctionHouseByAddress';
+export * from './pdas';
 export * from './plugin';
 export * from './updateAuctionHouse';

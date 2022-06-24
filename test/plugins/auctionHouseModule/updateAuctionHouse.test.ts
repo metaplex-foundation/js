@@ -6,7 +6,7 @@ import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
-} from '@/programs';
+} from '@/index';
 import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();

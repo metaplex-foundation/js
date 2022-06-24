@@ -9,12 +9,12 @@ import {
   Pda,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
+import { findAssociatedTokenAccountPda } from '@/programs';
 import {
-  findAssociatedTokenAccountPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
-} from '@/programs';
+} from './pdas';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from './constants';
 

@@ -1,9 +1,9 @@
 import type { Metaplex } from '@/Metaplex';
-import { findAuctionHousePda } from '@/programs';
 import { Task } from '@/utils';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
+import { findAuctionHousePda } from './pdas';
 import {
   CreateAuctionHouseInput,
   createAuctionHouseOperation,
