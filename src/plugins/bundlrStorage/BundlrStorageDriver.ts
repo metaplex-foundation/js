@@ -1,5 +1,5 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
-import BundlrPackage from '@bundlr-network/client';
+import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
@@ -31,6 +31,28 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+
+/**
+ * This method is necessary to import the Bundlr package on both ESM and CJS modules.
+ * Without this, we get a different structure on each module:
+ * - CJS: { default: [Getter], WebBundlr: [Getter] }
+ * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
+ * This method fixes this by ensure there is not double default in the imported package.
+ */
+function _removeDoubleDefault(pkg: any) {
+  if (
+    pkg &&
+    typeof pkg === 'object' &&
+    'default' in pkg &&
+    'default' in pkg.default
+  ) {
+    return pkg.default;
+  }
+
+  return pkg;
+}
+
+const BundlrPackage = _removeDoubleDefault(_BundlrPackage);
 
 export type BundlrOptions = {
   address?: string;
@@ -192,7 +214,12 @@ export class BundlrStorageDriver implements StorageDriver {
     keypair: KeypairSigner,
     options: any
   ): NodeBundlr {
-    return new BundlrPackage(address, currency, keypair.secretKey, options);
+    return new BundlrPackage.default(
+      address,
+      currency,
+      keypair.secretKey,
+      options
+    );
   }
 
   async initWebBundlr(
@@ -229,7 +256,6 @@ export class BundlrStorageDriver implements StorageDriver {
       },
     };
 
-    /** @ts-ignore */
     const bundlr = new BundlrPackage.WebBundlr(
       address,
       currency,
