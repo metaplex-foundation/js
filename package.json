@@ -46,7 +46,7 @@
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "test": "tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/assert-cjs-exports.test.cjs && node ./test/assert-esm-exports.test.mjs",
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
     "lint": "prettier -c .",
     "lint:fix": "prettier --write ."
   },
