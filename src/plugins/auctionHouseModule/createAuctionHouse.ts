@@ -1,4 +1,5 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { createCreateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import {
   useOperation,
@@ -9,7 +10,6 @@ import {
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
-  createCreateAuctionHouseInstructionWithSigners,
   findAssociatedTokenAccountPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
@@ -135,26 +135,29 @@ export const createAuctionHouseBuilder = (
       auctionHouseTreasury,
       treasuryWithdrawalDestination,
     })
-    .add(
-      createCreateAuctionHouseInstructionWithSigners({
-        treasuryMint,
-        payer,
-        authority,
-        feeWithdrawalDestination,
-        treasuryWithdrawalDestination,
-        treasuryWithdrawalDestinationOwner,
-        auctionHouse,
-        auctionHouseFeeAccount,
-        auctionHouseTreasury,
-        args: {
+    .add({
+      instruction: createCreateAuctionHouseInstruction(
+        {
+          treasuryMint,
+          payer: payer.publicKey,
+          authority,
+          feeWithdrawalDestination,
+          treasuryWithdrawalDestination,
+          treasuryWithdrawalDestinationOwner,
+          auctionHouse,
+          auctionHouseFeeAccount,
+          auctionHouseTreasury,
+        },
+        {
           bump: auctionHouse.bump,
           feePayerBump: auctionHouseFeeAccount.bump,
           treasuryBump: auctionHouseTreasury.bump,
           sellerFeeBasisPoints: params.sellerFeeBasisPoints,
           requiresSignOff,
           canChangeSalePrice,
-        },
-        instructionKey: params.instructionKey,
-      })
-    );
+        }
+      ),
+      signers: [payer],
+      key: params.instructionKey ?? 'createAuctionHouse',
+    });
 };
