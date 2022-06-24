@@ -6,4 +6,5 @@ export * from './errors';
 export * from './findAuctionHouseByAddress';
 export * from './pdas';
 export * from './plugin';
+export * from './program';
 export * from './updateAuctionHouse';

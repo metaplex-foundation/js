@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Pda } from '@/types';
-import { AuctionHouseProgram } from '@/programs';
+import { AuctionHouseProgram } from './program';
 
 export const findAuctionHousePda = (
   creator: PublicKey,
