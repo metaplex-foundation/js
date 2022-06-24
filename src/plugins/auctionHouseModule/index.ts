@@ -1,3 +1,4 @@
+export * from './accounts';
 export * from './AuctionHouse';
 export * from './AuctionHouseClient';
 export * from './createAuctionHouse';

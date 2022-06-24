@@ -1,9 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { parseAuctionHouseAccount } from '@/programs';
-import { AuctionHouse } from './AuctionHouse';
 import { AccountNotFoundError } from '@/errors';
+import { parseAuctionHouseAccount } from './accounts';
+import { AuctionHouse } from './AuctionHouse';
 
 // -----------------
 // Operation

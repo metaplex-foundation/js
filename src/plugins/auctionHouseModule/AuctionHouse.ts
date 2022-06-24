@@ -1,6 +1,6 @@
 import type { PublicKey } from '@solana/web3.js';
-import { AuctionHouseAccount } from '@/programs';
 import { Model, Pda } from '@/types';
+import { AuctionHouseAccount } from './accounts';
 import { WRAPPED_SOL_MINT } from './constants';
 
 export class AuctionHouse extends Model {
