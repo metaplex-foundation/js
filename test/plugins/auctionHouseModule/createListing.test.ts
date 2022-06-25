@@ -12,13 +12,18 @@ test.only('[auctionHouseModule] create a new listing on an Auction House', async
   const { client } = await createAuctionHouse(mx);
 
   // When we list that NFT for 6.5 SOL.
-  const output = await client
-    .list({
-      mintAccount: nft.mint,
-      price: sol(6.5),
-    })
-    .run();
+  try {
+    const output = await client
+      .list({
+        mintAccount: nft.mint,
+        price: sol(6.5),
+        printReceipt: false,
+      })
+      .run();
 
-  // TODO(loris): Then...
-  console.log(output);
+    // TODO(loris): Then...
+    console.log(output);
+  } catch (error: any) {
+    console.error(error);
+  }
 });
