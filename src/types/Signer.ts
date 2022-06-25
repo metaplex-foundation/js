@@ -26,6 +26,11 @@ export const isIdentitySigner = (signer: Signer): signer is IdentitySigner => {
   return !isKeypairSigner(signer);
 };
 
+export const toPublicKey = (input: Signer | PublicKey): PublicKey => {
+  // TODO(loris): Support more input types and remove conflicting method: "convertToPublickKey".
+  return isSigner(input) ? input.publicKey : input;
+};
+
 export interface SignerHistogram {
   all: Signer[];
   keypairs: KeypairSigner[];

@@ -16,6 +16,18 @@ export const findAuctionHousePda = (
   ]);
 };
 
+export const findAuctioneerPda = (
+  auctionHouse: PublicKey,
+  auctioneerAuthority: PublicKey,
+  programId: PublicKey = AuctionHouseProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('auctioneer', 'utf8'),
+    auctionHouse.toBuffer(),
+    auctioneerAuthority.toBuffer(),
+  ]);
+};
+
 export const findAuctionHouseProgramAsSignerPda = (
   programId: PublicKey = AuctionHouseProgram.publicKey
 ): Pda => {
@@ -65,8 +77,8 @@ export const findAuctionHouseTradeStatePda = (
   tokenAccount: PublicKey,
   treasuryMint: PublicKey,
   tokenMint: PublicKey,
-  tokenSize: BN,
   buyPrice: BN,
+  tokenSize: BN,
   programId: PublicKey = AuctionHouseProgram.publicKey
 ): Pda => {
   return Pda.find(programId, [
@@ -76,7 +88,7 @@ export const findAuctionHouseTradeStatePda = (
     tokenAccount.toBuffer(),
     treasuryMint.toBuffer(),
     tokenMint.toBuffer(),
-    tokenSize.toBuffer('le', 8),
     buyPrice.toBuffer('le', 8),
+    tokenSize.toBuffer('le', 8),
   ]);
 };
