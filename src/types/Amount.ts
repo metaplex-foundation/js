@@ -48,6 +48,21 @@ export const usd = (usd: number): Amount => {
   return amount(usd * 100, USD);
 };
 
+export const token = (
+  amount: number,
+  decimals: number = 0,
+  symbol: string = 'Token'
+): Amount => {
+  return {
+    basisPoints: toBasisPoints(amount * Math.pow(10, decimals)),
+    currency: {
+      symbol,
+      decimals,
+      namespace: 'spl-token',
+    },
+  };
+};
+
 export const toBasisPoints = (value: number | BN): BasisPoints => {
   return new BN(value) as BasisPoints;
 };
@@ -165,6 +180,10 @@ export const isNegativeAmount = (value: Amount): boolean =>
   compareAmounts(value, amount(0, value.currency)) < 0;
 
 export const formatAmount = (value: Amount): string => {
+  if (value.currency.decimals === 0) {
+    return `${value.currency.symbol} ${value.basisPoints.toString()}`;
+  }
+
   const power = new BN(10).pow(new BN(value.currency.decimals));
   const basisPoints = value.basisPoints as unknown as BN & {
     divmod: (other: BN) => { div: BN; mod: BN };
