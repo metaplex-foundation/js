@@ -2,7 +2,13 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import type { Metaplex } from '@/Metaplex';
 import type { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { useOperation, Operation, OperationHandler, Signer } from '@/types';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  Signer,
+  Amount,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { findAuctionHouseProgramAsSignerPda } from './pdas';
 import { AuctionHouse } from './AuctionHouse';
@@ -20,13 +26,13 @@ export type CreateListingOperation = Operation<
 >;
 
 export type CreateListingInput = {
-  auctionHouse: AuctionHouse;
+  auctionHouse: AuctionHouse; // TODO: Find Auctioneer when fetching AH.
   wallet: PublicKey | Signer;
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
-  buyerPrice: number | BN; // Amount?
-  tokenSize?: number | BN; // Amount? Currency-less amount? Default: 1
+  price?: Amount; // Default: lamports(0)
+  tokens?: Amount; // Default: token(1)
 
   // Options.
   confirmOptions?: ConfirmOptions;
