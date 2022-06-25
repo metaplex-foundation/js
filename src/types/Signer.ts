@@ -14,6 +14,10 @@ export type IdentitySigner = {
   signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
 };
 
+export const isSigner = (input: Signer | PublicKey): input is Signer => {
+  return 'publicKey' in input;
+};
+
 export const isKeypairSigner = (signer: Signer): signer is KeypairSigner => {
   return 'secretKey' in signer && signer.secretKey != null;
 };

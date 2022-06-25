@@ -1,7 +1,13 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { DriverNotProvidedError } from '@/errors';
-import { HasDriver, IdentitySigner, KeypairSigner, Signer } from '@/types';
+import {
+  HasDriver,
+  IdentitySigner,
+  isSigner,
+  KeypairSigner,
+  Signer,
+} from '@/types';
 import { IdentityDriver } from './IdentityDriver';
 
 export class IdentityClient
@@ -50,7 +56,7 @@ export class IdentityClient
   }
 
   equals(that: Signer | PublicKey): boolean {
-    if ('publicKey' in that) {
+    if (isSigner(that)) {
       that = that.publicKey;
     }
 
