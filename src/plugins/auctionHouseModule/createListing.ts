@@ -55,6 +55,7 @@ export type CreateListingInput = {
   price?: Amount; // Default: lamports(0)
   tokens?: Amount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
+  printReceipt?: boolean; // Default: true
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -201,17 +202,19 @@ export const createListingBuilder = (
       })
 
       // Print the Listing Receipt.
-      .add({
-        instruction: createPrintListingReceiptInstruction(
-          {
-            receipt,
-            bookkeeper: bookkeeper.publicKey,
-            instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-          },
-          { receiptBump: receipt.bump }
-        ),
-        signers: [bookkeeper],
-        key: 'printListingReceipt',
-      })
+      .when(params.printReceipt ?? true, (builder) =>
+        builder.add({
+          instruction: createPrintListingReceiptInstruction(
+            {
+              receipt,
+              bookkeeper: bookkeeper.publicKey,
+              instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+            },
+            { receiptBump: receipt.bump }
+          ),
+          signers: [bookkeeper],
+          key: 'printListingReceipt',
+        })
+      )
   );
 };
