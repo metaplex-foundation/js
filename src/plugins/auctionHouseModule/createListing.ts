@@ -1,8 +1,15 @@
-import { ConfirmOptions } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
+import type { SendAndConfirmTransactionResponse } from '../rpcModule';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  Signer,
+  Pda,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { findAuctionHouseProgramAsSignerPda } from './pdas';
 
 // -----------------
 // Operation
@@ -17,6 +24,15 @@ export type CreateListingOperation = Operation<
 >;
 
 export type CreateListingInput = {
+  auctionHouse: Pda;
+  wallet: PublicKey | Signer;
+  tokenAccount: PublicKey;
+  metadata: PublicKey;
+  authority: PublicKey | Signer;
+  auctionHouseFeeAccount: PublicKey;
+  sellerTradeState: PublicKey;
+  freeSellerTradeState: PublicKey;
+
   // Options.
   confirmOptions?: ConfirmOptions;
 };
@@ -64,5 +80,8 @@ export const createListingBuilder = (
   metaplex: Metaplex,
   params: CreateListingBuilderParams
 ): TransactionBuilder => {
+  // PDAs.
+  const auctionHouseProgramAsSigner = findAuctionHouseProgramAsSignerPda();
+
   return TransactionBuilder.make();
 };
