@@ -92,3 +92,35 @@ export const findAuctionHouseTradeStatePda = (
     tokenSize.toBuffer('le', 8),
   ]);
 };
+
+export const findListingReceiptPda = (
+  tradeState: PublicKey,
+  programId: PublicKey = AuctionHouseProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('listing_receipt', 'utf8'),
+    tradeState.toBuffer(),
+  ]);
+};
+
+export const findBidReceiptPda = (
+  tradeState: PublicKey,
+  programId: PublicKey = AuctionHouseProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('bid_receipt', 'utf8'),
+    tradeState.toBuffer(),
+  ]);
+};
+
+export const findPurchaseReceiptPda = (
+  sellerTradeState: PublicKey,
+  buyerTradeState: PublicKey,
+  programId: PublicKey = AuctionHouseProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('purchase_receipt', 'utf8'),
+    sellerTradeState.toBuffer(),
+    buyerTradeState.toBuffer(),
+  ]);
+};

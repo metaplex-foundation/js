@@ -1,4 +1,13 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import {
+  ConfirmOptions,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from '@solana/web3.js';
+import {
+  createAuctioneerSellInstruction,
+  createPrintListingReceiptInstruction,
+  createSellInstruction,
+} from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import type { SendAndConfirmTransactionResponse } from '../rpcModule';
 import {
@@ -18,13 +27,11 @@ import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
   findAuctionHouseTradeStatePda,
+  findListingReceiptPda,
 } from './pdas';
 import { AuctionHouse } from './AuctionHouse';
 import { findAssociatedTokenAccountPda, findMetadataPda } from '@/programs';
-import {
-  createAuctioneerSellInstruction,
-  createSellInstruction,
-} from '@metaplex-foundation/mpl-auction-house';
+import { AUCTIONEER_PRICE } from './constants';
 
 // -----------------
 // Operation
@@ -47,6 +54,7 @@ export type CreateListingInput = {
   tokenAccount?: PublicKey; // Default: ATA
   price?: Amount; // Default: lamports(0)
   tokens?: Amount; // Default: token(1)
+  bookkeeper?: Signer; // Default: identity
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -102,8 +110,10 @@ export const createListingBuilder = (
   params: CreateListingBuilderParams
 ): TransactionBuilder => {
   // Data.
-  const price = params.price ?? lamports(0);
   const tokens = params.tokens ?? token(1);
+  const price = params.auctioneerAuthority
+    ? lamports(AUCTIONEER_PRICE)
+    : params.price ?? lamports(0);
 
   // Accounts.
   const auctionHouse = params.auctionHouse;
@@ -175,13 +185,33 @@ export const createListingBuilder = (
     (input): input is Signer => !!input && isSigner(input)
   );
 
-  return TransactionBuilder.make<CreateListingBuilderContext>()
-    .setContext({ sellerTradeState, freeSellerTradeState, tokenAccount })
-    .add({
-      instruction: sellInstruction,
-      signers: sellSigners,
-      key: 'sell',
-    });
+  // Receipt.
+  const bookkeeper: Signer = params.bookkeeper ?? metaplex.identity();
+  const receipt = findListingReceiptPda(sellerTradeState);
 
-  // TODO(loris): Add receipt instruction.
+  return (
+    TransactionBuilder.make<CreateListingBuilderContext>()
+      .setContext({ sellerTradeState, freeSellerTradeState, tokenAccount })
+
+      // Create Listing.
+      .add({
+        instruction: sellInstruction,
+        signers: sellSigners,
+        key: 'sell',
+      })
+
+      // Print the Listing Receipt.
+      .add({
+        instruction: createPrintListingReceiptInstruction(
+          {
+            receipt,
+            bookkeeper: bookkeeper.publicKey,
+            instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+          },
+          { receiptBump: receipt.bump }
+        ),
+        signers: [bookkeeper],
+        key: 'printListingReceipt',
+      })
+  );
 };
