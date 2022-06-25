@@ -8,7 +8,7 @@ import {
   UpdateAuctionHouseBuilderParams,
 } from './updateAuctionHouse';
 
-export class AuctionHouseBuildersClient {
+export class AuctionsBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {

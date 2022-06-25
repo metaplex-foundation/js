@@ -1,7 +1,7 @@
 import { cusper } from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
-import { AuctionHouseClient } from './AuctionHouseClient';
+import { AuctionsClient } from './AuctionsClient';
 import { AuctionHouseProgram } from './program';
 import {
   createAuctionHouseOperation,
@@ -41,13 +41,13 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     );
 
     metaplex.auctions = function () {
-      return new AuctionHouseClient(this);
+      return new AuctionsClient(this);
     };
   },
 });
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    auctions(): AuctionHouseClient;
+    auctions(): AuctionsClient;
   }
 }

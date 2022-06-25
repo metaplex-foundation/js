@@ -1,6 +1,6 @@
 export * from './accounts';
 export * from './AuctionHouse';
-export * from './AuctionHouseClient';
+export * from './AuctionsClient';
 export * from './createAuctionHouse';
 export * from './errors';
 export * from './findAuctionHouseByAddress';
