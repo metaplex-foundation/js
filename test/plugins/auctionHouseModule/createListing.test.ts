@@ -1,5 +1,6 @@
+import { ListingReceipt } from '@metaplex-foundation/mpl-auction-house';
 import test, { Test } from 'tape';
-import { sol } from '@/types';
+import { parseAccount, sol } from '@/types';
 import { metaplex, killStuckProcess, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 
@@ -12,18 +13,16 @@ test.only('[auctionHouseModule] create a new listing on an Auction House', async
   const { client } = await createAuctionHouse(mx);
 
   // When we list that NFT for 6.5 SOL.
-  try {
-    const output = await client
-      .list({
-        mintAccount: nft.mint,
-        price: sol(6.5),
-        printReceipt: false,
-      })
-      .run();
+  const output = await client
+    .list({
+      mintAccount: nft.mint,
+      price: sol(6.5),
+    })
+    .run();
 
-    // TODO(loris): Then...
-    console.log(output);
-  } catch (error: any) {
-    console.error(error);
-  }
+  const foo = await mx.rpc().getAccount(output.receipt);
+  const parsedFoo = parseAccount(foo, ListingReceipt);
+  console.log(parsedFoo);
+
+  // TODO(loris): Then...
 });

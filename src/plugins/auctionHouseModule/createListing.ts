@@ -63,6 +63,10 @@ export type CreateListingInput = {
 
 export type CreateListingOutput = {
   response: SendAndConfirmTransactionResponse;
+  receipt: Pda;
+  sellerTradeState: Pda;
+  freeSellerTradeState: Pda;
+  tokenAccount: PublicKey;
 };
 
 // -----------------
@@ -100,16 +104,12 @@ export type CreateListingBuilderParams = Omit<
   instructionKey?: string;
 };
 
-export type CreateListingBuilderContext = {
-  sellerTradeState: Pda;
-  freeSellerTradeState: Pda;
-  tokenAccount: PublicKey;
-};
+export type CreateListingBuilderContext = Omit<CreateListingOutput, 'response'>;
 
 export const createListingBuilder = (
   metaplex: Metaplex,
   params: CreateListingBuilderParams
-): TransactionBuilder => {
+): TransactionBuilder<CreateListingBuilderContext> => {
   // Data.
   const tokens = params.tokens ?? token(1);
   const price = params.auctioneerAuthority
@@ -192,7 +192,12 @@ export const createListingBuilder = (
 
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
-      .setContext({ sellerTradeState, freeSellerTradeState, tokenAccount })
+      .setContext({
+        receipt,
+        sellerTradeState,
+        freeSellerTradeState,
+        tokenAccount,
+      })
 
       // Create Listing.
       .add({
