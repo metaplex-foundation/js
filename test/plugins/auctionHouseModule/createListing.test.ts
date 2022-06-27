@@ -1,8 +1,8 @@
-import { ListingReceipt } from '@metaplex-foundation/mpl-auction-house';
 import test, { Test } from 'tape';
-import { parseAccount, sol } from '@/types';
+import { sol } from '@/types';
 import { metaplex, killStuckProcess, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { parseListingReceiptAccount } from '@/plugins';
 
 killStuckProcess();
 
@@ -20,9 +20,11 @@ test.only('[auctionHouseModule] create a new listing on an Auction House', async
     })
     .run();
 
-  const foo = await mx.rpc().getAccount(output.receipt);
-  const parsedFoo = parseAccount(foo, ListingReceipt);
-  console.log(parsedFoo);
+  // TODO(loris): implement ListingReceipt model. Type?
+  // TODO(loris): implement findListingReceiptByAddress(...).
+  const receipt = await mx.rpc().getAccount(output.receipt);
+  const parsedReceipt = parseListingReceiptAccount(receipt);
+  console.log(parsedReceipt);
 
   // TODO(loris): Then...
 });

@@ -49,10 +49,12 @@ export const usd = (usd: number): Amount => {
 };
 
 export const token = (
-  amount: number,
+  amount: number | BN,
   decimals: number = 0,
   symbol: string = 'Token'
 ): Amount => {
+  amount = new BN(amount).toNumber();
+
   return {
     basisPoints: toBasisPoints(amount * Math.pow(10, decimals)),
     currency: {
