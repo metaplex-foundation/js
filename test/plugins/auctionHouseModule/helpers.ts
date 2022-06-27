@@ -1,5 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { CreateAuctionHouseInput } from '@/plugins';
+import { sol } from '@/types';
 
 export const createAuctionHouse = async (
   mx: Metaplex,
@@ -12,6 +13,8 @@ export const createAuctionHouse = async (
       ...input,
     })
     .run();
+
+  await mx.rpc().airdrop(auctionHouse.feeAccount, sol(100));
 
   return {
     auctionHouse,
