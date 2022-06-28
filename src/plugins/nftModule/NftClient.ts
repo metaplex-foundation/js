@@ -83,6 +83,12 @@ export class NftClient {
     return { ...updateNftOutput, nft: updatedNft };
   }
 
+  async use(nft: Nft, uses?: number): Promise<{ nft: Nft }> {
+    console.log('using nft', nft.mint.toString());
+    nft.uses;
+    return { nft };
+  }
+
   async printNewEdition(
     originalMint: PublicKey,
     input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
