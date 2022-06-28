@@ -8,8 +8,7 @@ import {
 } from './Metadata';
 import { makeMintModel, Mint, toMintAccount } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
-import { DisposableScope, removeEmptyChars } from '@/utils';
-import { JsonMetadata } from './JsonMetadata';
+import { DisposableScope } from '@/utils';
 
 const Key = 'FindMintWithMetadataByAddressOperation' as const;
 export const findMintWithMetadataByAddressOperation =
@@ -51,12 +50,7 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
         return makeMintModel(mintAccount);
       }
 
-      const uri = removeEmptyChars(metadataAccount.data.data.uri);
-      const json = loadJsonMetadata
-        ? await metaplex.storage().downloadJson<JsonMetadata>(uri)
-        : undefined;
-
-      let metadataModel = makeMetadataModel(metadataAccount, json);
+      let metadataModel = makeMetadataModel(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
