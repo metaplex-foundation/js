@@ -18,7 +18,7 @@ export type FindMintByAddressInput = {
   commitment?: Commitment;
 };
 
-export const findMintByAddressOnChainOperationHandler: OperationHandler<FindMintByAddressOperation> =
+export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddressOperation> =
   {
     handle: async (
       operation: FindMintByAddressOperation,

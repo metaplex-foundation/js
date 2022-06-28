@@ -77,8 +77,7 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
       const tokenModel = makeTokenWithMetadataModel(
         tokenAccount,
         mintModel,
-        metadataModel,
-        tokenAddress
+        metadataModel
       );
 
       return {

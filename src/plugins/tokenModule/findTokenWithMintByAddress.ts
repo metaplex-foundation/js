@@ -19,7 +19,7 @@ export type FindTokenWithMintByAddressInput = {
   commitment?: Commitment;
 };
 
-export const findTokenWithMintByAddressOnChainOperationHandler: OperationHandler<FindTokenWithMintByAddressOperation> =
+export const findTokenWithMintByAddressOperationHandler: OperationHandler<FindTokenWithMintByAddressOperation> =
   {
     handle: async (
       operation: FindTokenWithMintByAddressOperation,

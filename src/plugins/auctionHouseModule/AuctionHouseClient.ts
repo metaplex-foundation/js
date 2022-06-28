@@ -21,18 +21,18 @@ export class AuctionHouseClient {
   ) {}
 
   list(input: WithoutAH<CreateListingInput>): Task<CreateListingOutput> {
-    const operation = createListingOperation(this.addAH(input));
-
-    return this.metaplex.operations().getTask(operation);
+    return this.metaplex
+      .operations()
+      .getTask(createListingOperation(this.addAH(input)));
   }
 
   loadListing(
     lazyListing: LazyListing,
     commitment?: Commitment
   ): Task<Listing> {
-    const operation = loadListingOperation({ lazyListing, commitment });
-
-    return this.metaplex.operations().getTask(operation);
+    return this.metaplex
+      .operations()
+      .getTask(loadListingOperation({ lazyListing, commitment }));
   }
 
   protected addAH<T>(input: WithoutAH<T>): T {
