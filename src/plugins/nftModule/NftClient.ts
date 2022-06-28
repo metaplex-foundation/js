@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Nft } from './Nft';
 import { findNftByMintOperation } from './findNftByMint';
@@ -29,6 +29,11 @@ import {
 } from './printNewEdition';
 import { Option, removeEmptyChars, Task } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
+import { findMintWithMetadataByAddressOperation } from './findMintWithMetadataByAddress';
+import { findMintWithMetadataByMetadataOperation } from './findMintWithMetadataByMetadata';
+import { findTokenWithMetadataByAddressOperation } from './findTokenWithMetadataByAddress';
+import { findTokenWithMetadataByMetadataOperation } from './findTokenWithMetadataByMetadata';
+import { findTokenWithMetadataByMintOperation } from './findTokenWithMetadataByMint';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -60,6 +65,85 @@ export class NftClient {
     return this.metaplex
       .operations()
       .execute(findNftsByCandyMachineOperation({ candyMachine, version }));
+  }
+
+  findMintWithMetadataByAddress(
+    address: PublicKey,
+    options: {
+      loadJsonMetadata?: boolean;
+      commitment?: Commitment;
+    } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findMintWithMetadataByAddressOperation({
+        address,
+        ...options,
+      })
+    );
+  }
+
+  findMintWithMetadataByMetadata(
+    metadataAddress: PublicKey,
+    options: {
+      loadJsonMetadata?: boolean;
+      commitment?: Commitment;
+    } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findMintWithMetadataByMetadataOperation({
+        metadataAddress,
+        ...options,
+      })
+    );
+  }
+
+  findTokenWithMetadataByAddress(
+    address: PublicKey,
+    options: {
+      loadJsonMetadata?: boolean;
+      commitment?: Commitment;
+    } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findTokenWithMetadataByAddressOperation({
+        address,
+        ...options,
+      })
+    );
+  }
+
+  findTokenWithMetadataByMetadata(
+    metadataAddress: PublicKey,
+    ownerAddress: PublicKey,
+    options: {
+      loadJsonMetadata?: boolean;
+      commitment?: Commitment;
+    } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findTokenWithMetadataByMetadataOperation({
+        metadataAddress,
+        ownerAddress,
+        ...options,
+      })
+    );
+  }
+
+  findTokenWithMetadataByMint(
+    mintAddress: PublicKey,
+    ownerAddress: PublicKey,
+    options: {
+      loadJsonMetadata?: boolean;
+      commitment?: Commitment;
+    } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findTokenWithMetadataByMintOperation({
+        mintAddress,
+        ownerAddress,
+        ...options,
+      })
+    );
   }
 
   uploadMetadata(input: UploadMetadataInput): Promise<UploadMetadataOutput> {
