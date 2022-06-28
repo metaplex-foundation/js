@@ -6,7 +6,7 @@ import { TokenWithMetadata } from './modelsToRefactor';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
-export type Listing = {
+export type Listing = Readonly<{
   model: 'listing';
   lazy: false;
 
@@ -26,7 +26,7 @@ export type Listing = {
   tokens: Amount;
   createdAt: BN;
   canceledAt: Option<BN>;
-};
+}>;
 
 export const isListingModel = (value: any): value is Listing =>
   typeof value === 'object' && value.model === 'listing' && !value.lazy;
@@ -49,15 +49,13 @@ export const makeListingModel = (
   };
 };
 
-export type LazyListing = Omit<
-  Listing,
-  'model' | 'lazy' | 'token' | 'tokens'
-> & {
-  model: 'listing';
-  lazy: true;
-  metadataAddress: PublicKey;
-  tokens: BN;
-};
+export type LazyListing = Omit<Listing, 'model' | 'lazy' | 'token' | 'tokens'> &
+  Readonly<{
+    model: 'listing';
+    lazy: true;
+    metadataAddress: PublicKey;
+    tokens: BN;
+  }>;
 
 export const isLazyListingModel = (value: any): value is LazyListing =>
   typeof value === 'object' && value.model === 'listing' && value.lazy;

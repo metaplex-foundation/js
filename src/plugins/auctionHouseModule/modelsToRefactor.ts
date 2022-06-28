@@ -90,12 +90,11 @@ export const makeTokenModel = (
   delegateAmount: new BN(account.data.delegatedAmount.toString()),
 });
 
-export type TokenWithMint = Readonly<
-  Omit<Token, 'model' | 'mintAddress'> & {
+export type TokenWithMint = Omit<Token, 'model' | 'mintAddress'> &
+  Readonly<{
     model: 'tokenWithMint';
     mint: Mint;
-  }
->;
+  }>;
 
 export const isTokenWithMintModel = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
@@ -118,12 +117,11 @@ export const makeTokenWithMintModel = (
   };
 };
 
-export type TokenWithMetadata = Readonly<
-  Omit<TokenWithMint, 'model'> & {
+export type TokenWithMetadata = Omit<TokenWithMint, 'model'> &
+  Readonly<{
     model: 'tokenWithMetadata';
     metadata: Metadata;
-  }
->;
+  }>;
 
 export const isTokenWithMetadataModel = (
   value: any
@@ -192,12 +190,11 @@ export const makeMintModel = (account: MintAccount): Mint => {
   };
 };
 
-export type MintWithMetadata = Readonly<
-  Omit<Mint, 'model'> & {
+export type MintWithMetadata = Omit<Mint, 'model'> &
+  Readonly<{
     model: 'mintWithMetadata';
     metadata: Metadata;
-  }
->;
+  }>;
 
 export const isMintWithMetadataModel = (
   value: any

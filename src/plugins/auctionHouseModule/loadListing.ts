@@ -1,8 +1,26 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { AuctionHouse } from './AuctionHouse';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  assertAccountExists,
+  amount,
+} from '@/types';
 import { LazyListing, Listing } from './Listing';
+import {
+  findAssociatedTokenAccountPda,
+  parseMetadataAccount,
+} from '@/programs';
+import {
+  makeMetadataModel,
+  makeMintModel,
+  makeTokenWithMetadataModel,
+  parseMintAccount,
+  parseTokenAccount,
+} from './modelsToRefactor';
+import { JsonMetadata } from '../nftModule';
+import { Option } from '@/utils';
 
 // -----------------
 // Operation
@@ -17,8 +35,8 @@ export type LoadListingOperation = Operation<
 >;
 
 export type LoadListingInput = {
-  auctionHouse: AuctionHouse;
   lazyListing: LazyListing;
+  loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
 };
 
@@ -29,10 +47,55 @@ export type LoadListingInput = {
 export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
   {
     handle: async (operation: LoadListingOperation, metaplex: Metaplex) => {
-      // const { auctionHouse, lazyListing, commitment } = operation.input;
+      // TODO(loris): This should be repurposed in a generic Token module.
+      const {
+        lazyListing,
+        loadJsonMetadata = true,
+        commitment,
+      } = operation.input;
 
-      // const [] = await metaplex.rpc().getMultipleAccounts([], commitment);
+      // Metadata.
+      const unparsedMetadataAccount = await metaplex
+        .rpc()
+        .getAccount(lazyListing.metadataAddress, commitment);
+      const metadataAccount = parseMetadataAccount(unparsedMetadataAccount);
+      assertAccountExists(metadataAccount, 'Metadata');
 
-      return {} as Listing;
+      let json: Option<JsonMetadata> | undefined = undefined;
+      if (loadJsonMetadata) {
+        json = null; // TODO: Fetch Json.
+      }
+
+      const metadataModel = makeMetadataModel(metadataAccount, json);
+
+      // Mint and token.
+      const mintAddress = metadataModel.mintAddress;
+      const tokenAddress = findAssociatedTokenAccountPda(
+        mintAddress,
+        lazyListing.sellerAddress
+      );
+      const unparsedAccounts = await metaplex
+        .rpc()
+        .getMultipleAccounts([mintAddress, tokenAddress], commitment);
+      const mintAccount = parseMintAccount(unparsedAccounts[0]);
+      assertAccountExists(mintAccount, 'Mint');
+      const tokenAccount = parseTokenAccount(unparsedAccounts[0]);
+      assertAccountExists(tokenAccount, 'Token');
+      const mintModel = makeMintModel(mintAccount);
+
+      const tokenModel = makeTokenWithMetadataModel(
+        tokenAccount,
+        mintModel,
+        metadataModel,
+        tokenAddress
+      );
+
+      return {
+        ...lazyListing,
+        model: 'listing',
+        lazy: false,
+        token: tokenModel,
+        tokens: amount(lazyListing.tokens, tokenModel.mint.currency),
+      };
     },
   };
