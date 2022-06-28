@@ -1,13 +1,13 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
+import { Keypair } from '@solana/web3.js';
+import { WRAPPED_SOL_MINT } from '@/plugins/auctionHouseModule/modelsToRefactor';
 import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
-import { WRAPPED_SOL_MINT } from '@/plugins/auctionHouseModule/constants';
 import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from '@/index';
-import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
@@ -27,18 +27,21 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   const expectedAddress = findAuctionHousePda(expectedCreator, expectedMint);
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
-    creator: spokSamePubkey(expectedCreator),
-    authority: spokSamePubkey(expectedCreator),
-    treasuryMint: spokSamePubkey(expectedMint),
-    feeAccount: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
-    treasuryAccount: spokSamePubkey(
+    creatorAddress: spokSamePubkey(expectedCreator),
+    authorityAddress: spokSamePubkey(expectedCreator),
+    treasuryMint: {
+      address: spokSamePubkey(expectedMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    treasuryAccountAddress: spokSamePubkey(
       findAuctionHouseTreasuryPda(expectedAddress)
     ),
-    feeWithdrawalDestination: spokSamePubkey(expectedCreator),
-    treasuryWithdrawalDestination: spokSamePubkey(expectedCreator),
+    feeWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
     sellerFeeBasisPoints: 200,
     requiresSignOff: false,
     canChangeSalePrice: false,
+    isNative: true,
   };
 
   spok(t, auctionHouse, { $topic: 'AuctionHouse', ...expectedAuctionHouse });
@@ -86,22 +89,25 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   );
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
-    creator: spokSamePubkey(authority.publicKey),
-    authority: spokSamePubkey(authority.publicKey),
-    treasuryMint: spokSamePubkey(treasuryMint),
-    feeAccount: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
-    treasuryAccount: spokSamePubkey(
+    creatorAddress: spokSamePubkey(authority.publicKey),
+    authorityAddress: spokSamePubkey(authority.publicKey),
+    treasuryMint: {
+      address: spokSamePubkey(treasuryMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    treasuryAccountAddress: spokSamePubkey(
       findAuctionHouseTreasuryPda(expectedAddress)
     ),
-    feeWithdrawalDestination: spokSamePubkey(
+    feeWithdrawalDestinationAddress: spokSamePubkey(
       feeWithdrawalDestination.publicKey
     ),
-    treasuryWithdrawalDestination: spokSamePubkey(
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(
       treasuryWithdrawalDestinationOwner.publicKey
     ),
     sellerFeeBasisPoints: 200,
     requiresSignOff: true,
     canChangeSalePrice: true,
+    isNative: true,
   };
 
   spok(t, auctionHouse, { $topic: 'AuctionHouse', ...expectedAuctionHouse });

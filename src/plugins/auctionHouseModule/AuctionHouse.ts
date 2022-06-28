@@ -12,8 +12,8 @@ export type AuctionHouse = Readonly<{
   treasuryMint: Mint | MintWithMetadata;
   feeAccountAddress: Pda;
   treasuryAccountAddress: Pda;
-  feeWithdrawalAddress: PublicKey;
-  treasuryWithdrawalAddress: PublicKey;
+  feeWithdrawalDestinationAddress: PublicKey;
+  treasuryWithdrawalDestinationAddress: PublicKey;
   sellerFeeBasisPoints: number;
   requiresSignOff: boolean;
   canChangeSalePrice: boolean;
@@ -48,8 +48,9 @@ export const makeAuctionHouseModel = (
     auctionHouseAccount.data.auctionHouseTreasury,
     auctionHouseAccount.data.treasuryBump
   ),
-  feeWithdrawalAddress: auctionHouseAccount.data.feeWithdrawalDestination,
-  treasuryWithdrawalAddress:
+  feeWithdrawalDestinationAddress:
+    auctionHouseAccount.data.feeWithdrawalDestination,
+  treasuryWithdrawalDestinationAddress:
     auctionHouseAccount.data.treasuryWithdrawalDestination,
   sellerFeeBasisPoints: auctionHouseAccount.data.sellerFeeBasisPoints,
   requiresSignOff: auctionHouseAccount.data.requiresSignOff,

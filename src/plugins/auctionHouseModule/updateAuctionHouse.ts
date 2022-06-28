@@ -86,17 +86,18 @@ export const updateAuctionHouseBuilder = (
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
-  const newAuthority = params.newAuthority ?? auctionHouse.authority;
-  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint;
+  const newAuthority = params.newAuthority ?? auctionHouse.authorityAddress;
+  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint.address;
   const feeWithdrawalDestination =
-    params.feeWithdrawalDestination ?? auctionHouse.feeWithdrawalDestination;
+    params.feeWithdrawalDestination ??
+    auctionHouse.feeWithdrawalDestinationAddress;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;
-  if (auctionHouse.usesSol()) {
+  if (auctionHouse.isNative) {
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner ??
-      auctionHouse.treasuryWithdrawalDestination;
+      auctionHouse.treasuryWithdrawalDestinationAddress;
     treasuryWithdrawalDestination = treasuryWithdrawalDestinationOwner;
   } else if (params.treasuryWithdrawalDestinationOwner) {
     treasuryWithdrawalDestinationOwner =

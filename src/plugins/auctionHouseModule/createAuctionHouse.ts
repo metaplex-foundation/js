@@ -16,7 +16,7 @@ import {
   findAuctionHouseTreasuryPda,
 } from './pdas';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { WRAPPED_SOL_MINT } from './constants';
+import { WRAPPED_SOL_MINT } from './modelsToRefactor';
 
 // -----------------
 // Operation

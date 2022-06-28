@@ -11,9 +11,9 @@ export type Account<T> = Readonly<{
   rentEpoch?: number;
 }>;
 
-export type MaybeAccount<T> =
-  | (Account<T> & { exists: true })
-  | { publicKey: PublicKey; exists: false };
+export type MaybeAccount<T> = Readonly<
+  (Account<T> & { exists: true }) | { publicKey: PublicKey; exists: false }
+>;
 
 export type UnparsedAccount = Account<Buffer>;
 export type UnparsedMaybeAccount = MaybeAccount<Buffer>;

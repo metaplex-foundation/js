@@ -55,7 +55,7 @@ export const parseMintAccount = getAccountParsingFunction({
 // Models
 // -----------------
 
-export type Token = {
+export type Token = Readonly<{
   model: 'token';
   address: PublicKey | Pda;
   isAssociatedToken: boolean;
@@ -65,7 +65,7 @@ export type Token = {
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
   delegateAmount: BN; // TODO(loris): Replace with Amount on TokenWithX?
-};
+}>;
 
 export const isTokenModel = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
@@ -90,10 +90,12 @@ export const makeTokenModel = (
   delegateAmount: new BN(account.data.delegatedAmount.toString()),
 });
 
-export type TokenWithMint = Omit<Token, 'model' | 'mintAddress'> & {
-  model: 'tokenWithMint';
-  mint: Mint;
-};
+export type TokenWithMint = Readonly<
+  Omit<Token, 'model' | 'mintAddress'> & {
+    model: 'tokenWithMint';
+    mint: Mint;
+  }
+>;
 
 export const isTokenWithMintModel = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
@@ -116,10 +118,12 @@ export const makeTokenWithMintModel = (
   };
 };
 
-export type TokenWithMetadata = Omit<TokenWithMint, 'model'> & {
-  model: 'tokenWithMetadata';
-  metadata: Metadata;
-};
+export type TokenWithMetadata = Readonly<
+  Omit<TokenWithMint, 'model'> & {
+    model: 'tokenWithMetadata';
+    metadata: Metadata;
+  }
+>;
 
 export const isTokenWithMetadataModel = (
   value: any
@@ -146,7 +150,7 @@ export const makeTokenWithMetadataModel = (
   };
 };
 
-export type Mint = {
+export type Mint = Readonly<{
   model: 'mint';
   address: PublicKey;
   mintAuthorityAddress: Option<PublicKey>;
@@ -155,7 +159,7 @@ export type Mint = {
   supply: BN; // TODO(loris): Replace with Amount?
   isWrappedSol: boolean;
   currency: Currency;
-};
+}>;
 
 export const isMintModel = (value: any): value is Mint =>
   typeof value === 'object' && value.model === 'mint';
@@ -188,10 +192,12 @@ export const makeMintModel = (account: MintAccount): Mint => {
   };
 };
 
-export type MintWithMetadata = Omit<Mint, 'model'> & {
-  model: 'mintWithMetadata';
-  metadata: Metadata;
-};
+export type MintWithMetadata = Readonly<
+  Omit<Mint, 'model'> & {
+    model: 'mintWithMetadata';
+    metadata: Metadata;
+  }
+>;
 
 export const isMintWithMetadataModel = (
   value: any
@@ -219,7 +225,7 @@ export const makeMintWithMetadataModel = (
   };
 };
 
-export type Metadata = {
+export type Metadata = Readonly<{
   model: 'metadata';
   address: Pda;
   mintAddress: PublicKey;
@@ -237,7 +243,7 @@ export type Metadata = {
   tokenStandard: Option<TokenStandard>;
   collection: Option<Collection>;
   uses: Option<Uses>;
-};
+}>;
 
 export const isMetadataModel = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';

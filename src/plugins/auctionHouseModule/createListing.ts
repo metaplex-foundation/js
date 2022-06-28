@@ -119,7 +119,7 @@ export const createListingBuilder = (
   // Accounts.
   const auctionHouse = params.auctionHouse;
   const wallet = params.wallet ?? (metaplex.identity() as Signer);
-  const authority = params.authority ?? auctionHouse.authority;
+  const authority = params.authority ?? auctionHouse.authorityAddress;
   const tokenAccount =
     params.tokenAccount ??
     findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(wallet));
@@ -127,7 +127,7 @@ export const createListingBuilder = (
     auctionHouse.address,
     toPublicKey(wallet),
     tokenAccount,
-    auctionHouse.treasuryMint,
+    auctionHouse.treasuryMint.address,
     params.mintAccount,
     price.basisPoints,
     tokens.basisPoints
@@ -136,7 +136,7 @@ export const createListingBuilder = (
     auctionHouse.address,
     toPublicKey(wallet),
     tokenAccount,
-    auctionHouse.treasuryMint,
+    auctionHouse.treasuryMint.address,
     params.mintAccount,
     lamports(0).basisPoints,
     tokens.basisPoints
@@ -148,7 +148,7 @@ export const createListingBuilder = (
     metadata: findMetadataPda(params.mintAccount),
     authority: toPublicKey(authority),
     auctionHouse: auctionHouse.address,
-    auctionHouseFeeAccount: auctionHouse.feeAccount,
+    auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
     sellerTradeState,
     freeSellerTradeState,
     programAsSigner,
