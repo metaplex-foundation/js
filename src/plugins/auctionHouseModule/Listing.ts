@@ -4,7 +4,59 @@ import { Amount, Pda } from '@/types';
 import { ListingReceiptAccount } from './accounts';
 import { MetadataAccount } from '@/programs';
 
-export type Listing = {
+export type IdealListing = {
+  // Addresses.
+  tradeStateAddress: Pda;
+  bookkeeperAddress: PublicKey;
+  auctionHouseAddress: PublicKey;
+  sellerAddress: PublicKey;
+  metadataAddress: PublicKey;
+
+  // Optional receipts.
+  receiptAddress: Pda | null;
+  purchaseReceiptAddress: PublicKey | null;
+
+  // Stuff.
+  mint: {
+    address: PublicKey;
+    mintAuthorityAddress: PublicKey | null;
+    freezeAuthorityAddress: PublicKey | null;
+    decimals: number;
+    // ...
+  };
+
+  token: {
+    address: PublicKey;
+    amount: BN;
+    // ...
+  };
+
+  metadata: {
+    address: PublicKey;
+    json: any;
+    name: string;
+    uri: string;
+    // ...
+  };
+
+  treasuryMint: {
+    address: PublicKey;
+    // ...
+  };
+
+  treasuryMetadata: null | {
+    address: PublicKey;
+    // ...
+  };
+
+  // Data.
+  price: Amount;
+  tokens: Amount;
+  createdAt: BN;
+  canceledAt: BN | null;
+};
+
+export type LazyListing = {
   // Addresses.
   tradeStateAddress: Pda;
   bookkeeperAddress: PublicKey;
@@ -23,16 +75,19 @@ export type Listing = {
   canceledAt: BN | null;
 };
 
-export type LoadedListing = Omit<Listing, 'price' | 'token'> & {
+export type Listing = Omit<LazyListing, 'price' | 'token'> & {
+  mintAccount: any; // MintAccount.
   metadataAccount: MetadataAccount;
-  treasuryMintAccount: any; // MintAccount.
+  tokenAccount: any; // TokenAccount.
+  treasuryMintAccount: any | null; // MintAccount.
+  treasuryMetadataAccount: MetadataAccount | null;
   price: Amount; // TODO: Get currency + decimals from auction house > treasuryMint > data + metadata(symbol).
   tokens: Amount; // TODO: Get decimals from metadata > mint > decimals.
 };
 
-export const createListingFromReceiptAccount = (
+export const createLazyListingFromReceiptAccount = (
   account: ListingReceiptAccount
-): Listing => {
+): LazyListing => {
   return {
     tradeStateAddress: new Pda(
       account.data.tradeState,
