@@ -1,4 +1,3 @@
-import { AbortSignal } from 'abort-controller';
 import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
 import { HasDriver, Amount } from '@/types';
 import {
@@ -7,7 +6,7 @@ import {
   useMetaplexFile,
   useMetaplexFileFromJson,
 } from './MetaplexFile';
-import { StorageDriver } from './StorageDriver';
+import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
 
 export class StorageClient implements HasDriver<StorageDriver> {
   private _driver: StorageDriver | null = null;
@@ -54,12 +53,12 @@ export class StorageClient implements HasDriver<StorageDriver> {
 
   async download(
     uri: string,
-    options?: Omit<RequestInit, 'signal'> & { signal?: AbortSignal | null }
+    options?: StorageDownloadOptions
   ): Promise<MetaplexFile> {
     const driver = this.driver();
 
     if (driver.download) {
-      return driver.download(uri, options as RequestInit);
+      return driver.download(uri, options);
     }
 
     const response = await fetch(uri, options as RequestInit);
@@ -70,7 +69,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
 
   async downloadJson<T extends object = object>(
     uri: string,
-    options?: Omit<RequestInit, 'signal'> & { signal?: AbortSignal | null }
+    options?: StorageDownloadOptions
   ): Promise<T> {
     const file = await this.download(uri, options);
 
