@@ -2,93 +2,64 @@ import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { Amount, Pda } from '@/types';
 import { ListingReceiptAccount } from './accounts';
-import { MetadataAccount } from '@/programs';
+import { MintWithMetadata, TokenWithMetadata } from './modelsToRefactor';
+import { assert, Option } from '@/utils';
 
-export type IdealListing = {
+export type Listing = {
+  model: 'listing';
+  lazy: false;
+
   // Addresses.
   tradeStateAddress: Pda;
   bookkeeperAddress: PublicKey;
   auctionHouseAddress: PublicKey;
   sellerAddress: PublicKey;
   metadataAddress: PublicKey;
+  token: TokenWithMetadata;
+  treasuryMint: MintWithMetadata;
 
   // Optional receipts.
-  receiptAddress: Pda | null;
-  purchaseReceiptAddress: PublicKey | null;
-
-  // Stuff.
-  mint: {
-    address: PublicKey;
-    mintAuthorityAddress: PublicKey | null;
-    freezeAuthorityAddress: PublicKey | null;
-    decimals: number;
-    // ...
-  };
-
-  token: {
-    address: PublicKey;
-    amount: BN;
-    // ...
-  };
-
-  metadata: {
-    address: PublicKey;
-    json: any;
-    name: string;
-    uri: string;
-    // ...
-  };
-
-  treasuryMint: {
-    address: PublicKey;
-    // ...
-  };
-
-  treasuryMetadata: null | {
-    address: PublicKey;
-    // ...
-  };
+  receiptAddress: Option<Pda>;
+  purchaseReceiptAddress: Option<PublicKey>;
 
   // Data.
-  price: Amount;
-  tokens: Amount;
-  createdAt: BN;
-  canceledAt: BN | null;
-};
-
-export type LazyListing = {
-  // Addresses.
-  tradeStateAddress: Pda;
-  bookkeeperAddress: PublicKey;
-  auctionHouseAddress: PublicKey;
-  sellerAddress: PublicKey;
-  metadataAddress: PublicKey;
-
-  // Optional receipts.
-  receiptAddress: Pda | null;
-  purchaseReceiptAddress: PublicKey | null;
-
-  // Data.
-  price: BN;
-  tokens: BN;
-  createdAt: BN;
-  canceledAt: BN | null;
-};
-
-export type Listing = Omit<LazyListing, 'price' | 'token'> & {
-  mintAccount: any; // MintAccount.
-  metadataAccount: MetadataAccount;
-  tokenAccount: any; // TokenAccount.
-  treasuryMintAccount: any | null; // MintAccount.
-  treasuryMetadataAccount: MetadataAccount | null;
   price: Amount; // TODO: Get currency + decimals from auction house > treasuryMint > data + metadata(symbol).
   tokens: Amount; // TODO: Get decimals from metadata > mint > decimals.
+  createdAt: BN;
+  canceledAt: Option<BN>;
 };
+
+export const isListingModel = (value: any): value is Listing =>
+  typeof value === 'object' && value.model === 'listing' && !value.lazy;
+
+export const assertListingModel = (value: any): asserts value is Listing =>
+  assert(isListingModel(value), `Expected Listing type`);
+
+export type LazyListing = Omit<
+  Listing,
+  'model' | 'lazy' | 'token' | 'treasuryMint' | 'price' | 'tokens'
+> & {
+  model: 'listing';
+  lazy: true;
+  metadataAddress: PublicKey;
+  price: BN;
+  tokens: BN;
+};
+
+export const isLazyListingModel = (value: any): value is LazyListing =>
+  typeof value === 'object' && value.model === 'listing' && value.lazy;
+
+export const assertLazyListingModel = (
+  value: any
+): asserts value is LazyListing =>
+  assert(isLazyListingModel(value), `Expected LazyListing type`);
 
 export const createLazyListingFromReceiptAccount = (
   account: ListingReceiptAccount
 ): LazyListing => {
   return {
+    model: 'listing',
+    lazy: true,
     tradeStateAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump
