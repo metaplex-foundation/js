@@ -1,30 +1,29 @@
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { Amount, Pda } from '@/types';
+import { amount, Amount, Pda } from '@/types';
 import { ListingReceiptAccount } from './accounts';
-import { MintWithMetadata, TokenWithMetadata } from './modelsToRefactor';
+import { TokenWithMetadata } from './modelsToRefactor';
 import { assert, Option } from '@/utils';
+import { AuctionHouse } from './AuctionHouse';
 
 export type Listing = {
   model: 'listing';
   lazy: false;
 
+  // Models.
+  auctionHouse: AuctionHouse;
+  token: TokenWithMetadata;
+
   // Addresses.
   tradeStateAddress: Pda;
   bookkeeperAddress: PublicKey;
-  auctionHouseAddress: PublicKey;
   sellerAddress: PublicKey;
-  metadataAddress: PublicKey;
-  token: TokenWithMetadata;
-  treasuryMint: MintWithMetadata;
-
-  // Optional receipts.
   receiptAddress: Option<Pda>;
   purchaseReceiptAddress: Option<PublicKey>;
 
   // Data.
-  price: Amount; // TODO: Get currency + decimals from auction house > treasuryMint > data + metadata(symbol).
-  tokens: Amount; // TODO: Get decimals from metadata > mint > decimals.
+  price: Amount;
+  tokens: Amount;
   createdAt: BN;
   canceledAt: Option<BN>;
 };
@@ -35,14 +34,28 @@ export const isListingModel = (value: any): value is Listing =>
 export const assertListingModel = (value: any): asserts value is Listing =>
   assert(isListingModel(value), `Expected Listing type`);
 
+export const makeListingModel = (
+  account: ListingReceiptAccount,
+  auctionHouseModel: AuctionHouse,
+  tokenModel: TokenWithMetadata
+): Listing => {
+  const lazyListing = makeLazyListingModel(account, auctionHouseModel);
+  return {
+    ...lazyListing,
+    model: 'listing',
+    lazy: false,
+    token: tokenModel,
+    tokens: amount(lazyListing.tokens, tokenModel.mint.currency),
+  };
+};
+
 export type LazyListing = Omit<
   Listing,
-  'model' | 'lazy' | 'token' | 'treasuryMint' | 'price' | 'tokens'
+  'model' | 'lazy' | 'token' | 'tokens'
 > & {
   model: 'listing';
   lazy: true;
   metadataAddress: PublicKey;
-  price: BN;
   tokens: BN;
 };
 
@@ -54,22 +67,21 @@ export const assertLazyListingModel = (
 ): asserts value is LazyListing =>
   assert(isLazyListingModel(value), `Expected LazyListing type`);
 
-export const createLazyListingFromReceiptAccount = (
-  account: ListingReceiptAccount
+export const makeLazyListingModel = (
+  account: ListingReceiptAccount,
+  auctionHouseModel: AuctionHouse
 ): LazyListing => {
   return {
     model: 'listing',
     lazy: true,
+    auctionHouse: auctionHouseModel,
     tradeStateAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump
     ),
     bookkeeperAddress: account.data.bookkeeper,
-    auctionHouseAddress: account.data.auctionHouse,
     sellerAddress: account.data.seller,
     metadataAddress: account.data.metadata,
-
-    // Optional receipts.
     receiptAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump
@@ -77,7 +89,7 @@ export const createLazyListingFromReceiptAccount = (
     purchaseReceiptAddress: account.data.purchaseReceipt,
 
     // Data.
-    price: new BN(account.data.price),
+    price: amount(account.data.price, auctionHouseModel.treasuryMint.currency),
     tokens: new BN(account.data.tokenSize),
     createdAt: new BN(account.data.createdAt),
     canceledAt: account.data.canceledAt
