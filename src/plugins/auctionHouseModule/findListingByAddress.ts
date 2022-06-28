@@ -1,12 +1,7 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  assertAccountExists,
-} from '@/types';
-import { parseListingReceiptAccount } from './accounts';
+import { useOperation, Operation, OperationHandler } from '@/types';
+import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { TokenWithMetadata } from '../nftModule';
 import { Listing, makeListingModel } from './Listing';
@@ -41,12 +36,10 @@ export const findListingByAddressOperationHandler: OperationHandler<FindListingB
       metaplex: Metaplex
     ) => {
       const { address, auctionHouse, commitment } = operation.input;
-      const unparsedAccount = await metaplex
-        .rpc()
-        .getAccount(address, commitment);
 
-      assertAccountExists(unparsedAccount, 'ListingReceipt');
-      const account = parseListingReceiptAccount(unparsedAccount);
+      const account = toListingReceiptAccount(
+        await metaplex.rpc().getAccount(address, commitment)
+      );
 
       return makeListingModel(
         account,

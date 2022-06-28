@@ -1,8 +1,8 @@
 import test, { Test } from 'tape';
-import { assertAccountExists, sol } from '@/types';
+import { sol } from '@/types';
 import { metaplex, killStuckProcess, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { parseListingReceiptAccount } from '@/plugins';
+import { toListingReceiptAccount } from '@/plugins';
 import { makeLazyListingModel } from '@/plugins/auctionHouseModule/Listing';
 
 killStuckProcess();
@@ -23,11 +23,10 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
 
   // TODO(loris): implement Listing model.
   // TODO(loris): implement findListingByAddress(...).
-  const receipt = await mx.rpc().getAccount(output.receipt);
-  const parsedReceipt = parseListingReceiptAccount(receipt);
-  assertAccountExists(parsedReceipt, 'ListingReceipt');
-  const lazyListing = makeLazyListingModel(parsedReceipt, auctionHouse);
-
+  const receiptAccount = toListingReceiptAccount(
+    await mx.rpc().getAccount(output.receipt)
+  );
+  const lazyListing = makeLazyListingModel(receiptAccount, auctionHouse);
   const listing = await client.loadListing(lazyListing).run();
   console.log(listing);
 

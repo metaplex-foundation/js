@@ -1,22 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  assertAccountExists,
-  amount,
-} from '@/types';
+import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { LazyListing, Listing } from './Listing';
-import {
-  findAssociatedTokenAccountPda,
-  parseMetadataAccount,
-} from '@/programs';
-import {
-  makeMintModel,
-  parseMintAccount,
-  parseTokenAccount,
-} from '../tokenModule';
+import { findAssociatedTokenAccountPda, toMetadataAccount } from '@/programs';
+import { makeMintModel, toMintAccount, toTokenAccount } from '../tokenModule';
 import { makeMetadataModel, makeTokenWithMetadataModel } from '../nftModule';
 import { JsonMetadata } from '../nftModule';
 import { DisposableScope, Option, removeEmptyChars } from '@/utils';
@@ -58,11 +45,9 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
       } = operation.input;
 
       // Metadata.
-      const unparsedMetadataAccount = await metaplex
-        .rpc()
-        .getAccount(lazyListing.metadataAddress, commitment);
-      const metadataAccount = parseMetadataAccount(unparsedMetadataAccount);
-      assertAccountExists(metadataAccount, 'Metadata');
+      const metadataAccount = toMetadataAccount(
+        await metaplex.rpc().getAccount(lazyListing.metadataAddress, commitment)
+      );
 
       let json: Option<JsonMetadata> | undefined = undefined;
       if (loadJsonMetadata) {
@@ -85,10 +70,8 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
       const unparsedAccounts = await metaplex
         .rpc()
         .getMultipleAccounts([mintAddress, tokenAddress], commitment);
-      const mintAccount = parseMintAccount(unparsedAccounts[0]);
-      assertAccountExists(mintAccount, 'Mint');
-      const tokenAccount = parseTokenAccount(unparsedAccounts[1]);
-      assertAccountExists(tokenAccount, 'Token');
+      const mintAccount = toMintAccount(unparsedAccounts[0]);
+      const tokenAccount = toTokenAccount(unparsedAccounts[1]);
       const mintModel = makeMintModel(mintAccount);
 
       const tokenModel = makeTokenWithMetadataModel(
