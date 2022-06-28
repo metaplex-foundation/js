@@ -4,6 +4,7 @@ import { amount, Amount, Pda } from '@/types';
 import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
+import { findAssociatedTokenAccountPda } from '@/programs';
 
 export type Token = Readonly<{
   model: 'token';
@@ -23,22 +24,27 @@ export const isTokenModel = (value: any): value is Token =>
 export const assertTokenModel = (value: any): asserts value is Token =>
   assert(isTokenModel(value), `Expected Token model`);
 
-export const makeTokenModel = (
-  account: TokenAccount,
-  associatedAddress?: Pda
-): Token => ({
-  model: 'token',
-  address: associatedAddress ?? account.publicKey,
-  isAssociatedToken: !!associatedAddress,
-  mintAddress: account.data.mint,
-  ownerAddress: account.data.owner,
-  amount: new BN(account.data.amount.toString()),
-  closeAuthorityAddress: account.data.closeAuthorityOption
-    ? account.data.closeAuthority
-    : null,
-  delegateAddress: account.data.delegateOption ? account.data.delegate : null,
-  delegateAmount: new BN(account.data.delegatedAmount.toString()),
-});
+export const makeTokenModel = (account: TokenAccount): Token => {
+  const associatedTokenAddress = findAssociatedTokenAccountPda(
+    account.data.mint,
+    account.data.owner
+  );
+  const isAssociatedToken = associatedTokenAddress.equals(account.publicKey);
+
+  return {
+    model: 'token',
+    address: isAssociatedToken ? associatedTokenAddress : account.publicKey,
+    isAssociatedToken,
+    mintAddress: account.data.mint,
+    ownerAddress: account.data.owner,
+    amount: new BN(account.data.amount.toString()),
+    closeAuthorityAddress: account.data.closeAuthorityOption
+      ? account.data.closeAuthority
+      : null,
+    delegateAddress: account.data.delegateOption ? account.data.delegate : null,
+    delegateAmount: new BN(account.data.delegatedAmount.toString()),
+  };
+};
 
 export type TokenWithMint = Omit<
   Token,
@@ -61,10 +67,9 @@ export const assertTokenWithMintModel = (
 
 export const makeTokenWithMintModel = (
   tokenAccount: TokenAccount,
-  mintModel: Mint,
-  associatedAddress?: Pda
+  mintModel: Mint
 ): TokenWithMint => {
-  const token = makeTokenModel(tokenAccount, associatedAddress);
+  const token = makeTokenModel(tokenAccount);
   return {
     ...token,
     model: 'tokenWithMint',

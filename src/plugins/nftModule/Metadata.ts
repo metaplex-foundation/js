@@ -121,14 +121,9 @@ export const assertTokenWithMetadataModel = (
 export const makeTokenWithMetadataModel = (
   tokenAccount: TokenAccount,
   mintModel: Mint,
-  metadataModel: Metadata,
-  associatedAddress?: Pda
+  metadataModel: Metadata
 ): TokenWithMetadata => {
-  const token = makeTokenWithMintModel(
-    tokenAccount,
-    mintModel,
-    associatedAddress
-  );
+  const token = makeTokenWithMintModel(tokenAccount, mintModel);
   const currency = {
     ...token.mint.currency,
     symbol: metadataModel.symbol || 'Token',
