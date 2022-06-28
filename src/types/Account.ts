@@ -28,6 +28,11 @@ export type AccountParsingFunction<T> = {
   (unparsedAccount: UnparsedMaybeAccount): MaybeAccount<T>;
 };
 
+export type AccountParsingAndAssertingFunction<T> = (
+  unparsedAccount: UnparsedAccount | UnparsedMaybeAccount,
+  solution?: string
+) => Account<T>;
+
 export function parseAccount<T>(
   account: UnparsedMaybeAccount,
   parser: AccountParser<T>
@@ -71,6 +76,34 @@ export function getAccountParsingFunction<T>(
   }
 
   return parse;
+}
+
+export function toAccount<T>(
+  account: UnparsedAccount | UnparsedMaybeAccount,
+  parser: AccountParser<T>,
+  solution?: string
+): Account<T> {
+  if ('exists' in account) {
+    assertAccountExists(account, parser.name, solution);
+  }
+  return getAccountParsingFunction(parser)(account);
+}
+
+export function getAccountParsingAndAssertingFunction<T>(
+  parser: AccountParser<T>
+): AccountParsingAndAssertingFunction<T> {
+  const parse = getAccountParsingFunction(parser);
+
+  return (
+    unparsedAccount: UnparsedAccount | UnparsedMaybeAccount,
+    solution?: string
+  ) => {
+    if ('exists' in unparsedAccount) {
+      assertAccountExists(unparsedAccount, parser.name, solution);
+    }
+
+    return parse(unparsedAccount);
+  };
 }
 
 export function assertAccountExists<T>(

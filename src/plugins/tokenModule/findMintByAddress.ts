@@ -1,14 +1,8 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import {
-  Operation,
-  useOperation,
-  OperationHandler,
-  assertAccountExists,
-} from '@/types';
+import { Operation, useOperation, OperationHandler } from '@/types';
 import { makeMintModel, Mint } from './Mint';
-import { DisposableScope } from '@/utils';
-import { parseMintAccount } from './accounts';
+import { toMintAccount } from './accounts';
 
 const Key = 'FindMintByAddressOperation' as const;
 export const findMintByAddressOperation =
@@ -28,16 +22,13 @@ export const findMintByAddressOnChainOperationHandler: OperationHandler<FindMint
   {
     handle: async (
       operation: FindMintByAddressOperation,
-      metaplex: Metaplex,
-      { throwIfCanceled }: DisposableScope
+      metaplex: Metaplex
     ): Promise<Mint> => {
       const { address, commitment } = operation.input;
 
-      const account = parseMintAccount(
+      const account = toMintAccount(
         await metaplex.rpc().getAccount(address, commitment)
       );
-
-      assertAccountExists(account, 'Mint');
 
       return makeMintModel(account);
     },
