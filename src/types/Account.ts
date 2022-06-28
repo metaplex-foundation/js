@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { UnexpectedAccountError } from '@/errors';
+import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
 
 export type Account<T> = Readonly<{
   publicKey: PublicKey;
@@ -71,4 +71,14 @@ export function getAccountParsingFunction<T>(
   }
 
   return parse;
+}
+
+export function assertAccountExists<T>(
+  account: MaybeAccount<T>,
+  name?: string,
+  solution?: string
+): asserts account is Account<T> & { exists: true } {
+  if (!account.exists) {
+    throw new AccountNotFoundError(account.publicKey, name, solution);
+  }
 }

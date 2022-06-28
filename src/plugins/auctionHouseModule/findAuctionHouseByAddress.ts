@@ -1,9 +1,22 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { AccountNotFoundError } from '@/errors';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  assertAccountExists,
+} from '@/types';
 import { parseAuctionHouseAccount } from './accounts';
 import { AuctionHouse, makeAuctionHouseModel } from './AuctionHouse';
+import { findMetadataPda, parseMetadataAccount } from '@/programs';
+import {
+  makeMetadataModel,
+  makeMintModel,
+  makeMintWithMetadataModel,
+  Mint,
+  MintWithMetadata,
+  parseMintAccount,
+} from './modelsToRefactor';
 
 // -----------------
 // Operation
@@ -38,12 +51,26 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
         .rpc()
         .getAccount(address, commitment);
 
-      if (!unparsedAccount.exists) {
-        throw new AccountNotFoundError(address, 'AuctionHouse');
-      }
-
+      assertAccountExists(unparsedAccount, 'AuctionHouse');
       const account = parseAuctionHouseAccount(unparsedAccount);
 
-      return makeAuctionHouseModel(account, null); // TODO
+      const mintAddress = account.data.treasuryMint;
+      const metadataAddress = findMetadataPda(mintAddress);
+      const unparsedAccounts = await metaplex
+        .rpc()
+        .getMultipleAccounts([mintAddress, metadataAddress], commitment);
+      const mintAccount = parseMintAccount(unparsedAccounts[0]);
+      const metadataAccount = parseMetadataAccount(unparsedAccounts[1]);
+      assertAccountExists(mintAccount, 'Mint');
+
+      let mintModel: Mint | MintWithMetadata;
+      if (metadataAccount.exists) {
+        const metadataModel = makeMetadataModel(metadataAccount);
+        mintModel = makeMintWithMetadataModel(mintAccount, metadataModel);
+      } else {
+        mintModel = makeMintModel(mintAccount);
+      }
+
+      return makeAuctionHouseModel(account, mintModel);
     },
   };

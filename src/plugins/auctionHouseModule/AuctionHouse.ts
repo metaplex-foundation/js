@@ -1,7 +1,6 @@
 import type { PublicKey } from '@solana/web3.js';
 import { Pda } from '@/types';
 import { AuctionHouseAccount } from './accounts';
-import { WRAPPED_SOL_MINT } from './constants';
 import { Mint, MintWithMetadata } from './modelsToRefactor';
 import { assert } from '@/utils';
 
@@ -32,30 +31,28 @@ export const assertAuctionHouseModel = (
 export const makeAuctionHouseModel = (
   auctionHouseAccount: AuctionHouseAccount,
   treasuryMint: Mint | MintWithMetadata
-): AuctionHouse => {
-  return {
-    model: 'auctionHouse',
-    address: new Pda(
-      auctionHouseAccount.publicKey,
-      auctionHouseAccount.data.bump
-    ),
-    creatorAddress: auctionHouseAccount.data.creator,
-    authorityAddress: auctionHouseAccount.data.authority,
-    treasuryMint,
-    feeAccountAddress: new Pda(
-      auctionHouseAccount.data.auctionHouseFeeAccount,
-      auctionHouseAccount.data.feePayerBump
-    ),
-    treasuryAccountAddress: new Pda(
-      auctionHouseAccount.data.auctionHouseTreasury,
-      auctionHouseAccount.data.treasuryBump
-    ),
-    feeWithdrawalAddress: auctionHouseAccount.data.feeWithdrawalDestination,
-    treasuryWithdrawalAddress:
-      auctionHouseAccount.data.treasuryWithdrawalDestination,
-    sellerFeeBasisPoints: auctionHouseAccount.data.sellerFeeBasisPoints,
-    requiresSignOff: auctionHouseAccount.data.requiresSignOff,
-    canChangeSalePrice: auctionHouseAccount.data.canChangeSalePrice,
-    isNative: auctionHouseAccount.data.treasuryMint.equals(WRAPPED_SOL_MINT),
-  };
-};
+): AuctionHouse => ({
+  model: 'auctionHouse',
+  address: new Pda(
+    auctionHouseAccount.publicKey,
+    auctionHouseAccount.data.bump
+  ),
+  creatorAddress: auctionHouseAccount.data.creator,
+  authorityAddress: auctionHouseAccount.data.authority,
+  treasuryMint,
+  feeAccountAddress: new Pda(
+    auctionHouseAccount.data.auctionHouseFeeAccount,
+    auctionHouseAccount.data.feePayerBump
+  ),
+  treasuryAccountAddress: new Pda(
+    auctionHouseAccount.data.auctionHouseTreasury,
+    auctionHouseAccount.data.treasuryBump
+  ),
+  feeWithdrawalAddress: auctionHouseAccount.data.feeWithdrawalDestination,
+  treasuryWithdrawalAddress:
+    auctionHouseAccount.data.treasuryWithdrawalDestination,
+  sellerFeeBasisPoints: auctionHouseAccount.data.sellerFeeBasisPoints,
+  requiresSignOff: auctionHouseAccount.data.requiresSignOff,
+  canChangeSalePrice: auctionHouseAccount.data.canChangeSalePrice,
+  isNative: treasuryMint.isWrappedSol,
+});

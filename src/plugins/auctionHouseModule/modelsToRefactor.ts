@@ -105,15 +105,14 @@ export const assertTokenWithMintModel = (
 
 export const makeTokenWithMintModel = (
   tokenAccount: TokenAccount,
-  mintAccount: MintAccount,
+  mintModel: Mint,
   associatedAddress?: Pda
 ): TokenWithMint => {
   const token = makeTokenModel(tokenAccount, associatedAddress);
-  const mint = makeMintModel(mintAccount);
   return {
     ...token,
     model: 'tokenWithMint',
-    mint,
+    mint: mintModel,
   };
 };
 
@@ -134,21 +133,16 @@ export const assertTokenWithMetadataModel = (
 
 export const makeTokenWithMetadataModel = (
   tokenAccount: TokenAccount,
-  mintAccount: MintAccount,
-  metadataAccount: MetadataAccount,
-  json?: Option<JsonMetadata>,
+  mintModel: Mint,
+  metadataModel: Metadata,
   associatedAddress?: Pda
 ): TokenWithMetadata => {
-  const token = makeTokenWithMintModel(
-    tokenAccount,
-    mintAccount,
-    associatedAddress
-  );
-  const metadata = makeMetadataModel(metadataAccount, json);
+  const token = makeTokenModel(tokenAccount, associatedAddress);
   return {
     ...token,
     model: 'tokenWithMetadata',
-    metadata,
+    mint: mintModel,
+    metadata: metadataModel,
   };
 };
 
@@ -211,15 +205,17 @@ export const assertMintWithMetadataModel = (
 
 export const makeMintWithMetadataModel = (
   mintAccount: MintAccount,
-  metadataAccount: MetadataAccount,
-  json?: Option<JsonMetadata>
+  metadataModel: Metadata
 ): MintWithMetadata => {
   const mint = makeMintModel(mintAccount);
-  const metadata = makeMetadataModel(metadataAccount, json);
   return {
     ...mint,
     model: 'mintWithMetadata',
-    metadata,
+    metadata: metadataModel,
+    currency: {
+      ...mint.currency,
+      symbol: metadataModel.symbol,
+    },
   };
 };
 
