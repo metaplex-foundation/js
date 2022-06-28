@@ -20,7 +20,7 @@ import {
   parseTokenAccount,
 } from './modelsToRefactor';
 import { JsonMetadata } from '../nftModule';
-import { Option } from '@/utils';
+import { DisposableScope, Option, removeEmptyChars } from '@/utils';
 
 // -----------------
 // Operation
@@ -46,7 +46,11 @@ export type LoadListingInput = {
 
 export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
   {
-    handle: async (operation: LoadListingOperation, metaplex: Metaplex) => {
+    handle: async (
+      operation: LoadListingOperation,
+      metaplex: Metaplex,
+      { signal }: DisposableScope
+    ) => {
       // TODO(loris): This should be repurposed in a generic Token module.
       const {
         lazyListing,
@@ -63,7 +67,12 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
 
       let json: Option<JsonMetadata> | undefined = undefined;
       if (loadJsonMetadata) {
-        json = null; // TODO: Fetch Json.
+        json = await metaplex
+          .storage()
+          .downloadJson<JsonMetadata>(
+            removeEmptyChars(metadataAccount.data.data.uri),
+            { signal }
+          );
       }
 
       const metadataModel = makeMetadataModel(metadataAccount, json);
@@ -79,7 +88,7 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
         .getMultipleAccounts([mintAddress, tokenAddress], commitment);
       const mintAccount = parseMintAccount(unparsedAccounts[0]);
       assertAccountExists(mintAccount, 'Mint');
-      const tokenAccount = parseTokenAccount(unparsedAccounts[0]);
+      const tokenAccount = parseTokenAccount(unparsedAccounts[1]);
       assertAccountExists(tokenAccount, 'Token');
       const mintModel = makeMintModel(mintAccount);
 

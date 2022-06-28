@@ -1,3 +1,4 @@
+import type { Commitment } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Signer } from '@/types';
 import { Task } from '@/utils';
@@ -7,6 +8,8 @@ import {
   createListingOperation,
   CreateListingOutput,
 } from './createListing';
+import { LazyListing, Listing } from './Listing';
+import { loadListingOperation } from './loadListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -19,6 +22,15 @@ export class AuctionHouseClient {
 
   list(input: WithoutAH<CreateListingInput>): Task<CreateListingOutput> {
     const operation = createListingOperation(this.addAH(input));
+
+    return this.metaplex.operations().getTask(operation);
+  }
+
+  loadListing(
+    lazyListing: LazyListing,
+    commitment?: Commitment
+  ): Task<Listing> {
+    const operation = loadListingOperation({ lazyListing, commitment });
 
     return this.metaplex.operations().getTask(operation);
   }
