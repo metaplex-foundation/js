@@ -3,13 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { toAuctionHouseAccount } from './accounts';
 import { AuctionHouse, makeAuctionHouseModel } from './AuctionHouse';
-import { findMetadataPda, parseMetadataAccount } from '@/programs';
-import { makeMintModel, Mint, toMintAccount } from '../tokenModule';
-import {
-  makeMetadataModel,
-  makeMintWithMetadataModel,
-  MintWithMetadata,
-} from '../nftModule';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -37,7 +31,8 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
   {
     handle: async (
       operation: FindAuctionHouseByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ) => {
       const { address, commitment } = operation.input;
 
@@ -45,22 +40,13 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
         await metaplex.rpc().getAccount(address, commitment)
       );
 
-      const mintAddress = account.data.treasuryMint;
-      const metadataAddress = findMetadataPda(mintAddress);
-      const unparsedAccounts = await metaplex
-        .rpc()
-        .getMultipleAccounts([mintAddress, metadataAddress], commitment);
-
-      const mintAccount = toMintAccount(unparsedAccounts[0]);
-      const metadataAccount = parseMetadataAccount(unparsedAccounts[1]);
-
-      let mintModel: Mint | MintWithMetadata;
-      if (metadataAccount.exists) {
-        const metadataModel = makeMetadataModel(metadataAccount);
-        mintModel = makeMintWithMetadataModel(mintAccount, metadataModel);
-      } else {
-        mintModel = makeMintModel(mintAccount);
-      }
+      const mintModel = await metaplex
+        .nfts()
+        .findMintWithMetadataByAddress(account.data.treasuryMint, {
+          loadJsonMetadata: false,
+          commitment,
+        })
+        .run(scope);
 
       return makeAuctionHouseModel(account, mintModel);
     },

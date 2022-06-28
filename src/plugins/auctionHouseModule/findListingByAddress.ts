@@ -3,8 +3,8 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
-import { TokenWithMetadata } from '../nftModule';
 import { Listing, makeListingModel } from './Listing';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -22,6 +22,7 @@ export type FindListingByAddressOperation = Operation<
 export type FindListingByAddressOperationInput = {
   address: PublicKey;
   auctionHouse: AuctionHouse;
+  loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
 };
 
@@ -33,18 +34,29 @@ export const findListingByAddressOperationHandler: OperationHandler<FindListingB
   {
     handle: async (
       operation: FindListingByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ) => {
-      const { address, auctionHouse, commitment } = operation.input;
+      const {
+        address,
+        auctionHouse,
+        commitment,
+        loadJsonMetadata = true,
+      } = operation.input;
 
       const account = toListingReceiptAccount(
         await metaplex.rpc().getAccount(address, commitment)
       );
 
-      return makeListingModel(
-        account,
-        auctionHouse,
-        {} as unknown as TokenWithMetadata // TODO
-      );
+      const tokenModel = await metaplex
+        .nfts()
+        .findTokenWithMetadataByMetadata(
+          account.data.metadata,
+          account.data.seller,
+          { commitment, loadJsonMetadata }
+        )
+        .run(scope);
+
+      return makeListingModel(account, auctionHouse, tokenModel);
     },
   };
