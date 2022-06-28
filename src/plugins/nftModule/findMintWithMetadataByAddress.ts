@@ -8,7 +8,7 @@ import {
 } from './Metadata';
 import { makeMintModel, Mint, toMintAccount } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
-import { removeEmptyChars } from '@/utils';
+import { DisposableScope, removeEmptyChars } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 
 const Key = 'FindMintWithMetadataByAddressOperation' as const;
@@ -30,7 +30,8 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
   {
     handle: async (
       operation: FindMintWithMetadataByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<MintWithMetadata | Mint> => {
       const {
         address: mintAddress,
@@ -55,7 +56,13 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
         ? await metaplex.storage().downloadJson<JsonMetadata>(uri)
         : undefined;
 
-      const metadataModel = makeMetadataModel(metadataAccount, json);
+      let metadataModel = makeMetadataModel(metadataAccount, json);
+      if (loadJsonMetadata) {
+        metadataModel = await metaplex
+          .nfts()
+          .loadJsonMetadata(metadataModel)
+          .run(scope);
+      }
 
       return makeMintWithMetadataModel(mintAccount, metadataModel);
     },

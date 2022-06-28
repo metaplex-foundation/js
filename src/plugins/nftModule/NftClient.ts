@@ -27,6 +27,8 @@ import {
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
 } from './printNewEdition';
+import { Option, removeEmptyChars, Task } from '@/utils';
+import { JsonMetadata } from './JsonMetadata';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -95,5 +97,16 @@ export class NftClient {
     const nft = await this.findByMint(printNewEditionOutput.mint.publicKey);
 
     return { ...printNewEditionOutput, nft };
+  }
+
+  loadJsonMetadata<
+    T extends { uri: string; json: Option<JsonMetadata>; jsonLoaded: boolean }
+  >(metadata: T): Task<T & { jsonLoaded: true }> {
+    return new Task(async ({ signal }) => {
+      const json = await this.metaplex
+        .storage()
+        .downloadJson<JsonMetadata>(removeEmptyChars(metadata.uri), { signal });
+      return { ...metadata, json, jsonLoaded: true };
+    });
   }
 }
