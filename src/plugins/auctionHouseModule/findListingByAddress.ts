@@ -8,7 +8,7 @@ import {
 } from '@/types';
 import { parseListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
-import { TokenWithMetadata } from './modelsToRefactor';
+import { TokenWithMetadata } from '../nftModule';
 import { Listing, makeListingModel } from './Listing';
 
 // -----------------

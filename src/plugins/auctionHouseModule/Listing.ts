@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { amount, Amount, Pda } from '@/types';
 import { ListingReceiptAccount } from './accounts';
-import { TokenWithMetadata } from './modelsToRefactor';
+import { TokenWithMetadata } from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 

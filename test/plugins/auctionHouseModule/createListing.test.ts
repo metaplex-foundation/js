@@ -7,7 +7,7 @@ import { makeLazyListingModel } from '@/plugins/auctionHouseModule/Listing';
 
 killStuckProcess();
 
-test.only('[auctionHouseModule] create a new listing on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] create a new listing on an Auction House', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);

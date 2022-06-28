@@ -13,12 +13,11 @@ import {
   parseMetadataAccount,
 } from '@/programs';
 import {
-  makeMetadataModel,
   makeMintModel,
-  makeTokenWithMetadataModel,
   parseMintAccount,
   parseTokenAccount,
-} from './modelsToRefactor';
+} from '../tokenModule';
+import { makeMetadataModel, makeTokenWithMetadataModel } from '../nftModule';
 import { JsonMetadata } from '../nftModule';
 import { DisposableScope, Option, removeEmptyChars } from '@/utils';
 

@@ -5,6 +5,7 @@ export * from './findNftsByCreator';
 export * from './findNftsByMintList';
 export * from './findNftsByOwner';
 export * from './JsonMetadata';
+export * from './Metadata';
 export * from './Nft';
 export * from './NftClient';
 export * from './plugin';

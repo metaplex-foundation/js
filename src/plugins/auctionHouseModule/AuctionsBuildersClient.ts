@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,

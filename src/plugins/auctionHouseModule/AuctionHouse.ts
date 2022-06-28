@@ -1,8 +1,9 @@
 import type { PublicKey } from '@solana/web3.js';
 import { Pda } from '@/types';
 import { AuctionHouseAccount } from './accounts';
-import { Mint, MintWithMetadata } from './modelsToRefactor';
 import { assert } from '@/utils';
+import { Mint } from '../tokenModule';
+import { MintWithMetadata } from '../nftModule';
 
 export type AuctionHouse = Readonly<{
   model: 'auctionHouse';

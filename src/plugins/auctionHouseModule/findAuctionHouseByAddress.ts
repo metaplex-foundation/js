@@ -9,14 +9,12 @@ import {
 import { parseAuctionHouseAccount } from './accounts';
 import { AuctionHouse, makeAuctionHouseModel } from './AuctionHouse';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
+import { makeMintModel, Mint, parseMintAccount } from '../tokenModule';
 import {
   makeMetadataModel,
-  makeMintModel,
   makeMintWithMetadataModel,
-  Mint,
   MintWithMetadata,
-  parseMintAccount,
-} from './modelsToRefactor';
+} from '../nftModule';
 
 // -----------------
 // Operation

@@ -1,12 +1,12 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
 import { Keypair } from '@solana/web3.js';
-import { WRAPPED_SOL_MINT } from '@/plugins/auctionHouseModule/modelsToRefactor';
 import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
 import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
+  WRAPPED_SOL_MINT,
 } from '@/index';
 
 killStuckProcess();
