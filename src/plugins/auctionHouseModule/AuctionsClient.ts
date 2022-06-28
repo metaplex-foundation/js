@@ -74,21 +74,21 @@ export class AuctionsClient {
 
   findAuctionHouseByAddress(
     address: PublicKey,
-    commitment?: Commitment
+    options: { commitment?: Commitment } = {}
   ): Task<AuctionHouse> {
     return this.metaplex
       .operations()
-      .getTask(findAuctionHouseByAddressOperation({ address, commitment }));
+      .getTask(findAuctionHouseByAddressOperation({ address, ...options }));
   }
 
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
-    commitment?: Commitment
+    options: { commitment?: Commitment } = {}
   ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),
-      commitment
+      options
     );
   }
 }
