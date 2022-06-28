@@ -3,7 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { AccountNotFoundError } from '@/errors';
 import { parseAuctionHouseAccount } from './accounts';
-import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouse, makeAuctionHouseModel } from './AuctionHouse';
 
 // -----------------
 // Operation
@@ -44,6 +44,6 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
 
       const account = parseAuctionHouseAccount(unparsedAccount);
 
-      return new AuctionHouse(account);
+      return makeAuctionHouseModel(account, null); // TODO
     },
   };

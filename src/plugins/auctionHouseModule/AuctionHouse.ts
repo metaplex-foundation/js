@@ -1,44 +1,61 @@
 import type { PublicKey } from '@solana/web3.js';
-import { Model, Pda } from '@/types';
+import { Pda } from '@/types';
 import { AuctionHouseAccount } from './accounts';
 import { WRAPPED_SOL_MINT } from './constants';
+import { Mint, MintWithMetadata } from './modelsToRefactor';
+import { assert } from '@/utils';
 
-export class AuctionHouse extends Model {
-  public readonly address: Pda;
-  public readonly creator: PublicKey;
-  public readonly authority: PublicKey;
-  public readonly treasuryMint: PublicKey;
-  public readonly feeAccount: Pda;
-  public readonly treasuryAccount: Pda;
-  public readonly feeWithdrawalDestination: PublicKey;
-  public readonly treasuryWithdrawalDestination: PublicKey;
-  public readonly sellerFeeBasisPoints: number;
-  public readonly requiresSignOff: boolean;
-  public readonly canChangeSalePrice: boolean;
+export type AuctionHouse = Readonly<{
+  model: 'auctionHouse';
+  address: Pda;
+  creatorAddress: PublicKey;
+  authorityAddress: PublicKey;
+  treasuryMint: Mint | MintWithMetadata;
+  feeAccountAddress: Pda;
+  treasuryAccountAddress: Pda;
+  feeWithdrawalAddress: PublicKey;
+  treasuryWithdrawalAddress: PublicKey;
+  sellerFeeBasisPoints: number;
+  requiresSignOff: boolean;
+  canChangeSalePrice: boolean;
+  isNative: boolean;
+}>;
 
-  constructor(account: AuctionHouseAccount) {
-    super();
-    this.address = new Pda(account.publicKey, account.data.bump);
-    this.creator = account.data.creator;
-    this.authority = account.data.authority;
-    this.treasuryMint = account.data.treasuryMint;
-    this.feeAccount = new Pda(
-      account.data.auctionHouseFeeAccount,
-      account.data.feePayerBump
-    );
-    this.treasuryAccount = new Pda(
-      account.data.auctionHouseTreasury,
-      account.data.treasuryBump
-    );
-    this.feeWithdrawalDestination = account.data.feeWithdrawalDestination;
-    this.treasuryWithdrawalDestination =
-      account.data.treasuryWithdrawalDestination;
-    this.sellerFeeBasisPoints = account.data.sellerFeeBasisPoints;
-    this.requiresSignOff = account.data.requiresSignOff;
-    this.canChangeSalePrice = account.data.canChangeSalePrice;
-  }
+export const isAuctionHouseModel = (value: any): value is AuctionHouse =>
+  typeof value === 'object' && value.model === 'auctionHouse' && !value.lazy;
 
-  usesSol(): boolean {
-    return this.treasuryMint.equals(WRAPPED_SOL_MINT);
-  }
-}
+export const assertAuctionHouseModel = (
+  value: any
+): asserts value is AuctionHouse =>
+  assert(isAuctionHouseModel(value), `Expected AuctionHouse type`);
+
+export const makeAuctionHouseModel = (
+  auctionHouseAccount: AuctionHouseAccount,
+  treasuryMint: Mint | MintWithMetadata
+): AuctionHouse => {
+  return {
+    model: 'auctionHouse',
+    address: new Pda(
+      auctionHouseAccount.publicKey,
+      auctionHouseAccount.data.bump
+    ),
+    creatorAddress: auctionHouseAccount.data.creator,
+    authorityAddress: auctionHouseAccount.data.authority,
+    treasuryMint,
+    feeAccountAddress: new Pda(
+      auctionHouseAccount.data.auctionHouseFeeAccount,
+      auctionHouseAccount.data.feePayerBump
+    ),
+    treasuryAccountAddress: new Pda(
+      auctionHouseAccount.data.auctionHouseTreasury,
+      auctionHouseAccount.data.treasuryBump
+    ),
+    feeWithdrawalAddress: auctionHouseAccount.data.feeWithdrawalDestination,
+    treasuryWithdrawalAddress:
+      auctionHouseAccount.data.treasuryWithdrawalDestination,
+    sellerFeeBasisPoints: auctionHouseAccount.data.sellerFeeBasisPoints,
+    requiresSignOff: auctionHouseAccount.data.requiresSignOff,
+    canChangeSalePrice: auctionHouseAccount.data.canChangeSalePrice,
+    isNative: auctionHouseAccount.data.treasuryMint.equals(WRAPPED_SOL_MINT),
+  };
+};
