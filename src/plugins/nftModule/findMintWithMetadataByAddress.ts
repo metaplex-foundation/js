@@ -44,12 +44,12 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
         .getMultipleAccounts([mintAddress, metadataAddress], commitment);
 
       const mintAccount = toMintAccount(accounts[0]);
-      const metadataAccount = parseMetadataAccount(accounts[0]);
 
-      if (!metadataAccount.exists) {
+      if (!accounts[1].exists) {
         return makeMintModel(mintAccount);
       }
 
+      const metadataAccount = parseMetadataAccount(accounts[1]);
       let metadataModel = makeMetadataModel(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex

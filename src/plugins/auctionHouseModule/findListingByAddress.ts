@@ -5,6 +5,7 @@ import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { Listing, makeListingModel } from './Listing';
 import { DisposableScope } from '@/utils';
+import { findListingReceiptPda } from './pdas';
 
 // -----------------
 // Operation
@@ -44,8 +45,9 @@ export const findListingByAddressOperationHandler: OperationHandler<FindListingB
         loadJsonMetadata = true,
       } = operation.input;
 
+      const receiptAddress = findListingReceiptPda(address);
       const account = toListingReceiptAccount(
-        await metaplex.rpc().getAccount(address, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
 
       const tokenModel = await metaplex

@@ -2,8 +2,6 @@ import test, { Test } from 'tape';
 import { sol } from '@/types';
 import { metaplex, killStuckProcess, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { toListingReceiptAccount } from '@/plugins';
-import { makeLazyListingModel } from '@/plugins/auctionHouseModule/Listing';
 
 killStuckProcess();
 
@@ -11,7 +9,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
-  const { auctionHouse, client } = await createAuctionHouse(mx);
+  const { client } = await createAuctionHouse(mx);
 
   // When we list that NFT for 6.5 SOL.
   const output = await client
@@ -21,13 +19,10 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     })
     .run();
 
-  // TODO(loris): implement Listing model.
-  // TODO(loris): implement findListingByAddress(...).
-  const receiptAccount = toListingReceiptAccount(
-    await mx.rpc().getAccount(output.receipt)
-  );
-  const lazyListing = makeLazyListingModel(receiptAccount, auctionHouse);
-  const listing = await client.loadListing(lazyListing).run();
+  const listing = await client
+    .findListingByAddress(output.sellerTradeState)
+    .run();
+
   console.log(listing);
 
   // TODO(loris): Then...
