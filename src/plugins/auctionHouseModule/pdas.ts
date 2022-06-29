@@ -88,8 +88,8 @@ export const findAuctionHouseTradeStatePda = (
     tokenAccount.toBuffer(),
     treasuryMint.toBuffer(),
     tokenMint.toBuffer(),
-    buyPrice.toBuffer('le', 8),
-    tokenSize.toBuffer('le', 8),
+    buyPrice.toArrayLike(Buffer, 'le', 8),
+    tokenSize.toArrayLike(Buffer, 'le', 8),
   ]);
 };
 
