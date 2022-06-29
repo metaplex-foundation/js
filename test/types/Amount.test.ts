@@ -151,5 +151,6 @@ test('[Amount] it returns a new instance when running operations', (t: Test) => 
 });
 
 const amountEquals = (t: Test, amount: Amount, expected: string) => {
-  t.equal(formatAmount(amount), expected);
+  const actual = formatAmount(amount);
+  t.equal(actual, expected, `${actual} === ${expected}`);
 };

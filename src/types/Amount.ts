@@ -53,7 +53,9 @@ export const token = (
   decimals: number = 0,
   symbol: string = 'Token'
 ): Amount => {
-  amount = new BN(amount).toNumber();
+  if (typeof amount !== 'number') {
+    amount = new BN(amount).toNumber();
+  }
 
   return {
     basisPoints: toBasisPoints(amount * Math.pow(10, decimals)),
