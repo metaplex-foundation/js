@@ -73,10 +73,14 @@ export const isSol = (currencyOrAmount: Currency | Amount): boolean => {
   return sameCurrencies(currencyOrAmount, SOL);
 };
 
+export const sameAmounts = (left: Amount, right: Amount): boolean => {
+  return sameCurrencies(left, right) && left.basisPoints.eq(right.basisPoints);
+};
+
 export const sameCurrencies = (
   left: Currency | Amount,
   right: Currency | Amount
-) => {
+): boolean => {
   if ('currency' in left) {
     left = left.currency;
   }
