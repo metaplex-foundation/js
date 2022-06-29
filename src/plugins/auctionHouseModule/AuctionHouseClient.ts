@@ -2,6 +2,7 @@ import { Metaplex } from '@/Metaplex';
 import { Signer } from '@/types';
 import { Task } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
   CreateListingInput,
@@ -21,10 +22,44 @@ export class AuctionHouseClient {
     protected readonly auctioneerAuthority?: Signer
   ) {}
 
-  list(input: WithoutAH<CreateListingInput>): Task<CreateListingOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(createListingOperation(this.addAH(input)));
+  list(
+    input: WithoutAH<CreateListingInput>
+  ): Task<CreateListingOutput & { listing: Listing }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(createListingOperation(this.addAH(input)), scope);
+
+      if (input.printReceipt) {
+        return {
+          listing: await this.findListingByAddress(output.sellerTradeState).run(
+            scope
+          ),
+          ...output,
+        };
+      }
+
+      const lazyListing: LazyListing = {
+        model: 'listing',
+        lazy: true,
+        auctionHouse: this.auctionHouse,
+        tradeStateAddress: output.sellerTradeState,
+        bookkeeperAddress: null,
+        sellerAddress: output.wallet,
+        metadataAddress: output.metadata,
+        receiptAddress: null,
+        purchaseReceiptAddress: null,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: new BN(+new Date()),
+        canceledAt: null,
+      };
+
+      return {
+        listing: await this.loadListing(lazyListing).run(scope),
+        ...output,
+      };
+    });
   }
 
   findListingByAddress(

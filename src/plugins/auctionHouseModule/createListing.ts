@@ -21,6 +21,7 @@ import {
   lamports,
   isSigner,
   Pda,
+  amount,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -63,10 +64,15 @@ export type CreateListingInput = {
 
 export type CreateListingOutput = {
   response: SendAndConfirmTransactionResponse;
-  receipt: Pda;
   sellerTradeState: Pda;
   freeSellerTradeState: Pda;
   tokenAccount: PublicKey;
+  metadata: Pda;
+  wallet: PublicKey;
+  receipt: Pda;
+  bookkeeper: PublicKey;
+  price: Amount;
+  tokens: Amount;
 };
 
 // -----------------
@@ -111,15 +117,17 @@ export const createListingBuilder = (
   params: CreateListingBuilderParams
 ): TransactionBuilder<CreateListingBuilderContext> => {
   // Data.
+  const auctionHouse = params.auctionHouse;
   const tokens = params.tokens ?? token(1);
-  const price = params.auctioneerAuthority
-    ? lamports(AUCTIONEER_PRICE)
-    : params.price ?? lamports(0);
+  const priceBasisPoint = params.auctioneerAuthority
+    ? AUCTIONEER_PRICE
+    : params.price?.basisPoints ?? 0;
+  const price = amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
   // Accounts.
-  const auctionHouse = params.auctionHouse;
   const wallet = params.wallet ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
+  const metadata = findMetadataPda(params.mintAccount);
   const tokenAccount =
     params.tokenAccount ??
     findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(wallet));
@@ -145,7 +153,7 @@ export const createListingBuilder = (
   const accounts = {
     wallet: toPublicKey(wallet),
     tokenAccount,
-    metadata: findMetadataPda(params.mintAccount),
+    metadata,
     authority: toPublicKey(authority),
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
@@ -193,10 +201,15 @@ export const createListingBuilder = (
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
       .setContext({
-        receipt,
         sellerTradeState,
         freeSellerTradeState,
         tokenAccount,
+        metadata,
+        wallet: toPublicKey(wallet),
+        receipt,
+        bookkeeper: bookkeeper.publicKey,
+        price,
+        tokens,
       })
 
       // Create Listing.

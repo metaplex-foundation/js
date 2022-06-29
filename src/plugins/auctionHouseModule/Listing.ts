@@ -16,8 +16,8 @@ export type Listing = Readonly<{
 
   // Addresses.
   tradeStateAddress: Pda;
-  bookkeeperAddress: PublicKey;
   sellerAddress: PublicKey;
+  bookkeeperAddress: Option<PublicKey>;
   receiptAddress: Option<Pda>;
   purchaseReceiptAddress: Option<PublicKey>;
 
