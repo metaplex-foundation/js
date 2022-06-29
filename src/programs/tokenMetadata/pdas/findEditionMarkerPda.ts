@@ -14,6 +14,6 @@ export const findEditionMarkerPda = (
     programId.toBuffer(),
     mint.toBuffer(),
     Buffer.from('edition', 'utf8'),
-    edition.div(new BN(248)).toBuffer('le', 8),
+    Buffer.from(edition.div(new BN(248)).toString()),
   ]);
 };
