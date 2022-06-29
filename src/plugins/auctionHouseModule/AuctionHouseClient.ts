@@ -29,25 +29,27 @@ export class AuctionHouseClient {
       const output = await this.metaplex
         .operations()
         .execute(createListingOperation(this.addAH(input)), scope);
+      scope.throwIfCanceled();
 
-      if (input.printReceipt) {
-        return {
-          listing: await this.findListingByAddress(output.sellerTradeState).run(
-            scope
-          ),
-          ...output,
-        };
+      try {
+        const listing = await this.findListingByAddress(
+          output.sellerTradeState
+        ).run(scope);
+        return { listing, ...output };
+      } catch (error) {
+        // Fallback to manually creating a listing from inputs and outputs.
       }
 
+      scope.throwIfCanceled();
       const lazyListing: LazyListing = {
         model: 'listing',
         lazy: true,
         auctionHouse: this.auctionHouse,
         tradeStateAddress: output.sellerTradeState,
-        bookkeeperAddress: null,
+        bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
         sellerAddress: output.wallet,
         metadataAddress: output.metadata,
-        receiptAddress: null,
+        receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
         price: output.price,
         tokens: output.tokens.basisPoints,
