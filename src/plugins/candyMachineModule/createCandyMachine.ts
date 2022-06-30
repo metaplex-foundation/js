@@ -22,7 +22,7 @@ import {
   createAccountBuilder,
   createInitializeCandyMachineInstructionWithSigners,
 } from '@/programs';
-import { getSpaceForCandy } from '@/programs/candyMachine/accounts/candyMachineInternals';
+import { getSpaceForCandy } from './internals';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =

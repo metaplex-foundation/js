@@ -5,7 +5,7 @@ import {
 } from '@/errors';
 import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
-import { assertConfigLineConstraints } from '../../programs/candyMachine/accounts/candyMachineInternals';
+import { assertConfigLineConstraints } from './internals';
 
 export function creatorsToJsonMetadataCreators(creators: Creator[]) {
   return creators.map((creator: Creator) => ({

@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { CandyMachine } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
-import { parseCandyMachineAccount } from '@/programs';
+import { parseCandyMachineAccount } from './accounts';
 
 // -----------------
 // Operation

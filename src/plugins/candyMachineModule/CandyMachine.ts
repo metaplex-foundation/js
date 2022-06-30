@@ -9,12 +9,9 @@ import {
   HiddenSettings,
   WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { CandyMachineAccount } from '@/programs';
+import { CandyMachineAccount } from './accounts';
 import { Model } from '@/types';
-import {
-  getConfigLines,
-  getConfigLinesCount,
-} from '@/programs/candyMachine/accounts/candyMachineInternals';
+import { getConfigLines, getConfigLinesCount } from './internals';
 
 export class CandyMachine extends Model {
   // -----------------
