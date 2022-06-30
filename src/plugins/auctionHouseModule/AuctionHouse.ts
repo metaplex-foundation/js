@@ -22,7 +22,7 @@ export type AuctionHouse = Readonly<{
 }>;
 
 export const isAuctionHouseModel = (value: any): value is AuctionHouse =>
-  typeof value === 'object' && value.model === 'auctionHouse' && !value.lazy;
+  typeof value === 'object' && value.model === 'auctionHouse';
 
 export const assertAuctionHouseModel = (
   value: any

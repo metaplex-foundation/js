@@ -12,10 +12,10 @@ export type Token = Readonly<{
   isAssociatedToken: boolean;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
-  amount: BN; // TODO(loris): Replace with Amount on TokenWithX?
+  amount: BN;
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
-  delegateAmount: BN; // TODO(loris): Replace with Amount on TokenWithX?
+  delegateAmount: BN;
 }>;
 
 export const isTokenModel = (value: any): value is Token =>

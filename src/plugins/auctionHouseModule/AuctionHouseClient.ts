@@ -2,7 +2,7 @@ import { Metaplex } from '@/Metaplex';
 import { Signer } from '@/types';
 import { Task } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import { BN } from 'bn.js';
+import BN from 'bn.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
   CreateListingInput,
