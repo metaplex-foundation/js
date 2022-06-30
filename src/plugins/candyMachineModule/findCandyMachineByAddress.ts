@@ -1,17 +1,16 @@
 import { PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { CandyMachine } from './CandyMachine';
+import { CandyMachine, makeCandyMachineModel } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
 import { parseCandyMachineAccount } from './accounts';
 
 // -----------------
 // Operation
 // -----------------
-const Key = 'FindCandyMachineByAdddressOperation' as const;
 
+const Key = 'FindCandyMachineByAdddressOperation' as const;
 export const findCandyMachineByAdddressOperation =
   useOperation<FindCandyMachineByAdddressOperation>(Key);
-
 export type FindCandyMachineByAdddressOperation = Operation<
   typeof Key,
   PublicKey,
@@ -21,6 +20,7 @@ export type FindCandyMachineByAdddressOperation = Operation<
 // -----------------
 // Handler
 // -----------------
+
 export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCandyMachineByAdddressOperation> =
   {
     handle: async (
@@ -34,8 +34,8 @@ export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCa
 
       const account = parseCandyMachineAccount(unparsedAccount);
 
-      return unparsedAccount.exists && account.exists
-        ? CandyMachine.fromAccount(account, unparsedAccount.data)
+      return account.exists && unparsedAccount.exists
+        ? makeCandyMachineModel(account, unparsedAccount)
         : null;
     },
   };

@@ -85,22 +85,21 @@ function assertProperlyInitialized(
     tokenMintAddress: PublicKey | null;
   }
 ) {
-  spok(t, candyMachine.candyMachineAccount.data.pretty(), {
+  spok(t, candyMachine, {
     $topic: 'candy machine',
+    model: 'candyMachine',
     authority: authority.toBase58(),
     wallet: wallet.toBase58(),
     tokenMint,
     itemsRedeemed: spokSameBignum(0),
-    data: {
-      uuid: candyMachineSigner.publicKey.toBase58().slice(0, 6),
-      price: spokSameBignum(price),
-      sellerFeeBasisPoints: spokSameBignum(sellerFeeBasisPoints),
-      maxSupply: spokSameBignum(number),
-      itemsAvailable: spokSameBignum(number),
-      isMutable,
-      retainAuthority,
-      goLiveDate: spokSameBignum(new Date(goLiveDate).valueOf()),
-    },
+    uuid: candyMachineSigner.publicKey.toBase58().slice(0, 6),
+    price: spokSameBignum(price),
+    sellerFeeBasisPoints: spokSameBignum(sellerFeeBasisPoints),
+    maxSupply: spokSameBignum(number),
+    itemsAvailable: spokSameBignum(number),
+    isMutable,
+    retainAuthority,
+    goLiveDate: spokSameBignum(new Date(goLiveDate).valueOf()),
   });
 }
 

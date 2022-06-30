@@ -6,6 +6,7 @@ import {
 import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
 import { assertConfigLineConstraints } from './internals';
+import BN from 'bn.js';
 
 export function creatorsToJsonMetadataCreators(creators: Creator[]) {
   return creators.map((creator: Creator) => ({
@@ -23,13 +24,17 @@ export function assertNotFull(candyMachine: CandyMachine, index: number) {
 
 export function assertCanAdd(
   candyMachine: CandyMachine,
-  index: number,
-  amount: number
+  index: number | BN,
+  amount: number | BN
 ) {
-  if (index + amount > candyMachine.maxSupply) {
+  index = new BN(index);
+  amount = new BN(amount);
+  const newTotal = index.add(amount);
+
+  if (newTotal.gt(candyMachine.maxSupply)) {
     throw new CandyMachineCannotAddAmountError(
-      index,
-      amount,
+      index.toNumber(),
+      amount.toNumber(),
       candyMachine.maxSupply
     );
   }

@@ -15,8 +15,3 @@ export type {
   UpdateCandyMachineParams,
   UpdateCandyMachineAuthorityParams,
 } from './Client.update';
-export type {
-  UploadAssetToCandyMachineParams,
-  UploadAssetsToCandyMachineParams,
-  UploadedAsset,
-} from './Client.upload';

@@ -7,10 +7,6 @@ import {
 } from './Client.queries';
 import { create, createFromConfig } from './Client.create';
 import { update, updateAuthority } from './Client.update';
-import {
-  uploadAssetForCandyMachine,
-  uploadAssetsForCandyMachine,
-} from './Client.upload';
 import { addAssets } from './Client.add';
 
 export class CandyMachineClient {
@@ -40,10 +36,4 @@ export class CandyMachineClient {
   // Add Assets
   // -----------------
   addAssets = addAssets;
-
-  // -----------------
-  // Upload Assets
-  // -----------------
-  uploadAssetForCandyMachine = uploadAssetForCandyMachine;
-  uploadAssetsForCandyMachine = uploadAssetsForCandyMachine;
 }

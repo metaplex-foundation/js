@@ -55,7 +55,7 @@ test('candyMachineGPA: candyMachineByAuthorityAndUuid', async (t) => {
       'Updating second candy machine to have the same uuid as the first'
     );
     await mx.candyMachines().update({
-      candyMachineAddress: cm.candyMachineAddress,
+      candyMachineAddress: cm.address,
       walletAddress,
       authoritySigner: mx.identity(),
       uuid: firstUuid,

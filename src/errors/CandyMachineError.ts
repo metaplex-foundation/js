@@ -160,13 +160,14 @@ export class CandyMachineAlreadyHasThisAuthorityError extends CandyMachineError 
 }
 
 export class CandyMachineIsFullError extends CandyMachineError {
-  constructor(index: number, maxSupply: bignum, cause?: Error) {
-    const asset = index + 1;
+  constructor(assetIndex: number, maxSupply: bignum, cause?: Error) {
     super({
       cause,
       key: 'candy_machine_is_full',
       title: 'Candy Machine Is Full',
-      problem: `Trying to add asset number ${asset}, but candy machine only can hold ${maxSupply} assets.`,
+      problem:
+        `Trying to add asset number ${assetIndex + 1}, but ` +
+        `candy machine only can hold ${maxSupply} assets.`,
       solution:
         'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
     });

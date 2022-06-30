@@ -38,7 +38,7 @@ test('addAssets: candy machine that can hold 7 assets', async (t) => {
       .findByAddress(candyMachineSigner.publicKey);
 
     spok(t, candyMachine, {
-      assets: [
+      items: [
         {
           name: spok.startsWith('first asset'),
           uri: spok.startsWith('first uri'),
@@ -69,7 +69,7 @@ test('addAssets: candy machine that can hold 7 assets', async (t) => {
       .findByAddress(candyMachineSigner.publicKey);
 
     spok(t, candyMachine, {
-      assets: [
+      items: [
         {
           name: spok.startsWith('first asset'),
           uri: spok.startsWith('first uri'),
@@ -110,7 +110,7 @@ test('addAssets: candy machine that can hold 7 assets', async (t) => {
       .findByAddress(candyMachineSigner.publicKey);
 
     spok(t, candyMachine, {
-      assets: [
+      items: [
         {
           name: spok.startsWith('first asset'),
           uri: spok.startsWith('first uri'),
@@ -173,7 +173,7 @@ test('addAssets: candy machine that can hold 0 assets adding one', async (t) => 
     .candyMachines()
     .findByAddress(candyMachineSigner.publicKey);
 
-  t.equal(candyMachine?.assetsCount, 0, 'no assets added');
+  t.equal(candyMachine?.itemsAvailable, 0, 'no assets added');
 });
 
 test('addAssets: candy machine that can hold 2 assets adding 5', async (t) => {
@@ -211,7 +211,7 @@ test('addAssets: candy machine that can hold 2 assets adding 5', async (t) => {
     .candyMachines()
     .findByAddress(candyMachineSigner.publicKey);
 
-  t.equal(candyMachine?.assetsCount, 0, 'no assets added');
+  t.equal(candyMachine?.itemsAvailable, 0, 'no assets added');
 });
 
 test('addAssets: candy machine that can hold 4 assets adding 3 and then 2', async (t) => {
@@ -264,7 +264,7 @@ test('addAssets: candy machine that can hold 4 assets adding 3 and then 2', asyn
     .candyMachines()
     .findByAddress(candyMachineSigner.publicKey);
 
-  t.equal(candyMachine?.assetsCount, 3, 'first three assets added');
+  t.equal(candyMachine?.itemsAvailable, 3, 'first three assets added');
 });
 
 test('addAssets: candy machine that can hold 3 assets adding 3 and then 2', async (t) => {
@@ -317,7 +317,7 @@ test('addAssets: candy machine that can hold 3 assets adding 3 and then 2', asyn
     .candyMachines()
     .findByAddress(candyMachineSigner.publicKey);
 
-  t.equal(candyMachine?.assetsCount, 3, 'first three assets added');
+  t.equal(candyMachine?.itemsAvailable, 3, 'first three assets added');
 });
 
 test('addAssets: fails when name or uri too long', async (t) => {

@@ -36,16 +36,16 @@ export async function addAssets(
     throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
   }
 
-  const index = currentCandyMachine.assetsCount;
+  const index = currentCandyMachine.itemsAvailable;
 
-  assertNotFull(currentCandyMachine, index);
+  assertNotFull(currentCandyMachine, index.toNumber());
   assertCanAdd(currentCandyMachine, index, params.assets.length);
   assertAllConfigLineConstraints(params.assets);
 
   const addConfigLinesInput: AddConfigLinesInput = {
     candyMachineAddress: params.candyMachineAddress,
     authoritySigner: params.authoritySigner,
-    index,
+    index: index.toNumber(),
     configLines: params.assets,
   };
 
