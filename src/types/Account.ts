@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { UnexpectedAccountError } from '@/errors';
+import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
 
 export type Account<T> = Readonly<{
   publicKey: PublicKey;
@@ -12,8 +12,8 @@ export type Account<T> = Readonly<{
 }>;
 
 export type MaybeAccount<T> =
-  | (Account<T> & { exists: true })
-  | { publicKey: PublicKey; exists: false };
+  | (Account<T> & { readonly exists: true })
+  | { readonly publicKey: PublicKey; readonly exists: false };
 
 export type UnparsedAccount = Account<Buffer>;
 export type UnparsedMaybeAccount = MaybeAccount<Buffer>;
@@ -27,6 +27,11 @@ export type AccountParsingFunction<T> = {
   (unparsedAccount: UnparsedAccount): Account<T>;
   (unparsedAccount: UnparsedMaybeAccount): MaybeAccount<T>;
 };
+
+export type AccountParsingAndAssertingFunction<T> = (
+  unparsedAccount: UnparsedAccount | UnparsedMaybeAccount,
+  solution?: string
+) => Account<T>;
 
 export function parseAccount<T>(
   account: UnparsedMaybeAccount,
@@ -71,4 +76,42 @@ export function getAccountParsingFunction<T>(
   }
 
   return parse;
+}
+
+export function toAccount<T>(
+  account: UnparsedAccount | UnparsedMaybeAccount,
+  parser: AccountParser<T>,
+  solution?: string
+): Account<T> {
+  if ('exists' in account) {
+    assertAccountExists(account, parser.name, solution);
+  }
+  return getAccountParsingFunction(parser)(account);
+}
+
+export function getAccountParsingAndAssertingFunction<T>(
+  parser: AccountParser<T>
+): AccountParsingAndAssertingFunction<T> {
+  const parse = getAccountParsingFunction(parser);
+
+  return (
+    unparsedAccount: UnparsedAccount | UnparsedMaybeAccount,
+    solution?: string
+  ) => {
+    if ('exists' in unparsedAccount) {
+      assertAccountExists(unparsedAccount, parser.name, solution);
+    }
+
+    return parse(unparsedAccount);
+  };
+}
+
+export function assertAccountExists<T>(
+  account: MaybeAccount<T>,
+  name?: string,
+  solution?: string
+): asserts account is Account<T> & { exists: true } {
+  if (!account.exists) {
+    throw new AccountNotFoundError(account.publicKey, name, solution);
+  }
 }

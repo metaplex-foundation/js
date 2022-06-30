@@ -6,7 +6,7 @@ import {
   useMetaplexFile,
   useMetaplexFileFromJson,
 } from './MetaplexFile';
-import { StorageDriver } from './StorageDriver';
+import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
 
 export class StorageClient implements HasDriver<StorageDriver> {
   private _driver: StorageDriver | null = null;
@@ -51,14 +51,17 @@ export class StorageClient implements HasDriver<StorageDriver> {
     return this.upload(useMetaplexFileFromJson<T>(json));
   }
 
-  async download(uri: string, options?: RequestInit): Promise<MetaplexFile> {
+  async download(
+    uri: string,
+    options?: StorageDownloadOptions
+  ): Promise<MetaplexFile> {
     const driver = this.driver();
 
     if (driver.download) {
       return driver.download(uri, options);
     }
 
-    const response = await fetch(uri, options);
+    const response = await fetch(uri, options as RequestInit);
     const buffer = await response.arrayBuffer();
 
     return useMetaplexFile(buffer, uri);
@@ -66,7 +69,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
 
   async downloadJson<T extends object = object>(
     uri: string,
-    options?: RequestInit
+    options?: StorageDownloadOptions
   ): Promise<T> {
     const file = await this.download(uri, options);
 

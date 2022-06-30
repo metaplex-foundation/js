@@ -1,84 +1,96 @@
-import type { Metaplex } from '@/Metaplex';
-import { findAuctionHousePda } from '@/programs';
+import { Metaplex } from '@/Metaplex';
+import { Signer } from '@/types';
 import { Task } from '@/utils';
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import BN from 'bn.js';
 import { AuctionHouse } from './AuctionHouse';
-import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
-  CreateAuctionHouseInput,
-  createAuctionHouseOperation,
-  CreateAuctionHouseOutput,
-} from './createAuctionHouse';
-import { findAuctionHouseByAddressOperation } from './findAuctionHouseByAddress';
-import {
-  UpdateAuctionHouseInput,
-  updateAuctionHouseOperation,
-  UpdateAuctionHouseOutput,
-} from './updateAuctionHouse';
+  CreateListingInput,
+  createListingOperation,
+  CreateListingOutput,
+} from './createListing';
+import { findListingByAddressOperation } from './findListingByAddress';
+import { LazyListing, Listing } from './Listing';
+import { loadListingOperation } from './loadListing';
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
 export class AuctionHouseClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(
+    protected readonly metaplex: Metaplex,
+    protected readonly auctionHouse: AuctionHouse,
+    protected readonly auctioneerAuthority?: Signer
+  ) {}
 
-  builders() {
-    return new AuctionHouseBuildersClient(this.metaplex);
-  }
-
-  createAuctionHouse(input: CreateAuctionHouseInput): Task<
-    Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
+  list(
+    input: WithoutAH<CreateListingInput>
+  ): Task<CreateListingOutput & { listing: Listing }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
-        .getTask(createAuctionHouseOperation(input))
-        .run(scope);
+        .execute(createListingOperation(this.addAH(input)), scope);
       scope.throwIfCanceled();
-      const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouse
-      ).run(scope);
-      return { ...output, auctionHouse };
+
+      try {
+        const listing = await this.findListingByAddress(
+          output.sellerTradeState
+        ).run(scope);
+        return { listing, ...output };
+      } catch (error) {
+        // Fallback to manually creating a listing from inputs and outputs.
+      }
+
+      scope.throwIfCanceled();
+      const lazyListing: LazyListing = {
+        model: 'listing',
+        lazy: true,
+        auctionHouse: this.auctionHouse,
+        tradeStateAddress: output.sellerTradeState,
+        bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
+        sellerAddress: output.wallet,
+        metadataAddress: output.metadata,
+        receiptAddress: input.printReceipt ? output.receipt : null,
+        purchaseReceiptAddress: null,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: new BN(+new Date()),
+        canceledAt: null,
+      };
+
+      return {
+        listing: await this.loadListing(lazyListing).run(scope),
+        ...output,
+      };
     });
   }
 
-  updateAuctionHouse(
-    auctionHouse: AuctionHouse,
-    input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<
-    UpdateAuctionHouseOutput & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
-        .run(scope);
-      scope.throwIfCanceled();
-      const updatedAuctionHouse = await this.findAuctionHouseByAddress(
-        auctionHouse.address
-      ).run(scope);
-      return { ...output, auctionHouse: updatedAuctionHouse };
-    });
-  }
-
-  findAuctionHouseByAddress(
+  findListingByAddress(
     address: PublicKey,
-    commitment?: Commitment
-  ): Task<AuctionHouse> {
+    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findListingByAddressOperation({
+        address,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  loadListing(
+    lazyListing: LazyListing,
+    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+  ): Task<Listing> {
     return this.metaplex
       .operations()
-      .getTask(findAuctionHouseByAddressOperation({ address, commitment }));
+      .getTask(loadListingOperation({ lazyListing, ...options }));
   }
 
-  findAuctionHouseByCreatorAndMint(
-    creator: PublicKey,
-    treasuryMint: PublicKey,
-    commitment?: Commitment
-  ): Task<AuctionHouse> {
-    return this.findAuctionHouseByAddress(
-      findAuctionHousePda(creator, treasuryMint),
-      commitment
-    );
+  protected addAH<T>(input: WithoutAH<T>): T {
+    return {
+      auctionHouse: this.auctionHouse,
+      auctioneerAuthority: this.auctioneerAuthority,
+      ...input,
+    } as unknown as T;
   }
 }

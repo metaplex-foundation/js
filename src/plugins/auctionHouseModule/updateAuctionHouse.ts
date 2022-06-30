@@ -1,11 +1,9 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import {
-  findAssociatedTokenAccountPda,
-  createUpdateAuctionHouseInstructionWithSigners,
-} from '@/programs';
+import { findAssociatedTokenAccountPda } from '@/programs';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { TreasureDestinationOwnerRequiredError } from './errors';
@@ -88,17 +86,18 @@ export const updateAuctionHouseBuilder = (
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
-  const newAuthority = params.newAuthority ?? auctionHouse.authority;
-  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint;
+  const newAuthority = params.newAuthority ?? auctionHouse.authorityAddress;
+  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint.address;
   const feeWithdrawalDestination =
-    params.feeWithdrawalDestination ?? auctionHouse.feeWithdrawalDestination;
+    params.feeWithdrawalDestination ??
+    auctionHouse.feeWithdrawalDestinationAddress;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;
-  if (auctionHouse.usesSol()) {
+  if (auctionHouse.isNative) {
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner ??
-      auctionHouse.treasuryWithdrawalDestination;
+      auctionHouse.treasuryWithdrawalDestinationAddress;
     treasuryWithdrawalDestination = treasuryWithdrawalDestinationOwner;
   } else if (params.treasuryWithdrawalDestinationOwner) {
     treasuryWithdrawalDestinationOwner =
@@ -113,22 +112,25 @@ export const updateAuctionHouseBuilder = (
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
-    .add(
-      createUpdateAuctionHouseInstructionWithSigners({
-        treasuryMint,
-        payer,
-        authority,
-        newAuthority,
-        feeWithdrawalDestination,
-        treasuryWithdrawalDestination,
-        treasuryWithdrawalDestinationOwner,
-        auctionHouse: auctionHouse.address,
-        args: {
+    .add({
+      instruction: createUpdateAuctionHouseInstruction(
+        {
+          treasuryMint,
+          payer: payer.publicKey,
+          authority: authority.publicKey,
+          newAuthority,
+          feeWithdrawalDestination,
+          treasuryWithdrawalDestination,
+          treasuryWithdrawalDestinationOwner,
+          auctionHouse: auctionHouse.address,
+        },
+        {
           sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
           requiresSignOff: params.requiresSignOff ?? null,
           canChangeSalePrice: params.canChangeSalePrice ?? null,
-        },
-        instructionKey: params.instructionKey,
-      })
-    );
+        }
+      ),
+      signers: [payer, authority],
+      key: params.instructionKey ?? 'updateAuctionHouse',
+    });
 };

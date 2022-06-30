@@ -1,9 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { parseAuctionHouseAccount } from '@/programs';
-import { AuctionHouse } from './AuctionHouse';
-import { AccountNotFoundError } from '@/errors';
+import { toAuctionHouseAccount } from './accounts';
+import { AuctionHouse, makeAuctionHouseModel } from './AuctionHouse';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -31,19 +31,23 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
   {
     handle: async (
       operation: FindAuctionHouseByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ) => {
       const { address, commitment } = operation.input;
-      const unparsedAccount = await metaplex
-        .rpc()
-        .getAccount(address, commitment);
 
-      if (!unparsedAccount.exists) {
-        throw new AccountNotFoundError(address, 'AuctionHouse');
-      }
+      const account = toAuctionHouseAccount(
+        await metaplex.rpc().getAccount(address, commitment)
+      );
 
-      const account = parseAuctionHouseAccount(unparsedAccount);
+      const mintModel = await metaplex
+        .nfts()
+        .findMintWithMetadataByAddress(account.data.treasuryMint, {
+          loadJsonMetadata: false,
+          commitment,
+        })
+        .run(scope);
 
-      return new AuctionHouse(account);
+      return makeAuctionHouseModel(account, mintModel);
     },
   };

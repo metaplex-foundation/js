@@ -6,6 +6,7 @@ import {
   Amount,
   assertSol,
   IdentitySigner,
+  isSigner,
   KeypairSigner,
   Signer,
 } from '@/types';
@@ -122,7 +123,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   equals(that: Signer | PublicKey): boolean {
-    if ('publicKey' in that) {
+    if (isSigner(that)) {
       that = that.publicKey;
     }
 

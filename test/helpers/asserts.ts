@@ -3,6 +3,7 @@ import { bignum } from '@metaplex-foundation/beet';
 import BN from 'bn.js';
 import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
+import { Amount, sameAmounts } from '@/types';
 
 export function spokSamePubkey(
   a: PublicKey | string | null | undefined
@@ -26,6 +27,16 @@ export function spokSameBignum(
   };
 
   same.$spec = `spokSameBignum(${a})`;
+  same.$description = `${a} equal`;
+  return same;
+}
+
+export function spokSameAmount(a: Amount): Specification<Amount> {
+  const same = (b?: Amount): boolean => {
+    return !!b && sameAmounts(a, b);
+  };
+
+  same.$spec = `spokSameAmount(${a})`;
   same.$description = `${a} equal`;
   return same;
 }

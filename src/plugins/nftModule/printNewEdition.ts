@@ -6,15 +6,14 @@ import {
   createMintAndMintToAssociatedTokenBuilder,
   createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
   createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
-  parseOriginalEditionAccount,
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
   findAssociatedTokenAccountPda,
+  toOriginalEditionAccount,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
-import { AccountNotFoundError } from '@/errors';
 import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
 const Key = 'PrintNewEditionOperation' as const;
@@ -84,18 +83,11 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       // Original NFT.
       const originalMetadata = findMetadataPda(originalMint);
       const originalEdition = findMasterEditionV2Pda(originalMint);
-      const originalEditionAccount = parseOriginalEditionAccount(
-        await metaplex.rpc().getAccount(originalEdition)
+      const originalEditionAccount = toOriginalEditionAccount(
+        await metaplex.rpc().getAccount(originalEdition),
+        `Ensure the provided mint address for the original NFT [${originalMint.toBase58()}] ` +
+          `is correct and that it has an associated OriginalEdition PDA.`
       );
-
-      if (!originalEditionAccount.exists) {
-        throw new AccountNotFoundError(
-          originalEdition,
-          'OriginalEdition',
-          `Ensure the provided mint address for the original NFT [${originalMint.toBase58()}] ` +
-            `is correct and that it has an associated OriginalEdition PDA.`
-        );
-      }
 
       const edition = new BN(originalEditionAccount.data.supply, 'le').add(
         new BN(1)

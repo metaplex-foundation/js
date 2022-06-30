@@ -1,13 +1,13 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
+import { Keypair } from '@solana/web3.js';
 import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
-import { WRAPPED_SOL_MINT } from '@/plugins/auctionHouseModule/constants';
 import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
-} from '@/programs';
-import { Keypair } from '@solana/web3.js';
+  WRAPPED_SOL_MINT,
+} from '@/index';
 
 killStuckProcess();
 
@@ -26,18 +26,21 @@ test('[auctionHouseModule] update all fields of an Auction House', async (t: Tes
   spok(t, originalAuctionHouse, {
     $topic: 'Original AuctionHouse',
     address: spokSamePubkey(originalAddress),
-    creator: spokSamePubkey(originalCreator),
-    authority: spokSamePubkey(originalCreator),
-    treasuryMint: spokSamePubkey(originalMint),
-    feeAccount: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
-    treasuryAccount: spokSamePubkey(
+    creatorAddress: spokSamePubkey(originalCreator),
+    authorityAddress: spokSamePubkey(originalCreator),
+    treasuryMint: {
+      address: spokSamePubkey(originalMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
+    treasuryAccountAddress: spokSamePubkey(
       findAuctionHouseTreasuryPda(originalAddress)
     ),
-    feeWithdrawalDestination: spokSamePubkey(originalCreator),
-    treasuryWithdrawalDestination: spokSamePubkey(originalCreator),
+    feeWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
     sellerFeeBasisPoints: 200,
     requiresSignOff: false,
     canChangeSalePrice: false,
+    isNative: true,
   });
 
   // When we update as much as we can from that Auction House.
@@ -60,21 +63,26 @@ test('[auctionHouseModule] update all fields of an Auction House', async (t: Tes
   spok(t, updatedAuctionHouse, {
     $topic: 'Updated AuctionHouse',
     address: spokSamePubkey(originalAddress),
-    creator: spokSamePubkey(originalCreator),
-    authority: spokSamePubkey(newAuthority),
+    creatorAddress: spokSamePubkey(originalCreator),
+    authorityAddress: spokSamePubkey(newAuthority),
     // TODO(loris): Update this to a different mint when we have helper methods or a Token module.
-    treasuryMint: spokSamePubkey(originalMint),
-    feeAccount: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
-    treasuryAccount: spokSamePubkey(
+    treasuryMint: {
+      address: spokSamePubkey(originalMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
+    treasuryAccountAddress: spokSamePubkey(
       findAuctionHouseTreasuryPda(originalAddress)
     ),
-    feeWithdrawalDestination: spokSamePubkey(newFeeWithdrawalDestination),
-    treasuryWithdrawalDestination: spokSamePubkey(
+    feeWithdrawalDestinationAddress: spokSamePubkey(
+      newFeeWithdrawalDestination
+    ),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(
       newTreasuryWithdrawalDestinationOwner
     ),
     sellerFeeBasisPoints: 300,
     requiresSignOff: true,
     canChangeSalePrice: true,
+    isNative: true,
   });
 });
 
@@ -101,15 +109,17 @@ test('[auctionHouseModule] providing no changes updates nothing on the Auction H
   spok(t, updatedAuctionHouse, {
     $topic: 'Non Updated AuctionHouse',
     address: spokSamePubkey(originalAddress),
-    creator: spokSamePubkey(originalCreator),
-    authority: spokSamePubkey(originalCreator),
-    treasuryMint: spokSamePubkey(originalMint),
-    feeAccount: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
-    treasuryAccount: spokSamePubkey(
+    creatorAddress: spokSamePubkey(originalCreator),
+    authorityAddress: spokSamePubkey(originalCreator),
+    treasuryMint: {
+      address: spokSamePubkey(originalMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
+    treasuryAccountAddress: spokSamePubkey(
       findAuctionHouseTreasuryPda(originalAddress)
     ),
-    feeWithdrawalDestination: spokSamePubkey(originalCreator),
-    treasuryWithdrawalDestination: spokSamePubkey(originalCreator),
+    feeWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
     sellerFeeBasisPoints: 200,
     requiresSignOff: false,
     canChangeSalePrice: false,

@@ -6,7 +6,7 @@ const assertCluster = (t: Test, endpoint: string, expected: Cluster) => {
   t.equal(resolveClusterFromEndpoint(endpoint), expected);
 };
 
-test('cluster: it can be resolved from the connection', async (t: Test) => {
+test('[Cluster] it can be resolved from the connection', async (t: Test) => {
   // It can resolve the mainnet cluster.
   assertCluster(t, clusterApiUrl('mainnet-beta'), 'mainnet-beta');
   assertCluster(t, 'https://api.mainnet-beta.solana.com', 'mainnet-beta');

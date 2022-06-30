@@ -1,14 +1,18 @@
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
 } from './createAuctionHouse';
 import {
+  createListingBuilder,
+  CreateListingBuilderParams,
+} from './createListing';
+import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
 } from './updateAuctionHouse';
 
-export class AuctionHouseBuildersClient {
+export class AuctionsBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
@@ -17,5 +21,9 @@ export class AuctionHouseBuildersClient {
 
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
     return updateAuctionHouseBuilder(this.metaplex, input);
+  }
+
+  createListing(input: CreateListingBuilderParams) {
+    return createListingBuilder(this.metaplex, input);
   }
 }
