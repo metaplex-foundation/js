@@ -3,7 +3,7 @@ import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import {
   amman,
-  hash32Bit,
+  assertThrows,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -12,6 +12,7 @@ import {
 import { sol, CandyMachine } from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import nacl from 'tweetnacl';
 
 killStuckProcess();
 
@@ -133,17 +134,19 @@ test('[candyMachineModule] create with end settings', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.only('[candyMachineModule] create with hidden settings', async (t) => {
-  // Given a Candy Machine client.
+// TODO(loris): Waiting on a protocol fix.
+test.skip('[candyMachineModule] create with hidden settings', async (t) => {
+  // Given a Candy Machine client and a computed hash.
   const { tc, client, minimalInput } = await init();
+  const hashInput = 'cache-file';
+  const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0, 32));
 
   // When we create a Candy Machine with hidden settings.
   const { response, candyMachine } = await client
     .create({
       ...minimalInput,
       hiddenSettings: {
-        // hash: Buffer.from(hash32Bit('cache-file'), 'utf8').toJSON().data,
-        hash: [1, 2, 3],
+        hash,
         uri: 'https://example.com',
         name: 'mint-name',
       },
@@ -156,41 +159,58 @@ test.only('[candyMachineModule] create with hidden settings', async (t) => {
     $topic: 'Candy Machine',
     model: 'candyMachine',
     hiddenSettings: {
-      hash: Buffer.from(hash32Bit('cache-file..'), 'utf8').toJSON().data,
+      hash,
       uri: 'https://example.com',
       name: 'mint-name',
     },
   });
 });
 
-test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
-  // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine,
-  // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
-  // see: src/modules/candy-machine/models/candyMachineSpace.ts
-  const { tc, cm, minimalConfig, opts } = await init();
+test('[candyMachineModule] try to create with invalid hidden settings', async (t) => {
+  // Given a Candy Machine client.
+  const { client, minimalInput } = await init();
 
-  const config: CandyMachineConfigWithoutStorage = {
-    ...minimalConfig,
-    hiddenSettings: {
-      hash: hash32Bit('cache-file'),
-      uri: 'https://example.com',
-      name: 'mint-name',
+  // When we create a Candy Machine with invalid hidden settings.
+  const promise = client
+    .create({
+      ...minimalInput,
+      hiddenSettings: {
+        hash: [1, 2, 3], // <- Should be 32 bytes.
+        uri: 'https://example.com',
+        name: 'mint-name',
+      },
+    })
+    .run();
+
+  // Then it fails to create the Candy Machine.
+  await assertThrows(t, promise, /len.+10.+should match len.+32/i);
+});
+
+test('[candyMachineModule] create with gatekeeper settings', async (t) => {
+  // Given a Candy Machine client and a gatekeeper address.
+  const { tc, client, minimalInput } = await init();
+  const gatekeeper = Keypair.generate();
+
+  // When we create a Candy Machine with gatekeep settings.
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      gatekeeper: {
+        expireOnUse: true,
+        gatekeeperNetwork: gatekeeper.publicKey,
+      },
+    })
+    .run();
+
+  // Then a Candy Machine was created with these gatekeep settings.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    gatekeeper: {
+      expireOnUse: true,
+      gatekeeperNetwork: gatekeeper.publicKey,
     },
-  };
-
-  // When we create that Candy Machine
-  const { transactionId, candyMachine, ...rest } = await cm.createFromConfig(
-    config,
-    opts
-  );
-  await amman.addr.addLabel('initCandyMachine', transactionId);
-
-  // Then we created the Candy Machine as configured
-  await tc.assertSuccess(t, transactionId);
-  assertProperlyInitialized(t, candyMachine, {
-    ...rest,
-    ...config,
-    tokenMintAddress: null,
   });
 });
 
@@ -211,82 +231,6 @@ test.skip('candyMachine: init with invalid hidden settings program error', async
 //   });
 // });
 
-// test('candyMachine: init with invalid hidden settings (hash too short)', async (t) => {
-//   // Given we configure a Candy Machine incorrectly
-//   const { cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     hiddenSettings: {
-//       hash: 'not 32-bit',
-//       uri: 'https://example.com',
-//       name: 'mint-name',
-//     },
-//   };
-
-//   // When we create that Candy Machine it fails
-//   await assertThrows(
-//     t,
-//     () => cm.createFromConfig(config, opts),
-//     /len.+10.+should match len.+32/i
-//   );
-// });
-
-// // -----------------
-// // Gatekeeper Settings
-// // -----------------
-// test('candyMachine: with gatekeeper settings', async (t) => {
-//   // Given we configure a Candy Machine
-//   const [gateKeeper] = amman.genKeypair();
-
-//   const { tc, cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     gatekeeper: { expireOnUse: true, gatekeeperNetwork: gateKeeper.toBase58() },
-//   };
-
-//   // When we create that Candy Machine
-//   const { transactionId, candyMachine, candyMachineSigner, ...rest } =
-//     await cm.createFromConfig(config, opts);
-//   await amman.addr.addLabel('tx: create candy-machine', transactionId);
-//   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
-
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, transactionId);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     candyMachineSigner,
-//     tokenMintAddress: null,
-//   });
-//   spok(t, candyMachine.gatekeeper as GatekeeperConfig, {
-//     $topic: 'gatekeeper',
-//     expireOnUse: config.gatekeeper?.expireOnUse,
-//     gatekeeperNetwork: spokSamePubkey(config.gatekeeper?.gatekeeperNetwork),
-//   });
-// });
-
-// test('candyMachine: with invalid gatekeeper settings (network not a public key)', async (t) => {
-//   // Given we configure a Candy Machine incorrectly
-//   const { cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     gatekeeper: { expireOnUse: true, gatekeeperNetwork: '<invalid>' },
-//   };
-
-//   // When we create that Candy Machine it fails
-//   await assertThrows(
-//     t,
-//     () => cm.createFromConfig(config, opts),
-//     /not a valid PublicKey/i
-//   );
-// });
-
-// // -----------------
-// // WhitelistMint Settings
-// // -----------------
 // test('candyMachine: with whitelistMint settings', async (t) => {
 //   // Given we configure a Candy Machine
 //   const [mint] = amman.genKeypair();
