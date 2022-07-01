@@ -25,7 +25,7 @@ export type CandyMachine = Readonly<{
   isMutable: boolean;
   retainAuthority: boolean;
   goLiveDate: Option<BN>;
-  maxEditionSupply: Option<BN>;
+  maxEditionSupply: BN;
   items: CandyMachineItem[];
   itemsAvailable: number;
   itemsMinted: number;

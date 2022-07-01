@@ -52,7 +52,7 @@ export type CreateCandyMachineInput = {
 
   // Optional Data.
   symbol?: string; // Defaults to empty string.
-  maxEditionSupply?: Option<BN | number>; // Defaults to 0.
+  maxEditionSupply?: BN | number; // Defaults to 0.
   isMutable?: boolean; // Defaults to true.
   retainAuthority?: boolean; // Defaults to true.
   goLiveDate?: Option<BN | number>; // Defaults to null.

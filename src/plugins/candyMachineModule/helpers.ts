@@ -6,6 +6,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
+import { CandyMachine } from './CandyMachine';
 
 export function getConfigLinesCount(rawData: Buffer): number {
   return rawData
@@ -46,4 +47,32 @@ export const getCandyMachineUuidFromAddress = (
   candyMachineAddress: PublicKey
 ): string => {
   return candyMachineAddress.toBase58().slice(0, 6);
+};
+
+export const getCandyMachineAccountDataFromModel = (
+  candyMachine: CandyMachine
+): CandyMachineData => {
+  return {
+    uuid: candyMachine.uuid,
+    price: candyMachine.price.basisPoints,
+    symbol: candyMachine.symbol,
+    sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
+    maxSupply: candyMachine.maxEditionSupply,
+    isMutable: candyMachine.isMutable,
+    retainAuthority: candyMachine.retainAuthority,
+    goLiveDate: candyMachine.goLiveDate,
+    endSettings: candyMachine.endSettings,
+    creators: candyMachine.creators,
+    hiddenSettings: candyMachine.hiddenSettings,
+    whitelistMintSettings: candyMachine.whitelistMintSettings
+      ? {
+          ...candyMachine.whitelistMintSettings,
+          discountPrice: candyMachine.whitelistMintSettings.discountPrice
+            ? candyMachine.whitelistMintSettings.discountPrice.basisPoints
+            : null,
+        }
+      : null,
+    itemsAvailable: candyMachine.itemsAvailable,
+    gatekeeper: candyMachine.gatekeeper,
+  };
 };
