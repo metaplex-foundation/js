@@ -1,28 +1,32 @@
-import {
-  ConfirmOptions,
-  Keypair,
-  PublicKey,
-  RpcResponseAndContext,
-  SignatureResult,
-} from '@solana/web3.js';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   CandyMachineData,
-  PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
+  createInitializeCandyMachineInstruction,
+  Creator,
+  EndSettings,
+  GatekeeperConfig,
+  HiddenSettings,
+  WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
+import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   useOperation,
   Signer,
   OperationHandler,
-  HasMetaplex,
+  Amount,
+  assertSameCurrencies,
+  SOL,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder } from '@/utils';
+import { createAccountBuilder } from '@/programs';
+import { CandyMachineProgram } from './program';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import {
-  createAccountBuilder,
-  createInitializeCandyMachineInstructionWithSigners,
-} from '@/programs';
-import { getSpaceForCandy } from './internals';
+  getCandyMachineAccountSizeFromData,
+  getCandyMachineUuidFromAddress,
+} from './helpers';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =
@@ -33,27 +37,39 @@ export type CreateCandyMachineOperation = Operation<
   CreateCandyMachineOutput
 >;
 
-export type CreateCandyMachineInput = CandyMachineData & {
+export type CreateCandyMachineInput = {
   // Accounts.
-  candyMachineSigner?: Signer;
-  payerSigner?: Signer;
-  walletAddress?: PublicKey;
-  authorityAddress?: PublicKey;
+  candyMachine?: Signer; // Defaults to Keypair.generate()
+  payer?: Signer; // Defaults to mx.identity()
+  wallet?: PublicKey; // Defaults to mx.identity().publicKey
+  authority?: PublicKey; // Defaults to mx.identity().publicKey
+  tokenMint?: Option<PublicKey>; // Default to null
+
+  // Data.
+  price: Amount;
+  sellerFeeBasisPoints: number;
+  itemsAvailable: BN | number;
+  symbol?: string; // Defaults to empty string.
+  maxEditionSupply?: Option<BN | number>; // Defaults to 0.
+  isMutable?: boolean; // Defaults to true.
+  retainAuthority?: boolean; // Defaults to true.
+  goLiveDate?: Option<BN | number>; // Defaults to null.
+  endSettings?: Option<EndSettings>; // Defaults to null.
+  creators?: Creator[]; // Defaults to [].
+  hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
+  whitelistMintSettings?: Option<WhitelistMintSettings>; // Defaults to null.
+  gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
 
 export type CreateCandyMachineOutput = {
-  // Accounts.
-  candyMachineSigner: Signer;
-  payerSigner: Signer;
-  walletAddress: PublicKey;
-  authorityAddress: PublicKey;
-
-  // Transaction Result.
-  transactionId: string;
-  confirmResponse: RpcResponseAndContext<SignatureResult>;
+  response: SendAndConfirmTransactionResponse;
+  candyMachine: Signer;
+  payer: Signer;
+  wallet: PublicKey;
+  authority: PublicKey;
 };
 
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
@@ -62,100 +78,116 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
       operation: CreateCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<CreateCandyMachineOutput> {
-      const {
-        candyMachineSigner = Keypair.generate(),
-        payerSigner = metaplex.identity(),
-        walletAddress = payerSigner.publicKey,
-        authorityAddress = payerSigner.publicKey,
-        confirmOptions,
-        ...candyMachineData
-      } = operation.input;
+      const builder = await createCandyMachineBuilder(
+        metaplex,
+        operation.input
+      );
 
-      const { signature, confirmResponse } = await metaplex
+      const response = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          await createCandyMachineBuilder({
-            metaplex,
-            payerSigner,
-            candyMachineSigner,
-            walletAddress,
-            authorityAddress,
-            confirmOptions,
-            ...candyMachineData,
-          }),
+          builder,
           undefined,
-          confirmOptions
+          operation.input.confirmOptions
         );
 
       return {
-        // Accounts.
-        payerSigner,
-        candyMachineSigner,
-        walletAddress,
-        authorityAddress,
-
-        // Transaction Result.
-        transactionId: signature,
-        confirmResponse,
+        response,
+        ...builder.getContext(),
       };
     },
   };
 
-export type CreateCandyMachineBuilderParams = HasMetaplex &
-  CandyMachineData & {
-    // Accounts.
-    candyMachineSigner: Signer;
-    payerSigner: Signer;
-    walletAddress: PublicKey;
-    authorityAddress: PublicKey;
+export type CreateCandyMachineBuilderParams = Omit<
+  CreateCandyMachineInput,
+  'confirmOptions'
+> & {
+  createAccountInstructionKey?: string;
+  initializeCandyMachineInstructionKey?: string;
+};
 
-    // Instruction keys.
-    createAccountInstructionKey?: string;
-    initializeCandyMachineInstructionKey?: string;
-
-    // Transaction Options.
-    confirmOptions?: ConfirmOptions;
-  };
+export type CreateCandyMachineBuilderContext = Omit<
+  CreateCandyMachineOutput,
+  'response'
+>;
 
 export const createCandyMachineBuilder = async (
+  metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams
-): Promise<TransactionBuilder> => {
-  const {
-    metaplex,
-    candyMachineSigner,
-    payerSigner,
-    walletAddress,
-    authorityAddress,
-    createAccountInstructionKey,
-    initializeCandyMachineInstructionKey,
+): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
+  const candyMachine = params.candyMachine ?? Keypair.generate();
+  const payer = params.payer ?? metaplex.identity();
+  const wallet = params.wallet ?? metaplex.identity().publicKey;
+  const authority = params.authority ?? metaplex.identity().publicKey;
+  const tokenMint = params.tokenMint ?? null;
 
-    ...candyMachineData
-  } = params;
+  const data: CandyMachineData = {
+    uuid: getCandyMachineUuidFromAddress(candyMachine.publicKey),
+    price: params.price.basisPoints,
+    symbol: params.symbol ?? '',
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+    maxSupply: params.maxEditionSupply ?? 0,
+    isMutable: params.isMutable ?? true,
+    retainAuthority: params.retainAuthority ?? true,
+    goLiveDate: params.goLiveDate ?? null,
+    endSettings: params.endSettings ?? null,
+    creators: params.creators ?? [],
+    hiddenSettings: params.hiddenSettings ?? null,
+    whitelistMintSettings: params.whitelistMintSettings ?? null,
+    itemsAvailable: params.itemsAvailable,
+    gatekeeper: params.gatekeeper ?? null,
+  };
 
-  const space = getSpaceForCandy(candyMachineData);
-  const lamports = await metaplex.connection.getMinimumBalanceForRentExemption(
-    space
+  const space = getCandyMachineAccountSizeFromData(data);
+  const lamports = await metaplex.rpc().getRent(space);
+  const initializeInstruction = createInitializeCandyMachineInstruction(
+    {
+      candyMachine: candyMachine.publicKey,
+      wallet,
+      authority,
+      payer: payer.publicKey,
+    },
+    { data }
   );
 
-  return TransactionBuilder.make()
-    .add(
-      createAccountBuilder({
-        payer: payerSigner,
-        newAccount: candyMachineSigner,
-        space,
-        lamports,
-        program: CANDY_MACHINE_PROGRAM_ID,
-        instructionKey: createAccountInstructionKey,
+  if (tokenMint) {
+    initializeInstruction.keys.push({
+      pubkey: tokenMint,
+      isWritable: false,
+      isSigner: false,
+    });
+  } else {
+    assertSameCurrencies(params.price, SOL);
+  }
+
+  return (
+    TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+      .setContext({
+        candyMachine,
+        payer,
+        wallet,
+        authority,
       })
-    )
-    .add(
-      createInitializeCandyMachineInstructionWithSigners({
-        data: candyMachineData,
-        candyMachine: candyMachineSigner,
-        payer: payerSigner,
-        wallet: walletAddress,
-        authority: authorityAddress,
-        instructionKey: initializeCandyMachineInstructionKey,
+
+      // Create an empty account for the candy machine.
+      .add(
+        createAccountBuilder({
+          payer,
+          newAccount: candyMachine,
+          space,
+          lamports: lamports.basisPoints.toNumber(),
+          program: CandyMachineProgram.publicKey,
+          instructionKey: params.createAccountInstructionKey,
+        })
+      )
+
+      // Initialize the candy machine account.
+      .add({
+        instruction: initializeInstruction,
+        signers: [candyMachine, payer],
+        key:
+          params.initializeCandyMachineInstructionKey ??
+          'initializeCandyMachine',
       })
-    );
+  );
 };

@@ -57,7 +57,7 @@ export async function findByAuthorityAndUuid(
   );
   if (matchingUUid.length === 0) {
     const addresses = candyMachinesForAuthority.map(
-      (candyMachine) => candyMachine.candyMachineAccount.publicKey
+      (candyMachine) => candyMachine.address
     );
     throw new NoCandyMachineFoundForAuthorityMatchesUuidError(
       authorityAddress,
@@ -66,9 +66,7 @@ export async function findByAuthorityAndUuid(
     );
   }
   if (matchingUUid.length > 1) {
-    const addresses = matchingUUid.map(
-      (candyMachine) => candyMachine.candyMachineAccount.publicKey
-    );
+    const addresses = matchingUUid.map((candyMachine) => candyMachine.address);
     throw new MoreThanOneCandyMachineFoundByAuthorityAndUuidError(
       authorityAddress,
       uuid,

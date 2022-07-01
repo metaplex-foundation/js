@@ -33,7 +33,8 @@ export async function update(
     throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
   }
 
-  const updatedData = currentCandyMachine.updatedCandyMachineData(input);
+  // TODO(loris): Create local helper method to get the nested CandyMachineData from the Candy Machine model.
+  const updatedData = input as CandyMachineData;
 
   const operation = updateCandyMachineOperation({ ...input, ...updatedData });
   const output = await this.metaplex.operations().execute(operation);

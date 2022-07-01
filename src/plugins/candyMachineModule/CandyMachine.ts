@@ -7,10 +7,10 @@ import {
   WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
-import { CandyMachineAccount } from './accounts';
 import { Amount, lamports, UnparsedAccount } from '@/types';
-import { getConfigLines } from './internals';
 import { assert, Option } from '@/utils';
+import { getConfigLinesCount, parseConfigLines } from './helpers';
+import { CandyMachineAccount } from './accounts';
 
 export type CandyMachine = Readonly<{
   model: 'candyMachine';
@@ -25,12 +25,13 @@ export type CandyMachine = Readonly<{
   isMutable: boolean;
   retainAuthority: boolean;
   goLiveDate: Option<BN>;
-  maxSupply: BN;
+  maxEditionSupply: Option<BN>;
   items: CandyMachineItem[];
-  itemsAvailable: BN;
-  itemsRedeemed: BN;
-  itemsMinted: BN;
-  isFull: boolean;
+  itemsAvailable: number;
+  itemsRedeemed: number;
+  itemsMinted: number;
+  itemsLoaded: number;
+  isFullyLoaded: boolean;
   endSettings: Option<EndSettings>;
   hiddenSettings: Option<HiddenSettings>;
   whitelistMintSettings: Option<WhitelistMintSettings>;
@@ -55,10 +56,10 @@ export const makeCandyMachineModel = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount
 ): CandyMachine => {
-  const maxSupply = new BN(account.data.data.maxSupply);
-  const itemsAvailable = new BN(account.data.data.itemsAvailable);
-  const itemsRedeemed = new BN(account.data.itemsRedeemed);
-  const items = getConfigLines(unparsedAccount.data);
+  const itemsAvailable = new BN(account.data.data.itemsAvailable).toNumber();
+  const itemsRedeemed = new BN(account.data.itemsRedeemed).toNumber();
+  const itemsLoaded = getConfigLinesCount(unparsedAccount.data);
+  const items = parseConfigLines(unparsedAccount.data);
 
   return {
     model: 'candyMachine',
@@ -75,12 +76,13 @@ export const makeCandyMachineModel = (
     goLiveDate: account.data.data.goLiveDate
       ? new BN(account.data.data.goLiveDate)
       : null,
-    maxSupply,
+    maxEditionSupply: new BN(account.data.data.maxSupply),
     items,
     itemsAvailable,
     itemsRedeemed,
-    itemsMinted: itemsAvailable.sub(itemsRedeemed),
-    isFull: itemsAvailable.gte(maxSupply),
+    itemsMinted: itemsAvailable - itemsRedeemed,
+    itemsLoaded,
+    isFullyLoaded: itemsAvailable >= itemsLoaded,
     endSettings: account.data.data.endSettings,
     hiddenSettings: account.data.data.hiddenSettings,
     whitelistMintSettings: account.data.data.whitelistMintSettings,

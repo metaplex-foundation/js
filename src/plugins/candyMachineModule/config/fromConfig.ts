@@ -53,7 +53,6 @@ export function candyMachineDataFromConfig(
     retainAuthority: config.retainAuthority,
     goLiveDate,
     itemsAvailable: new BN(config.number),
-
     endSettings,
     hiddenSettings,
     whitelistMintSettings,
