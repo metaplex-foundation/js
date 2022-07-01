@@ -11,7 +11,10 @@ import {
 } from '../../helpers';
 import { sol, CandyMachine } from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
 import nacl from 'tweetnacl';
 
 killStuckProcess();
@@ -214,82 +217,36 @@ test('[candyMachineModule] create with gatekeeper settings', async (t) => {
   });
 });
 
-// test('[candyMachineModule] create with TEMPLATE', async (t) => {
-//   // Given a Candy Machine client.
-//   const { tc, client, minimalInput } = await init();
+test('[candyMachineModule] create with whitelistMint settings', async (t) => {
+  // Given a Candy Machine client and a mint account.
+  const { tc, client, minimalInput } = await init();
+  const mint = Keypair.generate();
 
-//   // When we create a Candy Machine with ...
-//   const { response, candyMachine } = await client
-//     .create({ ...minimalInput })
-//     .run();
+  // When we create a Candy Machine with ...
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      whitelistMintSettings: {
+        mode: WhitelistMintMode.BurnEveryTime,
+        discountPrice: sol(0.5),
+        mint: mint.publicKey,
+        presale: false,
+      },
+    })
+    .run();
 
-//   // Then a Candy Machine was created with ...
-//   await tc.assertSuccess(t, response.signature);
-//   spok(t, candyMachine, {
-//     $topic: 'Candy Machine',
-//     model: 'candyMachine',
-//   });
-// });
-
-// test('candyMachine: with whitelistMint settings', async (t) => {
-//   // Given we configure a Candy Machine
-//   const [mint] = amman.genKeypair();
-
-//   const { tc, cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     whitelistMintSettings: {
-//       mode: 'burnEveryTime',
-//       discountPrice: 5,
-//       mint: mint.toBase58(),
-//       presale: false,
-//     },
-//   };
-
-//   // When we create that Candy Machine
-//   const { response, candyMachine, ...rest } = await cm.createFromConfig(
-//     config,
-//     opts
-//   );
-//   await amman.addr.addLabel('tx: create candy-machine', response.signature);
-//   await amman.addr.addLabel('candy-machine', candyMachine.publicKey);
-
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, response.signature);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     candyMachineSigner,
-//     tokenMintAddress: null,
-//   });
-//   spok(t, candyMachine.whitelistMintSettings as WhitelistMintSettings, {
-//     $topic: 'whitelist mint settings',
-//     mode: WhitelistMintMode.BurnEveryTime,
-//     discountPrice: spokSameBignum(config.whitelistMintSettings?.discountPrice!),
-//     mint: spokSamePubkey(config.whitelistMintSettings?.mint!),
-//     presale: config.whitelistMintSettings?.presale,
-//   });
-// });
-
-// test('candyMachine: with invalid whitemint settings (mint not a public key)', async (t) => {
-//   // Given we configure a Candy Machine incorrectly
-//   const { cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     whitelistMintSettings: {
-//       mode: 'burnEveryTime',
-//       discountPrice: 5,
-//       mint: '<invalid mint key>',
-//       presale: false,
-//     },
-//   };
-
-//   // When we create that Candy Machine it fails
-//   await assertThrows(
-//     t,
-//     () => cm.createFromConfig(config, opts),
-//     /not a valid PublicKey/i
-//   );
-// });
+  // Then a Candy Machine was created with ...
+  await tc.assertSuccess(t, response.signature);
+  console.log(candyMachine.whitelistMintSettings?.discountPrice);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    price: spokSameAmount(sol(1)),
+    whitelistMintSettings: {
+      mode: WhitelistMintMode.BurnEveryTime,
+      discountPrice: spokSameAmount(sol(0.5)),
+      mint: mint.publicKey,
+      presale: false,
+    },
+  } as unknown as Specifications<CandyMachine>);
+});

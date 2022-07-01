@@ -4,7 +4,7 @@ import {
   EndSettings,
   GatekeeperConfig,
   HiddenSettings,
-  WhitelistMintSettings,
+  WhitelistMintSettings as BaseWhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { Amount, lamports, UnparsedAccount } from '@/types';
@@ -43,6 +43,13 @@ export type CandyMachineItem = Readonly<{
   name: string;
   uri: string;
 }>;
+
+export type WhitelistMintSettings = Omit<
+  BaseWhitelistMintSettings,
+  'discountPrice'
+> & {
+  discountPrice: Option<Amount>;
+};
 
 export const isCandyMachineModel = (value: any): value is CandyMachine =>
   typeof value === 'object' && value.model === 'candyMachine';
@@ -85,7 +92,14 @@ export const makeCandyMachineModel = (
     isFullyLoaded: itemsAvailable <= itemsLoaded,
     endSettings: account.data.data.endSettings,
     hiddenSettings: account.data.data.hiddenSettings,
-    whitelistMintSettings: account.data.data.whitelistMintSettings,
+    whitelistMintSettings: account.data.data.whitelistMintSettings
+      ? {
+          ...account.data.data.whitelistMintSettings,
+          discountPrice: account.data.data.whitelistMintSettings.discountPrice
+            ? lamports(account.data.data.whitelistMintSettings.discountPrice)
+            : null,
+        }
+      : null,
     gatekeeper: account.data.data.gatekeeper,
     creators: account.data.data.creators,
   };

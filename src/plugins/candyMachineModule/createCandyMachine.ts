@@ -6,7 +6,6 @@ import {
   EndSettings,
   GatekeeperConfig,
   HiddenSettings,
-  WhitelistMintSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
@@ -27,6 +26,7 @@ import {
   getCandyMachineAccountSizeFromData,
   getCandyMachineUuidFromAddress,
 } from './helpers';
+import { WhitelistMintSettings } from './CandyMachine';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =
@@ -123,6 +123,13 @@ export const createCandyMachineBuilder = async (
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
+  const whitelistMintSettings = params.whitelistMintSettings
+    ? {
+        ...params.whitelistMintSettings,
+        discountPrice:
+          params.whitelistMintSettings.discountPrice?.basisPoints ?? null,
+      }
+    : null;
   const creatorsParam = params.creators ?? metaplex.identity().publicKey;
   const creators = Array.isArray(creatorsParam)
     ? creatorsParam
@@ -146,7 +153,7 @@ export const createCandyMachineBuilder = async (
     endSettings: params.endSettings ?? null,
     creators,
     hiddenSettings: params.hiddenSettings ?? null,
-    whitelistMintSettings: params.whitelistMintSettings ?? null,
+    whitelistMintSettings,
     itemsAvailable: params.itemsAvailable,
     gatekeeper: params.gatekeeper ?? null,
   };
