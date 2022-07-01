@@ -1,4 +1,4 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, PublicKeyInitData, Transaction } from '@solana/web3.js';
 
 export type Signer = KeypairSigner | IdentitySigner;
 
@@ -14,21 +14,26 @@ export type IdentitySigner = {
   signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
 };
 
-export const isSigner = (input: Signer | PublicKey): input is Signer => {
-  return 'publicKey' in input;
+export type PublicKeyString = string;
+
+export const isSigner = (input: any): input is Signer => {
+  return (
+    typeof input === 'object' &&
+    'publicKey' in input &&
+    ('secretKey' in input || 'signTransaction' in input)
+  );
 };
 
-export const isKeypairSigner = (signer: Signer): signer is KeypairSigner => {
-  return 'secretKey' in signer && signer.secretKey != null;
+export const isKeypairSigner = (input: any): input is KeypairSigner => {
+  return isSigner(input) && 'secretKey' in input && input.secretKey != null;
 };
 
-export const isIdentitySigner = (signer: Signer): signer is IdentitySigner => {
-  return !isKeypairSigner(signer);
+export const isIdentitySigner = (input: any): input is IdentitySigner => {
+  return isSigner(input) && !isKeypairSigner(input);
 };
 
-export const toPublicKey = (input: Signer | PublicKey): PublicKey => {
-  // TODO(loris): Support more input types and remove conflicting method: "convertToPublickKey".
-  return isSigner(input) ? input.publicKey : input;
+export const toPublicKey = (input: Signer | PublicKeyInitData): PublicKey => {
+  return isSigner(input) ? input.publicKey : new PublicKey(input);
 };
 
 export interface SignerHistogram {
