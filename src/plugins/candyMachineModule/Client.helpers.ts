@@ -5,8 +5,7 @@ import {
 } from '@/errors';
 import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
-import { assertConfigLineConstraints } from './internals';
-import BN from 'bn.js';
+import { assertConfigLineConstraints } from './constants';
 
 export function creatorsToJsonMetadataCreators(creators: Creator[]) {
   return creators.map((creator: Creator) => ({
@@ -17,25 +16,21 @@ export function creatorsToJsonMetadataCreators(creators: Creator[]) {
 }
 
 export function assertNotFull(candyMachine: CandyMachine, index: number) {
-  if (candyMachine.isFull) {
-    throw new CandyMachineIsFullError(index, candyMachine.maxSupply);
+  if (candyMachine.isFullyLoaded) {
+    throw new CandyMachineIsFullError(index, candyMachine.itemsAvailable);
   }
 }
 
 export function assertCanAdd(
   candyMachine: CandyMachine,
-  index: number | BN,
-  amount: number | BN
+  index: number,
+  amount: number
 ) {
-  index = new BN(index);
-  amount = new BN(amount);
-  const newTotal = index.add(amount);
-
-  if (newTotal.gt(candyMachine.maxSupply)) {
+  if (index + amount > candyMachine.itemsAvailable) {
     throw new CandyMachineCannotAddAmountError(
-      index.toNumber(),
-      amount.toNumber(),
-      candyMachine.maxSupply
+      index,
+      amount,
+      candyMachine.itemsAvailable
     );
   }
 }

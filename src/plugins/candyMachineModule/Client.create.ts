@@ -12,30 +12,37 @@ import {
 } from './createCandyMachine';
 import { CandyMachine } from './CandyMachine';
 import type { CandyMachineClient } from './CandyMachineClient';
+import { Task } from '@/utils';
 
 export type CandyMachineInitFromConfigOpts = {
-  candyMachineSigner?: Signer;
+  candyMachine?: Signer;
   authorityAddress?: PublicKey;
   confirmOptions?: ConfirmOptions;
 };
 
-export async function create(
+export function create(
   this: CandyMachineClient,
   input: CreateCandyMachineInput
-): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
-  const operation = createCandyMachineOperation(input);
-  const output = await this.metaplex.operations().execute(operation);
-
-  const candyMachine = await this.findByAddress(
-    output.candyMachineSigner.publicKey
-  );
-  if (candyMachine === null) {
-    throw new CreatedCandyMachineNotFoundError(
-      output.candyMachineSigner.publicKey
-    );
+): Task<
+  Omit<CreateCandyMachineOutput, 'candyMachine'> & {
+    candyMachine: CandyMachine;
   }
+> {
+  return new Task(async (scope) => {
+    const operation = createCandyMachineOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
 
-  return { candyMachine, ...output };
+    const candyMachine = await this.findByAddress(
+      output.candyMachine.publicKey
+    );
+
+    if (candyMachine === null) {
+      throw new CreatedCandyMachineNotFoundError(output.candyMachine.publicKey);
+    }
+
+    return { ...output, candyMachine };
+  });
 }
 
 export async function createFromConfig(
@@ -43,15 +50,15 @@ export async function createFromConfig(
   config: CandyMachineConfigWithoutStorage,
   opts: CandyMachineInitFromConfigOpts
 ): Promise<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
-  const { candyMachineSigner = Keypair.generate() } = opts;
+  const { candyMachine = Keypair.generate() } = opts;
   const candyMachineData = candyMachineDataFromConfig(
     config,
-    candyMachineSigner.publicKey
+    candyMachine.publicKey
   );
   const walletAddress = convertToPublickKey(config.solTreasuryAccount);
 
   return this.create({
-    candyMachineSigner,
+    candyMachine,
     walletAddress,
     authorityAddress: opts.authorityAddress,
     ...candyMachineData,

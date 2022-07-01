@@ -1,8 +1,4 @@
-import {
-  CandyMachineData,
-  Creator,
-} from '@metaplex-foundation/mpl-candy-machine';
-import BN from 'bn.js';
+import { Creator } from '@metaplex-foundation/mpl-candy-machine';
 import { assert } from '@/utils';
 
 export const MAX_NAME_LENGTH = 32;
