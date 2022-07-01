@@ -39,23 +39,25 @@ export type CreateCandyMachineOperation = Operation<
 
 export type CreateCandyMachineInput = {
   // Accounts.
-  candyMachine?: Signer; // Defaults to Keypair.generate()
-  payer?: Signer; // Defaults to mx.identity()
-  wallet?: PublicKey; // Defaults to mx.identity().publicKey
-  authority?: PublicKey; // Defaults to mx.identity().publicKey
-  tokenMint?: Option<PublicKey>; // Default to null
+  candyMachine?: Signer; // Defaults to Keypair.generate().
+  payer?: Signer; // Defaults to mx.identity().
+  wallet?: PublicKey; // Defaults to mx.identity().publicKey.
+  authority?: PublicKey; // Defaults to mx.identity().publicKey.
+  tokenMint?: Option<PublicKey>; // Default to null.
 
   // Data.
   price: Amount;
   sellerFeeBasisPoints: number;
   itemsAvailable: BN | number;
+
+  // Optional Data.
   symbol?: string; // Defaults to empty string.
   maxEditionSupply?: Option<BN | number>; // Defaults to 0.
   isMutable?: boolean; // Defaults to true.
   retainAuthority?: boolean; // Defaults to true.
   goLiveDate?: Option<BN | number>; // Defaults to null.
   endSettings?: Option<EndSettings>; // Defaults to null.
-  creators?: Creator[]; // Defaults to [].
+  creators?: PublicKey | Creator[]; // Defaults to mx.identity().publicKey.
   hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
   whitelistMintSettings?: Option<WhitelistMintSettings>; // Defaults to null.
   gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.
@@ -70,6 +72,7 @@ export type CreateCandyMachineOutput = {
   payer: Signer;
   wallet: PublicKey;
   authority: PublicKey;
+  creators: Creator[];
 };
 
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
@@ -120,6 +123,16 @@ export const createCandyMachineBuilder = async (
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
+  const creatorsParam = params.creators ?? metaplex.identity().publicKey;
+  const creators = Array.isArray(creatorsParam)
+    ? creatorsParam
+    : [
+        {
+          address: creatorsParam,
+          verified: false,
+          share: 100,
+        },
+      ];
 
   const data: CandyMachineData = {
     uuid: getCandyMachineUuidFromAddress(candyMachine.publicKey),
@@ -131,7 +144,7 @@ export const createCandyMachineBuilder = async (
     retainAuthority: params.retainAuthority ?? true,
     goLiveDate: params.goLiveDate ?? null,
     endSettings: params.endSettings ?? null,
-    creators: params.creators ?? [],
+    creators,
     hiddenSettings: params.hiddenSettings ?? null,
     whitelistMintSettings: params.whitelistMintSettings ?? null,
     itemsAvailable: params.itemsAvailable,
@@ -167,6 +180,7 @@ export const createCandyMachineBuilder = async (
         payer,
         wallet,
         authority,
+        creators,
       })
 
       // Create an empty account for the candy machine.

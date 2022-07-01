@@ -8,7 +8,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { Amount, lamports, UnparsedAccount } from '@/types';
-import { assert, Option } from '@/utils';
+import { assert, Option, removeEmptyChars } from '@/utils';
 import { getConfigLinesCount, parseConfigLines } from './helpers';
 import { CandyMachineAccount } from './accounts';
 
@@ -28,8 +28,8 @@ export type CandyMachine = Readonly<{
   maxEditionSupply: Option<BN>;
   items: CandyMachineItem[];
   itemsAvailable: number;
-  itemsRedeemed: number;
   itemsMinted: number;
+  itemsRemaining: number;
   itemsLoaded: number;
   isFullyLoaded: boolean;
   endSettings: Option<EndSettings>;
@@ -57,7 +57,7 @@ export const makeCandyMachineModel = (
   unparsedAccount: UnparsedAccount
 ): CandyMachine => {
   const itemsAvailable = new BN(account.data.data.itemsAvailable).toNumber();
-  const itemsRedeemed = new BN(account.data.itemsRedeemed).toNumber();
+  const itemsMinted = new BN(account.data.itemsRedeemed).toNumber();
   const itemsLoaded = getConfigLinesCount(unparsedAccount.data);
   const items = parseConfigLines(unparsedAccount.data);
 
@@ -69,7 +69,7 @@ export const makeCandyMachineModel = (
     tokenMintAddress: account.data.tokenMint,
     uuid: account.data.data.uuid,
     price: lamports(account.data.data.price),
-    symbol: account.data.data.symbol,
+    symbol: removeEmptyChars(account.data.data.symbol),
     sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
     isMutable: account.data.data.isMutable,
     retainAuthority: account.data.data.retainAuthority,
@@ -79,10 +79,10 @@ export const makeCandyMachineModel = (
     maxEditionSupply: new BN(account.data.data.maxSupply),
     items,
     itemsAvailable,
-    itemsRedeemed,
-    itemsMinted: itemsAvailable - itemsRedeemed,
+    itemsMinted,
+    itemsRemaining: itemsAvailable - itemsMinted,
     itemsLoaded,
-    isFullyLoaded: itemsAvailable >= itemsLoaded,
+    isFullyLoaded: itemsAvailable <= itemsLoaded,
     endSettings: account.data.data.endSettings,
     hiddenSettings: account.data.data.hiddenSettings,
     whitelistMintSettings: account.data.data.whitelistMintSettings,
