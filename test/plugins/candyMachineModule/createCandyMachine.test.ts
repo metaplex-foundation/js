@@ -3,6 +3,7 @@ import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import {
   amman,
+  hash32Bit,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -10,6 +11,7 @@ import {
 } from '../../helpers';
 import { sol, CandyMachine } from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
+import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 
@@ -43,9 +45,6 @@ test('[candyMachineModule] create with minimal input', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
-    authorityAddress: mx.identity().publicKey,
-    walletAddress: mx.identity().publicKey,
     tokenMintAddress: null,
     uuid: getCandyMachineUuidFromAddress(candyMachine.address),
     price: spokSameAmount(sol(1.25)),
@@ -107,76 +106,111 @@ test('[candyMachineModule] create with creators', async (t) => {
   });
 });
 
-// // -----------------
-// // End Settings
-// // -----------------
-// test('candyMachine: init with end settings - amount', async (t) => {
-//   // Given we configure a Candy Machine
-//   const { tc, cm, minimalConfig, opts } = await init();
+test('[candyMachineModule] create with end settings', async (t) => {
+  // Given a Candy Machine client.
+  const { tc, client, minimalInput } = await init();
 
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     endSettings: { endSettingType: 'amount', value: 100 },
-//   };
+  // When we create a Candy Machine with end settings.
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      endSettings: {
+        endSettingType: EndSettingType.Amount,
+        number: 100,
+      },
+    })
+    .run();
 
-//   // When we create that Candy Machine
-//   const { transactionId, candyMachine, candyMachineSigner, ...rest } =
-//     await cm.createFromConfig(config, opts);
-//   await amman.addr.addLabel('tx: create candy-machine', transactionId);
-//   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
+  // Then a Candy Machine was created with these end settings.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    endSettings: {
+      endSettingType: EndSettingType.Amount,
+      number: spokSameBignum(100),
+    },
+  } as unknown as Specifications<CandyMachine>);
+});
 
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, transactionId);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     candyMachineSigner,
-//     tokenMintAddress: null,
-//   });
-//   spok(t, candyMachine.endSettings, {
-//     $topic: 'end settings',
-//     endSettingType: EndSettingType.Amount,
-//     number: spokSameBignum(
-//       new Date(config.endSettings?.value! as number).valueOf()
-//     ),
+test.only('[candyMachineModule] create with hidden settings', async (t) => {
+  // Given a Candy Machine client.
+  const { tc, client, minimalInput } = await init();
+
+  // When we create a Candy Machine with hidden settings.
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      hiddenSettings: {
+        // hash: Buffer.from(hash32Bit('cache-file'), 'utf8').toJSON().data,
+        hash: [1, 2, 3],
+        uri: 'https://example.com',
+        name: 'mint-name',
+      },
+    })
+    .run();
+
+  // Then a Candy Machine was created with these hidden settings.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    hiddenSettings: {
+      hash: Buffer.from(hash32Bit('cache-file..'), 'utf8').toJSON().data,
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  });
+});
+
+test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
+  // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine,
+  // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
+  // see: src/modules/candy-machine/models/candyMachineSpace.ts
+  const { tc, cm, minimalConfig, opts } = await init();
+
+  const config: CandyMachineConfigWithoutStorage = {
+    ...minimalConfig,
+    hiddenSettings: {
+      hash: hash32Bit('cache-file'),
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  };
+
+  // When we create that Candy Machine
+  const { transactionId, candyMachine, ...rest } = await cm.createFromConfig(
+    config,
+    opts
+  );
+  await amman.addr.addLabel('initCandyMachine', transactionId);
+
+  // Then we created the Candy Machine as configured
+  await tc.assertSuccess(t, transactionId);
+  assertProperlyInitialized(t, candyMachine, {
+    ...rest,
+    ...config,
+    tokenMintAddress: null,
+  });
+});
+
+// test('[candyMachineModule] create with TEMPLATE', async (t) => {
+//   // Given a Candy Machine client.
+//   const { tc, client, minimalInput } = await init();
+
+//   // When we create a Candy Machine with ...
+//   const { response, candyMachine } = await client
+//     .create({ ...minimalInput })
+//     .run();
+
+//   // Then a Candy Machine was created with ...
+//   await tc.assertSuccess(t, response.signature);
+//   spok(t, candyMachine, {
+//     $topic: 'Candy Machine',
+//     model: 'candyMachine',
 //   });
 // });
 
-// test('candyMachine: init with end settings - date', async (t) => {
-//   // Given we configure a Candy Machine
-//   const { tc, cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     endSettings: { endSettingType: 'date', value: '25 Jan 2022 00:00:00 GMT' },
-//   };
-
-//   // When we create that Candy Machine
-//   const { transactionId, candyMachine, candyMachineSigner, ...rest } =
-//     await cm.createFromConfig(config, opts);
-//   await amman.addr.addLabel('tx: create candy-machine', transactionId);
-//   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
-
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, transactionId);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     candyMachineSigner,
-//     tokenMintAddress: null,
-//   });
-//   spok(t, candyMachine.endSettings, {
-//     $topic: 'end settings',
-//     endSettingType: EndSettingType.Date,
-//     number: spokSameBignum(
-//       new Date(config.endSettings?.value! as string).valueOf()
-//     ),
-//   });
-// });
-
-// // -----------------
-// // Hidden Settings
-// // -----------------
 // test('candyMachine: init with invalid hidden settings (hash too short)', async (t) => {
 //   // Given we configure a Candy Machine incorrectly
 //   const { cm, minimalConfig, opts } = await init();
@@ -196,37 +230,6 @@ test('[candyMachineModule] create with creators', async (t) => {
 //     () => cm.createFromConfig(config, opts),
 //     /len.+10.+should match len.+32/i
 //   );
-// });
-
-// test.skip('candyMachine: init with invalid hidden settings program error', async (t) => {
-//   // TODO(thlorenz): most likely due to incorrect account sizing when allocating candy machine,
-//   // Program log: panicked at 'index out of bounds: the len is 713 but the index is 3117', src/lib.rs:697:13
-//   // see: src/modules/candy-machine/models/candyMachineSpace.ts
-//   const { tc, cm, minimalConfig, opts } = await init();
-
-//   const config: CandyMachineConfigWithoutStorage = {
-//     ...minimalConfig,
-//     hiddenSettings: {
-//       hash: hash32Bit('cache-file..'),
-//       uri: 'https://example.com',
-//       name: 'mint-name',
-//     },
-//   };
-
-//   // When we create that Candy Machine
-//   const { transactionId, candyMachine, ...rest } = await cm.createFromConfig(
-//     config,
-//     opts
-//   );
-//   await amman.addr.addLabel('initCandyMachine', transactionId);
-
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, transactionId);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     tokenMintAddress: null,
-//   });
 // });
 
 // // -----------------
