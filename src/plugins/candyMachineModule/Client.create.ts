@@ -1,9 +1,5 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { convertToPublickKey, Signer } from '@/types';
-import {
-  CandyMachineConfigWithoutStorage,
-  candyMachineDataFromConfig,
-} from './config';
+import { Signer } from '@/types';
 import { CreateCandyMachineOutput } from './createCandyMachine';
 import { CandyMachine } from './CandyMachine';
 import type { CandyMachinesClient } from './CandyMachinesClient';

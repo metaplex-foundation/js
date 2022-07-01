@@ -1,6 +1,7 @@
 import { Creator } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKeyString } from '@/types';
 import { PublicKey } from '@solana/web3.js';
+import { CandyMachineConfigs } from './CandyMachineConfigs';
 
 /**
  * Configuration for the Candy Machine.
@@ -51,7 +52,7 @@ import { PublicKey } from '@solana/web3.js';
  * }
  * ```
  */
-export type CandyMachineJsonConfig = {
+export type CandyMachineJsonConfigs = {
   price: number;
   number: number;
   sellerFeeBasisPoints: number;
@@ -168,10 +169,9 @@ type CreatorConfig = Omit<Creator, 'address'> & {
 };
 type CreatorsConfig = CreatorConfig[];
 
-export const candyMachineDataFromConfig = (
-  config: CandyMachineJsonConfig,
-  candyMachineAddress: PublicKey
-): CandyMachineData => {
+export const getCandyMachineConfigsFromJson = (
+  config: CandyMachineJsonConfigs
+): CandyMachineConfigs => {
   const configCreators = config.creators ?? [
     {
       address: config.solTreasuryAccount,
@@ -195,8 +195,6 @@ export const candyMachineDataFromConfig = (
   const gatekeeper = gatekeeperFromConfig(config.gatekeeper) ?? null;
 
   return {
-    uuid: getCandyMachineUuidFromAddress(candyMachineAddress),
-
     price: new BN(config.price),
     symbol: config.symbol ?? '',
     sellerFeeBasisPoints: config.sellerFeeBasisPoints,

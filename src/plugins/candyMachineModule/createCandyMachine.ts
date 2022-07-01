@@ -3,18 +3,13 @@ import {
   CandyMachineData,
   createInitializeCandyMachineInstruction,
   Creator,
-  EndSettings,
-  GatekeeperConfig,
-  HiddenSettings,
 } from '@metaplex-foundation/mpl-candy-machine';
-import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   useOperation,
   Signer,
   OperationHandler,
-  Amount,
   assertSameCurrencies,
   SOL,
 } from '@/types';
@@ -22,11 +17,11 @@ import { Option, TransactionBuilder } from '@/utils';
 import { createAccountBuilder } from '@/programs';
 import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { getCandyMachineAccountSizeFromData } from './helpers';
 import {
-  getCandyMachineAccountSizeFromData,
-  getCandyMachineUuidFromAddress,
-} from './helpers';
-import { WhitelistMintSettings } from './CandyMachine';
+  CandyMachineConfigs,
+  getCandyMachineDataFromConfigs,
+} from './CandyMachineConfigs';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =
@@ -37,30 +32,13 @@ export type CreateCandyMachineOperation = Operation<
   CreateCandyMachineOutput
 >;
 
-export type CreateCandyMachineInput = {
+export type CreateCandyMachineInput = CandyMachineConfigs & {
   // Accounts.
   candyMachine?: Signer; // Defaults to Keypair.generate().
   payer?: Signer; // Defaults to mx.identity().
   wallet?: PublicKey; // Defaults to mx.identity().publicKey.
   authority?: PublicKey; // Defaults to mx.identity().publicKey.
   tokenMint?: Option<PublicKey>; // Default to null.
-
-  // Data.
-  price: Amount;
-  sellerFeeBasisPoints: number;
-  itemsAvailable: BN | number;
-
-  // Optional Data.
-  symbol?: string; // Defaults to empty string.
-  maxEditionSupply?: BN | number; // Defaults to 0.
-  isMutable?: boolean; // Defaults to true.
-  retainAuthority?: boolean; // Defaults to true.
-  goLiveDate?: Option<BN | number>; // Defaults to null.
-  endSettings?: Option<EndSettings>; // Defaults to null.
-  creators?: PublicKey | Creator[]; // Defaults to mx.identity().publicKey.
-  hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
-  whitelistMintSettings?: Option<WhitelistMintSettings>; // Defaults to null.
-  gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -123,40 +101,11 @@ export const createCandyMachineBuilder = async (
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
-  const whitelistMintSettings = params.whitelistMintSettings
-    ? {
-        ...params.whitelistMintSettings,
-        discountPrice:
-          params.whitelistMintSettings.discountPrice?.basisPoints ?? null,
-      }
-    : null;
-  const creatorsParam = params.creators ?? metaplex.identity().publicKey;
-  const creators = Array.isArray(creatorsParam)
-    ? creatorsParam
-    : [
-        {
-          address: creatorsParam,
-          verified: false,
-          share: 100,
-        },
-      ];
-
-  const data: CandyMachineData = {
-    uuid: getCandyMachineUuidFromAddress(candyMachine.publicKey),
-    price: params.price.basisPoints,
-    symbol: params.symbol ?? '',
-    sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-    maxSupply: params.maxEditionSupply ?? 0,
-    isMutable: params.isMutable ?? true,
-    retainAuthority: params.retainAuthority ?? true,
-    goLiveDate: params.goLiveDate ?? null,
-    endSettings: params.endSettings ?? null,
-    creators,
-    hiddenSettings: params.hiddenSettings ?? null,
-    whitelistMintSettings,
-    itemsAvailable: params.itemsAvailable,
-    gatekeeper: params.gatekeeper ?? null,
-  };
+  const data: CandyMachineData = getCandyMachineDataFromConfigs(
+    params,
+    candyMachine.publicKey,
+    metaplex.identity().publicKey
+  );
 
   const space = getCandyMachineAccountSizeFromData(data);
   const lamports = await metaplex.rpc().getRent(space);
@@ -187,7 +136,7 @@ export const createCandyMachineBuilder = async (
         payer,
         wallet,
         authority,
-        creators,
+        creators: data.creators,
       })
 
       // Create an empty account for the candy machine.

@@ -9,5 +9,4 @@ export * from './Model';
 export * from './Operation';
 export * from './Pda';
 export * from './Program';
-export * from './PublicKeyString';
 export * from './Signer';
