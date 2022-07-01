@@ -1,5 +1,6 @@
 import test from 'tape';
 import spok, { Specifications } from 'spok';
+import { Keypair } from '@solana/web3.js';
 import {
   amman,
   killStuckProcess,
@@ -16,15 +17,16 @@ async function init() {
   const mx = await metaplex();
   const tc = amman.transactionChecker(mx.connection);
   const client = mx.candyMachines();
+  const minimalInput = {
+    price: sol(1),
+    sellerFeeBasisPoints: 500,
+    itemsAvailable: 100,
+  };
 
-  return { mx, tc, client };
+  return { mx, tc, client, minimalInput };
 }
 
-// -----------------
-// Minimal Config
-// -----------------
-
-test.only('[candyMachineModule] create with minimal config', async (t) => {
+test('[candyMachineModule] create with minimal input', async (t) => {
   // Given a Candy Machine client.
   const { tc, mx, client } = await init();
 
@@ -73,41 +75,37 @@ test.only('[candyMachineModule] create with minimal config', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-// test('candyMachine: init with config specifying creators', async (t) => {
-//   // Given we configure a Candy Machine
-//   const { tc, cm, payer, minimalConfig, opts } = await init();
+test('[candyMachineModule] create with creators', async (t) => {
+  // Given a Candy Machine client and two creators.
+  const { tc, client, minimalInput } = await init();
+  const creatorA = Keypair.generate();
+  const creatorB = Keypair.generate();
+  const creators = [
+    {
+      address: creatorA.publicKey,
+      verified: false,
+      share: 50,
+    },
+    {
+      address: creatorB.publicKey,
+      verified: false,
+      share: 50,
+    },
+  ];
 
-//   const [coCreator] = await amman.genLabeledKeypair('coCreator');
-//   const creators = [
-//     {
-//       address: payer.publicKey.toBase58(),
-//       verified: false,
-//       share: 50,
-//     },
-//     {
-//       address: coCreator.toBase58(),
-//       verified: false,
-//       share: 50,
-//     },
-//   ];
-//   const config = { ...minimalConfig, creators };
+  // When we create a Candy Machine and assign these creators.
+  const { response, candyMachine } = await client
+    .create({ ...minimalInput, creators })
+    .run();
 
-//   // When we create that Candy Machine
-//   const { transactionId, candyMachine, candyMachineSigner, ...rest } =
-//     await cm.createFromConfig(config, opts);
-//   await amman.addr.addLabel('tx: create candy-machine', transactionId);
-//   await amman.addr.addLabel('candy-machine', candyMachineSigner.publicKey);
-
-//   // Then we created the Candy Machine as configured
-//   await tc.assertSuccess(t, transactionId);
-//   assertProperlyInitialized(t, candyMachine, {
-//     ...rest,
-//     ...config,
-//     candyMachineSigner,
-//     tokenMintAddress: null,
-//   });
-//   assertCreators(t, candyMachine.creators, config.creators);
-// });
+  // Then the creators where saved on the Candy Machine.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    creators,
+  });
+});
 
 // // -----------------
 // // End Settings
