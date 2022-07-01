@@ -27,6 +27,7 @@ import {
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
 } from './printNewEdition';
+import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -83,10 +84,15 @@ export class NftClient {
     return { ...updateNftOutput, nft: updatedNft };
   }
 
-  async use(nft: Nft, uses?: number): Promise<{ nft: Nft }> {
-    console.log('using nft', nft.mint.toString());
-    nft.uses;
-    return { nft };
+  async use(
+    nft: Nft,
+    input?: Omit<UseNftInput, 'nft'>
+  ): Promise<{ nft: Nft } & UseNftOutput> {
+    const operation = useNftOperation({ ...input, nft });
+    const useNftOutput = await this.metaplex.operations().execute(operation);
+    const updatedNft = await this.findByMint(nft.mint);
+
+    return { ...useNftOutput, nft: updatedNft };
   }
 
   async printNewEdition(

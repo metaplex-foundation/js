@@ -27,7 +27,7 @@ test('it can use an nft', async (t: Test) => {
       name: 'On-chain SFT name',
       isMutable: true,
       uses: {
-        useMethod: 1,
+        useMethod: UseMethod.Multiple,
         remaining: 10,
         total: 10,
       },
@@ -45,7 +45,6 @@ test('it can use an nft', async (t: Test) => {
       remaining: spokSameBignum(9),
       total: spokSameBignum(10),
     },
-    primarySaleHappened: true,
   } as unknown as Specifications<Nft>);
 
   // And the same goes if we try to fetch the NFT again.
