@@ -1,13 +1,18 @@
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
 import { amman } from '../../helpers';
-import { Metaplex, CreateCandyMachineInput, sol } from '@/index';
+import {
+  Metaplex,
+  CreateCandyMachineInput,
+  sol,
+  CandyMachineItem,
+} from '@/index';
 
 export async function createCandyMachine(
   mx: Metaplex,
-  input: Partial<CreateCandyMachineInput> = {}
+  input: Partial<CreateCandyMachineInput> & { items?: CandyMachineItem[] } = {}
 ) {
-  const { candyMachine, response } = await mx
+  let { candyMachine, response } = await mx
     .candyMachines()
     .create({
       price: sol(1),
@@ -16,6 +21,17 @@ export async function createCandyMachine(
       ...input,
     })
     .run();
+
+  if (input.items) {
+    const insertItemsOutput = await mx
+      .candyMachines()
+      .insertItems(candyMachine, {
+        authority: mx.identity(),
+        items: input.items,
+      })
+      .run();
+    candyMachine = insertItemsOutput.candyMachine;
+  }
 
   await amman.addr.addLabel('candy-machine', candyMachine.address);
   await amman.addr.addLabel('tx: create candy-machine', response.signature);

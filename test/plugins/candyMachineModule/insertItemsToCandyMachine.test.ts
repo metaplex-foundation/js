@@ -62,23 +62,15 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
 });
 
 test('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
-  // Given an existing Candy Machine with a capacity of 2 items.
+  // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
-  const { candyMachine: emptyCandyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: 2,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
   });
-
-  // And given there's already two items in the Candy Machine.
-  const { candyMachine } = await mx
-    .candyMachines()
-    .insertItems(emptyCandyMachine, {
-      authority: mx.identity(),
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-      ],
-    })
-    .run();
 
   // When we try to add one more item to the Candy Machine.
   const promise = mx
@@ -119,23 +111,15 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
 });
 
 test('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
-  // Given an existing Candy Machine with a capacity of 3 items.
+  // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
-  const { candyMachine: emptyCandyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: 3,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
   });
-
-  // And given there's already two items in the Candy Machine.
-  const { candyMachine } = await mx
-    .candyMachines()
-    .insertItems(emptyCandyMachine, {
-      authority: mx.identity(),
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-      ],
-    })
-    .run();
 
   // When we add 2 items to the Candy Machine at index 1.
   const { candyMachine: updatedCandyMachine } = await mx
