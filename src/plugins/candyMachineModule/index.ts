@@ -8,9 +8,4 @@ export * from './gpaBuilders';
 export * from './plugin';
 export * from './program';
 export * from './updateCandyMachine';
-
 export type { AddAssetsToCandyMachineParams } from './Client.add';
-export type {
-  UpdateCandyMachineParams,
-  UpdateCandyMachineAuthorityParams,
-} from './Client.update';

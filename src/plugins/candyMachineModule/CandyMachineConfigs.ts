@@ -31,7 +31,7 @@ export type CandyMachineConfigs = {
   gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.
 };
 
-export const getCandyMachineDataFromConfigs = (
+export const getCandyMachineAccountDataFromConfigs = (
   configs: CandyMachineConfigs,
   candyMachineAddress: PublicKey,
   identity: PublicKey

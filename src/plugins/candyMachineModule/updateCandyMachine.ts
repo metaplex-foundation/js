@@ -1,10 +1,15 @@
 import type { ConfirmOptions } from '@solana/web3.js';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { CandyMachineConfigs } from './CandyMachineConfigs';
+import {
+  CandyMachineConfigs,
+  getCandyMachineAccountDataFromConfigs,
+} from './CandyMachineConfigs';
 import { CandyMachine } from './CandyMachine';
+import { createUpdateCandyMachineInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import { identity } from 'lodash';
 
 // -----------------
 // Operation
@@ -20,7 +25,9 @@ export type UpdateCandyMachineOperation = Operation<
 >;
 
 export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
+  // Models and accounts.
   candyMachine: CandyMachine;
+  authority: Signer;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -68,19 +75,29 @@ export type UpdateCandyMachineBuilderParams = Omit<
   UpdateCandyMachineInput,
   'confirmOptions'
 > & {
-  UpdateInstructionKey?: string;
+  updateInstructionKey?: string;
 };
 
 export const updateCandyMachineBuilder = async (
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams
 ): Promise<TransactionBuilder> => {
-  // createUpdateCandyMachineInstructionWithSigners({
-  //   candyMachine: candyMachineAddress,
-  //   wallet: walletAddress,
-  //   authority: authoritySigner,
-  //   data: candyMachineData,
-  // });
+  const data = getCandyMachineAccountDataFromConfigs(
+    { ...params.candyMachine, ...params },
+    params.candyMachine.address,
+    metaplex.identity().publicKey
+  );
 
-  return TransactionBuilder.make();
+  return TransactionBuilder.make().add({
+    instruction: createUpdateCandyMachineInstruction(
+      {
+        candyMachine: params.candyMachine.address,
+        authority: params.authority.publicKey,
+        wallet: params.candyMachine.walletAddress,
+      },
+      { data }
+    ),
+    signers: [params.authority],
+    key: params.updateInstructionKey ?? 'update',
+  });
 };

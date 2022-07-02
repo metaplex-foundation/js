@@ -1,5 +1,5 @@
 import type { Metaplex } from '@/Metaplex';
-import { update, updateAuthority } from './Client.update';
+import { updateAuthority } from './Client.update';
 import { addAssets } from './Client.add';
 import {
   CreateCandyMachineInput,

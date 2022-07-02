@@ -20,7 +20,7 @@ import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { getCandyMachineAccountSizeFromData } from './helpers';
 import {
   CandyMachineConfigs,
-  getCandyMachineDataFromConfigs,
+  getCandyMachineAccountDataFromConfigs,
 } from './CandyMachineConfigs';
 
 const Key = 'CreateCandyMachineOperation' as const;
@@ -108,7 +108,7 @@ export const createCandyMachineBuilder = async (
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
-  const data: CandyMachineData = getCandyMachineDataFromConfigs(
+  const data: CandyMachineData = getCandyMachineAccountDataFromConfigs(
     params,
     candyMachine.publicKey,
     metaplex.identity().publicKey
