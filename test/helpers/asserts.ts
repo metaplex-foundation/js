@@ -41,34 +41,24 @@ export function spokSameAmount(a: Amount): Specification<Amount> {
   return same;
 }
 
-async function assertThrowsOnResolve<T>(
-  t: Test,
-  promise: Promise<T>,
-  match: RegExp
-): Promise<void> {
-  try {
-    await promise;
-    t.fail(`expected to throw ${match.toString()}`);
-  } catch {
-    t.pass(`throws ${match.toString()}`);
-  }
-}
-
 export async function assertThrows<T>(
   t: Test,
   fnOrPromise: (() => any) | Promise<T>,
   match: RegExp
 ): Promise<void> {
-  if (typeof fnOrPromise === 'function') {
-    try {
-      // could throw synchronously or if the function returns a promise its
-      // resolution may throw
+  try {
+    if (typeof fnOrPromise === 'function') {
       await fnOrPromise();
-      t.fail(`expected to throw ${match.toString()}`);
-    } catch {
-      t.pass(`throws ${match.toString()}`);
+    } else {
+      await fnOrPromise;
     }
-  } else {
-    return assertThrowsOnResolve(t, fnOrPromise, match);
+    t.fail(`expected to throw ${match.toString()}`);
+  } catch (error: any) {
+    const message: string = error?.message ?? '';
+    if (message.match(match)) {
+      t.pass(`throws ${match.toString()}`);
+    } else {
+      t.fail(`expected to throw ${match.toString()}, got ${message}`);
+    }
   }
 }
