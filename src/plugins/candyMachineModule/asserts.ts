@@ -8,7 +8,7 @@ import {
 } from './constants';
 import { CandyMachine } from './CandyMachine';
 import {
-  CandyMachineAddConfigConstraintsViolatedError,
+  CandyMachineAddItemConstraintsViolatedError,
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
 } from './errors';
@@ -68,7 +68,7 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       assertName(configLines[i].name);
       assertUri(configLines[i].uri);
     } catch (err: any) {
-      throw new CandyMachineAddConfigConstraintsViolatedError(
+      throw new CandyMachineAddItemConstraintsViolatedError(
         i,
         configLines[i],
         err

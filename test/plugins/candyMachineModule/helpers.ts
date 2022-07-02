@@ -5,7 +5,7 @@ import { Metaplex, CreateCandyMachineInput, sol } from '@/index';
 
 export async function createCandyMachine(
   mx: Metaplex,
-  input: Partial<CreateCandyMachineInput>
+  input: Partial<CreateCandyMachineInput> = {}
 ) {
   const { candyMachine, response } = await mx
     .candyMachines()

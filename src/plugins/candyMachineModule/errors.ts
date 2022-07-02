@@ -1,7 +1,7 @@
 import { bignum } from '@metaplex-foundation/beet';
-import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import { CandyMachineItem } from './CandyMachine';
 
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -189,13 +189,13 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
   }
 }
 
-export class CandyMachineAddConfigConstraintsViolatedError extends CandyMachineError {
-  constructor(index: number, configLine: ConfigLine, cause?: Error) {
+export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
+  constructor(index: number, item: CandyMachineItem, cause?: Error) {
     super({
       cause,
-      key: 'candy_machine_add_config_constraints_violated',
-      title: 'Candy Machine Add Config Constraints Violated',
-      problem: `Trying to add an asset with name "${configLine.name}" and uri: "${configLine.uri}" to candy machine at index ${index} that violates constraints.`,
+      key: 'candy_machine_add_item_constraints_violated',
+      title: 'Candy Machine Add Item Constraints Violated',
+      problem: `Trying to add an asset with name "${item.name}" and uri: "${item.uri}" to candy machine at index ${index} that violates constraints.`,
       solution: 'Fix the name or URI of this asset and try again.',
     });
   }
