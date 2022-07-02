@@ -1,4 +1,4 @@
-import type { ConfirmOptions } from '@solana/web3.js';
+import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
@@ -8,8 +8,11 @@ import {
   getCandyMachineAccountDataFromConfigs,
 } from './CandyMachineConfigs';
 import { CandyMachine } from './CandyMachine';
-import { createUpdateCandyMachineInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import { identity } from 'lodash';
+import {
+  createUpdateAuthorityInstruction,
+  createUpdateCandyMachineInstruction,
+} from '@metaplex-foundation/mpl-candy-machine';
+import { CandyMachineAlreadyHasThisAuthorityError } from './errors';
 
 // -----------------
 // Operation
@@ -28,6 +31,7 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
   // Models and accounts.
   candyMachine: CandyMachine;
   authority: Signer;
+  newAuthority?: PublicKey;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -76,6 +80,7 @@ export type UpdateCandyMachineBuilderParams = Omit<
   'confirmOptions'
 > & {
   updateInstructionKey?: string;
+  updateAuthorityInstructionKey?: string;
 };
 
 export const updateCandyMachineBuilder = async (
@@ -88,16 +93,44 @@ export const updateCandyMachineBuilder = async (
     metaplex.identity().publicKey
   );
 
-  return TransactionBuilder.make().add({
-    instruction: createUpdateCandyMachineInstruction(
-      {
-        candyMachine: params.candyMachine.address,
-        authority: params.authority.publicKey,
-        wallet: params.candyMachine.walletAddress,
-      },
-      { data }
-    ),
-    signers: [params.authority],
-    key: params.updateInstructionKey ?? 'update',
-  });
+  if (
+    params.newAuthority &&
+    params.newAuthority.equals(params.authority.publicKey)
+  ) {
+    throw new CandyMachineAlreadyHasThisAuthorityError(params.newAuthority);
+  }
+
+  return (
+    TransactionBuilder.make()
+
+      // Update data.
+      .add({
+        instruction: createUpdateCandyMachineInstruction(
+          {
+            candyMachine: params.candyMachine.address,
+            authority: params.authority.publicKey,
+            wallet: params.candyMachine.walletAddress,
+          },
+          { data }
+        ),
+        signers: [params.authority],
+        key: params.updateInstructionKey ?? 'update',
+      })
+
+      // Update authority.
+      .when(!!params.newAuthority, (builder) =>
+        builder.add({
+          instruction: createUpdateAuthorityInstruction(
+            {
+              candyMachine: params.candyMachine.address,
+              authority: params.authority.publicKey,
+              wallet: params.candyMachine.walletAddress,
+            },
+            { newAuthority: params.newAuthority as PublicKey }
+          ),
+          signers: [params.authority],
+          key: params.updateAuthorityInstructionKey ?? 'updateAuthority',
+        })
+      )
+  );
 };

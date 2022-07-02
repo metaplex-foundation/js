@@ -294,3 +294,25 @@ test.skip('[candyMachineModule] it can update the authority of a candy machine',
     // ...
   } as unknown as Specifications<CandyMachine>);
 });
+
+test.skip('[candyMachineModule] it cannot update the authority of a candy machine to the same authority', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    // ...
+  });
+
+  // When we update the Candy Machine with ...
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      // ...
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    // ...
+  } as unknown as Specifications<CandyMachine>);
+});
