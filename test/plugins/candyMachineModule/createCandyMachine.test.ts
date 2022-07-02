@@ -185,7 +185,7 @@ test('[candyMachineModule] try to create with invalid hidden settings', async (t
     .run();
 
   // Then it fails to create the Candy Machine.
-  await assertThrows(t, promise, /len.+10.+should match len.+32/i);
+  await assertThrows(t, promise, /len.+3.+should match len.+32/i);
 });
 
 test('[candyMachineModule] create with gatekeeper settings', async (t) => {
