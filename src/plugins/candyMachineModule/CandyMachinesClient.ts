@@ -5,17 +5,21 @@ import {
   findByAddress,
   findByAuthorityAndUuid,
 } from './Client.queries';
-import { createFromConfig } from './Client.create';
 import { update, updateAuthority } from './Client.update';
 import { addAssets } from './Client.add';
 import {
   CreateCandyMachineInput,
+  CreateCandyMachineInputWithoutConfigs,
   createCandyMachineOperation,
   CreateCandyMachineOutput,
 } from './createCandyMachine';
 import { Task } from '@/utils';
 import { CandyMachine } from './CandyMachine';
 import { CreatedCandyMachineNotFoundError } from '@/errors';
+import {
+  CandyMachineJsonConfigs,
+  getCandyMachineConfigsFromJson,
+} from './CandyMachineJsonConfigs';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -44,10 +48,15 @@ export class CandyMachinesClient {
     });
   }
 
-  // -----------------
-  // Create
-  // -----------------
-  createFromConfig = createFromConfig;
+  createFromJsonConfig(
+    input: CreateCandyMachineInputWithoutConfigs & {
+      json: CandyMachineJsonConfigs;
+    }
+  ) {
+    const { json, ...otherInputs } = input;
+    const configs = getCandyMachineConfigsFromJson(json);
+    return this.create({ ...otherInputs, ...configs });
+  }
 
   // -----------------
   // Queries

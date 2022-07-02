@@ -9,7 +9,6 @@ export * from './program';
 export * from './updateCandyMachine';
 
 export type { AddAssetsToCandyMachineParams } from './Client.add';
-export type { CandyMachineInitFromConfigOpts } from './Client.create';
 export type {
   UpdateCandyMachineParams,
   UpdateCandyMachineAuthorityParams,

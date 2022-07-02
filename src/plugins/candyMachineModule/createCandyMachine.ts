@@ -32,7 +32,7 @@ export type CreateCandyMachineOperation = Operation<
   CreateCandyMachineOutput
 >;
 
-export type CreateCandyMachineInput = CandyMachineConfigs & {
+export type CreateCandyMachineInputWithoutConfigs = {
   // Accounts.
   candyMachine?: Signer; // Defaults to Keypair.generate().
   payer?: Signer; // Defaults to mx.identity().
@@ -43,6 +43,9 @@ export type CreateCandyMachineInput = CandyMachineConfigs & {
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
+
+export type CreateCandyMachineInput = CandyMachineConfigs &
+  CreateCandyMachineInputWithoutConfigs;
 
 export type CreateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
