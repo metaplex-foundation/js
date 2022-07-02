@@ -137,13 +137,11 @@ test('[candyMachineModule] create with end settings', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-// TODO(loris): Waiting on a protocol fix.
-test.skip('[candyMachineModule] create with hidden settings', async (t) => {
+test('[candyMachineModule] create with hidden settings', async (t) => {
   // Given a Candy Machine client and a computed hash.
   const { tc, client, minimalInput } = await init();
   const hashInput = 'cache-file';
   const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0, 32));
-  // const hash = Array(32).fill(42);
 
   // When we create a Candy Machine with hidden settings.
   const { response, candyMachine } = await client

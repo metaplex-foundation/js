@@ -65,8 +65,11 @@ export const makeCandyMachineModel = (
 ): CandyMachine => {
   const itemsAvailable = new BN(account.data.data.itemsAvailable).toNumber();
   const itemsMinted = new BN(account.data.itemsRedeemed).toNumber();
-  const itemsLoaded = getConfigLinesCount(unparsedAccount.data);
-  const items = parseConfigLines(unparsedAccount.data);
+
+  const hiddenSettings = account.data.data.hiddenSettings;
+  const rawData = unparsedAccount.data;
+  const itemsLoaded = hiddenSettings ? 0 : getConfigLinesCount(rawData);
+  const items = hiddenSettings ? [] : parseConfigLines(rawData);
 
   return {
     model: 'candyMachine',
