@@ -1,5 +1,4 @@
 import type { Metaplex } from '@/Metaplex';
-import { updateAuthority } from './Client.update';
 import { addAssets } from './Client.add';
 import {
   CreateCandyMachineInput,
@@ -104,11 +103,6 @@ export class CandyMachinesClient {
       return { candyMachine: updatedCandyMachine, ...output };
     });
   }
-
-  // -----------------
-  // Update
-  // -----------------
-  updateAuthority = updateAuthority;
 
   // -----------------
   // Add Assets

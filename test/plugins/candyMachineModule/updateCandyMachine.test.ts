@@ -1,6 +1,7 @@
 import test from 'tape';
 import spok, { Specifications } from 'spok';
 import {
+  assertThrows,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -173,7 +174,7 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
 });
 
 test('[candyMachineModule] it can update the end settings of a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+  // Given an existing Candy Machine with end settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
     endSettings: {
@@ -182,7 +183,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
     },
   });
 
-  // When we update the Candy Machine with ...
+  // When we update these end settings.
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
@@ -204,7 +205,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
 });
 
 test('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+  // Given an existing Candy Machine with whitelist settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
     whitelistMintSettings: {
@@ -215,7 +216,7 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
     },
   });
 
-  // When we update the Candy Machine with ...
+  // When we update these whitelist settings.
   const newWhitelistMint = Keypair.generate().publicKey;
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
@@ -242,7 +243,7 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
 });
 
 test('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+  // Given an existing Candy Machine with a gatekeeper.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
     gatekeeper: {
@@ -251,7 +252,7 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
     },
   });
 
-  // When we update the Candy Machine with ...
+  // When we update the gatekeeper of the Candy Machine.
   const newGatekeeperNetwork = Keypair.generate().publicKey;
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
@@ -273,46 +274,45 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
+test('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
+  const authority = Keypair.generate();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    authority: authority.publicKey,
   });
 
-  // When we update the Candy Machine with ...
+  // When we update the authority of the Candy Machine.
+  const newAuthority = Keypair.generate();
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
-      // ...
+      authority,
+      newAuthority: newAuthority.publicKey,
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
-  spok(t, updatedCandyMachine, {
-    // ...
-  } as unknown as Specifications<CandyMachine>);
+  t.ok(updatedCandyMachine.authorityAddress.equals(newAuthority.publicKey));
 });
 
-test.skip('[candyMachineModule] it cannot update the authority of a candy machine to the same authority', async (t) => {
+test('[candyMachineModule] it cannot update the authority of a candy machine to the same authority', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
+  const authority = Keypair.generate();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    authority: authority.publicKey,
   });
 
-  // When we update the Candy Machine with ...
-  const { candyMachine: updatedCandyMachine } = await mx
+  // When we update the authority of the Candy Machine with the same authority.
+  const promise = mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
-      // ...
+      authority,
+      newAuthority: authority.publicKey,
     })
     .run();
 
-  // Then the Candy Machine has been updated properly.
-  spok(t, updatedCandyMachine, {
-    // ...
-  } as unknown as Specifications<CandyMachine>);
+  // Then we expect an error.
+  await assertThrows(t, promise, /Candy Machine Already Has This Authority/);
 });
