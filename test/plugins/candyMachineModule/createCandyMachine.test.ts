@@ -143,6 +143,7 @@ test.skip('[candyMachineModule] create with hidden settings', async (t) => {
   const { tc, client, minimalInput } = await init();
   const hashInput = 'cache-file';
   const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0, 32));
+  // const hash = Array(32).fill(42);
 
   // When we create a Candy Machine with hidden settings.
   const { response, candyMachine } = await client

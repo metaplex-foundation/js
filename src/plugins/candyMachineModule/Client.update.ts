@@ -1,4 +1,4 @@
-import type { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachinesClient } from './CandyMachinesClient';
 import {
   CandyMachineAlreadyHasThisAuthorityError,
   CandyMachineToUpdateNotFoundError,
@@ -23,7 +23,7 @@ export type UpdateCandyMachineParams =
 export type UpdateCandyMachineAuthorityParams = UpdateAuthorityInput;
 
 export async function update(
-  this: CandyMachineClient,
+  this: CandyMachinesClient,
   input: UpdateCandyMachineParams
 ): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
   const currentCandyMachine = await this.findByAddress(
@@ -48,7 +48,7 @@ export async function update(
 }
 
 export async function updateAuthority(
-  this: CandyMachineClient,
+  this: CandyMachinesClient,
   input: UpdateCandyMachineAuthorityParams
 ): Promise<UpdateAuthorityOutput & { candyMachine: CandyMachine }> {
   const currentCandyMachine = await this.findByAddress(

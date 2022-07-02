@@ -11,7 +11,7 @@ import {
   assertCanAdd,
   assertNotFull,
 } from './Client.helpers';
-import type { CandyMachineClient } from './CandyMachineClient';
+import type { CandyMachinesClient } from './CandyMachinesClient';
 
 export type AddAssetsToCandyMachineParams = {
   // Accounts
@@ -26,7 +26,7 @@ export type AddAssetsToCandyMachineParams = {
 };
 
 export async function addAssets(
-  this: CandyMachineClient,
+  this: CandyMachinesClient,
   params: AddAssetsToCandyMachineParams
 ) {
   const currentCandyMachine = await this.findByAddress(
@@ -38,14 +38,14 @@ export async function addAssets(
 
   const index = currentCandyMachine.itemsAvailable;
 
-  assertNotFull(currentCandyMachine, index.toNumber());
+  assertNotFull(currentCandyMachine, index);
   assertCanAdd(currentCandyMachine, index, params.assets.length);
   assertAllConfigLineConstraints(params.assets);
 
   const addConfigLinesInput: AddConfigLinesInput = {
     candyMachineAddress: params.candyMachineAddress,
     authoritySigner: params.authoritySigner,
-    index: index.toNumber(),
+    index,
     configLines: params.assets,
   };
 
