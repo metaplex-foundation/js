@@ -1,6 +1,23 @@
-import { Creator } from '@metaplex-foundation/mpl-candy-machine';
-import { DateTimeString, PublicKeyString, sol, toPublicKey } from '@/types';
+import {
+  Creator,
+  EndSettings,
+  EndSettingType,
+  GatekeeperConfig,
+  HiddenSettings,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
+import BN from 'bn.js';
+import {
+  DateTimeString,
+  lamports,
+  PublicKeyString,
+  sol,
+  toPublicKey,
+  toUnixTimestamp,
+} from '@/types';
 import { CandyMachineConfigs } from './CandyMachineConfigs';
+import { WhitelistMintSettings } from './CandyMachine';
+import { UnreachableCaseError } from '@/errors';
 
 /**
  * Configuration for the Candy Machine.
@@ -122,6 +139,7 @@ type HiddenSettingsConfig = {
  * @property value - to test the end condition. This will be either a date
  * string (end DateTime) or an integer amount (items minted)
  * */
+
 type EndSettingsConfig =
   | {
       endSettingType: 'date';
@@ -184,13 +202,6 @@ export const getCandyMachineConfigsFromJson = (
     address: toPublicKey(creatorConfig.address),
   }));
 
-  const hiddenSettings =
-    hiddenSettingsFromConfig(config.hiddenSettings) ?? null;
-  const endSettings = endSettingsFromConfig(config.endSettings) ?? null;
-  const whitelistMintSettings =
-    whiteListMintSettingsFromConfig(config.whitelistMintSettings) ?? null;
-  const gatekeeper = gatekeeperFromConfig(config.gatekeeper) ?? null;
-
   return {
     price: sol(config.price),
     symbol: config.symbol ?? '',
@@ -200,10 +211,72 @@ export const getCandyMachineConfigsFromJson = (
     retainAuthority: !config.noRetainAuthority,
     goLiveDate: config.goLiveDate,
     itemsAvailable: config.number,
-    endSettings,
-    hiddenSettings,
-    whitelistMintSettings,
-    gatekeeper,
+    endSettings: endSettingsFromConfig(config.endSettings),
+    hiddenSettings: hiddenSettingsFromConfig(config.hiddenSettings),
+    whitelistMintSettings: whiteListMintSettingsFromConfig(
+      config.whitelistMintSettings
+    ),
+    gatekeeper: gatekeeperFromConfig(config.gatekeeper),
     creators,
+  };
+};
+
+const endSettingsFromConfig = (
+  config?: EndSettingsConfig
+): EndSettings | undefined => {
+  if (config == null) return undefined;
+
+  return {
+    endSettingType:
+      config.endSettingType === 'date'
+        ? EndSettingType.Date
+        : EndSettingType.Amount,
+    number:
+      config.endSettingType === 'date'
+        ? toUnixTimestamp(config.value)
+        : new BN(config.value),
+  };
+};
+
+const hiddenSettingsFromConfig = (
+  config?: HiddenSettingsConfig
+): HiddenSettings | undefined => {
+  if (config == null) return undefined;
+  const hash = Buffer.from(config.hash, 'utf8').toJSON().data;
+  return { ...config, hash };
+};
+
+const whiteListMintSettingsFromConfig = (
+  config?: WhitelistMintSettingsConfig
+): WhitelistMintSettings | undefined => {
+  if (config == null) return undefined;
+  let mode: WhitelistMintMode;
+  switch (config.mode) {
+    case BURN_EVERY_TIME:
+      mode = WhitelistMintMode.BurnEveryTime;
+      break;
+    case NEVER_BURN:
+      mode = WhitelistMintMode.NeverBurn;
+      break;
+    default:
+      throw new UnreachableCaseError(config.mode);
+  }
+
+  return {
+    ...config,
+    mode,
+    mint: toPublicKey(config.mint),
+    discountPrice: lamports(config.discountPrice),
+  };
+};
+
+const gatekeeperFromConfig = (
+  config?: GatekeeperSettingsConfig
+): GatekeeperConfig | undefined => {
+  if (config == null) return undefined;
+
+  return {
+    ...config,
+    gatekeeperNetwork: toPublicKey(config.gatekeeperNetwork),
   };
 };
