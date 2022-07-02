@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { Amount } from '@/types';
+import { Amount, DateTime, toUnixTimestamp } from '@/types';
 import { Option } from '@/utils';
 import {
   CandyMachineData,
@@ -23,7 +23,7 @@ export type CandyMachineConfigs = {
   maxEditionSupply?: BN | number; // Defaults to 0.
   isMutable?: boolean; // Defaults to true.
   retainAuthority?: boolean; // Defaults to true.
-  goLiveDate?: Option<BN | number>; // Defaults to null.
+  goLiveDate?: Option<DateTime>; // Defaults to null.
   endSettings?: Option<EndSettings>; // Defaults to null.
   creators?: PublicKey | Creator[]; // Defaults to mx.identity().publicKey.
   hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
@@ -63,7 +63,7 @@ export const getCandyMachineDataFromConfigs = (
     maxSupply: configs.maxEditionSupply ?? 0,
     isMutable: configs.isMutable ?? true,
     retainAuthority: configs.retainAuthority ?? true,
-    goLiveDate: configs.goLiveDate ?? null,
+    goLiveDate: configs.goLiveDate ? toUnixTimestamp(configs.goLiveDate) : null,
     endSettings: configs.endSettings ?? null,
     creators,
     hiddenSettings: configs.hiddenSettings ?? null,

@@ -1,6 +1,5 @@
 import { Creator } from '@metaplex-foundation/mpl-candy-machine';
-import { PublicKeyString } from '@/types';
-import { PublicKey } from '@solana/web3.js';
+import { DateTimeString, PublicKeyString, sol, toPublicKey } from '@/types';
 import { CandyMachineConfigs } from './CandyMachineConfigs';
 
 /**
@@ -57,7 +56,7 @@ export type CandyMachineJsonConfigs = {
   number: number;
   sellerFeeBasisPoints: number;
   solTreasuryAccount: PublicKeyString;
-  goLiveDate: string;
+  goLiveDate: DateTimeString;
   noRetainAuthority: boolean;
   noMutable: boolean;
   creators?: CreatorsConfig;
@@ -182,10 +181,8 @@ export const getCandyMachineConfigsFromJson = (
 
   const creators: Creator[] = configCreators.map((creatorConfig) => ({
     ...creatorConfig,
-    address: convertToPublickKey(creatorConfig.address),
+    address: toPublicKey(creatorConfig.address),
   }));
-
-  const goLiveDate = convertToMillisecondsSinceEpoch(config.goLiveDate);
 
   const hiddenSettings =
     hiddenSettingsFromConfig(config.hiddenSettings) ?? null;
@@ -195,20 +192,18 @@ export const getCandyMachineConfigsFromJson = (
   const gatekeeper = gatekeeperFromConfig(config.gatekeeper) ?? null;
 
   return {
-    price: new BN(config.price),
+    price: sol(config.price),
     symbol: config.symbol ?? '',
     sellerFeeBasisPoints: config.sellerFeeBasisPoints,
-
-    maxSupply: new BN(config.number),
-    isMutable: config.isMutable,
-    retainAuthority: config.retainAuthority,
-    goLiveDate,
-    itemsAvailable: new BN(config.number),
+    maxEditionSupply: config.number,
+    isMutable: !config.noMutable,
+    retainAuthority: !config.noRetainAuthority,
+    goLiveDate: config.goLiveDate,
+    itemsAvailable: config.number,
     endSettings,
     hiddenSettings,
     whitelistMintSettings,
     gatekeeper,
-
     creators,
   };
 };
