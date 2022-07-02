@@ -7,7 +7,6 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { createCandyMachineWithMinimalConfig } from './helpers';
 import {
   CandyMachineData,
   EndSettingType,

@@ -6,7 +6,6 @@ import {
   metaplex,
   spokSamePubkey,
 } from '../../helpers';
-import { createCandyMachineWithMinimalConfig } from './helpers';
 import { CandyMachineAlreadyHasThisAuthorityError } from '../../../src';
 
 killStuckProcess();

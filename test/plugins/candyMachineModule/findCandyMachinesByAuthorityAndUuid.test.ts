@@ -1,7 +1,6 @@
 import test from 'tape';
 import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
 import spok from 'spok';
-import { createCandyMachineWithMinimalConfig } from './helpers';
 import {
   MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
   NoCandyMachineFoundForAuthorityMatchesUuidError,

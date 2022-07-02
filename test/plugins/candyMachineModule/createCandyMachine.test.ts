@@ -1,6 +1,11 @@
 import test from 'tape';
 import spok, { Specifications } from 'spok';
+import nacl from 'tweetnacl';
 import { Keypair } from '@solana/web3.js';
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   amman,
   assertThrows,
@@ -9,13 +14,8 @@ import {
   spokSameAmount,
   spokSameBignum,
 } from '../../helpers';
-import { sol, CandyMachine } from '@/index';
+import { sol, CandyMachine, CreateCandyMachineInput } from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
-import {
-  EndSettingType,
-  WhitelistMintMode,
-} from '@metaplex-foundation/mpl-candy-machine';
-import nacl from 'tweetnacl';
 
 killStuckProcess();
 
@@ -23,7 +23,7 @@ async function init() {
   const mx = await metaplex();
   const tc = amman.transactionChecker(mx.connection);
   const client = mx.candyMachines();
-  const minimalInput = {
+  const minimalInput: CreateCandyMachineInput = {
     price: sol(1),
     sellerFeeBasisPoints: 500,
     itemsAvailable: 100,
