@@ -31,7 +31,7 @@ export async function addAssets(
 ) {
   const currentCandyMachine = await this.findByAddress(
     params.candyMachineAddress
-  );
+  ).run();
   if (currentCandyMachine == null) {
     throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
   }
@@ -53,10 +53,9 @@ export async function addAssets(
     .operations()
     .execute(addConfigLinesOperation(addConfigLinesInput));
 
-  const candyMachine = await this.findByAddress(params.candyMachineAddress);
-  if (currentCandyMachine == null) {
-    throw new UpdatedCandyMachineNotFoundError(params.candyMachineAddress);
-  }
+  const candyMachine = await this.findByAddress(
+    params.candyMachineAddress
+  ).run();
 
   return {
     candyMachine,

@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import type { CandyMachinesClient } from './CandyMachinesClient';
-import { findCandyMachineByAdddressOperation } from './findCandyMachineByAddress';
+import { findCandyMachineByAddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 import {
@@ -8,14 +8,6 @@ import {
   MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
   NoCandyMachineFoundForAuthorityMatchesUuidError,
 } from '../../errors/CandyMachineError';
-
-export function findByAddress(
-  this: CandyMachinesClient,
-  address: PublicKey
-): Promise<CandyMachine | null> {
-  const operation = findCandyMachineByAdddressOperation(address);
-  return this.metaplex.operations().execute(operation);
-}
 
 export function findAllByWallet(
   this: CandyMachinesClient,

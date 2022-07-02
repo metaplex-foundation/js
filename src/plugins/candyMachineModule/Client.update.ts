@@ -39,10 +39,9 @@ export async function update(
   const operation = updateCandyMachineOperation({ ...input, ...updatedData });
   const output = await this.metaplex.operations().execute(operation);
 
-  const candyMachine = await this.findByAddress(input.candyMachineAddress);
-  if (candyMachine == null) {
-    throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
-  }
+  const candyMachine = await this.findByAddress(
+    input.candyMachineAddress
+  ).run();
 
   return { candyMachine, ...output };
 }
@@ -53,7 +52,7 @@ export async function updateAuthority(
 ): Promise<UpdateAuthorityOutput & { candyMachine: CandyMachine }> {
   const currentCandyMachine = await this.findByAddress(
     input.candyMachineAddress
-  );
+  ).run();
   if (currentCandyMachine == null) {
     throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
   }
@@ -67,7 +66,9 @@ export async function updateAuthority(
   const operation = updateAuthorityOperation(input);
   const output = await this.metaplex.operations().execute(operation);
 
-  const candyMachine = await this.findByAddress(input.candyMachineAddress);
+  const candyMachine = await this.findByAddress(
+    input.candyMachineAddress
+  ).run();
   if (candyMachine == null) {
     throw new UpdatedCandyMachineNotFoundError(input.candyMachineAddress);
   }
