@@ -51,10 +51,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       operation: UpdateCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
-      const builder = await updateCandyMachineBuilder(
-        metaplex,
-        operation.input
-      );
+      const builder = updateCandyMachineBuilder(metaplex, operation.input);
 
       const response = await metaplex
         .rpc()
@@ -83,10 +80,10 @@ export type UpdateCandyMachineBuilderParams = Omit<
   updateAuthorityInstructionKey?: string;
 };
 
-export const updateCandyMachineBuilder = async (
+export const updateCandyMachineBuilder = (
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams
-): Promise<TransactionBuilder> => {
+): TransactionBuilder => {
   const data = getCandyMachineAccountDataFromConfigs(
     { ...params.candyMachine, ...params },
     params.candyMachine.address,

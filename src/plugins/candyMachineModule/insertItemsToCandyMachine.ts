@@ -4,6 +4,7 @@ import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { CandyMachine, CandyMachineItem } from './CandyMachine';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
 
 // -----------------
 // Operation
@@ -25,7 +26,6 @@ export type InsertItemsToCandyMachineInput = {
 
   // Data.
   items: CandyMachineItem[];
-  offset?: number;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -45,22 +45,16 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
       operation: InsertItemsToCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<InsertItemsToCandyMachineOutput> {
-      const builder = await insertItemsToCandyMachineBuilder(
-        metaplex,
-        operation.input
-      );
-
       const response = await metaplex
         .rpc()
         .sendAndConfirmTransaction(
-          builder,
+          insertItemsToCandyMachineBuilder(operation.input),
           undefined,
           operation.input.confirmOptions
         );
 
       return {
         response,
-        ...builder.getContext(),
       };
     },
   };
@@ -73,13 +67,24 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
   InsertItemsToCandyMachineInput,
   'confirmOptions'
 > & {
-  updateInstructionKey?: string;
-  updateAuthorityInstructionKey?: string;
+  instructionKey?: string;
 };
 
-export const insertItemsToCandyMachineBuilder = async (
-  metaplex: Metaplex,
+export const insertItemsToCandyMachineBuilder = (
   params: InsertItemsToCandyMachineBuilderParams
-): Promise<TransactionBuilder> => {
-  return TransactionBuilder.make();
+): TransactionBuilder => {
+  const index = params.candyMachine.itemsLoaded;
+  const configLines = params.items;
+
+  return TransactionBuilder.make().add({
+    instruction: createAddConfigLinesInstruction(
+      {
+        candyMachine: params.candyMachine.address,
+        authority: params.authority.publicKey,
+      },
+      { index, configLines }
+    ),
+    signers: [params.authority],
+    key: params.instructionKey ?? 'insertItems',
+  });
 };
