@@ -9,8 +9,8 @@ import {
   createCandyMachineOperationHandler,
 } from './createCandyMachine';
 import {
-  findCandyMachineByAdddressOperation,
-  findCandyMachineByAdddressOperationHandler,
+  findCandyMachineByAddressOperation,
+  findCandyMachineByAddressOperationHandler,
 } from './findCandyMachineByAddress';
 import {
   findCandyMachinesByPublicKeyFieldOperation,
@@ -34,8 +34,8 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       createCandyMachineOperationHandler
     );
     op.register(
-      findCandyMachineByAdddressOperation,
-      findCandyMachineByAdddressOperationHandler
+      findCandyMachineByAddressOperation,
+      findCandyMachineByAddressOperationHandler
     );
     op.register(
       findCandyMachinesByPublicKeyFieldOperation,

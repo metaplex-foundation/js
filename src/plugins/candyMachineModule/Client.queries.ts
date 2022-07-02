@@ -1,6 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
 import type { CandyMachinesClient } from './CandyMachinesClient';
-import { findCandyMachineByAddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 import {

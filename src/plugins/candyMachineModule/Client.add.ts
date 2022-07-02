@@ -1,9 +1,5 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { Signer } from '@/types';
-import {
-  CandyMachineToUpdateNotFoundError,
-  UpdatedCandyMachineNotFoundError,
-} from '@/errors';
 import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
 import { AddConfigLinesInput, addConfigLinesOperation } from './addConfigLines';
 import {
@@ -32,9 +28,6 @@ export async function addAssets(
   const currentCandyMachine = await this.findByAddress(
     params.candyMachineAddress
   ).run();
-  if (currentCandyMachine == null) {
-    throw new CandyMachineToUpdateNotFoundError(params.candyMachineAddress);
-  }
 
   const index = currentCandyMachine.itemsAvailable;
 
