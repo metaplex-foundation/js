@@ -1,3 +1,5 @@
+import nacl from 'tweetnacl';
+import { Buffer } from 'buffer';
 import { amman } from '../../helpers';
 import { Metaplex, CreateCandyMachineInput, sol } from '@/index';
 
@@ -22,4 +24,11 @@ export async function createCandyMachine(
     response,
     candyMachine,
   };
+}
+
+export function createHash(input: Buffer | string, slice?: number): number[] {
+  let hash = nacl.hash(Buffer.from(input));
+  hash = slice === undefined ? hash : hash.slice(0, slice);
+
+  return Array.from(hash);
 }
