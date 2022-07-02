@@ -1,86 +1,68 @@
 import test from 'tape';
-import spok from 'spok';
-import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
+import { killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachine } from './helpers';
+import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[candyMachineModule] candyMachineAccountsForWallet for wallet with one candy machine created', async (t) => {
-  // Given I create one candy machine with a wallet
+test('[candyMachineModule] find all candy machines by wallet', async (t) => {
+  // Given two candy machines from wallet A.
   const mx = await metaplex();
-  const { candyMachineSigner, authorityAddress, walletAddress } =
-    await createCandyMachine(mx);
+  const walletA = Keypair.generate();
+  await Promise.all([
+    createCandyMachine(mx, { wallet: walletA.publicKey }),
+    createCandyMachine(mx, { wallet: walletA.publicKey }),
+  ]);
 
-  // When I get the candy machines for the wallet
-  const candyMachines = await mx.candyMachines().findAllByWallet(walletAddress);
+  // And one candy machine from wallet B.
+  const walletB = Keypair.generate();
+  await createCandyMachine(mx, { wallet: walletB.publicKey });
 
-  // It returns that candy machine
-  t.equal(candyMachines.length, 1, 'returns one account');
-  const cm = candyMachines[0];
-  spok(t, cm, {
-    $topic: 'candyMachine',
-    authorityAddress: spokSamePubkey(authorityAddress),
-    walletAddress: spokSamePubkey(walletAddress),
-  });
-  t.ok(
-    candyMachineSigner.publicKey.toBase58().startsWith(cm.uuid),
-    'candy machine uuid matches candyMachineSigner'
-  );
-});
-
-test('candyMachineGPA: candyMachineAccountsForWallet for wallet with two candy machines created for that wallet and one for another', async (t) => {
-  // Given I create one candy machine with wallet1 and two with wallet2
-
-  // Other wallet
-  {
-    const mx = await metaplex();
-    await createCandyMachine(mx);
-  }
-
-  const mx = await metaplex();
-  // This wallet
-  {
-    await createCandyMachine(mx);
-    await createCandyMachine(mx);
-  }
-
-  // When I get the candy machines for the wallet
+  // When I find all candy machines from wallet A.
   const candyMachines = await mx
     .candyMachines()
-    .findAllByWallet(mx.identity().publicKey);
+    .findAllByWallet(walletA.publicKey)
+    .run();
 
-  // It returns the two candy machine of wallet2
-  t.equal(candyMachines.length, 2, 'returns two machines');
+  // Then we got two candy machines.
+  t.equal(candyMachines.length, 2, 'returns two accounts');
 
-  for (const cm of candyMachines) {
-    t.ok(cm.walletAddress.equals(mx.identity().publicKey), 'wallet matches');
-  }
+  // And they both are from wallet A.
+  candyMachines.forEach((candyMachine) => {
+    t.ok(
+      candyMachine.walletAddress.equals(walletA.publicKey),
+      'wallet matches'
+    );
+  });
 });
 
-// -----------------
-// Authority
-// -----------------
-test('candyMachineGPA: candyMachineAccountsForAuthority for authority with one candy machine created', async (t) => {
-  // Given I create a candy machine with a specific auhority
+test('[candyMachineModule] find all candy machines by authority', async (t) => {
+  // Given two candy machines from authority A.
   const mx = await metaplex();
-  const { candyMachineSigner, authorityAddress, walletAddress } =
-    await createCandyMachine(mx);
+  const authorityA = Keypair.generate();
+  await Promise.all([
+    createCandyMachine(mx, { authority: authorityA.publicKey }),
+    createCandyMachine(mx, { authority: authorityA.publicKey }),
+  ]);
 
-  // When I get the candy machines for that authority
+  // And one candy machine from authority B.
+  const authorityB = Keypair.generate();
+  await createCandyMachine(mx, { authority: authorityB.publicKey });
+
+  // When I find all candy machines from authority A.
   const candyMachines = await mx
     .candyMachines()
-    .findAllByAuthority(authorityAddress);
+    .findAllByAuthority(authorityA.publicKey)
+    .run();
 
-  // It returns that one candy machine for that authority
-  t.equal(candyMachines.length, 1, 'returns one account');
-  const cm = candyMachines[0];
-  spok(t, cm, {
-    $topic: 'candyMachine',
-    authorityAddress: spokSamePubkey(authorityAddress),
-    walletAddress: spokSamePubkey(walletAddress),
+  // Then we got two candy machines.
+  t.equal(candyMachines.length, 2, 'returns two accounts');
+
+  // And they both are from authority A.
+  candyMachines.forEach((candyMachine) => {
+    t.ok(
+      candyMachine.authorityAddress.equals(authorityA.publicKey),
+      'authority matches'
+    );
   });
-  t.ok(
-    candyMachineSigner.publicKey.toBase58().startsWith(cm.uuid),
-    'candy machine uuid matches candyMachineSigner'
-  );
 });
