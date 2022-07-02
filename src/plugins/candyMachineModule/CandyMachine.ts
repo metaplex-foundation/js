@@ -9,7 +9,7 @@ import {
 import BN from 'bn.js';
 import { Amount, lamports, UnparsedAccount } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { getConfigLinesCount, parseConfigLines } from './helpers';
+import { countCandyMachineItems, parseCandyMachineItems } from './helpers';
 import { CandyMachineAccount } from './accounts';
 
 export type CandyMachine = Readonly<{
@@ -68,8 +68,8 @@ export const makeCandyMachineModel = (
 
   const hiddenSettings = account.data.data.hiddenSettings;
   const rawData = unparsedAccount.data;
-  const itemsLoaded = hiddenSettings ? 0 : getConfigLinesCount(rawData);
-  const items = hiddenSettings ? [] : parseConfigLines(rawData);
+  const itemsLoaded = hiddenSettings ? 0 : countCandyMachineItems(rawData);
+  const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
 
   return {
     model: 'candyMachine',

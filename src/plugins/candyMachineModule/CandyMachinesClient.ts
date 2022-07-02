@@ -19,7 +19,11 @@ import {
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
-import { InsertItemsToCandyMachineInput } from './insertItemsToCandyMachine';
+import {
+  InsertItemsToCandyMachineInput,
+  insertItemsToCandyMachineOperation,
+  InsertItemsToCandyMachineOutput,
+} from './insertItemsToCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -85,27 +89,22 @@ export class CandyMachinesClient {
       .getTask(findCandyMachineByAddressOperation({ address, ...options }));
   }
 
-  insertItems(input: InsertItemsToCandyMachineInput) {
-    // const index = currentCandyMachine.itemsAvailable;
-    // assertNotFull(currentCandyMachine, index);
-    // assertCanAdd(currentCandyMachine, index, params.assets.length);
-    // assertAllConfigLineConstraints(params.assets);
-    // const addConfigLinesInput: AddConfigLinesInput = {
-    //   candyMachineAddress: params.candyMachineAddress,
-    //   authoritySigner: params.authoritySigner,
-    //   index,
-    //   configLines: params.assets,
-    // };
-    // const addConfigLinesOutput = await this.metaplex
-    //   .operations()
-    //   .execute(addConfigLinesOperation(addConfigLinesInput));
-    // const candyMachine = await this.findByAddress(
-    //   params.candyMachineAddress
-    // ).run();
-    // return {
-    //   candyMachine,
-    //   ...addConfigLinesOutput,
-    // };
+  insertItems(
+    candyMachine: CandyMachine,
+    input: Omit<InsertItemsToCandyMachineInput, 'candyMachine'>
+  ): Task<InsertItemsToCandyMachineOutput & { candyMachine: CandyMachine }> {
+    return new Task(async (scope) => {
+      const operation = insertItemsToCandyMachineOperation({
+        candyMachine,
+        ...input,
+      });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const updatedCandyMachine = await this.findByAddress(
+        candyMachine.address
+      ).run();
+      return { candyMachine: updatedCandyMachine, ...output };
+    });
   }
 
   update(

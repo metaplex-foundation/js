@@ -1,23 +1,22 @@
 import type { PublicKey } from '@solana/web3.js';
 import {
   CandyMachineData,
-  ConfigLine,
   configLineBeet,
 } from '@metaplex-foundation/mpl-candy-machine';
 import BN from 'bn.js';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
-import { CandyMachine } from './CandyMachine';
+import { CandyMachine, CandyMachineItem } from './CandyMachine';
 
-export function getConfigLinesCount(rawData: Buffer): number {
+export function countCandyMachineItems(rawData: Buffer): number {
   return rawData
     .slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4)
     .readUInt32LE();
 }
 
-export function parseConfigLines(rawData: Buffer): ConfigLine[] {
+export function parseCandyMachineItems(rawData: Buffer): CandyMachineItem[] {
   const configLinesStart = CONFIG_ARRAY_START + 4;
   const lines = [];
-  const count = getConfigLinesCount(rawData);
+  const count = countCandyMachineItems(rawData);
   for (let i = 0; i < count; i++) {
     const [line] = configLineBeet.deserialize(
       rawData,
