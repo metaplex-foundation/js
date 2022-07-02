@@ -2,7 +2,7 @@ import {
   CandyMachineAddConfigConstraintsViolatedError,
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
-} from '@/errors';
+} from './errors';
 import type { CandyMachine } from './CandyMachine';
 import { ConfigLine, Creator } from '@metaplex-foundation/mpl-candy-machine';
 import { assertConfigLineConstraints } from './constants';

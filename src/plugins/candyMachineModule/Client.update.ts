@@ -3,7 +3,7 @@ import {
   CandyMachineAlreadyHasThisAuthorityError,
   CandyMachineToUpdateNotFoundError,
   UpdatedCandyMachineNotFoundError,
-} from '@/errors';
+} from './errors';
 import { CandyMachine } from './CandyMachine';
 import {
   UpdateCandyMachineInputWithoutCandyMachineData,

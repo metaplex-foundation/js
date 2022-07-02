@@ -1,5 +1,4 @@
 import type { Metaplex } from '@/Metaplex';
-import { findByAuthorityAndUuid } from './Client.queries';
 import { update, updateAuthority } from './Client.update';
 import { addAssets } from './Client.add';
 import {
@@ -81,11 +80,6 @@ export class CandyMachinesClient {
       .operations()
       .getTask(findCandyMachineByAddressOperation({ address, ...options }));
   }
-
-  // -----------------
-  // Queries
-  // -----------------
-  findByAuthorityAndUuid = findByAuthorityAndUuid;
 
   // -----------------
   // Update

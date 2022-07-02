@@ -1,10 +1,7 @@
 import { bignum } from '@metaplex-foundation/beet';
 import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
-import {
-  MetaplexError,
-  MetaplexErrorInputWithoutSource,
-} from './MetaplexError';
+import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
 
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
