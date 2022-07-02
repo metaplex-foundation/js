@@ -33,11 +33,9 @@ export class AuctionsClient {
     );
   }
 
-  createAuctionHouse(input: CreateAuctionHouseInput): Task<
-    Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
+  createAuctionHouse(
+    input: CreateAuctionHouseInput
+  ): Task<CreateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -45,7 +43,7 @@ export class AuctionsClient {
         .run(scope);
       scope.throwIfCanceled();
       const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouse
+        output.auctionHouseAddress
       ).run(scope);
       return { ...output, auctionHouse };
     });
@@ -54,11 +52,7 @@ export class AuctionsClient {
   updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<
-    UpdateAuctionHouseOutput & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
+  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()

@@ -50,10 +50,10 @@ export type CreateAuctionHouseInput = {
 
 export type CreateAuctionHouseOutput = {
   response: SendAndConfirmTransactionResponse;
-  auctionHouse: Pda;
-  auctionHouseFeeAccount: Pda;
-  auctionHouseTreasury: Pda;
-  treasuryWithdrawalDestination: PublicKey;
+  auctionHouseAddress: Pda;
+  auctionHouseFeeAccountAddress: Pda;
+  auctionHouseTreasuryAddress: Pda;
+  treasuryWithdrawalDestinationAddress: PublicKey;
 };
 
 // -----------------
@@ -130,10 +130,10 @@ export const createAuctionHouseBuilder = (
   return TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
     .setFeePayer(payer)
     .setContext({
-      auctionHouse,
-      auctionHouseFeeAccount,
-      auctionHouseTreasury,
-      treasuryWithdrawalDestination,
+      auctionHouseAddress: auctionHouse,
+      auctionHouseFeeAccountAddress: auctionHouseFeeAccount,
+      auctionHouseTreasuryAddress: auctionHouseTreasury,
+      treasuryWithdrawalDestinationAddress: treasuryWithdrawalDestination,
     })
     .add({
       instruction: createCreateAuctionHouseInstruction(
