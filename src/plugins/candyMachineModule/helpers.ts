@@ -6,6 +6,7 @@ import {
 import BN from 'bn.js';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
 import { CandyMachine, CandyMachineItem } from './CandyMachine';
+import { removeEmptyChars } from '@/utils';
 
 export function countCandyMachineItems(rawData: Buffer): number {
   return rawData
@@ -22,7 +23,10 @@ export function parseCandyMachineItems(rawData: Buffer): CandyMachineItem[] {
       rawData,
       configLinesStart + i * CONFIG_LINE_SIZE
     );
-    lines.push(line);
+    lines.push({
+      name: removeEmptyChars(line.name),
+      uri: removeEmptyChars(line.uri),
+    });
   }
   return lines;
 }

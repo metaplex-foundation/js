@@ -1,370 +1,146 @@
 import test from 'tape';
-import spok from 'spok';
-import { amman, killStuckProcess, metaplex } from '../../helpers';
-import {
-  CandyMachineAddConfigConstraintsViolatedError,
-  CandyMachineCannotAddAmountError,
-  CandyMachineIsFullError,
-} from '../../../src';
+import { killStuckProcess, metaplex } from '../../helpers';
+import { createCandyMachine } from './helpers';
 
 killStuckProcess();
 
-test('addAssets: candy machine that can hold 7 assets', async (t) => {
-  // Given I create a candy machine holing 7 assets
+test('[candyMachineModule] it can add items to a candy machine', async (t) => {
+  // Given an existing Candy Machine with 100 capacity.
   const mx = await metaplex();
-  const cm = mx.candyMachines();
-  const tc = amman.transactionChecker(mx.connection);
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: 100,
+  });
 
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 7);
-
-  {
-    // When I add one asset
-    t.comment('Adding one asset');
-    const { transactionId } = await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [{ name: 'first asset', uri: 'first uri' }],
-    });
-    await amman.addr.addLabel('cm(7)-add first asset', transactionId);
-
-    // Then the transaction succeeds
-    await tc.assertSuccess(t, transactionId);
-
-    // And the candy machine has the asset added
-    const candyMachine = await mx
-      .candyMachines()
-      .findByAddress(candyMachineSigner.publicKey);
-
-    spok(t, candyMachine, {
+  // When we add two items to the Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .insertItems(candyMachine, {
+      authority: mx.identity(),
       items: [
-        {
-          name: spok.startsWith('first asset'),
-          uri: spok.startsWith('first uri'),
-        },
+        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+        { name: 'Degen #2', uri: 'https://example.com/degen/2' },
       ],
-    });
-  }
+    })
+    .run();
 
-  {
-    // When I add two more assets
-    t.comment('Adding two more assets');
-    const { transactionId } = await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'second asset', uri: 'second uri' },
-        { name: 'third asset', uri: 'third uri' },
-      ],
-    });
-    await amman.addr.addLabel('cm(7)-add two more assets', transactionId);
+  // Then the Candy Machine has been updated properly.
+  t.false(updatedCandyMachine.isFullyLoaded);
+  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.items.length, 2);
+  t.deepEquals(updatedCandyMachine.items, [
+    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+  ]);
+});
 
-    // Then the transaction succeeds
-    await tc.assertSuccess(t, transactionId);
+test.skip('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
+  // Given an existing Candy Machine with 100 capacity.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: 100,
+  });
 
-    // And the candy machine has the assets added
-    const candyMachine = await mx
-      .candyMachines()
-      .findByAddress(candyMachineSigner.publicKey);
-
-    spok(t, candyMachine, {
+  // When we add ??? items to the Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .insertItems(candyMachine, {
+      authority: mx.identity(),
       items: [
-        {
-          name: spok.startsWith('first asset'),
-          uri: spok.startsWith('first uri'),
-        },
-        {
-          name: spok.startsWith('second asset'),
-          uri: spok.startsWith('second uri'),
-        },
-        {
-          name: spok.startsWith('third asset'),
-          uri: spok.startsWith('third uri'),
-        },
+        // ...
       ],
-    });
-  }
+    })
+    .run();
 
-  {
-    // When I add four more assets
-    t.comment('Adding four more assets');
-    const { transactionId } = await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'fourth asset', uri: 'fourth uri' },
-        { name: 'fifth asset', uri: 'fifth uri' },
-        { name: 'sixth asset', uri: 'sixth uri' },
-        { name: 'seventh asset', uri: 'seventh uri' },
-      ],
-    });
-    await amman.addr.addLabel('cm(7)-add four more assets', transactionId);
+  // Then the Candy Machine has been updated properly.
+  t.false(updatedCandyMachine.isFullyLoaded);
+  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.items.length, 2);
+  t.deepEquals(updatedCandyMachine.items, [
+    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+  ]);
+});
 
-    // Then the transaction succeeds
-    await tc.assertSuccess(t, transactionId);
+test.skip('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
+  // Given an existing Candy Machine with 100 capacity.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: 100,
+  });
 
-    // And the candy machine has the assets added
-    const candyMachine = await mx
-      .candyMachines()
-      .findByAddress(candyMachineSigner.publicKey);
-
-    spok(t, candyMachine, {
+  // When we add ??? items to the Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .insertItems(candyMachine, {
+      authority: mx.identity(),
       items: [
-        {
-          name: spok.startsWith('first asset'),
-          uri: spok.startsWith('first uri'),
-        },
-        {
-          name: spok.startsWith('second asset'),
-          uri: spok.startsWith('second uri'),
-        },
-        {
-          name: spok.startsWith('third asset'),
-          uri: spok.startsWith('third uri'),
-        },
-        {
-          name: spok.startsWith('fourth asset'),
-          uri: spok.startsWith('fourth uri'),
-        },
-        {
-          name: spok.startsWith('fifth asset'),
-          uri: spok.startsWith('fifth uri'),
-        },
-        {
-          name: spok.startsWith('sixth asset'),
-          uri: spok.startsWith('sixth uri'),
-        },
-        {
-          name: spok.startsWith('seventh asset'),
-          uri: spok.startsWith('seventh uri'),
-        },
+        // ...
       ],
-    });
-  }
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  t.false(updatedCandyMachine.isFullyLoaded);
+  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.items.length, 2);
+  t.deepEquals(updatedCandyMachine.items, [
+    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+  ]);
 });
 
-test('addAssets: candy machine that can hold 0 assets adding one', async (t) => {
-  // Given I create a candy machine holding 0
+test.skip('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
+  // Given an existing Candy Machine with 100 capacity.
   const mx = await metaplex();
-  const cm = mx.candyMachines();
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: 100,
+  });
 
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 0);
-
-  // When I add one asset
-  t.comment('Adding one asset');
-  try {
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [{ name: 'first asset', uri: 'first uri' }],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    // Then the request fails
-    t.ok(
-      err instanceof CandyMachineIsFullError,
-      'throws CandyMachineIsFullError'
-    );
-  }
-  // And the candy machine has no assets added
-  const candyMachine = await mx
+  // When we add ??? items to the Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
-    .findByAddress(candyMachineSigner.publicKey);
+    .insertItems(candyMachine, {
+      authority: mx.identity(),
+      items: [
+        // ...
+      ],
+    })
+    .run();
 
-  t.equal(candyMachine?.itemsAvailable, 0, 'no assets added');
+  // Then the Candy Machine has been updated properly.
+  t.false(updatedCandyMachine.isFullyLoaded);
+  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.items.length, 2);
+  t.deepEquals(updatedCandyMachine.items, [
+    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+  ]);
 });
 
-test('addAssets: candy machine that can hold 2 assets adding 5', async (t) => {
-  // Given I create a candy machine holding 4
+test.skip('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
+  // Given an existing Candy Machine with 100 capacity.
   const mx = await metaplex();
-  const cm = mx.candyMachines();
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: 100,
+  });
 
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 4);
-
-  // When I add five assets
-  t.comment('Adding five assets');
-  try {
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'first asset', uri: 'first uri' },
-        { name: 'second asset', uri: 'second uri' },
-        { name: 'third asset', uri: 'third uri' },
-        { name: 'fourth asset', uri: 'fourth uri' },
-        { name: 'fifth asset', uri: 'fifth uri' },
-      ],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    t.ok(
-      err instanceof CandyMachineCannotAddAmountError,
-      'throws CandyMachineCannotAddAmountError'
-    );
-  }
-
-  // And the candy machine has no assets added
-  const candyMachine = await mx
+  // When we add ??? items to the Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
-    .findByAddress(candyMachineSigner.publicKey);
-
-  t.equal(candyMachine?.itemsAvailable, 0, 'no assets added');
-});
-
-test('addAssets: candy machine that can hold 4 assets adding 3 and then 2', async (t) => {
-  // Given I create a candy machine holding 4
-  const mx = await metaplex();
-  const cm = mx.candyMachines();
-  const tc = amman.transactionChecker(mx.connection);
-
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 4);
-
-  {
-    // When I add three assets
-    t.comment('Adding three assets');
-    const { transactionId } = await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'first asset', uri: 'first uri' },
-        { name: 'second asset', uri: 'second uri' },
-        { name: 'third asset', uri: 'third uri' },
+    .insertItems(candyMachine, {
+      authority: mx.identity(),
+      items: [
+        // ...
       ],
-    });
-    await amman.addr.addLabel('cm(4)-add-three', transactionId);
-    tc.assertSuccess(t, transactionId);
-  }
+    })
+    .run();
 
-  //
-  // And then I add two more assets
-  t.comment('Adding two more assets');
-  try {
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'fourth asset', uri: 'fourth uri' },
-        { name: 'fifth asset', uri: 'fifth uri' },
-      ],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    t.ok(
-      err instanceof CandyMachineCannotAddAmountError,
-      'throws CandyMachineCannotAddAmountError'
-    );
-  }
-
-  // And the candy machine has only the first three assets added
-  const candyMachine = await mx
-    .candyMachines()
-    .findByAddress(candyMachineSigner.publicKey);
-
-  t.equal(candyMachine?.itemsAvailable, 3, 'first three assets added');
-});
-
-test('addAssets: candy machine that can hold 3 assets adding 3 and then 2', async (t) => {
-  // Given I create a candy machine holding 3
-  const mx = await metaplex();
-  const cm = mx.candyMachines();
-  const tc = amman.transactionChecker(mx.connection);
-
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 3);
-
-  {
-    // When I add three assets
-    t.comment('Adding three assets');
-    const { transactionId } = await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'first asset', uri: 'first uri' },
-        { name: 'second asset', uri: 'second uri' },
-        { name: 'third asset', uri: 'third uri' },
-      ],
-    });
-    await amman.addr.addLabel('cm(3)-add-three', transactionId);
-    tc.assertSuccess(t, transactionId);
-  }
-
-  //
-  // And then I add two more assets
-  t.comment('Adding two more assets');
-  try {
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'fourth asset', uri: 'fourth uri' },
-        { name: 'fifth asset', uri: 'fifth uri' },
-      ],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    t.ok(
-      err instanceof CandyMachineIsFullError,
-      'throws CandyMachineIsFullError'
-    );
-  }
-
-  // And the candy machine has only the first three assets added
-  const candyMachine = await mx
-    .candyMachines()
-    .findByAddress(candyMachineSigner.publicKey);
-
-  t.equal(candyMachine?.itemsAvailable, 3, 'first three assets added');
-});
-
-test('addAssets: fails when name or uri too long', async (t) => {
-  // Given I create a candy machine holing 1 assets
-  const mx = await metaplex();
-  const cm = mx.candyMachines();
-
-  const { candyMachineSigner, payerSigner } =
-    await createCandyMachineWithMaxSupply(mx, 1);
-
-  // When I add one asset with a name that is longer than 32 characters
-  try {
-    t.comment('Adding one asset with a name that is longer than 32 characters');
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        { name: 'asset - 012345678901234567890123456789', uri: 'first uri' },
-      ],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    // Then it fails
-    t.ok(
-      err instanceof CandyMachineAddConfigConstraintsViolatedError,
-      'throws CandyMachineAddConfigConstraintsViolatedError'
-    );
-  }
-  //
-  // When I add one asset with a uri that is longer than 200 characters
-  try {
-    t.comment('Adding one asset with a uri that is longer than 200 characters');
-    await cm.addAssets({
-      authoritySigner: payerSigner,
-      candyMachineAddress: candyMachineSigner.publicKey,
-      assets: [
-        {
-          name: 'asset',
-          uri: 'x'.repeat(201),
-        },
-      ],
-    });
-    t.fail('should have thrown');
-  } catch (err) {
-    // Then it fails
-    t.ok(
-      err instanceof CandyMachineAddConfigConstraintsViolatedError,
-      'throws CandyMachineAddConfigConstraintsViolatedError'
-    );
-  }
+  // Then the Candy Machine has been updated properly.
+  t.false(updatedCandyMachine.isFullyLoaded);
+  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.items.length, 2);
+  t.deepEquals(updatedCandyMachine.items, [
+    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+  ]);
 });
