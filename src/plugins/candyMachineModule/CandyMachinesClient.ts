@@ -1,5 +1,4 @@
 import type { Metaplex } from '@/Metaplex';
-import { addAssets } from './Client.add';
 import {
   CreateCandyMachineInput,
   CreateCandyMachineInputWithoutConfigs,
@@ -20,6 +19,7 @@ import {
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
+import { InsertItemsToCandyMachineInput } from './insertItemsToCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -85,6 +85,29 @@ export class CandyMachinesClient {
       .getTask(findCandyMachineByAddressOperation({ address, ...options }));
   }
 
+  insertItems(input: InsertItemsToCandyMachineInput) {
+    // const index = currentCandyMachine.itemsAvailable;
+    // assertNotFull(currentCandyMachine, index);
+    // assertCanAdd(currentCandyMachine, index, params.assets.length);
+    // assertAllConfigLineConstraints(params.assets);
+    // const addConfigLinesInput: AddConfigLinesInput = {
+    //   candyMachineAddress: params.candyMachineAddress,
+    //   authoritySigner: params.authoritySigner,
+    //   index,
+    //   configLines: params.assets,
+    // };
+    // const addConfigLinesOutput = await this.metaplex
+    //   .operations()
+    //   .execute(addConfigLinesOperation(addConfigLinesInput));
+    // const candyMachine = await this.findByAddress(
+    //   params.candyMachineAddress
+    // ).run();
+    // return {
+    //   candyMachine,
+    //   ...addConfigLinesOutput,
+    // };
+  }
+
   update(
     candyMachine: CandyMachine,
     input: Omit<UpdateCandyMachineInput, 'candyMachine'>
@@ -103,9 +126,4 @@ export class CandyMachinesClient {
       return { candyMachine: updatedCandyMachine, ...output };
     });
   }
-
-  // -----------------
-  // Add Assets
-  // -----------------
-  addAssets = addAssets;
 }

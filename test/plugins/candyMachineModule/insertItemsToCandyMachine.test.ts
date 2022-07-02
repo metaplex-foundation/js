@@ -6,7 +6,6 @@ import {
   CandyMachineCannotAddAmountError,
   CandyMachineIsFullError,
 } from '../../../src';
-import { createCandyMachineWithMaxSupply } from './helpers';
 
 killStuckProcess();
 
