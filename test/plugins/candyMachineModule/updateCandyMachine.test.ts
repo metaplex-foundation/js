@@ -89,7 +89,7 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
     },
   });
 
-  // When we update the Candy Machine with ...
+  // When we update the items available of a Candy Machine.
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
@@ -103,25 +103,38 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
 });
 
 test('[candyMachineModule] it can update the hidden settings of a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+  // Given an existing Candy Machine with hidden settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    hiddenSettings: {
+      hash: createHash('cache-file', 32),
+      name: 'mint-name',
+      uri: 'https://example.com',
+    },
   });
 
-  // When we update the Candy Machine with ...
+  // When we update these hidden settings.
+  const newHash = createHash('new-cache-file', 32);
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      // ...
+      hiddenSettings: {
+        hash: newHash,
+        name: 'new-mint-name',
+        uri: 'https://example.com/new',
+      },
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
-    // ...
-  } as unknown as Specifications<CandyMachine>);
+    hiddenSettings: {
+      hash: newHash,
+      name: 'new-mint-name',
+      uri: 'https://example.com/new',
+    },
+  });
 });
 
 test('[candyMachineModule] it cannot add or remove hidden settings to a candy machine', async (t) => {
