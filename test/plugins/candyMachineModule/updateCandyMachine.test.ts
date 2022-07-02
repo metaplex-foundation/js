@@ -10,7 +10,10 @@ import {
 import { CandyMachine, sol } from '@/index';
 import { createCandyMachine, createHash } from './helpers';
 import { Keypair } from '@solana/web3.js';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 
@@ -200,47 +203,73 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
+test('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    whitelistMintSettings: {
+      mode: WhitelistMintMode.BurnEveryTime,
+      mint: Keypair.generate().publicKey,
+      presale: true,
+      discountPrice: sol(0.5),
+    },
   });
 
   // When we update the Candy Machine with ...
+  const newWhitelistMint = Keypair.generate().publicKey;
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      // ...
+      whitelistMintSettings: {
+        mode: WhitelistMintMode.NeverBurn,
+        mint: newWhitelistMint,
+        presale: false,
+        discountPrice: sol(0),
+      },
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
-    // ...
+    whitelistMintSettings: {
+      mode: WhitelistMintMode.NeverBurn,
+      mint: spokSamePubkey(newWhitelistMint),
+      presale: false,
+      discountPrice: spokSameAmount(sol(0)),
+    },
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
+test('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    gatekeeper: {
+      gatekeeperNetwork: Keypair.generate().publicKey,
+      expireOnUse: true,
+    },
   });
 
   // When we update the Candy Machine with ...
+  const newGatekeeperNetwork = Keypair.generate().publicKey;
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      // ...
+      gatekeeper: {
+        gatekeeperNetwork: newGatekeeperNetwork,
+        expireOnUse: false,
+      },
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
-    // ...
+    gatekeeper: {
+      gatekeeperNetwork: spokSamePubkey(newGatekeeperNetwork),
+      expireOnUse: false,
+    },
   } as unknown as Specifications<CandyMachine>);
 });
 
