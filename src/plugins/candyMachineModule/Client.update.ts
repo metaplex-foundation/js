@@ -6,49 +6,14 @@ import {
 } from './errors';
 import { CandyMachine } from './CandyMachine';
 import {
-  UpdateCandyMachineInputWithoutCandyMachineData,
-  updateCandyMachineOperation,
-  UpdateCandyMachineOutput,
-} from './updateCandyMachine';
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
-import {
   UpdateAuthorityInput,
   updateAuthorityOperation,
   UpdateAuthorityOutput,
 } from './updateAuthority';
 
-export type UpdateCandyMachineParams =
-  UpdateCandyMachineInputWithoutCandyMachineData & Partial<CandyMachineData>;
-
-export type UpdateCandyMachineAuthorityParams = UpdateAuthorityInput;
-
-export async function update(
-  this: CandyMachinesClient,
-  input: UpdateCandyMachineParams
-): Promise<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
-  const currentCandyMachine = await this.findByAddress(
-    input.candyMachineAddress
-  );
-  if (currentCandyMachine == null) {
-    throw new CandyMachineToUpdateNotFoundError(input.candyMachineAddress);
-  }
-
-  // TODO(loris): Create local helper method to get the nested CandyMachineData from the Candy Machine model.
-  const updatedData = input as CandyMachineData;
-
-  const operation = updateCandyMachineOperation({ ...input, ...updatedData });
-  const output = await this.metaplex.operations().execute(operation);
-
-  const candyMachine = await this.findByAddress(
-    input.candyMachineAddress
-  ).run();
-
-  return { candyMachine, ...output };
-}
-
 export async function updateAuthority(
   this: CandyMachinesClient,
-  input: UpdateCandyMachineAuthorityParams
+  input: UpdateAuthorityInput
 ): Promise<UpdateAuthorityOutput & { candyMachine: CandyMachine }> {
   const currentCandyMachine = await this.findByAddress(
     input.candyMachineAddress

@@ -82,6 +82,10 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     },
   };
 
+// -----------------
+// Builder
+// -----------------
+
 export type CreateCandyMachineBuilderParams = Omit<
   CreateCandyMachineInput,
   'confirmOptions'

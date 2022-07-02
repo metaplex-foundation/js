@@ -16,6 +16,11 @@ import {
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { findCandyMachineByAddressOperation } from './findCandyMachineByAddress';
 import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
+import {
+  UpdateCandyMachineInput,
+  updateCandyMachineOperation,
+  UpdateCandyMachineOutput,
+} from './updateCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -81,10 +86,28 @@ export class CandyMachinesClient {
       .getTask(findCandyMachineByAddressOperation({ address, ...options }));
   }
 
+  update(
+    candyMachine: CandyMachine,
+    input: Omit<UpdateCandyMachineInput, 'candyMachine'>
+  ): Task<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(
+          updateCandyMachineOperation({ candyMachine, ...input }),
+          scope
+        );
+      scope.throwIfCanceled();
+      const updatedCandyMachine = await this.findByAddress(
+        candyMachine.address
+      ).run();
+      return { candyMachine: updatedCandyMachine, ...output };
+    });
+  }
+
   // -----------------
   // Update
   // -----------------
-  update = update;
   updateAuthority = updateAuthority;
 
   // -----------------
