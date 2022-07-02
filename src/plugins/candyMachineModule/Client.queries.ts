@@ -1,36 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import type { CandyMachinesClient } from './CandyMachinesClient';
-import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 import { CandyMachine } from './CandyMachine';
 import {
   CandyMachinesNotFoundByAuthorityError,
   MoreThanOneCandyMachineFoundByAuthorityAndUuidError,
   NoCandyMachineFoundForAuthorityMatchesUuidError,
 } from '../../errors/CandyMachineError';
-
-export function findAllByWallet(
-  this: CandyMachinesClient,
-  walletAddress: PublicKey
-): Promise<CandyMachine[]> {
-  return this.metaplex.operations().execute(
-    findCandyMachinesByPublicKeyFieldOperation({
-      type: 'wallet',
-      publicKey: walletAddress,
-    })
-  );
-}
-
-export function findAllByAuthority(
-  this: CandyMachinesClient,
-  authorityAddress: PublicKey
-): Promise<CandyMachine[]> {
-  return this.metaplex.operations().execute(
-    findCandyMachinesByPublicKeyFieldOperation({
-      type: 'authority',
-      publicKey: authorityAddress,
-    })
-  );
-}
 
 export async function findByAuthorityAndUuid(
   this: CandyMachinesClient,
@@ -39,7 +14,7 @@ export async function findByAuthorityAndUuid(
 ): Promise<CandyMachine> {
   const candyMachinesForAuthority = await this.findAllByAuthority(
     authorityAddress
-  );
+  ).run();
   if (candyMachinesForAuthority.length === 0) {
     throw new CandyMachinesNotFoundByAuthorityError(authorityAddress);
   }

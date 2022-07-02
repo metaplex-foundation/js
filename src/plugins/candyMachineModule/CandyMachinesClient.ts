@@ -1,9 +1,5 @@
 import type { Metaplex } from '@/Metaplex';
-import {
-  findAllByAuthority,
-  findAllByWallet,
-  findByAuthorityAndUuid,
-} from './Client.queries';
+import { findByAuthorityAndUuid } from './Client.queries';
 import { update, updateAuthority } from './Client.update';
 import { addAssets } from './Client.add';
 import {
@@ -20,6 +16,7 @@ import {
 } from './CandyMachineJsonConfigs';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { findCandyMachineByAddressOperation } from './findCandyMachineByAddress';
+import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -50,6 +47,32 @@ export class CandyMachinesClient {
     return this.create({ ...otherInputs, ...configs });
   }
 
+  findAllByWallet(
+    wallet: PublicKey,
+    options: { commitment?: Commitment } = {}
+  ): Task<CandyMachine[]> {
+    return this.metaplex.operations().getTask(
+      findCandyMachinesByPublicKeyFieldOperation({
+        type: 'wallet',
+        publicKey: wallet,
+        ...options,
+      })
+    );
+  }
+
+  findAllByAuthority(
+    authority: PublicKey,
+    options: { commitment?: Commitment } = {}
+  ): Task<CandyMachine[]> {
+    return this.metaplex.operations().getTask(
+      findCandyMachinesByPublicKeyFieldOperation({
+        type: 'authority',
+        publicKey: authority,
+        ...options,
+      })
+    );
+  }
+
   findByAddress(
     address: PublicKey,
     options: { commitment?: Commitment } = {}
@@ -62,8 +85,6 @@ export class CandyMachinesClient {
   // -----------------
   // Queries
   // -----------------
-  findAllByWallet = findAllByWallet;
-  findAllByAuthority = findAllByAuthority;
   findByAuthorityAndUuid = findByAuthorityAndUuid;
 
   // -----------------
