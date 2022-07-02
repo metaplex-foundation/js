@@ -10,6 +10,7 @@ import {
 import { CandyMachine, sol } from '@/index';
 import { createCandyMachine, createHash } from './helpers';
 import { Keypair } from '@solana/web3.js';
+import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 
@@ -137,33 +138,45 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
   });
 });
 
-test('[candyMachineModule] it cannot add or remove hidden settings to a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+test('[candyMachineModule] it can add hidden settings to a candy machine that have zero items available', async (t) => {
+  // Given an existing Candy Machine without hidden settings and without items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    itemsAvailable: 0,
+    hiddenSettings: null,
   });
 
-  // When we update the Candy Machine with ...
+  // When we add hidden settings to the Candy Machine.
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      // ...
+      hiddenSettings: {
+        hash: createHash('cache-file', 32),
+        name: 'mint-name',
+        uri: 'https://example.com',
+      },
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
-    // ...
-  } as unknown as Specifications<CandyMachine>);
+    hiddenSettings: {
+      hash: createHash('cache-file', 32),
+      name: 'mint-name',
+      uri: 'https://example.com',
+    },
+  });
 });
 
 test('[candyMachineModule] it can update the end settings of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    // ...
+    endSettings: {
+      endSettingType: EndSettingType.Amount,
+      number: 100,
+    },
   });
 
   // When we update the Candy Machine with ...
@@ -171,17 +184,23 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      // ...
+      endSettings: {
+        endSettingType: EndSettingType.Date,
+        number: 1000000000,
+      },
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
-    // ...
+    endSettings: {
+      endSettingType: EndSettingType.Date,
+      number: spokSameBignum(1000000000),
+    },
   } as unknown as Specifications<CandyMachine>);
 });
 
-test('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
+test.skip('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
@@ -203,7 +222,7 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
   } as unknown as Specifications<CandyMachine>);
 });
 
-test('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
+test.skip('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
@@ -225,7 +244,7 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
   } as unknown as Specifications<CandyMachine>);
 });
 
-test('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
+test.skip('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
