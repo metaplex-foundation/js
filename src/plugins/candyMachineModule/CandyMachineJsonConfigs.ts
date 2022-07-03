@@ -1,12 +1,9 @@
 import {
-  Creator,
-  EndSettings,
   EndSettingType,
-  GatekeeperConfig,
-  HiddenSettings,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
+  Creator,
   DateTimeString,
   lamports,
   PublicKeyString,
@@ -16,8 +13,6 @@ import {
   toPublicKey,
 } from '@/types';
 import { CandyMachineConfigs } from './CandyMachineConfigs';
-import { WhitelistMintSettings } from './CandyMachine';
-import { UnreachableCaseError } from '@/errors';
 
 /**
  * Configuration for the Candy Machine.
@@ -76,7 +71,7 @@ export type CandyMachineJsonConfigs = {
   goLiveDate: DateTimeString;
   noRetainAuthority: boolean;
   noMutable: boolean;
-  creators?: CreatorsConfig;
+  creators?: CreatorConfig[];
   symbol?: string;
   splTokenAccount?: PublicKeyString;
   splToken?: PublicKeyString;
@@ -184,7 +179,6 @@ type WhitelistMintSettingsConfig = {
 type CreatorConfig = Omit<Creator, 'address'> & {
   address: PublicKeyString;
 };
-type CreatorsConfig = CreatorConfig[];
 
 export const getCandyMachineConfigsFromJson = (
   config: CandyMachineJsonConfigs
@@ -197,11 +191,6 @@ export const getCandyMachineConfigsFromJson = (
     },
   ];
 
-  const creators: Creator[] = configCreators.map((creatorConfig) => ({
-    ...creatorConfig,
-    address: toPublicKey(creatorConfig.address),
-  }));
-
   return {
     price: sol(config.price),
     symbol: config.symbol ?? '',
@@ -211,69 +200,41 @@ export const getCandyMachineConfigsFromJson = (
     retainAuthority: !config.noRetainAuthority,
     goLiveDate: toOptionDateTime(config.goLiveDate),
     itemsAvailable: toBigNumber(config.number),
-    endSettings: endSettingsFromConfig(config.endSettings),
-    hiddenSettings: hiddenSettingsFromConfig(config.hiddenSettings),
-    whitelistMintSettings: whiteListMintSettingsFromConfig(
-      config.whitelistMintSettings
-    ),
-    gatekeeper: gatekeeperFromConfig(config.gatekeeper),
-    creators,
-  };
-};
-
-const endSettingsFromConfig = (
-  config?: EndSettingsConfig
-): EndSettings | undefined => {
-  if (config == null) return undefined;
-
-  return {
-    endSettingType:
-      config.endSettingType === 'date'
-        ? EndSettingType.Date
-        : EndSettingType.Amount,
-    number: toBigNumber(config.value),
-  };
-};
-
-const hiddenSettingsFromConfig = (
-  config?: HiddenSettingsConfig
-): HiddenSettings | undefined => {
-  if (config == null) return undefined;
-  const hash = Buffer.from(config.hash, 'utf8').toJSON().data;
-  return { ...config, hash };
-};
-
-const whiteListMintSettingsFromConfig = (
-  config?: WhitelistMintSettingsConfig
-): WhitelistMintSettings | undefined => {
-  if (config == null) return undefined;
-  let mode: WhitelistMintMode;
-  switch (config.mode) {
-    case BURN_EVERY_TIME:
-      mode = WhitelistMintMode.BurnEveryTime;
-      break;
-    case NEVER_BURN:
-      mode = WhitelistMintMode.NeverBurn;
-      break;
-    default:
-      throw new UnreachableCaseError(config.mode);
-  }
-
-  return {
-    ...config,
-    mode,
-    mint: toPublicKey(config.mint),
-    discountPrice: lamports(config.discountPrice),
-  };
-};
-
-const gatekeeperFromConfig = (
-  config?: GatekeeperSettingsConfig
-): GatekeeperConfig | undefined => {
-  if (config == null) return undefined;
-
-  return {
-    ...config,
-    gatekeeperNetwork: toPublicKey(config.gatekeeperNetwork),
+    endSettings: config.endSettings
+      ? {
+          endSettingType:
+            config.endSettings.endSettingType === 'date'
+              ? EndSettingType.Date
+              : EndSettingType.Amount,
+          number: toBigNumber(config.endSettings.value),
+        }
+      : null,
+    hiddenSettings: config.hiddenSettings
+      ? {
+          ...config.hiddenSettings,
+          hash: Buffer.from(config.hiddenSettings.hash, 'utf8').toJSON().data,
+        }
+      : null,
+    whitelistMintSettings: config.whitelistMintSettings
+      ? {
+          ...config.whitelistMintSettings,
+          mode:
+            config.whitelistMintSettings.mode === 'burnEveryTime'
+              ? WhitelistMintMode.BurnEveryTime
+              : WhitelistMintMode.NeverBurn,
+          mint: toPublicKey(config.whitelistMintSettings.mint),
+          discountPrice: lamports(config.whitelistMintSettings.discountPrice),
+        }
+      : null,
+    gatekeeper: config.gatekeeper
+      ? {
+          ...config.gatekeeper,
+          network: toPublicKey(config.gatekeeper.gatekeeperNetwork),
+        }
+      : null,
+    creators: configCreators.map((creatorConfig) => ({
+      ...creatorConfig,
+      address: toPublicKey(creatorConfig.address),
+    })),
   };
 };

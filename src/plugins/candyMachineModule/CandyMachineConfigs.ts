@@ -1,16 +1,16 @@
 import BN from 'bn.js';
-import { Amount, DateTime, toDateTime } from '@/types';
+import { Amount, BigNumber, DateTime, toDateTime, toPublicKey } from '@/types';
 import { Option } from '@/utils';
-import {
-  CandyMachineData,
-  Creator,
-  EndSettings,
-  GatekeeperConfig,
-  HiddenSettings,
-} from '@metaplex-foundation/mpl-candy-machine';
+import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine';
 import { PublicKey } from '@solana/web3.js';
-import { WhitelistMintSettings } from './CandyMachine';
+import {
+  EndSettings,
+  Gatekeeper,
+  HiddenSettings,
+  WhitelistMintSettings,
+} from './CandyMachine';
 import { getCandyMachineUuidFromAddress } from './helpers';
+import { Creator } from '@/types';
 
 export type CandyMachineConfigs = {
   // Data.
@@ -20,7 +20,7 @@ export type CandyMachineConfigs = {
 
   // Optional Data.
   symbol?: string; // Defaults to empty string.
-  maxEditionSupply?: BN; // Defaults to 0.
+  maxEditionSupply?: BigNumber; // Defaults to 0.
   isMutable?: boolean; // Defaults to true.
   retainAuthority?: boolean; // Defaults to true.
   goLiveDate?: Option<DateTime>; // Defaults to null.
@@ -28,7 +28,7 @@ export type CandyMachineConfigs = {
   creators?: Creator[]; // Defaults to mx.identity().publicKey.
   hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
   whitelistMintSettings?: Option<WhitelistMintSettings>; // Defaults to null.
-  gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.
+  gatekeeper?: Option<Gatekeeper>; // Defaults to null.
 };
 
 export const getCandyMachineAccountDataFromConfigs = (
@@ -69,6 +69,11 @@ export const getCandyMachineAccountDataFromConfigs = (
     hiddenSettings: configs.hiddenSettings ?? null,
     whitelistMintSettings,
     itemsAvailable: configs.itemsAvailable,
-    gatekeeper: configs.gatekeeper ?? null,
+    gatekeeper: configs.gatekeeper
+      ? {
+          ...configs.gatekeeper,
+          gatekeeperNetwork: toPublicKey(configs.gatekeeper.network),
+        }
+      : null,
   };
 };
