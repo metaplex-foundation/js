@@ -113,6 +113,14 @@ export class TransactionBuilder<C extends object = object> {
     return this.records.map((record) => record.instruction);
   }
 
+  getInstructionCount(): number {
+    return this.records.length;
+  }
+
+  isEmpty(): boolean {
+    return this.getInstructionCount() === 0;
+  }
+
   getSigners(): Signer[] {
     const feePayer = this.feePayer == null ? [] : [this.feePayer];
     const signers = this.records.flatMap((record) => record.signers);

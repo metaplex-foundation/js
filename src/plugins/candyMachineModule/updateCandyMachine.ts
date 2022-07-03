@@ -1,4 +1,9 @@
+import { isEqual } from 'lodash';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import {
+  createUpdateAuthorityInstruction,
+  createUpdateCandyMachineInstruction,
+} from '@metaplex-foundation/mpl-candy-machine';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
@@ -8,11 +13,7 @@ import {
   CandyMachineUpdatableFields,
   toCandyMachineInstructionData,
 } from './CandyMachine';
-import {
-  createUpdateAuthorityInstruction,
-  createUpdateCandyMachineInstruction,
-} from '@metaplex-foundation/mpl-candy-machine';
-import { CandyMachineAlreadyHasThisAuthorityError } from './errors';
+import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
 // Operation
@@ -53,10 +54,13 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       operation: UpdateCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
-      return updateCandyMachineBuilder(
-        metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      const builder = updateCandyMachineBuilder(metaplex, operation.input);
+
+      if (builder.isEmpty()) {
+        throw new NoInstructionsToSendError(Key);
+      }
+
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -84,36 +88,36 @@ export const updateCandyMachineBuilder = (
     updateAuthorityInstructionKey,
     ...updatableFields
   } = params;
-  // TODO(loris): Deep compare datas to see if we need to send the first ix.
-  // const dataWithoutUpdates = toCandyMachineInstructionData(candyMachine);
+  const dataWithoutUpdates = toCandyMachineInstructionData(candyMachine);
   const data = toCandyMachineInstructionData({
     ...candyMachine,
     ...updatableFields,
   });
-
-  if (newAuthority && newAuthority.equals(authority.publicKey)) {
-    throw new CandyMachineAlreadyHasThisAuthorityError(newAuthority);
-  }
+  const shouldSendUpdateInstruction = !isEqual(data, dataWithoutUpdates);
+  const shouldSendUpdateAuthorityInstruction =
+    !!newAuthority && !newAuthority.equals(authority.publicKey);
 
   return (
     TransactionBuilder.make()
 
       // Update data.
-      .add({
-        instruction: createUpdateCandyMachineInstruction(
-          {
-            candyMachine: candyMachine.address,
-            authority: authority.publicKey,
-            wallet: candyMachine.walletAddress,
-          },
-          { data }
-        ),
-        signers: [authority],
-        key: updateInstructionKey ?? 'update',
-      })
+      .when(shouldSendUpdateInstruction, (builder) =>
+        builder.add({
+          instruction: createUpdateCandyMachineInstruction(
+            {
+              candyMachine: candyMachine.address,
+              authority: authority.publicKey,
+              wallet: candyMachine.walletAddress,
+            },
+            { data }
+          ),
+          signers: [authority],
+          key: updateInstructionKey ?? 'update',
+        })
+      )
 
       // Update authority.
-      .when(!!newAuthority, (builder) =>
+      .when(shouldSendUpdateAuthorityInstruction, (builder) =>
         builder.add({
           instruction: createUpdateAuthorityInstruction(
             {

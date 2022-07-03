@@ -1,4 +1,4 @@
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from 'lodash';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { walk } from '@/utils';

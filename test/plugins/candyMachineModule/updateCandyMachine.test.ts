@@ -318,7 +318,7 @@ test('[candyMachineModule] it cannot update the authority of a candy machine to 
   await assertThrows(t, promise, /Candy Machine Already Has This Authority/);
 });
 
-test.only('[candyMachineModule] it sends no transaction if nothing has changed.', async (t) => {
+test('[candyMachineModule] it sends no transaction if nothing has changed when updating a candy machine.', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx);
@@ -332,4 +332,16 @@ test.only('[candyMachineModule] it sends no transaction if nothing has changed.'
     0,
     'has zero instructions'
   );
+});
+
+test('[candyMachineModule] it throws an error if nothing has changed when updating a candy machine.', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx);
+
+  // When we send an update without providing any changes.
+  const promise = mx.candyMachines().update(candyMachine, {}).run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /No Instructions To Send/);
 });

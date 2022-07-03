@@ -257,6 +257,24 @@ export class MissingGpaBuilderError extends SdkError {
   }
 }
 
+export class NoInstructionsToSendError extends SdkError {
+  constructor(operation: string, solution?: string, cause?: Error) {
+    super({
+      cause,
+      key: 'no_instructions_to_send',
+      title: 'No Instructions To Send',
+      problem:
+        `The input provided to the [${operation}] resulted ` +
+        `in a Transaction containing no Instructions.`,
+      solution:
+        solution ??
+        `Ensure that the provided input has an effect on the operation. ` +
+          `This typically happens when trying to update an account with ` +
+          `the same data it already contains.`,
+    });
+  }
+}
+
 export class NotYetImplementedError extends SdkError {
   constructor(cause?: Error) {
     super({
