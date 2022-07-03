@@ -1,6 +1,6 @@
 import type { Buffer } from 'buffer';
 import BN from 'bn.js';
-import { Opaque } from '@/utils';
+import { assert, Opaque, Option } from '@/utils';
 
 export type BigNumber = Opaque<BN, 'BigNumber'>;
 export type BigNumberValues =
@@ -13,4 +13,18 @@ export type BigNumberValues =
 
 export const toBigNumber = (value: BigNumberValues): BigNumber => {
   return new BN(value) as BigNumber;
+};
+
+export const toOptionBigNumber = (
+  value: Option<BigNumberValues>
+): Option<BigNumber> => {
+  return value === null ? null : toBigNumber(value);
+};
+
+export const isBigNumber = (value: any): value is BigNumber => {
+  return value?.__opaque__ === 'BigNumber';
+};
+
+export const assertBigNumber = (value: any): asserts value is BigNumber => {
+  assert(isBigNumber(value), 'Expected BigNumber type');
 };

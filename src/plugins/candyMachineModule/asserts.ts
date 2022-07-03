@@ -53,7 +53,7 @@ export const assertCanAdd = (
   index: number,
   amount: number
 ) => {
-  if (index + amount > candyMachine.itemsAvailable) {
+  if (index + amount > candyMachine.itemsAvailable.toNumber()) {
     throw new CandyMachineCannotAddAmountError(
       index,
       amount,

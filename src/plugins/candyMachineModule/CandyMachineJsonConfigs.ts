@@ -6,14 +6,14 @@ import {
   HiddenSettings,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
-import BN from 'bn.js';
 import {
   DateTimeString,
   lamports,
   PublicKeyString,
   sol,
+  toBigNumber,
+  toOptionDateTime,
   toPublicKey,
-  toUnixTimestamp,
 } from '@/types';
 import { CandyMachineConfigs } from './CandyMachineConfigs';
 import { WhitelistMintSettings } from './CandyMachine';
@@ -206,11 +206,11 @@ export const getCandyMachineConfigsFromJson = (
     price: sol(config.price),
     symbol: config.symbol ?? '',
     sellerFeeBasisPoints: config.sellerFeeBasisPoints,
-    maxEditionSupply: config.number,
+    maxEditionSupply: toBigNumber(config.number),
     isMutable: !config.noMutable,
     retainAuthority: !config.noRetainAuthority,
-    goLiveDate: config.goLiveDate,
-    itemsAvailable: config.number,
+    goLiveDate: toOptionDateTime(config.goLiveDate),
+    itemsAvailable: toBigNumber(config.number),
     endSettings: endSettingsFromConfig(config.endSettings),
     hiddenSettings: hiddenSettingsFromConfig(config.hiddenSettings),
     whitelistMintSettings: whiteListMintSettingsFromConfig(
@@ -231,10 +231,7 @@ const endSettingsFromConfig = (
       config.endSettingType === 'date'
         ? EndSettingType.Date
         : EndSettingType.Amount,
-    number:
-      config.endSettingType === 'date'
-        ? toUnixTimestamp(config.value)
-        : new BN(config.value),
+    number: toBigNumber(config.value),
   };
 };
 

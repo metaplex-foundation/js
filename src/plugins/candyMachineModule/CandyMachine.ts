@@ -1,16 +1,21 @@
 import { PublicKey } from '@solana/web3.js';
 import {
-  Creator,
-  EndSettings,
-  GatekeeperConfig,
-  HiddenSettings,
-  WhitelistMintSettings as BaseWhitelistMintSettings,
+  EndSettingType,
+  WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
-import BN from 'bn.js';
-import { Amount, lamports, UnparsedAccount } from '@/types';
+import {
+  Amount,
+  BigNumber,
+  DateTime,
+  lamports,
+  toBigNumber,
+  toOptionDateTime,
+  UnparsedAccount,
+} from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { countCandyMachineItems, parseCandyMachineItems } from './helpers';
 import { CandyMachineAccount } from './accounts';
+import { Creator } from '@/types/Creator';
 
 export type CandyMachine = Readonly<{
   model: 'candyMachine';
@@ -24,18 +29,18 @@ export type CandyMachine = Readonly<{
   sellerFeeBasisPoints: number;
   isMutable: boolean;
   retainAuthority: boolean;
-  goLiveDate: Option<BN>;
-  maxEditionSupply: BN;
+  goLiveDate: Option<DateTime>;
+  maxEditionSupply: BigNumber;
   items: CandyMachineItem[];
-  itemsAvailable: BN;
-  itemsMinted: BN;
-  itemsRemaining: BN;
-  itemsLoaded: BN;
+  itemsAvailable: BigNumber;
+  itemsMinted: BigNumber;
+  itemsRemaining: BigNumber;
+  itemsLoaded: BigNumber;
   isFullyLoaded: boolean;
   endSettings: Option<EndSettings>;
   hiddenSettings: Option<HiddenSettings>;
   whitelistMintSettings: Option<WhitelistMintSettings>;
-  gatekeeper: Option<GatekeeperConfig>;
+  gatekeeper: Option<Gatekeeper>;
   creators: Creator[];
 }>;
 
@@ -44,11 +49,27 @@ export type CandyMachineItem = Readonly<{
   uri: string;
 }>;
 
-export type WhitelistMintSettings = Omit<
-  BaseWhitelistMintSettings,
-  'discountPrice'
-> & {
+export type EndSettings = {
+  endSettingType: EndSettingType;
+  number: BigNumber;
+};
+
+export type HiddenSettings = {
+  name: string;
+  uri: string;
+  hash: number[];
+};
+
+export type WhitelistMintSettings = {
+  mode: WhitelistMintMode;
+  mint: PublicKey;
+  presale: boolean;
   discountPrice: Option<Amount>;
+};
+
+export type Gatekeeper = {
+  network: PublicKey;
+  expireOnUse: boolean;
 };
 
 export const isCandyMachineModel = (value: any): value is CandyMachine =>
@@ -57,18 +78,24 @@ export const isCandyMachineModel = (value: any): value is CandyMachine =>
 export const assertCandyMachineModel = (
   value: any
 ): asserts value is CandyMachine =>
-  assert(isCandyMachineModel(value), `Expected CandyMachine type`);
+  assert(isCandyMachineModel(value), 'Expected CandyMachine type');
 
 export const makeCandyMachineModel = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount
 ): CandyMachine => {
-  const itemsAvailable = new BN(account.data.data.itemsAvailable).toNumber();
-  const itemsMinted = new BN(account.data.itemsRedeemed).toNumber();
+  const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
+  const itemsMinted = toBigNumber(account.data.itemsRedeemed);
 
+  const endSettings = account.data.data.endSettings;
   const hiddenSettings = account.data.data.hiddenSettings;
+  const whitelistMintSettings = account.data.data.whitelistMintSettings;
+  const gatekeeper = account.data.data.gatekeeper;
+
   const rawData = unparsedAccount.data;
-  const itemsLoaded = hiddenSettings ? 0 : countCandyMachineItems(rawData);
+  const itemsLoaded = hiddenSettings
+    ? toBigNumber(0)
+    : countCandyMachineItems(rawData);
   const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
 
   return {
@@ -83,27 +110,35 @@ export const makeCandyMachineModel = (
     sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
     isMutable: account.data.data.isMutable,
     retainAuthority: account.data.data.retainAuthority,
-    goLiveDate: account.data.data.goLiveDate
-      ? new BN(account.data.data.goLiveDate)
-      : null,
-    maxEditionSupply: new BN(account.data.data.maxSupply),
+    goLiveDate: toOptionDateTime(account.data.data.goLiveDate),
+    maxEditionSupply: toBigNumber(account.data.data.maxSupply),
     items,
     itemsAvailable,
     itemsMinted,
-    itemsRemaining: itemsAvailable - itemsMinted,
+    itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
     itemsLoaded,
     isFullyLoaded: itemsAvailable <= itemsLoaded,
-    endSettings: account.data.data.endSettings,
-    hiddenSettings: account.data.data.hiddenSettings,
-    whitelistMintSettings: account.data.data.whitelistMintSettings
+    endSettings: endSettings
       ? {
-          ...account.data.data.whitelistMintSettings,
-          discountPrice: account.data.data.whitelistMintSettings.discountPrice
-            ? lamports(account.data.data.whitelistMintSettings.discountPrice)
+          ...endSettings,
+          number: toBigNumber(endSettings.number),
+        }
+      : null,
+    hiddenSettings,
+    whitelistMintSettings: whitelistMintSettings
+      ? {
+          ...whitelistMintSettings,
+          discountPrice: whitelistMintSettings.discountPrice
+            ? lamports(whitelistMintSettings.discountPrice)
             : null,
         }
       : null,
-    gatekeeper: account.data.data.gatekeeper,
+    gatekeeper: gatekeeper
+      ? {
+          ...gatekeeper,
+          network: gatekeeper.gatekeeperNetwork,
+        }
+      : null,
     creators: account.data.data.creators,
   };
 };

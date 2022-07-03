@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { Amount, DateTime, toUnixTimestamp } from '@/types';
+import { Amount, DateTime, toDateTime } from '@/types';
 import { Option } from '@/utils';
 import {
   CandyMachineData,
@@ -63,7 +63,7 @@ export const getCandyMachineAccountDataFromConfigs = (
     maxSupply: configs.maxEditionSupply ?? 0,
     isMutable: configs.isMutable ?? true,
     retainAuthority: configs.retainAuthority ?? true,
-    goLiveDate: configs.goLiveDate ? toUnixTimestamp(configs.goLiveDate) : null,
+    goLiveDate: configs.goLiveDate ? toDateTime(configs.goLiveDate) : null,
     endSettings: configs.endSettings ?? null,
     creators,
     hiddenSettings: configs.hiddenSettings ?? null,
