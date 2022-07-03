@@ -24,9 +24,14 @@ import {
   insertItemsToCandyMachineOperation,
   InsertItemsToCandyMachineOutput,
 } from './insertItemsToCandyMachine';
+import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
+
+  builders() {
+    return new CandyMachinesBuildersClient(this.metaplex);
+  }
 
   create(input: CreateCandyMachineInput): Task<
     Omit<CreateCandyMachineOutput, 'candyMachine'> & {

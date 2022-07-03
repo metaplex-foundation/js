@@ -104,7 +104,6 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
       itemsAvailable: toBigNumber(200),
     })
     .run();
@@ -129,7 +128,6 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
       hiddenSettings: {
         hash: newHash,
         name: 'new-mint-name',
@@ -193,7 +191,6 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
       endSettings: {
         endSettingType: EndSettingType.Date,
         number: toBigNumber(1000000000),
@@ -227,7 +224,6 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
       whitelistMintSettings: {
         mode: WhitelistMintMode.NeverBurn,
         mint: newWhitelistMint,
@@ -263,7 +259,6 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      authority: mx.identity(),
       gatekeeper: {
         network: newGatekeeperNetwork,
         expireOnUse: false,
@@ -321,4 +316,20 @@ test('[candyMachineModule] it cannot update the authority of a candy machine to 
 
   // Then we expect an error.
   await assertThrows(t, promise, /Candy Machine Already Has This Authority/);
+});
+
+test.only('[candyMachineModule] it sends no transaction if nothing has changed.', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx);
+
+  // When we send an update without providing any changes.
+  const builder = mx.candyMachines().builders().update({ candyMachine });
+
+  // Then we expect no transaction to be sent.
+  t.equals(
+    builder.getInstructionsWithSigners().length,
+    0,
+    'has zero instructions'
+  );
 });

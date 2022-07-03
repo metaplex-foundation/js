@@ -32,7 +32,7 @@ export type UpdateCandyMachineInput = Partial<
 > & {
   // Models and accounts.
   candyMachine: CandyMachine;
-  authority: Signer;
+  authority?: Signer;
   newAuthority?: PublicKey;
 
   // Transaction Options.
@@ -78,7 +78,7 @@ export const updateCandyMachineBuilder = (
 ): TransactionBuilder => {
   const {
     candyMachine,
-    authority,
+    authority = metaplex.identity(),
     newAuthority,
     updateInstructionKey,
     updateAuthorityInstructionKey,
