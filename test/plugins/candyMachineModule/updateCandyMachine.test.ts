@@ -315,7 +315,7 @@ test('[candyMachineModule] it cannot update the authority of a candy machine to 
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Candy Machine Already Has This Authority/);
+  await assertThrows(t, promise, /No Instructions To Send/);
 });
 
 test('[candyMachineModule] it sends no transaction if nothing has changed when updating a candy machine.', async (t) => {
