@@ -3,6 +3,7 @@ import {
   CandyMachineData,
   configLineBeet,
 } from '@metaplex-foundation/mpl-candy-machine';
+import BN from 'bn.js';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
 import { CandyMachineItem } from './CandyMachine';
 import { removeEmptyChars } from '@/utils';
@@ -10,7 +11,7 @@ import { BigNumber, toBigNumber } from '@/types';
 
 export function countCandyMachineItems(rawData: Buffer): BigNumber {
   const number = rawData.slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4);
-  return toBigNumber(number);
+  return toBigNumber(new BN(number, 'le'));
 }
 
 export function parseCandyMachineItems(rawData: Buffer): CandyMachineItem[] {

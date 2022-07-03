@@ -127,7 +127,7 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
     .candyMachines()
     .insertItems(candyMachine, {
       authority: mx.identity(),
-      index: 1,
+      index: toBigNumber(1),
       items: [
         { name: 'Degen #3', uri: 'https://example.com/degen/3' },
         { name: 'Degen #4', uri: 'https://example.com/degen/4' },

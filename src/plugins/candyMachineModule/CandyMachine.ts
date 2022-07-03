@@ -137,7 +137,7 @@ export const toCandyMachine = (
     itemsMinted,
     itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
     itemsLoaded,
-    isFullyLoaded: itemsAvailable <= itemsLoaded,
+    isFullyLoaded: itemsAvailable.lte(itemsLoaded),
     endSettings: endSettings
       ? {
           ...endSettings,
