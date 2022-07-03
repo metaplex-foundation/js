@@ -36,14 +36,6 @@ export const getCandyMachineAccountDataFromConfigs = (
   candyMachineAddress: PublicKey,
   identity: PublicKey
 ): CandyMachineData => {
-  const whitelistMintSettings = configs.whitelistMintSettings
-    ? {
-        ...configs.whitelistMintSettings,
-        discountPrice:
-          configs.whitelistMintSettings.discountPrice?.basisPoints ?? null,
-      }
-    : null;
-
   const creatorsParam = configs.creators ?? identity;
   const creators = Array.isArray(creatorsParam)
     ? creatorsParam
@@ -67,7 +59,13 @@ export const getCandyMachineAccountDataFromConfigs = (
     endSettings: configs.endSettings ?? null,
     creators,
     hiddenSettings: configs.hiddenSettings ?? null,
-    whitelistMintSettings,
+    whitelistMintSettings: configs.whitelistMintSettings
+      ? {
+          ...configs.whitelistMintSettings,
+          discountPrice:
+            configs.whitelistMintSettings.discountPrice?.basisPoints ?? null,
+        }
+      : null,
     itemsAvailable: configs.itemsAvailable,
     gatekeeper: configs.gatekeeper
       ? {
