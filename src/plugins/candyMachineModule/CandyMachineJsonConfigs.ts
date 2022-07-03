@@ -12,7 +12,7 @@ import {
   toOptionDateTime,
   toPublicKey,
 } from '@/types';
-import { CandyMachineConfigs } from './CandyMachineConfigs';
+import { CandyMachine, CandyMachineUpdatableFields } from './CandyMachine';
 
 /**
  * Configuration for the Candy Machine.
@@ -135,19 +135,10 @@ type HiddenSettingsConfig = {
  * string (end DateTime) or an integer amount (items minted)
  * */
 
-type EndSettingsConfig =
-  | {
-      endSettingType: 'date';
-      value: string;
-    }
-  | {
-      endSettingType: 'amount';
-      value: number;
-    };
-
-const BURN_EVERY_TIME = 'burnEveryTime';
-const NEVER_BURN = 'neverBurn';
-const WhitelistModes = [BURN_EVERY_TIME, NEVER_BURN] as const;
+type EndSettingsConfig = {
+  endSettingType: 'date' | 'amount';
+  value: string;
+};
 
 /**
  * Whitelist Modes
@@ -155,7 +146,7 @@ const WhitelistModes = [BURN_EVERY_TIME, NEVER_BURN] as const;
  * burnEveryTime - Whitelist token is burned after the mint
  * neverBurn - Whitelist token is returned to holder
  */
-type WhitelistMode = typeof WhitelistModes[number];
+type WhitelistMode = 'burnEveryTime' | 'neverBurn';
 
 /**
  * Whitelist Mint Settings
@@ -182,7 +173,7 @@ type CreatorConfig = Omit<Creator, 'address'> & {
 
 export const getCandyMachineConfigsFromJson = (
   config: CandyMachineJsonConfigs
-): CandyMachineConfigs => {
+): Pick<CandyMachine, CandyMachineUpdatableFields> => {
   const configCreators = config.creators ?? [
     {
       address: config.solTreasuryAccount,

@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import {
+  CandyMachineData,
   EndSettingType,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
@@ -13,7 +14,11 @@ import {
   UnparsedAccount,
 } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { countCandyMachineItems, parseCandyMachineItems } from './helpers';
+import {
+  countCandyMachineItems,
+  getCandyMachineUuidFromAddress,
+  parseCandyMachineItems,
+} from './helpers';
 import { CandyMachineAccount } from './accounts';
 import { Creator } from '@/types/Creator';
 
@@ -72,15 +77,30 @@ export type Gatekeeper = {
   expireOnUse: boolean;
 };
 
-export const isCandyMachineModel = (value: any): value is CandyMachine =>
+export type CandyMachineUpdatableFields =
+  | 'price'
+  | 'sellerFeeBasisPoints'
+  | 'itemsAvailable'
+  | 'symbol'
+  | 'maxEditionSupply'
+  | 'isMutable'
+  | 'retainAuthority'
+  | 'goLiveDate'
+  | 'endSettings'
+  | 'creators'
+  | 'hiddenSettings'
+  | 'whitelistMintSettings'
+  | 'gatekeeper';
+
+export const isCandyMachine = (value: any): value is CandyMachine =>
   typeof value === 'object' && value.model === 'candyMachine';
 
-export const assertCandyMachineModel = (
-  value: any
-): asserts value is CandyMachine =>
-  assert(isCandyMachineModel(value), 'Expected CandyMachine type');
+export const assertCandyMachine = (value: any): asserts value is CandyMachine =>
+  assert(isCandyMachine(value), 'Expected CandyMachine type');
 
-export const makeCandyMachineModel = (
+// From Program to SDK.
+
+export const toCandyMachine = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount
 ): CandyMachine => {
@@ -140,5 +160,34 @@ export const makeCandyMachineModel = (
         }
       : null,
     creators: account.data.data.creators,
+  };
+};
+
+// From SDK to Program.
+
+export const toCandyMachineInstructionData = (
+  candyMachine: Pick<CandyMachine, CandyMachineUpdatableFields | 'address'>
+): CandyMachineData => {
+  const whitelistMintSettings = candyMachine.whitelistMintSettings;
+  const gatekeeper = candyMachine.gatekeeper;
+
+  return {
+    ...candyMachine,
+    uuid: getCandyMachineUuidFromAddress(candyMachine.address),
+    price: candyMachine.price.basisPoints,
+    maxSupply: candyMachine.maxEditionSupply,
+    whitelistMintSettings: whitelistMintSettings
+      ? {
+          ...whitelistMintSettings,
+          discountPrice:
+            whitelistMintSettings.discountPrice?.basisPoints ?? null,
+        }
+      : null,
+    gatekeeper: gatekeeper
+      ? {
+          ...gatekeeper,
+          gatekeeperNetwork: gatekeeper.network,
+        }
+      : null,
   };
 };

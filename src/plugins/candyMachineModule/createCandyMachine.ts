@@ -12,16 +12,19 @@ import {
   OperationHandler,
   assertSameCurrencies,
   SOL,
+  toBigNumber,
+  toUniformCreators,
 } from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
+import { Option, RequiredKeys, TransactionBuilder } from '@/utils';
 import { createAccountBuilder } from '@/programs';
 import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { getCandyMachineAccountSizeFromData } from './helpers';
 import {
-  CandyMachineConfigs,
-  getCandyMachineAccountDataFromConfigs,
-} from './CandyMachineConfigs';
+  CandyMachine,
+  CandyMachineUpdatableFields,
+  toCandyMachineInstructionData,
+} from './CandyMachine';
 
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =
@@ -44,8 +47,11 @@ export type CreateCandyMachineInputWithoutConfigs = {
   confirmOptions?: ConfirmOptions;
 };
 
-export type CreateCandyMachineInput = CandyMachineConfigs &
-  CreateCandyMachineInputWithoutConfigs;
+export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
+  RequiredKeys<
+    Partial<Pick<CandyMachine, CandyMachineUpdatableFields>>,
+    'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'
+  >;
 
 export type CreateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
@@ -108,11 +114,21 @@ export const createCandyMachineBuilder = async (
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
-  const data: CandyMachineData = getCandyMachineAccountDataFromConfigs(
-    params,
-    candyMachine.publicKey,
-    metaplex.identity().publicKey
-  );
+  const data: CandyMachineData = toCandyMachineInstructionData({
+    ...params,
+    address: candyMachine.publicKey,
+    symbol: params.symbol ?? '',
+    maxEditionSupply: params.maxEditionSupply ?? toBigNumber(0),
+    isMutable: params.isMutable ?? true,
+    retainAuthority: params.retainAuthority ?? true,
+    goLiveDate: params.goLiveDate ?? null,
+    endSettings: params.endSettings ?? null,
+    creators:
+      params.creators ?? toUniformCreators(metaplex.identity().publicKey),
+    hiddenSettings: params.hiddenSettings ?? null,
+    whitelistMintSettings: params.whitelistMintSettings ?? null,
+    gatekeeper: params.gatekeeper ?? null,
+  });
 
   const space = getCandyMachineAccountSizeFromData(data);
   const lamports = await metaplex.rpc().getRent(space);

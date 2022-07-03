@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { CandyMachine, makeCandyMachineModel } from './CandyMachine';
+import { CandyMachine, toCandyMachine } from './CandyMachine';
 import { parseCandyMachineAccount } from './accounts';
 import { CandyMachineProgram } from './program';
 import { UnreachableCaseError } from '@/errors';
@@ -58,7 +58,7 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
 
       return unparsedAccounts.map((unparsedAccount) => {
         const account = parseCandyMachineAccount(unparsedAccount);
-        return makeCandyMachineModel(account, unparsedAccount);
+        return toCandyMachine(account, unparsedAccount);
       });
     },
   };

@@ -8,7 +8,13 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { CandyMachine, sol } from '@/index';
+import {
+  CandyMachine,
+  sol,
+  toBigNumber,
+  toDateTime,
+  toUniformCreators,
+} from '@/index';
 import { createCandyMachine, createHash } from './helpers';
 import { Keypair } from '@solana/web3.js';
 import {
@@ -24,13 +30,13 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
   const { candyMachine } = await createCandyMachine(mx, {
     price: sol(1),
     sellerFeeBasisPoints: 100,
-    itemsAvailable: 100,
+    itemsAvailable: toBigNumber(100),
     symbol: 'OLD',
-    maxEditionSupply: 0,
+    maxEditionSupply: toBigNumber(0),
     isMutable: true,
     retainAuthority: true,
-    goLiveDate: 1000000000,
-    creators: mx.identity().publicKey,
+    goLiveDate: toDateTime(1000000000),
+    creators: toUniformCreators(mx.identity().publicKey),
   });
 
   // When we update the Candy Machine with the following data.
@@ -42,12 +48,12 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
       authority: mx.identity(),
       price: sol(2),
       sellerFeeBasisPoints: 200,
-      itemsAvailable: 100, // <- Can only be updated with hidden settings.
+      itemsAvailable: toBigNumber(100), // <- Can only be updated with hidden settings.
       symbol: 'NEW',
-      maxEditionSupply: 1,
+      maxEditionSupply: toBigNumber(1),
       isMutable: false,
       retainAuthority: false,
-      goLiveDate: 2000000000,
+      goLiveDate: toDateTime(2000000000),
       creators: [
         { address: creatorA.publicKey, verified: false, share: 50 },
         { address: creatorB.publicKey, verified: false, share: 50 },
@@ -61,7 +67,7 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
     authorityAddress: spokSamePubkey(mx.identity().publicKey),
     price: spokSameAmount(sol(2)),
     sellerFeeBasisPoints: 200,
-    itemsAvailable: 100,
+    itemsAvailable: spokSameBignum(100),
     symbol: 'NEW',
     maxEditionSupply: spokSameBignum(1),
     isMutable: false,
@@ -86,7 +92,7 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
   // Given an existing Candy Machine with hidden settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 100,
+    itemsAvailable: toBigNumber(100),
     hiddenSettings: {
       hash: createHash('cache-file', 32),
       name: 'mint-name',
@@ -99,12 +105,12 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      itemsAvailable: 200,
+      itemsAvailable: toBigNumber(200),
     })
     .run();
 
   // Then the Candy Machine has been updated properly.
-  t.equals(updatedCandyMachine.itemsAvailable, 200);
+  t.equals(updatedCandyMachine.itemsAvailable.toNumber(), 200);
 });
 
 test('[candyMachineModule] it can update the hidden settings of a candy machine', async (t) => {
@@ -146,7 +152,7 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
   // Given an existing Candy Machine without hidden settings and without items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 0,
+    itemsAvailable: toBigNumber(0),
     hiddenSettings: null,
   });
 
@@ -179,7 +185,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   const { candyMachine } = await createCandyMachine(mx, {
     endSettings: {
       endSettingType: EndSettingType.Amount,
-      number: 100,
+      number: toBigNumber(100),
     },
   });
 
@@ -190,7 +196,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
       authority: mx.identity(),
       endSettings: {
         endSettingType: EndSettingType.Date,
-        number: 1000000000,
+        number: toBigNumber(1000000000),
       },
     })
     .run();
@@ -247,7 +253,7 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
     gatekeeper: {
-      gatekeeperNetwork: Keypair.generate().publicKey,
+      network: Keypair.generate().publicKey,
       expireOnUse: true,
     },
   });
@@ -259,7 +265,7 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
     .update(candyMachine, {
       authority: mx.identity(),
       gatekeeper: {
-        gatekeeperNetwork: newGatekeeperNetwork,
+        network: newGatekeeperNetwork,
         expireOnUse: false,
       },
     })

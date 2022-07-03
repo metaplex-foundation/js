@@ -6,6 +6,7 @@ import {
   CreateCandyMachineInput,
   sol,
   CandyMachineItem,
+  toBigNumber,
 } from '@/index';
 
 export async function createCandyMachine(
@@ -17,7 +18,7 @@ export async function createCandyMachine(
     .create({
       price: sol(1),
       sellerFeeBasisPoints: 500,
-      itemsAvailable: 100,
+      itemsAvailable: toBigNumber(100),
       ...input,
     })
     .run();

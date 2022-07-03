@@ -1,6 +1,5 @@
 export * from './accounts';
 export * from './CandyMachine';
-export * from './CandyMachineConfigs';
 export * from './CandyMachineJsonConfigs';
 export * from './CandyMachinesClient';
 export * from './createCandyMachine';

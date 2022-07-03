@@ -5,7 +5,7 @@ import {
   OperationHandler,
   useOperation,
 } from '@/types';
-import { CandyMachine, makeCandyMachineModel } from './CandyMachine';
+import { CandyMachine, toCandyMachine } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
 import { toCandyMachineAccount } from './accounts';
 
@@ -45,6 +45,6 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
       assertAccountExists(unparsedAccount);
       const account = toCandyMachineAccount(unparsedAccount);
 
-      return makeCandyMachineModel(account, unparsedAccount);
+      return toCandyMachine(account, unparsedAccount);
     },
   };

@@ -14,7 +14,12 @@ import {
   spokSameAmount,
   spokSameBignum,
 } from '../../helpers';
-import { sol, CandyMachine, CreateCandyMachineInput } from '@/index';
+import {
+  sol,
+  CandyMachine,
+  CreateCandyMachineInput,
+  toBigNumber,
+} from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
 
 killStuckProcess();
@@ -26,7 +31,7 @@ async function init() {
   const minimalInput: CreateCandyMachineInput = {
     price: sol(1),
     sellerFeeBasisPoints: 500,
-    itemsAvailable: 100,
+    itemsAvailable: toBigNumber(100),
   };
 
   return { mx, tc, client, minimalInput };
@@ -41,7 +46,7 @@ test('[candyMachineModule] create with minimal input', async (t) => {
     .create({
       price: sol(1.25),
       sellerFeeBasisPoints: 500,
-      itemsAvailable: 100,
+      itemsAvailable: toBigNumber(100),
     })
     .run();
 
@@ -59,10 +64,10 @@ test('[candyMachineModule] create with minimal input', async (t) => {
     goLiveDate: null,
     maxEditionSupply: spokSameBignum(0),
     items: [],
-    itemsAvailable: 100,
-    itemsMinted: 0,
-    itemsRemaining: 100,
-    itemsLoaded: 0,
+    itemsAvailable: spokSameBignum(100),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(100),
+    itemsLoaded: spokSameBignum(0),
     isFullyLoaded: false,
     endSettings: null,
     hiddenSettings: null,
@@ -120,7 +125,7 @@ test('[candyMachineModule] create with end settings', async (t) => {
       ...minimalInput,
       endSettings: {
         endSettingType: EndSettingType.Amount,
-        number: 100,
+        number: toBigNumber(100),
       },
     })
     .run();
@@ -198,8 +203,8 @@ test('[candyMachineModule] create with gatekeeper settings', async (t) => {
     .create({
       ...minimalInput,
       gatekeeper: {
+        network: gatekeeper.publicKey,
         expireOnUse: true,
-        gatekeeperNetwork: gatekeeper.publicKey,
       },
     })
     .run();
@@ -210,8 +215,8 @@ test('[candyMachineModule] create with gatekeeper settings', async (t) => {
     $topic: 'Candy Machine',
     model: 'candyMachine',
     gatekeeper: {
+      network: gatekeeper.publicKey,
       expireOnUse: true,
-      gatekeeperNetwork: gatekeeper.publicKey,
     },
   });
 });
