@@ -15,7 +15,12 @@ import {
   toBigNumber,
   toUniformCreators,
 } from '@/types';
-import { Option, RequiredKeys, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  RequiredKeys,
+  TransactionBuilder,
+} from '@/utils';
 import { createAccountBuilder } from '@/programs';
 import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
@@ -66,25 +71,15 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
   {
     async handle(
       operation: CreateCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<CreateCandyMachineOutput> {
       const builder = await createCandyMachineBuilder(
         metaplex,
         operation.input
       );
-
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          builder,
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-        ...builder.getContext(),
-      };
+      scope.throwIfCanceled();
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 

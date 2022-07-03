@@ -57,17 +57,10 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
       operation: InsertItemsToCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<InsertItemsToCandyMachineOutput> {
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          insertItemsToCandyMachineBuilder(operation.input),
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-      };
+      return insertItemsToCandyMachineBuilder(operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
     },
   };
 

@@ -53,20 +53,10 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       operation: UpdateCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
-      const builder = updateCandyMachineBuilder(metaplex, operation.input);
-
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          builder,
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-        ...builder.getContext(),
-      };
+      return updateCandyMachineBuilder(
+        metaplex,
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
