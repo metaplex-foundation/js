@@ -1,7 +1,7 @@
-import { bignum } from '@metaplex-foundation/beet';
 import { PublicKey } from '@solana/web3.js';
 import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
 import { CandyMachineItem } from './CandyMachine';
+import { BigNumber } from '@/types';
 
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -157,13 +157,13 @@ export class CandyMachineAlreadyHasThisAuthorityError extends CandyMachineError 
 }
 
 export class CandyMachineIsFullError extends CandyMachineError {
-  constructor(assetIndex: number, itemsAvailable: bignum, cause?: Error) {
+  constructor(assetIndex: BigNumber, itemsAvailable: BigNumber, cause?: Error) {
     super({
       cause,
       key: 'candy_machine_is_full',
       title: 'Candy Machine Is Full',
       problem:
-        `Trying to add asset number ${assetIndex + 1}, but ` +
+        `Trying to add asset number ${assetIndex.addn(1)}, but ` +
         `candy machine only can hold ${itemsAvailable} assets.`,
       solution:
         'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
@@ -173,9 +173,9 @@ export class CandyMachineIsFullError extends CandyMachineError {
 
 export class CandyMachineCannotAddAmountError extends CandyMachineError {
   constructor(
-    index: number,
+    index: BigNumber,
     amount: number,
-    itemsAvailable: bignum,
+    itemsAvailable: BigNumber,
     cause?: Error
   ) {
     super({
@@ -190,7 +190,7 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
 }
 
 export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
-  constructor(index: number, item: CandyMachineItem, cause?: Error) {
+  constructor(index: BigNumber, item: CandyMachineItem, cause?: Error) {
     super({
       cause,
       key: 'candy_machine_add_item_constraints_violated',

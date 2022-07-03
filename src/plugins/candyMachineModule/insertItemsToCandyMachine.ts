@@ -1,6 +1,12 @@
 import type { ConfirmOptions } from '@solana/web3.js';
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  BigNumber,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { CandyMachine, CandyMachineItem } from './CandyMachine';
@@ -31,7 +37,7 @@ export type InsertItemsToCandyMachineInput = {
 
   // Data.
   items: CandyMachineItem[];
-  index?: number;
+  index?: BigNumber;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -91,7 +97,7 @@ export const insertItemsToCandyMachineBuilder = (
         candyMachine: params.candyMachine.address,
         authority: params.authority.publicKey,
       },
-      { index, configLines: items }
+      { index: index.toNumber(), configLines: items }
     ),
     signers: [params.authority],
     key: params.instructionKey ?? 'insertItems',

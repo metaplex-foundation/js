@@ -5,6 +5,7 @@ import {
 import test from 'tape';
 import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachine } from './helpers';
+import { toBigNumber } from '@/index';
 
 killStuckProcess();
 
@@ -12,7 +13,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   // Given an existing Candy Machine with a capacity of 100 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 100,
+    itemsAvailable: toBigNumber(100),
   });
 
   // When we add two items to the Candy Machine.
@@ -29,7 +30,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
 
   // Then the Candy Machine has been updated properly.
   t.false(updatedCandyMachine.isFullyLoaded);
-  t.equals(updatedCandyMachine.itemsLoaded, 2);
+  t.equals(updatedCandyMachine.itemsLoaded.toNumber(), 2);
   t.equals(updatedCandyMachine.items.length, 2);
   t.deepEquals(updatedCandyMachine.items, [
     { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -41,7 +42,7 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 2,
+    itemsAvailable: toBigNumber(2),
   });
 
   // When we try to add 3 items to the Candy Machine.
@@ -65,7 +66,7 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 2,
+    itemsAvailable: toBigNumber(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -114,7 +115,7 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
   // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: 3,
+    itemsAvailable: toBigNumber(3),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -136,7 +137,7 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
 
   // Then the Candy Machine has been updated properly.
   t.true(updatedCandyMachine.isFullyLoaded);
-  t.equals(updatedCandyMachine.itemsLoaded, 3);
+  t.equals(updatedCandyMachine.itemsLoaded.toNumber(), 3);
   t.equals(updatedCandyMachine.items.length, 3);
 
   // And the item of index 1 was overriden.

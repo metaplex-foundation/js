@@ -13,6 +13,7 @@ import {
   CandyMachineIsFullError,
 } from './errors';
 import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
+import { BigNumber, toBigNumber } from '@/types';
 
 export const assertName = (name: string) => {
   assert(
@@ -42,7 +43,7 @@ export const assertCreators = (creators: Creator[]) => {
   );
 };
 
-export const assertNotFull = (candyMachine: CandyMachine, index: number) => {
+export const assertNotFull = (candyMachine: CandyMachine, index: BigNumber) => {
   if (candyMachine.isFullyLoaded) {
     throw new CandyMachineIsFullError(index, candyMachine.itemsAvailable);
   }
@@ -50,10 +51,10 @@ export const assertNotFull = (candyMachine: CandyMachine, index: number) => {
 
 export const assertCanAdd = (
   candyMachine: CandyMachine,
-  index: number,
+  index: BigNumber,
   amount: number
 ) => {
-  if (index + amount > candyMachine.itemsAvailable.toNumber()) {
+  if (index.addn(amount).gt(candyMachine.itemsAvailable)) {
     throw new CandyMachineCannotAddAmountError(
       index,
       amount,
@@ -69,7 +70,7 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       assertUri(configLines[i].uri);
     } catch (err: any) {
       throw new CandyMachineAddItemConstraintsViolatedError(
-        i,
+        toBigNumber(i),
         configLines[i],
         err
       );
