@@ -1,4 +1,4 @@
-import { PublicKey, PublicKeyInitData, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 
 export type Signer = KeypairSigner | IdentitySigner;
 
@@ -14,8 +14,6 @@ export type IdentitySigner = {
   signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
 };
 
-export type PublicKeyString = string;
-
 export const isSigner = (input: any): input is Signer => {
   return (
     typeof input === 'object' &&
@@ -30,10 +28,6 @@ export const isKeypairSigner = (input: any): input is KeypairSigner => {
 
 export const isIdentitySigner = (input: any): input is IdentitySigner => {
   return isSigner(input) && !isKeypairSigner(input);
-};
-
-export const toPublicKey = (input: Signer | PublicKeyInitData): PublicKey => {
-  return isSigner(input) ? input.publicKey : new PublicKey(input);
 };
 
 export interface SignerHistogram {

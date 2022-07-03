@@ -1,22 +1,21 @@
 import BN from 'bn.js';
+import { Opaque } from '@/utils';
+import { BigNumberValues } from './BigNumber';
 
 export type DateTimeString = string;
-export type DateTimeTimestamp = BN | number;
-export type DateTime = DateTimeString | DateTimeTimestamp | Date;
+export type DateTimeValues = DateTimeString | BigNumberValues | Date;
+export type DateTime = Opaque<BN, 'DateTime'>;
 
-/**
- * Tries to convert the {@link dateTime} to a big number representing time since epoch in
- * seconds. {@see https://www.epoch101.com/}
- *
- * @throws {@link Error} if the {@link dateTime} is not a valid date/time.
- * @private
- */
-export function toUnixTimestamp(dateTime: DateTime): BN {
-  if (BN.isBN(dateTime) || typeof dateTime === 'number') {
-    return new BN(dateTime);
+export const toDateTime = (value: DateTimeValues): DateTime => {
+  if (typeof value === 'string' || isDateObject(value)) {
+    const date = new Date(value);
+    const timestamp = Math.floor(date.getTime() / 1000);
+    return new BN(timestamp) as DateTime;
   }
 
-  const date = new Date(dateTime);
-  const timestamp = Math.floor(date.getTime() / 1000);
-  return new BN(timestamp);
-}
+  return new BN(value) as DateTime;
+};
+
+const isDateObject = (value: any): value is Date => {
+  return Object.prototype.toString.call(value) === '[object Date]';
+};

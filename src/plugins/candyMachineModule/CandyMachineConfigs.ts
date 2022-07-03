@@ -16,16 +16,16 @@ export type CandyMachineConfigs = {
   // Data.
   price: Amount;
   sellerFeeBasisPoints: number;
-  itemsAvailable: BN | number;
+  itemsAvailable: BN;
 
   // Optional Data.
   symbol?: string; // Defaults to empty string.
-  maxEditionSupply?: BN | number; // Defaults to 0.
+  maxEditionSupply?: BN; // Defaults to 0.
   isMutable?: boolean; // Defaults to true.
   retainAuthority?: boolean; // Defaults to true.
   goLiveDate?: Option<DateTime>; // Defaults to null.
   endSettings?: Option<EndSettings>; // Defaults to null.
-  creators?: PublicKey | Creator[]; // Defaults to mx.identity().publicKey.
+  creators?: Creator[]; // Defaults to mx.identity().publicKey.
   hiddenSettings?: Option<HiddenSettings>; // Defaults to null.
   whitelistMintSettings?: Option<WhitelistMintSettings>; // Defaults to null.
   gatekeeper?: Option<GatekeeperConfig>; // Defaults to null.

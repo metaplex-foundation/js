@@ -27,10 +27,10 @@ export type CandyMachine = Readonly<{
   goLiveDate: Option<BN>;
   maxEditionSupply: BN;
   items: CandyMachineItem[];
-  itemsAvailable: number;
-  itemsMinted: number;
-  itemsRemaining: number;
-  itemsLoaded: number;
+  itemsAvailable: BN;
+  itemsMinted: BN;
+  itemsRemaining: BN;
+  itemsLoaded: BN;
   isFullyLoaded: boolean;
   endSettings: Option<EndSettings>;
   hiddenSettings: Option<HiddenSettings>;
