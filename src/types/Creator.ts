@@ -7,11 +7,13 @@ export type Creator = Readonly<{
 }>;
 
 export const toUniformCreators = (...addresses: PublicKey[]): Creator[] => {
-  const uniformShare = 100 / addresses.length;
+  const shareFloor = Math.floor(100 / addresses.length);
+  const shareModulo = 100 % addresses.length;
+
   return addresses.map((address, index) => ({
     address,
     verified: false,
-    share: index === 0 ? Math.ceil(uniformShare) : Math.floor(uniformShare),
+    share: index < shareModulo ? shareFloor + 1 : shareFloor,
   }));
 };
 
