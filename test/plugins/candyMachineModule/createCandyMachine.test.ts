@@ -1,6 +1,5 @@
 import test from 'tape';
 import spok, { Specifications } from 'spok';
-import nacl from 'tweetnacl';
 import { Keypair } from '@solana/web3.js';
 import {
   EndSettingType,
