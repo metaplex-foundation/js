@@ -14,11 +14,11 @@ export const findAuctionHouseByAddressOperation =
   useOperation<FindAuctionHouseByAddressOperation>(Key);
 export type FindAuctionHouseByAddressOperation = Operation<
   typeof Key,
-  FindAuctionHouseByAddressOperationInput,
+  FindAuctionHouseByAddressInput,
   AuctionHouse
 >;
 
-export type FindAuctionHouseByAddressOperationInput = {
+export type FindAuctionHouseByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };

@@ -18,11 +18,11 @@ export const findCandyMachineByAddressOperation =
   useOperation<FindCandyMachineByAddressOperation>(Key);
 export type FindCandyMachineByAddressOperation = Operation<
   typeof Key,
-  FindCandyMachineByAddressOperationInput,
+  FindCandyMachineByAddressInput,
   CandyMachine
 >;
 
-export type FindCandyMachineByAddressOperationInput = {
+export type FindCandyMachineByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };

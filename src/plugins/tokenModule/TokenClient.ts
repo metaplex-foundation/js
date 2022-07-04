@@ -1,15 +1,27 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import {
   CreateMintInput,
   createMintOperation,
   CreateMintOutput,
 } from './createMint';
-import { findMintByAddressOperation } from './findMintByAddress';
-import { findTokenByAddressOperation } from './findTokenByAddress';
-import { findTokenWithMintByAddressOperation } from './findTokenWithMintByAddress';
-import { findTokenWithMintByMintOperation } from './findTokenWithMintByMint';
+import {
+  FindMintByAddressInput,
+  findMintByAddressOperation,
+} from './findMintByAddress';
+import {
+  FindTokenByAddressInput,
+  findTokenByAddressOperation,
+} from './findTokenByAddress';
+import {
+  FindTokenWithMintByAddressInput,
+  findTokenWithMintByAddressOperation,
+} from './findTokenWithMintByAddress';
+import {
+  FindTokenWithMintByMintInput,
+  findTokenWithMintByMintOperation,
+} from './findTokenWithMintByMint';
 import { TokenBuildersClient } from './TokenBuildersClient';
 import { Mint } from './Mint';
 import {
@@ -61,35 +73,40 @@ export class TokenClient {
     return this.metaplex.operations().getTask(mintTokensOperation(input));
   }
 
-  findMintByAddress(address: PublicKey, commitment?: Commitment) {
+  findMintByAddress(
+    address: PublicKey,
+    options?: Omit<FindMintByAddressInput, 'address'>
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findMintByAddressOperation({ address, commitment }));
+      .getTask(findMintByAddressOperation({ address, ...options }));
   }
 
-  findTokenByAddress(address: PublicKey, commitment?: Commitment) {
+  findTokenByAddress(
+    address: PublicKey,
+    options?: Omit<FindTokenByAddressInput, 'address'>
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findTokenByAddressOperation({ address, commitment }));
+      .getTask(findTokenByAddressOperation({ address, ...options }));
   }
 
-  findTokenWithMintByAddress(address: PublicKey, commitment?: Commitment) {
+  findTokenWithMintByAddress(
+    address: PublicKey,
+    options?: Omit<FindTokenWithMintByAddressInput, 'address'>
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findTokenWithMintByAddressOperation({ address, commitment }));
+      .getTask(findTokenWithMintByAddressOperation({ address, ...options }));
   }
 
   findTokenWithMintByMint(
-    mintAddress: PublicKey,
-    ownerAddress: PublicKey,
-    commitment?: Commitment
+    mint: PublicKey,
+    owner: PublicKey,
+    options?: Omit<FindTokenWithMintByMintInput, 'mint' | 'owner'>
   ) {
-    return this.metaplex.operations().getTask(
-      findTokenWithMintByMintOperation({
-        mintAddress,
-        ownerAddress,
-        commitment,
-      })
-    );
+    return this.metaplex
+      .operations()
+      .getTask(findTokenWithMintByMintOperation({ mint, owner, ...options }));
   }
 }

@@ -16,11 +16,11 @@ export const findListingByAddressOperation =
   useOperation<FindListingByAddressOperation>(Key);
 export type FindListingByAddressOperation = Operation<
   typeof Key,
-  FindListingByAddressOperationInput,
+  FindListingByAddressInput,
   Listing
 >;
 
-export type FindListingByAddressOperationInput = {
+export type FindListingByAddressInput = {
   address: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true

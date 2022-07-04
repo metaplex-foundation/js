@@ -16,8 +16,8 @@ export type FindTokenWithMintByMintOperation = Operation<
 >;
 
 export type FindTokenWithMintByMintInput = {
-  mintAddress: PublicKey;
-  ownerAddress: PublicKey;
+  mint: PublicKey;
+  owner: PublicKey;
   commitment?: Commitment;
 };
 
@@ -27,16 +27,12 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
       operation: FindTokenWithMintByMintOperation,
       metaplex: Metaplex
     ): Promise<TokenWithMint> => {
-      const { mintAddress, ownerAddress, commitment } = operation.input;
-
-      const tokenAddress = findAssociatedTokenAccountPda(
-        mintAddress,
-        ownerAddress
-      );
+      const { mint, owner, commitment } = operation.input;
+      const tokenAddress = findAssociatedTokenAccountPda(mint, owner);
 
       const accounts = await metaplex
         .rpc()
-        .getMultipleAccounts([mintAddress, tokenAddress], commitment);
+        .getMultipleAccounts([mint, tokenAddress], commitment);
 
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);

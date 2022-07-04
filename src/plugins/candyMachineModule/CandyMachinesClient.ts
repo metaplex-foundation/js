@@ -1,3 +1,4 @@
+import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
   CreateCandyMachineInput,
@@ -11,9 +12,14 @@ import {
   CandyMachineJsonConfigs,
   getCandyMachineConfigsFromJson,
 } from './CandyMachineJsonConfigs';
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { findCandyMachineByAddressOperation } from './findCandyMachineByAddress';
-import { findCandyMachinesByPublicKeyFieldOperation } from './findCandyMachinesByPublicKeyField';
+import {
+  findCandyMachineByAddressOperation,
+  FindCandyMachineByAddressInput,
+} from './findCandyMachineByAddress';
+import {
+  FindCandyMachinesByPublicKeyFieldInput,
+  findCandyMachinesByPublicKeyFieldOperation,
+} from './findCandyMachinesByPublicKeyField';
 import {
   UpdateCandyMachineInput,
   updateCandyMachineOperation,
@@ -59,7 +65,7 @@ export class CandyMachinesClient {
 
   findAllByWallet(
     wallet: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindCandyMachinesByPublicKeyFieldInput, 'type' | 'publicKey'>
   ): Task<CandyMachine[]> {
     return this.metaplex.operations().getTask(
       findCandyMachinesByPublicKeyFieldOperation({
@@ -72,7 +78,7 @@ export class CandyMachinesClient {
 
   findAllByAuthority(
     authority: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindCandyMachinesByPublicKeyFieldInput, 'type' | 'publicKey'>
   ): Task<CandyMachine[]> {
     return this.metaplex.operations().getTask(
       findCandyMachinesByPublicKeyFieldOperation({
@@ -85,7 +91,7 @@ export class CandyMachinesClient {
 
   findByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindCandyMachineByAddressInput, 'type' | 'publicKey'>
   ): Task<CandyMachine> {
     return this.metaplex
       .operations()
