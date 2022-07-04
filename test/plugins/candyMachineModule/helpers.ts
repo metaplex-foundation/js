@@ -49,3 +49,13 @@ export function createHash(input: Buffer | string, slice?: number): number[] {
 
   return Array.from(hash);
 }
+
+export function createHashString(
+  input: Buffer | string,
+  slice?: number
+): string {
+  let hash = nacl.hash(Buffer.from(input));
+  hash = slice === undefined ? hash : hash.slice(0, slice);
+
+  return Buffer.from(hash).toString('hex');
+}

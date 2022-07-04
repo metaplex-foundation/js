@@ -10,6 +10,7 @@ import {
   DateTime,
   lamports,
   toBigNumber,
+  toDateTime,
   toOptionDateTime,
   UnparsedAccount,
 } from '@/types';
@@ -26,7 +27,7 @@ export type CandyMachine = Readonly<{
   model: 'candyMachine';
   address: PublicKey;
   authorityAddress: PublicKey;
-  walletAddress: PublicKey;
+  walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
   tokenMintAddress: Option<PublicKey>;
   uuid: string;
   price: Amount;
@@ -54,10 +55,15 @@ export type CandyMachineItem = Readonly<{
   uri: string;
 }>;
 
-export type EndSettings = {
-  endSettingType: EndSettingType;
-  number: BigNumber;
-};
+export type EndSettings =
+  | {
+      endSettingType: EndSettingType.Amount;
+      number: BigNumber;
+    }
+  | {
+      endSettingType: EndSettingType.Date;
+      number: DateTime;
+    };
 
 export type HiddenSettings = {
   name: string;
@@ -139,10 +145,15 @@ export const toCandyMachine = (
     itemsLoaded,
     isFullyLoaded: itemsAvailable.lte(itemsLoaded),
     endSettings: endSettings
-      ? {
-          ...endSettings,
-          number: toBigNumber(endSettings.number),
-        }
+      ? endSettings.endSettingType === EndSettingType.Date
+        ? {
+            endSettingType: EndSettingType.Date,
+            number: toDateTime(endSettings.number),
+          }
+        : {
+            endSettingType: EndSettingType.Amount,
+            number: toBigNumber(endSettings.number),
+          }
       : null,
     hiddenSettings,
     whitelistMintSettings: whitelistMintSettings

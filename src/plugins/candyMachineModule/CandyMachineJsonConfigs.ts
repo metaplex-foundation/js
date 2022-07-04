@@ -5,10 +5,10 @@ import {
 import {
   Creator,
   DateTimeString,
-  lamports,
   PublicKeyString,
   sol,
   toBigNumber,
+  toDateTime,
   toOptionDateTime,
   toPublicKey,
 } from '@/types';
@@ -25,13 +25,16 @@ import { CandyMachine, CandyMachineUpdatableFields } from './CandyMachine';
  * @property solTreasuryAccount - Wallet to receive proceedings SOL payments
  * @property goLiveDate - Timestamp when minting is allowed – the Candy Machine
  * authority and whitelists can bypass this constraint
- * @property retainAuthority - Indicates whether the candy machine authority
+ * @property noRetainAuthority - Indicates whether the candy machine authority
  * has the update authority for each mint or if it is transferred to the
- * minter. This should be set to `true` for the vast majority of cases.
- * @property isMutable - Indicates whether the NFTs' metadata is mutable or not
- * after having been minted
+ * minter. This should be set to `false` for the vast majority of cases.
+ * @property noMutable - Indicates whether the NFTs' metadata are mutable or not
+ * after having been minted.
+ * @property maxEditionSupply - If greater than zero, the minted NFTs will be printable
+ *  Master Editions. The number provided determines the maximum number of editions
+ * that can be printed from the minted NFT. Defaults to zero.
  * @property symbol - Optional Symbol for the NFts of the Candy Machine which
- * can be up to 10 bytes
+ * can be up to 10 bytes.
  * @property splTokenAccount - SPL token wallet to receive proceedings from SPL token payments
  * @property splToken - Mint address of the token accepted as payment
  * @property gatekeeper - {@link GatekeeperSettingsConfig}
@@ -53,11 +56,6 @@ import { CandyMachine, CandyMachineUpdatableFields } from './CandyMachine';
  *    "endSettings": null,
  *    "whitelistMintSettings": null,
  *    "hiddenSettings": null,
- *    "storage": "arweave-sol",
- *    "ipfsInfuraProjectId": null,
- *    "ipfsInfuraSecret": null,
- *    "nftStorageKey": null,
- *    "awsS3Bucket": null,
  *    "noRetainAuthority": false,
  *    "noMutable": false,
  * }
@@ -71,6 +69,7 @@ export type CandyMachineJsonConfigs = {
   goLiveDate: DateTimeString;
   noRetainAuthority: boolean;
   noMutable: boolean;
+  maxEditionSupply?: number;
   creators?: CreatorConfig[];
   symbol?: string;
   splTokenAccount?: PublicKeyString;
@@ -135,10 +134,15 @@ type HiddenSettingsConfig = {
  * string (end DateTime) or an integer amount (items minted)
  * */
 
-type EndSettingsConfig = {
-  endSettingType: 'date' | 'amount';
-  value: string;
-};
+type EndSettingsConfig =
+  | {
+      endSettingType: 'date';
+      value: string;
+    }
+  | {
+      endSettingType: 'amount';
+      value: number;
+    };
 
 /**
  * Whitelist Modes
@@ -186,19 +190,21 @@ export const getCandyMachineConfigsFromJson = (
     price: sol(config.price),
     symbol: config.symbol ?? '',
     sellerFeeBasisPoints: config.sellerFeeBasisPoints,
-    maxEditionSupply: toBigNumber(config.number),
+    maxEditionSupply: toBigNumber(config.maxEditionSupply ?? 0),
     isMutable: !config.noMutable,
     retainAuthority: !config.noRetainAuthority,
     goLiveDate: toOptionDateTime(config.goLiveDate),
     itemsAvailable: toBigNumber(config.number),
     endSettings: config.endSettings
-      ? {
-          endSettingType:
-            config.endSettings.endSettingType === 'date'
-              ? EndSettingType.Date
-              : EndSettingType.Amount,
-          number: toBigNumber(config.endSettings.value),
-        }
+      ? config.endSettings.endSettingType === 'date'
+        ? {
+            endSettingType: EndSettingType.Date,
+            number: toDateTime(config.endSettings.value),
+          }
+        : {
+            endSettingType: EndSettingType.Amount,
+            number: toBigNumber(config.endSettings.value),
+          }
       : null,
     hiddenSettings: config.hiddenSettings
       ? {
@@ -214,7 +220,7 @@ export const getCandyMachineConfigsFromJson = (
               ? WhitelistMintMode.BurnEveryTime
               : WhitelistMintMode.NeverBurn,
           mint: toPublicKey(config.whitelistMintSettings.mint),
-          discountPrice: lamports(config.whitelistMintSettings.discountPrice),
+          discountPrice: sol(config.whitelistMintSettings.discountPrice),
         }
       : null,
     gatekeeper: config.gatekeeper
