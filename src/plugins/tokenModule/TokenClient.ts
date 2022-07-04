@@ -81,9 +81,11 @@ export class TokenClient {
       const operation = createTokenWithMintOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const token = await this.findTokenWithMintByAddress(
-        output.tokenAddress
-      ).run(scope);
+      const token = await this.findTokenWithMintByMint({
+        mint: output.mintSigner.publicKey,
+        address: output.tokenAddress,
+        addressType: 'token',
+      }).run(scope);
       return { ...output, token };
     });
   }
@@ -119,13 +121,9 @@ export class TokenClient {
       .getTask(findTokenWithMintByAddressOperation({ address, ...options }));
   }
 
-  findTokenWithMintByMint(
-    mint: PublicKey,
-    owner: PublicKey,
-    options?: Omit<FindTokenWithMintByMintInput, 'mint' | 'owner'>
-  ) {
+  findTokenWithMintByMint(input: FindTokenWithMintByMintInput) {
     return this.metaplex
       .operations()
-      .getTask(findTokenWithMintByMintOperation({ mint, owner, ...options }));
+      .getTask(findTokenWithMintByMintOperation(input));
   }
 }

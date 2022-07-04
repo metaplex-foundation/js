@@ -5,6 +5,7 @@ import { toTokenWithMint, TokenWithMint } from './Token';
 import { toMintAccount, toTokenAccount } from './accounts';
 import { toMint } from './Mint';
 import { findAssociatedTokenAccountPda } from '@/programs';
+import { TokenAndMintDoNotMatchError } from './errors';
 
 const Key = 'FindTokenWithMintByMintOperation' as const;
 export const findTokenWithMintByMintOperation =
@@ -17,7 +18,8 @@ export type FindTokenWithMintByMintOperation = Operation<
 
 export type FindTokenWithMintByMintInput = {
   mint: PublicKey;
-  owner: PublicKey;
+  address: PublicKey;
+  addressType: 'owner' | 'token';
   commitment?: Commitment;
 };
 
@@ -27,8 +29,11 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
       operation: FindTokenWithMintByMintOperation,
       metaplex: Metaplex
     ): Promise<TokenWithMint> => {
-      const { mint, owner, commitment } = operation.input;
-      const tokenAddress = findAssociatedTokenAccountPda(mint, owner);
+      const { mint, address, addressType, commitment } = operation.input;
+      const tokenAddress =
+        addressType === 'owner'
+          ? findAssociatedTokenAccountPda(mint, address)
+          : address;
 
       const accounts = await metaplex
         .rpc()
@@ -36,6 +41,14 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
 
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);
+
+      if (tokenAccount.data.mint !== mint) {
+        throw new TokenAndMintDoNotMatchError(
+          tokenAddress,
+          tokenAccount.data.mint,
+          mint
+        );
+      }
 
       return toTokenWithMint(tokenAccount, toMint(mintAccount));
     },
