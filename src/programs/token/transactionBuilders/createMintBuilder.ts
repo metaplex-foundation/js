@@ -1,6 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
 import { MINT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { createAccountBuilder } from '@/programs/system';
 import { Signer } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { initializeMintBuilder } from './initializeMintBuilder';

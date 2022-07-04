@@ -4,14 +4,14 @@ import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import {
   Amount,
-  assertSol,
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
 } from '@/types';
-import { transferBuilder } from '@/programs';
 import { UninitializedDerivedIdentityError } from './errors';
+import { Task } from '@/utils';
+import { TransferSolOutput } from '../systemModule';
 
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   protected readonly metaplex: Metaplex;
@@ -40,55 +40,50 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     return this.originalSigner.publicKey;
   }
 
-  async deriveFrom(
+  deriveFrom(
     message: string | Uint8Array,
     originalSigner?: IdentitySigner
-  ): Promise<void> {
-    this.originalSigner = originalSigner ?? this.metaplex.identity().driver();
+  ): Task<void> {
+    return new Task(async () => {
+      this.originalSigner = originalSigner ?? this.metaplex.identity().driver();
 
-    const signature = await this.originalSigner.signMessage(
-      Buffer.from(message)
-    );
+      const signature = await this.originalSigner.signMessage(
+        Buffer.from(message)
+      );
 
-    const seeds = nacl.hash(signature).slice(0, 32);
+      const seeds = nacl.hash(signature).slice(0, 32);
 
-    this.derivedKeypair = Keypair.fromSeed(seeds);
+      this.derivedKeypair = Keypair.fromSeed(seeds);
+    });
   }
 
-  async fund(amount: Amount): Promise<void> {
+  fund(amount: Amount): Task<TransferSolOutput> {
     this.assertInitialized();
-    assertSol(amount);
-
-    const transfer = transferBuilder({
+    return this.metaplex.system().transferSol({
       from: this.originalSigner,
       to: this.derivedKeypair.publicKey,
-      lamports: amount.basisPoints.toNumber(),
+      amount,
     });
-
-    await this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
-  async withdraw(amount: Amount): Promise<void> {
+  withdraw(amount: Amount): Task<TransferSolOutput> {
     this.assertInitialized();
-    assertSol(amount);
-
-    const transfer = transferBuilder({
+    return this.metaplex.system().transferSol({
       from: this.derivedKeypair,
       to: this.originalSigner.publicKey,
-      lamports: amount.basisPoints.toNumber(),
+      amount,
     });
-
-    await this.metaplex.rpc().sendAndConfirmTransaction(transfer);
   }
 
-  async withdrawAll(): Promise<void> {
+  withdrawAll(): Task<TransferSolOutput> {
     this.assertInitialized();
-
-    const balance = await this.metaplex
-      .rpc()
-      .getBalance(this.derivedKeypair.publicKey);
-
-    await this.withdraw(balance);
+    return new Task(async (scope) => {
+      this.assertInitialized();
+      const balance = await this.metaplex
+        .rpc()
+        .getBalance(this.derivedKeypair.publicKey);
+      return this.withdraw(balance).run(scope);
+    });
   }
 
   close(): void {

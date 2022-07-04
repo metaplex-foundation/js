@@ -2,6 +2,7 @@ import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
   Amount,
+  assertSol,
   Operation,
   OperationHandler,
   Signer,
@@ -67,6 +68,8 @@ export const transferSolBuilder = (
     seed,
     program = SystemProgram.programId,
   } = params;
+
+  assertSol(amount);
 
   return TransactionBuilder.make()
     .setFeePayer(from)

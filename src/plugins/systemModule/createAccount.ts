@@ -7,6 +7,7 @@ import {
 import type { Metaplex } from '@/Metaplex';
 import {
   Amount,
+  assertSol,
   Operation,
   OperationHandler,
   Signer,
@@ -76,6 +77,7 @@ export const createAccountBuilder = async (
   } = params;
 
   const lamports = params.lamports ?? (await metaplex.rpc().getRent(space));
+  assertSol(lamports);
 
   return TransactionBuilder.make<CreateAccountBuilderContext>()
     .setFeePayer(payer)
