@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { TokenProgram } from '@/programs';
+import { TokenProgram } from '../tokenModule';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { Nft } from './Nft';

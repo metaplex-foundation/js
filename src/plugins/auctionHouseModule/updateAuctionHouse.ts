@@ -3,7 +3,7 @@ import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-au
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { TreasureDestinationOwnerRequiredError } from './errors';

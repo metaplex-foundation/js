@@ -9,10 +9,8 @@ import type { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import {
-  findAssociatedTokenAccountPda,
-  TokenMetadataProgram,
-} from '@/programs';
+import { TokenMetadataProgram } from '@/programs';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 
 const Key = 'CreateTokenOperation' as const;
 export const createTokenOperation = useOperation<CreateTokenOperation>(Key);

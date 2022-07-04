@@ -7,17 +7,14 @@ import {
   TokenWithMetadata,
 } from './Metadata';
 import {
+  findAssociatedTokenAccountPda,
   toMint,
   toTokenWithMint,
   TokenWithMint,
   toMintAccount,
   toTokenAccount,
 } from '../tokenModule';
-import {
-  findAssociatedTokenAccountPda,
-  findMetadataPda,
-  parseMetadataAccount,
-} from '@/programs';
+import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
 const Key = 'FindTokenWithMetadataByMintOperation' as const;

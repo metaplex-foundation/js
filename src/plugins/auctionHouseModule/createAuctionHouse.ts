@@ -9,7 +9,7 @@ import {
   Pda,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
   findAuctionHouseFeePda,
   findAuctionHousePda,

@@ -2,15 +2,14 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
-  createMintAndMintToAssociatedTokenBuilder,
   createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
   createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  findAssociatedTokenAccountPda,
   toOriginalEditionAccount,
 } from '@/programs';
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';

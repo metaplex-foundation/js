@@ -10,11 +10,10 @@ import {
 import { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { JsonMetadata } from './JsonMetadata';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
   createCreateMasterEditionV3InstructionWithSigners,
   createCreateMetadataAccountV2InstructionWithSigners,
-  createMintAndMintToAssociatedTokenBuilder,
-  findAssociatedTokenAccountPda,
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '@/programs';
