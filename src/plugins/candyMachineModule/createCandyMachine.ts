@@ -59,7 +59,7 @@ export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
 
 export type CreateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
-  candyMachine: Signer;
+  candyMachineSigner: Signer;
   payer: Signer;
   wallet: PublicKey;
   authority: PublicKey;
@@ -148,7 +148,7 @@ export const createCandyMachineBuilder = async (
     TransactionBuilder.make<CreateCandyMachineBuilderContext>()
       .setFeePayer(payer)
       .setContext({
-        candyMachine,
+        candyMachineSigner: candyMachine,
         payer,
         wallet,
         authority,

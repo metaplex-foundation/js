@@ -33,17 +33,15 @@ export class CandyMachinesClient {
     return new CandyMachinesBuildersClient(this.metaplex);
   }
 
-  create(input: CreateCandyMachineInput): Task<
-    Omit<CreateCandyMachineOutput, 'candyMachine'> & {
-      candyMachine: CandyMachine;
-    }
-  > {
+  create(
+    input: CreateCandyMachineInput
+  ): Task<CreateCandyMachineOutput & { candyMachine: CandyMachine }> {
     return new Task(async (scope) => {
       const operation = createCandyMachineOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const candyMachine = await this.findByAddress(
-        output.candyMachine.publicKey
+        output.candyMachineSigner.publicKey
       ).run(scope);
       return { ...output, candyMachine };
     });
