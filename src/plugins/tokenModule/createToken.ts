@@ -9,8 +9,8 @@ import type { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { TokenMetadataProgram } from '@/programs';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { findAssociatedTokenAccountPda } from './pdas';
+import { TokenProgram } from './program';
 
 const Key = 'CreateTokenOperation' as const;
 export const createTokenOperation = useOperation<CreateTokenOperation>(Key);
@@ -72,7 +72,7 @@ export const createTokenBuilder = async (
     owner = metaplex.identity().publicKey,
     token,
     payer = metaplex.identity(),
-    tokenProgram = TokenMetadataProgram.publicKey,
+    tokenProgram = TokenProgram.publicKey,
     associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
   } = params;
 

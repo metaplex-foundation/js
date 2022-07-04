@@ -42,7 +42,7 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);
 
-      if (tokenAccount.data.mint !== mint) {
+      if (!tokenAccount.data.mint.equals(mint)) {
         throw new TokenAndMintDoNotMatchError(
           tokenAddress,
           tokenAccount.data.mint,

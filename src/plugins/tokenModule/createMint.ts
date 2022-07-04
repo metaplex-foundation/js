@@ -4,7 +4,7 @@ import type { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { TokenMetadataProgram } from '@/programs';
+import { TokenProgram } from './program';
 
 const Key = 'CreateMintOperation' as const;
 export const createMintOperation = useOperation<CreateMintOperation>(Key);
@@ -66,7 +66,7 @@ export const createMintBuilder = async (
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity().publicKey,
     freezeAuthority = metaplex.identity().publicKey,
-    tokenProgram = TokenMetadataProgram.publicKey,
+    tokenProgram = TokenProgram.publicKey,
   } = params;
 
   return (

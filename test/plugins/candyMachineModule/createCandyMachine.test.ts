@@ -117,31 +117,32 @@ test('[candyMachineModule] create with creators', async (t) => {
   });
 });
 
-test.skip('[candyMachineModule] create with SPL treasury', async (t) => {
+test('[candyMachineModule] create with SPL treasury', async (t) => {
   // Given a Candy Machine client.
-  const { tc, client, minimalInput } = await init();
+  const { tc, mx, client, minimalInput } = await init();
 
   // And a token account and its mint account.
-  // TODO: Create real token/mint accounts.
-  const token = Keypair.generate().publicKey;
-  const mint = Keypair.generate().publicKey;
+  const { token } = await mx
+    .tokens()
+    .createTokenWithMint({ decimals: 0 })
+    .run();
 
-  // When we create a Candy Machine with end settings.
+  // When we create a Candy Machine with an SPL treasury.
   const { response, candyMachine } = await client
     .create({
       ...minimalInput,
-      wallet: token,
-      tokenMint: mint,
+      wallet: token.address,
+      tokenMint: token.mint.address,
     })
     .run();
 
-  // Then a Candy Machine was created with these end settings.
+  // Then a Candy Machine was created with the SPL treasury as configured.
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
-    wallet: spokSamePubkey(token),
-    tokenMint: spokSamePubkey(mint),
+    walletAddress: spokSamePubkey(token.address),
+    tokenMintAddress: spokSamePubkey(token.mint.address),
   } as unknown as Specifications<CandyMachine>);
 });
 
@@ -377,4 +378,40 @@ test('[candyMachineModule] create using JSON configurations', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] create with SPL treasury using JSON configurations', async (t) => {});
+test.only('[candyMachineModule] create with SPL treasury using JSON configurations', async (t) => {
+  // Given a Candy Machine client.
+  const { tc, mx, client } = await init();
+
+  // And a token account and its mint account.
+  const { token } = await mx
+    .tokens()
+    .createTokenWithMint({ decimals: 0 })
+    .run();
+
+  // When we create a new Candy Machine with an SPL treasury using JSON configurations.
+  const solTreasuryAccount = Keypair.generate().publicKey;
+  const { response, candyMachine } = await client
+    .createFromJsonConfig({
+      json: {
+        price: 3.33,
+        number: 100,
+        sellerFeeBasisPoints: 500,
+        solTreasuryAccount: solTreasuryAccount.toBase58(),
+        goLiveDate: '4 Jul 2022 00:00:00 GMT',
+        noRetainAuthority: false,
+        noMutable: false,
+        splTokenAccount: token.address.toBase58(),
+        splToken: token.mint.address.toBase58(),
+      },
+    })
+    .run();
+
+  // Then a Candy Machine was created with the SPL treasury as configured.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    walletAddress: spokSamePubkey(token.address),
+    tokenMintAddress: spokSamePubkey(token.mint.address),
+  } as unknown as Specifications<CandyMachine>);
+});
