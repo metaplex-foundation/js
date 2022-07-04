@@ -117,6 +117,33 @@ test('[candyMachineModule] create with creators', async (t) => {
   });
 });
 
+test.only('[candyMachineModule] create with SPL treasury', async (t) => {
+  // Given a Candy Machine client.
+  const { tc, mx, client, minimalInput } = await init();
+
+  // And a token account and its mint account.
+  const token = Keypair.generate().publicKey;
+  const mint = Keypair.generate().publicKey;
+
+  // When we create a Candy Machine with end settings.
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      wallet: token,
+      tokenMint: mint,
+    })
+    .run();
+
+  // Then a Candy Machine was created with these end settings.
+  await tc.assertSuccess(t, response.signature);
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    wallet: spokSamePubkey(token),
+    tokenMint: spokSamePubkey(mint),
+  } as unknown as Specifications<CandyMachine>);
+});
+
 test('[candyMachineModule] create with end settings', async (t) => {
   // Given a Candy Machine client.
   const { tc, client, minimalInput } = await init();
