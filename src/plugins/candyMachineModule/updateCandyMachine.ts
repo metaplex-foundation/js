@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import isEqual from 'lodash.isequal';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   createUpdateAuthorityInstruction,

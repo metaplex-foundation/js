@@ -1,5 +1,4 @@
 import nacl from 'tweetnacl';
-import BN from 'bn.js';
 import { Buffer } from 'buffer';
 import { amman } from '../../helpers';
 import {
