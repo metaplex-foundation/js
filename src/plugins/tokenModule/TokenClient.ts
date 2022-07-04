@@ -18,6 +18,11 @@ import {
   CreateTokenOutput,
 } from './createToken';
 import { Token } from './Token';
+import {
+  MintTokensInput,
+  mintTokensOperation,
+  MintTokensOutput,
+} from './mintTokens';
 
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -50,6 +55,10 @@ export class TokenClient {
       );
       return { ...output, token };
     });
+  }
+
+  mintTokens(input: MintTokensInput): Task<MintTokensOutput> {
+    return this.metaplex.operations().getTask(mintTokensOperation(input));
   }
 
   findMintByAddress(address: PublicKey, commitment?: Commitment) {
