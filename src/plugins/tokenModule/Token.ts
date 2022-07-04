@@ -4,7 +4,7 @@ import { amount, Amount, Pda } from '@/types';
 import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from './pdas';
 
 export type Token = Readonly<{
   model: 'token';

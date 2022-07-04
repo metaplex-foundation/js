@@ -4,7 +4,7 @@ import { Operation, useOperation, OperationHandler } from '@/types';
 import { toTokenWithMint, TokenWithMint } from './Token';
 import { toMintAccount, toTokenAccount } from './accounts';
 import { toMint } from './Mint';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenAndMintDoNotMatchError } from './errors';
 
 const Key = 'FindTokenWithMintByMintOperation' as const;

@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Pda } from '@/types';
-import { TokenProgram } from '../TokenProgram';
+import { TokenProgram } from './program';
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 export const findAssociatedTokenAccountPda = (

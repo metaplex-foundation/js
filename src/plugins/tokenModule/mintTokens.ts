@@ -1,4 +1,5 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { createMintToInstruction } from '@solana/spl-token';
 import type { Metaplex } from '@/Metaplex';
 import {
   Amount,
@@ -12,8 +13,7 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
-import { TokenProgram } from '@/programs';
-import { createMintToInstruction } from '@solana/spl-token';
+import { TokenProgram } from './program';
 
 const Key = 'MintTokensOperation' as const;
 export const mintTokensOperation = useOperation<MintTokensOperation>(Key);

@@ -13,7 +13,8 @@ import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { createTransferCheckedInstruction } from '@solana/spl-token';
 import { isMint, Mint } from './Mint';
-import { findAssociatedTokenAccountPda, TokenProgram } from '@/programs';
+import { findAssociatedTokenAccountPda } from './pdas';
+import { TokenProgram } from './program';
 
 const Key = 'SendTokensOperation' as const;
 export const sendTokensOperation = useOperation<SendTokensOperation>(Key);
