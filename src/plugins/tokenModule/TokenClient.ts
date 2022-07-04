@@ -1,11 +1,24 @@
+import type { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import type { PublicKey } from '@solana/web3.js';
+import { TokenBuildersClient } from './TokenBuildersClient';
+import { Mint } from './Mint';
+import { Token, TokenWithMint } from './Token';
 import {
   CreateMintInput,
   createMintOperation,
   CreateMintOutput,
 } from './createMint';
+import {
+  CreateTokenInput,
+  createTokenOperation,
+  CreateTokenOutput,
+} from './createToken';
+import {
+  CreateTokenWithMintInput,
+  createTokenWithMintOperation,
+  CreateTokenWithMintOutput,
+} from './createTokenWithMint';
 import {
   FindMintByAddressInput,
   findMintByAddressOperation,
@@ -22,24 +35,16 @@ import {
   FindTokenWithMintByMintInput,
   findTokenWithMintByMintOperation,
 } from './findTokenWithMintByMint';
-import { TokenBuildersClient } from './TokenBuildersClient';
-import { Mint } from './Mint';
-import {
-  CreateTokenInput,
-  createTokenOperation,
-  CreateTokenOutput,
-} from './createToken';
-import { Token, TokenWithMint } from './Token';
 import {
   MintTokensInput,
   mintTokensOperation,
   MintTokensOutput,
 } from './mintTokens';
 import {
-  CreateTokenWithMintInput,
-  createTokenWithMintOperation,
-  CreateTokenWithMintOutput,
-} from './createTokenWithMint';
+  SendTokensInput,
+  sendTokensOperation,
+  SendTokensOutput,
+} from './sendTokens';
 
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -90,10 +95,6 @@ export class TokenClient {
     });
   }
 
-  mintTokens(input: MintTokensInput): Task<MintTokensOutput> {
-    return this.metaplex.operations().getTask(mintTokensOperation(input));
-  }
-
   findMintByAddress(
     address: PublicKey,
     options?: Omit<FindMintByAddressInput, 'address'>
@@ -125,5 +126,13 @@ export class TokenClient {
     return this.metaplex
       .operations()
       .getTask(findTokenWithMintByMintOperation(input));
+  }
+
+  mintTokens(input: MintTokensInput): Task<MintTokensOutput> {
+    return this.metaplex.operations().getTask(mintTokensOperation(input));
+  }
+
+  sendTokens(input: SendTokensInput): Task<SendTokensOutput> {
+    return this.metaplex.operations().getTask(sendTokensOperation(input));
   }
 }

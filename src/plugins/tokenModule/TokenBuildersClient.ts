@@ -6,6 +6,7 @@ import {
   CreateTokenWithMintBuilderParams,
 } from './createTokenWithMint';
 import { mintTokensBuilder, MintTokensBuilderParams } from './mintTokens';
+import { sendTokensBuilder, SendTokensBuilderParams } from './sendTokens';
 
 export class TokenBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -24,5 +25,9 @@ export class TokenBuildersClient {
 
   mintTokens(input: MintTokensBuilderParams) {
     return mintTokensBuilder(this.metaplex, input);
+  }
+
+  sendTokens(input: SendTokensBuilderParams) {
+    return sendTokensBuilder(this.metaplex, input);
   }
 }
