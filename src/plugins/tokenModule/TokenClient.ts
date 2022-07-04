@@ -29,12 +29,17 @@ import {
   createTokenOperation,
   CreateTokenOutput,
 } from './createToken';
-import { Token } from './Token';
+import { Token, TokenWithMint } from './Token';
 import {
   MintTokensInput,
   mintTokensOperation,
   MintTokensOutput,
 } from './mintTokens';
+import {
+  CreateTokenWithMintInput,
+  createTokenWithMintOperation,
+  CreateTokenWithMintOutput,
+} from './createTokenWithMint';
 
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -65,6 +70,20 @@ export class TokenClient {
       const token = await this.findTokenByAddress(output.tokenAddress).run(
         scope
       );
+      return { ...output, token };
+    });
+  }
+
+  createTokenWithMint(
+    input: CreateTokenWithMintInput
+  ): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
+    return new Task(async (scope) => {
+      const operation = createTokenWithMintOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const token = await this.findTokenWithMintByAddress(
+        output.tokenAddress
+      ).run(scope);
       return { ...output, token };
     });
   }
