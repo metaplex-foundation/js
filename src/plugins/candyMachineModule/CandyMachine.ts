@@ -62,7 +62,7 @@ export type EndSettings =
     }
   | {
       endSettingType: EndSettingType.Date;
-      number: DateTime;
+      date: DateTime;
     };
 
 export type HiddenSettings = {
@@ -148,7 +148,7 @@ export const toCandyMachine = (
       ? endSettings.endSettingType === EndSettingType.Date
         ? {
             endSettingType: EndSettingType.Date,
-            number: toDateTime(endSettings.number),
+            date: toDateTime(endSettings.number),
           }
         : {
             endSettingType: EndSettingType.Amount,
@@ -179,6 +179,7 @@ export const toCandyMachine = (
 export const toCandyMachineInstructionData = (
   candyMachine: Pick<CandyMachine, CandyMachineUpdatableFields | 'address'>
 ): CandyMachineData => {
+  const endSettings = candyMachine.endSettings;
   const whitelistMintSettings = candyMachine.whitelistMintSettings;
   const gatekeeper = candyMachine.gatekeeper;
 
@@ -187,6 +188,15 @@ export const toCandyMachineInstructionData = (
     uuid: getCandyMachineUuidFromAddress(candyMachine.address),
     price: candyMachine.price.basisPoints,
     maxSupply: candyMachine.maxEditionSupply,
+    endSettings: endSettings
+      ? {
+          ...endSettings,
+          number:
+            endSettings.endSettingType === EndSettingType.Date
+              ? endSettings.date
+              : endSettings.number,
+        }
+      : null,
     whitelistMintSettings: whitelistMintSettings
       ? {
           ...whitelistMintSettings,

@@ -325,7 +325,7 @@ test.only('[candyMachineModule] create using JSON configurations', async (t) => 
     isFullyLoaded: false,
     endSettings: {
       endSettingType: EndSettingType.Date,
-      number: spokSameBignum(toDateTime('4 Aug 2022 00:00:00 GMT')),
+      date: spokSameBignum(toDateTime('4 Aug 2022 00:00:00 GMT')),
     },
     hiddenSettings: null,
     whitelistMintSettings: {

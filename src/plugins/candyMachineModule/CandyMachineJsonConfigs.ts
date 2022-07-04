@@ -199,7 +199,7 @@ export const getCandyMachineConfigsFromJson = (
       ? config.endSettings.endSettingType === 'date'
         ? {
             endSettingType: EndSettingType.Date,
-            number: toDateTime(config.endSettings.value),
+            date: toDateTime(config.endSettings.value),
           }
         : {
             endSettingType: EndSettingType.Amount,

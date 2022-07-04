@@ -193,7 +193,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
     .update(candyMachine, {
       endSettings: {
         endSettingType: EndSettingType.Date,
-        number: toBigNumber(1000000000),
+        date: toDateTime(1000000000),
       },
     })
     .run();
@@ -202,7 +202,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   spok(t, updatedCandyMachine, {
     endSettings: {
       endSettingType: EndSettingType.Date,
-      number: spokSameBignum(1000000000),
+      date: spokSameBignum(1000000000),
     },
   } as unknown as Specifications<CandyMachine>);
 });
