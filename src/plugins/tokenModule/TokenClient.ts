@@ -12,6 +12,12 @@ import { findTokenWithMintByAddressOperation } from './findTokenWithMintByAddres
 import { findTokenWithMintByMintOperation } from './findTokenWithMintByMint';
 import { TokenBuildersClient } from './TokenBuildersClient';
 import { Mint } from './Mint';
+import {
+  CreateTokenInput,
+  createTokenOperation,
+  CreateTokenOutput,
+} from './createToken';
+import { Token } from './Token';
 
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -29,6 +35,20 @@ export class TokenClient {
         output.mintSigner.publicKey
       ).run(scope);
       return { ...output, mint };
+    });
+  }
+
+  createToken(
+    input: CreateTokenInput
+  ): Task<CreateTokenOutput & { token: Token }> {
+    return new Task(async (scope) => {
+      const operation = createTokenOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const token = await this.findTokenByAddress(output.tokenAddress).run(
+        scope
+      );
+      return { ...output, token };
     });
   }
 
