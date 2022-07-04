@@ -1,3 +1,4 @@
+import { PublicKey } from '@solana/web3.js';
 import {
   EndSettingType,
   WhitelistMintMode,
@@ -13,6 +14,7 @@ import {
   toPublicKey,
 } from '@/types';
 import { CandyMachine, CandyMachineUpdatableFields } from './CandyMachine';
+import { Option } from '@/utils';
 
 /**
  * Configuration for the Candy Machine.
@@ -175,9 +177,14 @@ type CreatorConfig = Omit<Creator, 'address'> & {
   address: PublicKeyString;
 };
 
+type TreasuryAddresses = {
+  wallet: PublicKey;
+  tokenMint: Option<PublicKey>;
+};
+
 export const getCandyMachineConfigsFromJson = (
   config: CandyMachineJsonConfigs
-): Pick<CandyMachine, CandyMachineUpdatableFields> => {
+): Pick<CandyMachine, CandyMachineUpdatableFields> & TreasuryAddresses => {
   const configCreators = config.creators ?? [
     {
       address: config.solTreasuryAccount,
@@ -186,7 +193,21 @@ export const getCandyMachineConfigsFromJson = (
     },
   ];
 
+  let treasury: TreasuryAddresses;
+  if (config.splToken && config.splTokenAccount) {
+    treasury = {
+      wallet: toPublicKey(config.splTokenAccount),
+      tokenMint: toPublicKey(config.splToken),
+    };
+  } else {
+    treasury = {
+      wallet: toPublicKey(config.solTreasuryAccount),
+      tokenMint: null,
+    };
+  }
+
   return {
+    ...treasury,
     price: sol(config.price),
     symbol: config.symbol ?? '',
     sellerFeeBasisPoints: config.sellerFeeBasisPoints,

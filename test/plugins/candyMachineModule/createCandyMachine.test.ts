@@ -378,7 +378,7 @@ test('[candyMachineModule] create using JSON configurations', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.only('[candyMachineModule] create with SPL treasury using JSON configurations', async (t) => {
+test('[candyMachineModule] create with SPL treasury using JSON configurations', async (t) => {
   // Given a Candy Machine client.
   const { tc, mx, client } = await init();
 
