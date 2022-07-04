@@ -15,7 +15,7 @@ import {
   toDateTime,
   toUniformCreators,
 } from '@/index';
-import { createCandyMachine, createHash } from './helpers';
+import { createCandyMachine, create32BitsHash } from './helpers';
 import { Keypair } from '@solana/web3.js';
 import {
   EndSettingType,
@@ -94,7 +94,7 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
   const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(100),
     hiddenSettings: {
-      hash: createHash('cache-file', 32),
+      hash: create32BitsHash('cache-file'),
       name: 'mint-name',
       uri: 'https://example.com',
     },
@@ -117,14 +117,14 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
     hiddenSettings: {
-      hash: createHash('cache-file', 32),
+      hash: create32BitsHash('cache-file'),
       name: 'mint-name',
       uri: 'https://example.com',
     },
   });
 
   // When we update these hidden settings.
-  const newHash = createHash('new-cache-file', 32);
+  const newHash = create32BitsHash('new-cache-file');
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
@@ -160,7 +160,7 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
     .update(candyMachine, {
       authority: mx.identity(),
       hiddenSettings: {
-        hash: createHash('cache-file', 32),
+        hash: create32BitsHash('cache-file'),
         name: 'mint-name',
         uri: 'https://example.com',
       },
@@ -170,7 +170,7 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
     hiddenSettings: {
-      hash: createHash('cache-file', 32),
+      hash: create32BitsHash('cache-file'),
       name: 'mint-name',
       uri: 'https://example.com',
     },

@@ -23,7 +23,7 @@ import {
   toDateTime,
 } from '@/index';
 import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
-import { createHash, createHashString } from './helpers';
+import { create32BitsHash, create32BitsHashString } from './helpers';
 
 killStuckProcess();
 
@@ -149,7 +149,7 @@ test('[candyMachineModule] create with hidden settings', async (t) => {
   // Given a Candy Machine client and a computed hash.
   const { tc, client, minimalInput } = await init();
   const hashInput = 'cache-file';
-  const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0, 32));
+  const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0));
 
   // When we create a Candy Machine with hidden settings.
   const { response, candyMachine } = await client
@@ -296,11 +296,11 @@ test.only('[candyMachineModule] create using JSON configurations', async (t) => 
           mint: whitelistMint.toBase58(),
           presale: false,
         },
-        // hiddenSettings: {
-        //   hash: createHashString('cache-file'),
-        //   uri: 'https://example.com',
-        //   name: 'mint-name',
-        // },
+        hiddenSettings: {
+          hash: create32BitsHashString('cache-file'),
+          uri: 'https://example.com',
+          name: 'mint-name',
+        },
       },
     })
     .run();
@@ -327,7 +327,11 @@ test.only('[candyMachineModule] create using JSON configurations', async (t) => 
       endSettingType: EndSettingType.Date,
       date: spokSameBignum(toDateTime('4 Aug 2022 00:00:00 GMT')),
     },
-    hiddenSettings: null,
+    hiddenSettings: {
+      hash: create32BitsHash('cache-file'),
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
     whitelistMintSettings: {
       mode: WhitelistMintMode.BurnEveryTime,
       discountPrice: spokSameAmount(sol(0.5)),

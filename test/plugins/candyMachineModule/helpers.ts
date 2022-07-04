@@ -1,4 +1,5 @@
 import nacl from 'tweetnacl';
+import BN from 'bn.js';
 import { Buffer } from 'buffer';
 import { amman } from '../../helpers';
 import {
@@ -43,19 +44,20 @@ export async function createCandyMachine(
   };
 }
 
-export function createHash(input: Buffer | string, slice?: number): number[] {
-  let hash = nacl.hash(Buffer.from(input));
-  hash = slice === undefined ? hash : hash.slice(0, slice);
-
-  return Array.from(hash);
-}
-
-export function createHashString(
+export function create32BitsHash(
   input: Buffer | string,
   slice?: number
+): number[] {
+  const hash = create32BitsHashString(input, slice);
+
+  return Buffer.from(hash, 'utf8').toJSON().data;
+}
+
+export function create32BitsHashString(
+  input: Buffer | string,
+  slice: number = 32
 ): string {
-  let hash = nacl.hash(Buffer.from(input));
-  hash = slice === undefined ? hash : hash.slice(0, slice);
+  const hash = nacl.hash(Buffer.from(input)).slice(0, slice / 2);
 
   return Buffer.from(hash).toString('hex');
 }
