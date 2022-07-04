@@ -6,7 +6,7 @@ import {
   makeTokenWithMetadataModel,
   TokenWithMetadata,
 } from './Metadata';
-import { makeMintModel, toMintAccount, toTokenAccount } from '../tokenModule';
+import { toMint, toMintAccount, toTokenAccount } from '../tokenModule';
 import { findAssociatedTokenAccountPda, toMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
@@ -55,7 +55,7 @@ export const findTokenWithMetadataByMetadataOperationHandler: OperationHandler<F
 
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);
-      const mintModel = makeMintModel(mintAccount);
+      const mintModel = toMint(mintAccount);
 
       let metadataModel = makeMetadataModel(metadataAccount);
       if (loadJsonMetadata) {

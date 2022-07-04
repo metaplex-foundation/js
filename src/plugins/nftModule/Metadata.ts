@@ -10,8 +10,8 @@ import { JsonMetadata } from '../nftModule';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { findMetadataPda, MetadataAccount } from '@/programs';
 import {
-  makeMintModel,
-  makeTokenWithMintModel,
+  toMint,
+  toTokenWithMint,
   Mint,
   MintAccount,
   TokenAccount,
@@ -87,7 +87,7 @@ export const makeMintWithMetadataModel = (
   mintAccount: MintAccount,
   metadataModel: Metadata
 ): MintWithMetadata => {
-  const mint = makeMintModel(mintAccount);
+  const mint = toMint(mintAccount);
   const currency = {
     ...mint.currency,
     symbol: metadataModel.symbol || 'Token',
@@ -123,7 +123,7 @@ export const makeTokenWithMetadataModel = (
   mintModel: Mint,
   metadataModel: Metadata
 ): TokenWithMetadata => {
-  const token = makeTokenWithMintModel(tokenAccount, mintModel);
+  const token = toTokenWithMint(tokenAccount, mintModel);
   const currency = {
     ...token.mint.currency,
     symbol: metadataModel.symbol || 'Token',

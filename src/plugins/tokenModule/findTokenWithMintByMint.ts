@@ -1,9 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { makeTokenWithMintModel, TokenWithMint } from './Token';
+import { toTokenWithMint, TokenWithMint } from './Token';
 import { toMintAccount, toTokenAccount } from './accounts';
-import { makeMintModel } from './Mint';
+import { toMint } from './Mint';
 import { findAssociatedTokenAccountPda } from '@/programs';
 
 const Key = 'FindTokenWithMintByMintOperation' as const;
@@ -41,6 +41,6 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);
 
-      return makeTokenWithMintModel(tokenAccount, makeMintModel(mintAccount));
+      return toTokenWithMint(tokenAccount, toMint(mintAccount));
     },
   };

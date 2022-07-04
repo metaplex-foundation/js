@@ -1,9 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { makeTokenWithMintModel, TokenWithMint } from './Token';
+import { toTokenWithMint, TokenWithMint } from './Token';
 import { toMintAccount, toTokenAccount } from './accounts';
-import { makeMintModel } from './Mint';
+import { toMint } from './Mint';
 
 const Key = 'FindTokenWithMintByAddressOperation' as const;
 export const findTokenWithMintByAddressOperation =
@@ -35,6 +35,6 @@ export const findTokenWithMintByAddressOperationHandler: OperationHandler<FindTo
         await metaplex.rpc().getAccount(tokenAccount.data.mint, commitment)
       );
 
-      return makeTokenWithMintModel(tokenAccount, makeMintModel(mintAccount));
+      return toTokenWithMint(tokenAccount, toMint(mintAccount));
     },
   };

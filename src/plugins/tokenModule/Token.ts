@@ -18,13 +18,13 @@ export type Token = Readonly<{
   delegateAmount: BN;
 }>;
 
-export const isTokenModel = (value: any): value is Token =>
+export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
 
-export const assertTokenModel = (value: any): asserts value is Token =>
-  assert(isTokenModel(value), `Expected Token model`);
+export const assertToken = (value: any): asserts value is Token =>
+  assert(isToken(value), `Expected Token model`);
 
-export const makeTokenModel = (account: TokenAccount): Token => {
+export const toToken = (account: TokenAccount): Token => {
   const associatedTokenAddress = findAssociatedTokenAccountPda(
     account.data.mint,
     account.data.owner
@@ -57,19 +57,19 @@ export type TokenWithMint = Omit<
     delegateAmount: Amount;
   }>;
 
-export const isTokenWithMintModel = (value: any): value is TokenWithMint =>
+export const isTokenWithMint = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
 
-export const assertTokenWithMintModel = (
+export const assertTokenWithMint = (
   value: any
 ): asserts value is TokenWithMint =>
-  assert(isTokenWithMintModel(value), `Expected TokenWithMint model`);
+  assert(isTokenWithMint(value), `Expected TokenWithMint model`);
 
-export const makeTokenWithMintModel = (
+export const toTokenWithMint = (
   tokenAccount: TokenAccount,
   mintModel: Mint
 ): TokenWithMint => {
-  const token = makeTokenModel(tokenAccount);
+  const token = toToken(tokenAccount);
   return {
     ...token,
     model: 'tokenWithMint',

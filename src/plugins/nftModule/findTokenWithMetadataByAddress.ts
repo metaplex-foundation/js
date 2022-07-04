@@ -7,8 +7,8 @@ import {
   TokenWithMetadata,
 } from './Metadata';
 import {
-  makeMintModel,
-  makeTokenWithMintModel,
+  toMint,
+  toTokenWithMint,
   TokenWithMint,
   toMintAccount,
   toTokenAccount,
@@ -52,10 +52,10 @@ export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<Fi
 
       const mintAccount = toMintAccount(accounts[0]);
       const metadataAccount = parseMetadataAccount(accounts[1]);
-      const mintModel = makeMintModel(mintAccount);
+      const mintModel = toMint(mintAccount);
 
       if (!metadataAccount.exists) {
-        return makeTokenWithMintModel(tokenAccount, mintModel);
+        return toTokenWithMint(tokenAccount, mintModel);
       }
 
       let metadataModel = makeMetadataModel(metadataAccount);

@@ -6,7 +6,7 @@ import {
   makeMintWithMetadataModel,
   MintWithMetadata,
 } from './Metadata';
-import { makeMintModel, Mint, toMintAccount } from '../tokenModule';
+import { toMint, Mint, toMintAccount } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
@@ -46,7 +46,7 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
       const mintAccount = toMintAccount(accounts[0]);
 
       if (!accounts[1].exists) {
-        return makeMintModel(mintAccount);
+        return toMint(mintAccount);
       }
 
       const metadataAccount = parseMetadataAccount(accounts[1]);

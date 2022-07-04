@@ -1,4 +1,3 @@
-export * from './createAssociatedTokenAccountBuilder';
 export * from './createMintAndMintToAssociatedTokenBuilder';
 export * from './disableMintingBuilder';
 export * from './mintToBuilder';
