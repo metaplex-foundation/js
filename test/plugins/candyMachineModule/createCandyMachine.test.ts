@@ -117,11 +117,12 @@ test('[candyMachineModule] create with creators', async (t) => {
   });
 });
 
-test.only('[candyMachineModule] create with SPL treasury', async (t) => {
+test.skip('[candyMachineModule] create with SPL treasury', async (t) => {
   // Given a Candy Machine client.
-  const { tc, mx, client, minimalInput } = await init();
+  const { tc, client, minimalInput } = await init();
 
   // And a token account and its mint account.
+  // TODO: Create real token/mint accounts.
   const token = Keypair.generate().publicKey;
   const mint = Keypair.generate().publicKey;
 

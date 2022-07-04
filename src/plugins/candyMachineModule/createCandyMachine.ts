@@ -105,7 +105,7 @@ export const createCandyMachineBuilder = async (
   params: CreateCandyMachineBuilderParams
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();
-  const payer = params.payer ?? metaplex.identity();
+  const payer: Signer = params.payer ?? metaplex.identity();
   const wallet = params.wallet ?? metaplex.identity().publicKey;
   const authority = params.authority ?? metaplex.identity().publicKey;
   const tokenMint = params.tokenMint ?? null;
@@ -149,6 +149,7 @@ export const createCandyMachineBuilder = async (
 
   return (
     TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+      .setFeePayer(payer)
       .setContext({
         candyMachine,
         payer,
