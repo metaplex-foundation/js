@@ -1,6 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionsBuildersClient } from './AuctionsBuildersClient';
 import { findAuctionHousePda } from './pdas';
@@ -9,7 +9,10 @@ import {
   createAuctionHouseOperation,
   CreateAuctionHouseOutput,
 } from './createAuctionHouse';
-import { findAuctionHouseByAddressOperation } from './findAuctionHouseByAddress';
+import {
+  FindAuctionHouseByAddressInput,
+  findAuctionHouseByAddressOperation,
+} from './findAuctionHouseByAddress';
 import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
@@ -68,7 +71,7 @@ export class AuctionsClient {
 
   findAuctionHouseByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
   ): Task<AuctionHouse> {
     return this.metaplex
       .operations()
@@ -78,7 +81,7 @@ export class AuctionsClient {
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
   ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),
