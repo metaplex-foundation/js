@@ -26,7 +26,7 @@ export type CreateMintInput = {
 
 export type CreateMintOutput = {
   response: SendAndConfirmTransactionResponse;
-  mint: Signer;
+  mintSigner: Signer;
 };
 
 export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
@@ -72,7 +72,7 @@ export const createMintBuilder = async (
   return (
     TransactionBuilder.make<CreateMintBuilderContext>()
       .setFeePayer(payer)
-      .setContext({ mint })
+      .setContext({ mintSigner: mint })
 
       // Create an empty account for the mint.
       .add(
