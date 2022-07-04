@@ -21,7 +21,6 @@ import {
   RequiredKeys,
   TransactionBuilder,
 } from '@/utils';
-import { createAccountBuilder } from '@/programs';
 import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { getCandyMachineAccountSizeFromData } from './helpers';
@@ -125,8 +124,6 @@ export const createCandyMachineBuilder = async (
     gatekeeper: params.gatekeeper ?? null,
   });
 
-  const space = getCandyMachineAccountSizeFromData(data);
-  const lamports = await metaplex.rpc().getRent(space);
   const initializeInstruction = createInitializeCandyMachineInstruction(
     {
       candyMachine: candyMachine.publicKey,
@@ -160,14 +157,16 @@ export const createCandyMachineBuilder = async (
 
       // Create an empty account for the candy machine.
       .add(
-        createAccountBuilder({
-          payer,
-          newAccount: candyMachine,
-          space,
-          lamports: lamports.basisPoints.toNumber(),
-          program: CandyMachineProgram.publicKey,
-          instructionKey: params.createAccountInstructionKey,
-        })
+        await metaplex
+          .system()
+          .builders()
+          .createAccount({
+            payer,
+            newAccount: candyMachine,
+            space: getCandyMachineAccountSizeFromData(data),
+            program: CandyMachineProgram.publicKey,
+            instructionKey: params.createAccountInstructionKey,
+          })
       )
 
       // Initialize the candy machine account.
