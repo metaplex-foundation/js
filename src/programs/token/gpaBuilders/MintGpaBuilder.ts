@@ -26,6 +26,6 @@ export class MintGpaBuilder extends GpaBuilder {
     return this.where(36, supply);
   }
 
-  // TODO: Map the rest of the layout.
+  // TODO(loris): Map the rest of the layout.
   // https://github.com/solana-labs/solana-program-library/blob/master/token/js/src/state/mint.ts#L43
 }

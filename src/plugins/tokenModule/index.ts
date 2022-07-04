@@ -1,5 +1,6 @@
 export * from './accounts';
 export * from './constants';
+export * from './createMint';
 export * from './findMintByAddress';
 export * from './findTokenByAddress';
 export * from './findTokenWithMintByAddress';

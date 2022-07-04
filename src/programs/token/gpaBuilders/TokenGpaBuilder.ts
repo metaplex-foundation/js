@@ -46,6 +46,6 @@ export class TokenGpaBuilder extends GpaBuilder {
     return this.whereHasDelegate().where(76, delegate);
   }
 
-  // TODO: Map the rest of the layout.
+  // TODO(loris): Map the rest of the layout.
   // https://github.com/solana-labs/solana-program-library/blob/master/token/js/src/state/account.ts#L59
 }

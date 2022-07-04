@@ -165,7 +165,8 @@ export const createCandyMachineBuilder = async (
             newAccount: candyMachine,
             space: getCandyMachineAccountSizeFromData(data),
             program: CandyMachineProgram.publicKey,
-            instructionKey: params.createAccountInstructionKey,
+            instructionKey:
+              params.createAccountInstructionKey ?? 'createAccount',
           })
       )
 
