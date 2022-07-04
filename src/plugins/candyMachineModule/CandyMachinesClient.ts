@@ -42,7 +42,6 @@ export class CandyMachinesClient {
       const operation = createCandyMachineOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      console.log('successfully created Candy Machine');
       const candyMachine = await this.findByAddress(
         output.candyMachine.publicKey
       ).run(scope);

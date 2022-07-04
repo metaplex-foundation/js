@@ -148,15 +148,13 @@ test('[candyMachineModule] create with end settings', async (t) => {
 test('[candyMachineModule] create with hidden settings', async (t) => {
   // Given a Candy Machine client and a computed hash.
   const { tc, client, minimalInput } = await init();
-  const hashInput = 'cache-file';
-  const hash = Array.from(nacl.hash(Buffer.from(hashInput)).slice(0));
 
   // When we create a Candy Machine with hidden settings.
   const { response, candyMachine } = await client
     .create({
       ...minimalInput,
       hiddenSettings: {
-        hash,
+        hash: create32BitsHash('cache-file'),
         uri: 'https://example.com',
         name: 'mint-name',
       },
@@ -169,7 +167,7 @@ test('[candyMachineModule] create with hidden settings', async (t) => {
     $topic: 'Candy Machine',
     model: 'candyMachine',
     hiddenSettings: {
-      hash,
+      hash: create32BitsHash('cache-file'),
       uri: 'https://example.com',
       name: 'mint-name',
     },
@@ -258,7 +256,7 @@ test('[candyMachineModule] create with whitelistMint settings', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.only('[candyMachineModule] create using JSON configurations', async (t) => {
+test('[candyMachineModule] create using JSON configurations', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
