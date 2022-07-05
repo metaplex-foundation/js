@@ -22,6 +22,7 @@ import {
 } from './findCandyMachinesByPublicKeyField';
 import {
   UpdateCandyMachineInput,
+  UpdateCandyMachineInputWithoutConfigs,
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
@@ -133,5 +134,16 @@ export class CandyMachinesClient {
       ).run();
       return { candyMachine: updatedCandyMachine, ...output };
     });
+  }
+
+  updateFromJsonConfig(
+    candyMachine: CandyMachine,
+    input: Omit<UpdateCandyMachineInputWithoutConfigs, 'candyMachine'> & {
+      json: CandyMachineJsonConfigs;
+    }
+  ) {
+    const { json, ...otherInputs } = input;
+    const configs = getCandyMachineConfigsFromJson(json);
+    return this.update(candyMachine, { ...otherInputs, ...configs });
   }
 }

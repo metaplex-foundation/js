@@ -4,7 +4,14 @@ import {
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  assertSameCurrencies,
+  Operation,
+  OperationHandler,
+  Signer,
+  SOL,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
@@ -28,9 +35,7 @@ export type UpdateCandyMachineOperation = Operation<
   UpdateCandyMachineOutput
 >;
 
-export type UpdateCandyMachineInput = Partial<
-  Pick<CandyMachine, CandyMachineUpdatableFields>
-> & {
+export type UpdateCandyMachineInputWithoutConfigs = {
   // Models and accounts.
   candyMachine: CandyMachine;
   authority?: Signer;
@@ -39,6 +44,9 @@ export type UpdateCandyMachineInput = Partial<
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
+
+export type UpdateCandyMachineInput = UpdateCandyMachineInputWithoutConfigs &
+  Partial<Pick<CandyMachine, CandyMachineUpdatableFields>>;
 
 export type UpdateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
@@ -89,13 +97,33 @@ export const updateCandyMachineBuilder = (
     ...updatableFields
   } = params;
   const dataWithoutUpdates = toCandyMachineInstructionData(candyMachine);
-  const data = toCandyMachineInstructionData({
-    ...candyMachine,
-    ...updatableFields,
-  });
+  const { data, walletAddress, tokenMintAddress } =
+    toCandyMachineInstructionData({
+      ...candyMachine,
+      ...updatableFields,
+    });
   const shouldSendUpdateInstruction = !isEqual(data, dataWithoutUpdates);
   const shouldSendUpdateAuthorityInstruction =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
+
+  const updateInstruction = createUpdateCandyMachineInstruction(
+    {
+      candyMachine: candyMachine.address,
+      authority: authority.publicKey,
+      wallet: walletAddress,
+    },
+    { data }
+  );
+
+  if (tokenMintAddress) {
+    updateInstruction.keys.push({
+      pubkey: tokenMintAddress,
+      isWritable: false,
+      isSigner: false,
+    });
+  } else if (params.price) {
+    assertSameCurrencies(params.price, SOL);
+  }
 
   return (
     TransactionBuilder.make()
@@ -103,14 +131,7 @@ export const updateCandyMachineBuilder = (
       // Update data.
       .when(shouldSendUpdateInstruction, (builder) =>
         builder.add({
-          instruction: createUpdateCandyMachineInstruction(
-            {
-              candyMachine: candyMachine.address,
-              authority: authority.publicKey,
-              wallet: candyMachine.walletAddress,
-            },
-            { data }
-          ),
+          instruction: updateInstruction,
           signers: [authority],
           key: updateInstructionKey ?? 'update',
         })

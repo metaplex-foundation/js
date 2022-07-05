@@ -172,7 +172,7 @@ test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
   t.ok(isEqualToAmount(derivedBalance, sol(1)), 'derived balance is 1');
 });
 
-test.only('[derivedIdentity] it can withdraw from the derived identity', async (t: Test) => {
+test('[derivedIdentity] it can withdraw from the derived identity', async (t: Test) => {
   // Given a Metaplex instance with:
   // - an identity airdropped with 5 SOLs.
   // - a derived identity airdropped with 2 SOLs.

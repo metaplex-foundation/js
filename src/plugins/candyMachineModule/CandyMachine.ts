@@ -84,6 +84,8 @@ export type Gatekeeper = {
 };
 
 export type CandyMachineUpdatableFields =
+  | 'walletAddress'
+  | 'tokenMintAddress'
   | 'price'
   | 'sellerFeeBasisPoints'
   | 'itemsAvailable'
@@ -176,39 +178,49 @@ export const toCandyMachine = (
 
 // From SDK to Program.
 
+export type CandyMachineInstructionData = {
+  walletAddress: PublicKey;
+  tokenMintAddress: Option<PublicKey>;
+  data: CandyMachineData;
+};
+
 export const toCandyMachineInstructionData = (
   candyMachine: Pick<CandyMachine, CandyMachineUpdatableFields | 'address'>
-): CandyMachineData => {
+): CandyMachineInstructionData => {
   const endSettings = candyMachine.endSettings;
   const whitelistMintSettings = candyMachine.whitelistMintSettings;
   const gatekeeper = candyMachine.gatekeeper;
 
   return {
-    ...candyMachine,
-    uuid: getCandyMachineUuidFromAddress(candyMachine.address),
-    price: candyMachine.price.basisPoints,
-    maxSupply: candyMachine.maxEditionSupply,
-    endSettings: endSettings
-      ? {
-          ...endSettings,
-          number:
-            endSettings.endSettingType === EndSettingType.Date
-              ? endSettings.date
-              : endSettings.number,
-        }
-      : null,
-    whitelistMintSettings: whitelistMintSettings
-      ? {
-          ...whitelistMintSettings,
-          discountPrice:
-            whitelistMintSettings.discountPrice?.basisPoints ?? null,
-        }
-      : null,
-    gatekeeper: gatekeeper
-      ? {
-          ...gatekeeper,
-          gatekeeperNetwork: gatekeeper.network,
-        }
-      : null,
+    walletAddress: candyMachine.walletAddress,
+    tokenMintAddress: candyMachine.tokenMintAddress,
+    data: {
+      ...candyMachine,
+      uuid: getCandyMachineUuidFromAddress(candyMachine.address),
+      price: candyMachine.price.basisPoints,
+      maxSupply: candyMachine.maxEditionSupply,
+      endSettings: endSettings
+        ? {
+            ...endSettings,
+            number:
+              endSettings.endSettingType === EndSettingType.Date
+                ? endSettings.date
+                : endSettings.number,
+          }
+        : null,
+      whitelistMintSettings: whitelistMintSettings
+        ? {
+            ...whitelistMintSettings,
+            discountPrice:
+              whitelistMintSettings.discountPrice?.basisPoints ?? null,
+          }
+        : null,
+      gatekeeper: gatekeeper
+        ? {
+            ...gatekeeper,
+            gatekeeperNetwork: gatekeeper.network,
+          }
+        : null,
+    },
   };
 };
