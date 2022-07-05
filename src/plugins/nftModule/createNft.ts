@@ -1,5 +1,4 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 import { bignum } from '@metaplex-foundation/beet';
 import {
   Creator,
@@ -8,9 +7,14 @@ import {
   DataV2,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
+import {
+  useOperation,
+  Operation,
+  Signer,
+  OperationHandler,
+  token,
+} from '@/types';
 import { JsonMetadata } from './JsonMetadata';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
   createCreateMasterEditionV3InstructionWithSigners,
   createCreateMetadataAccountV2InstructionWithSigners,
@@ -47,7 +51,7 @@ export interface CreateNftInput {
 
   // Public keys.
   owner?: PublicKey;
-  freezeAuthority?: PublicKey;
+  freezeAuthority?: PublicKey; // TODO(loris): Make Option<PublicKey> | undefined.
 
   // Programs.
   tokenProgram?: PublicKey;
@@ -97,43 +101,34 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
 
     const metadataPda = findMetadataPda(mint.publicKey);
     const masterEditionPda = findMasterEditionV2Pda(mint.publicKey);
-    const lamports = await getMinimumBalanceForRentExemptMint(
-      metaplex.connection
-    );
-    const associatedToken = findAssociatedTokenAccountPda(
-      mint.publicKey,
-      owner,
-      tokenProgram,
-      associatedTokenProgram
-    );
 
-    const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
-      createNftBuilder({
-        lamports,
-        data,
-        isMutable,
-        maxSupply,
-        mint,
-        payer,
-        mintAuthority,
-        updateAuthority,
-        owner,
-        associatedToken,
-        freezeAuthority,
-        metadata: metadataPda,
-        masterEdition: masterEditionPda,
-        tokenProgram,
-        associatedTokenProgram,
-      }),
-      undefined,
-      confirmOptions
-    );
+    const builder = await createNftBuilder(metaplex, {
+      data,
+      isMutable,
+      maxSupply,
+      mint,
+      payer,
+      mintAuthority,
+      updateAuthority,
+      owner,
+      freezeAuthority,
+      metadata: metadataPda,
+      masterEdition: masterEditionPda,
+      tokenProgram,
+      associatedTokenProgram,
+    });
+
+    const { tokenAddress } = builder.getContext();
+
+    const { signature } = await metaplex
+      .rpc()
+      .sendAndConfirmTransaction(builder, undefined, confirmOptions);
 
     return {
       mint,
       metadata: metadataPda,
       masterEdition: masterEditionPda,
-      associatedToken,
+      associatedToken: tokenAddress,
       transactionId: signature,
     };
   },
@@ -184,9 +179,8 @@ const resolveData = (
   };
 };
 
-export interface CreateNftBuilderParams {
+export type CreateNftBuilderParams = {
   // Data.
-  lamports: number;
   data: DataV2;
   isMutable?: boolean;
   maxSupply?: bignum;
@@ -199,7 +193,6 @@ export interface CreateNftBuilderParams {
 
   // Public keys.
   owner: PublicKey;
-  associatedToken: PublicKey;
   freezeAuthority?: PublicKey;
   metadata: PublicKey;
   masterEdition: PublicKey;
@@ -209,19 +202,25 @@ export interface CreateNftBuilderParams {
   associatedTokenProgram?: PublicKey;
 
   // Instruction keys.
-  createAccountInstructionKey?: string;
+  createMintAccountInstructionKey?: string;
   initializeMintInstructionKey?: string;
-  createAssociatedTokenInstructionKey?: string;
-  mintToInstructionKey?: string;
+  createAssociatedTokenAccountInstructionKey?: string;
+  createTokenAccountInstructionKey?: string;
+  initializeTokenInstructionKey?: string;
+  mintTokensInstructionKey?: string;
   createMetadataInstructionKey?: string;
   createMasterEditionInstructionKey?: string;
-}
+};
 
-export const createNftBuilder = (
+export type CreateNftBuilderContext = {
+  tokenAddress: PublicKey;
+};
+
+export const createNftBuilder = async (
+  metaplex: Metaplex,
   params: CreateNftBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
   const {
-    lamports,
     data,
     isMutable,
     maxSupply,
@@ -230,45 +229,44 @@ export const createNftBuilder = (
     mintAuthority,
     updateAuthority = mintAuthority,
     owner,
-    associatedToken,
     freezeAuthority,
     metadata,
     masterEdition,
     tokenProgram,
     associatedTokenProgram,
-    createAccountInstructionKey,
-    initializeMintInstructionKey,
-    createAssociatedTokenInstructionKey,
-    mintToInstructionKey,
-    createMetadataInstructionKey,
-    createMasterEditionInstructionKey,
   } = params;
 
-  return (
-    TransactionBuilder.make()
-      .setFeePayer(payer)
+  const tokenWithMintBuilder = await metaplex
+    .tokens()
+    .builders()
+    .createTokenWithMint({
+      decimals: 0,
+      initialSupply: token(1),
+      mint,
+      mintAuthority,
+      freezeAuthority: freezeAuthority ?? null,
+      owner,
+      payer,
+      tokenProgram,
+      associatedTokenProgram,
+      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
+      initializeMintInstructionKey: params.initializeMintInstructionKey,
+      createAssociatedTokenAccountInstructionKey:
+        params.createAssociatedTokenAccountInstructionKey,
+      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
+      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+      mintTokensInstructionKey: params.mintTokensInstructionKey,
+    });
 
-      // Create the mint account and send one token to the holder.
-      .add(
-        createMintAndMintToAssociatedTokenBuilder({
-          lamports,
-          decimals: 0,
-          amount: 1,
-          createAssociatedToken: true,
-          mint,
-          payer,
-          mintAuthority,
-          owner,
-          associatedToken,
-          freezeAuthority,
-          tokenProgram,
-          associatedTokenProgram,
-          createAccountInstructionKey,
-          initializeMintInstructionKey,
-          createAssociatedTokenInstructionKey,
-          mintToInstructionKey,
-        })
-      )
+  const { tokenAddress } = tokenWithMintBuilder.getContext();
+
+  return (
+    TransactionBuilder.make<CreateNftBuilderContext>()
+      .setFeePayer(payer)
+      .setContext({ tokenAddress })
+
+      // Create the mint and token accounts before minting 1 token to the owner.
+      .add(tokenWithMintBuilder)
 
       // Create metadata account.
       .add(
@@ -280,7 +278,7 @@ export const createNftBuilder = (
           mint: mint.publicKey,
           metadata,
           updateAuthority: updateAuthority.publicKey,
-          instructionKey: createMetadataInstructionKey,
+          instructionKey: params.createMetadataInstructionKey,
         })
       )
 
@@ -294,7 +292,7 @@ export const createNftBuilder = (
           mint: mint.publicKey,
           metadata,
           masterEdition,
-          instructionKey: createMasterEditionInstructionKey,
+          instructionKey: params.createMasterEditionInstructionKey,
         })
       )
   );
