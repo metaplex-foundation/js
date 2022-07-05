@@ -1,5 +1,6 @@
 import test, { Test } from 'tape';
 import {
+  assertThrows,
   createNft,
   killStuckProcess,
   metaplex,
@@ -81,15 +82,11 @@ test('it cannot print when the maxSupply is zero', async (t: Test) => {
   const mx = await metaplex();
   const originalNft = await createNft(mx, {}, { maxSupply: 0 });
 
-  try {
-    // When we try to print an edition of the NFT.
-    await mx.nfts().printNewEdition(originalNft.mint);
-    t.fail('The NFT should not have printed');
-  } catch (error) {
-    // Then we should get an error.
-    t.ok(error, 'got an error');
-    // TODO: Assert on the right error when  integrated with Cusper.
-  }
+  // When we try to print an edition of the NFT.
+  const promise = mx.nfts().printNewEdition(originalNft.mint);
+
+  // Then we should get an error.
+  await assertThrows(t, promise, /Maximum editions printed already/);
 });
 
 const isPrintOfOriginal = (
