@@ -57,9 +57,8 @@ export const toListing = (
   };
 };
 
-export type LazyListing = Omit<Listing, 'model' | 'lazy' | 'token' | 'tokens'> &
+export type LazyListing = Omit<Listing, 'lazy' | 'token' | 'tokens'> &
   Readonly<{
-    model: 'listing';
     lazy: true;
     metadataAddress: PublicKey;
     tokens: BigNumber;
