@@ -15,6 +15,10 @@ import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
 import { TokenProgram } from './program';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'MintTokensOperation' as const;
 export const mintTokensOperation = useOperation<MintTokensOperation>(Key);
 export type MintTokensOperation = Operation<
@@ -36,6 +40,10 @@ export type MintTokensInput = {
 export type MintTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
   {

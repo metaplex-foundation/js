@@ -4,6 +4,10 @@ import { Operation, useOperation, OperationHandler } from '@/types';
 import { toMint, Mint } from './Mint';
 import { toMintAccount } from './accounts';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindMintByAddressOperation' as const;
 export const findMintByAddressOperation =
   useOperation<FindMintByAddressOperation>(Key);
@@ -17,6 +21,10 @@ export type FindMintByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddressOperation> =
   {

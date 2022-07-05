@@ -15,6 +15,10 @@ import {
 import { toMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindTokenWithMetadataByMetadataOperation' as const;
 export const findTokenWithMetadataByMetadataOperation =
   useOperation<FindTokenWithMetadataByMetadataOperation>(Key);
@@ -30,6 +34,10 @@ export type FindTokenWithMetadataByMetadataInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMetadataByMetadataOperationHandler: OperationHandler<FindTokenWithMetadataByMetadataOperation> =
   {

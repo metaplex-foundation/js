@@ -4,6 +4,10 @@ import { Operation, useOperation, OperationHandler } from '@/types';
 import { toToken, Token } from './Token';
 import { toTokenAccount } from './accounts';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindTokenByAddressOperation' as const;
 export const findTokenByAddressOperation =
   useOperation<FindTokenByAddressOperation>(Key);
@@ -17,6 +21,10 @@ export type FindTokenByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAddressOperation> =
   {

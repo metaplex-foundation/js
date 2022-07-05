@@ -5,6 +5,10 @@ import { toTokenWithMint, TokenWithMint } from './Token';
 import { toMintAccount, toTokenAccount } from './accounts';
 import { toMint } from './Mint';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindTokenWithMintByAddressOperation' as const;
 export const findTokenWithMintByAddressOperation =
   useOperation<FindTokenWithMintByAddressOperation>(Key);
@@ -18,6 +22,10 @@ export type FindTokenWithMintByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMintByAddressOperationHandler: OperationHandler<FindTokenWithMintByAddressOperation> =
   {

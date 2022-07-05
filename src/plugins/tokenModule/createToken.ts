@@ -12,6 +12,10 @@ import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'CreateTokenOperation' as const;
 export const createTokenOperation = useOperation<CreateTokenOperation>(Key);
 export type CreateTokenOperation = Operation<
@@ -34,6 +38,10 @@ export type CreateTokenOutput = {
   response: SendAndConfirmTransactionResponse;
   tokenAddress: PublicKey;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const createTokenOperationHandler: OperationHandler<CreateTokenOperation> =
   {

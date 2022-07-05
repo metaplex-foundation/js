@@ -5,6 +5,10 @@ import { TokenMetadataProgram } from '@/programs';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { Nft } from './Nft';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindNftsByCreatorOperation' as const;
 export const findNftsByCreatorOperation =
   useOperation<FindNftsByCreatorOperation>(Key);
@@ -18,6 +22,10 @@ export interface FindNftsByCreatorInput {
   creator: PublicKey;
   position?: number;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNftsByCreatorOperation> =
   {

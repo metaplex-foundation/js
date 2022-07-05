@@ -15,6 +15,10 @@ import {
 import { useOperation, Operation, OperationHandler, Signer } from '@/types';
 import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'PrintNewEditionOperation' as const;
 export const printNewEditionOperation =
   useOperation<PrintNewEditionOperation>(Key);
@@ -62,6 +66,10 @@ export type PrintNewEditionOutput = {
   associatedToken: PublicKey;
   transactionId: string;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOperation> =
   {
@@ -176,6 +184,10 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       };
     },
   };
+
+// -----------------
+// Builder
+// -----------------
 
 type PrintNewEditionBuilderSharedParams = {
   // Data.

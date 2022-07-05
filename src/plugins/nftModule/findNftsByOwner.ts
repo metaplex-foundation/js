@@ -5,10 +5,18 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { Nft } from './Nft';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindNftsByOwnerOperation' as const;
 export const findNftsByOwnerOperation =
   useOperation<FindNftsByOwnerOperation>(Key);
 export type FindNftsByOwnerOperation = Operation<typeof Key, PublicKey, Nft[]>;
+
+// -----------------
+// Handler
+// -----------------
 
 export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsByOwnerOperation> =
   {

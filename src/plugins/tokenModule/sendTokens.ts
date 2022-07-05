@@ -16,6 +16,10 @@ import { isMint, Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'SendTokensOperation' as const;
 export const sendTokensOperation = useOperation<SendTokensOperation>(Key);
 export type SendTokensOperation = Operation<
@@ -38,6 +42,10 @@ export type SendTokensInput = {
 export type SendTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
   {

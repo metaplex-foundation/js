@@ -14,6 +14,10 @@ import {
 } from '@/programs';
 import { TransactionBuilder } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'UpdateNftOperation' as const;
 export const updateNftOperation = useOperation<UpdateNftOperation>(Key);
 export type UpdateNftOperation = Operation<
@@ -47,6 +51,10 @@ export interface UpdateNftInput {
 export interface UpdateNftOutput {
   transactionId: string;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
   handle: async (
@@ -97,6 +105,10 @@ const resolveData = (input: UpdateNftInput): DataV2 => {
     uses: input.uses ?? nft.uses,
   };
 };
+
+// -----------------
+// Builder
+// -----------------
 
 export interface UpdateNftBuilderParams {
   // Data.

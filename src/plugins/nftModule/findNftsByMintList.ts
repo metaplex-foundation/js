@@ -5,6 +5,10 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { GmaBuilder, zipMap } from '@/utils';
 import { Nft } from './Nft';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindNftsByMintListOperation' as const;
 export const findNftsByMintListOperation =
   useOperation<FindNftsByMintListOperation>(Key);
@@ -13,6 +17,10 @@ export type FindNftsByMintListOperation = Operation<
   PublicKey[],
   (Nft | null)[]
 >;
+
+// -----------------
+// Handler
+// -----------------
 
 export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNftsByMintListOperation> =
   {

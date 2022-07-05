@@ -30,6 +30,10 @@ import {
   toCandyMachineInstructionData,
 } from './CandyMachine';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'CreateCandyMachineOperation' as const;
 export const createCandyMachineOperation =
   useOperation<CreateCandyMachineOperation>(Key);
@@ -65,6 +69,10 @@ export type CreateCandyMachineOutput = {
   authority: PublicKey;
   creators: Creator[];
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
   {

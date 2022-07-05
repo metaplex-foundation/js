@@ -23,6 +23,10 @@ import {
 } from '@/programs';
 import { TransactionBuilder } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'CreateNftOperation' as const;
 export const createNftOperation = useOperation<CreateNftOperation>(Key);
 export type CreateNftOperation = Operation<
@@ -68,6 +72,10 @@ export interface CreateNftOutput {
   associatedToken: PublicKey;
   transactionId: string;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (operation: CreateNftOperation, metaplex: Metaplex) => {
@@ -178,6 +186,10 @@ const resolveData = (
     uses: input.uses ?? null,
   };
 };
+
+// -----------------
+// Builder
+// -----------------
 
 export type CreateNftBuilderParams = {
   // Data.

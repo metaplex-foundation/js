@@ -17,6 +17,10 @@ import {
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindTokenWithMetadataByMintOperation' as const;
 export const findTokenWithMetadataByMintOperation =
   useOperation<FindTokenWithMetadataByMintOperation>(Key);
@@ -32,6 +36,10 @@ export type FindTokenWithMetadataByMintInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMetadataByMintOperationHandler: OperationHandler<FindTokenWithMetadataByMintOperation> =
   {

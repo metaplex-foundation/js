@@ -7,6 +7,10 @@ import { toMint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenAndMintDoNotMatchError } from './errors';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindTokenWithMintByMintOperation' as const;
 export const findTokenWithMintByMintOperation =
   useOperation<FindTokenWithMintByMintOperation>(Key);
@@ -22,6 +26,10 @@ export type FindTokenWithMintByMintInput = {
   addressType: 'owner' | 'token';
   commitment?: Commitment;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMintByMintOperationHandler: OperationHandler<FindTokenWithMintByMintOperation> =
   {

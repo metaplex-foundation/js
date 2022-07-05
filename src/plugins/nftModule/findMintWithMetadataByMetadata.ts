@@ -10,6 +10,10 @@ import { toMintAccount } from '../tokenModule';
 import { toMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindMintWithMetadataByMetadataOperation' as const;
 export const findMintWithMetadataByMetadataOperation =
   useOperation<FindMintWithMetadataByMetadataOperation>(Key);
@@ -24,6 +28,10 @@ export type FindMintWithMetadataByMetadataInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<FindMintWithMetadataByMetadataOperation> =
   {

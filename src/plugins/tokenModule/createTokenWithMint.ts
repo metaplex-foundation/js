@@ -13,6 +13,10 @@ import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { MintAuthorityMustBeSignerToMintInitialSupplyError } from './errors';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'CreateTokenWithMintOperation' as const;
 export const createTokenWithMintOperation =
   useOperation<CreateTokenWithMintOperation>(Key);
@@ -41,6 +45,10 @@ export type CreateTokenWithMintOutput = {
   mintSigner: Signer;
   tokenAddress: PublicKey;
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWithMintOperation> =
   {

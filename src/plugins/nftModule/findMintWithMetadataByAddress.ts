@@ -10,6 +10,10 @@ import { toMint, Mint, toMintAccount } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindMintWithMetadataByAddressOperation' as const;
 export const findMintWithMetadataByAddressOperation =
   useOperation<FindMintWithMetadataByAddressOperation>(Key);
@@ -24,6 +28,10 @@ export type FindMintWithMetadataByAddressInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findMintWithMetadataByAddressOperationHandler: OperationHandler<FindMintWithMetadataByAddressOperation> =
   {
