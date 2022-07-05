@@ -177,7 +177,6 @@ type CreatorConfig = Omit<Creator, 'address'> & {
 };
 
 export const toCandyMachineConfigsFromJson = (
-  authority: PublicKey,
   config: CandyMachineJsonConfigs
 ): CandyMachineConfigs => {
   const configCreators = config.creators ?? [
@@ -189,7 +188,6 @@ export const toCandyMachineConfigsFromJson = (
   ];
 
   return {
-    authority,
     wallet:
       config.splToken && config.splTokenAccount
         ? toPublicKey(config.splTokenAccount)

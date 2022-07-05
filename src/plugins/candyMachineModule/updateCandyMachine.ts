@@ -17,7 +17,8 @@ import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import {
   CandyMachine,
-  CandyMachineUpdatableFields,
+  CandyMachineConfigs,
+  toCandyMachineConfigs,
   toCandyMachineInstructionData,
 } from './CandyMachine';
 import { NoInstructionsToSendError } from '@/errors';
@@ -46,7 +47,7 @@ export type UpdateCandyMachineInputWithoutConfigs = {
 };
 
 export type UpdateCandyMachineInput = UpdateCandyMachineInputWithoutConfigs &
-  Partial<Pick<CandyMachine, CandyMachineUpdatableFields>>;
+  Partial<CandyMachineConfigs>;
 
 export type UpdateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
@@ -96,14 +97,19 @@ export const updateCandyMachineBuilder = (
     updateAuthorityInstructionKey,
     ...updatableFields
   } = params;
-  const instructionData = toCandyMachineInstructionData({
-    ...candyMachine,
+  const currentConfigs = toCandyMachineConfigs(candyMachine);
+  const instructionDataWithoutChanges = toCandyMachineInstructionData(
+    candyMachine.address,
+    currentConfigs
+  );
+  const instructionData = toCandyMachineInstructionData(candyMachine.address, {
+    ...currentConfigs,
     ...updatableFields,
   });
-  const { data, walletAddress, tokenMintAddress } = instructionData;
+  const { data, wallet, tokenMint } = instructionData;
   const shouldSendUpdateInstruction = !isEqual(
     instructionData,
-    toCandyMachineInstructionData(candyMachine)
+    instructionDataWithoutChanges
   );
   const shouldSendUpdateAuthorityInstruction =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
@@ -112,14 +118,14 @@ export const updateCandyMachineBuilder = (
     {
       candyMachine: candyMachine.address,
       authority: authority.publicKey,
-      wallet: walletAddress,
+      wallet,
     },
     { data }
   );
 
-  if (tokenMintAddress) {
+  if (tokenMint) {
     updateInstruction.keys.push({
-      pubkey: tokenMintAddress,
+      pubkey: tokenMint,
       isWritable: false,
       isSigner: false,
     });

@@ -56,15 +56,11 @@ export class CandyMachinesClient {
 
   createFromJsonConfig(
     input: CreateCandyMachineInputWithoutConfigs & {
-      authority?: PublicKey;
       json: CandyMachineJsonConfigs;
     }
   ) {
-    const { json, authority, ...otherInputs } = input;
-    const configs = toCandyMachineConfigsFromJson(
-      authority ?? this.metaplex.identity().publicKey,
-      json
-    );
+    const { json, ...otherInputs } = input;
+    const configs = toCandyMachineConfigsFromJson(json);
     return this.create({ ...otherInputs, ...configs });
   }
 
@@ -143,15 +139,11 @@ export class CandyMachinesClient {
   updateFromJsonConfig(
     candyMachine: CandyMachine,
     input: Omit<UpdateCandyMachineInputWithoutConfigs, 'candyMachine'> & {
-      newAuthority?: PublicKey;
       json: CandyMachineJsonConfigs;
     }
   ) {
     const { json, newAuthority, ...otherInputs } = input;
-    const configs = toCandyMachineConfigsFromJson(
-      newAuthority ?? candyMachine.authorityAddress,
-      json
-    );
+    const configs = toCandyMachineConfigsFromJson(json);
     return this.update(candyMachine, { ...otherInputs, ...configs });
   }
 }

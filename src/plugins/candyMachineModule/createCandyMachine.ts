@@ -40,6 +40,7 @@ export type CreateCandyMachineInputWithoutConfigs = {
   // Accounts.
   candyMachine?: Signer; // Defaults to Keypair.generate().
   payer?: Signer; // Defaults to mx.identity().
+  authority?: PublicKey; // Defaults to mx.identity().
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -103,11 +104,11 @@ export const createCandyMachineBuilder = async (
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const { data, authority, wallet, tokenMint } = toCandyMachineInstructionData(
+  const authority = params.authority ?? metaplex.identity().publicKey;
+  const { data, wallet, tokenMint } = toCandyMachineInstructionData(
     candyMachine.publicKey,
     {
       ...params,
-      authority: params.authority ?? metaplex.identity().publicKey,
       wallet: params.wallet ?? metaplex.identity().publicKey,
       tokenMint: params.tokenMint ?? null,
       symbol: params.symbol ?? '',

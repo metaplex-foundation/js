@@ -170,7 +170,6 @@ export const toCandyMachine = (
 // -----------------
 
 export type CandyMachineConfigs = {
-  authority: PublicKey;
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;
   price: Amount;
@@ -192,7 +191,6 @@ export const toCandyMachineConfigs = (
   candyMachine: CandyMachine
 ): CandyMachineConfigs => {
   return {
-    authority: candyMachine.authorityAddress,
     wallet: candyMachine.walletAddress,
     tokenMint: candyMachine.tokenMintAddress,
     ...candyMachine,
@@ -204,7 +202,6 @@ export const toCandyMachineConfigs = (
 // -----------------
 
 export type CandyMachineInstructionData = {
-  authority: PublicKey;
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;
   data: CandyMachineData;
@@ -219,7 +216,6 @@ export const toCandyMachineInstructionData = (
   const gatekeeper = configs.gatekeeper;
 
   return {
-    authority: configs.authority,
     wallet: configs.wallet,
     tokenMint: configs.tokenMint,
     data: {
