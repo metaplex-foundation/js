@@ -369,3 +369,73 @@ test('[candyMachineModule] it can update the treasury of a candy machine', async
   t.ok(updatedCandyMachine.walletAddress.equals(token.address));
   t.ok(updatedCandyMachine.tokenMintAddress?.equals(token.mint.address));
 });
+
+test('[candyMachineModule] it can update the data of a candy machine via JSON configuration', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    price: sol(1),
+    itemsAvailable: toBigNumber(42),
+    sellerFeeBasisPoints: 100,
+    symbol: 'OLD',
+    maxEditionSupply: toBigNumber(0),
+    isMutable: true,
+    retainAuthority: true,
+    goLiveDate: toDateTime('4 Jul 2022 00:00:00 GMT'),
+    walletAddress: mx.identity().publicKey,
+    creators: toUniformCreators(mx.identity().publicKey),
+  });
+
+  // And an existing SPL token.
+  const { token } = await mx.tokens().createTokenWithMint().run();
+
+  // And a bunch of addresses to use when updating the candy machine.
+  const newAuthority = Keypair.generate().publicKey;
+  const creatorA = Keypair.generate().publicKey;
+  const creatorB = Keypair.generate().publicKey;
+
+  // When we update the Candy Machine with the following JSON configurations.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .updateFromJsonConfig(candyMachine, {
+      newAuthority,
+      json: {
+        price: 2,
+        number: 42,
+        sellerFeeBasisPoints: 200,
+        solTreasuryAccount: token.address.toBase58(),
+        goLiveDate: '4 Aug 2022 00:00:00 GMT',
+        noRetainAuthority: true,
+        noMutable: true,
+        maxEditionSupply: 2,
+        creators: [
+          { address: creatorA.toBase58(), verified: false, share: 50 },
+          { address: creatorB.toBase58(), verified: false, share: 50 },
+        ],
+        symbol: 'NEW',
+        splTokenAccount: token.address.toBase58(),
+        splToken: token.mint.address.toBase58(),
+      },
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    authorityAddress: spokSamePubkey(newAuthority),
+    walletAddress: spokSamePubkey(token.address),
+    tokenMintAddress: spokSamePubkey(token.mint.address),
+    price: spokSameAmount(sol(2)),
+    itemsAvailable: spokSameBignum(42),
+    sellerFeeBasisPoints: 200,
+    symbol: 'NEW',
+    maxEditionSupply: spokSameBignum(2),
+    isMutable: false,
+    retainAuthority: false,
+    goLiveDate: spokSameBignum(toDateTime('4 Aug 2022 00:00:00 GMT')),
+    creators: [
+      { address: spokSamePubkey(creatorA), verified: false, share: 50 },
+      { address: spokSamePubkey(creatorB), verified: false, share: 50 },
+    ],
+  } as unknown as Specifications<CandyMachine>);
+});
