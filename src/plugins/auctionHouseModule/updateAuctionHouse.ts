@@ -6,7 +6,7 @@ import { TransactionBuilder } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
-import { TreasureDestinationOwnerRequiredError } from './errors';
+import { TreasuryDestinationOwnerRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -32,7 +32,6 @@ export type UpdateAuctionHouseInput = {
   requiresSignOff?: boolean | null;
   canChangeSalePrice?: boolean | null;
   newAuthority?: PublicKey;
-  treasuryMint?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
 
@@ -87,7 +86,6 @@ export const updateAuctionHouseBuilder = (
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
   const newAuthority = params.newAuthority ?? auctionHouse.authorityAddress;
-  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint.address;
   const feeWithdrawalDestination =
     params.feeWithdrawalDestination ??
     auctionHouse.feeWithdrawalDestinationAddress;
@@ -103,11 +101,11 @@ export const updateAuctionHouseBuilder = (
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner;
     treasuryWithdrawalDestination = findAssociatedTokenAccountPda(
-      treasuryMint,
+      auctionHouse.treasuryMint.address,
       treasuryWithdrawalDestinationOwner
     );
   } else {
-    throw new TreasureDestinationOwnerRequiredError();
+    throw new TreasuryDestinationOwnerRequiredError();
   }
 
   return TransactionBuilder.make()
@@ -115,7 +113,7 @@ export const updateAuctionHouseBuilder = (
     .add({
       instruction: createUpdateAuctionHouseInstruction(
         {
-          treasuryMint,
+          treasuryMint: auctionHouse.treasuryMint.address,
           payer: payer.publicKey,
           authority: authority.publicKey,
           newAuthority,
