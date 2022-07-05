@@ -11,8 +11,11 @@ export type BigNumberValues =
   | Buffer
   | BN;
 
-export const toBigNumber = (value: BigNumberValues): BigNumber => {
-  return new BN(value) as BigNumber;
+export const toBigNumber = (
+  value: BigNumberValues,
+  endian?: BN.Endianness
+): BigNumber => {
+  return new BN(value, endian) as BigNumber;
 };
 
 export const toOptionBigNumber = (

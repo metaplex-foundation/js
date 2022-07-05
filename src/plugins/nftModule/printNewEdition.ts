@@ -17,6 +17,7 @@ import {
   OperationHandler,
   Signer,
   token,
+  toBigNumber,
 } from '@/types';
 import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
@@ -106,7 +107,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       );
       const originalEditionMarkPda = findEditionMarkerPda(
         originalMint,
-        edition
+        toBigNumber(edition)
       );
 
       // New NFT.

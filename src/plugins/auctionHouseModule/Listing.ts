@@ -1,6 +1,14 @@
 import { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
-import { amount, Amount, Pda } from '@/types';
+import {
+  amount,
+  Amount,
+  BigNumber,
+  DateTime,
+  Pda,
+  toBigNumber,
+  toDateTime,
+  toOptionDateTime,
+} from '@/types';
 import { ListingReceiptAccount } from './accounts';
 import { TokenWithMetadata } from '../nftModule';
 import { assert, Option } from '@/utils';
@@ -24,8 +32,8 @@ export type Listing = Readonly<{
   // Data.
   price: Amount;
   tokens: Amount;
-  createdAt: BN;
-  canceledAt: Option<BN>;
+  createdAt: DateTime;
+  canceledAt: Option<DateTime>;
 }>;
 
 export const isListing = (value: any): value is Listing =>
@@ -54,7 +62,7 @@ export type LazyListing = Omit<Listing, 'model' | 'lazy' | 'token' | 'tokens'> &
     model: 'listing';
     lazy: true;
     metadataAddress: PublicKey;
-    tokens: BN;
+    tokens: BigNumber;
   }>;
 
 export const isLazyListing = (value: any): value is LazyListing =>
@@ -86,10 +94,8 @@ export const toLazyListing = (
 
     // Data.
     price: amount(account.data.price, auctionHouseModel.treasuryMint.currency),
-    tokens: new BN(account.data.tokenSize),
-    createdAt: new BN(account.data.createdAt),
-    canceledAt: account.data.canceledAt
-      ? new BN(account.data.canceledAt)
-      : null,
+    tokens: toBigNumber(account.data.tokenSize),
+    createdAt: toDateTime(account.data.createdAt),
+    canceledAt: toOptionDateTime(account.data.canceledAt),
   };
 };

@@ -1,12 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import BN from 'bn.js';
-import { Pda } from '@/types';
+import { BigNumber, Pda, toBigNumber } from '@/types';
 import { TokenMetadataProgram } from '../TokenMetadataProgram';
 
 export const findEditionMarkerPda = (
   mint: PublicKey,
-  edition: BN,
+  edition: BigNumber,
   programId: PublicKey = TokenMetadataProgram.publicKey
 ): Pda => {
   return Pda.find(programId, [
@@ -14,6 +13,6 @@ export const findEditionMarkerPda = (
     programId.toBuffer(),
     mint.toBuffer(),
     Buffer.from('edition', 'utf8'),
-    Buffer.from(edition.div(new BN(248)).toString()),
+    Buffer.from(edition.div(toBigNumber(248)).toString()),
   ]);
 };

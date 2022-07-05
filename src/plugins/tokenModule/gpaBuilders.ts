@@ -1,8 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { MINT_SIZE, ACCOUNT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import { GpaBuilder } from '@/utils';
+import { BigNumber } from '@/types';
 
 export class MintGpaBuilder extends GpaBuilder {
   constructor(metaplex: Metaplex, programId?: PublicKey) {
@@ -22,7 +22,7 @@ export class MintGpaBuilder extends GpaBuilder {
     return this.whereHasMintAuthority().where(4, mintAuthority);
   }
 
-  whereSupply(supply: number | BN) {
+  whereSupply(supply: number | BigNumber) {
     return this.where(36, supply);
   }
 
@@ -56,7 +56,7 @@ export class TokenGpaBuilder extends GpaBuilder {
     return this.slice(64, 8);
   }
 
-  whereAmount(amount: number | BN) {
+  whereAmount(amount: number | BigNumber) {
     return this.where(64, amount);
   }
 

@@ -1,6 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
-import { amount, Amount, Pda } from '@/types';
+import { amount, Amount, BigNumber, Pda, toBigNumber } from '@/types';
 import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
@@ -12,10 +11,10 @@ export type Token = Readonly<{
   isAssociatedToken: boolean;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
-  amount: BN;
+  amount: BigNumber;
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
-  delegateAmount: BN;
+  delegateAmount: BigNumber;
 }>;
 
 export const isToken = (value: any): value is Token =>
@@ -37,12 +36,12 @@ export const toToken = (account: TokenAccount): Token => {
     isAssociatedToken,
     mintAddress: account.data.mint,
     ownerAddress: account.data.owner,
-    amount: new BN(account.data.amount.toString()),
+    amount: toBigNumber(account.data.amount.toString()),
     closeAuthorityAddress: account.data.closeAuthorityOption
       ? account.data.closeAuthority
       : null,
     delegateAddress: account.data.delegateOption ? account.data.delegate : null,
-    delegateAmount: new BN(account.data.delegatedAmount.toString()),
+    delegateAmount: toBigNumber(account.data.delegatedAmount.toString()),
   };
 };
 

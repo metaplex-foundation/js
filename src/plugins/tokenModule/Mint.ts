@@ -1,5 +1,4 @@
 import type { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
 import { amount, Amount, Currency, SOL } from '@/types';
 import { assert, Option } from '@/utils';
 import { MintAccount } from './accounts';
@@ -42,7 +41,7 @@ export const toMint = (account: MintAccount): Mint => {
       ? account.data.freezeAuthority
       : null,
     decimals: account.data.decimals,
-    supply: amount(new BN(account.data.supply.toString()), currency),
+    supply: amount(account.data.supply.toString(), currency),
     isWrappedSol,
     currency,
   };

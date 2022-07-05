@@ -1,7 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import BN from 'bn.js';
-import { Pda } from '@/types';
+import { BigNumber, Pda } from '@/types';
 import { AuctionHouseProgram } from './program';
 
 export const findAuctionHousePda = (
@@ -77,8 +76,8 @@ export const findAuctionHouseTradeStatePda = (
   tokenAccount: PublicKey,
   treasuryMint: PublicKey,
   tokenMint: PublicKey,
-  buyPrice: BN,
-  tokenSize: BN,
+  buyPrice: BigNumber,
+  tokenSize: BigNumber,
   programId: PublicKey = AuctionHouseProgram.publicKey
 ): Pda => {
   return Pda.find(programId, [
