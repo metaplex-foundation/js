@@ -10,13 +10,13 @@ test('[candyMachineModule] find all candy machines by wallet', async (t) => {
   const mx = await metaplex();
   const walletA = Keypair.generate();
   await Promise.all([
-    createCandyMachine(mx, { walletAddress: walletA.publicKey }),
-    createCandyMachine(mx, { walletAddress: walletA.publicKey }),
+    createCandyMachine(mx, { wallet: walletA.publicKey }),
+    createCandyMachine(mx, { wallet: walletA.publicKey }),
   ]);
 
   // And one candy machine from wallet B.
   const walletB = Keypair.generate();
-  await createCandyMachine(mx, { walletAddress: walletB.publicKey });
+  await createCandyMachine(mx, { wallet: walletB.publicKey });
 
   // When I find all candy machines from wallet A.
   const candyMachines = await mx

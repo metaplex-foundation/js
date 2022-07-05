@@ -1,13 +1,17 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
 import { Keypair } from '@solana/web3.js';
-import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
+import {
+  metaplex,
+  spokSamePubkey,
+  killStuckProcess,
+  assertThrows,
+} from '../../helpers';
 import {
   findAssociatedTokenAccountPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
-  WRAPPED_SOL_MINT,
 } from '@/index';
 
 killStuckProcess();
@@ -97,42 +101,17 @@ test('[auctionHouseModule] update all fields of an Auction House', async (t: Tes
   });
 });
 
-test('[auctionHouseModule] providing no changes updates nothing on the Auction House', async (t: Test) => {
-  // Given we have a Metaplex instance.
+test('[auctionHouseModule] it throws an error if nothing has changed when updating an Auction House.', async (t) => {
+  // Given an existing Auction House.
   const mx = await metaplex();
-
-  // And an existing Auction House.
-  const { auctionHouse: originalAuctionHouse } = await mx
+  const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({ sellerFeeBasisPoints: 200 })
     .run();
 
-  // When we update the Auction House with no changes.
-  const { auctionHouse: updatedAuctionHouse } = await mx
-    .auctions()
-    .updateAuctionHouse(originalAuctionHouse, {})
-    .run();
+  // When we send an update without providing any changes.
+  const promise = mx.auctions().updateAuctionHouse(auctionHouse, {}).run();
 
-  // Then all original fields were left unchanged.
-  const originalCreator = mx.identity().publicKey;
-  const originalMint = WRAPPED_SOL_MINT;
-  const originalAddress = findAuctionHousePda(originalCreator, originalMint);
-  spok(t, updatedAuctionHouse, {
-    $topic: 'Non Updated AuctionHouse',
-    address: spokSamePubkey(originalAddress),
-    creatorAddress: spokSamePubkey(originalCreator),
-    authorityAddress: spokSamePubkey(originalCreator),
-    treasuryMint: {
-      address: spokSamePubkey(originalMint),
-    },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
-    treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(originalAddress)
-    ),
-    feeWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
-    treasuryWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
-    sellerFeeBasisPoints: 200,
-    requiresSignOff: false,
-    canChangeSalePrice: false,
-  });
+  // Then we expect an error.
+  await assertThrows(t, promise, /No Instructions To Send/);
 });
