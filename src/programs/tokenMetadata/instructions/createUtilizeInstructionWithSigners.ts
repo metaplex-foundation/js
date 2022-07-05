@@ -11,9 +11,8 @@ export interface CreateUtilizeInstructionWithSignersParams {
   metadata: PublicKey;
   tokenAccount: PublicKey;
   mint: PublicKey;
-  useAuthority: PublicKey;
+  useAuthority: Signer;
   owner: PublicKey;
-  updateAuthority: Signer;
   useAuthorityRecord?: PublicKey | undefined;
   burner?: PublicKey | undefined;
   instructionKey?: string;
@@ -31,14 +30,13 @@ export const createUtilizeInstructionWithSigners = (
     useAuthority,
     useAuthorityRecord,
     burner,
-    updateAuthority,
     instructionKey = 'utilize',
   } = params;
 
   const accounts: UtilizeInstructionAccounts = {
     metadata,
     tokenAccount,
-    useAuthority,
+    useAuthority: useAuthority.publicKey,
     mint,
     owner,
     useAuthorityRecord,
@@ -51,7 +49,7 @@ export const createUtilizeInstructionWithSigners = (
         numberOfUses,
       },
     }),
-    signers: [updateAuthority],
+    signers: [useAuthority],
     key: instructionKey,
   };
 };

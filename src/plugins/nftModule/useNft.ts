@@ -4,6 +4,7 @@ import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import {
   createUtilizeInstructionWithSigners,
+  findAssociatedTokenAccountPda,
   findMetadataPda,
 } from '@/programs';
 import { TransactionBuilder } from '@/utils';
@@ -20,7 +21,7 @@ export interface UseNftInput {
   numberOfUses?: number;
 
   // Signers.
-  updateAuthority?: Signer;
+  useAuthority?: Signer;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -38,25 +39,32 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
     const {
       nft,
       numberOfUses = 1,
-      updateAuthority = metaplex.identity(),
+      useAuthority = metaplex.identity(),
       confirmOptions,
     } = operation.input;
 
     // something is wrong here...
+    const owner = nft.metadataAccount.owner;
     const metadata = findMetadataPda(nft.mint);
+    const tokenAccount = findAssociatedTokenAccountPda(nft.mint, owner);
+
+    console.log({
+      useAuthority: useAuthority.publicKey.toString(),
+      owner: owner.toString(),
+    });
 
     const accounts: UtilizeInstructionAccounts = {
       mint: nft.mint,
-      owner: nft.metadataAccount.owner,
-      useAuthority: nft.updateAuthority,
-      tokenAccount: nft.mint,
+      useAuthority: owner,
+      owner,
+      tokenAccount,
       metadata,
     };
 
     const transaction = useNftBuilder({
       ...accounts,
       numberOfUses,
-      updateAuthority,
+      useAuthority,
       metadata: nft.metadataAccount.publicKey,
     });
 
@@ -73,13 +81,12 @@ export interface UseNftBuilderParams {
   numberOfUses: number;
 
   // Signers.
-  updateAuthority: Signer;
+  useAuthority: Signer;
 
   // Public keys.
   metadata: PublicKey;
   tokenAccount: PublicKey;
   mint: PublicKey;
-  useAuthority: PublicKey;
   owner: PublicKey;
 
   // Instruction keys.
@@ -91,7 +98,6 @@ export const useNftBuilder = (
 ): TransactionBuilder => {
   const {
     numberOfUses,
-    updateAuthority,
     metadata,
     instructionKey,
     tokenAccount,
@@ -104,7 +110,6 @@ export const useNftBuilder = (
     createUtilizeInstructionWithSigners({
       numberOfUses,
       metadata,
-      updateAuthority,
       tokenAccount,
       mint,
       useAuthority,
