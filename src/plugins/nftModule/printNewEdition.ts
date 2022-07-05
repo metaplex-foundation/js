@@ -12,7 +12,13 @@ import {
   findMetadataPda,
   toOriginalEditionAccount,
 } from '@/programs';
-import { useOperation, Operation, OperationHandler, Signer } from '@/types';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  Signer,
+  token,
+} from '@/types';
 import { InstructionWithSigners, TransactionBuilder } from '@/utils';
 
 // -----------------
@@ -107,18 +113,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       // New NFT.
       const newMetadata = findMetadataPda(newMint.publicKey);
       const newEdition = findEditionPda(newMint.publicKey);
-      const lamports = await getMinimumBalanceForRentExemptMint(
-        metaplex.connection
-      );
-      const newAssociatedToken = findAssociatedTokenAccountPda(
-        newMint.publicKey,
-        newOwner,
-        tokenProgram,
-        associatedTokenProgram
-      );
-
       const sharedInput = {
-        lamports,
         edition,
         newMint,
         newMetadata,
@@ -126,7 +121,6 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
         newMintAuthority,
         newUpdateAuthority,
         newOwner,
-        newAssociatedToken,
         newFreezeAuthority,
         payer,
         originalMetadata,
@@ -136,9 +130,9 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
         associatedTokenProgram,
       };
 
-      let transactionBuilder: TransactionBuilder;
+      let transactionBuilder: TransactionBuilder<PrintNewEditionBuilderContext>;
       if (operation.input.via === 'vault') {
-        transactionBuilder = printNewEditionBuilder({
+        transactionBuilder = await printNewEditionBuilder(metaplex, {
           via: 'vault',
           vaultAuthority: operation.input.vaultAuthority,
           safetyDepositStore: operation.input.safetyDepositStore,
@@ -159,13 +153,15 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
             associatedTokenProgram
           );
 
-        transactionBuilder = printNewEditionBuilder({
+        transactionBuilder = await printNewEditionBuilder(metaplex, {
           via: 'token',
           originalTokenAccountOwner,
           originalTokenAccount,
           ...sharedInput,
         });
       }
+
+      const { tokenAddress } = transactionBuilder.getContext();
 
       const { signature } = await metaplex
         .rpc()
@@ -179,7 +175,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
         mint: newMint,
         metadata: newMetadata,
         edition: newEdition,
-        associatedToken: newAssociatedToken,
+        associatedToken: tokenAddress,
         transactionId: signature,
       };
     },
@@ -191,7 +187,6 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
 
 type PrintNewEditionBuilderSharedParams = {
   // Data.
-  lamports: number;
   edition: number | BN;
 
   // New NFT.
@@ -201,7 +196,6 @@ type PrintNewEditionBuilderSharedParams = {
   newMintAuthority: Signer;
   newUpdateAuthority: PublicKey;
   newOwner: PublicKey;
-  newAssociatedToken: PublicKey;
   newFreezeAuthority?: PublicKey;
   payer: Signer;
 
@@ -215,10 +209,12 @@ type PrintNewEditionBuilderSharedParams = {
   associatedTokenProgram?: PublicKey;
 
   // Instruction keys.
-  createAccountInstructionKey?: string;
+  createMintAccountInstructionKey?: string;
   initializeMintInstructionKey?: string;
-  createAssociatedTokenInstructionKey?: string;
-  mintToInstructionKey?: string;
+  createAssociatedTokenAccountInstructionKey?: string;
+  createTokenAccountInstructionKey?: string;
+  initializeTokenInstructionKey?: string;
+  mintTokensInstructionKey?: string;
   printNewEditionInstructionKey?: string;
 };
 
@@ -239,12 +235,16 @@ export type PrintNewEditionBuilderParams = PrintNewEditionBuilderSharedParams &
       }
   );
 
-export const printNewEditionBuilder = (
+export type PrintNewEditionBuilderContext = {
+  tokenAddress: PublicKey;
+};
+
+export const printNewEditionBuilder = async (
+  metaplex: Metaplex,
   params: PrintNewEditionBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {
     // Data.
-    lamports,
     edition,
 
     // New NFT.
@@ -254,7 +254,6 @@ export const printNewEditionBuilder = (
     newMintAuthority,
     newUpdateAuthority,
     newOwner,
-    newAssociatedToken,
     newFreezeAuthority,
     payer,
 
@@ -268,12 +267,32 @@ export const printNewEditionBuilder = (
     associatedTokenProgram,
 
     // Instruction keys.
-    createAccountInstructionKey,
-    initializeMintInstructionKey,
-    createAssociatedTokenInstructionKey,
-    mintToInstructionKey,
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
+
+  const tokenWithMintBuilder = await metaplex
+    .tokens()
+    .builders()
+    .createTokenWithMint({
+      decimals: 0,
+      initialSupply: token(1),
+      mint: newMint,
+      mintAuthority: newMintAuthority,
+      freezeAuthority: newFreezeAuthority ?? null,
+      owner: newOwner,
+      payer,
+      tokenProgram,
+      associatedTokenProgram,
+      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
+      initializeMintInstructionKey: params.initializeMintInstructionKey,
+      createAssociatedTokenAccountInstructionKey:
+        params.createAssociatedTokenAccountInstructionKey,
+      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
+      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+      mintTokensInstructionKey: params.mintTokensInstructionKey,
+    });
+
+  const { tokenAddress } = tokenWithMintBuilder.getContext();
 
   let printNewEditionInstructionWithSigners: InstructionWithSigners;
   if (params.via === 'vault') {
@@ -316,30 +335,12 @@ export const printNewEditionBuilder = (
   }
 
   return (
-    TransactionBuilder.make()
+    TransactionBuilder.make<PrintNewEditionBuilderContext>()
       .setFeePayer(payer)
+      .setContext({ tokenAddress })
 
-      // Create the mint account and send one token to the holder.
-      .add(
-        createMintAndMintToAssociatedTokenBuilder({
-          lamports,
-          decimals: 0,
-          amount: 1,
-          createAssociatedToken: true,
-          mint: newMint,
-          payer,
-          mintAuthority: newMintAuthority,
-          owner: newOwner,
-          associatedToken: newAssociatedToken,
-          freezeAuthority: newFreezeAuthority,
-          tokenProgram,
-          associatedTokenProgram,
-          createAccountInstructionKey,
-          initializeMintInstructionKey,
-          createAssociatedTokenInstructionKey,
-          mintToInstructionKey,
-        })
-      )
+      // Create the mint and token accounts before minting 1 token to the owner.
+      .add(tokenWithMintBuilder)
 
       // Mint new edition.
       .add(printNewEditionInstructionWithSigners)

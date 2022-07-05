@@ -290,7 +290,8 @@ export const createNftBuilder = async (
           mint: mint.publicKey,
           metadata,
           updateAuthority: updateAuthority.publicKey,
-          instructionKey: params.createMetadataInstructionKey,
+          instructionKey:
+            params.createMetadataInstructionKey ?? 'createMetadata',
         })
       )
 
@@ -304,7 +305,8 @@ export const createNftBuilder = async (
           mint: mint.publicKey,
           metadata,
           masterEdition,
-          instructionKey: params.createMasterEditionInstructionKey,
+          instructionKey:
+            params.createMasterEditionInstructionKey ?? 'createMasterEdition',
         })
       )
   );
