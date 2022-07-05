@@ -38,13 +38,13 @@ export type Metadata = Readonly<{
   uses: Option<Uses>;
 }>;
 
-export const isMetadataModel = (value: any): value is Metadata =>
+export const isMetadata = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';
 
-export const assertMetadataModel = (value: any): asserts value is Metadata =>
-  assert(isMetadataModel(value), `Expected Metadata model`);
+export const assertMetadata = (value: any): asserts value is Metadata =>
+  assert(isMetadata(value), `Expected Metadata model`);
 
-export const makeMetadataModel = (
+export const toMetadata = (
   account: MetadataAccount,
   json?: Option<JsonMetadata>
 ): Metadata => ({
@@ -73,17 +73,15 @@ export type MintWithMetadata = Omit<Mint, 'model'> &
     metadata: Metadata;
   }>;
 
-export const isMintWithMetadataModel = (
-  value: any
-): value is MintWithMetadata =>
+export const isMintWithMetadata = (value: any): value is MintWithMetadata =>
   typeof value === 'object' && value.model === 'mintWithMetadata';
 
-export const assertMintWithMetadataModel = (
+export const assertMintWithMetadata = (
   value: any
 ): asserts value is MintWithMetadata =>
-  assert(isMintWithMetadataModel(value), `Expected MintWithMetadata model`);
+  assert(isMintWithMetadata(value), `Expected MintWithMetadata model`);
 
-export const makeMintWithMetadataModel = (
+export const toMintWithMetadata = (
   mintAccount: MintAccount,
   metadataModel: Metadata
 ): MintWithMetadata => {
@@ -108,17 +106,15 @@ export type TokenWithMetadata = Omit<TokenWithMint, 'model'> &
     metadata: Metadata;
   }>;
 
-export const isTokenWithMetadataModel = (
-  value: any
-): value is TokenWithMetadata =>
+export const isTokenWithMetadata = (value: any): value is TokenWithMetadata =>
   typeof value === 'object' && value.model === 'tokenWithMetadata';
 
-export const assertTokenWithMetadataModel = (
+export const assertTokenWithMetadata = (
   value: any
 ): asserts value is TokenWithMetadata =>
-  assert(isTokenWithMetadataModel(value), `Expected TokenWithMetadata model`);
+  assert(isTokenWithMetadata(value), `Expected TokenWithMetadata model`);
 
-export const makeTokenWithMetadataModel = (
+export const toTokenWithMetadata = (
   tokenAccount: TokenAccount,
   mintModel: Mint,
   metadataModel: Metadata

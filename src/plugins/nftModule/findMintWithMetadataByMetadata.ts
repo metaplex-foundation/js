@@ -1,11 +1,7 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import {
-  makeMetadataModel,
-  makeMintWithMetadataModel,
-  MintWithMetadata,
-} from './Metadata';
+import { toMetadata, toMintWithMetadata, MintWithMetadata } from './Metadata';
 import { toMintAccount } from '../tokenModule';
 import { toMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
@@ -54,7 +50,7 @@ export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<Fi
         await metaplex.rpc().getAccount(metadataAccount.data.mint, commitment)
       );
 
-      let metadataModel = makeMetadataModel(metadataAccount);
+      let metadataModel = toMetadata(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
@@ -62,6 +58,6 @@ export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<Fi
           .run(scope);
       }
 
-      return makeMintWithMetadataModel(mintAccount, metadataModel);
+      return toMintWithMetadata(mintAccount, metadataModel);
     },
   };
