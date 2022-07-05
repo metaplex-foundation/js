@@ -19,8 +19,7 @@ import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { getCandyMachineAccountSizeFromData } from './helpers';
 import {
-  CandyMachine,
-  CandyMachineUpdatableFields,
+  CandyMachineConfigs,
   toCandyMachineInstructionData,
 } from './CandyMachine';
 
@@ -41,7 +40,6 @@ export type CreateCandyMachineInputWithoutConfigs = {
   // Accounts.
   candyMachine?: Signer; // Defaults to Keypair.generate().
   payer?: Signer; // Defaults to mx.identity().
-  authority?: PublicKey; // Defaults to mx.identity().publicKey.
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -49,7 +47,7 @@ export type CreateCandyMachineInputWithoutConfigs = {
 
 export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
   RequiredKeys<
-    Partial<Pick<CandyMachine, CandyMachineUpdatableFields>>,
+    Partial<CandyMachineConfigs>,
     'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'
   >;
 
@@ -105,13 +103,13 @@ export const createCandyMachineBuilder = async (
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity().publicKey;
-  const { data, walletAddress, tokenMintAddress } =
-    toCandyMachineInstructionData({
+  const { data, authority, wallet, tokenMint } = toCandyMachineInstructionData(
+    candyMachine.publicKey,
+    {
       ...params,
-      address: candyMachine.publicKey,
-      walletAddress: params.walletAddress ?? metaplex.identity().publicKey,
-      tokenMintAddress: params.tokenMintAddress ?? null,
+      authority: params.authority ?? metaplex.identity().publicKey,
+      wallet: params.wallet ?? metaplex.identity().publicKey,
+      tokenMint: params.tokenMint ?? null,
       symbol: params.symbol ?? '',
       maxEditionSupply: params.maxEditionSupply ?? toBigNumber(0),
       isMutable: params.isMutable ?? true,
@@ -123,21 +121,22 @@ export const createCandyMachineBuilder = async (
       hiddenSettings: params.hiddenSettings ?? null,
       whitelistMintSettings: params.whitelistMintSettings ?? null,
       gatekeeper: params.gatekeeper ?? null,
-    });
+    }
+  );
 
   const initializeInstruction = createInitializeCandyMachineInstruction(
     {
       candyMachine: candyMachine.publicKey,
-      wallet: walletAddress,
+      wallet,
       authority,
       payer: payer.publicKey,
     },
     { data }
   );
 
-  if (tokenMintAddress) {
+  if (tokenMint) {
     initializeInstruction.keys.push({
-      pubkey: tokenMintAddress,
+      pubkey: tokenMint,
       isWritable: false,
       isSigner: false,
     });
@@ -151,7 +150,7 @@ export const createCandyMachineBuilder = async (
       .setContext({
         candyMachineSigner: candyMachine,
         payer,
-        wallet: walletAddress,
+        wallet,
         authority,
         creators: data.creators,
       })

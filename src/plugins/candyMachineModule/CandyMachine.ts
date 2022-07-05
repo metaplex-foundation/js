@@ -23,6 +23,10 @@ import {
 import { CandyMachineAccount } from './accounts';
 import { Creator } from '@/types/Creator';
 
+// -----------------
+// Model
+// -----------------
+
 export type CandyMachine = Readonly<{
   model: 'candyMachine';
   address: PublicKey;
@@ -83,30 +87,15 @@ export type Gatekeeper = {
   expireOnUse: boolean;
 };
 
-export type CandyMachineUpdatableFields =
-  | 'walletAddress'
-  | 'tokenMintAddress'
-  | 'price'
-  | 'sellerFeeBasisPoints'
-  | 'itemsAvailable'
-  | 'symbol'
-  | 'maxEditionSupply'
-  | 'isMutable'
-  | 'retainAuthority'
-  | 'goLiveDate'
-  | 'endSettings'
-  | 'creators'
-  | 'hiddenSettings'
-  | 'whitelistMintSettings'
-  | 'gatekeeper';
+// -----------------
+// Program to Model
+// -----------------
 
 export const isCandyMachine = (value: any): value is CandyMachine =>
   typeof value === 'object' && value.model === 'candyMachine';
 
 export const assertCandyMachine = (value: any): asserts value is CandyMachine =>
   assert(isCandyMachine(value), 'Expected CandyMachine type');
-
-// From Program to SDK.
 
 export const toCandyMachine = (
   account: CandyMachineAccount,
@@ -176,29 +165,68 @@ export const toCandyMachine = (
   };
 };
 
-// From SDK to Program.
+// -----------------
+// Model to Configs
+// -----------------
+
+export type CandyMachineConfigs = {
+  authority: PublicKey;
+  wallet: PublicKey;
+  tokenMint: Option<PublicKey>;
+  price: Amount;
+  sellerFeeBasisPoints: number;
+  itemsAvailable: BigNumber;
+  symbol: string;
+  maxEditionSupply: BigNumber;
+  isMutable: boolean;
+  retainAuthority: boolean;
+  goLiveDate: Option<DateTime>;
+  endSettings: Option<EndSettings>;
+  hiddenSettings: Option<HiddenSettings>;
+  whitelistMintSettings: Option<WhitelistMintSettings>;
+  gatekeeper: Option<Gatekeeper>;
+  creators: Creator[];
+};
+
+export const toCandyMachineConfigs = (
+  candyMachine: CandyMachine
+): CandyMachineConfigs => {
+  return {
+    authority: candyMachine.authorityAddress,
+    wallet: candyMachine.walletAddress,
+    tokenMint: candyMachine.tokenMintAddress,
+    ...candyMachine,
+  };
+};
+
+// -----------------
+// Configs to Program
+// -----------------
 
 export type CandyMachineInstructionData = {
-  walletAddress: PublicKey;
-  tokenMintAddress: Option<PublicKey>;
+  authority: PublicKey;
+  wallet: PublicKey;
+  tokenMint: Option<PublicKey>;
   data: CandyMachineData;
 };
 
 export const toCandyMachineInstructionData = (
-  candyMachine: Pick<CandyMachine, CandyMachineUpdatableFields | 'address'>
+  address: PublicKey,
+  configs: CandyMachineConfigs
 ): CandyMachineInstructionData => {
-  const endSettings = candyMachine.endSettings;
-  const whitelistMintSettings = candyMachine.whitelistMintSettings;
-  const gatekeeper = candyMachine.gatekeeper;
+  const endSettings = configs.endSettings;
+  const whitelistMintSettings = configs.whitelistMintSettings;
+  const gatekeeper = configs.gatekeeper;
 
   return {
-    walletAddress: candyMachine.walletAddress,
-    tokenMintAddress: candyMachine.tokenMintAddress,
+    authority: configs.authority,
+    wallet: configs.wallet,
+    tokenMint: configs.tokenMint,
     data: {
-      ...candyMachine,
-      uuid: getCandyMachineUuidFromAddress(candyMachine.address),
-      price: candyMachine.price.basisPoints,
-      maxSupply: candyMachine.maxEditionSupply,
+      ...configs,
+      uuid: getCandyMachineUuidFromAddress(address),
+      price: configs.price.basisPoints,
+      maxSupply: configs.maxEditionSupply,
       endSettings: endSettings
         ? {
             ...endSettings,

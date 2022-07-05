@@ -10,7 +10,7 @@ import { Task } from '@/utils';
 import { CandyMachine } from './CandyMachine';
 import {
   CandyMachineJsonConfigs,
-  getCandyMachineConfigsFromJson,
+  toCandyMachineConfigsFromJson,
 } from './CandyMachineJsonConfigs';
 import {
   findCandyMachineByAddressOperation,
@@ -56,11 +56,15 @@ export class CandyMachinesClient {
 
   createFromJsonConfig(
     input: CreateCandyMachineInputWithoutConfigs & {
+      authority?: PublicKey;
       json: CandyMachineJsonConfigs;
     }
   ) {
-    const { json, ...otherInputs } = input;
-    const configs = getCandyMachineConfigsFromJson(json);
+    const { json, authority, ...otherInputs } = input;
+    const configs = toCandyMachineConfigsFromJson(
+      authority ?? this.metaplex.identity().publicKey,
+      json
+    );
     return this.create({ ...otherInputs, ...configs });
   }
 
@@ -139,11 +143,15 @@ export class CandyMachinesClient {
   updateFromJsonConfig(
     candyMachine: CandyMachine,
     input: Omit<UpdateCandyMachineInputWithoutConfigs, 'candyMachine'> & {
+      newAuthority?: PublicKey;
       json: CandyMachineJsonConfigs;
     }
   ) {
-    const { json, ...otherInputs } = input;
-    const configs = getCandyMachineConfigsFromJson(json);
+    const { json, newAuthority, ...otherInputs } = input;
+    const configs = toCandyMachineConfigsFromJson(
+      newAuthority ?? candyMachine.authorityAddress,
+      json
+    );
     return this.update(candyMachine, { ...otherInputs, ...configs });
   }
 }
