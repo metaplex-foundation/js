@@ -1,5 +1,4 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
