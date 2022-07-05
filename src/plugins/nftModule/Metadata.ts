@@ -1,11 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
 import {
   Collection,
-  Creator,
   TokenStandard,
-  Uses,
+  UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { amount, Pda } from '@/types';
+import { amount, BigNumber, Creator, Pda, toBigNumber } from '@/types';
 import { JsonMetadata } from '../nftModule';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { findMetadataPda, MetadataAccount } from '@/programs';
@@ -38,6 +37,12 @@ export type Metadata = Readonly<{
   uses: Option<Uses>;
 }>;
 
+type Uses = {
+  useMethod: UseMethod;
+  remaining: BigNumber;
+  total: BigNumber;
+};
+
 export const isMetadata = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';
 
@@ -64,7 +69,13 @@ export const toMetadata = (
   creators: account.data.data.creators ?? [],
   tokenStandard: account.data.tokenStandard,
   collection: account.data.collection,
-  uses: account.data.uses,
+  uses: account.data.uses
+    ? {
+        ...account.data.uses,
+        remaining: toBigNumber(account.data.uses.remaining),
+        total: toBigNumber(account.data.uses.total),
+      }
+    : null,
 });
 
 export type MintWithMetadata = Omit<Mint, 'model'> &

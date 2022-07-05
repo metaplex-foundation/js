@@ -1,0 +1,72 @@
+import { PublicKey } from '@solana/web3.js';
+import { assert, Option } from '@/utils';
+import {
+  isOriginalEditionAccount,
+  OriginalEditionAccount,
+  OriginalOrPrintEditionAccount,
+  PrintEditionAccount,
+} from '@/programs';
+import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
+
+export type NftEdition = NftOriginalEdition | NftPrintEdition;
+
+export const isNftEdition = (value: any): value is NftEdition =>
+  typeof value === 'object' && value.model === 'nftEdition';
+
+export const assertNftEdition = (value: any): asserts value is NftEdition =>
+  assert(isNftEdition(value), `Expected NftEdition model`);
+
+export const toNftEdition = (
+  account: OriginalOrPrintEditionAccount
+): NftEdition =>
+  isOriginalEditionAccount(account)
+    ? toNftOriginalEdition(account)
+    : toNftPrintEdition(account as PrintEditionAccount);
+
+export type NftOriginalEdition = Readonly<{
+  model: 'nftEdition';
+  isOriginal: true;
+  supply: BigNumber;
+  maxSupply: Option<BigNumber>;
+}>;
+
+export const isNftOriginalEdition = (value: any): value is NftOriginalEdition =>
+  isNftEdition(value) && value.isOriginal;
+
+export const assertNftOriginalEdition = (
+  value: any
+): asserts value is NftOriginalEdition =>
+  assert(isNftOriginalEdition(value), `Expected NftOriginalEdition model`);
+
+export const toNftOriginalEdition = (
+  account: OriginalEditionAccount
+): NftOriginalEdition => ({
+  model: 'nftEdition',
+  isOriginal: true,
+  supply: toBigNumber(account.data.supply),
+  maxSupply: toOptionBigNumber(account.data.maxSupply),
+});
+
+export type NftPrintEdition = Readonly<{
+  model: 'nftEdition';
+  isOriginal: false;
+  parent: PublicKey;
+  number: BigNumber;
+}>;
+
+export const isNftPrintEdition = (value: any): value is NftPrintEdition =>
+  isNftEdition(value) && !value.isOriginal;
+
+export const assertNftPrintEdition = (
+  value: any
+): asserts value is NftPrintEdition =>
+  assert(isNftPrintEdition(value), `Expected NftPrintEdition model`);
+
+export const toNftPrintEdition = (
+  account: PrintEditionAccount
+): NftPrintEdition => ({
+  model: 'nftEdition',
+  isOriginal: false,
+  parent: account.data.parent,
+  number: toBigNumber(account.data.edition),
+});
