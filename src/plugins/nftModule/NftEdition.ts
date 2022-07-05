@@ -26,6 +26,7 @@ export const toNftEdition = (
 export type NftOriginalEdition = Readonly<{
   model: 'nftEdition';
   isOriginal: true;
+  address: PublicKey;
   supply: BigNumber;
   maxSupply: Option<BigNumber>;
 }>;
@@ -43,6 +44,7 @@ export const toNftOriginalEdition = (
 ): NftOriginalEdition => ({
   model: 'nftEdition',
   isOriginal: true,
+  address: account.publicKey,
   supply: toBigNumber(account.data.supply),
   maxSupply: toOptionBigNumber(account.data.maxSupply),
 });
@@ -50,6 +52,7 @@ export const toNftOriginalEdition = (
 export type NftPrintEdition = Readonly<{
   model: 'nftEdition';
   isOriginal: false;
+  address: PublicKey;
   parent: PublicKey;
   number: BigNumber;
 }>;
@@ -67,6 +70,7 @@ export const toNftPrintEdition = (
 ): NftPrintEdition => ({
   model: 'nftEdition',
   isOriginal: false,
+  address: account.publicKey,
   parent: account.data.parent,
   number: toBigNumber(account.data.edition),
 });
