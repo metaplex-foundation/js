@@ -1,14 +1,12 @@
 import test, { Test } from 'tape';
-import { TransactionBuilder } from '@/index';
+import { Keypair } from '@solana/web3.js';
 import {
   createCreateMetadataAccountV2InstructionWithSigners,
-  createMintAndMintToAssociatedTokenBuilder,
-  findAssociatedTokenAccountPda,
   findMetadataPda,
-} from '@/programs';
+  token,
+  TransactionBuilder,
+} from '@/index';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
-import { Keypair } from '@solana/web3.js';
-import { getMinimumBalanceForRentExemptMint } from '@solana/spl-token';
 
 killStuckProcess();
 
@@ -20,12 +18,7 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   // Given we have everything we need to create a Metadata account.
   const mx = await metaplex();
   const mint = Keypair.generate();
-  const associatedToken = findAssociatedTokenAccountPda(
-    mint.publicKey,
-    mx.identity().publicKey
-  );
   const metadata = findMetadataPda(mint.publicKey);
-  const lamports = await getMinimumBalanceForRentExemptMint(mx.connection);
   const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
   const data = {
     name: 'My NFT',
@@ -50,17 +43,14 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   // When we assemble that transaction.
   const tx = TransactionBuilder.make()
     .add(
-      createMintAndMintToAssociatedTokenBuilder({
-        lamports,
-        decimals: 0,
-        amount: 1,
-        createAssociatedToken: true,
-        mint,
-        payer: mx.identity(),
-        mintAuthority: mx.identity(),
-        owner: mx.identity().publicKey,
-        associatedToken,
-      })
+      await mx
+        .tokens()
+        .builders()
+        .createTokenWithMint({
+          initialSupply: token(1),
+          mint,
+          payer: mx.identity(),
+        })
     )
     .add(
       createCreateMetadataAccountV2InstructionWithSigners({

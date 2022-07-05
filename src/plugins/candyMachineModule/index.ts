@@ -1,20 +1,14 @@
-export * from './config';
+export * from './accounts';
 export * from './CandyMachine';
-export * from './CandyMachineClient';
-
-export type { AddAssetsToCandyMachineParams } from './Client.add';
-export type { CandyMachineInitFromConfigOpts } from './Client.create';
-export type {
-  UpdateCandyMachineParams,
-  UpdateCandyMachineAuthorityParams,
-} from './Client.update';
-export type {
-  UploadAssetToCandyMachineParams,
-  UploadAssetsToCandyMachineParams,
-  UploadedAsset,
-} from './Client.upload';
-
+export * from './CandyMachineJsonConfigs';
+export * from './CandyMachinesClient';
 export * from './createCandyMachine';
+export * from './errors';
 export * from './findCandyMachineByAddress';
+export * from './findCandyMachinesByPublicKeyField';
+export * from './gpaBuilders';
+export * from './helpers';
+export * from './insertItemsToCandyMachine';
 export * from './plugin';
+export * from './program';
 export * from './updateCandyMachine';

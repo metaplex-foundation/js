@@ -1,8 +1,12 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { makeMintModel, Mint } from './Mint';
+import { toMint, Mint } from './Mint';
 import { toMintAccount } from './accounts';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindMintByAddressOperation' as const;
 export const findMintByAddressOperation =
@@ -18,6 +22,10 @@ export type FindMintByAddressInput = {
   commitment?: Commitment;
 };
 
+// -----------------
+// Handler
+// -----------------
+
 export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddressOperation> =
   {
     handle: async (
@@ -30,6 +38,6 @@ export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddre
         await metaplex.rpc().getAccount(address, commitment)
       );
 
-      return makeMintModel(account);
+      return toMint(account);
     },
   };

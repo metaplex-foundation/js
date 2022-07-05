@@ -1,142 +1,250 @@
 import { PublicKey } from '@solana/web3.js';
-import { bignum } from '@metaplex-foundation/beet';
 import {
   CandyMachineData,
-  ConfigLine,
-  Creator,
-  EndSettings,
-  GatekeeperConfig,
-  HiddenSettings,
-  WhitelistMintSettings,
+  EndSettingType,
+  WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { CandyMachineAccount } from '@/programs';
-import { Model } from '@/types';
 import {
-  getConfigLines,
-  getConfigLinesCount,
-} from '@/programs/candyMachine/accounts/candyMachineInternals';
+  Amount,
+  BigNumber,
+  DateTime,
+  lamports,
+  toBigNumber,
+  toDateTime,
+  toOptionDateTime,
+  UnparsedAccount,
+} from '@/types';
+import { assert, Option, removeEmptyChars } from '@/utils';
+import {
+  countCandyMachineItems,
+  getCandyMachineUuidFromAddress,
+  parseCandyMachineItems,
+} from './helpers';
+import { CandyMachineAccount } from './accounts';
+import { Creator } from '@/types/Creator';
 
-export class CandyMachine extends Model {
-  // -----------------
-  // Data from CandyMachineAccount
-  // -----------------
-  readonly uuid: string;
+// -----------------
+// Model
+// -----------------
 
-  readonly price: bignum;
-  readonly symbol: string;
-  readonly sellerFeeBasisPoints: number;
+export type CandyMachine = Readonly<{
+  model: 'candyMachine';
+  address: PublicKey;
+  authorityAddress: PublicKey;
+  walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
+  tokenMintAddress: Option<PublicKey>;
+  uuid: string;
+  price: Amount;
+  symbol: string;
+  sellerFeeBasisPoints: number;
+  isMutable: boolean;
+  retainAuthority: boolean;
+  goLiveDate: Option<DateTime>;
+  maxEditionSupply: BigNumber;
+  items: CandyMachineItem[];
+  itemsAvailable: BigNumber;
+  itemsMinted: BigNumber;
+  itemsRemaining: BigNumber;
+  itemsLoaded: BigNumber;
+  isFullyLoaded: boolean;
+  endSettings: Option<EndSettings>;
+  hiddenSettings: Option<HiddenSettings>;
+  whitelistMintSettings: Option<WhitelistMintSettings>;
+  gatekeeper: Option<Gatekeeper>;
+  creators: Creator[];
+}>;
 
-  readonly maxSupply: bignum;
-  readonly isMutable: boolean;
-  readonly retainAuthority: boolean;
-  readonly goLiveDate?: bignum;
-  readonly itemsAvailable: bignum;
+export type CandyMachineItem = Readonly<{
+  name: string;
+  uri: string;
+}>;
 
-  readonly endSettings?: EndSettings;
-  readonly hiddenSettings?: HiddenSettings;
-  readonly whitelistMintSettings?: WhitelistMintSettings;
-  readonly gatekeeper?: GatekeeperConfig;
-
-  readonly creators: Creator[];
-
-  readonly itemsRedeemed: bignum;
-
-  // -----------------
-  // Addresses from CandyMachineAccount
-  // -----------------
-  readonly authorityAddress: PublicKey;
-  readonly walletAddress: PublicKey;
-  readonly tokenMintAddress?: PublicKey;
-
-  /**
-   * Address at which the Candy Machine is stored on chain.
-   */
-  readonly candyMachineAddress: PublicKey;
-
-  private constructor(
-    readonly candyMachineAccount: CandyMachineAccount,
-    readonly rawData: Buffer
-  ) {
-    super();
-
-    // CandyMachine inner Data
-    const accountData = candyMachineAccount.data;
-    this.uuid = accountData.data.uuid;
-    this.price = accountData.data.price;
-    this.symbol = accountData.data.symbol;
-    this.sellerFeeBasisPoints = accountData.data.sellerFeeBasisPoints;
-
-    this.maxSupply = accountData.data.maxSupply;
-    this.isMutable = accountData.data.isMutable;
-    this.retainAuthority = accountData.data.retainAuthority;
-    this.goLiveDate = accountData.data.goLiveDate ?? undefined;
-    this.itemsAvailable = accountData.data.itemsAvailable;
-
-    this.endSettings = accountData.data.endSettings ?? undefined;
-    this.hiddenSettings = accountData.data.hiddenSettings ?? undefined;
-    this.whitelistMintSettings =
-      accountData.data.whitelistMintSettings ?? undefined;
-    this.gatekeeper = accountData.data.gatekeeper ?? undefined;
-
-    this.creators = accountData.data.creators;
-
-    // CandyMachine Data
-    this.itemsRedeemed = accountData.itemsRedeemed;
-
-    // CandyMachine Addresses
-    this.authorityAddress = accountData.authority;
-    this.walletAddress = accountData.wallet;
-    this.tokenMintAddress = accountData.tokenMint ?? undefined;
-    this.candyMachineAddress = candyMachineAccount.publicKey;
-  }
-
-  get assetsCount(): number {
-    return getConfigLinesCount(this.rawData);
-  }
-
-  get assets(): ConfigLine[] {
-    return getConfigLines(this.rawData);
-  }
-
-  get isFull(): boolean {
-    return this.assetsCount >= this.maxSupply;
-  }
-
-  get candyMachineData(): CandyMachineData {
-    return {
-      uuid: this.uuid,
-      price: this.price,
-      symbol: this.symbol,
-      sellerFeeBasisPoints: this.sellerFeeBasisPoints,
-      maxSupply: this.maxSupply,
-      isMutable: this.isMutable,
-      retainAuthority: this.retainAuthority,
-      goLiveDate: this.goLiveDate ?? null,
-      itemsAvailable: this.itemsAvailable,
-      endSettings: this.endSettings ?? null,
-      hiddenSettings: this.hiddenSettings ?? null,
-      whitelistMintSettings: this.whitelistMintSettings ?? null,
-      gatekeeper: this.gatekeeper ?? null,
-      creators: this.creators,
+export type EndSettings =
+  | {
+      endSettingType: EndSettingType.Amount;
+      number: BigNumber;
+    }
+  | {
+      endSettingType: EndSettingType.Date;
+      date: DateTime;
     };
-  }
 
-  updatedCandyMachineData(
-    update: Partial<CandyMachineData> & Record<string, any>
-  ): CandyMachineData {
-    const candyUpdate = Object.entries(update).reduce((acc, [key, value]) => {
-      if (this.candyMachineData.hasOwnProperty(key)) {
-        acc[key as keyof CandyMachineData] = value;
-      }
-      return acc;
-    }, {} as Partial<CandyMachineData>);
-    return { ...this.candyMachineData, ...candyUpdate };
-  }
+export type HiddenSettings = {
+  name: string;
+  uri: string;
+  hash: number[];
+};
 
-  static fromAccount(
-    candyMachineAccount: CandyMachineAccount,
-    rawData: Buffer
-  ): CandyMachine {
-    return new CandyMachine(candyMachineAccount, rawData);
-  }
-}
+export type WhitelistMintSettings = {
+  mode: WhitelistMintMode;
+  mint: PublicKey;
+  presale: boolean;
+  discountPrice: Option<Amount>;
+};
+
+export type Gatekeeper = {
+  network: PublicKey;
+  expireOnUse: boolean;
+};
+
+// -----------------
+// Program to Model
+// -----------------
+
+export const isCandyMachine = (value: any): value is CandyMachine =>
+  typeof value === 'object' && value.model === 'candyMachine';
+
+export const assertCandyMachine = (value: any): asserts value is CandyMachine =>
+  assert(isCandyMachine(value), 'Expected CandyMachine type');
+
+export const toCandyMachine = (
+  account: CandyMachineAccount,
+  unparsedAccount: UnparsedAccount
+): CandyMachine => {
+  const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
+  const itemsMinted = toBigNumber(account.data.itemsRedeemed);
+
+  const endSettings = account.data.data.endSettings;
+  const hiddenSettings = account.data.data.hiddenSettings;
+  const whitelistMintSettings = account.data.data.whitelistMintSettings;
+  const gatekeeper = account.data.data.gatekeeper;
+
+  const rawData = unparsedAccount.data;
+  const itemsLoaded = hiddenSettings
+    ? toBigNumber(0)
+    : countCandyMachineItems(rawData);
+  const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
+
+  return {
+    model: 'candyMachine',
+    address: account.publicKey,
+    authorityAddress: account.data.authority,
+    walletAddress: account.data.wallet,
+    tokenMintAddress: account.data.tokenMint,
+    uuid: account.data.data.uuid,
+    price: lamports(account.data.data.price),
+    symbol: removeEmptyChars(account.data.data.symbol),
+    sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
+    isMutable: account.data.data.isMutable,
+    retainAuthority: account.data.data.retainAuthority,
+    goLiveDate: toOptionDateTime(account.data.data.goLiveDate),
+    maxEditionSupply: toBigNumber(account.data.data.maxSupply),
+    items,
+    itemsAvailable,
+    itemsMinted,
+    itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
+    itemsLoaded,
+    isFullyLoaded: itemsAvailable.lte(itemsLoaded),
+    endSettings: endSettings
+      ? endSettings.endSettingType === EndSettingType.Date
+        ? {
+            endSettingType: EndSettingType.Date,
+            date: toDateTime(endSettings.number),
+          }
+        : {
+            endSettingType: EndSettingType.Amount,
+            number: toBigNumber(endSettings.number),
+          }
+      : null,
+    hiddenSettings,
+    whitelistMintSettings: whitelistMintSettings
+      ? {
+          ...whitelistMintSettings,
+          discountPrice: whitelistMintSettings.discountPrice
+            ? lamports(whitelistMintSettings.discountPrice)
+            : null,
+        }
+      : null,
+    gatekeeper: gatekeeper
+      ? {
+          ...gatekeeper,
+          network: gatekeeper.gatekeeperNetwork,
+        }
+      : null,
+    creators: account.data.data.creators,
+  };
+};
+
+// -----------------
+// Model to Configs
+// -----------------
+
+export type CandyMachineConfigs = {
+  wallet: PublicKey;
+  tokenMint: Option<PublicKey>;
+  price: Amount;
+  sellerFeeBasisPoints: number;
+  itemsAvailable: BigNumber;
+  symbol: string;
+  maxEditionSupply: BigNumber;
+  isMutable: boolean;
+  retainAuthority: boolean;
+  goLiveDate: Option<DateTime>;
+  endSettings: Option<EndSettings>;
+  hiddenSettings: Option<HiddenSettings>;
+  whitelistMintSettings: Option<WhitelistMintSettings>;
+  gatekeeper: Option<Gatekeeper>;
+  creators: Creator[];
+};
+
+export const toCandyMachineConfigs = (
+  candyMachine: CandyMachine
+): CandyMachineConfigs => {
+  return {
+    wallet: candyMachine.walletAddress,
+    tokenMint: candyMachine.tokenMintAddress,
+    ...candyMachine,
+  };
+};
+
+// -----------------
+// Configs to Program
+// -----------------
+
+export type CandyMachineInstructionData = {
+  wallet: PublicKey;
+  tokenMint: Option<PublicKey>;
+  data: CandyMachineData;
+};
+
+export const toCandyMachineInstructionData = (
+  address: PublicKey,
+  configs: CandyMachineConfigs
+): CandyMachineInstructionData => {
+  const endSettings = configs.endSettings;
+  const whitelistMintSettings = configs.whitelistMintSettings;
+  const gatekeeper = configs.gatekeeper;
+
+  return {
+    wallet: configs.wallet,
+    tokenMint: configs.tokenMint,
+    data: {
+      ...configs,
+      uuid: getCandyMachineUuidFromAddress(address),
+      price: configs.price.basisPoints,
+      maxSupply: configs.maxEditionSupply,
+      endSettings: endSettings
+        ? {
+            ...endSettings,
+            number:
+              endSettings.endSettingType === EndSettingType.Date
+                ? endSettings.date
+                : endSettings.number,
+          }
+        : null,
+      whitelistMintSettings: whitelistMintSettings
+        ? {
+            ...whitelistMintSettings,
+            discountPrice:
+              whitelistMintSettings.discountPrice?.basisPoints ?? null,
+          }
+        : null,
+      gatekeeper: gatekeeper
+        ? {
+            ...gatekeeper,
+            gatekeeperNetwork: gatekeeper.network,
+          }
+        : null,
+    },
+  };
+};

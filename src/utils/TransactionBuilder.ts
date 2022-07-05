@@ -1,11 +1,14 @@
 import {
   Blockhash,
+  ConfirmOptions,
   PublicKey,
   SignaturePubkeyPair,
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { Signer } from '@/types';
+import type { Signer } from '@/types';
+import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '..';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -110,6 +113,14 @@ export class TransactionBuilder<C extends object = object> {
     return this.records.map((record) => record.instruction);
   }
 
+  getInstructionCount(): number {
+    return this.records.length;
+  }
+
+  isEmpty(): boolean {
+    return this.getInstructionCount() === 0;
+  }
+
   getSigners(): Signer[] {
     const feePayer = this.feePayer == null ? [] : [this.feePayer];
     const signers = this.records.flatMap((record) => record.signers);
@@ -169,5 +180,19 @@ export class TransactionBuilder<C extends object = object> {
     tx.feePayer = this.getFeePayer();
 
     return tx;
+  }
+
+  async sendAndConfirm(
+    metaplex: Metaplex,
+    confirmOptions?: ConfirmOptions
+  ): Promise<{ response: SendAndConfirmTransactionResponse } & C> {
+    const response = await metaplex
+      .rpc()
+      .sendAndConfirmTransaction(this, undefined, confirmOptions);
+
+    return {
+      response,
+      ...this.getContext(),
+    };
   }
 }

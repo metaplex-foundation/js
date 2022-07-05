@@ -1,24 +1,21 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
+import { toMetadata, toTokenWithMetadata, TokenWithMetadata } from './Metadata';
 import {
-  makeMetadataModel,
-  makeTokenWithMetadataModel,
-  TokenWithMetadata,
-} from './Metadata';
-import {
-  makeMintModel,
-  makeTokenWithMintModel,
+  findAssociatedTokenAccountPda,
+  toMint,
+  toTokenWithMint,
   TokenWithMint,
   toMintAccount,
   toTokenAccount,
 } from '../tokenModule';
-import {
-  findAssociatedTokenAccountPda,
-  findMetadataPda,
-  parseMetadataAccount,
-} from '@/programs';
+import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindTokenWithMetadataByMintOperation' as const;
 export const findTokenWithMetadataByMintOperation =
@@ -35,6 +32,10 @@ export type FindTokenWithMetadataByMintInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMetadataByMintOperationHandler: OperationHandler<FindTokenWithMetadataByMintOperation> =
   {
@@ -65,13 +66,13 @@ export const findTokenWithMetadataByMintOperationHandler: OperationHandler<FindT
       const mintAccount = toMintAccount(accounts[0]);
       const metadataAccount = parseMetadataAccount(accounts[1]);
       const tokenAccount = toTokenAccount(accounts[2]);
-      const mintModel = makeMintModel(mintAccount);
+      const mintModel = toMint(mintAccount);
 
       if (!metadataAccount.exists) {
-        return makeTokenWithMintModel(tokenAccount, mintModel);
+        return toTokenWithMint(tokenAccount, mintModel);
       }
 
-      let metadataModel = makeMetadataModel(metadataAccount);
+      let metadataModel = toMetadata(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
@@ -79,6 +80,6 @@ export const findTokenWithMetadataByMintOperationHandler: OperationHandler<FindT
           .run(scope);
       }
 
-      return makeTokenWithMetadataModel(tokenAccount, mintModel, metadataModel);
+      return toTokenWithMetadata(tokenAccount, mintModel, metadataModel);
     },
   };

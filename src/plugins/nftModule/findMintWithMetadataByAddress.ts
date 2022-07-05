@@ -1,14 +1,14 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import {
-  makeMetadataModel,
-  makeMintWithMetadataModel,
-  MintWithMetadata,
-} from './Metadata';
-import { makeMintModel, Mint, toMintAccount } from '../tokenModule';
+import { toMetadata, toMintWithMetadata, MintWithMetadata } from './Metadata';
+import { toMint, Mint, toMintAccount } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindMintWithMetadataByAddressOperation' as const;
 export const findMintWithMetadataByAddressOperation =
@@ -24,6 +24,10 @@ export type FindMintWithMetadataByAddressInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findMintWithMetadataByAddressOperationHandler: OperationHandler<FindMintWithMetadataByAddressOperation> =
   {
@@ -46,11 +50,11 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
       const mintAccount = toMintAccount(accounts[0]);
 
       if (!accounts[1].exists) {
-        return makeMintModel(mintAccount);
+        return toMint(mintAccount);
       }
 
       const metadataAccount = parseMetadataAccount(accounts[1]);
-      let metadataModel = makeMetadataModel(metadataAccount);
+      let metadataModel = toMetadata(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
@@ -58,6 +62,6 @@ export const findMintWithMetadataByAddressOperationHandler: OperationHandler<Fin
           .run(scope);
       }
 
-      return makeMintWithMetadataModel(mintAccount, metadataModel);
+      return toMintWithMetadata(mintAccount, metadataModel);
     },
   };

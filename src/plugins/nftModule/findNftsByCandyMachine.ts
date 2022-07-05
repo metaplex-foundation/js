@@ -4,6 +4,10 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByCreatorOperation } from './findNftsByCreator';
 import { Nft } from './Nft';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindNftsByCandyMachineOperation' as const;
 export const findNftsByCandyMachineOperation =
   useOperation<FindNftsByCandyMachineOperation>(Key);
@@ -17,6 +21,10 @@ export interface FindNftsByCandyMachineInput {
   candyMachine: PublicKey;
   version?: 1 | 2;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<FindNftsByCandyMachineOperation> =
   {

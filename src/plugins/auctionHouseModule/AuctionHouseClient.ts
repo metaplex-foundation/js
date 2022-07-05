@@ -1,8 +1,7 @@
 import { Metaplex } from '@/Metaplex';
-import { Signer } from '@/types';
+import { Signer, toDateTime } from '@/types';
 import { Task } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
   CreateListingInput,
@@ -53,7 +52,7 @@ export class AuctionHouseClient {
         purchaseReceiptAddress: null,
         price: output.price,
         tokens: output.tokens.basisPoints,
-        createdAt: new BN(+new Date()),
+        createdAt: toDateTime(new Date()),
         canceledAt: null,
       };
 

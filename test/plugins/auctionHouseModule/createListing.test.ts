@@ -9,9 +9,11 @@ import {
   spokSameAmount,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda } from '@/programs';
-import { Listing } from '@/plugins';
-import { AccountNotFoundError } from '@/errors';
+import {
+  findAssociatedTokenAccountPda,
+  Listing,
+  AccountNotFoundError,
+} from '@/index';
 
 killStuckProcess();
 

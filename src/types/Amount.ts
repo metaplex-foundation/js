@@ -1,14 +1,12 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
-import { Opaque } from '@/utils';
 import { CurrencyMismatchError, UnexpectedCurrencyError } from '@/errors';
+import { BigNumber, BigNumberValues, toBigNumber } from './BigNumber';
 
 export type Amount = {
-  basisPoints: BasisPoints;
+  basisPoints: BigNumber;
   currency: Currency;
 };
-
-export type BasisPoints = Opaque<BN, 'BasisPoints'>;
 
 export type Currency = {
   symbol: string;
@@ -27,11 +25,11 @@ export const USD = {
 };
 
 export const amount = (
-  basisPoints: number | BN,
+  basisPoints: BigNumberValues,
   currency: Currency
 ): Amount => {
   return {
-    basisPoints: toBasisPoints(basisPoints),
+    basisPoints: toBigNumber(basisPoints),
     currency,
   };
 };
@@ -49,7 +47,7 @@ export const usd = (usd: number): Amount => {
 };
 
 export const token = (
-  amount: number | BN,
+  amount: BigNumberValues,
   decimals: number = 0,
   symbol: string = 'Token'
 ): Amount => {
@@ -58,17 +56,13 @@ export const token = (
   }
 
   return {
-    basisPoints: toBasisPoints(amount * Math.pow(10, decimals)),
+    basisPoints: toBigNumber(amount * Math.pow(10, decimals)),
     currency: {
       symbol,
       decimals,
       namespace: 'spl-token',
     },
   };
-};
-
-export const toBasisPoints = (value: number | BN): BasisPoints => {
-  return new BN(value) as BasisPoints;
 };
 
 export const isSol = (currencyOrAmount: Currency | Amount): boolean => {

@@ -1,5 +1,4 @@
 import type { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
 import { amount, Amount, Currency, SOL } from '@/types';
 import { assert, Option } from '@/utils';
 import { MintAccount } from './accounts';
@@ -16,13 +15,13 @@ export type Mint = Readonly<{
   currency: Currency;
 }>;
 
-export const isMintModel = (value: any): value is Mint =>
+export const isMint = (value: any): value is Mint =>
   typeof value === 'object' && value.model === 'mint';
 
-export const assertMintModel = (value: any): asserts value is Mint =>
-  assert(isMintModel(value), `Expected Mint model`);
+export const assertMint = (value: any): asserts value is Mint =>
+  assert(isMint(value), `Expected Mint model`);
 
-export const makeMintModel = (account: MintAccount): Mint => {
+export const toMint = (account: MintAccount): Mint => {
   const isWrappedSol = account.publicKey.equals(WRAPPED_SOL_MINT);
   const currency: Currency = isWrappedSol
     ? SOL
@@ -42,7 +41,7 @@ export const makeMintModel = (account: MintAccount): Mint => {
       ? account.data.freezeAuthority
       : null,
     decimals: account.data.decimals,
-    supply: amount(new BN(account.data.supply.toString()), currency),
+    supply: amount(account.data.supply.toString(), currency),
     isWrappedSol,
     currency,
   };

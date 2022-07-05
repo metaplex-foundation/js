@@ -10,9 +10,17 @@ import { Operation, useOperation, OperationHandler } from '@/types';
 import { NftNotFoundError } from '@/errors';
 import { Nft } from './Nft';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'FindNftByMintOperation' as const;
 export const findNftByMintOperation = useOperation<FindNftByMintOperation>(Key);
 export type FindNftByMintOperation = Operation<typeof Key, PublicKey, Nft>;
+
+// -----------------
+// Handler
+// -----------------
 
 export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMintOperation> =
   {

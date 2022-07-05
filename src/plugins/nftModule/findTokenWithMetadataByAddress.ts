@@ -1,20 +1,20 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
+import { toMetadata, toTokenWithMetadata, TokenWithMetadata } from './Metadata';
 import {
-  makeMetadataModel,
-  makeTokenWithMetadataModel,
-  TokenWithMetadata,
-} from './Metadata';
-import {
-  makeMintModel,
-  makeTokenWithMintModel,
+  toMint,
+  toTokenWithMint,
   TokenWithMint,
   toMintAccount,
   toTokenAccount,
 } from '../tokenModule';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindTokenWithMetadataByAddressOperation' as const;
 export const findTokenWithMetadataByAddressOperation =
@@ -30,6 +30,10 @@ export type FindTokenWithMetadataByAddressInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<FindTokenWithMetadataByAddressOperation> =
   {
@@ -52,13 +56,13 @@ export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<Fi
 
       const mintAccount = toMintAccount(accounts[0]);
       const metadataAccount = parseMetadataAccount(accounts[1]);
-      const mintModel = makeMintModel(mintAccount);
+      const mintModel = toMint(mintAccount);
 
       if (!metadataAccount.exists) {
-        return makeTokenWithMintModel(tokenAccount, mintModel);
+        return toTokenWithMint(tokenAccount, mintModel);
       }
 
-      let metadataModel = makeMetadataModel(metadataAccount);
+      let metadataModel = toMetadata(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
@@ -66,6 +70,6 @@ export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<Fi
           .run(scope);
       }
 
-      return makeTokenWithMetadataModel(tokenAccount, mintModel, metadataModel);
+      return toTokenWithMetadata(tokenAccount, mintModel, metadataModel);
     },
   };

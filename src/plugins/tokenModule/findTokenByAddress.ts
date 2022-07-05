@@ -1,8 +1,12 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { makeTokenModel, Token } from './Token';
+import { toToken, Token } from './Token';
 import { toTokenAccount } from './accounts';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindTokenByAddressOperation' as const;
 export const findTokenByAddressOperation =
@@ -18,6 +22,10 @@ export type FindTokenByAddressInput = {
   commitment?: Commitment;
 };
 
+// -----------------
+// Handler
+// -----------------
+
 export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAddressOperation> =
   {
     handle: async (
@@ -30,6 +38,6 @@ export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAdd
         await metaplex.rpc().getAccount(address, commitment)
       );
 
-      return makeTokenModel(account);
+      return toToken(account);
     },
   };

@@ -1,30 +1,26 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
-import { CandyMachineClient } from './CandyMachineClient';
-import {
-  addConfigLinesOperation,
-  addConfigLinesOperationHandler,
-} from './addConfigLines';
 import {
   createCandyMachineOperation,
   createCandyMachineOperationHandler,
 } from './createCandyMachine';
 import {
-  findCandyMachineByAdddressOperation,
-  findCandyMachineByAdddressOperationHandler,
+  findCandyMachineByAddressOperation,
+  findCandyMachineByAddressOperationHandler,
 } from './findCandyMachineByAddress';
 import {
   findCandyMachinesByPublicKeyFieldOperation,
   findCandyMachinesByPublicKeyFieldOnChainOperationHandler,
 } from './findCandyMachinesByPublicKeyField';
 import {
-  updateAuthorityOperation,
-  updateAuthorityOperationHandler,
-} from './updateAuthority';
+  insertItemsToCandyMachineOperation,
+  InsertItemsToCandyMachineOperationHandler,
+} from './insertItemsToCandyMachine';
 import {
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
 } from './updateCandyMachine';
+import { CandyMachinesClient } from './CandyMachinesClient';
 
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -34,28 +30,30 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       createCandyMachineOperationHandler
     );
     op.register(
-      findCandyMachineByAdddressOperation,
-      findCandyMachineByAdddressOperationHandler
+      findCandyMachineByAddressOperation,
+      findCandyMachineByAddressOperationHandler
     );
     op.register(
       findCandyMachinesByPublicKeyFieldOperation,
       findCandyMachinesByPublicKeyFieldOnChainOperationHandler
     );
     op.register(
+      insertItemsToCandyMachineOperation,
+      InsertItemsToCandyMachineOperationHandler
+    );
+    op.register(
       updateCandyMachineOperation,
       updateCandyMachineOperationHandler
     );
-    op.register(updateAuthorityOperation, updateAuthorityOperationHandler);
-    op.register(addConfigLinesOperation, addConfigLinesOperationHandler);
 
     metaplex.candyMachines = function () {
-      return new CandyMachineClient(this);
+      return new CandyMachinesClient(this);
     };
   },
 });
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    candyMachines(): CandyMachineClient;
+    candyMachines(): CandyMachinesClient;
   }
 }

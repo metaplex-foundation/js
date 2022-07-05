@@ -31,7 +31,8 @@ import {
   findListingReceiptPda,
 } from './pdas';
 import { AuctionHouse } from './AuctionHouse';
-import { findAssociatedTokenAccountPda, findMetadataPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { findMetadataPda } from '@/programs';
 import { AUCTIONEER_PRICE } from './constants';
 
 // -----------------

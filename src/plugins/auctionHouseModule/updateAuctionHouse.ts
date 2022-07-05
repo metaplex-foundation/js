@@ -1,12 +1,14 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
+import isEqual from 'lodash.isequal';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { NoInstructionsToSendError } from '@/errors';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
-import { TreasureDestinationOwnerRequiredError } from './errors';
+import { TreasuryDestinationOwnerRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -32,7 +34,6 @@ export type UpdateAuctionHouseInput = {
   requiresSignOff?: boolean | null;
   canChangeSalePrice?: boolean | null;
   newAuthority?: PublicKey;
-  treasuryMint?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
 
@@ -54,17 +55,13 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          updateAuctionHouseBuilder(metaplex, operation.input),
-          undefined,
-          operation.input.confirmOptions
-        );
+      const builder = updateAuctionHouseBuilder(metaplex, operation.input);
 
-      return {
-        response,
-      };
+      if (builder.isEmpty()) {
+        throw new NoInstructionsToSendError(Key);
+      }
+
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -86,11 +83,6 @@ export const updateAuctionHouseBuilder = (
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
-  const newAuthority = params.newAuthority ?? auctionHouse.authorityAddress;
-  const treasuryMint = params.treasuryMint ?? auctionHouse.treasuryMint.address;
-  const feeWithdrawalDestination =
-    params.feeWithdrawalDestination ??
-    auctionHouse.feeWithdrawalDestinationAddress;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;
@@ -103,34 +95,58 @@ export const updateAuctionHouseBuilder = (
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner;
     treasuryWithdrawalDestination = findAssociatedTokenAccountPda(
-      treasuryMint,
+      auctionHouse.treasuryMint.address,
       treasuryWithdrawalDestinationOwner
     );
   } else {
-    throw new TreasureDestinationOwnerRequiredError();
+    throw new TreasuryDestinationOwnerRequiredError();
   }
+
+  const originalData = {
+    authority: auctionHouse.authorityAddress,
+    feeWithdrawalDestination: auctionHouse.feeWithdrawalDestinationAddress,
+    treasuryWithdrawalDestination:
+      auctionHouse.treasuryWithdrawalDestinationAddress,
+    sellerFeeBasisPoints: auctionHouse.sellerFeeBasisPoints,
+    requiresSignOff: auctionHouse.requiresSignOff,
+    canChangeSalePrice: auctionHouse.canChangeSalePrice,
+  };
+  const updatedData = {
+    authority: params.newAuthority ?? originalData.authority,
+    feeWithdrawalDestination:
+      params.feeWithdrawalDestination ?? originalData.feeWithdrawalDestination,
+    treasuryWithdrawalDestination,
+    sellerFeeBasisPoints:
+      params.sellerFeeBasisPoints ?? originalData.sellerFeeBasisPoints,
+    requiresSignOff: params.requiresSignOff ?? originalData.requiresSignOff,
+    canChangeSalePrice:
+      params.canChangeSalePrice ?? originalData.canChangeSalePrice,
+  };
+  const shouldSendUpdateInstruction = !isEqual(originalData, updatedData);
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
-    .add({
-      instruction: createUpdateAuctionHouseInstruction(
-        {
-          treasuryMint,
-          payer: payer.publicKey,
-          authority: authority.publicKey,
-          newAuthority,
-          feeWithdrawalDestination,
-          treasuryWithdrawalDestination,
-          treasuryWithdrawalDestinationOwner,
-          auctionHouse: auctionHouse.address,
-        },
-        {
-          sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
-          requiresSignOff: params.requiresSignOff ?? null,
-          canChangeSalePrice: params.canChangeSalePrice ?? null,
-        }
-      ),
-      signers: [payer, authority],
-      key: params.instructionKey ?? 'updateAuctionHouse',
-    });
+    .when(shouldSendUpdateInstruction, (builder) =>
+      builder.add({
+        instruction: createUpdateAuctionHouseInstruction(
+          {
+            treasuryMint: auctionHouse.treasuryMint.address,
+            payer: payer.publicKey,
+            authority: authority.publicKey,
+            newAuthority: updatedData.authority,
+            feeWithdrawalDestination: updatedData.feeWithdrawalDestination,
+            treasuryWithdrawalDestination,
+            treasuryWithdrawalDestinationOwner,
+            auctionHouse: auctionHouse.address,
+          },
+          {
+            sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
+            requiresSignOff: params.requiresSignOff ?? null,
+            canChangeSalePrice: params.canChangeSalePrice ?? null,
+          }
+        ),
+        signers: [payer, authority],
+        key: params.instructionKey ?? 'updateAuctionHouse',
+      })
+    );
 };

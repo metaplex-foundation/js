@@ -1,41 +1,50 @@
-import { PublicKey } from '@solana/web3.js';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { CandyMachine } from './CandyMachine';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  useOperation,
+} from '@/types';
+import { CandyMachine, toCandyMachine } from './CandyMachine';
 import { Metaplex } from '@/Metaplex';
-import { parseCandyMachineAccount } from '@/programs';
+import { toCandyMachineAccount } from './accounts';
 
 // -----------------
 // Operation
 // -----------------
-const Key = 'FindCandyMachineByAdddressOperation' as const;
 
-export const findCandyMachineByAdddressOperation =
-  useOperation<FindCandyMachineByAdddressOperation>(Key);
-
-export type FindCandyMachineByAdddressOperation = Operation<
+const Key = 'FindCandyMachineByAddressOperation' as const;
+export const findCandyMachineByAddressOperation =
+  useOperation<FindCandyMachineByAddressOperation>(Key);
+export type FindCandyMachineByAddressOperation = Operation<
   typeof Key,
-  PublicKey,
-  CandyMachine | null
+  FindCandyMachineByAddressInput,
+  CandyMachine
 >;
+
+export type FindCandyMachineByAddressInput = {
+  address: PublicKey;
+  commitment?: Commitment;
+};
 
 // -----------------
 // Handler
 // -----------------
-export const findCandyMachineByAdddressOperationHandler: OperationHandler<FindCandyMachineByAdddressOperation> =
+
+export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
   {
     handle: async (
-      operation: FindCandyMachineByAdddressOperation,
+      operation: FindCandyMachineByAddressOperation,
       metaplex: Metaplex
     ) => {
-      const candyMachineAddress = operation.input;
+      const { address, commitment } = operation.input;
       const unparsedAccount = await metaplex
         .rpc()
-        .getAccount(candyMachineAddress);
+        .getAccount(address, commitment);
 
-      const account = parseCandyMachineAccount(unparsedAccount);
+      assertAccountExists(unparsedAccount);
+      const account = toCandyMachineAccount(unparsedAccount);
 
-      return unparsedAccount.exists && account.exists
-        ? CandyMachine.fromAccount(account, unparsedAccount.data)
-        : null;
+      return toCandyMachine(account, unparsedAccount);
     },
   };

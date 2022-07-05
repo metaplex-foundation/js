@@ -1,40 +1,47 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { CandyMachine } from './CandyMachine';
-import { CandyMachineProgram, parseCandyMachineAccount } from '../../programs';
-import { UnreachableCaseError } from '../../errors';
+import { CandyMachine, toCandyMachine } from './CandyMachine';
+import { parseCandyMachineAccount } from './accounts';
+import { CandyMachineProgram } from './program';
+import { UnreachableCaseError } from '@/errors';
+import { CandyMachineGpaBuilder } from './gpaBuilders';
 
 // -----------------
 // Operation
 // -----------------
-const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
 
+const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
 export const findCandyMachinesByPublicKeyFieldOperation =
   useOperation<FindCandyMachinesByPublicKeyFieldOperation>(Key);
-
-export type FindCandyMachinesByPublicKeyFieldInput = {
-  type: 'authority' | 'wallet';
-  publicKey: PublicKey;
-};
 export type FindCandyMachinesByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindCandyMachinesByPublicKeyFieldInput,
   CandyMachine[]
 >;
 
+export type FindCandyMachinesByPublicKeyFieldInput = {
+  type: 'authority' | 'wallet';
+  publicKey: PublicKey;
+  commitment?: Commitment;
+};
+
 // -----------------
 // Handler
 // -----------------
+
 export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
   {
     handle: async (
       operation: FindCandyMachinesByPublicKeyFieldOperation,
       metaplex: Metaplex
     ): Promise<CandyMachine[]> => {
-      const { type, publicKey } = operation.input;
-      const accounts = CandyMachineProgram.accounts(metaplex);
-      let candyMachineQuery;
+      const { type, publicKey, commitment } = operation.input;
+      const accounts = CandyMachineProgram.accounts(metaplex).mergeConfig({
+        commitment,
+      });
+
+      let candyMachineQuery: CandyMachineGpaBuilder;
       switch (type) {
         case 'authority':
           candyMachineQuery =
@@ -47,10 +54,11 @@ export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: Operation
           throw new UnreachableCaseError(type);
       }
 
-      const candyMachineUnparseds = await candyMachineQuery.get();
-      return candyMachineUnparseds.map((unparsedAccount) => {
+      const unparsedAccounts = await candyMachineQuery.get();
+
+      return unparsedAccounts.map((unparsedAccount) => {
         const account = parseCandyMachineAccount(unparsedAccount);
-        return CandyMachine.fromAccount(account, unparsedAccount.data);
+        return toCandyMachine(account, unparsedAccount);
       });
     },
   };

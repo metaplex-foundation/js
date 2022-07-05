@@ -1,6 +1,14 @@
 import { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
-import { amount, Amount, Pda } from '@/types';
+import {
+  amount,
+  Amount,
+  BigNumber,
+  DateTime,
+  Pda,
+  toBigNumber,
+  toDateTime,
+  toOptionDateTime,
+} from '@/types';
 import { ListingReceiptAccount } from './accounts';
 import { TokenWithMetadata } from '../nftModule';
 import { assert, Option } from '@/utils';
@@ -24,22 +32,22 @@ export type Listing = Readonly<{
   // Data.
   price: Amount;
   tokens: Amount;
-  createdAt: BN;
-  canceledAt: Option<BN>;
+  createdAt: DateTime;
+  canceledAt: Option<DateTime>;
 }>;
 
-export const isListingModel = (value: any): value is Listing =>
+export const isListing = (value: any): value is Listing =>
   typeof value === 'object' && value.model === 'listing' && !value.lazy;
 
-export const assertListingModel = (value: any): asserts value is Listing =>
-  assert(isListingModel(value), `Expected Listing type`);
+export const assertListing = (value: any): asserts value is Listing =>
+  assert(isListing(value), `Expected Listing type`);
 
-export const makeListingModel = (
+export const toListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse,
   tokenModel: TokenWithMetadata
 ): Listing => {
-  const lazyListing = makeLazyListingModel(account, auctionHouseModel);
+  const lazyListing = toLazyListing(account, auctionHouseModel);
   return {
     ...lazyListing,
     model: 'listing',
@@ -54,18 +62,16 @@ export type LazyListing = Omit<Listing, 'model' | 'lazy' | 'token' | 'tokens'> &
     model: 'listing';
     lazy: true;
     metadataAddress: PublicKey;
-    tokens: BN;
+    tokens: BigNumber;
   }>;
 
-export const isLazyListingModel = (value: any): value is LazyListing =>
+export const isLazyListing = (value: any): value is LazyListing =>
   typeof value === 'object' && value.model === 'listing' && value.lazy;
 
-export const assertLazyListingModel = (
-  value: any
-): asserts value is LazyListing =>
-  assert(isLazyListingModel(value), `Expected LazyListing type`);
+export const assertLazyListing = (value: any): asserts value is LazyListing =>
+  assert(isLazyListing(value), `Expected LazyListing type`);
 
-export const makeLazyListingModel = (
+export const toLazyListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse
 ): LazyListing => {
@@ -88,10 +94,8 @@ export const makeLazyListingModel = (
 
     // Data.
     price: amount(account.data.price, auctionHouseModel.treasuryMint.currency),
-    tokens: new BN(account.data.tokenSize),
-    createdAt: new BN(account.data.createdAt),
-    canceledAt: account.data.canceledAt
-      ? new BN(account.data.canceledAt)
-      : null,
+    tokens: toBigNumber(account.data.tokenSize),
+    createdAt: toDateTime(account.data.createdAt),
+    canceledAt: toOptionDateTime(account.data.canceledAt),
   };
 };

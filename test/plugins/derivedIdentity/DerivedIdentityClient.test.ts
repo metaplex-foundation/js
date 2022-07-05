@@ -22,11 +22,10 @@ const init = async (
   } = {}
 ) => {
   const mx = await metaplex({ solsToAirdrop: options.identityAirdrop });
-
   mx.use(derivedIdentity());
 
   if (options.message != null) {
-    await mx.derivedIdentity().deriveFrom(options.message);
+    await mx.derivedIdentity().deriveFrom(options.message).run();
   }
 
   if (options.derivedAirdrop != null) {
@@ -54,7 +53,7 @@ test('[derivedIdentity] it derives a Keypair from the current identity', async (
   const mx = await init();
 
   // When we derive the identity using a message.
-  await mx.derivedIdentity().deriveFrom('Hello World');
+  await mx.derivedIdentity().deriveFrom('Hello World').run();
 
   // Then we get a Signer Keypair.
   t.ok(mx.derivedIdentity().publicKey, 'derived identity has a public key');
@@ -73,7 +72,7 @@ test('[derivedIdentity] it keeps track of the identity it originates from', asyn
   const identityPublicKey = mx.identity().publicKey;
 
   // When we derive the identity.
-  await mx.derivedIdentity().deriveFrom('Hello World');
+  await mx.derivedIdentity().deriveFrom('Hello World').run();
 
   // Then the derived identity kept track of the identity it originated from.
   t.ok(
@@ -99,7 +98,7 @@ test('[derivedIdentity] it can derive a Keypair from an explicit IdentitySigner'
   const signer = new KeypairIdentityDriver(Keypair.generate());
 
   // When we derive the identity by providing the signer explicitly.
-  await mx.derivedIdentity().deriveFrom('Hello World', signer);
+  await mx.derivedIdentity().deriveFrom('Hello World', signer).run();
 
   // Then a new derived identity was created for that signer.
   t.ok(
@@ -119,10 +118,10 @@ test('[derivedIdentity] it derives the same address when using the same message'
   const mx = await init();
 
   // When we derive the identity twice with the same message.
-  await mx.derivedIdentity().deriveFrom('Hello World');
+  await mx.derivedIdentity().deriveFrom('Hello World').run();
   const derivedPublicKeyA = mx.derivedIdentity().publicKey;
 
-  await mx.derivedIdentity().deriveFrom('Hello World');
+  await mx.derivedIdentity().deriveFrom('Hello World').run();
   const derivedPubliKeyB = mx.derivedIdentity().publicKey;
 
   // Then we get the same Keypair.
@@ -137,10 +136,10 @@ test('[derivedIdentity] it derives different addresses from different messages',
   const mx = await init();
 
   // When we derive the identity twice with different messages.
-  await mx.derivedIdentity().deriveFrom('Hello World');
+  await mx.derivedIdentity().deriveFrom('Hello World').run();
   const derivedPublicKeyA = mx.derivedIdentity().publicKey;
 
-  await mx.derivedIdentity().deriveFrom('Hello Papito');
+  await mx.derivedIdentity().deriveFrom('Hello Papito').run();
   const derivedPubliKeyB = mx.derivedIdentity().publicKey;
 
   // Then we get the different Keypairs.
@@ -157,7 +156,7 @@ test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
   const mx = await init({ message: 'fund', identityAirdrop: 5 });
 
   // When we fund the derived identity by 1 SOL.
-  await mx.derivedIdentity().fund(sol(1));
+  await mx.derivedIdentity().fund(sol(1)).run();
 
   // Then we can see that 1 SOL was transferred from the identity to the derived identity.
   // It's a little less due to the transaction fee.
@@ -184,7 +183,7 @@ test('[derivedIdentity] it can withdraw from the derived identity', async (t: Te
   });
 
   // When we withdraw 1 SOL from the derived identity.
-  await mx.derivedIdentity().withdraw(sol(1));
+  await mx.derivedIdentity().withdraw(sol(1)).run();
 
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.
@@ -211,7 +210,7 @@ test('[derivedIdentity] it can withdraw everything from the derived identity', a
   });
 
   // When we withdraw everything from the derived identity.
-  await mx.derivedIdentity().withdrawAll();
+  await mx.derivedIdentity().withdrawAll().run();
 
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.

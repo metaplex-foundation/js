@@ -5,6 +5,10 @@ import { walk } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { isMetaplexFile, MetaplexFile } from '../storageModule';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'UploadMetadataOperation' as const;
 export const uploadMetadataOperation =
   useOperation<UploadMetadataOperation>(Key);
@@ -21,6 +25,10 @@ export interface UploadMetadataOutput {
   assetUris: string[];
   uri: string;
 }
+
+// -----------------
+// Handler
+// -----------------
 
 export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOperation> =
   {

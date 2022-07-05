@@ -1,14 +1,19 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
+import { toMetadata, toTokenWithMetadata, TokenWithMetadata } from './Metadata';
 import {
-  makeMetadataModel,
-  makeTokenWithMetadataModel,
-  TokenWithMetadata,
-} from './Metadata';
-import { makeMintModel, toMintAccount, toTokenAccount } from '../tokenModule';
-import { findAssociatedTokenAccountPda, toMetadataAccount } from '@/programs';
+  toMint,
+  toMintAccount,
+  toTokenAccount,
+  findAssociatedTokenAccountPda,
+} from '../tokenModule';
+import { toMetadataAccount } from '@/programs';
 import { DisposableScope } from '@/utils';
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'FindTokenWithMetadataByMetadataOperation' as const;
 export const findTokenWithMetadataByMetadataOperation =
@@ -25,6 +30,10 @@ export type FindTokenWithMetadataByMetadataInput = {
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
+
+// -----------------
+// Handler
+// -----------------
 
 export const findTokenWithMetadataByMetadataOperationHandler: OperationHandler<FindTokenWithMetadataByMetadataOperation> =
   {
@@ -55,9 +64,9 @@ export const findTokenWithMetadataByMetadataOperationHandler: OperationHandler<F
 
       const mintAccount = toMintAccount(accounts[0]);
       const tokenAccount = toTokenAccount(accounts[1]);
-      const mintModel = makeMintModel(mintAccount);
+      const mintModel = toMint(mintAccount);
 
-      let metadataModel = makeMetadataModel(metadataAccount);
+      let metadataModel = toMetadata(metadataAccount);
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
@@ -65,6 +74,6 @@ export const findTokenWithMetadataByMetadataOperationHandler: OperationHandler<F
           .run(scope);
       }
 
-      return makeTokenWithMetadataModel(tokenAccount, mintModel, metadataModel);
+      return toTokenWithMetadata(tokenAccount, mintModel, metadataModel);
     },
   };

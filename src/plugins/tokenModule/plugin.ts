@@ -1,6 +1,16 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import type { Metaplex } from '@/Metaplex';
 import type { MetaplexPlugin } from '@/types';
+import { TokenClient } from './TokenClient';
+import { createMintOperation, createMintOperationHandler } from './createMint';
+import {
+  createTokenOperation,
+  createTokenOperationHandler,
+} from './createToken';
+import {
+  createTokenWithMintOperation,
+  createTokenWithMintOperationHandler,
+} from './createTokenWithMint';
 import {
   findMintByAddressOperation,
   findMintByAddressOperationHandler,
@@ -17,7 +27,8 @@ import {
   findTokenWithMintByMintOperation,
   findTokenWithMintByMintOperationHandler,
 } from './findTokenWithMintByMint';
-import { TokenClient } from './TokenClient';
+import { mintTokensOperation, mintTokensOperationHandler } from './mintTokens';
+import { sendTokensOperation, sendTokensOperationHandler } from './sendTokens';
 
 export const tokenModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -29,6 +40,12 @@ export const tokenModule = (): MetaplexPlugin => ({
 
     // Operations.
     const op = metaplex.operations();
+    op.register(createMintOperation, createMintOperationHandler);
+    op.register(createTokenOperation, createTokenOperationHandler);
+    op.register(
+      createTokenWithMintOperation,
+      createTokenWithMintOperationHandler
+    );
     op.register(findMintByAddressOperation, findMintByAddressOperationHandler);
     op.register(
       findTokenByAddressOperation,
@@ -42,6 +59,8 @@ export const tokenModule = (): MetaplexPlugin => ({
       findTokenWithMintByMintOperation,
       findTokenWithMintByMintOperationHandler
     );
+    op.register(mintTokensOperation, mintTokensOperationHandler);
+    op.register(sendTokensOperation, sendTokensOperationHandler);
 
     metaplex.tokens = function () {
       return new TokenClient(this);

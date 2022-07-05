@@ -1,7 +1,6 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
-import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
   Amount,
@@ -10,6 +9,7 @@ import {
   KeypairSigner,
   lamports,
   Signer,
+  toBigNumber,
 } from '@/types';
 import {
   AssetUploadFailedError,
@@ -286,7 +286,7 @@ export const isBundlrStorageDriver = (
 };
 
 const bigNumberToAmount = (bigNumber: BigNumber): Amount => {
-  return lamports(new BN(bigNumber.decimalPlaces(0).toString()));
+  return lamports(toBigNumber(bigNumber.decimalPlaces(0).toString()));
 };
 
 const amountToBigNumber = (amount: Amount): BigNumber => {

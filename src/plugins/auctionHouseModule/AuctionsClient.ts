@@ -1,6 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionsBuildersClient } from './AuctionsBuildersClient';
 import { findAuctionHousePda } from './pdas';
@@ -9,7 +9,10 @@ import {
   createAuctionHouseOperation,
   CreateAuctionHouseOutput,
 } from './createAuctionHouse';
-import { findAuctionHouseByAddressOperation } from './findAuctionHouseByAddress';
+import {
+  FindAuctionHouseByAddressInput,
+  findAuctionHouseByAddressOperation,
+} from './findAuctionHouseByAddress';
 import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
@@ -33,11 +36,9 @@ export class AuctionsClient {
     );
   }
 
-  createAuctionHouse(input: CreateAuctionHouseInput): Task<
-    Omit<CreateAuctionHouseOutput, 'auctionHouse'> & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
+  createAuctionHouse(
+    input: CreateAuctionHouseInput
+  ): Task<CreateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -45,7 +46,7 @@ export class AuctionsClient {
         .run(scope);
       scope.throwIfCanceled();
       const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouse
+        output.auctionHouseAddress
       ).run(scope);
       return { ...output, auctionHouse };
     });
@@ -54,11 +55,7 @@ export class AuctionsClient {
   updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<
-    UpdateAuctionHouseOutput & {
-      auctionHouse: AuctionHouse;
-    }
-  > {
+  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -74,7 +71,7 @@ export class AuctionsClient {
 
   findAuctionHouseByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
   ): Task<AuctionHouse> {
     return this.metaplex
       .operations()
@@ -84,7 +81,7 @@ export class AuctionsClient {
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
-    options: { commitment?: Commitment } = {}
+    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
   ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),

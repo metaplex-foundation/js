@@ -1,10 +1,9 @@
 import type { PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
-import { amount, Amount, Pda } from '@/types';
+import { amount, Amount, BigNumber, Pda, toBigNumber } from '@/types';
 import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
-import { findAssociatedTokenAccountPda } from '@/programs';
+import { findAssociatedTokenAccountPda } from './pdas';
 
 export type Token = Readonly<{
   model: 'token';
@@ -12,19 +11,19 @@ export type Token = Readonly<{
   isAssociatedToken: boolean;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
-  amount: BN;
+  amount: BigNumber;
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
-  delegateAmount: BN;
+  delegateAmount: BigNumber;
 }>;
 
-export const isTokenModel = (value: any): value is Token =>
+export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
 
-export const assertTokenModel = (value: any): asserts value is Token =>
-  assert(isTokenModel(value), `Expected Token model`);
+export const assertToken = (value: any): asserts value is Token =>
+  assert(isToken(value), `Expected Token model`);
 
-export const makeTokenModel = (account: TokenAccount): Token => {
+export const toToken = (account: TokenAccount): Token => {
   const associatedTokenAddress = findAssociatedTokenAccountPda(
     account.data.mint,
     account.data.owner
@@ -37,12 +36,12 @@ export const makeTokenModel = (account: TokenAccount): Token => {
     isAssociatedToken,
     mintAddress: account.data.mint,
     ownerAddress: account.data.owner,
-    amount: new BN(account.data.amount.toString()),
+    amount: toBigNumber(account.data.amount.toString()),
     closeAuthorityAddress: account.data.closeAuthorityOption
       ? account.data.closeAuthority
       : null,
     delegateAddress: account.data.delegateOption ? account.data.delegate : null,
-    delegateAmount: new BN(account.data.delegatedAmount.toString()),
+    delegateAmount: toBigNumber(account.data.delegatedAmount.toString()),
   };
 };
 
@@ -57,19 +56,19 @@ export type TokenWithMint = Omit<
     delegateAmount: Amount;
   }>;
 
-export const isTokenWithMintModel = (value: any): value is TokenWithMint =>
+export const isTokenWithMint = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
 
-export const assertTokenWithMintModel = (
+export const assertTokenWithMint = (
   value: any
 ): asserts value is TokenWithMint =>
-  assert(isTokenWithMintModel(value), `Expected TokenWithMint model`);
+  assert(isTokenWithMint(value), `Expected TokenWithMint model`);
 
-export const makeTokenWithMintModel = (
+export const toTokenWithMint = (
   tokenAccount: TokenAccount,
   mintModel: Mint
 ): TokenWithMint => {
-  const token = makeTokenModel(tokenAccount);
+  const token = toToken(tokenAccount);
   return {
     ...token,
     model: 'tokenWithMint',
