@@ -71,17 +71,15 @@ export const transferSolBuilder = (
 
   assertSol(amount);
 
-  return TransactionBuilder.make()
-    .setFeePayer(from)
-    .add({
-      instruction: SystemProgram.transfer({
-        fromPubkey: from.publicKey,
-        toPubkey: to,
-        lamports: amount.basisPoints.toNumber(),
-        ...(basePubkey ? { basePubkey, seed } : {}),
-        programId: program,
-      }),
-      signers: [from],
-      key: params.instructionKey ?? 'transferSol',
-    });
+  return TransactionBuilder.make().add({
+    instruction: SystemProgram.transfer({
+      fromPubkey: from.publicKey,
+      toPubkey: to,
+      lamports: amount.basisPoints.toNumber(),
+      ...(basePubkey ? { basePubkey, seed } : {}),
+      programId: program,
+    }),
+    signers: [from],
+    key: params.instructionKey ?? 'transferSol',
+  });
 };
