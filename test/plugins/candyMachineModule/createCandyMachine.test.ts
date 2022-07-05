@@ -128,8 +128,8 @@ test('[candyMachineModule] create with SPL treasury', async (t) => {
   const { response, candyMachine } = await client
     .create({
       ...minimalInput,
-      walletAddress: token.address,
-      tokenMintAddress: token.mint.address,
+      wallet: token.address,
+      tokenMint: token.mint.address,
     })
     .run();
 
