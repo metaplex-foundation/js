@@ -27,7 +27,7 @@ export type CreateTokenWithMintOperation = Operation<
 >;
 
 export type CreateTokenWithMintInput = {
-  decimals: number;
+  decimals?: number; // Defaults to 0 decimals.
   initialSupply?: Amount; // Defaults to 0 tokens.
   mint?: Signer; // Defaults to new generated Keypair.
   mintAuthority?: Signer | PublicKey; // Defaults to mx.identity().
@@ -92,7 +92,7 @@ export const createTokenWithMintBuilder = async (
   params: CreateTokenWithMintBuilderParams
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
   const {
-    decimals,
+    decimals = 0,
     initialSupply,
     mint = Keypair.generate(),
     mintAuthority = metaplex.identity(),

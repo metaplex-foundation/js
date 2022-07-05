@@ -15,7 +15,7 @@ export type CreateMintOperation = Operation<
 >;
 
 export type CreateMintInput = {
-  decimals: number;
+  decimals?: number; // Defaults to 0 decimals.
   mint?: Signer; // Defaults to new generated Keypair.
   payer?: Signer; // Defaults to mx.identity().
   mintAuthority?: PublicKey; // Defaults to mx.identity().
@@ -61,7 +61,7 @@ export const createMintBuilder = async (
   params: CreateMintBuilderParams
 ): Promise<TransactionBuilder<CreateMintBuilderContext>> => {
   const {
-    decimals,
+    decimals = 0,
     mint = Keypair.generate(),
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity().publicKey,

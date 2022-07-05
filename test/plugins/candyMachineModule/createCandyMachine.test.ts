@@ -122,10 +122,7 @@ test('[candyMachineModule] create with SPL treasury', async (t) => {
   const { tc, mx, client, minimalInput } = await init();
 
   // And a token account and its mint account.
-  const { token } = await mx
-    .tokens()
-    .createTokenWithMint({ decimals: 0 })
-    .run();
+  const { token } = await mx.tokens().createTokenWithMint().run();
 
   // When we create a Candy Machine with an SPL treasury.
   const { response, candyMachine } = await client
@@ -383,10 +380,7 @@ test('[candyMachineModule] create with SPL treasury using JSON configurations', 
   const { tc, mx, client } = await init();
 
   // And a token account and its mint account.
-  const { token } = await mx
-    .tokens()
-    .createTokenWithMint({ decimals: 0 })
-    .run();
+  const { token } = await mx.tokens().createTokenWithMint().run();
 
   // When we create a new Candy Machine with an SPL treasury using JSON configurations.
   const solTreasuryAccount = Keypair.generate().publicKey;

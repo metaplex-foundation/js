@@ -47,11 +47,8 @@ test('it works when we give an explicit payer for the create metadata ix only', 
         .tokens()
         .builders()
         .createTokenWithMint({
-          decimals: 0,
           initialSupply: token(1),
           mint,
-          mintAuthority: mx.identity(),
-          owner: mx.identity().publicKey,
           payer: mx.identity(),
         })
     )

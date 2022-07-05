@@ -345,3 +345,27 @@ test('[candyMachineModule] it throws an error if nothing has changed when updati
   // Then we expect an error.
   await assertThrows(t, promise, /No Instructions To Send/);
 });
+
+test('[candyMachineModule] it can update the treasury of a candy machine', async (t) => {
+  // Given an existing Candy Machine with a SOL treasury.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    walletAddress: mx.identity().publicKey,
+  });
+
+  // And an existing SPL token.
+  const { token } = await mx.tokens().createTokenWithMint().run();
+
+  // When we update the treasury of the Candy Machine to use that SPL token.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      walletAddress: token.address,
+      tokenMintAddress: token.mint.address,
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  t.ok(updatedCandyMachine.walletAddress.equals(token.address));
+  t.ok(updatedCandyMachine.tokenMintAddress?.equals(token.mint.address));
+});

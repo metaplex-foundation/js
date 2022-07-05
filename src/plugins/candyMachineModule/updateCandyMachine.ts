@@ -96,13 +96,15 @@ export const updateCandyMachineBuilder = (
     updateAuthorityInstructionKey,
     ...updatableFields
   } = params;
-  const dataWithoutUpdates = toCandyMachineInstructionData(candyMachine);
-  const { data, walletAddress, tokenMintAddress } =
-    toCandyMachineInstructionData({
-      ...candyMachine,
-      ...updatableFields,
-    });
-  const shouldSendUpdateInstruction = !isEqual(data, dataWithoutUpdates);
+  const instructionData = toCandyMachineInstructionData({
+    ...candyMachine,
+    ...updatableFields,
+  });
+  const { data, walletAddress, tokenMintAddress } = instructionData;
+  const shouldSendUpdateInstruction = !isEqual(
+    instructionData,
+    toCandyMachineInstructionData(candyMachine)
+  );
   const shouldSendUpdateAuthorityInstruction =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
 

@@ -53,7 +53,9 @@ export class TokenClient {
     return new TokenBuildersClient(this.metaplex);
   }
 
-  createMint(input: CreateMintInput): Task<CreateMintOutput & { mint: Mint }> {
+  createMint(
+    input: CreateMintInput = {}
+  ): Task<CreateMintOutput & { mint: Mint }> {
     return new Task(async (scope) => {
       const operation = createMintOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
@@ -80,7 +82,7 @@ export class TokenClient {
   }
 
   createTokenWithMint(
-    input: CreateTokenWithMintInput
+    input: CreateTokenWithMintInput = {}
   ): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
     return new Task(async (scope) => {
       const operation = createTokenWithMintOperation(input);
