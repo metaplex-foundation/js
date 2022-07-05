@@ -12,7 +12,7 @@ import {
 
 killStuckProcess();
 
-test.only('[auctionHouseModule] update all fields of an Auction House', async (t: Test) => {
+test('[auctionHouseModule] update all fields of an Auction House', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -48,7 +48,7 @@ test.only('[auctionHouseModule] update all fields of an Auction House', async (t
       findAuctionHouseTreasuryPda(originalAddress)
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
-    treasuryWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(treasuryToken.address),
     sellerFeeBasisPoints: 200,
     requiresSignOff: false,
     canChangeSalePrice: false,
