@@ -28,18 +28,18 @@ export type Listing = Readonly<{
   canceledAt: Option<BN>;
 }>;
 
-export const isListingModel = (value: any): value is Listing =>
+export const isListing = (value: any): value is Listing =>
   typeof value === 'object' && value.model === 'listing' && !value.lazy;
 
-export const assertListingModel = (value: any): asserts value is Listing =>
-  assert(isListingModel(value), `Expected Listing type`);
+export const assertListing = (value: any): asserts value is Listing =>
+  assert(isListing(value), `Expected Listing type`);
 
-export const makeListingModel = (
+export const toListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse,
   tokenModel: TokenWithMetadata
 ): Listing => {
-  const lazyListing = makeLazyListingModel(account, auctionHouseModel);
+  const lazyListing = toLazyListing(account, auctionHouseModel);
   return {
     ...lazyListing,
     model: 'listing',
@@ -57,15 +57,13 @@ export type LazyListing = Omit<Listing, 'model' | 'lazy' | 'token' | 'tokens'> &
     tokens: BN;
   }>;
 
-export const isLazyListingModel = (value: any): value is LazyListing =>
+export const isLazyListing = (value: any): value is LazyListing =>
   typeof value === 'object' && value.model === 'listing' && value.lazy;
 
-export const assertLazyListingModel = (
-  value: any
-): asserts value is LazyListing =>
-  assert(isLazyListingModel(value), `Expected LazyListing type`);
+export const assertLazyListing = (value: any): asserts value is LazyListing =>
+  assert(isLazyListing(value), `Expected LazyListing type`);
 
-export const makeLazyListingModel = (
+export const toLazyListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse
 ): LazyListing => {

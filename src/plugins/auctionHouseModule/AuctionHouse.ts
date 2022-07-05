@@ -21,15 +21,13 @@ export type AuctionHouse = Readonly<{
   isNative: boolean;
 }>;
 
-export const isAuctionHouseModel = (value: any): value is AuctionHouse =>
+export const isAuctionHouse = (value: any): value is AuctionHouse =>
   typeof value === 'object' && value.model === 'auctionHouse';
 
-export const assertAuctionHouseModel = (
-  value: any
-): asserts value is AuctionHouse =>
-  assert(isAuctionHouseModel(value), `Expected AuctionHouse type`);
+export const assertAuctionHouse = (value: any): asserts value is AuctionHouse =>
+  assert(isAuctionHouse(value), `Expected AuctionHouse type`);
 
-export const makeAuctionHouseModel = (
+export const toAuctionHouse = (
   auctionHouseAccount: AuctionHouseAccount,
   treasuryMint: Mint | MintWithMetadata
 ): AuctionHouse => ({

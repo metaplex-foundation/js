@@ -3,7 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
-import { Listing, makeListingModel } from './Listing';
+import { Listing, toListing } from './Listing';
 import { DisposableScope } from '@/utils';
 import { findListingReceiptPda } from './pdas';
 
@@ -59,6 +59,6 @@ export const findListingByAddressOperationHandler: OperationHandler<FindListingB
         )
         .run(scope);
 
-      return makeListingModel(account, auctionHouse, tokenModel);
+      return toListing(account, auctionHouse, tokenModel);
     },
   };
