@@ -142,7 +142,7 @@ export class CandyMachinesClient {
       json: CandyMachineJsonConfigs;
     }
   ) {
-    const { json, newAuthority, ...otherInputs } = input;
+    const { json, ...otherInputs } = input;
     const configs = toCandyMachineConfigsFromJson(json);
     return this.update(candyMachine, { ...otherInputs, ...configs });
   }

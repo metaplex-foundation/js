@@ -350,7 +350,7 @@ test('[candyMachineModule] it can update the treasury of a candy machine', async
   // Given an existing Candy Machine with a SOL treasury.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    walletAddress: mx.identity().publicKey,
+    wallet: mx.identity().publicKey,
   });
 
   // And an existing SPL token.
@@ -360,8 +360,8 @@ test('[candyMachineModule] it can update the treasury of a candy machine', async
   const { candyMachine: updatedCandyMachine } = await mx
     .candyMachines()
     .update(candyMachine, {
-      walletAddress: token.address,
-      tokenMintAddress: token.mint.address,
+      wallet: token.address,
+      tokenMint: token.mint.address,
     })
     .run();
 
@@ -382,7 +382,7 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
     isMutable: true,
     retainAuthority: true,
     goLiveDate: toDateTime('4 Jul 2022 00:00:00 GMT'),
-    walletAddress: mx.identity().publicKey,
+    wallet: mx.identity().publicKey,
     creators: toUniformCreators(mx.identity().publicKey),
   });
 
