@@ -83,20 +83,10 @@ export type CreateListingOutput = {
 export const createListingOperationHandler: OperationHandler<CreateListingOperation> =
   {
     handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
-      const builder = createListingBuilder(metaplex, operation.input);
-
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          builder,
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-        ...builder.getContext(),
-      };
+      return createListingBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
     },
   };
 

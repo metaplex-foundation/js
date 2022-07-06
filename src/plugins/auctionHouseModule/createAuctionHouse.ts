@@ -66,20 +66,10 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
       operation: CreateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const builder = createAuctionHouseBuilder(metaplex, operation.input);
-
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          builder,
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-        ...builder.getContext(),
-      };
+      return createAuctionHouseBuilder(
+        metaplex,
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
