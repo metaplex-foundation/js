@@ -17,5 +17,3 @@ export * from './plugin';
 export * from './printNewEdition';
 export * from './updateNft';
 export * from './uploadMetadata';
-export * from './useEditionTask';
-export * from './useJsonMetadataTask';
