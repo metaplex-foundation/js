@@ -59,15 +59,15 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   t.equals(updatedEdition.supply.toNumber(), 1, 'original edition was updated');
 });
 
-test('[nftModule] it keeps track of the edition number', async (t: Test) => {
+test.only('[nftModule] it keeps track of the edition number', async (t: Test) => {
   // Given an existing Original NFT.
   const mx = await metaplex();
-  const originalNft = await createNft(mx, {}, { maxSupply: 100 });
+  const originalNft = await createNft(mx, {}, { maxSupply: toBigNumber(100) });
 
   // When we print 3 new editions of the NFT.
-  const { nft: printNft1 } = await mx.nfts().printNewEdition(originalNft.mint);
-  const { nft: printNft2 } = await mx.nfts().printNewEdition(originalNft.mint);
-  const { nft: printNft3 } = await mx.nfts().printNewEdition(originalNft.mint);
+  const { nft: printNft1 } = await mx.nfts().printNewEdition(originalNft).run();
+  const { nft: printNft2 } = await mx.nfts().printNewEdition(originalNft).run();
+  const { nft: printNft3 } = await mx.nfts().printNewEdition(originalNft).run();
 
   // Then each edition knows their number and are associated with the same parent.
   isPrintOfOriginal(t, printNft1, originalNft, 1);
