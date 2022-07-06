@@ -1,14 +1,16 @@
 import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import {
-  parseMetadataAccount,
-  parseOriginalOrPrintEditionAccount,
   findMasterEditionV2Pda,
   findMetadataPda,
+  toMetadataAccount,
+  toOriginalOrPrintEditionAccount,
 } from '@/programs';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { NftNotFoundError } from '@/errors';
-import { Nft } from './Nft';
+import { Nft, toNft } from './Nft';
+import { toMetadata } from './Metadata';
+import { toNftEdition } from './NftEdition';
+import { toMint, toMintAccount } from '../tokenModule';
 
 // -----------------
 // Operation
@@ -29,30 +31,22 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       metaplex: Metaplex
     ): Promise<Nft> => {
       const mint = operation.input;
-      const [metadata, edition] = await metaplex
+      const accounts = await metaplex
         .rpc()
         .getMultipleAccounts([
+          mint,
           findMetadataPda(mint),
           findMasterEditionV2Pda(mint),
         ]);
 
-      const metadataAccount = parseMetadataAccount(metadata);
-      const editionAccount = parseOriginalOrPrintEditionAccount(edition);
+      const mintAccount = toMintAccount(accounts[0]);
+      const metadataAccount = toMetadataAccount(accounts[1]);
+      const editionAccount = toOriginalOrPrintEditionAccount(accounts[2]);
 
-      if (!metadataAccount.exists) {
-        throw new NftNotFoundError(mint);
-      }
-
-      const nft = new Nft(metadataAccount, metaplex);
-
-      try {
-        await nft.metadataTask.run();
-      } catch (e) {
-        // Fail silently...
-      }
-
-      nft.editionTask.loadWith(editionAccount.exists ? editionAccount : null);
-
-      return nft;
+      return toNft(
+        toMetadata(metadataAccount),
+        toMint(mintAccount),
+        toNftEdition(editionAccount)
+      );
     },
   };
