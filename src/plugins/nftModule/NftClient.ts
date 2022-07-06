@@ -219,10 +219,14 @@ export class NftClient {
 
   loadMetadata(metadata: LazyMetadata): Task<Metadata> {
     return new Task(async (scope) => {
-      const json = await this.metaplex
-        .storage()
-        .downloadJson<JsonMetadata>(metadata.uri, scope);
-      return { ...metadata, lazy: false, json };
+      try {
+        const json = await this.metaplex
+          .storage()
+          .downloadJson<JsonMetadata>(metadata.uri, scope);
+        return { ...metadata, lazy: false, json };
+      } catch (error) {
+        return { ...metadata, lazy: false, json: null };
+      }
     });
   }
 }

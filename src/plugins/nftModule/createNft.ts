@@ -14,7 +14,7 @@ import {
   token,
   Creator,
   BigNumber,
-  toUniformCreators,
+  toUniformVerifiedCreators,
 } from '@/types';
 import { findMasterEditionV2Pda, findMetadataPda } from '@/programs';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
@@ -145,7 +145,7 @@ export const createNftBuilder = async (
   const metadataPda = findMetadataPda(mint.publicKey);
   const masterEditionPda = findMasterEditionV2Pda(mint.publicKey);
   const creators =
-    params.creators ?? toUniformCreators(metaplex.identity().publicKey);
+    params.creators ?? toUniformVerifiedCreators(updateAuthority.publicKey);
 
   return (
     TransactionBuilder.make<CreateNftBuilderContext>()
