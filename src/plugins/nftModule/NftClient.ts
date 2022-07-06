@@ -204,7 +204,7 @@ export class NftClient {
   }
 
   printNewEdition(
-    originalNft: Nft,
+    originalNft: Nft | LazyNft | PublicKey,
     input: Omit<PrintNewEditionSharedInput, 'originalNft'> &
       PrintNewEditionViaInput = {}
   ): Task<PrintNewEditionOutput & { nft: Nft }> {

@@ -4,6 +4,7 @@ import {
   findEditionMarkerPda,
   findEditionPda,
   findMetadataPda,
+  toOriginalEditionAccount,
 } from '@/programs';
 import {
   useOperation,
@@ -18,10 +19,14 @@ import {
   InstructionWithSigners,
   TransactionBuilder,
 } from '@/utils';
-import { Nft } from './Nft';
+import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { assertNftOriginalEdition } from './NftEdition';
+import {
+  assertNftOriginalEdition,
+  NftOriginalEdition,
+  toNftOriginalEdition,
+} from './NftEdition';
 import {
   createMintNewEditionFromMasterEditionViaTokenInstruction,
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
@@ -44,7 +49,7 @@ export type PrintNewEditionInput = PrintNewEditionSharedInput &
   PrintNewEditionViaInput;
 
 export type PrintNewEditionSharedInput = {
-  originalNft: Nft;
+  originalNft: Nft | LazyNft | PublicKey;
   newMint?: Signer; // Defaults to Keypair.generate().
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
@@ -74,11 +79,11 @@ export type PrintNewEditionViaInput =
 
 export type PrintNewEditionOutput = {
   response: SendAndConfirmTransactionResponse;
-  updatedOriginalNft: Nft;
   mintSigner: Signer;
   metadataAddress: PublicKey;
   editionAddress: PublicKey;
   tokenAddress: PublicKey;
+  updatedOriginalEdition: NftOriginalEdition;
 };
 
 // -----------------
@@ -123,7 +128,6 @@ export const printNewEditionBuilder = async (
   params: PrintNewEditionBuilderParams
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {
-    originalNft,
     newMint = Keypair.generate(),
     newMintAuthority = metaplex.identity(),
     newUpdateAuthority = metaplex.identity().publicKey,
@@ -137,17 +141,19 @@ export const printNewEditionBuilder = async (
   } = params;
 
   // Original NFT.
-  const originalNftEdition = originalNft.edition;
-  assertNftOriginalEdition(originalNftEdition);
-  const edition = toBigNumber(originalNftEdition.supply.addn(1));
-  const updatedOriginalNft = {
-    ...originalNft,
-    edition: { ...originalNftEdition, supply: edition },
-  };
-  const originalEditionMarkPda = findEditionMarkerPda(
-    originalNft.mintAddress,
-    edition
+  const originalMint =
+    isNft(params.originalNft) || isLazyNft(params.originalNft)
+      ? params.originalNft.mintAddress
+      : params.originalNft;
+  const originalMetadataAddress = findMetadataPda(originalMint);
+  const originalEditionAddress = findEditionPda(originalMint);
+  const originalEditionAccount = toOriginalEditionAccount(
+    await metaplex.rpc().getAccount(originalEditionAddress)
   );
+  const originalEdition = toNftOriginalEdition(originalEditionAccount);
+  const edition = toBigNumber(originalEdition.supply.addn(1));
+  const updatedOriginalEdition = { ...originalEdition, supply: edition };
+  const originalEditionMarkPda = findEditionMarkerPda(originalMint, edition);
 
   // New NFT.
   const newMetadataAddress = findMetadataPda(newMint.publicKey);
@@ -155,13 +161,13 @@ export const printNewEditionBuilder = async (
   const sharedAccounts = {
     newMetadata: newMetadataAddress,
     newEdition: newEditionAddress,
-    masterEdition: originalNft.edition.address,
+    masterEdition: originalEditionAddress,
     newMint: newMint.publicKey,
     editionMarkPda: originalEditionMarkPda,
     newMintAuthority: newMintAuthority.publicKey,
     payer: payer.publicKey,
     newMetadataUpdateAuthority: newUpdateAuthority,
-    metadata: originalNft.metadataAddress,
+    metadata: originalMetadataAddress,
   };
 
   const tokenWithMintBuilder = await metaplex
@@ -215,7 +221,7 @@ export const printNewEditionBuilder = async (
     const originalTokenAccount =
       params.originalTokenAccount ??
       findAssociatedTokenAccountPda(
-        originalNft.mintAddress,
+        originalMint,
         originalTokenAccountOwner.publicKey
       );
 
@@ -241,7 +247,7 @@ export const printNewEditionBuilder = async (
         metadataAddress: newMetadataAddress,
         editionAddress: newEditionAddress,
         tokenAddress,
-        updatedOriginalNft,
+        updatedOriginalEdition,
       })
 
       // Create the mint and token accounts before minting 1 token to the owner.

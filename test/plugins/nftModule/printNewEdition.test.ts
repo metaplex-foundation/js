@@ -29,7 +29,7 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   );
 
   // When we print a new edition of the NFT.
-  const { nft: printNft, updatedOriginalNft } = await mx
+  const { nft: printNft, updatedOriginalEdition } = await mx
     .nfts()
     .printNewEdition(originalNft)
     .run();
@@ -53,13 +53,11 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   const retrievedNft = await mx.nfts().findByMint(printNft.mintAddress).run();
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 
-  // And the original NFT was updated.
-  const updatedEdition = updatedOriginalNft.edition;
-  assertNftOriginalEdition(updatedEdition);
-  t.equals(updatedEdition.supply.toNumber(), 1, 'original edition was updated');
+  // And the original NFT edition was updated.
+  t.equals(updatedOriginalEdition.supply.toNumber(), 1);
 });
 
-test.only('[nftModule] it keeps track of the edition number', async (t: Test) => {
+test('[nftModule] it keeps track of the edition number', async (t: Test) => {
   // Given an existing Original NFT.
   const mx = await metaplex();
   const originalNft = await createNft(mx, {}, { maxSupply: toBigNumber(100) });
@@ -76,12 +74,15 @@ test.only('[nftModule] it keeps track of the edition number', async (t: Test) =>
 });
 
 test('[nftModule] it can print unlimited editions', async (t: Test) => {
-  // Given an existing Original NFT with no explicit maxSupply.
+  // Given an existing Original NFT with unlimited supply.
   const mx = await metaplex();
-  const originalNft = await createNft(mx);
+  const originalNft = await createNft(mx, {}, { maxSupply: null });
+  const originalEdition = originalNft.edition;
+  assertNftOriginalEdition(originalEdition);
+  t.equals(originalEdition.maxSupply, null);
 
   // When we print an edition of the NFT.
-  const { nft: printNft } = await mx.nfts().printNewEdition(originalNft.mint);
+  const { nft: printNft } = await mx.nfts().printNewEdition(originalNft).run();
 
   // Then we successfully printed the first NFT of an unlimited collection.
   isPrintOfOriginal(t, printNft, originalNft, 1);
@@ -90,10 +91,10 @@ test('[nftModule] it can print unlimited editions', async (t: Test) => {
 test('[nftModule] it cannot print when the maxSupply is zero', async (t: Test) => {
   // Given an existing Original NFT with a maxSupply of zero.
   const mx = await metaplex();
-  const originalNft = await createNft(mx, {}, { maxSupply: 0 });
+  const originalNft = await createNft(mx, {}, { maxSupply: toBigNumber(0) });
 
   // When we try to print an edition of the NFT.
-  const promise = mx.nfts().printNewEdition(originalNft.mint);
+  const promise = mx.nfts().printNewEdition(originalNft).run();
 
   // Then we should get an error.
   await assertThrows(t, promise, /Maximum editions printed already/);
@@ -107,9 +108,9 @@ const isPrintOfOriginal = (
 ) => {
   spok(t, print, {
     $topic: 'print NFT #' + edition,
-    printEdition: {
+    edition: {
       parent: spokSamePubkey(original.edition.address),
-      edition: spokSameBignum(edition),
+      number: spokSameBignum(edition),
     },
   } as unknown as Specifications<Nft>);
 };
