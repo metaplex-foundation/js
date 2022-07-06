@@ -34,10 +34,11 @@ export type NftOriginalEdition = Readonly<{
 export const isNftOriginalEdition = (value: any): value is NftOriginalEdition =>
   isNftEdition(value) && value.isOriginal;
 
-export const assertNftOriginalEdition = (
+export function assertNftOriginalEdition(
   value: any
-): asserts value is NftOriginalEdition =>
+): asserts value is NftOriginalEdition {
   assert(isNftOriginalEdition(value), `Expected NftOriginalEdition model`);
+}
 
 export const toNftOriginalEdition = (
   account: OriginalEditionAccount
