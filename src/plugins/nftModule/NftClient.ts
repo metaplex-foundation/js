@@ -1,70 +1,77 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
+import { Option, removeEmptyChars, Task } from '@/utils';
+import { JsonMetadata } from './JsonMetadata';
 import { Nft } from './Nft';
-import { findNftByMintOperation } from './findNftByMint';
-import { findNftsByMintListOperation } from './findNftsByMintList';
-import { findNftsByOwnerOperation } from './findNftsByOwner';
-import { findNftsByCreatorOperation } from './findNftsByCreator';
-import { findNftsByCandyMachineOperation } from './findNftsByCandyMachine';
-import {
-  UploadMetadataInput,
-  uploadMetadataOperation,
-  UploadMetadataOutput,
-} from './uploadMetadata';
 import {
   CreateNftInput,
   createNftOperation,
   CreateNftOutput,
 } from './createNft';
-import {
-  UpdateNftInput,
-  updateNftOperation,
-  UpdateNftOutput,
-} from './updateNft';
+import { findMintWithMetadataByAddressOperation } from './findMintWithMetadataByAddress';
+import { findMintWithMetadataByMetadataOperation } from './findMintWithMetadataByMetadata';
+import { findNftByMintOperation } from './findNftByMint';
+import { findNftsByMintListOperation } from './findNftsByMintList';
+import { findNftsByOwnerOperation } from './findNftsByOwner';
+import { findNftsByCreatorOperation } from './findNftsByCreator';
+import { findNftsByCandyMachineOperation } from './findNftsByCandyMachine';
+import { findTokenWithMetadataByAddressOperation } from './findTokenWithMetadataByAddress';
+import { findTokenWithMetadataByMetadataOperation } from './findTokenWithMetadataByMetadata';
+import { findTokenWithMetadataByMintOperation } from './findTokenWithMetadataByMint';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
   PrintNewEditionSharedInput,
   PrintNewEditionViaInput,
 } from './printNewEdition';
-import { Option, removeEmptyChars, Task } from '@/utils';
-import { JsonMetadata } from './JsonMetadata';
-import { findMintWithMetadataByAddressOperation } from './findMintWithMetadataByAddress';
-import { findMintWithMetadataByMetadataOperation } from './findMintWithMetadataByMetadata';
-import { findTokenWithMetadataByAddressOperation } from './findTokenWithMetadataByAddress';
-import { findTokenWithMetadataByMetadataOperation } from './findTokenWithMetadataByMetadata';
-import { findTokenWithMetadataByMintOperation } from './findTokenWithMetadataByMint';
+import {
+  UploadMetadataInput,
+  uploadMetadataOperation,
+  UploadMetadataOutput,
+} from './uploadMetadata';
+import {
+  UpdateNftInput,
+  updateNftOperation,
+  UpdateNftOutput,
+} from './updateNft';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  findByMint(mint: PublicKey): Promise<Nft> {
-    return this.metaplex.operations().execute(findNftByMintOperation(mint));
+  create(input: CreateNftInput): Task<CreateNftOutput & { nft: Nft }> {
+    return new Task(async (scope) => {
+      const operation = createNftOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      return { ...output, nft };
+    });
   }
 
-  findAllByMintList(mints: PublicKey[]): Promise<(Nft | null)[]> {
+  findByMint(mint: PublicKey): Task<Nft> {
+    return this.metaplex.operations().getTask(findNftByMintOperation(mint));
+  }
+
+  findAllByMintList(mints: PublicKey[]): Task<(Nft | null)[]> {
     return this.metaplex
       .operations()
-      .execute(findNftsByMintListOperation(mints));
+      .getTask(findNftsByMintListOperation(mints));
   }
 
-  findAllByOwner(owner: PublicKey): Promise<Nft[]> {
-    return this.metaplex.operations().execute(findNftsByOwnerOperation(owner));
+  findAllByOwner(owner: PublicKey): Task<Nft[]> {
+    return this.metaplex.operations().getTask(findNftsByOwnerOperation(owner));
   }
 
-  findAllByCreator(creator: PublicKey, position: number = 1): Promise<Nft[]> {
+  findAllByCreator(creator: PublicKey, position: number = 1): Task<Nft[]> {
     return this.metaplex
       .operations()
-      .execute(findNftsByCreatorOperation({ creator, position }));
+      .getTask(findNftsByCreatorOperation({ creator, position }));
   }
 
-  findAllByCandyMachine(
-    candyMachine: PublicKey,
-    version?: 1 | 2
-  ): Promise<Nft[]> {
+  findAllByCandyMachine(candyMachine: PublicKey, version?: 1 | 2): Task<Nft[]> {
     return this.metaplex
       .operations()
-      .execute(findNftsByCandyMachineOperation({ candyMachine, version }));
+      .getTask(findNftsByCandyMachineOperation({ candyMachine, version }));
   }
 
   findMintWithMetadataByAddress(
@@ -146,16 +153,8 @@ export class NftClient {
     );
   }
 
-  uploadMetadata(input: UploadMetadataInput): Promise<UploadMetadataOutput> {
-    return this.metaplex.operations().execute(uploadMetadataOperation(input));
-  }
-
-  async create(input: CreateNftInput): Promise<{ nft: Nft } & CreateNftOutput> {
-    const operation = createNftOperation(input);
-    const createNftOutput = await this.metaplex.operations().execute(operation);
-    const nft = await this.findByMint(createNftOutput.mint.publicKey);
-
-    return { ...createNftOutput, nft };
+  uploadMetadata(input: UploadMetadataInput): Task<UploadMetadataOutput> {
+    return this.metaplex.operations().getTask(uploadMetadataOperation(input));
   }
 
   async update(
