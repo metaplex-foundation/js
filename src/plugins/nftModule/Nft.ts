@@ -38,7 +38,7 @@ export type LazyNft = Omit<Nft, 'lazy' | 'mint' | 'edition' | 'json'> &
   }>;
 
 export const isLazyNft = (value: any): value is LazyNft =>
-  typeof value === 'object' && value.model === 'lazyNft' && value.lazy;
+  typeof value === 'object' && value.model === 'nft' && value.lazy;
 
 export const assertLazyNft = (value: any): asserts value is LazyNft =>
   assert(isLazyNft(value), `Expected LazyNft model`);

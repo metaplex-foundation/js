@@ -74,6 +74,7 @@ export type PrintNewEditionViaInput =
 
 export type PrintNewEditionOutput = {
   response: SendAndConfirmTransactionResponse;
+  updatedOriginalNft: Nft;
   mintSigner: Signer;
   metadataAddress: PublicKey;
   editionAddress: PublicKey;
@@ -139,6 +140,10 @@ export const printNewEditionBuilder = async (
   const originalNftEdition = originalNft.edition;
   assertNftOriginalEdition(originalNftEdition);
   const edition = toBigNumber(originalNftEdition.supply.addn(1));
+  const updatedOriginalNft = {
+    ...originalNft,
+    edition: { ...originalNftEdition, supply: edition },
+  };
   const originalEditionMarkPda = findEditionMarkerPda(
     originalNft.mintAddress,
     edition
@@ -236,6 +241,7 @@ export const printNewEditionBuilder = async (
         metadataAddress: newMetadataAddress,
         editionAddress: newEditionAddress,
         tokenAddress,
+        updatedOriginalNft,
       })
 
       // Create the mint and token accounts before minting 1 token to the owner.

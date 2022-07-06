@@ -5,7 +5,7 @@ import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-test('it can update the on-chain data of an nft', async (t: Test) => {
+test('[nftModule] it can update the on-chain data of an nft', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
