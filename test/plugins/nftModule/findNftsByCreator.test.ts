@@ -5,7 +5,7 @@ import { metaplex, createNft, killStuckProcess } from 'test/helpers';
 
 killStuckProcess();
 
-test('it can fetch all NFTs from the first creator', async (t: Test) => {
+test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test) => {
   // Given a metaplex instance and two NFTs from two different creators.
   const mx = await metaplex();
   const creatorA = Keypair.generate().publicKey;
@@ -32,7 +32,7 @@ test('it can fetch all NFTs from the first creator', async (t: Test) => {
   t.true(nftsB[0].equals(nftB));
 });
 
-test('it can fetch all NFTs from other creator positions', async (t: Test) => {
+test('[nftModule] it can fetch all NFTs from other creator positions', async (t: Test) => {
   // Given a metaplex instance and two NFTs from two different creators on the second position.
   const mx = await metaplex();
   const creatorA = Keypair.generate().publicKey;

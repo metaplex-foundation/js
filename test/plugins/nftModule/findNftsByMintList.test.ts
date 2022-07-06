@@ -4,7 +4,7 @@ import { metaplex, createNft, killStuckProcess } from 'test/helpers';
 
 killStuckProcess();
 
-test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
+test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Test) => {
   // Given a metaplex instance and two NFTs on-chain.
   const mx = await metaplex();
   const nftA = await createNft(mx, { name: 'NFT A' });
@@ -22,7 +22,7 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   t.true(nfts[1]?.equals(nftB));
 });
 
-test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
+test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Test) => {
   // Given a metaplex instance and one NFT on-chain.
   const mx = await metaplex();
   const nft = await createNft(mx, { name: 'Some NFT' });
@@ -43,7 +43,7 @@ test('it can fetch all NFTs from a provided mint list', async (t: Test) => {
   );
 });
 
-test('it does not load the NFT metadata or master edition by default', async (t: Test) => {
+test('[nftModule] it does not load the NFT metadata or master edition by default', async (t: Test) => {
   // Given a metaplex instance and a connected wallet with one nft.
   const mx = await metaplex();
   const nft = await createNft(mx, { name: 'Some NFT' });

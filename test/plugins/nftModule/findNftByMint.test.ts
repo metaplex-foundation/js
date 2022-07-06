@@ -4,7 +4,7 @@ import { metaplex, createNft, killStuckProcess } from 'test/helpers';
 
 killStuckProcess();
 
-test('it can fetch an NFT by its mint address', async (t: Test) => {
+test('[nftModule] it can fetch an NFT by its mint address', async (t: Test) => {
   // Given a metaplex instance and an existing NFT.
   const mx = await metaplex();
   const mint = Keypair.generate();
@@ -17,7 +17,7 @@ test('it can fetch an NFT by its mint address', async (t: Test) => {
   t.true(fetchedNft.equals(nft));
 });
 
-test('it can fetch an NFT with an invalid URI', async (t: Test) => {
+test('[nftModule] it can fetch an NFT with an invalid URI', async (t: Test) => {
   // Given an existing NFT with an invalid URI.
   const mx = await metaplex();
   const { nft } = await mx.nfts().create({

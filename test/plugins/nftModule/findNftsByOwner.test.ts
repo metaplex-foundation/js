@@ -3,7 +3,7 @@ import { metaplex, createNft, killStuckProcess } from 'test/helpers';
 
 killStuckProcess();
 
-test('it can fetch all NFTs in a wallet', async (t: Test) => {
+test('[nftModule] it can fetch all NFTs in a wallet', async (t: Test) => {
   // Given a metaplex instance and a connected wallet.
   const mx = await metaplex();
   const owner = mx.identity().publicKey;

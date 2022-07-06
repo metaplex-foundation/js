@@ -13,7 +13,7 @@ import {
 
 killStuckProcess();
 
-test('it can create an NFT with minimum configuration', async (t: Test) => {
+test('[nftModule] it can create an NFT with minimum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -29,10 +29,14 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
   });
 
   // When we create a new NFT with minimum configuration.
-  const { nft } = await mx.nfts().create({
-    uri: metadataUri,
-    name: 'On-chain NFT name',
-  });
+  const { nft } = await mx
+    .nfts()
+    .create({
+      uri: metadataUri,
+      name: 'On-chain NFT name',
+      sellerFeeBasisPoints: 500,
+    })
+    .run();
 
   // Then we created and returned the new NFT and it has appropriate defaults.
   const expectedNft = {
@@ -65,7 +69,7 @@ test('it can create an NFT with minimum configuration', async (t: Test) => {
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 });
 
-test('it can create an NFT with maximum configuration', async (t: Test) => {
+test('[nftModule] it can create an NFT with maximum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -160,69 +164,7 @@ test('it can create an NFT with maximum configuration', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 });
 
-test('it fill missing on-chain data from the JSON metadata', async (t: Test) => {
-  // Given we have a Metaplex instance.
-  const mx = await metaplex();
-
-  // And we uploaded some metadata.
-  const creatorA = Keypair.generate().publicKey;
-  const creatorB = Keypair.generate().publicKey;
-  const { uri, metadata } = await mx.nfts().uploadMetadata({
-    name: 'JSON NFT name',
-    symbol: 'MYNFT',
-    description: 'JSON NFT description',
-    image: useMetaplexFile('some_image', 'some-image.jpg'),
-    seller_fee_basis_points: 456,
-    properties: {
-      creators: [
-        {
-          address: mx.identity().publicKey.toBase58(),
-          share: 50,
-        },
-        {
-          address: creatorA.toBase58(),
-          share: 30,
-        },
-        {
-          address: creatorB.toBase58(),
-          share: 20,
-        },
-      ],
-    },
-  });
-
-  // When we create a new NFT using that JSON metadata only.
-  const { nft } = await mx.nfts().create({ uri });
-
-  // Then the created NFT used some of the JSON metadata to fill some on-chain data.
-  spok(t, nft, {
-    $topic: 'nft',
-    name: 'JSON NFT name',
-    symbol: 'MYNFT',
-    uri,
-    metadata,
-    sellerFeeBasisPoints: 456,
-    creators: [
-      {
-        address: spokSamePubkey(mx.identity().publicKey),
-        share: 50,
-        verified: true,
-      },
-      {
-        address: spokSamePubkey(creatorA),
-        share: 30,
-        verified: false,
-      },
-      {
-        address: spokSamePubkey(creatorB),
-        share: 20,
-        verified: false,
-      },
-    ],
-  } as unknown as Specifications<Nft>);
-});
-
-test('it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
+test('[nftModule] it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
   const initialIdentityBalance = await mx.connection.getBalance(
@@ -254,7 +196,7 @@ test('it can make another signer wallet pay for the storage and transaction fees
   });
 });
 
-test('it can create an NFT for other signer wallets without using the identity', async (t: Test) => {
+test('[nftModule] it can create an NFT for other signer wallets without using the identity', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -283,7 +225,7 @@ test('it can create an NFT for other signer wallets without using the identity',
   } as unknown as Specifications<Nft>);
 });
 
-test('it can create an NFT with an invalid URI', async (t: Test) => {
+test('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
