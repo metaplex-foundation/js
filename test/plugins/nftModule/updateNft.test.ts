@@ -5,7 +5,7 @@ import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-test('[nftModule] it can update the on-chain data of an nft', async (t: Test) => {
+test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -19,6 +19,8 @@ test('[nftModule] it can update the on-chain data of an nft', async (t: Test) =>
     },
     {
       name: 'On-chain NFT name',
+      symbol: 'OLD',
+      sellerFeeBasisPoints: 100,
       isMutable: true,
     }
   );
@@ -30,40 +32,42 @@ test('[nftModule] it can update the on-chain data of an nft', async (t: Test) =>
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
       image: useMetaplexFile('updated image', 'updated-image.jpg'),
-    });
+    })
+    .run();
 
   // When we update the NFT with new on-chain data.
-  const { nft: updatedNft } = await mx.nfts().update(nft, {
-    name: 'Updated On-chain NFT name',
-    primarySaleHappened: true,
-    uri: updatedUri,
-    isMutable: false,
-  });
+  const { nft: updatedNft } = await mx
+    .nfts()
+    .update(nft, {
+      name: 'Updated On-chain NFT name',
+      symbol: 'UPDATED',
+      sellerFeeBasisPoints: 500,
+      primarySaleHappened: true,
+      uri: updatedUri,
+      isMutable: false,
+    })
+    .run();
 
   // Then the returned NFT should have the updated data.
-  spok(t, updatedNft, {
-    $topic: 'update-nft',
+  const expectedNft = {
+    $topic: 'Updated Nft',
+    model: 'nft',
+    lazy: false,
     name: 'Updated On-chain NFT name',
+    symbol: 'UPDATED',
+    sellerFeeBasisPoints: 500,
     uri: updatedUri,
-    metadata: {
+    isMutable: false,
+    primarySaleHappened: true,
+    json: {
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
       image: updatedMetadata.image,
     },
-    primarySaleHappened: true,
-  } as unknown as Specifications<Nft>);
+  } as unknown as Specifications<Nft>;
+  spok(t, updatedNft, expectedNft);
 
   // And the same goes if we try to fetch the NFT again.
-  const foundUpdatedNft = await mx.nfts().findByMint(nft.mint);
-  spok(t, foundUpdatedNft, {
-    $topic: 'check-downloaded-nft',
-    name: 'Updated On-chain NFT name',
-    uri: updatedUri,
-    metadata: {
-      name: 'Updated JSON NFT name',
-      description: 'Updated JSON NFT description',
-      image: updatedMetadata.image,
-    },
-    primarySaleHappened: true,
-  } as unknown as Specifications<Nft>);
+  const fetchedUpdatedNft = await mx.nfts().findByMint(nft.mintAddress).run();
+  spok(t, fetchedUpdatedNft, expectedNft);
 });
