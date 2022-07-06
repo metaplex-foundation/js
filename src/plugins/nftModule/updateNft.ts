@@ -1,6 +1,7 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   Collection,
+  createUpdateMetadataAccountV2Instruction,
   UpdateMetadataAccountArgsV2,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -14,7 +15,9 @@ import {
 import { LazyNft, Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import { Option, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '..';
+import { NoInstructionsToSendError } from '@/errors';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import isEqual from 'lodash.isequal';
 
 // -----------------
 // Operation
@@ -62,10 +65,13 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
     operation: UpdateNftOperation,
     metaplex: Metaplex
   ): Promise<UpdateNftOutput> => {
-    return updateNftBuilder(metaplex, operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    );
+    const builder = updateNftBuilder(metaplex, operation.input);
+
+    if (builder.isEmpty()) {
+      throw new NoInstructionsToSendError(Key);
+    }
+
+    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
   },
 };
 
@@ -81,8 +87,35 @@ export const updateNftBuilder = (
   metaplex: Metaplex,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
+  const { nft, updateAuthority = metaplex.identity() } = params;
+  const updateInstructionDataWithoutChanges = toInstructionData(nft);
+  const updateInstructionData = toInstructionData(nft, params);
+  const shouldSendUpdateInstruction = !isEqual(
+    updateInstructionData,
+    updateInstructionDataWithoutChanges
+  );
+
   // TODO
-  return TransactionBuilder.make();
+  return (
+    TransactionBuilder.make()
+
+      // Update the metadata account.
+      .when(shouldSendUpdateInstruction, (builder) =>
+        builder.add({
+          instruction: createUpdateMetadataAccountV2Instruction(
+            {
+              metadata: nft.metadataAddress,
+              updateAuthority: updateAuthority.publicKey,
+            },
+            {
+              updateMetadataAccountArgsV2: updateInstructionData,
+            }
+          ),
+          signers: [updateAuthority],
+          key: params.updateMetadataInstructionKey ?? 'updateMetadata',
+        })
+      )
+  );
 };
 
 const toInstructionData = (

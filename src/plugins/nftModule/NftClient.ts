@@ -190,29 +190,31 @@ export class NftClient {
     return this.metaplex.operations().getTask(uploadMetadataOperation(input));
   }
 
-  async update(
-    nft: Nft,
+  update(
+    nft: Nft | LazyNft,
     input: Omit<UpdateNftInput, 'nft'>
-  ): Promise<{ nft: Nft } & UpdateNftOutput> {
-    const operation = updateNftOperation({ ...input, nft });
-    const updateNftOutput = await this.metaplex.operations().execute(operation);
-    const updatedNft = await this.findByMint(nft.mint);
-
-    return { ...updateNftOutput, nft: updatedNft };
+  ): Task<UpdateNftOutput & { nft: Nft }> {
+    return new Task(async (scope) => {
+      const operation = updateNftOperation({ ...input, nft });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
+      return { ...output, nft: updatedNft };
+    });
   }
 
-  async printNewEdition(
+  printNewEdition(
     originalMint: PublicKey,
     input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
       PrintNewEditionViaInput = {}
-  ): Promise<{ nft: Nft } & PrintNewEditionOutput> {
-    const operation = printNewEditionOperation({ originalMint, ...input });
-    const printNewEditionOutput = await this.metaplex
-      .operations()
-      .execute(operation);
-    const nft = await this.findByMint(printNewEditionOutput.mint.publicKey);
-
-    return { ...printNewEditionOutput, nft };
+  ): Task<PrintNewEditionOutput & { nft: Nft }> {
+    return new Task(async (scope) => {
+      const operation = printNewEditionOperation({ originalMint, ...input });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const nft = await this.findByMint(output.mint.publicKey).run(scope);
+      return { ...output, nft };
+    });
   }
 
   loadMetadata(metadata: LazyMetadata): Task<Metadata> {
@@ -220,7 +222,6 @@ export class NftClient {
       const json = await this.metaplex
         .storage()
         .downloadJson<JsonMetadata>(metadata.uri, scope);
-      scope.throwIfCanceled();
       return { ...metadata, lazy: false, json };
     });
   }
