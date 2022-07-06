@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { walk } from '@/utils';
+import { DisposableScope, walk } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { isMetaplexFile, MetaplexFile } from '../storageModule';
 
@@ -34,11 +34,14 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
   {
     handle: async (
       operation: UploadMetadataOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<UploadMetadataOutput> => {
       const rawMetadata = operation.input;
       const files = getAssetsFromJsonMetadata(rawMetadata);
       const assetUris = await metaplex.storage().uploadAll(files);
+      scope.throwIfCanceled();
+
       const metadata = replaceAssetsWithUris(rawMetadata, assetUris);
       const uri = await metaplex.storage().uploadJson(metadata);
 
