@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { findMetadataPda, parseMetadataAccount } from '@/programs';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { GmaBuilder, zipMap } from '@/utils';
+import { DisposableScope, GmaBuilder, zipMap } from '@/utils';
 import { Nft } from './Nft';
 
 // -----------------
@@ -26,11 +26,13 @@ export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNft
   {
     handle: async (
       operation: FindNftsByMintListOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<(Nft | null)[]> => {
       const mints = operation.input;
       const metadataPdas = mints.map((mint) => findMetadataPda(mint));
       const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas).get();
+      scope.throwIfCanceled();
 
       return zipMap(
         metadataPdas,

@@ -3,6 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByCreatorOperation } from './findNftsByCreator';
 import { Nft } from './Nft';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -30,7 +31,8 @@ export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<Fin
   {
     handle: async (
       operation: FindNftsByCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<Nft[]> => {
       const { candyMachine, version = 2 } = operation.input;
       let firstCreator = candyMachine;
@@ -47,7 +49,8 @@ export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<Fin
         findNftsByCreatorOperation({
           creator: firstCreator,
           position: 1,
-        })
+        }),
+        scope
       );
     },
   };

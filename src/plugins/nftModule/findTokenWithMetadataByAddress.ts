@@ -1,7 +1,13 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { toMetadata, toTokenWithMetadata, TokenWithMetadata } from './Metadata';
+import {
+  toTokenWithMetadata,
+  TokenWithMetadata,
+  Metadata,
+  LazyMetadata,
+  toLazyMetadata,
+} from './Metadata';
 import {
   toMint,
   toTokenWithMint,
@@ -53,6 +59,7 @@ export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<Fi
       const accounts = await metaplex
         .rpc()
         .getMultipleAccounts([mintAddress, metadataAddress], commitment);
+      scope.throwIfCanceled();
 
       const mintAccount = toMintAccount(accounts[0]);
       const metadataAccount = parseMetadataAccount(accounts[1]);
@@ -62,11 +69,13 @@ export const findTokenWithMetadataByAddressOperationHandler: OperationHandler<Fi
         return toTokenWithMint(tokenAccount, mintModel);
       }
 
-      let metadataModel = toMetadata(metadataAccount);
+      let metadataModel: Metadata | LazyMetadata =
+        toLazyMetadata(metadataAccount);
+
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
-          .loadJsonMetadata(metadataModel)
+          .loadMetadata(metadataModel)
           .run(scope);
       }
 

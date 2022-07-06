@@ -4,6 +4,7 @@ import { TokenProgram } from '../tokenModule';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { Nft } from './Nft';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -22,7 +23,8 @@ export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsBy
   {
     handle: async (
       operation: FindNftsByOwnerOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<Nft[]> => {
       const owner = operation.input;
 
@@ -31,6 +33,7 @@ export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsBy
         .whereOwner(owner)
         .whereAmount(1)
         .getDataAsPublicKeys();
+      scope.throwIfCanceled();
 
       const nfts = await metaplex
         .operations()

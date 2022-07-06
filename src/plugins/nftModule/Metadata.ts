@@ -19,11 +19,11 @@ import {
 
 export type Metadata = Readonly<{
   model: 'metadata';
+  lazy: false;
   address: Pda;
   mintAddress: PublicKey;
   updateAuthorityAddress: PublicKey;
   json: Option<JsonMetadata>;
-  jsonLoaded: boolean;
   name: string;
   symbol: string;
   uri: string;
@@ -51,14 +51,33 @@ export const assertMetadata = (value: any): asserts value is Metadata =>
 
 export const toMetadata = (
   account: MetadataAccount,
-  json?: Option<JsonMetadata>
+  json: Option<JsonMetadata>
 ): Metadata => ({
+  ...toLazyMetadata(account),
+  lazy: false,
+  json,
+});
+
+export type LazyMetadata = Omit<
+  Metadata,
+  'lazy' | 'mint' | 'edition' | 'json'
+> &
+  Readonly<{
+    lazy: true;
+  }>;
+
+export const isLazyMetadata = (value: any): value is LazyMetadata =>
+  typeof value === 'object' && value.model === 'metadata' && value.lazy;
+
+export const assertLazyMetadata = (value: any): asserts value is LazyMetadata =>
+  assert(isLazyMetadata(value), `Expected LazyMetadata model`);
+
+export const toLazyMetadata = (account: MetadataAccount): LazyMetadata => ({
   model: 'metadata',
+  lazy: true,
   address: findMetadataPda(account.data.mint),
   mintAddress: account.data.mint,
   updateAuthorityAddress: account.data.updateAuthority,
-  json: json ?? null,
-  jsonLoaded: json !== undefined,
   name: removeEmptyChars(account.data.data.name),
   symbol: removeEmptyChars(account.data.data.symbol),
   uri: removeEmptyChars(account.data.data.uri),
@@ -81,7 +100,7 @@ export const toMetadata = (
 export type MintWithMetadata = Omit<Mint, 'model'> &
   Readonly<{
     model: 'mintWithMetadata';
-    metadata: Metadata;
+    metadata: Metadata | LazyMetadata;
   }>;
 
 export const isMintWithMetadata = (value: any): value is MintWithMetadata =>
@@ -94,7 +113,7 @@ export const assertMintWithMetadata = (
 
 export const toMintWithMetadata = (
   mintAccount: MintAccount,
-  metadataModel: Metadata
+  metadataModel: Metadata | LazyMetadata
 ): MintWithMetadata => {
   const mint = toMint(mintAccount);
   const currency = {
@@ -114,7 +133,7 @@ export const toMintWithMetadata = (
 export type TokenWithMetadata = Omit<TokenWithMint, 'model'> &
   Readonly<{
     model: 'tokenWithMetadata';
-    metadata: Metadata;
+    metadata: Metadata | LazyMetadata;
   }>;
 
 export const isTokenWithMetadata = (value: any): value is TokenWithMetadata =>
@@ -128,7 +147,7 @@ export const assertTokenWithMetadata = (
 export const toTokenWithMetadata = (
   tokenAccount: TokenAccount,
   mintModel: Mint,
-  metadataModel: Metadata
+  metadataModel: Metadata | LazyMetadata
 ): TokenWithMetadata => {
   const token = toTokenWithMint(tokenAccount, mintModel);
   const currency = {

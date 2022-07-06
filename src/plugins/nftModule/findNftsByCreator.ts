@@ -4,6 +4,7 @@ import { Metaplex } from '@/Metaplex';
 import { TokenMetadataProgram } from '@/programs';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { Nft } from './Nft';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -31,7 +32,8 @@ export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNfts
   {
     handle: async (
       operation: FindNftsByCreatorOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<Nft[]> => {
       const { creator, position = 1 } = operation.input;
 
@@ -39,10 +41,11 @@ export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNfts
         .selectMint()
         .whereCreator(position, creator)
         .getDataAsPublicKeys();
+      scope.throwIfCanceled();
 
       const nfts = await metaplex
         .operations()
-        .execute(findNftsByMintListOperation(mints));
+        .execute(findNftsByMintListOperation(mints), scope);
 
       return nfts.filter((nft): nft is Nft => nft !== null);
     },

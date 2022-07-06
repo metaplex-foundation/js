@@ -7,8 +7,9 @@ import {
   toOriginalOrPrintEditionAccount,
 } from '@/programs';
 import { Operation, useOperation, OperationHandler } from '@/types';
+import { DisposableScope } from '@/utils';
 import { Nft, toNft } from './Nft';
-import { toMetadata } from './Metadata';
+import { toLazyMetadata } from './Metadata';
 import { toNftEdition } from './NftEdition';
 import { toMint, toMintAccount } from '../tokenModule';
 
@@ -28,7 +29,8 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
   {
     handle: async (
       operation: FindNftByMintOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<Nft> => {
       const mint = operation.input;
       const accounts = await metaplex
@@ -38,15 +40,19 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
           findMetadataPda(mint),
           findMasterEditionV2Pda(mint),
         ]);
+      scope.throwIfCanceled();
 
       const mintAccount = toMintAccount(accounts[0]);
       const metadataAccount = toMetadataAccount(accounts[1]);
       const editionAccount = toOriginalOrPrintEditionAccount(accounts[2]);
+      const lazyMetadata = toLazyMetadata(metadataAccount);
 
-      return toNft(
-        toMetadata(metadataAccount),
-        toMint(mintAccount),
-        toNftEdition(editionAccount)
-      );
+      const metadata = await metaplex
+        .nfts()
+        .loadMetadata(lazyMetadata)
+        .run(scope);
+      scope.throwIfCanceled();
+
+      return toNft(metadata, toMint(mintAccount), toNftEdition(editionAccount));
     },
   };
