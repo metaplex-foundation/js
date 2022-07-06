@@ -1,9 +1,9 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { TokenProgram } from '../tokenModule';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-import { Nft } from './Nft';
+import { LazyNft } from './Nft';
 import { DisposableScope } from '@/utils';
 
 // -----------------
@@ -13,7 +13,16 @@ import { DisposableScope } from '@/utils';
 const Key = 'FindNftsByOwnerOperation' as const;
 export const findNftsByOwnerOperation =
   useOperation<FindNftsByOwnerOperation>(Key);
-export type FindNftsByOwnerOperation = Operation<typeof Key, PublicKey, Nft[]>;
+export type FindNftsByOwnerOperation = Operation<
+  typeof Key,
+  FindNftsByOwnerInput,
+  LazyNft[]
+>;
+
+export type FindNftsByOwnerInput = {
+  owner: PublicKey;
+  commitment?: Commitment;
+};
 
 // -----------------
 // Handler
@@ -25,8 +34,8 @@ export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsBy
       operation: FindNftsByOwnerOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Nft[]> => {
-      const owner = operation.input;
+    ) => {
+      const { owner, commitment } = operation.input;
 
       const mints = await TokenProgram.tokenAccounts(metaplex)
         .selectMint()
@@ -37,8 +46,8 @@ export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsBy
 
       const nfts = await metaplex
         .operations()
-        .execute(findNftsByMintListOperation(mints));
+        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
 
-      return nfts.filter((nft): nft is Nft => nft !== null);
+      return nfts.filter((nft): nft is LazyNft => nft !== null);
     },
   };

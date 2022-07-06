@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import {
   findMasterEditionV2Pda,
@@ -19,7 +19,16 @@ import { toMint, toMintAccount } from '../tokenModule';
 
 const Key = 'FindNftByMintOperation' as const;
 export const findNftByMintOperation = useOperation<FindNftByMintOperation>(Key);
-export type FindNftByMintOperation = Operation<typeof Key, PublicKey, Nft>;
+export type FindNftByMintOperation = Operation<
+  typeof Key,
+  FindNftByMintInput,
+  Nft
+>;
+
+export type FindNftByMintInput = {
+  mint: PublicKey;
+  commitment?: Commitment;
+};
 
 // -----------------
 // Handler
@@ -32,14 +41,13 @@ export const findNftByMintOnChainOperationHandler: OperationHandler<FindNftByMin
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<Nft> => {
-      const mint = operation.input;
+      const { mint, commitment } = operation.input;
       const accounts = await metaplex
         .rpc()
-        .getMultipleAccounts([
-          mint,
-          findMetadataPda(mint),
-          findMasterEditionV2Pda(mint),
-        ]);
+        .getMultipleAccounts(
+          [mint, findMetadataPda(mint), findMasterEditionV2Pda(mint)],
+          commitment
+        );
       scope.throwIfCanceled();
 
       const mintAccount = toMintAccount(accounts[0]);

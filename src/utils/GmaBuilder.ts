@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
 import { Postpone } from './Postpone';
@@ -6,11 +6,13 @@ import { chunk } from './common';
 
 export interface GmaBuilderOptions {
   chunkSize?: number;
+  commitment?: Commitment;
 }
 
 export class GmaBuilder {
   protected readonly metaplex: Metaplex;
   protected readonly publicKeys: PublicKey[];
+  protected readonly commitment?: Commitment;
   protected chunkSize: number;
 
   constructor(
@@ -20,6 +22,7 @@ export class GmaBuilder {
   ) {
     this.metaplex = metaplex;
     this.chunkSize = options.chunkSize ?? 100;
+    this.commitment = options.commitment;
     this.publicKeys = publicKeys;
   }
 
@@ -112,10 +115,12 @@ export class GmaBuilder {
     publicKeys: PublicKey[]
   ): Promise<UnparsedMaybeAccount[]> {
     try {
-      // TODO: Use lower level RPC call to add dataSlice support.
-      return await this.metaplex.rpc().getMultipleAccounts(publicKeys);
+      // TODO(loris): Use lower level RPC call to add dataSlice support.
+      return await this.metaplex
+        .rpc()
+        .getMultipleAccounts(publicKeys, this.commitment);
     } catch (error) {
-      // TODO: Throw error instead?
+      // TODO(loris): Throw error instead?
       return publicKeys.map((publicKey) => ({
         publicKey: publicKey,
         exists: false,

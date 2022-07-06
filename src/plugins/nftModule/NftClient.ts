@@ -1,9 +1,9 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import { JsonMetadata } from './JsonMetadata';
 import { LazyMetadata, Metadata } from './Metadata';
-import { Nft } from './Nft';
+import { LazyNft, Nft } from './Nft';
 import {
   CreateNftInput,
   createNftOperation,
@@ -17,11 +17,23 @@ import {
   FindMintWithMetadataByMetadataInput,
   findMintWithMetadataByMetadataOperation,
 } from './findMintWithMetadataByMetadata';
-import { findNftByMintOperation } from './findNftByMint';
-import { findNftsByMintListOperation } from './findNftsByMintList';
-import { findNftsByOwnerOperation } from './findNftsByOwner';
-import { findNftsByCreatorOperation } from './findNftsByCreator';
-import { findNftsByCandyMachineOperation } from './findNftsByCandyMachine';
+import { FindNftByMintInput, findNftByMintOperation } from './findNftByMint';
+import {
+  FindNftsByMintListInput,
+  findNftsByMintListOperation,
+} from './findNftsByMintList';
+import {
+  FindNftsByOwnerInput,
+  findNftsByOwnerOperation,
+} from './findNftsByOwner';
+import {
+  FindNftsByCreatorInput,
+  findNftsByCreatorOperation,
+} from './findNftsByCreator';
+import {
+  FindNftsByCandyMachineInput,
+  findNftsByCandyMachineOperation,
+} from './findNftsByCandyMachine';
 import {
   FindTokenWithMetadataByAddressInput,
   findTokenWithMetadataByAddressOperation,
@@ -64,30 +76,49 @@ export class NftClient {
     });
   }
 
-  findByMint(mint: PublicKey): Task<Nft> {
-    return this.metaplex.operations().getTask(findNftByMintOperation(mint));
-  }
-
-  findAllByMintList(mints: PublicKey[]): Task<(Nft | null)[]> {
+  findByMint(
+    mint: PublicKey,
+    options?: Omit<FindNftByMintInput, 'mint'>
+  ): Task<Nft> {
     return this.metaplex
       .operations()
-      .getTask(findNftsByMintListOperation(mints));
+      .getTask(findNftByMintOperation({ mint, ...options }));
   }
 
-  findAllByOwner(owner: PublicKey): Task<Nft[]> {
-    return this.metaplex.operations().getTask(findNftsByOwnerOperation(owner));
-  }
-
-  findAllByCreator(creator: PublicKey, position: number = 1): Task<Nft[]> {
+  findAllByMintList(
+    mints: PublicKey[],
+    options?: Omit<FindNftsByMintListInput, 'mints'>
+  ): Task<(LazyNft | null)[]> {
     return this.metaplex
       .operations()
-      .getTask(findNftsByCreatorOperation({ creator, position }));
+      .getTask(findNftsByMintListOperation({ mints, ...options }));
   }
 
-  findAllByCandyMachine(candyMachine: PublicKey, version?: 1 | 2): Task<Nft[]> {
+  findAllByOwner(
+    owner: PublicKey,
+    options?: Omit<FindNftsByOwnerInput, 'owner'>
+  ): Task<LazyNft[]> {
     return this.metaplex
       .operations()
-      .getTask(findNftsByCandyMachineOperation({ candyMachine, version }));
+      .getTask(findNftsByOwnerOperation({ owner, ...options }));
+  }
+
+  findAllByCreator(
+    creator: PublicKey,
+    options?: Omit<FindNftsByCreatorInput, 'creator'>
+  ): Task<LazyNft[]> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByCreatorOperation({ creator, ...options }));
+  }
+
+  findAllByCandyMachine(
+    candyMachine: PublicKey,
+    options?: Omit<FindNftsByCandyMachineInput, 'creator'>
+  ): Task<LazyNft[]> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByCandyMachineOperation({ candyMachine, ...options }));
   }
 
   findMintWithMetadataByAddress(
