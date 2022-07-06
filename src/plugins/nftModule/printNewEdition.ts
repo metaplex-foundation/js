@@ -1,12 +1,8 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import {
-  createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners,
-  createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners,
   findEditionMarkerPda,
   findEditionPda,
-  findMasterEditionV2Pda,
   findMetadataPda,
 } from '@/programs';
 import {
@@ -16,7 +12,6 @@ import {
   Signer,
   token,
   toBigNumber,
-  isSigner,
 } from '@/types';
 import {
   DisposableScope,
@@ -24,8 +19,13 @@ import {
   TransactionBuilder,
 } from '@/utils';
 import { Nft } from './Nft';
-import { SendAndConfirmTransactionResponse } from '..';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { assertNftOriginalEdition } from './NftEdition';
+import {
+  createMintNewEditionFromMasterEditionViaTokenInstruction,
+  createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
+} from '@metaplex-foundation/mpl-token-metadata';
 
 // -----------------
 // Operation
@@ -49,6 +49,7 @@ export type PrintNewEditionSharedInput = {
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
   newOwner?: PublicKey; // Defaults to mx.identity().
+  newTokenAccount?: Signer; // Defaults to creating an associated token account.
   newFreezeAuthority?: PublicKey; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
   tokenProgram?: PublicKey;
@@ -100,18 +101,16 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
 // Builder
 // -----------------
 
-export type PrintNewEditionBuilderParams = Omit<
-  PrintNewEditionInput,
-  'confirmOptions'
-> & {
-  createMintAccountInstructionKey?: string;
-  initializeMintInstructionKey?: string;
-  createAssociatedTokenAccountInstructionKey?: string;
-  createTokenAccountInstructionKey?: string;
-  initializeTokenInstructionKey?: string;
-  mintTokensInstructionKey?: string;
-  printNewEditionInstructionKey?: string;
-};
+export type PrintNewEditionBuilderParams = PrintNewEditionViaInput &
+  Omit<PrintNewEditionSharedInput, 'confirmOptions'> & {
+    createMintAccountInstructionKey?: string;
+    initializeMintInstructionKey?: string;
+    createAssociatedTokenAccountInstructionKey?: string;
+    createTokenAccountInstructionKey?: string;
+    initializeTokenInstructionKey?: string;
+    mintTokensInstructionKey?: string;
+    printNewEditionInstructionKey?: string;
+  };
 
 export type PrintNewEditionBuilderContext = Omit<
   PrintNewEditionOutput,
@@ -128,6 +127,7 @@ export const printNewEditionBuilder = async (
     newMintAuthority = metaplex.identity(),
     newUpdateAuthority = metaplex.identity().publicKey,
     newOwner = metaplex.identity().publicKey,
+    newTokenAccount,
     newFreezeAuthority = metaplex.identity().publicKey,
     payer = metaplex.identity(),
     tokenProgram,
@@ -147,21 +147,16 @@ export const printNewEditionBuilder = async (
   // New NFT.
   const newMetadataAddress = findMetadataPda(newMint.publicKey);
   const newEditionAddress = findEditionPda(newMint.publicKey);
-  const sharedInput = {
-    edition,
-    newMint,
+  const sharedAccounts = {
     newMetadata: newMetadataAddress,
     newEdition: newEditionAddress,
-    newMintAuthority,
-    newUpdateAuthority,
-    newOwner,
-    newFreezeAuthority,
-    payer,
-    originalMetadata: originalNft.metadataAddress,
-    originalEdition: originalNft.edition.address,
-    originalEditionMarkPda,
-    tokenProgram,
-    associatedTokenProgram,
+    masterEdition: originalNft.edition.address,
+    newMint: newMint.publicKey,
+    editionMarkPda: originalEditionMarkPda,
+    newMintAuthority: newMintAuthority.publicKey,
+    payer: payer.publicKey,
+    newMetadataUpdateAuthority: newUpdateAuthority,
+    metadata: originalNft.metadataAddress,
   };
 
   const tokenWithMintBuilder = await metaplex
@@ -174,6 +169,7 @@ export const printNewEditionBuilder = async (
       mintAuthority: newMintAuthority,
       freezeAuthority: newFreezeAuthority ?? null,
       owner: newOwner,
+      token: newTokenAccount,
       payer,
       tokenProgram,
       associatedTokenProgram,
@@ -190,42 +186,46 @@ export const printNewEditionBuilder = async (
 
   let printNewEditionInstructionWithSigners: InstructionWithSigners;
   if (params.via === 'vault') {
-    printNewEditionInstructionWithSigners =
-      createMintNewEditionFromMasterEditionViaVaultProxyInstructionWithSigners({
-        edition,
-        newMetadata,
-        newEdition,
-        masterEdition: originalEdition,
-        newMint,
-        editionMarkPda: originalEditionMarkPda,
-        newMintAuthority,
-        payer,
-        vaultAuthority: params.vaultAuthority,
-        safetyDepositStore: params.safetyDepositStore,
-        safetyDepositBox: params.safetyDepositBox,
-        vault: params.vault,
-        newMetadataUpdateAuthority: newUpdateAuthority,
-        metadata: originalMetadata,
-        tokenVaultProgram: params.tokenVaultProgram,
-        instructionKey: printNewEditionInstructionKey,
-      });
+    printNewEditionInstructionWithSigners = {
+      instruction:
+        createMintNewEditionFromMasterEditionViaVaultProxyInstruction(
+          {
+            ...sharedAccounts,
+            vaultAuthority: params.vaultAuthority.publicKey,
+            safetyDepositStore: params.safetyDepositStore,
+            safetyDepositBox: params.safetyDepositBox,
+            vault: params.vault,
+            tokenVaultProgram:
+              params.tokenVaultProgram ??
+              new PublicKey('vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn'),
+          },
+          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+        ),
+      signers: [newMint, newMintAuthority, payer, params.vaultAuthority],
+      key: printNewEditionInstructionKey,
+    };
   } else {
-    printNewEditionInstructionWithSigners =
-      createMintNewEditionFromMasterEditionViaTokenInstructionWithSigners({
-        edition,
-        newMetadata,
-        newEdition,
-        masterEdition: originalEdition,
-        newMint,
-        editionMarkPda: originalEditionMarkPda,
-        newMintAuthority,
-        payer,
-        tokenAccountOwner: params.originalTokenAccountOwner,
-        tokenAccount: params.originalTokenAccount,
-        newMetadataUpdateAuthority: newUpdateAuthority,
-        metadata: originalMetadata,
-        instructionKey: printNewEditionInstructionKey,
-      });
+    const originalTokenAccountOwner =
+      params.originalTokenAccountOwner ?? metaplex.identity();
+    const originalTokenAccount =
+      params.originalTokenAccount ??
+      findAssociatedTokenAccountPda(
+        originalNft.mintAddress,
+        originalTokenAccountOwner.publicKey
+      );
+
+    printNewEditionInstructionWithSigners = {
+      instruction: createMintNewEditionFromMasterEditionViaTokenInstruction(
+        {
+          ...sharedAccounts,
+          tokenAccountOwner: originalTokenAccountOwner.publicKey,
+          tokenAccount: originalTokenAccount,
+        },
+        { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+      ),
+      signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
+      key: printNewEditionInstructionKey,
+    };
   }
 
   return (

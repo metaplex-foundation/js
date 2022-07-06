@@ -204,15 +204,15 @@ export class NftClient {
   }
 
   printNewEdition(
-    originalMint: PublicKey,
-    input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
+    originalNft: Nft,
+    input: Omit<PrintNewEditionSharedInput, 'originalNft'> &
       PrintNewEditionViaInput = {}
   ): Task<PrintNewEditionOutput & { nft: Nft }> {
     return new Task(async (scope) => {
-      const operation = printNewEditionOperation({ originalMint, ...input });
+      const operation = printNewEditionOperation({ originalNft, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mint.publicKey).run(scope);
+      const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
       return { ...output, nft };
     });
   }
