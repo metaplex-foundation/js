@@ -1,7 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
-import { Postpone } from './Postpone';
 import { chunk } from './common';
 
 export interface GmaBuilderOptions {
@@ -89,14 +88,10 @@ export class GmaBuilder {
     return this.getChunks(this.getPublicKeys());
   }
 
-  lazy(): Postpone<UnparsedMaybeAccount[]> {
-    return Postpone.make(async () => this.get());
-  }
-
   async getAndMap<T>(
     callback: (account: UnparsedMaybeAccount) => T
   ): Promise<T[]> {
-    return this.lazy().map(callback).run();
+    return (await this.get()).map(callback);
   }
 
   protected async getChunks(

@@ -1,7 +1,4 @@
-import {
-  MetaplexError,
-  MetaplexErrorInputWithoutSource,
-} from './MetaplexError';
+import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
 
 export class NftError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
