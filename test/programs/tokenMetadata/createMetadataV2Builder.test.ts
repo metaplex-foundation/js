@@ -1,12 +1,16 @@
 import test, { Test } from 'tape';
 import { Keypair } from '@solana/web3.js';
 import {
-  createCreateMetadataAccountV2InstructionWithSigners,
+  findEditionPda,
   findMetadataPda,
   token,
   TransactionBuilder,
 } from '@/index';
 import { metaplex, killStuckProcess, amman } from '../../helpers';
+import {
+  createCreateMasterEditionV3Instruction,
+  createCreateMetadataAccountV2Instruction,
+} from '@metaplex-foundation/mpl-token-metadata';
 
 killStuckProcess();
 
@@ -19,7 +23,11 @@ test('it works when we give an explicit payer for the create metadata ix only', 
   const mx = await metaplex();
   const mint = Keypair.generate();
   const metadata = findMetadataPda(mint.publicKey);
-  const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
+  const edition = findEditionPda(mint.publicKey);
+  const { uri } = await mx
+    .nfts()
+    .uploadMetadata({ name: 'Metadata Name' })
+    .run();
   const data = {
     name: 'My NFT',
     symbol: 'MNFT',
@@ -52,23 +60,41 @@ test('it works when we give an explicit payer for the create metadata ix only', 
           payer: mx.identity(),
         })
     )
-    .add(
-      createCreateMetadataAccountV2InstructionWithSigners({
-        data,
-        isMutable: false,
-        mintAuthority: mx.identity(),
-        payer: explicitPayer,
-        mint: mint.publicKey,
-        metadata,
-        updateAuthority: mx.identity().publicKey,
-      })
-    );
+    .add({
+      instruction: createCreateMetadataAccountV2Instruction(
+        {
+          metadata,
+          mint: mint.publicKey,
+          mintAuthority: mx.identity().publicKey,
+          payer: explicitPayer.publicKey,
+          updateAuthority: mx.identity().publicKey,
+        },
+        { createMetadataAccountArgsV2: { data, isMutable: false } }
+      ),
+      signers: [explicitPayer],
+    })
+    .add({
+      instruction: createCreateMasterEditionV3Instruction(
+        {
+          edition,
+          mint: mint.publicKey,
+          updateAuthority: mx.identity().publicKey,
+          mintAuthority: mx.identity().publicKey,
+          payer: explicitPayer.publicKey,
+          metadata,
+        },
+        {
+          createMasterEditionArgs: { maxSupply: 0 },
+        }
+      ),
+      signers: [explicitPayer],
+    });
 
   // And send it with confirmation.
   await mx.rpc().sendAndConfirmTransaction(tx);
 
   // Then the transaction succeeded and the NFT was created.
-  const nft = await mx.nfts().findByMint(mint.publicKey);
+  const nft = await mx.nfts().findByMint(mint.publicKey).run();
   t.equal(nft.name, 'My NFT');
-  t.equal(nft.metadataAccount.publicKey.toBase58(), metadata.toBase58());
+  t.equal(nft.metadataAddress.toBase58(), metadata.toBase58());
 });

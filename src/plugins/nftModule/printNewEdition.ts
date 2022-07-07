@@ -22,11 +22,7 @@ import {
 import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import {
-  assertNftOriginalEdition,
-  NftOriginalEdition,
-  toNftOriginalEdition,
-} from './NftEdition';
+import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
 import {
   createMintNewEditionFromMasterEditionViaTokenInstruction,
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
