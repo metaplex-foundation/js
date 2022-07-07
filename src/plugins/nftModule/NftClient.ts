@@ -46,6 +46,7 @@ import {
   FindTokenWithMetadataByMintInput,
   findTokenWithMetadataByMintOperation,
 } from './findTokenWithMetadataByMint';
+import { loadMetadataOperation } from './loadMetadata';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
@@ -186,21 +187,10 @@ export class NftClient {
     );
   }
 
-  uploadMetadata(input: UploadMetadataInput): Task<UploadMetadataOutput> {
-    return this.metaplex.operations().getTask(uploadMetadataOperation(input));
-  }
-
-  update(
-    nft: Nft | LazyNft,
-    input: Omit<UpdateNftInput, 'nft'>
-  ): Task<UpdateNftOutput & { nft: Nft }> {
-    return new Task(async (scope) => {
-      const operation = updateNftOperation({ ...input, nft });
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
-      return { ...output, nft: updatedNft };
-    });
+  loadMetadata(metadata: LazyMetadata): Task<Metadata> {
+    return this.metaplex
+      .operations()
+      .getTask(loadMetadataOperation({ metadata }));
   }
 
   printNewEdition(
@@ -217,16 +207,20 @@ export class NftClient {
     });
   }
 
-  loadMetadata(metadata: LazyMetadata): Task<Metadata> {
+  uploadMetadata(input: UploadMetadataInput): Task<UploadMetadataOutput> {
+    return this.metaplex.operations().getTask(uploadMetadataOperation(input));
+  }
+
+  update(
+    nft: Nft | LazyNft,
+    input: Omit<UpdateNftInput, 'nft'>
+  ): Task<UpdateNftOutput & { nft: Nft }> {
     return new Task(async (scope) => {
-      try {
-        const json = await this.metaplex
-          .storage()
-          .downloadJson<JsonMetadata>(metadata.uri, scope);
-        return { ...metadata, lazy: false, json };
-      } catch (error) {
-        return { ...metadata, lazy: false, json: null };
-      }
+      const operation = updateNftOperation({ ...input, nft });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
+      return { ...output, nft: updatedNft };
     });
   }
 }
