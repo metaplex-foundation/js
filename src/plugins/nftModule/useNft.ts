@@ -23,6 +23,9 @@ export interface UseNftInput {
   // Signers.
   useAuthority?: Signer;
 
+  // Public Keys.
+  owner?: PublicKey;
+
   // Options.
   confirmOptions?: ConfirmOptions;
 }
@@ -41,21 +44,15 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
       numberOfUses = 1,
       useAuthority = metaplex.identity(),
       confirmOptions,
+      owner = useAuthority.publicKey,
     } = operation.input;
 
-    // something is wrong here...
-    const owner = nft.metadataAccount.owner;
     const metadata = findMetadataPda(nft.mint);
     const tokenAccount = findAssociatedTokenAccountPda(nft.mint, owner);
 
-    console.log({
-      useAuthority: useAuthority.publicKey.toString(),
-      owner: owner.toString(),
-    });
-
     const accounts: UtilizeInstructionAccounts = {
       mint: nft.mint,
-      useAuthority: owner,
+      useAuthority: useAuthority.publicKey,
       owner,
       tokenAccount,
       metadata,
