@@ -156,49 +156,70 @@ export function assertSameCurrencies<L extends Currency, R extends Currency>(
   }
 }
 
-export const addAmounts = (left: Amount, right: Amount): Amount => {
+export const addAmounts = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): Amount<T> => {
   assertSameCurrencies(left, right, 'add');
 
   return amount(left.basisPoints.add(right.basisPoints), left.currency);
 };
 
-export const subtractAmounts = (left: Amount, right: Amount): Amount => {
+export const subtractAmounts = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): Amount<T> => {
   assertSameCurrencies(left, right, 'subtract');
 
   return amount(left.basisPoints.sub(right.basisPoints), left.currency);
 };
 
-export const multiplyAmount = (left: Amount, multiplier: number): Amount => {
+export const multiplyAmount = <T extends Currency>(
+  left: Amount<T>,
+  multiplier: number
+): Amount<T> => {
   return amount(left.basisPoints.muln(multiplier), left.currency);
 };
 
-export const divideAmount = (left: Amount, divisor: number): Amount => {
+export const divideAmount = <T extends Currency>(
+  left: Amount<T>,
+  divisor: number
+): Amount<T> => {
   return amount(left.basisPoints.divn(divisor), left.currency);
 };
 
-export const compareAmounts = (left: Amount, right: Amount): -1 | 0 | 1 => {
+export const compareAmounts = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): -1 | 0 | 1 => {
   assertSameCurrencies(left, right, 'compare');
 
   return left.basisPoints.cmp(right.basisPoints);
 };
 
-export const isEqualToAmount = (left: Amount, right: Amount): boolean =>
-  compareAmounts(left, right) === 0;
+export const isEqualToAmount = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): boolean => compareAmounts(left, right) === 0;
 
-export const isLessThanAmount = (left: Amount, right: Amount): boolean =>
-  compareAmounts(left, right) < 0;
+export const isLessThanAmount = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): boolean => compareAmounts(left, right) < 0;
 
-export const isLessThanOrEqualToAmount = (
-  left: Amount,
-  right: Amount
+export const isLessThanOrEqualToAmount = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
 ): boolean => compareAmounts(left, right) <= 0;
 
-export const isGreaterThanAmount = (left: Amount, right: Amount): boolean =>
-  compareAmounts(left, right) > 0;
+export const isGreaterThanAmount = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
+): boolean => compareAmounts(left, right) > 0;
 
-export const isGreaterThanOrEqualToAmount = (
-  left: Amount,
-  right: Amount
+export const isGreaterThanOrEqualToAmount = <T extends Currency>(
+  left: Amount<T>,
+  right: Amount<T>
 ): boolean => compareAmounts(left, right) >= 0;
 
 export const isZeroAmount = (value: Amount): boolean =>
