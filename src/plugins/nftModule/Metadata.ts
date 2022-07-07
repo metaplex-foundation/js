@@ -7,7 +7,8 @@ import {
 import { amount, BigNumber, Creator, Pda, toBigNumber } from '@/types';
 import { JsonMetadata } from '../nftModule';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { findMetadataPda, MetadataAccount } from '@/programs';
+import { findMetadataPda } from './pdas';
+import { MetadataAccount } from './accounts';
 import {
   toMint,
   toTokenWithMint,

@@ -9,7 +9,8 @@ import {
   LazyMetadata,
 } from './Metadata';
 import { toMint, Mint, toMintAccount } from '../tokenModule';
-import { findMetadataPda, parseMetadataAccount } from '@/programs';
+import { findMetadataPda } from './pdas';
+import { parseMetadataAccount } from './accounts';
 import { DisposableScope } from '@/utils';
 
 // -----------------

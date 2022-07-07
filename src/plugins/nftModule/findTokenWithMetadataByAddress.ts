@@ -15,7 +15,8 @@ import {
   toMintAccount,
   toTokenAccount,
 } from '../tokenModule';
-import { findMetadataPda, parseMetadataAccount } from '@/programs';
+import { parseMetadataAccount } from './accounts';
+import { findMetadataPda } from './pdas';
 import { DisposableScope } from '@/utils';
 
 // -----------------

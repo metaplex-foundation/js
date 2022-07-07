@@ -3,10 +3,8 @@ import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 import { LazyNft, Nft, toNft } from './Nft';
-import {
-  findMasterEditionV2Pda,
-  toOriginalOrPrintEditionAccount,
-} from '@/programs';
+import { toOriginalOrPrintEditionAccount } from './accounts';
+import { findMasterEditionV2Pda } from './pdas';
 import { toMint, toMintAccount } from '../tokenModule';
 import { LazyMetadata } from './Metadata';
 import { toNftEdition } from './NftEdition';

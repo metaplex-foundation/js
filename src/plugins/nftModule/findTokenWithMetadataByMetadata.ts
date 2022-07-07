@@ -14,7 +14,7 @@ import {
   toTokenAccount,
   findAssociatedTokenAccountPda,
 } from '../tokenModule';
-import { toMetadataAccount } from '@/programs';
+import { toMetadataAccount } from './accounts';
 import { DisposableScope } from '@/utils';
 
 // -----------------

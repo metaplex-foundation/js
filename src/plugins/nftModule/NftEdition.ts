@@ -5,7 +5,7 @@ import {
   OriginalEditionAccount,
   OriginalOrPrintEditionAccount,
   PrintEditionAccount,
-} from '@/programs';
+} from './accounts';
 import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
 
 export type NftEdition = NftOriginalEdition | NftPrintEdition;

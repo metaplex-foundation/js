@@ -9,7 +9,7 @@ import {
   LazyMetadata,
 } from './Metadata';
 import { toMintAccount } from '../tokenModule';
-import { toMetadataAccount } from '@/programs';
+import { toMetadataAccount } from './accounts';
 import { DisposableScope } from '@/utils';
 
 // -----------------

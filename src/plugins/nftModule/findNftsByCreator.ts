@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { TokenMetadataProgram } from '@/programs';
+import { TokenMetadataProgram } from './program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { LazyNft } from './Nft';
 import { DisposableScope } from '@/utils';

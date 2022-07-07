@@ -1,11 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import {
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  toMetadataAccount,
-  toOriginalOrPrintEditionAccount,
-} from '@/programs';
+import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
+import { toMetadataAccount, toOriginalOrPrintEditionAccount } from './accounts';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Nft, toNft } from './Nft';

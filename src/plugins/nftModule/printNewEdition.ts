@@ -5,8 +5,8 @@ import {
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  toOriginalEditionAccount,
-} from '@/programs';
+} from './pdas';
+import { toOriginalEditionAccount } from './accounts';
 import {
   useOperation,
   Operation,

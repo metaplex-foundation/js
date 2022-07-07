@@ -16,7 +16,7 @@ import {
   BigNumber,
   toUniformVerifiedCreators,
 } from '@/types';
-import { findMasterEditionV2Pda, findMetadataPda } from '@/programs';
+import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 

@@ -1,6 +1,7 @@
 import { cusper } from '@metaplex-foundation/mpl-token-metadata';
 import type { Metaplex } from '@/Metaplex';
-import { TokenMetadataGpaBuilder, TokenMetadataProgram } from '@/programs';
+import { TokenMetadataProgram } from './program';
+import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
