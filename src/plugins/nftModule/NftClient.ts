@@ -85,7 +85,7 @@ export class NftClient {
   findAllByMintList(
     mints: PublicKey[],
     options?: Omit<FindNftsByMintListInput, 'mints'>
-  ): Task<(LazyNft | null)[]> {
+  ) {
     return this.metaplex
       .operations()
       .getTask(findNftsByMintListOperation({ mints, ...options }));
@@ -94,7 +94,7 @@ export class NftClient {
   findAllByOwner(
     owner: PublicKey,
     options?: Omit<FindNftsByOwnerInput, 'owner'>
-  ): Task<LazyNft[]> {
+  ) {
     return this.metaplex
       .operations()
       .getTask(findNftsByOwnerOperation({ owner, ...options }));
@@ -103,7 +103,7 @@ export class NftClient {
   findAllByCreator(
     creator: PublicKey,
     options?: Omit<FindNftsByCreatorInput, 'creator'>
-  ): Task<LazyNft[]> {
+  ) {
     return this.metaplex
       .operations()
       .getTask(findNftsByCreatorOperation({ creator, ...options }));

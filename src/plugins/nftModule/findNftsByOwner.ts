@@ -3,7 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import { TokenProgram } from '../tokenModule';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-import { LazyNft } from './Nft';
+import { LazyNft, Nft } from './Nft';
 import { DisposableScope } from '@/utils';
 
 // -----------------
@@ -16,7 +16,7 @@ export const findNftsByOwnerOperation =
 export type FindNftsByOwnerOperation = Operation<
   typeof Key,
   FindNftsByOwnerInput,
-  LazyNft[]
+  (LazyNft | Nft)[]
 >;
 
 export type FindNftsByOwnerInput = {

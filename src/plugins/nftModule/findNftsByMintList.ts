@@ -4,7 +4,7 @@ import { parseMetadataAccount } from './accounts';
 import { findMetadataPda } from './pdas';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope, GmaBuilder, zipMap } from '@/utils';
-import { LazyNft, toLazyNft } from './Nft';
+import { LazyNft, Nft, toLazyNft } from './Nft';
 import { toLazyMetadata } from './Metadata';
 
 // -----------------
@@ -17,7 +17,7 @@ export const findNftsByMintListOperation =
 export type FindNftsByMintListOperation = Operation<
   typeof Key,
   FindNftsByMintListInput,
-  (LazyNft | null)[]
+  (LazyNft | Nft | null)[]
 >;
 
 export type FindNftsByMintListInput = {
