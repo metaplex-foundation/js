@@ -3,7 +3,9 @@ import {
   amount,
   BigNumber,
   DateTime,
+  lamports,
   Pda,
+  SolAmount,
   SplTokenAmount,
   toBigNumber,
   toDateTime,
@@ -30,7 +32,7 @@ export type Listing = Readonly<{
   purchaseReceiptAddress: Option<PublicKey>;
 
   // Data.
-  price: SplTokenAmount;
+  price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
   createdAt: DateTime;
   canceledAt: Option<DateTime>;
@@ -92,7 +94,9 @@ export const toLazyListing = (
     purchaseReceiptAddress: account.data.purchaseReceipt,
 
     // Data.
-    price: amount(account.data.price, auctionHouseModel.treasuryMint.currency),
+    price: auctionHouseModel.isNative
+      ? lamports(account.data.price)
+      : amount(account.data.price, auctionHouseModel.treasuryMint.currency),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),

@@ -73,7 +73,7 @@ export type CreateListingOutput = {
   wallet: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
-  price: SplTokenAmount;
+  price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
 };
 
@@ -114,7 +114,9 @@ export const createListingBuilder = (
   const priceBasisPoint = params.auctioneerAuthority
     ? AUCTIONEER_PRICE
     : params.price?.basisPoints ?? 0;
-  const price = amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+  const price = auctionHouse.isNative
+    ? lamports(priceBasisPoint)
+    : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
   // Accounts.
   const wallet = params.wallet ?? (metaplex.identity() as Signer);

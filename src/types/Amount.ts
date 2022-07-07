@@ -24,7 +24,7 @@ export type SplTokenAmount = Amount<SplTokenCurrency>;
 export const SOL = {
   symbol: 'SOL',
   decimals: 9,
-};
+} as const;
 export type SolCurrency = typeof SOL;
 export type SolAmount = Amount<SolCurrency>;
 
