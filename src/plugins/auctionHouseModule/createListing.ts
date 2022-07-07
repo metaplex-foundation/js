@@ -32,7 +32,7 @@ import {
 } from './pdas';
 import { AuctionHouse } from './AuctionHouse';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { findMetadataPda } from '@/programs';
+import { findMetadataPda } from '../nftModule';
 import { AUCTIONEER_PRICE } from './constants';
 
 // -----------------
