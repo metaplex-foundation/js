@@ -28,6 +28,6 @@ export const isBigNumber = (value: any): value is BigNumber => {
   return value?.__opaque__ === 'BigNumber';
 };
 
-export const assertBigNumber = (value: any): asserts value is BigNumber => {
+export function assertBigNumber(value: any): asserts value is BigNumber {
   assert(isBigNumber(value), 'Expected BigNumber type');
-};
+}

@@ -1,9 +1,15 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { toMetadata, toMintWithMetadata, MintWithMetadata } from './Metadata';
+import {
+  toMintWithMetadata,
+  MintWithMetadata,
+  toLazyMetadata,
+  Metadata,
+  LazyMetadata,
+} from './Metadata';
 import { toMintAccount } from '../tokenModule';
-import { toMetadataAccount } from '@/programs';
+import { toMetadataAccount } from './accounts';
 import { DisposableScope } from '@/utils';
 
 // -----------------
@@ -45,16 +51,20 @@ export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<Fi
       const metadataAccount = toMetadataAccount(
         await metaplex.rpc().getAccount(metadataAddress, commitment)
       );
+      scope.throwIfCanceled();
 
       const mintAccount = toMintAccount(
         await metaplex.rpc().getAccount(metadataAccount.data.mint, commitment)
       );
+      scope.throwIfCanceled();
 
-      let metadataModel = toMetadata(metadataAccount);
+      let metadataModel: Metadata | LazyMetadata =
+        toLazyMetadata(metadataAccount);
+
       if (loadJsonMetadata) {
         metadataModel = await metaplex
           .nfts()
-          .loadJsonMetadata(metadataModel)
+          .loadMetadata(metadataModel)
           .run(scope);
       }
 

@@ -1,11 +1,11 @@
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   assertSol,
   Operation,
   OperationHandler,
   Signer,
+  SolAmount,
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
@@ -22,7 +22,7 @@ export type TransferSolOperation = Operation<
 export type TransferSolInput = {
   from?: Signer; // Defaults to mx.identity().
   to: PublicKey;
-  amount: Amount;
+  amount: SolAmount;
   basePubkey?: PublicKey;
   seed?: string;
   program?: PublicKey;

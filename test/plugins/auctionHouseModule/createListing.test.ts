@@ -26,7 +26,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   // When we list that NFT for 6.5 SOL.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mint,
+      mintAccount: nft.mintAddress,
       price: sol(6.5),
     })
     .run();
@@ -40,9 +40,12 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
       address: spokSamePubkey(auctionHouse.address),
     },
     token: {
-      address: findAssociatedTokenAccountPda(nft.mint, mx.identity().publicKey),
+      address: findAssociatedTokenAccountPda(
+        nft.mintAddress,
+        mx.identity().publicKey
+      ),
       mint: {
-        address: spokSamePubkey(nft.mint),
+        address: spokSamePubkey(nft.mintAddress),
       },
     },
   };
@@ -70,7 +73,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   // When we list that NFT without printing a receipt.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mint,
+      mintAccount: nft.mintAddress,
       price: sol(1),
       printReceipt: false,
     })

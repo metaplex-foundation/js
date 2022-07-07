@@ -6,11 +6,11 @@ import {
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   assertSol,
   Operation,
   OperationHandler,
   Signer,
+  SolAmount,
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
@@ -26,7 +26,7 @@ export type CreateAccountOperation = Operation<
 
 export type CreateAccountInput = {
   space: number;
-  lamports?: Amount; // Defaults to rent-exemption for given space.
+  lamports?: SolAmount; // Defaults to rent-exemption for given space.
   payer?: Signer; // Defaults to mx.identity().
   newAccount?: Signer; // Defaults to new generated Keypair.
   program?: PublicKey; // Defaults to System Program.
@@ -36,7 +36,7 @@ export type CreateAccountInput = {
 export type CreateAccountOutput = {
   response: SendAndConfirmTransactionResponse;
   newAccount: Signer;
-  lamports: Amount;
+  lamports: SolAmount;
 };
 
 export const createAccountOperationHandler: OperationHandler<CreateAccountOperation> =

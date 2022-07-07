@@ -31,20 +31,10 @@ export type CreateBidOutput = {
 
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   handle: async (operation: CreateBidOperation, metaplex: Metaplex) => {
-    const builder = createBidBuilder(metaplex, operation.input);
-
-    const response = await metaplex
-      .rpc()
-      .sendAndConfirmTransaction(
-        builder,
-        undefined,
-        operation.input.confirmOptions
-      );
-
-    return {
-      response,
-      ...builder.getContext(),
-    };
+    return createBidBuilder(metaplex, operation.input).sendAndConfirm(
+      metaplex,
+      operation.input.confirmOptions
+    );
   },
 };
 

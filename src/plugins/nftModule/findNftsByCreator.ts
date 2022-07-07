@@ -1,9 +1,10 @@
-import { PublicKey } from '@solana/web3.js';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { TokenMetadataProgram } from '@/programs';
+import { TokenMetadataProgram } from './program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-import { Nft } from './Nft';
+import { LazyNft, Nft } from './Nft';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -15,35 +16,38 @@ export const findNftsByCreatorOperation =
 export type FindNftsByCreatorOperation = Operation<
   typeof Key,
   FindNftsByCreatorInput,
-  Nft[]
+  (LazyNft | Nft)[]
 >;
 
 export interface FindNftsByCreatorInput {
   creator: PublicKey;
   position?: number;
+  commitment?: Commitment;
 }
 
 // -----------------
 // Handler
 // -----------------
 
-export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNftsByCreatorOperation> =
+export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreatorOperation> =
   {
     handle: async (
       operation: FindNftsByCreatorOperation,
-      metaplex: Metaplex
-    ): Promise<Nft[]> => {
-      const { creator, position = 1 } = operation.input;
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const { creator, position = 1, commitment } = operation.input;
 
       const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
         .selectMint()
         .whereCreator(position, creator)
         .getDataAsPublicKeys();
+      scope.throwIfCanceled();
 
       const nfts = await metaplex
         .operations()
-        .execute(findNftsByMintListOperation(mints));
+        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
 
-      return nfts.filter((nft): nft is Nft => nft !== null);
+      return nfts.filter((nft): nft is LazyNft => nft !== null);
     },
   };

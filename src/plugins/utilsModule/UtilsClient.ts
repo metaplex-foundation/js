@@ -1,9 +1,9 @@
 import type { Metaplex } from '@/Metaplex';
 import {
   addAmounts,
-  Amount,
   lamports,
   multiplyAmount,
+  SolAmount,
   subtractAmounts,
 } from '@/types';
 
@@ -11,8 +11,8 @@ const TRANSACTION_FEE = 5000;
 
 export class UtilsClient {
   protected readonly metaplex: Metaplex;
-  protected cachedRentPerEmptyAccount: Amount | null = null;
-  protected cachedRentPerByte: Amount | null = null;
+  protected cachedRentPerEmptyAccount: SolAmount | null = null;
+  protected cachedRentPerByte: SolAmount | null = null;
 
   constructor(metaplex: Metaplex) {
     this.metaplex = metaplex;
@@ -23,7 +23,7 @@ export class UtilsClient {
     numberOfAccounts: number = 1,
     numberOfTransactions: number = 1,
     useCache = true
-  ): Promise<Amount> {
+  ): Promise<SolAmount> {
     const rent = await this.estimateRent(bytes, numberOfAccounts, useCache);
     const transactionFees = this.estimateTransactionFee(numberOfTransactions);
 
@@ -34,7 +34,7 @@ export class UtilsClient {
     bytes: number,
     numberOfAccounts: number = 1,
     useCache: boolean = true
-  ): Promise<Amount> {
+  ): Promise<SolAmount> {
     if (
       !useCache ||
       this.cachedRentPerEmptyAccount === null ||
@@ -55,7 +55,7 @@ export class UtilsClient {
     return addAmounts(rentForAccounts, rentForBytes);
   }
 
-  estimateTransactionFee(numberOfTransactions: number = 1): Amount {
+  estimateTransactionFee(numberOfTransactions: number = 1): SolAmount {
     // TODO(loris): Improve with an RPC call to get the current transaction fee.
     return lamports(numberOfTransactions * TRANSACTION_FEE);
   }

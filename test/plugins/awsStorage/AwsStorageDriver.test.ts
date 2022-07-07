@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
 import { killStuckProcess, metaplex } from '../../helpers';
-import { awsStorage, useMetaplexFile } from '@/index';
+import { awsStorage, toMetaplexFile } from '@/index';
 
 killStuckProcess();
 
@@ -26,7 +26,7 @@ test('it can upload assets to a S3 bucket', async (t: Test) => {
   mx.use(awsStorage(awsClient, 'some-bucket'));
 
   // When we upload some content to AWS S3.
-  const file = useMetaplexFile('some-image', 'some-image.jpg', {
+  const file = toMetaplexFile('some-image', 'some-image.jpg', {
     uniqueName: 'some-key',
   });
   const uri = await mx.storage().upload(file);

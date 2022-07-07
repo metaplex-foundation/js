@@ -41,8 +41,16 @@ export const createNft = async (
   metadata: UploadMetadataInput = {},
   onChain: Partial<CreateNftInput> = {}
 ) => {
-  const { uri } = await mx.nfts().uploadMetadata(metadata);
-  const { nft } = await mx.nfts().create({ ...onChain, uri });
+  const { uri } = await mx.nfts().uploadMetadata(metadata).run();
+  const { nft } = await mx
+    .nfts()
+    .create({
+      uri,
+      name: 'My NFT',
+      sellerFeeBasisPoints: 200,
+      ...onChain,
+    })
+    .run();
 
   return nft;
 };

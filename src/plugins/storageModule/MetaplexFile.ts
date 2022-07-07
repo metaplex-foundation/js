@@ -24,7 +24,7 @@ export type MetaplexFileOptions = {
   tags?: { name: string; value: string }[];
 };
 
-export const useMetaplexFile = (
+export const toMetaplexFile = (
   content: MetaplexFileContent,
   fileName: string,
   options: MetaplexFileOptions = {}
@@ -38,16 +38,16 @@ export const useMetaplexFile = (
   tags: options.tags ?? [],
 });
 
-export const useMetaplexFileFromBrowser = async (
+export const toMetaplexFileFromBrowser = async (
   file: File,
   options: MetaplexFileOptions = {}
 ): Promise<MetaplexFile> => {
   const buffer = await file.arrayBuffer();
 
-  return useMetaplexFile(buffer, file.name, options);
+  return toMetaplexFile(buffer, file.name, options);
 };
 
-export const useMetaplexFileFromJson = <T extends object = object>(
+export const toMetaplexFileFromJson = <T extends object = object>(
   json: T,
   fileName: string = 'inline.json',
   options: MetaplexFileOptions = {}
@@ -60,7 +60,7 @@ export const useMetaplexFileFromJson = <T extends object = object>(
     throw new InvalidJsonVariableError(error as Error);
   }
 
-  return useMetaplexFile(jsonString, fileName, options);
+  return toMetaplexFile(jsonString, fileName, options);
 };
 
 export const parseMetaplexFileContent = (

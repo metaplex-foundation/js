@@ -1,18 +1,23 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   Collection,
-  Creator,
-  DataV2,
+  createUpdateMetadataAccountV2Instruction,
+  UpdateMetadataAccountArgsV2,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { Nft } from './Nft';
-import { Metaplex } from '@/Metaplex';
 import {
-  createUpdateMetadataAccountV2InstructionWithSigners,
-  findMetadataPda,
-} from '@/programs';
-import { TransactionBuilder } from '@/utils';
+  useOperation,
+  Operation,
+  Signer,
+  OperationHandler,
+  Creator,
+} from '@/types';
+import { LazyNft, Nft } from './Nft';
+import { Metaplex } from '@/Metaplex';
+import { Option, TransactionBuilder } from '@/utils';
+import { NoInstructionsToSendError } from '@/errors';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import isEqual from 'lodash.isequal';
 
 // -----------------
 // Operation
@@ -27,7 +32,10 @@ export type UpdateNftOperation = Operation<
 >;
 
 export interface UpdateNftInput {
-  nft: Nft;
+  // Accounts and models.
+  nft: Nft | LazyNft;
+  updateAuthority?: Signer; // Defaults to mx.identity().
+  newUpdateAuthority?: PublicKey;
 
   // Data.
   name?: string;
@@ -35,21 +43,17 @@ export interface UpdateNftInput {
   uri?: string;
   sellerFeeBasisPoints?: number;
   creators?: Creator[];
-  collection?: Collection;
-  uses?: Uses;
-  newUpdateAuthority?: PublicKey;
+  collection?: Option<Collection>;
+  uses?: Option<Uses>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
-
-  // Signers.
-  updateAuthority?: Signer;
 
   // Options.
   confirmOptions?: ConfirmOptions;
 }
 
 export interface UpdateNftOutput {
-  transactionId: string;
+  response: SendAndConfirmTransactionResponse;
 }
 
 // -----------------
@@ -61,94 +65,77 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
     operation: UpdateNftOperation,
     metaplex: Metaplex
   ): Promise<UpdateNftOutput> => {
-    const {
-      nft,
-      newUpdateAuthority = nft.updateAuthority,
-      primarySaleHappened = nft.primarySaleHappened,
-      isMutable = nft.isMutable,
-      updateAuthority = metaplex.identity(),
-      confirmOptions,
-    } = operation.input;
+    const builder = updateNftBuilder(metaplex, operation.input);
 
-    const data = resolveData(operation.input);
+    if (builder.isEmpty()) {
+      throw new NoInstructionsToSendError(Key);
+    }
 
-    const metadata = findMetadataPda(nft.mint);
-
-    const { signature } = await metaplex.rpc().sendAndConfirmTransaction(
-      updateNftBuilder({
-        data,
-        newUpdateAuthority,
-        primarySaleHappened,
-        isMutable,
-        updateAuthority,
-        metadata,
-      }),
-      undefined,
-      confirmOptions
-    );
-
-    return { transactionId: signature };
+    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
   },
-};
-
-const resolveData = (input: UpdateNftInput): DataV2 => {
-  const { nft } = input;
-
-  return {
-    name: input.name ?? nft.name,
-    symbol: input.symbol ?? nft.symbol,
-    uri: input.uri ?? nft.uri,
-    sellerFeeBasisPoints:
-      input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
-    creators: input.creators ?? nft.creators,
-    collection: input.collection ?? nft.collection,
-    uses: input.uses ?? nft.uses,
-  };
 };
 
 // -----------------
 // Builder
 // -----------------
 
-export interface UpdateNftBuilderParams {
-  // Data.
-  data: DataV2;
-  newUpdateAuthority: PublicKey;
-  primarySaleHappened: boolean;
-  isMutable: boolean;
-
-  // Signers.
-  updateAuthority: Signer;
-
-  // Public keys.
-  metadata: PublicKey;
-
-  // Instruction keys.
-  instructionKey?: string;
-}
+export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
+  updateMetadataInstructionKey?: string;
+};
 
 export const updateNftBuilder = (
+  metaplex: Metaplex,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
-  const {
-    data,
-    isMutable,
-    updateAuthority,
-    newUpdateAuthority,
-    primarySaleHappened,
-    metadata,
-    instructionKey,
-  } = params;
-
-  return TransactionBuilder.make().add(
-    createUpdateMetadataAccountV2InstructionWithSigners({
-      data,
-      newUpdateAuthority,
-      primarySaleHappened,
-      isMutable,
-      metadata,
-      updateAuthority,
-      instructionKey,
-    })
+  const { nft, updateAuthority = metaplex.identity() } = params;
+  const updateInstructionDataWithoutChanges = toInstructionData(nft);
+  const updateInstructionData = toInstructionData(nft, params);
+  const shouldSendUpdateInstruction = !isEqual(
+    updateInstructionData,
+    updateInstructionDataWithoutChanges
   );
+
+  // TODO
+  return (
+    TransactionBuilder.make()
+
+      // Update the metadata account.
+      .when(shouldSendUpdateInstruction, (builder) =>
+        builder.add({
+          instruction: createUpdateMetadataAccountV2Instruction(
+            {
+              metadata: nft.metadataAddress,
+              updateAuthority: updateAuthority.publicKey,
+            },
+            {
+              updateMetadataAccountArgsV2: updateInstructionData,
+            }
+          ),
+          signers: [updateAuthority],
+          key: params.updateMetadataInstructionKey ?? 'updateMetadata',
+        })
+      )
+  );
+};
+
+const toInstructionData = (
+  nft: LazyNft | Nft,
+  input: Partial<UpdateNftInput> = {}
+): UpdateMetadataAccountArgsV2 => {
+  return {
+    updateAuthority: input.newUpdateAuthority ?? nft.updateAuthorityAddress,
+    primarySaleHappened: input.primarySaleHappened ?? nft.primarySaleHappened,
+    isMutable: input.isMutable ?? nft.isMutable,
+    data: {
+      name: input.name ?? nft.name,
+      symbol: input.symbol ?? nft.symbol,
+      uri: input.uri ?? nft.uri,
+      sellerFeeBasisPoints:
+        input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+      creators: input.creators ?? nft.creators,
+      collection:
+        input.collection === undefined ? nft.collection : input.collection,
+      uses: input.uses === undefined ? nft.uses : input.uses,
+    },
+  };
 };

@@ -3,8 +3,8 @@ import { HasDriver, Amount } from '@/types';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
-  useMetaplexFile,
-  useMetaplexFileFromJson,
+  toMetaplexFile,
+  toMetaplexFileFromJson,
 } from './MetaplexFile';
 import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
 
@@ -48,7 +48,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
   }
 
   uploadJson<T extends object = object>(json: T): Promise<string> {
-    return this.upload(useMetaplexFileFromJson<T>(json));
+    return this.upload(toMetaplexFileFromJson<T>(json));
   }
 
   async download(
@@ -64,7 +64,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
     const response = await fetch(uri, options as RequestInit);
     const buffer = await response.arrayBuffer();
 
-    return useMetaplexFile(buffer, uri);
+    return toMetaplexFile(buffer, uri);
   }
 
   async downloadJson<T extends object = object>(

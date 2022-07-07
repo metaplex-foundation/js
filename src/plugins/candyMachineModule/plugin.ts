@@ -1,5 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
+import { CandyMachinesClient } from './CandyMachinesClient';
 import {
   createCandyMachineOperation,
   createCandyMachineOperationHandler,
@@ -10,8 +11,12 @@ import {
 } from './findCandyMachineByAddress';
 import {
   findCandyMachinesByPublicKeyFieldOperation,
-  findCandyMachinesByPublicKeyFieldOnChainOperationHandler,
+  findCandyMachinesByPublicKeyFieldOperationHandler,
 } from './findCandyMachinesByPublicKeyField';
+import {
+  findMintedNftsByCandyMachineOperation,
+  findMintedNftsByCandyMachineOperationHandler,
+} from './findMintedNftsByCandyMachine';
 import {
   insertItemsToCandyMachineOperation,
   InsertItemsToCandyMachineOperationHandler,
@@ -20,7 +25,6 @@ import {
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
 } from './updateCandyMachine';
-import { CandyMachinesClient } from './CandyMachinesClient';
 
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -35,7 +39,11 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     );
     op.register(
       findCandyMachinesByPublicKeyFieldOperation,
-      findCandyMachinesByPublicKeyFieldOnChainOperationHandler
+      findCandyMachinesByPublicKeyFieldOperationHandler
+    );
+    op.register(
+      findMintedNftsByCandyMachineOperation,
+      findMintedNftsByCandyMachineOperationHandler
     );
     op.register(
       insertItemsToCandyMachineOperation,

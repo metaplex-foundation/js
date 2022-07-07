@@ -24,9 +24,9 @@ export type AuctionHouse = Readonly<{
 export const isAuctionHouse = (value: any): value is AuctionHouse =>
   typeof value === 'object' && value.model === 'auctionHouse';
 
-export const assertAuctionHouse = (value: any): asserts value is AuctionHouse =>
+export function assertAuctionHouse(value: any): asserts value is AuctionHouse {
   assert(isAuctionHouse(value), `Expected AuctionHouse type`);
-
+}
 export const toAuctionHouse = (
   auctionHouseAccount: AuctionHouseAccount,
   treasuryMint: Mint | MintWithMetadata

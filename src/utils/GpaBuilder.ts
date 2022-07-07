@@ -9,7 +9,6 @@ import BN from 'bn.js';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedAccount } from '@/types';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
-import { Postpone } from './Postpone';
 
 export type GpaSortCallback = (
   a: UnparsedAccount,
@@ -96,12 +95,8 @@ export class GpaBuilder {
     return accounts;
   }
 
-  lazy(): Postpone<UnparsedAccount[]> {
-    return Postpone.make(() => this.get());
-  }
-
   async getAndMap<T>(callback: (account: UnparsedAccount) => T): Promise<T[]> {
-    return this.lazy().map(callback).run();
+    return (await this.get()).map(callback);
   }
 
   async getPublicKeys(): Promise<PublicKey[]> {
@@ -112,14 +107,12 @@ export class GpaBuilder {
     return this.getAndMap((account) => new PublicKey(account.data));
   }
 
-  getMultipleAccounts(
+  async getMultipleAccounts(
     callback?: (account: UnparsedAccount) => PublicKey,
     options?: GmaBuilderOptions
-  ): Postpone<GmaBuilder> {
+  ): Promise<GmaBuilder> {
     const cb = callback ?? ((account) => new PublicKey(account.data));
 
-    return Postpone.make(async () => {
-      return new GmaBuilder(this.metaplex, await this.getAndMap(cb), options);
-    });
+    return new GmaBuilder(this.metaplex, await this.getAndMap(cb), options);
   }
 }

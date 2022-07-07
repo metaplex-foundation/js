@@ -15,13 +15,14 @@ import {
   Operation,
   OperationHandler,
   Signer,
-  Amount,
   toPublicKey,
   token,
   lamports,
   isSigner,
   Pda,
   amount,
+  SolAmount,
+  SplTokenAmount,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -32,7 +33,7 @@ import {
 } from './pdas';
 import { AuctionHouse } from './AuctionHouse';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { findMetadataPda } from '@/programs';
+import { findMetadataPda } from '../nftModule';
 import { AUCTIONEER_PRICE } from './constants';
 
 // -----------------
@@ -54,8 +55,8 @@ export type CreateListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
-  price?: Amount; // Default: lamports(0)
-  tokens?: Amount; // Default: token(1)
+  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
+  tokens?: SplTokenAmount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
@@ -72,8 +73,8 @@ export type CreateListingOutput = {
   wallet: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
-  price: Amount;
-  tokens: Amount;
+  price: SolAmount | SplTokenAmount;
+  tokens: SplTokenAmount;
 };
 
 // -----------------
@@ -83,20 +84,10 @@ export type CreateListingOutput = {
 export const createListingOperationHandler: OperationHandler<CreateListingOperation> =
   {
     handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
-      const builder = createListingBuilder(metaplex, operation.input);
-
-      const response = await metaplex
-        .rpc()
-        .sendAndConfirmTransaction(
-          builder,
-          undefined,
-          operation.input.confirmOptions
-        );
-
-      return {
-        response,
-        ...builder.getContext(),
-      };
+      return createListingBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
     },
   };
 
@@ -123,7 +114,9 @@ export const createListingBuilder = (
   const priceBasisPoint = params.auctioneerAuthority
     ? AUCTIONEER_PRICE
     : params.price?.basisPoints ?? 0;
-  const price = amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+  const price = auctionHouse.isNative
+    ? lamports(priceBasisPoint)
+    : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
   // Accounts.
   const wallet = params.wallet ?? (metaplex.identity() as Signer);
