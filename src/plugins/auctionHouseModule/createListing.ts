@@ -15,13 +15,14 @@ import {
   Operation,
   OperationHandler,
   Signer,
-  Amount,
   toPublicKey,
   token,
   lamports,
   isSigner,
   Pda,
   amount,
+  SolAmount,
+  SplTokenAmount,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -54,8 +55,8 @@ export type CreateListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
-  price?: Amount; // Default: lamports(0)
-  tokens?: Amount; // Default: token(1)
+  price?: SolAmount; // Default: lamports(0)
+  tokens?: SplTokenAmount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
@@ -72,8 +73,8 @@ export type CreateListingOutput = {
   wallet: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
-  price: Amount;
-  tokens: Amount;
+  price: SolAmount;
+  tokens: SplTokenAmount;
 };
 
 // -----------------

@@ -21,8 +21,8 @@ import {
   isErrorWithLogs,
   Program,
   lamports,
-  Amount,
   assertSol,
+  SolAmount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
 import {
@@ -161,7 +161,7 @@ export class RpcClient {
 
   async airdrop(
     publicKey: PublicKey,
-    amount: Amount,
+    amount: SolAmount,
     commitment?: Commitment
   ): Promise<SendAndConfirmTransactionResponse> {
     assertSol(amount);
@@ -182,7 +182,7 @@ export class RpcClient {
   async getBalance(
     publicKey: PublicKey,
     commitment?: Commitment
-  ): Promise<Amount> {
+  ): Promise<SolAmount> {
     const balance = await this.metaplex.connection.getBalance(
       publicKey,
       commitment
@@ -191,7 +191,7 @@ export class RpcClient {
     return lamports(balance);
   }
 
-  async getRent(bytes: number, commitment?: Commitment): Promise<Amount> {
+  async getRent(bytes: number, commitment?: Commitment): Promise<SolAmount> {
     const rent =
       await this.metaplex.connection.getMinimumBalanceForRentExemption(
         bytes,

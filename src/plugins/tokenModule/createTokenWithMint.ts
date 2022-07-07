@@ -1,11 +1,11 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   isSigner,
   Operation,
   OperationHandler,
   Signer,
+  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -28,7 +28,7 @@ export type CreateTokenWithMintOperation = Operation<
 
 export type CreateTokenWithMintInput = {
   decimals?: number; // Defaults to 0 decimals.
-  initialSupply?: Amount; // Defaults to 0 tokens.
+  initialSupply?: SplTokenAmount; // Defaults to 0 tokens.
   mint?: Signer; // Defaults to new generated Keypair.
   mintAuthority?: Signer | PublicKey; // Defaults to mx.identity().
   freezeAuthority?: Option<PublicKey>; // Defaults to mx.identity().
@@ -165,7 +165,7 @@ export const createTokenWithMintBuilder = async (
             .mintTokens({
               mint: mint.publicKey,
               destination: tokenAddress,
-              amount: initialSupply as Amount,
+              amount: initialSupply as SplTokenAmount,
               mintAuthority,
               tokenProgram,
               instructionKey: params.mintTokensInstructionKey ?? 'mintTokens',

@@ -1,10 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import {
   amount,
-  Amount,
   BigNumber,
   DateTime,
   Pda,
+  SolAmount,
+  SplTokenAmount,
   toBigNumber,
   toDateTime,
   toOptionDateTime,
@@ -30,8 +31,8 @@ export type Listing = Readonly<{
   purchaseReceiptAddress: Option<PublicKey>;
 
   // Data.
-  price: Amount;
-  tokens: Amount;
+  price: SolAmount;
+  tokens: SplTokenAmount;
   createdAt: DateTime;
   canceledAt: Option<DateTime>;
 }>;

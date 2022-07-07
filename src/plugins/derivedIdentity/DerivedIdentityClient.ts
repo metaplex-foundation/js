@@ -3,11 +3,11 @@ import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
+  SolAmount,
 } from '@/types';
 import { UninitializedDerivedIdentityError } from './errors';
 import { Task } from '@/utils';
@@ -57,7 +57,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     });
   }
 
-  fund(amount: Amount): Task<TransferSolOutput> {
+  fund(amount: SolAmount): Task<TransferSolOutput> {
     this.assertInitialized();
     return this.metaplex.system().transferSol({
       from: this.originalSigner,
@@ -66,7 +66,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     });
   }
 
-  withdraw(amount: Amount): Task<TransferSolOutput> {
+  withdraw(amount: SolAmount): Task<TransferSolOutput> {
     this.assertInitialized();
     return this.metaplex.system().transferSol({
       from: this.derivedKeypair,

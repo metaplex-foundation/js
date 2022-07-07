@@ -45,15 +45,15 @@ export const amount = <T extends Currency = Currency>(
   };
 };
 
-export const lamports = (lamports: number | BN): Amount => {
+export const lamports = (lamports: BigNumberValues): SolAmount => {
   return amount(lamports, SOL);
 };
 
-export const sol = (sol: number): Amount => {
+export const sol = (sol: number): SolAmount => {
   return lamports(sol * LAMPORTS_PER_SOL);
 };
 
-export const usd = (usd: number): Amount => {
+export const usd = (usd: number): UsdAmount => {
   return amount(usd * 100, USD);
 };
 
@@ -61,9 +61,9 @@ export const token = (
   amount: BigNumberValues,
   decimals: number = 0,
   symbol: string = 'Token'
-): Amount => {
+): SplTokenAmount => {
   if (typeof amount !== 'number') {
-    amount = new BN(amount).toNumber();
+    amount = toBigNumber(amount).toNumber();
   }
 
   return {
