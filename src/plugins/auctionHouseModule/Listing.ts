@@ -39,9 +39,9 @@ export type Listing = Readonly<{
 export const isListing = (value: any): value is Listing =>
   typeof value === 'object' && value.model === 'listing' && !value.lazy;
 
-export const assertListing = (value: any): asserts value is Listing =>
+export function assertListing(value: any): asserts value is Listing {
   assert(isListing(value), `Expected Listing type`);
-
+}
 export const toListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse,
@@ -67,9 +67,9 @@ export type LazyListing = Omit<Listing, 'lazy' | 'token' | 'tokens'> &
 export const isLazyListing = (value: any): value is LazyListing =>
   typeof value === 'object' && value.model === 'listing' && value.lazy;
 
-export const assertLazyListing = (value: any): asserts value is LazyListing =>
+export function assertLazyListing(value: any): asserts value is LazyListing {
   assert(isLazyListing(value), `Expected LazyListing type`);
-
+}
 export const toLazyListing = (
   account: ListingReceiptAccount,
   auctionHouseModel: AuctionHouse

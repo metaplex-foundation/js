@@ -26,9 +26,9 @@ export const isDateTime = (value: any): value is DateTime => {
   return value?.__opaque__ === 'DateTime';
 };
 
-export const assertDateTime = (value: any): asserts value is DateTime => {
+export function assertDateTime(value: any): asserts value is DateTime {
   assert(isDateTime(value), 'Expected DateTime type');
-};
+}
 
 const isDateObject = (value: any): value is Date => {
   return Object.prototype.toString.call(value) === '[object Date]';

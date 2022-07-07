@@ -20,9 +20,9 @@ export type Token = Readonly<{
 export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
 
-export const assertToken = (value: any): asserts value is Token =>
+export function assertToken(value: any): asserts value is Token {
   assert(isToken(value), `Expected Token model`);
-
+}
 export const toToken = (account: TokenAccount): Token => {
   const associatedTokenAddress = findAssociatedTokenAccountPda(
     account.data.mint,
@@ -59,10 +59,11 @@ export type TokenWithMint = Omit<
 export const isTokenWithMint = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
 
-export const assertTokenWithMint = (
+export function assertTokenWithMint(
   value: any
-): asserts value is TokenWithMint =>
+): asserts value is TokenWithMint {
   assert(isTokenWithMint(value), `Expected TokenWithMint model`);
+}
 
 export const toTokenWithMint = (
   tokenAccount: TokenAccount,

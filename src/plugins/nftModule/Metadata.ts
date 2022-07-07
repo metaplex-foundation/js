@@ -47,9 +47,9 @@ type Uses = {
 export const isMetadata = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';
 
-export const assertMetadata = (value: any): asserts value is Metadata =>
+export function assertMetadata(value: any): asserts value is Metadata {
   assert(isMetadata(value), `Expected Metadata model`);
-
+}
 export const toMetadata = (
   account: MetadataAccount,
   json: Option<JsonMetadata>
@@ -70,9 +70,9 @@ export type LazyMetadata = Omit<
 export const isLazyMetadata = (value: any): value is LazyMetadata =>
   typeof value === 'object' && value.model === 'metadata' && value.lazy;
 
-export const assertLazyMetadata = (value: any): asserts value is LazyMetadata =>
+export function assertLazyMetadata(value: any): asserts value is LazyMetadata {
   assert(isLazyMetadata(value), `Expected LazyMetadata model`);
-
+}
 export const toLazyMetadata = (account: MetadataAccount): LazyMetadata => ({
   model: 'metadata',
   lazy: true,
@@ -107,10 +107,11 @@ export type MintWithMetadata = Omit<Mint, 'model'> &
 export const isMintWithMetadata = (value: any): value is MintWithMetadata =>
   typeof value === 'object' && value.model === 'mintWithMetadata';
 
-export const assertMintWithMetadata = (
+export function assertMintWithMetadata(
   value: any
-): asserts value is MintWithMetadata =>
+): asserts value is MintWithMetadata {
   assert(isMintWithMetadata(value), `Expected MintWithMetadata model`);
+}
 
 export const toMintWithMetadata = (
   mintAccount: MintAccount,
@@ -140,10 +141,11 @@ export type TokenWithMetadata = Omit<TokenWithMint, 'model'> &
 export const isTokenWithMetadata = (value: any): value is TokenWithMetadata =>
   typeof value === 'object' && value.model === 'tokenWithMetadata';
 
-export const assertTokenWithMetadata = (
+export function assertTokenWithMetadata(
   value: any
-): asserts value is TokenWithMetadata =>
+): asserts value is TokenWithMetadata {
   assert(isTokenWithMetadata(value), `Expected TokenWithMetadata model`);
+}
 
 export const toTokenWithMetadata = (
   tokenAccount: TokenAccount,

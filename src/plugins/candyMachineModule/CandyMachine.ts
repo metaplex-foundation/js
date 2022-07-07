@@ -94,9 +94,9 @@ export type Gatekeeper = {
 export const isCandyMachine = (value: any): value is CandyMachine =>
   typeof value === 'object' && value.model === 'candyMachine';
 
-export const assertCandyMachine = (value: any): asserts value is CandyMachine =>
+export function assertCandyMachine(value: any): asserts value is CandyMachine {
   assert(isCandyMachine(value), 'Expected CandyMachine type');
-
+}
 export const toCandyMachine = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount

@@ -13,9 +13,9 @@ export type NftEdition = NftOriginalEdition | NftPrintEdition;
 export const isNftEdition = (value: any): value is NftEdition =>
   typeof value === 'object' && value.model === 'nftEdition';
 
-export const assertNftEdition = (value: any): asserts value is NftEdition =>
+export function assertNftEdition(value: any): asserts value is NftEdition {
   assert(isNftEdition(value), `Expected NftEdition model`);
-
+}
 export const toNftEdition = (
   account: OriginalOrPrintEditionAccount
 ): NftEdition =>
@@ -61,10 +61,11 @@ export type NftPrintEdition = Readonly<{
 export const isNftPrintEdition = (value: any): value is NftPrintEdition =>
   isNftEdition(value) && !value.isOriginal;
 
-export const assertNftPrintEdition = (
+export function assertNftPrintEdition(
   value: any
-): asserts value is NftPrintEdition =>
+): asserts value is NftPrintEdition {
   assert(isNftPrintEdition(value), `Expected NftPrintEdition model`);
+}
 
 export const toNftPrintEdition = (
   account: PrintEditionAccount

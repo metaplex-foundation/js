@@ -18,9 +18,9 @@ export type Mint = Readonly<{
 export const isMint = (value: any): value is Mint =>
   typeof value === 'object' && value.model === 'mint';
 
-export const assertMint = (value: any): asserts value is Mint =>
+export function assertMint(value: any): asserts value is Mint {
   assert(isMint(value), `Expected Mint model`);
-
+}
 export const toMint = (account: MintAccount): Mint => {
   const isWrappedSol = account.publicKey.equals(WRAPPED_SOL_MINT);
   const currency: Currency = isWrappedSol
