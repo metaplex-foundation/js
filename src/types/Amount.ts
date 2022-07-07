@@ -3,9 +3,9 @@ import BN from 'bn.js';
 import { CurrencyMismatchError, UnexpectedCurrencyError } from '@/errors';
 import { BigNumber, BigNumberValues, toBigNumber } from './BigNumber';
 
-export type Amount = {
+export type Amount<T extends Currency = Currency> = {
   basisPoints: BigNumber;
-  currency: Currency;
+  currency: T;
 };
 
 export type Currency = {
@@ -14,20 +14,31 @@ export type Currency = {
   namespace?: 'spl-token';
 };
 
+export type SplTokenCurrency = {
+  symbol: string;
+  decimals: number;
+  namespace: 'spl-token';
+};
+export type SplTokenAmount = Amount<SplTokenCurrency>;
+
 export const SOL = {
   symbol: 'SOL',
   decimals: 9,
 };
+export type SolCurrency = typeof SOL;
+export type SolAmount = Amount<SolCurrency>;
 
 export const USD = {
   symbol: 'USD',
   decimals: 2,
 };
+export type UsdCurrency = typeof USD;
+export type UsdAmount = Amount<UsdCurrency>;
 
-export const amount = (
+export const amount = <T extends Currency = Currency>(
   basisPoints: BigNumberValues,
-  currency: Currency
-): Amount => {
+  currency: T
+): Amount<T> => {
   return {
     basisPoints: toBigNumber(basisPoints),
     currency,
@@ -92,10 +103,22 @@ export const sameCurrencies = (
   );
 };
 
-export const assertCurrency = (
+export function assertCurrency<T extends Currency>(
+  actual: Currency,
+  expected: T
+): asserts actual is T;
+export function assertCurrency<T extends Currency>(
+  actual: Amount,
+  expected: T
+): asserts actual is Amount<T>;
+export function assertCurrency<T extends Currency>(
   actual: Currency | Amount,
-  expected: Currency
-) => {
+  expected: T
+): asserts actual is T | Amount<T>;
+export function assertCurrency<T extends Currency>(
+  actual: Currency | Amount,
+  expected: T
+): asserts actual is T | Amount<T> {
   if ('currency' in actual) {
     actual = actual.currency;
   }
@@ -103,17 +126,23 @@ export const assertCurrency = (
   if (!sameCurrencies(actual, expected)) {
     throw new UnexpectedCurrencyError(actual, expected);
   }
-};
-
-export const assertSol = (actual: Currency | Amount) => {
+}
+export function assertSol(actual: Amount): asserts actual is SolAmount;
+export function assertSol(actual: Currency): asserts actual is SolCurrency;
+export function assertSol(
+  actual: Currency | Amount
+): asserts actual is SolCurrency | SolAmount;
+export function assertSol(
+  actual: Currency | Amount
+): asserts actual is SolCurrency | SolAmount {
   assertCurrency(actual, SOL);
-};
+}
 
-export const assertSameCurrencies = (
-  left: Currency | Amount,
-  right: Currency | Amount,
+export function assertSameCurrencies<L extends Currency, R extends Currency>(
+  left: L | Amount<L>,
+  right: R | Amount<R>,
   operation?: string
-) => {
+) {
   if ('currency' in left) {
     left = left.currency;
   }
@@ -125,7 +154,7 @@ export const assertSameCurrencies = (
   if (!sameCurrencies(left, right)) {
     throw new CurrencyMismatchError(left, right, operation);
   }
-};
+}
 
 export const addAmounts = (left: Amount, right: Amount): Amount => {
   assertSameCurrencies(left, right, 'add');
