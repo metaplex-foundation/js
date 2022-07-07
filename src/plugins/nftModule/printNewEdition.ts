@@ -3,6 +3,7 @@ import { Metaplex } from '@/Metaplex';
 import {
   findEditionMarkerPda,
   findEditionPda,
+  findMasterEditionV2Pda,
   findMetadataPda,
   toOriginalEditionAccount,
 } from '@/programs';
@@ -142,7 +143,7 @@ export const printNewEditionBuilder = async (
       ? params.originalNft.mintAddress
       : params.originalNft;
   const originalMetadataAddress = findMetadataPda(originalMint);
-  const originalEditionAddress = findEditionPda(originalMint);
+  const originalEditionAddress = findMasterEditionV2Pda(originalMint);
   const originalEditionAccount = toOriginalEditionAccount(
     await metaplex.rpc().getAccount(originalEditionAddress)
   );

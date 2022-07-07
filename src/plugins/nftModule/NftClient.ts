@@ -1,7 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import { JsonMetadata } from './JsonMetadata';
 import { LazyMetadata, Metadata } from './Metadata';
 import { LazyNft, Nft } from './Nft';
 import {
@@ -63,6 +62,7 @@ import {
   updateNftOperation,
   UpdateNftOutput,
 } from './updateNft';
+import { LoadNftInput, loadNftOperation } from './loadNft';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -191,6 +191,12 @@ export class NftClient {
     return this.metaplex
       .operations()
       .getTask(loadMetadataOperation({ metadata }));
+  }
+
+  loadNft(nft: LazyNft, options: Omit<LoadNftInput, 'nft'>): Task<Nft> {
+    return this.metaplex
+      .operations()
+      .getTask(loadNftOperation({ nft, ...options }));
   }
 
   printNewEdition(

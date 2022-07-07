@@ -11,6 +11,7 @@ export * from './findTokenWithMetadataByMetadata';
 export * from './findTokenWithMetadataByMint';
 export * from './JsonMetadata';
 export * from './loadMetadata';
+export * from './loadNft';
 export * from './Metadata';
 export * from './Nft';
 export * from './NftClient';
