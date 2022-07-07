@@ -29,7 +29,7 @@ export interface FindNftsByCreatorInput {
 // Handler
 // -----------------
 
-export const findNftsByCreatorOnChainOperationHandler: OperationHandler<FindNftsByCreatorOperation> =
+export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreatorOperation> =
   {
     handle: async (
       operation: FindNftsByCreatorOperation,

@@ -30,7 +30,7 @@ export type FindCandyMachinesByPublicKeyFieldInput = {
 // Handler
 // -----------------
 
-export const findCandyMachinesByPublicKeyFieldOnChainOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
+export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
   {
     handle: async (
       operation: FindCandyMachinesByPublicKeyFieldOperation,

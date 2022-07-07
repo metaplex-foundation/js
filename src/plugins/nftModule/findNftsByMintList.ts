@@ -29,7 +29,7 @@ export type FindNftsByMintListInput = {
 // Handler
 // -----------------
 
-export const findNftsByMintListOnChainOperationHandler: OperationHandler<FindNftsByMintListOperation> =
+export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMintListOperation> =
   {
     handle: async (
       operation: FindNftsByMintListOperation,

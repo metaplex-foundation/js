@@ -28,7 +28,7 @@ export type FindNftsByOwnerInput = {
 // Handler
 // -----------------
 
-export const findNftsByOwnerOnChainOperationHandler: OperationHandler<FindNftsByOwnerOperation> =
+export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOperation> =
   {
     handle: async (
       operation: FindNftsByOwnerOperation,

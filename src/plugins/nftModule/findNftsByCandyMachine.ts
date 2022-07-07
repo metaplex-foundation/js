@@ -28,7 +28,7 @@ export interface FindNftsByCandyMachineInput {
 // Handler
 // -----------------
 
-export const findNftsByCandyMachineOnChainOperationHandler: OperationHandler<FindNftsByCandyMachineOperation> =
+export const findNftsByCandyMachineOperationHandler: OperationHandler<FindNftsByCandyMachineOperation> =
   {
     handle: async (
       operation: FindNftsByCandyMachineOperation,

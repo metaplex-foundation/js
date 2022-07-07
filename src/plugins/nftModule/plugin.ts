@@ -6,23 +6,23 @@ import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
 import {
-  findNftByMintOnChainOperationHandler,
+  findNftByMintOperationHandler,
   findNftByMintOperation,
 } from './findNftByMint';
 import {
-  findNftsByCandyMachineOnChainOperationHandler,
+  findNftsByCandyMachineOperationHandler,
   findNftsByCandyMachineOperation,
 } from './findNftsByCandyMachine';
 import {
-  findNftsByCreatorOnChainOperationHandler,
+  findNftsByCreatorOperationHandler,
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
 import {
-  findNftsByMintListOnChainOperationHandler,
+  findNftsByMintListOperationHandler,
   findNftsByMintListOperation,
 } from './findNftsByMintList';
 import {
-  findNftsByOwnerOnChainOperationHandler,
+  findNftsByOwnerOperationHandler,
   findNftsByOwnerOperation,
 } from './findNftsByOwner';
 import {
@@ -83,23 +83,17 @@ export const nftModule = (): MetaplexPlugin => ({
       findMintWithMetadataByMetadataOperation,
       findMintWithMetadataByMetadataOperationHandler
     );
-    op.register(findNftByMintOperation, findNftByMintOnChainOperationHandler);
+    op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(
       findNftsByCandyMachineOperation,
-      findNftsByCandyMachineOnChainOperationHandler
+      findNftsByCandyMachineOperationHandler
     );
-    op.register(
-      findNftsByCreatorOperation,
-      findNftsByCreatorOnChainOperationHandler
-    );
+    op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
     op.register(
       findNftsByMintListOperation,
-      findNftsByMintListOnChainOperationHandler
+      findNftsByMintListOperationHandler
     );
-    op.register(
-      findNftsByOwnerOperation,
-      findNftsByOwnerOnChainOperationHandler
-    );
+    op.register(findNftsByOwnerOperation, findNftsByOwnerOperationHandler);
     op.register(
       findTokenWithMetadataByAddressOperation,
       findTokenWithMetadataByAddressOperationHandler
