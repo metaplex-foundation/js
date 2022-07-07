@@ -2,7 +2,7 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { JsonMetadata, useMetaplexFile, Nft, toBigNumber } from '@/index';
+import { JsonMetadata, toMetaplexFile, Nft, toBigNumber } from '@/index';
 import {
   metaplex,
   spokSamePubkey,
@@ -18,7 +18,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   const mx = await metaplex();
 
   // And we uploaded an image.
-  const imageFile = useMetaplexFile('some_image', 'some-image.jpg');
+  const imageFile = toMetaplexFile('some_image', 'some-image.jpg');
   const imageUri = await mx.storage().upload(imageFile);
 
   // And we uploaded some metadata containing this image.
@@ -83,7 +83,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
     .uploadMetadata({
       name: 'JSON NFT name',
       description: 'JSON NFT description',
-      image: useMetaplexFile('some_image', 'some-image.jpg'),
+      image: toMetaplexFile('some_image', 'some-image.jpg'),
     })
     .run();
 

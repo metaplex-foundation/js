@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { Nft, useMetaplexFile } from '@/index';
+import { Nft, toMetaplexFile } from '@/index';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
@@ -15,7 +15,7 @@ test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test
     {
       name: 'JSON NFT name',
       description: 'JSON NFT description',
-      image: useMetaplexFile('some image', 'some-image.jpg'),
+      image: toMetaplexFile('some image', 'some-image.jpg'),
     },
     {
       name: 'On-chain NFT name',
@@ -31,7 +31,7 @@ test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test
     .uploadMetadata({
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
-      image: useMetaplexFile('updated image', 'updated-image.jpg'),
+      image: toMetaplexFile('updated image', 'updated-image.jpg'),
     })
     .run();
 
