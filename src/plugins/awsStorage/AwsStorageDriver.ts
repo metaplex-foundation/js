@@ -20,6 +20,7 @@ export class AwsStorageDriver implements StorageDriver {
       Bucket: this.bucketName,
       Key: file.uniqueName,
       Body: file.buffer,
+      ContentType: file.contentType || undefined,
     });
 
     try {

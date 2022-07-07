@@ -573,7 +573,13 @@ To set this up, you need to pass in the AWS client as well as the bucket name yo
 import { awsStorage } from "@metaplex-foundation/js";
 import { S3Client } from "@aws-sdk/client-s3";
 
-const awsClient = new S3Client({ region: 'us-east-1' });
+const awsClient = new S3Client({
+    region: "us-east-1",
+    credentials: {
+      accessKeyId: "",
+      secretAccessKey: "",
+    },
+  });
 
 metaplex.use(awsStorage(awsClient, 'my-nft-bucket'));
 ```
