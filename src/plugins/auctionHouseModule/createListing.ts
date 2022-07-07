@@ -55,7 +55,7 @@ export type CreateListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
-  price?: SolAmount; // Default: lamports(0)
+  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
   tokens?: SplTokenAmount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
@@ -73,7 +73,7 @@ export type CreateListingOutput = {
   wallet: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
-  price: SolAmount;
+  price: SplTokenAmount;
   tokens: SplTokenAmount;
 };
 

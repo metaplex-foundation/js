@@ -4,7 +4,6 @@ import {
   BigNumber,
   DateTime,
   Pda,
-  SolAmount,
   SplTokenAmount,
   toBigNumber,
   toDateTime,
@@ -31,7 +30,7 @@ export type Listing = Readonly<{
   purchaseReceiptAddress: Option<PublicKey>;
 
   // Data.
-  price: SolAmount;
+  price: SplTokenAmount;
   tokens: SplTokenAmount;
   createdAt: DateTime;
   canceledAt: Option<DateTime>;

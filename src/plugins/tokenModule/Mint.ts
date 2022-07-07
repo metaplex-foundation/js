@@ -1,5 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
-import { amount, Amount, Currency, SOL } from '@/types';
+import { amount, SplTokenCurrency, SplTokenAmount } from '@/types';
 import { assert, Option } from '@/utils';
 import { MintAccount } from './accounts';
 import { WRAPPED_SOL_MINT } from './constants';
@@ -10,9 +10,9 @@ export type Mint = Readonly<{
   mintAuthorityAddress: Option<PublicKey>;
   freezeAuthorityAddress: Option<PublicKey>;
   decimals: number;
-  supply: Amount;
+  supply: SplTokenAmount;
   isWrappedSol: boolean;
-  currency: Currency;
+  currency: SplTokenCurrency;
 }>;
 
 export const isMint = (value: any): value is Mint =>
@@ -23,13 +23,11 @@ export function assertMint(value: any): asserts value is Mint {
 }
 export const toMint = (account: MintAccount): Mint => {
   const isWrappedSol = account.publicKey.equals(WRAPPED_SOL_MINT);
-  const currency: Currency = isWrappedSol
-    ? SOL
-    : {
-        symbol: 'Token',
-        decimals: account.data.decimals,
-        namespace: 'spl-token',
-      };
+  const currency: SplTokenCurrency = {
+    symbol: isWrappedSol ? 'SOL' : 'Token',
+    decimals: account.data.decimals,
+    namespace: 'spl-token',
+  };
 
   return {
     model: 'mint',
