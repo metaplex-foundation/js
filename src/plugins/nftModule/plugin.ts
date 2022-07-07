@@ -10,10 +10,6 @@ import {
   findNftByMintOperation,
 } from './findNftByMint';
 import {
-  findNftsByCandyMachineOperationHandler,
-  findNftsByCandyMachineOperation,
-} from './findNftsByCandyMachine';
-import {
   findNftsByCreatorOperationHandler,
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
@@ -84,10 +80,6 @@ export const nftModule = (): MetaplexPlugin => ({
       findMintWithMetadataByMetadataOperationHandler
     );
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
-    op.register(
-      findNftsByCandyMachineOperation,
-      findNftsByCandyMachineOperationHandler
-    );
     op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
     op.register(
       findNftsByMintListOperation,

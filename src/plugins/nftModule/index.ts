@@ -4,7 +4,6 @@ export * from './errors';
 export * from './findMintWithMetadataByAddress';
 export * from './findMintWithMetadataByMetadata';
 export * from './findNftByMint';
-export * from './findNftsByCandyMachine';
 export * from './findNftsByCreator';
 export * from './findNftsByMintList';
 export * from './findNftsByOwner';

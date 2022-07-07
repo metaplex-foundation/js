@@ -1,13 +1,15 @@
 import type { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
+import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
+import { LazyNft, Nft } from '../nftModule';
+import { Task } from '@/utils';
+import { CandyMachine } from './CandyMachine';
 import {
   CreateCandyMachineInput,
   CreateCandyMachineInputWithoutConfigs,
   createCandyMachineOperation,
   CreateCandyMachineOutput,
 } from './createCandyMachine';
-import { Task } from '@/utils';
-import { CandyMachine } from './CandyMachine';
 import {
   CandyMachineJsonConfigs,
   toCandyMachineConfigsFromJson,
@@ -21,17 +23,20 @@ import {
   findCandyMachinesByPublicKeyFieldOperation,
 } from './findCandyMachinesByPublicKeyField';
 import {
-  UpdateCandyMachineInput,
-  UpdateCandyMachineInputWithoutConfigs,
-  updateCandyMachineOperation,
-  UpdateCandyMachineOutput,
-} from './updateCandyMachine';
+  FindMintedNftsByCandyMachineInput,
+  findMintedNftsByCandyMachineOperation,
+} from './findMintedNftsByCandyMachine';
 import {
   InsertItemsToCandyMachineInput,
   insertItemsToCandyMachineOperation,
   InsertItemsToCandyMachineOutput,
 } from './insertItemsToCandyMachine';
-import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
+import {
+  UpdateCandyMachineInput,
+  UpdateCandyMachineInputWithoutConfigs,
+  updateCandyMachineOperation,
+  UpdateCandyMachineOutput,
+} from './updateCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -97,6 +102,17 @@ export class CandyMachinesClient {
     return this.metaplex
       .operations()
       .getTask(findCandyMachineByAddressOperation({ address, ...options }));
+  }
+
+  findMintedNfts(
+    candyMachine: PublicKey,
+    options?: Omit<FindMintedNftsByCandyMachineInput, 'candyMachine'>
+  ): Task<(LazyNft | Nft)[]> {
+    return this.metaplex
+      .operations()
+      .getTask(
+        findMintedNftsByCandyMachineOperation({ candyMachine, ...options })
+      );
   }
 
   insertItems(

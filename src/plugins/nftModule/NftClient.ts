@@ -30,10 +30,6 @@ import {
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
 import {
-  FindNftsByCandyMachineInput,
-  findNftsByCandyMachineOperation,
-} from './findNftsByCandyMachine';
-import {
   FindTokenWithMetadataByAddressInput,
   findTokenWithMetadataByAddressOperation,
 } from './findTokenWithMetadataByAddress';
@@ -111,15 +107,6 @@ export class NftClient {
     return this.metaplex
       .operations()
       .getTask(findNftsByCreatorOperation({ creator, ...options }));
-  }
-
-  findAllByCandyMachine(
-    candyMachine: PublicKey,
-    options?: Omit<FindNftsByCandyMachineInput, 'creator'>
-  ): Task<LazyNft[]> {
-    return this.metaplex
-      .operations()
-      .getTask(findNftsByCandyMachineOperation({ candyMachine, ...options }));
   }
 
   findMintWithMetadataByAddress(
