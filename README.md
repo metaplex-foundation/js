@@ -107,7 +107,7 @@ Thus, if you want to load the JSON metadata and/or the `Edition` account of an N
 
 ```ts
 await nft.metadataTask.run();
-await nft.EditionTask.run();
+await nft.editionTask.run();
 ```
 
 This will give you access to the `metadata`, `originalEdition` and `printEdition` properties of the NFT. The last two depend on whether the NFT is an original edition or a print edition.
