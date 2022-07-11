@@ -6,8 +6,12 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_SLOT_HASHES_PUBKEY,
 } from '@solana/web3.js';
-import { createMintNftInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import {
+  createMintNftInstruction,
+  createSetCollectionDuringMintInstruction,
+} from '@metaplex-foundation/mpl-candy-machine';
+import {
+  assertAccountExists,
   Operation,
   OperationHandler,
   Signer,
@@ -19,13 +23,18 @@ import { TransactionBuilder } from '@/utils';
 import { CandyMachine } from './CandyMachine';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import {
+  findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
   TokenMetadataProgram,
 } from '../nftModule';
-import { findCandyMachineCreatorPda } from './pdas';
+import {
+  findCandyMachineCollectionPda,
+  findCandyMachineCreatorPda,
+} from './pdas';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { CandyMachineProgram } from './program';
+import { parseCandyMachineCollectionAccount } from './accounts';
 
 // -----------------
 // Operation
@@ -94,6 +103,7 @@ export type MintCandyMachineBuilderParams = Omit<
   initializeTokenInstructionKey?: string;
   mintTokensInstructionKey?: string;
   mintNftInstructionKey?: string;
+  setCollectionInstructionKey?: string;
 };
 
 export const mintCandyMachineBuilder = async (
@@ -120,6 +130,13 @@ export const mintCandyMachineBuilder = async (
   const candyMachineCreator = findCandyMachineCreatorPda(
     candyMachine.address,
     candyMachineProgram
+  );
+  const candyMachineCollectionAddress = findCandyMachineCollectionPda(
+    candyMachine.address,
+    candyMachineProgram
+  );
+  const candyMachineCollectionAccount = parseCandyMachineCollectionAccount(
+    await metaplex.rpc().getAccount(candyMachineCollectionAddress)
   );
 
   const tokenWithMintBuilder = await metaplex
@@ -215,12 +232,55 @@ export const mintCandyMachineBuilder = async (
     );
   }
 
-  return TransactionBuilder.make()
-    .setFeePayer(payer)
-    .add(tokenWithMintBuilder)
-    .add({
-      instruction: mintNftInstruction,
-      signers: [payer, newMint],
-      key: params.mintNftInstructionKey ?? 'mintNft',
-    });
+  return (
+    TransactionBuilder.make()
+      .setFeePayer(payer)
+
+      // Create token and mint accounts.
+      .add(tokenWithMintBuilder)
+
+      // Create the new NFT.
+      .add({
+        instruction: mintNftInstruction,
+        signers: [payer, newMint],
+        key: params.mintNftInstructionKey ?? 'mintNft',
+      })
+
+      // Set the collection on the NFT.
+      .when(candyMachineCollectionAccount.exists, (builder) => {
+        assertAccountExists(candyMachineCollectionAccount);
+        const collectionMint = candyMachineCollectionAccount.data.mint;
+        const collectionMetadata = findMetadataPda(
+          collectionMint,
+          tokenMetadataProgram
+        );
+        const collectionMasterEdition = findMasterEditionV2Pda(
+          collectionMint,
+          tokenMetadataProgram
+        );
+        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+          collectionMint,
+          candyMachineCollectionAccount.publicKey,
+          tokenMetadataProgram
+        );
+
+        return builder.add({
+          instruction: createSetCollectionDuringMintInstruction({
+            candyMachine: candyMachine.address,
+            metadata: newMetadata,
+            payer: payer.publicKey,
+            collectionPda: candyMachineCollectionAccount.publicKey,
+            tokenMetadataProgram,
+            instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            collectionMint: candyMachineCollectionAccount.data.mint,
+            collectionMetadata,
+            collectionMasterEdition,
+            authority: payer.publicKey,
+            collectionAuthorityRecord,
+          }),
+          signers: [payer],
+          key: params.setCollectionInstructionKey ?? 'setCollection',
+        });
+      })
+  );
 };

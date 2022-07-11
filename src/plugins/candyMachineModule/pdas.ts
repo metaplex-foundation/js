@@ -12,3 +12,13 @@ export const findCandyMachineCreatorPda = (
     candyMachine.toBuffer(),
   ]);
 };
+
+export const findCandyMachineCollectionPda = (
+  candyMachine: PublicKey,
+  programId: PublicKey = CandyMachineProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('collection', 'utf8'),
+    candyMachine.toBuffer(),
+  ]);
+};
