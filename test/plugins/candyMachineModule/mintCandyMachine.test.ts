@@ -1,12 +1,23 @@
 import test from 'tape';
-import { killStuckProcess, metaplex, spokSameBignum } from '../../helpers';
+import {
+  killStuckProcess,
+  metaplex,
+  spokSameBignum,
+  spokSamePubkey,
+} from '../../helpers';
 import { createCandyMachine } from './helpers';
-import { CandyMachine, Nft, toBigNumber } from '@/index';
+import {
+  CandyMachine,
+  findCandyMachineCreatorPda,
+  Nft,
+  toBigNumber,
+} from '@/index';
 import spok, { Specifications } from 'spok';
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] it can mint from candy machine', async (t) => {
+test('[candyMachineModule] it can mint from candy machine', async (t) => {
   // Given an existing Candy Machine with 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
@@ -26,7 +37,6 @@ test.only('[candyMachineModule] it can mint from candy machine', async (t) => {
     .run();
 
   // Then an NFT was created with the right data.
-  console.log(nft);
   spok(t, nft, {
     $topic: 'Minted NFT',
     model: 'nft',
@@ -34,6 +44,24 @@ test.only('[candyMachineModule] it can mint from candy machine', async (t) => {
     symbol: 'CANDY',
     uri: 'https://example.com/degen/1',
     sellerFeeBasisPoints: 123,
+    tokenStandard: TokenStandard.NonFungible,
+    isMutable: true,
+    primarySaleHappened: true,
+    updateAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
+    creators: [
+      {
+        address: spokSamePubkey(
+          findCandyMachineCreatorPda(candyMachine.address)
+        ),
+        verified: true,
+        share: 0,
+      },
+      {
+        address: spokSamePubkey(mx.identity().publicKey),
+        verified: false,
+        share: 100,
+      },
+    ],
     edition: {
       model: 'nftEdition',
       isOriginal: true,
