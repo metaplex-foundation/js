@@ -6,6 +6,7 @@ import {
   Account,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
+  MaybeAccount,
 } from '@/types';
 
 export type CandyMachineAccount = Account<CandyMachine>;
@@ -14,6 +15,7 @@ export const toCandyMachineAccount =
   getAccountParsingAndAssertingFunction(CandyMachine);
 
 export type CandyMachineCollectionAccount = Account<CollectionPDA>;
+export type MaybeCandyMachineCollectionAccount = MaybeAccount<CollectionPDA>;
 export const parseCandyMachineCollectionAccount =
   getAccountParsingFunction(CollectionPDA);
 export const toCandyMachineCollectionAccount =
