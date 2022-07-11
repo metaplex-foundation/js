@@ -2,6 +2,7 @@ import test from 'tape';
 import spok, { Specifications } from 'spok';
 import {
   assertThrows,
+  createNft,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -437,5 +438,29 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
       { address: spokSamePubkey(creatorA), verified: false, share: 50 },
       { address: spokSamePubkey(creatorB), verified: false, share: 50 },
     ],
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test.only('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
+  // Given an existing Candy Machine without a collection.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    collection: null,
+  });
+
+  // When we update the Candy Machine with a new collection NFT.
+  const collectionNft = await createNft(mx);
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      newCollection: collectionNft,
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    collectionMintAddress: spokSamePubkey(collectionNft.mintAddress),
   } as unknown as Specifications<CandyMachine>);
 });

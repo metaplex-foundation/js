@@ -1,6 +1,8 @@
 import isEqual from 'lodash.isequal';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
+  createRemoveCollectionInstruction,
+  createSetCollectionInstruction,
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
@@ -13,7 +15,7 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import {
   CandyMachine,
@@ -22,6 +24,17 @@ import {
   toCandyMachineInstructionData,
 } from './CandyMachine';
 import { NoInstructionsToSendError } from '@/errors';
+import {
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+  isLazyNft,
+  isNft,
+  LazyNft,
+  Nft,
+  TokenMetadataProgram,
+} from '../nftModule';
+import { findCandyMachineCollectionPda } from './pdas';
 
 // -----------------
 // Operation
@@ -39,8 +52,10 @@ export type UpdateCandyMachineOperation = Operation<
 export type UpdateCandyMachineInputWithoutConfigs = {
   // Models and accounts.
   candyMachine: CandyMachine;
-  authority?: Signer;
+  authority?: Signer; // Defaults to mx.identity().
+  payer?: Signer; // Defaults to mx.identity().
   newAuthority?: PublicKey;
+  newCollection?: Option<PublicKey | Nft | LazyNft>;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -83,6 +98,8 @@ export type UpdateCandyMachineBuilderParams = Omit<
 > & {
   updateInstructionKey?: string;
   updateAuthorityInstructionKey?: string;
+  setCollectionInstructionKey?: string;
+  removeCollectionInstructionKey?: string;
 };
 
 export const updateCandyMachineBuilder = (
@@ -92,9 +109,9 @@ export const updateCandyMachineBuilder = (
   const {
     candyMachine,
     authority = metaplex.identity(),
+    payer = metaplex.identity(),
     newAuthority,
-    updateInstructionKey,
-    updateAuthorityInstructionKey,
+    newCollection: newCollectionParam,
     ...updatableFields
   } = params;
   const currentConfigs = toCandyMachineConfigs(candyMachine);
@@ -113,6 +130,21 @@ export const updateCandyMachineBuilder = (
   );
   const shouldSendUpdateAuthorityInstruction =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
+
+  const newCollection =
+    newCollectionParam &&
+    (isNft(newCollectionParam) || isLazyNft(newCollectionParam))
+      ? newCollectionParam.mintAddress
+      : newCollectionParam;
+  const sameCollection =
+    newCollection &&
+    candyMachine.collectionMintAddress &&
+    candyMachine.collectionMintAddress.equals(newCollection);
+  const shouldSendSetCollectionInstruction = !!newCollection && !sameCollection;
+  const shouldSendRemoveCollectionInstruction =
+    !shouldSendSetCollectionInstruction &&
+    newCollection === null &&
+    candyMachine.collectionMintAddress !== null;
 
   const updateInstruction = createUpdateCandyMachineInstruction(
     {
@@ -141,7 +173,7 @@ export const updateCandyMachineBuilder = (
         builder.add({
           instruction: updateInstruction,
           signers: [authority],
-          key: updateInstructionKey ?? 'update',
+          key: params.updateInstructionKey ?? 'update',
         })
       )
 
@@ -157,8 +189,65 @@ export const updateCandyMachineBuilder = (
             { newAuthority: newAuthority as PublicKey }
           ),
           signers: [authority],
-          key: updateAuthorityInstructionKey ?? 'updateAuthority',
+          key: params.updateAuthorityInstructionKey ?? 'updateAuthority',
         })
       )
+
+      // Set or update collection.
+      .when(shouldSendSetCollectionInstruction, (builder) => {
+        const collectionMint = newCollection as PublicKey;
+        const metadata = findMetadataPda(collectionMint);
+        const edition = findMasterEditionV2Pda(collectionMint);
+        const collectionPda = findCandyMachineCollectionPda(
+          candyMachine.address
+        );
+        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+          collectionMint,
+          collectionPda
+        );
+
+        return builder.add({
+          instruction: createSetCollectionInstruction({
+            candyMachine: candyMachine.address,
+            authority: authority.publicKey,
+            collectionPda,
+            payer: payer.publicKey,
+            metadata,
+            mint: collectionMint,
+            edition,
+            collectionAuthorityRecord,
+            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+          }),
+          signers: [authority],
+          key: params.setCollectionInstructionKey ?? 'setCollection',
+        });
+      })
+
+      // Remove collection.
+      .when(shouldSendRemoveCollectionInstruction, (builder) => {
+        const collectionMint = candyMachine.collectionMintAddress as PublicKey;
+        const metadata = findMetadataPda(collectionMint);
+        const collectionPda = findCandyMachineCollectionPda(
+          candyMachine.address
+        );
+        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+          collectionMint,
+          collectionPda
+        );
+
+        return builder.add({
+          instruction: createRemoveCollectionInstruction({
+            candyMachine: candyMachine.address,
+            authority: authority.publicKey,
+            collectionPda,
+            metadata,
+            mint: collectionMint,
+            collectionAuthorityRecord,
+            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+          }),
+          signers: [authority],
+          key: params.removeCollectionInstructionKey ?? 'removeCollection',
+        });
+      })
   );
 };
