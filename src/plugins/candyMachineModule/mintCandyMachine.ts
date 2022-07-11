@@ -24,6 +24,8 @@ import {
   TokenMetadataProgram,
 } from '../nftModule';
 import { findCandyMachineCreatorPda } from './pdas';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { CandyMachineProgram } from './program';
 
 // -----------------
 // Operation
@@ -45,11 +47,14 @@ export type MintCandyMachineInput = {
   newMint?: Signer; // Defaults to Keypair.generate().
   newOwner?: PublicKey; // Defaults to mx.identity().
   newToken?: Signer; // Defaults to associated token.
+  payerToken?: PublicKey; // Defaults to associated token.
+  whitelistToken?: PublicKey; // Defaults to associated token.
 
   // Programs.
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
   tokenMetadataProgram?: PublicKey;
+  candyMachineProgram?: PublicKey;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -103,11 +108,19 @@ export const mintCandyMachineBuilder = async (
     newToken,
     tokenProgram,
     associatedTokenProgram,
+    tokenMetadataProgram = TokenMetadataProgram.publicKey,
+    candyMachineProgram = CandyMachineProgram.publicKey,
   } = params;
 
-  const newMetadata = findMetadataPda(newMint.publicKey);
-  const newEdition = findMasterEditionV2Pda(newMint.publicKey);
-  const candyMachineCreator = findCandyMachineCreatorPda(candyMachine.address);
+  const newMetadata = findMetadataPda(newMint.publicKey, tokenMetadataProgram);
+  const newEdition = findMasterEditionV2Pda(
+    newMint.publicKey,
+    tokenMetadataProgram
+  );
+  const candyMachineCreator = findCandyMachineCreatorPda(
+    candyMachine.address,
+    candyMachineProgram
+  );
 
   const tokenWithMintBuilder = await metaplex
     .tokens()
@@ -132,29 +145,81 @@ export const mintCandyMachineBuilder = async (
       mintTokensInstructionKey: params.mintTokensInstructionKey,
     });
 
+  const mintNftInstruction = createMintNftInstruction(
+    {
+      candyMachine: candyMachine.address,
+      candyMachineCreator: candyMachineCreator,
+      payer: payer.publicKey,
+      wallet: candyMachine.walletAddress,
+      metadata: newMetadata,
+      mint: newMint.publicKey,
+      mintAuthority: payer.publicKey,
+      updateAuthority: payer.publicKey,
+      masterEdition: newEdition,
+      tokenMetadataProgram,
+      clock: SYSVAR_CLOCK_PUBKEY,
+      recentBlockhashes: SYSVAR_SLOT_HASHES_PUBKEY,
+      instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
+    },
+    { creatorBump: candyMachineCreator.bump }
+  );
+
+  if (candyMachine.whitelistMintSettings) {
+    const whitelistToken =
+      params.whitelistToken ??
+      findAssociatedTokenAccountPda(
+        candyMachine.whitelistMintSettings.mint,
+        payer.publicKey,
+        associatedTokenProgram
+      );
+
+    mintNftInstruction.keys.push(
+      {
+        pubkey: whitelistToken,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: candyMachine.whitelistMintSettings.mint,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: payer.publicKey,
+        isWritable: false,
+        isSigner: true,
+      }
+    );
+  }
+
+  if (candyMachine.tokenMintAddress) {
+    const payerToken =
+      params.payerToken ??
+      findAssociatedTokenAccountPda(
+        candyMachine.tokenMintAddress,
+        payer.publicKey,
+        associatedTokenProgram
+      );
+
+    mintNftInstruction.keys.push(
+      {
+        pubkey: payerToken,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: payer.publicKey,
+        isWritable: false,
+        isSigner: true,
+      }
+    );
+  }
+
   return TransactionBuilder.make()
     .setFeePayer(payer)
     .add(tokenWithMintBuilder)
     .add({
-      instruction: createMintNftInstruction(
-        {
-          candyMachine: candyMachine.address,
-          candyMachineCreator: candyMachineCreator,
-          payer: payer.publicKey,
-          wallet: candyMachine.walletAddress,
-          metadata: newMetadata,
-          mint: newMint.publicKey,
-          mintAuthority: payer.publicKey,
-          updateAuthority: payer.publicKey,
-          masterEdition: newEdition,
-          tokenMetadataProgram:
-            params.tokenMetadataProgram ?? TokenMetadataProgram.publicKey,
-          clock: SYSVAR_CLOCK_PUBKEY,
-          recentBlockhashes: SYSVAR_SLOT_HASHES_PUBKEY,
-          instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
-        },
-        { creatorBump: candyMachineCreator.bump }
-      ),
+      instruction: mintNftInstruction,
       signers: [payer, newMint],
       key: params.mintNftInstructionKey ?? 'mintNft',
     });
