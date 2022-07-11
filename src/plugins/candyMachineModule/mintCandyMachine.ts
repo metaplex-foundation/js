@@ -71,6 +71,8 @@ export type MintCandyMachineInput = {
 
 export type MintCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
+  mintSigner: Signer;
+  tokenAddress: PublicKey;
 };
 
 // -----------------
@@ -106,10 +108,15 @@ export type MintCandyMachineBuilderParams = Omit<
   setCollectionInstructionKey?: string;
 };
 
+export type MintCandyMachineBuilderContext = Omit<
+  MintCandyMachineOutput,
+  'response'
+>;
+
 export const mintCandyMachineBuilder = async (
   metaplex: Metaplex,
   params: MintCandyMachineBuilderParams
-): Promise<TransactionBuilder> => {
+): Promise<TransactionBuilder<MintCandyMachineBuilderContext>> => {
   const {
     candyMachine,
     payer = metaplex.identity(),
@@ -161,6 +168,8 @@ export const mintCandyMachineBuilder = async (
       initializeTokenInstructionKey: params.initializeTokenInstructionKey,
       mintTokensInstructionKey: params.mintTokensInstructionKey,
     });
+
+  const { tokenAddress } = tokenWithMintBuilder.getContext();
 
   const mintNftInstruction = createMintNftInstruction(
     {
@@ -233,8 +242,12 @@ export const mintCandyMachineBuilder = async (
   }
 
   return (
-    TransactionBuilder.make()
+    TransactionBuilder.make<MintCandyMachineBuilderContext>()
       .setFeePayer(payer)
+      .setContext({
+        mintSigner: newMint,
+        tokenAddress,
+      })
 
       // Create token and mint accounts.
       .add(tokenWithMintBuilder)
