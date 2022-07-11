@@ -218,7 +218,7 @@ export const updateCandyMachineBuilder = (
             collectionAuthorityRecord,
             tokenMetadataProgram: TokenMetadataProgram.publicKey,
           }),
-          signers: [authority],
+          signers: [payer, authority],
           key: params.setCollectionInstructionKey ?? 'setCollection',
         });
       })
