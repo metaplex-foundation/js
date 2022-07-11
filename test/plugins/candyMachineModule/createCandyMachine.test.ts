@@ -8,6 +8,7 @@ import {
 import {
   amman,
   assertThrows,
+  createNft,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -407,5 +408,27 @@ test('[candyMachineModule] create with SPL treasury using JSON configurations', 
     model: 'candyMachine',
     walletAddress: spokSamePubkey(token.address),
     tokenMintAddress: spokSamePubkey(token.mint.address),
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test.only('[candyMachineModule] create with collection', async (t) => {
+  // Given a Candy Machine client.
+  const { mx, client, minimalInput } = await init();
+
+  // And a Collection NFT.
+  const collectionNft = await createNft(mx);
+
+  // When we create that Candy Machine
+  const { candyMachine } = await client
+    .create({
+      ...minimalInput,
+      collection: collectionNft,
+    })
+    .run();
+
+  // Then we created the Candy Machine as configured
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    collection: collectionNft.mintAddress,
   } as unknown as Specifications<CandyMachine>);
 });

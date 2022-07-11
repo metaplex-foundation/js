@@ -1,4 +1,6 @@
 import test from 'tape';
+import spok, { Specifications } from 'spok';
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
   killStuckProcess,
   metaplex,
@@ -12,8 +14,6 @@ import {
   Nft,
   toBigNumber,
 } from '@/index';
-import spok, { Specifications } from 'spok';
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 
 killStuckProcess();
 
