@@ -37,6 +37,11 @@ import {
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
 } from './updateCandyMachine';
+import {
+  MintCandyMachineInput,
+  mintCandyMachineOperation,
+  MintCandyMachineOutput,
+} from './mintCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -130,6 +135,25 @@ export class CandyMachinesClient {
         candyMachine.address
       ).run();
       return { candyMachine: updatedCandyMachine, ...output };
+    });
+  }
+
+  mint(
+    candyMachine: CandyMachine,
+    input: Omit<MintCandyMachineInput, 'candyMachine'> = {}
+  ): Task<MintCandyMachineOutput & { nft: Nft; candyMachine: CandyMachine }> {
+    return new Task(async (scope) => {
+      const operation = mintCandyMachineOperation({ candyMachine, ...input });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const nft = await this.metaplex
+        .nfts()
+        .findByMint(output.mintSigner.publicKey)
+        .run(scope);
+      const updatedCandyMachine = await this.findByAddress(
+        candyMachine.address
+      ).run(scope);
+      return { nft, candyMachine: updatedCandyMachine, ...output };
     });
   }
 
