@@ -58,6 +58,7 @@ test('[candyMachineModule] create with minimal input', async (t) => {
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     tokenMintAddress: null,
+    collectionMintAddress: null,
     uuid: getCandyMachineUuidFromAddress(candyMachine.address),
     price: spokSameAmount(sol(1.25)),
     symbol: '',
@@ -411,7 +412,7 @@ test('[candyMachineModule] create with SPL treasury using JSON configurations', 
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.only('[candyMachineModule] create with collection', async (t) => {
+test('[candyMachineModule] create with collection', async (t) => {
   // Given a Candy Machine client.
   const { mx, client, minimalInput } = await init();
 
@@ -429,6 +430,6 @@ test.only('[candyMachineModule] create with collection', async (t) => {
   // Then we created the Candy Machine as configured
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    collection: collectionNft.mintAddress,
+    collectionMintAddress: spokSamePubkey(collectionNft.mintAddress),
   } as unknown as Specifications<CandyMachine>);
 });
