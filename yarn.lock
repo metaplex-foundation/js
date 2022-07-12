@@ -2255,6 +2255,16 @@
     "@metaplex-foundation/beet" ">=0.1.0"
     "@solana/web3.js" "^1.31.0"
 
+"@metaplex-foundation/beet-solana@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet-solana/-/beet-solana-0.3.0.tgz#28180e1f31a94fe0e926f3728c8a25d8f02ec562"
+  integrity sha512-7kl9E7PWKshYCKVAE/EB6s0wXPmqyubwMbfuRHlgECQoX7RM+4OlnC156WUThOsHBy8GeZxSwc6te6PkgqED4A==
+  dependencies:
+    "@metaplex-foundation/beet" ">=0.1.0"
+    "@solana/web3.js" "^1.44.0"
+    bs58 "^5.0.0"
+    debug "^4.3.4"
+
 "@metaplex-foundation/beet@>=0.1.0", "@metaplex-foundation/beet@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.2.0.tgz#e543e17fd1c4dc1251e9aea481a7429bc73f70b8"
@@ -2268,6 +2278,15 @@
   version "0.1.4"
   resolved "https://registry.npmjs.org/@metaplex-foundation/beet/-/beet-0.1.4.tgz"
   integrity sha512-gUlgl4h9XzSvSx7lUDvYQuy1eMxu4UXbt5MSR9K/dYIHHd3gcCxm8/6vn0VnUXMvpwVHS8tezxlsaKu+TIu6zQ==
+  dependencies:
+    ansicolors "^0.3.2"
+    bn.js "^5.2.0"
+    debug "^4.3.3"
+
+"@metaplex-foundation/beet@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.4.0.tgz#eb2a0a6eb084bb25d67dd9bed2f7387ee7e63a55"
+  integrity sha512-2OAKJnLatCc3mBXNL0QmWVQKAWK2C7XDfepgL0p/9+8oSx4bmRAFHFqptl1A/C0U5O3dxGwKfmKluW161OVGcA==
   dependencies:
     ansicolors "^0.3.2"
     bn.js "^5.2.0"
@@ -2289,13 +2308,13 @@
     "@solana/web3.js" "^1.35.1"
     bn.js "^5.2.0"
 
-"@metaplex-foundation/mpl-candy-machine@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.2.0.tgz"
-  integrity sha512-a49ZkujkvUqOmjC2Yc06Z+6fYKwFzEYVJJhQVRgP6dhZ9Cb/pvEdKGg5aB+ZOgrte6TYwuxQPneBAFM4QAfa8A==
+"@metaplex-foundation/mpl-candy-machine@^4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.3.0.tgz#168e0de04548b0ba62abb78ddc90aafd07de804d"
+  integrity sha512-Vgx0Ly+JGosXFFz/mz5eWKovZgAQBLSFAwuat/c+yGmT7FGlnCEqV3lsBsg+P8iiuG39DxCvNfBQEH8fsiuOlQ==
   dependencies:
-    "@metaplex-foundation/beet" "^0.1.0"
-    "@metaplex-foundation/beet-solana" "^0.1.1"
+    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet-solana" "^0.3.0"
     "@metaplex-foundation/cusper" "^0.0.2"
     "@metaplex-foundation/mpl-core" "^0.6.1"
     "@solana/web3.js" "^1.35.1"
@@ -2561,6 +2580,28 @@
     js-sha3 "^0.8.0"
     node-fetch "2"
     rpc-websockets "^7.4.2"
+    secp256k1 "^4.0.2"
+    superstruct "^0.14.2"
+    tweetnacl "^1.0.0"
+
+"@solana/web3.js@^1.47.3":
+  version "1.47.3"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.47.3.tgz#ec13f2cf4f9f54cc4fbd26d20be1e026c6e2279c"
+  integrity sha512-TQJulaN/+b0xXq5EhQAYFwVyOORxSyVJn1EiXupClZm8DY7f9EeUG6vl0FzSAgwEAwXKsgK3sVs/3px2e7H7dQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    "@ethersproject/sha2" "^5.5.0"
+    "@solana/buffer-layout" "^4.0.0"
+    bigint-buffer "^1.1.5"
+    bn.js "^5.0.0"
+    borsh "^0.7.0"
+    bs58 "^4.0.1"
+    buffer "6.0.1"
+    fast-stable-stringify "^1.0.0"
+    jayson "^3.4.4"
+    js-sha3 "^0.8.0"
+    node-fetch "2"
+    rpc-websockets "^7.5.0"
     secp256k1 "^4.0.2"
     superstruct "^0.14.2"
     tweetnacl "^1.0.0"
@@ -5119,6 +5160,19 @@ rpc-websockets@^7.4.2:
   version "7.4.18"
   resolved "https://registry.npmjs.org/rpc-websockets/-/rpc-websockets-7.4.18.tgz"
   integrity sha512-bVu+4qM5CkGVlTqJa6FaAxLbb5uRnyH4te7yjFvoCzbnif7PT4BcvXtNTprHlNvsH+/StB81zUQicxMrUrIomA==
+  dependencies:
+    "@babel/runtime" "^7.17.2"
+    eventemitter3 "^4.0.7"
+    uuid "^8.3.2"
+    ws "^8.5.0"
+  optionalDependencies:
+    bufferutil "^4.0.1"
+    utf-8-validate "^5.0.2"
+
+rpc-websockets@^7.5.0:
+  version "7.5.0"
+  resolved "https://registry.yarnpkg.com/rpc-websockets/-/rpc-websockets-7.5.0.tgz#bbeb87572e66703ff151e50af1658f98098e2748"
+  integrity sha512-9tIRi1uZGy7YmDjErf1Ax3wtqdSSLIlnmL5OtOzgd5eqPKbsPpwDP5whUDO2LQay3Xp0CcHlcNSGzacNRluBaQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     eventemitter3 "^4.0.7"

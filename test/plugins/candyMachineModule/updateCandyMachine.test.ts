@@ -2,6 +2,7 @@ import test from 'tape';
 import spok, { Specifications } from 'spok';
 import {
   assertThrows,
+  createNft,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -438,4 +439,98 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
       { address: spokSamePubkey(creatorB), verified: false, share: 50 },
     ],
   } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it can set the collection of a candy machine', async (t) => {
+  // Given an existing Candy Machine without a collection.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    collection: null,
+  });
+
+  // When we update the Candy Machine with a new collection NFT.
+  const collectionNft = await createNft(mx);
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      newCollection: collectionNft,
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    collectionMintAddress: spokSamePubkey(collectionNft.mintAddress),
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
+  // Given an existing Candy Machine with a collection.
+  const mx = await metaplex();
+  const collectionNft = await createNft(mx);
+  const { candyMachine } = await createCandyMachine(mx, {
+    collection: collectionNft,
+  });
+
+  // When we update the Candy Machine with a new collection.
+  const newCollectionNft = await createNft(mx);
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      newCollection: newCollectionNft,
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    collectionMintAddress: spokSamePubkey(newCollectionNft.mintAddress),
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it can remove the collection of a candy machine', async (t) => {
+  // Given an existing Candy Machine with a collection.
+  const mx = await metaplex();
+  const collectionNft = await createNft(mx);
+  const { candyMachine } = await createCandyMachine(mx, {
+    collection: collectionNft,
+  });
+
+  // When we remove the collection of that Candy Machine.
+  const { candyMachine: updatedCandyMachine } = await mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      newCollection: null,
+    })
+    .run();
+
+  // Then the Candy Machine has been updated properly.
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    collectionMintAddress: null,
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it keeps the same collection when the new collection is undefined', async (t) => {
+  // Given an existing Candy Machine with a collection.
+  const mx = await metaplex();
+  const collectionNft = await createNft(mx);
+  const { candyMachine } = await createCandyMachine(mx, {
+    collection: collectionNft,
+  });
+
+  // When we try to update the Candy Machine with an undefined collection.
+  const promise = mx
+    .candyMachines()
+    .update(candyMachine, {
+      authority: mx.identity(),
+      newCollection: undefined,
+    })
+    .run();
+
+  // Then we have no instruction to send.
+  await assertThrows(t, promise, /No Instructions To Send/);
 });

@@ -2,10 +2,15 @@ import { Commitment, PublicKey } from '@solana/web3.js';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { CandyMachine, toCandyMachine } from './CandyMachine';
-import { parseCandyMachineAccount } from './accounts';
+import {
+  parseCandyMachineAccount,
+  parseCandyMachineCollectionAccount,
+} from './accounts';
 import { CandyMachineProgram } from './program';
 import { UnreachableCaseError } from '@/errors';
 import { CandyMachineGpaBuilder } from './gpaBuilders';
+import { findCandyMachineCollectionPda } from './pdas';
+import { DisposableScope, zipMap } from '@/utils';
 
 // -----------------
 // Operation
@@ -34,7 +39,8 @@ export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler
   {
     handle: async (
       operation: FindCandyMachinesByPublicKeyFieldOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<CandyMachine[]> => {
       const { type, publicKey, commitment } = operation.input;
       const accounts = CandyMachineProgram.accounts(metaplex).mergeConfig({
@@ -55,10 +61,27 @@ export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler
       }
 
       const unparsedAccounts = await candyMachineQuery.get();
+      scope.throwIfCanceled();
 
-      return unparsedAccounts.map((unparsedAccount) => {
-        const account = parseCandyMachineAccount(unparsedAccount);
-        return toCandyMachine(account, unparsedAccount);
-      });
+      const collectionPdas = unparsedAccounts.map((unparsedAccount) =>
+        findCandyMachineCollectionPda(unparsedAccount.publicKey)
+      );
+      const unparsedCollectionAccounts = await metaplex
+        .rpc()
+        .getMultipleAccounts(collectionPdas, commitment);
+      scope.throwIfCanceled();
+
+      return zipMap(
+        unparsedAccounts,
+        unparsedCollectionAccounts,
+        (unparsedAccount, unparsedCollectionAccount) => {
+          const account = parseCandyMachineAccount(unparsedAccount);
+          const collectionAccount = unparsedCollectionAccount
+            ? parseCandyMachineCollectionAccount(unparsedCollectionAccount)
+            : null;
+
+          return toCandyMachine(account, unparsedAccount, collectionAccount);
+        }
+      );
     },
   };

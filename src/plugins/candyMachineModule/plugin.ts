@@ -22,6 +22,10 @@ import {
   InsertItemsToCandyMachineOperationHandler,
 } from './insertItemsToCandyMachine';
 import {
+  mintCandyMachineOperation,
+  mintCandyMachineOperationHandler,
+} from './mintCandyMachine';
+import {
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
 } from './updateCandyMachine';
@@ -49,6 +53,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       insertItemsToCandyMachineOperation,
       InsertItemsToCandyMachineOperationHandler
     );
+    op.register(mintCandyMachineOperation, mintCandyMachineOperationHandler);
     op.register(
       updateCandyMachineOperation,
       updateCandyMachineOperationHandler

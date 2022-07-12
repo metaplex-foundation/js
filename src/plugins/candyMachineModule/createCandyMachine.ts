@@ -1,6 +1,7 @@
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   createInitializeCandyMachineInstruction,
+  createSetCollectionInstruction,
   Creator,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Metaplex } from '@/Metaplex';
@@ -13,8 +14,15 @@ import {
   SOL,
   toBigNumber,
   toUniformCreators,
+  toPublicKey,
+  isSigner,
 } from '@/types';
-import { DisposableScope, RequiredKeys, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  RequiredKeys,
+  TransactionBuilder,
+} from '@/utils';
 import { CandyMachineProgram } from './program';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { getCandyMachineAccountSizeFromData } from './helpers';
@@ -22,6 +30,18 @@ import {
   CandyMachineConfigs,
   toCandyMachineInstructionData,
 } from './CandyMachine';
+import {
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+  isLazyNft,
+  isNft,
+  LazyNft,
+  Nft,
+  TokenMetadataProgram,
+} from '../nftModule';
+import { findCandyMachineCollectionPda } from './pdas';
+import { CandyMachineAuthorityRequiredAsASignerError } from './errors';
 
 // -----------------
 // Operation
@@ -37,10 +57,11 @@ export type CreateCandyMachineOperation = Operation<
 >;
 
 export type CreateCandyMachineInputWithoutConfigs = {
-  // Accounts.
+  // Accounts and Models.
   candyMachine?: Signer; // Defaults to Keypair.generate().
   payer?: Signer; // Defaults to mx.identity().
-  authority?: PublicKey; // Defaults to mx.identity().
+  authority?: Signer | PublicKey; // Defaults to mx.identity().
+  collection?: Option<PublicKey | Nft | LazyNft>; // Defaults to no collection.
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -91,6 +112,7 @@ export type CreateCandyMachineBuilderParams = Omit<
 > & {
   createAccountInstructionKey?: string;
   initializeCandyMachineInstructionKey?: string;
+  setCollectionInstructionKey?: string;
 };
 
 export type CreateCandyMachineBuilderContext = Omit<
@@ -104,7 +126,13 @@ export const createCandyMachineBuilder = async (
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity().publicKey;
+  const authority = params.authority ?? metaplex.identity();
+  const collection: PublicKey | null =
+    params.collection &&
+    (isNft(params.collection) || isLazyNft(params.collection))
+      ? params.collection.mintAddress
+      : params.collection ?? null;
+
   const { data, wallet, tokenMint } = toCandyMachineInstructionData(
     candyMachine.publicKey,
     {
@@ -129,7 +157,7 @@ export const createCandyMachineBuilder = async (
     {
       candyMachine: candyMachine.publicKey,
       wallet,
-      authority,
+      authority: toPublicKey(authority),
       payer: payer.publicKey,
     },
     { data }
@@ -152,7 +180,7 @@ export const createCandyMachineBuilder = async (
         candyMachineSigner: candyMachine,
         payer,
         wallet,
-        authority,
+        authority: toPublicKey(authority),
         creators: data.creators,
       })
 
@@ -178,6 +206,40 @@ export const createCandyMachineBuilder = async (
         key:
           params.initializeCandyMachineInstructionKey ??
           'initializeCandyMachine',
+      })
+
+      // Set the collection.
+      .when(!!collection, (builder) => {
+        if (!isSigner(authority)) {
+          throw new CandyMachineAuthorityRequiredAsASignerError();
+        }
+
+        const collectionMint = collection as PublicKey;
+        const metadata = findMetadataPda(collectionMint);
+        const edition = findMasterEditionV2Pda(collectionMint);
+        const collectionPda = findCandyMachineCollectionPda(
+          candyMachine.publicKey
+        );
+        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+          collectionMint,
+          collectionPda
+        );
+
+        return builder.add({
+          instruction: createSetCollectionInstruction({
+            candyMachine: candyMachine.publicKey,
+            authority: toPublicKey(authority),
+            collectionPda,
+            payer: payer.publicKey,
+            metadata,
+            mint: collectionMint,
+            edition,
+            collectionAuthorityRecord,
+            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+          }),
+          signers: [authority],
+          key: params.setCollectionInstructionKey ?? 'setCollection',
+        });
       })
   );
 };

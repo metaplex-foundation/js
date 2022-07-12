@@ -20,7 +20,10 @@ import {
   getCandyMachineUuidFromAddress,
   parseCandyMachineItems,
 } from './helpers';
-import { CandyMachineAccount } from './accounts';
+import {
+  CandyMachineAccount,
+  MaybeCandyMachineCollectionAccount,
+} from './accounts';
 import { Creator } from '@/types/Creator';
 
 // -----------------
@@ -33,6 +36,7 @@ export type CandyMachine = Readonly<{
   authorityAddress: PublicKey;
   walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
   tokenMintAddress: Option<PublicKey>;
+  collectionMintAddress: Option<PublicKey>;
   uuid: string;
   price: Amount;
   symbol: string;
@@ -99,7 +103,8 @@ export function assertCandyMachine(value: any): asserts value is CandyMachine {
 }
 export const toCandyMachine = (
   account: CandyMachineAccount,
-  unparsedAccount: UnparsedAccount
+  unparsedAccount: UnparsedAccount,
+  collectionAccount: MaybeCandyMachineCollectionAccount | null
 ): CandyMachine => {
   const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
   const itemsMinted = toBigNumber(account.data.itemsRedeemed);
@@ -121,6 +126,10 @@ export const toCandyMachine = (
     authorityAddress: account.data.authority,
     walletAddress: account.data.wallet,
     tokenMintAddress: account.data.tokenMint,
+    collectionMintAddress:
+      collectionAccount && collectionAccount.exists
+        ? collectionAccount.data.mint
+        : null,
     uuid: account.data.data.uuid,
     price: lamports(account.data.data.price),
     symbol: removeEmptyChars(account.data.data.symbol),
