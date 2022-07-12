@@ -13,7 +13,9 @@ import {
   CandyMachine,
   findCandyMachineCreatorPda,
   Nft,
+  now,
   toBigNumber,
+  toDateTime,
   token,
 } from '@/index';
 
@@ -81,24 +83,65 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
   } as Specifications<CandyMachine>);
 });
 
+test('[candyMachineModule] it can mint from candy machine as another payer', async (t) => {
+  // Given a loaded Candy Machine
+  const mx = await metaplex();
+  const payer = await createWallet(mx);
+  const { candyMachine } = await createCandyMachine(mx, {
+    goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
+    itemsAvailable: toBigNumber(1),
+    symbol: 'CANDY',
+    sellerFeeBasisPoints: 123,
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+  });
+
+  // When we mint an NFT from the candy machine.
+  const { nft } = await mx
+    .candyMachines()
+    .mint(candyMachine, { payer, newOwner: payer.publicKey })
+    .run();
+
+  // Then an NFT was created with the right data.
+  spok(t, nft, {
+    $topic: 'Minted NFT',
+    model: 'nft',
+    name: 'Degen #1',
+  } as Specifications<Nft>);
+
+  // And it belongs to the payer.
+  const nftTokenHolder = await mx
+    .tokens()
+    .findTokenWithMintByMint({
+      mint: nft.mintAddress,
+      address: payer.publicKey,
+      addressType: 'owner',
+    })
+    .run();
+  t.ok(
+    nftTokenHolder.ownerAddress.equals(payer.publicKey),
+    'NFT belongs to the payer'
+  );
+});
+
 test.only('[candyMachineModule] it can mint from candy machine with a collection and maximum settings', async (t) => {
   // Given a mint accounts with two token accounts:
   // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
   // - One for the candy machine "treasuryTokenAccount".
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  // const { token: payerTokenAccount } = await mx
-  //   .tokens()
-  //   .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey })
-  //   .run();
-  // const mintTreasury = payerTokenAccount.mint;
-  // const { token: treasuryTokenAccount } = await mx
-  //   .tokens()
-  //   .createToken({ mint: mintTreasury.address })
-  //   .run();
+  const { token: payerTokenAccount } = await mx
+    .tokens()
+    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey })
+    .run();
+  const mintTreasury = payerTokenAccount.mint;
+  const { token: treasuryTokenAccount } = await mx
+    .tokens()
+    .createToken({ mint: mintTreasury.address })
+    .run();
 
   // And given a Candy Machine with 2 items.
   const { candyMachine } = await createCandyMachine(mx, {
+    goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,

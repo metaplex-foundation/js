@@ -39,7 +39,13 @@ const isDateObject = (value: any): value is Date => {
 export const formatDateTime = (
   value: DateTime,
   locales: Intl.LocalesArgument = 'en-US',
-  options?: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }
 ): string => {
   const date = new Date(value.toNumber() * 1000);
 
