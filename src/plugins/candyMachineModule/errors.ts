@@ -1,6 +1,8 @@
 import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
-import { CandyMachineItem } from './CandyMachine';
-import { BigNumber } from '@/types';
+import { CandyMachineItem, EndSettings } from './CandyMachine';
+import { BigNumber, DateTime, formatDateTime } from '@/types';
+import { Option } from '@/utils';
+import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -25,6 +27,20 @@ export class CandyMachineIsFullError extends CandyMachineError {
         `candy machine only can hold ${itemsAvailable} assets.`,
       solution:
         'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
+    });
+  }
+}
+
+export class CandyMachineIsEmptyError extends CandyMachineError {
+  constructor(itemsAvailable: BigNumber, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_is_empty',
+      title: 'Candy Machine Is Empty',
+      problem:
+        `You're trying to mint from an empty candy machine. ` +
+        `All ${itemsAvailable} items have been minted.`,
+      solution: 'You can no longer mint from this Candy Machine.',
     });
   }
 }
@@ -71,6 +87,45 @@ export class CandyMachineAuthorityRequiredAsASignerError extends CandyMachineErr
       solution:
         'Please provide the "authority" parameter as a Signer if you want to set the Collection NFT upon creation. ' +
         'Alternatively, you may remove the "collection" parameter to create a Candy Machine without an associated Collection NFT.',
+    });
+  }
+}
+
+export class CandyMachineNotLiveError extends CandyMachineError {
+  constructor(goLiveDate: Option<DateTime>, cause?: Error) {
+    super({
+      cause,
+      key: 'candy_machine_not_live',
+      title: 'Candy Machine Not Live',
+      problem:
+        `You're trying to mint from a Candy Machine which is not live yet. ` +
+        (goLiveDate
+          ? `It will go live on ${formatDateTime(goLiveDate)}.`
+          : `Its live date has not been set yet.`),
+      solution:
+        'You need to wait until the Candy Machine is live to mint from it. ' +
+        'If this is your Candy Machine, use "metaplex.candyMachines().update(...)" to set the live date. ' +
+        'Note that the authority of the Candy Machine can mint regardless of the live date.',
+    });
+  }
+}
+
+export class CandyMachineEndedError extends CandyMachineError {
+  constructor(endSetting: EndSettings, cause?: Error) {
+    const endSettingType =
+      endSetting.endSettingType === EndSettingType.Amount ? 'Amount' : 'Date';
+    const endSettingExplanation =
+      endSetting.endSettingType === EndSettingType.Amount
+        ? `All ${endSetting.number} items have been minted.`
+        : `It ended on ${formatDateTime(endSetting.date)}.`;
+    super({
+      cause,
+      key: 'candy_machine_ended',
+      title: 'Candy Machine Ended',
+      problem:
+        `The end condition [${endSettingType}] of this Candy Machine has been reached. ` +
+        endSettingExplanation,
+      solution: 'You can no longer mint from this Candy Machine.',
     });
   }
 }

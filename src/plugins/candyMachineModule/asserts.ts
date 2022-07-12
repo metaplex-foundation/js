@@ -10,10 +10,16 @@ import { CandyMachine } from './CandyMachine';
 import {
   CandyMachineAddItemConstraintsViolatedError,
   CandyMachineCannotAddAmountError,
+  CandyMachineEndedError,
+  CandyMachineIsEmptyError,
   CandyMachineIsFullError,
+  CandyMachineNotLiveError,
 } from './errors';
-import { ConfigLine } from '@metaplex-foundation/mpl-candy-machine';
-import { BigNumber, toBigNumber } from '@/types';
+import {
+  ConfigLine,
+  EndSettingType,
+} from '@metaplex-foundation/mpl-candy-machine';
+import { BigNumber, now, Signer, toBigNumber } from '@/types';
 
 export const assertName = (name: string) => {
   assert(
@@ -49,6 +55,12 @@ export const assertNotFull = (candyMachine: CandyMachine, index: BigNumber) => {
   }
 };
 
+export const assertNotEmpty = (candyMachine: CandyMachine) => {
+  if (candyMachine.itemsRemaining.isZero()) {
+    throw new CandyMachineIsEmptyError(candyMachine.itemsAvailable);
+  }
+};
+
 export const assertCanAdd = (
   candyMachine: CandyMachine,
   index: BigNumber,
@@ -76,4 +88,52 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       );
     }
   }
+};
+
+export const assertCandyMachineIsLive = (candyMachine: CandyMachine) => {
+  const hasWhitelistPresale =
+    candyMachine.whitelistMintSettings?.presale ?? false;
+
+  if (hasWhitelistPresale) {
+    return;
+  }
+
+  const liveDate = candyMachine.goLiveDate;
+
+  if (!liveDate || liveDate.gte(now())) {
+    throw new CandyMachineNotLiveError(liveDate);
+  }
+};
+
+export const assertCandyMachineHasNotEnded = (candyMachine: CandyMachine) => {
+  const endSettings = candyMachine.endSettings;
+
+  if (!endSettings) {
+    return;
+  }
+
+  const hasEndedByAmount =
+    endSettings.endSettingType === EndSettingType.Amount &&
+    candyMachine.itemsMinted.gte(endSettings.number);
+  const hasEndedByDate =
+    endSettings.endSettingType === EndSettingType.Date &&
+    endSettings.date.lt(now());
+
+  if (hasEndedByAmount || hasEndedByDate) {
+    throw new CandyMachineEndedError(endSettings);
+  }
+};
+
+export const assertCanMintCandyMachine = (
+  candyMachine: CandyMachine,
+  payer: Signer
+) => {
+  assertNotEmpty(candyMachine);
+
+  if (candyMachine.authorityAddress.equals(payer.publicKey)) {
+    return;
+  }
+
+  assertCandyMachineIsLive(candyMachine);
+  assertCandyMachineHasNotEnded(candyMachine);
 };

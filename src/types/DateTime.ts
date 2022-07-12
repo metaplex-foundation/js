@@ -16,6 +16,8 @@ export const toDateTime = (value: DateTimeValues): DateTime => {
   return new BN(value) as DateTime;
 };
 
+export const now = (): DateTime => toDateTime(new Date());
+
 export const toOptionDateTime = (
   value: Option<DateTimeValues>
 ): Option<DateTime> => {
@@ -32,4 +34,14 @@ export function assertDateTime(value: any): asserts value is DateTime {
 
 const isDateObject = (value: any): value is Date => {
   return Object.prototype.toString.call(value) === '[object Date]';
+};
+
+export const formatDateTime = (
+  value: DateTime,
+  locales: Intl.LocalesArgument = 'en-US',
+  options?: Intl.DateTimeFormatOptions
+): string => {
+  const date = new Date(value.toNumber() * 1000);
+
+  return date.toLocaleDateString(locales, options);
 };

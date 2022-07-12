@@ -35,6 +35,7 @@ import {
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { CandyMachineProgram } from './program';
 import { parseCandyMachineCollectionAccount } from './accounts';
+import { assertCanMintCandyMachine } from './asserts';
 
 // -----------------
 // Operation
@@ -85,6 +86,11 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
       operation: MintCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<MintCandyMachineOutput> {
+      assertCanMintCandyMachine(
+        operation.input.candyMachine,
+        operation.input.payer ?? metaplex.identity()
+      );
+
       const builder = await mintCandyMachineBuilder(metaplex, operation.input);
       return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
