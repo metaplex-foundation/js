@@ -139,55 +139,42 @@ test.only('[candyMachineModule] it can mint from candy machine with a collection
     .createToken({ mint: mintTreasury.address })
     .run();
 
-  // And given a Candy Machine with 2 items.
+  // And given a Candy Machine with all of these settings.
   const { candyMachine } = await createCandyMachine(mx, {
+    price: token(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
+    tokenMint: mintTreasury.address,
+    wallet: treasuryTokenAccount.address,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
   });
 
-  // When we mint an NFT from the candy machine.
+  // When we mint an NFT from that candy machine.
   const { nft } = await mx
     .candyMachines()
     .mint(candyMachine, { payer, newOwner: payer.publicKey })
     .run();
 
-  // Then an NFT was created with the right data.
+  // Then an NFT was created.
   spok(t, nft, {
     $topic: 'Minted NFT',
     model: 'nft',
     name: 'Degen #1',
-    symbol: 'CANDY',
-    uri: 'https://example.com/degen/1',
-    sellerFeeBasisPoints: 123,
-    tokenStandard: TokenStandard.NonFungible,
-    isMutable: true,
-    primarySaleHappened: true,
-    updateAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
-    creators: [
-      {
-        address: spokSamePubkey(
-          findCandyMachineCreatorPda(candyMachine.address)
-        ),
-        verified: true,
-        share: 0,
-      },
-      {
-        address: spokSamePubkey(mx.identity().publicKey),
-        verified: false,
-        share: 100,
-      },
-    ],
-    edition: {
-      model: 'nftEdition',
-      isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
-      maxSupply: spokSameBignum(toBigNumber(0)),
-    },
   } as Specifications<Nft>);
+
+  // And the payer token account was debited.
+  const updatedPayerTokenAccount = await mx
+    .tokens()
+    .findTokenByAddress(payerTokenAccount.address)
+    .run();
+  t.equal(
+    updatedPayerTokenAccount.amount.toNumber(),
+    5,
+    'Payer token account was debited'
+  );
 });
