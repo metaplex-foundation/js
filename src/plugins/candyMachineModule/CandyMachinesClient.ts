@@ -146,6 +146,7 @@ export class CandyMachinesClient {
       const operation = mintCandyMachineOperation({ candyMachine, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
+      // TODO(loris): Identify if the mint was actually successful or if it was a bot tax. Throw an error for the latter.
       const nft = await this.metaplex
         .nfts()
         .findByMint(output.mintSigner.publicKey)

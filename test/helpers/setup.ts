@@ -7,6 +7,7 @@ import {
   mockStorage,
   UploadMetadataInput,
   CreateNftInput,
+  KeypairSigner,
 } from '@/index';
 import { amman } from './amman';
 
@@ -25,15 +26,20 @@ export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
 };
 
 export const metaplex = async (options: MetaplexTestOptions = {}) => {
-  const wallet = Keypair.generate();
-  const mx = metaplexGuest(options).use(keypairIdentity(wallet));
-  await amman.airdrop(
-    mx.connection,
-    wallet.publicKey,
-    options.solsToAirdrop ?? 100
-  );
+  const mx = metaplexGuest(options);
+  const wallet = await createWallet(mx, options.solsToAirdrop);
 
-  return mx;
+  return mx.use(keypairIdentity(wallet as Keypair));
+};
+
+export const createWallet = async (
+  mx: Metaplex,
+  solsToAirdrop: number = 100
+): Promise<KeypairSigner> => {
+  const wallet = Keypair.generate();
+  await amman.airdrop(mx.connection, wallet.publicKey, solsToAirdrop);
+
+  return wallet;
 };
 
 export const createNft = async (
