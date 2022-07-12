@@ -85,8 +85,7 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
   } as Specifications<CandyMachine>);
 });
 
-// TODO(loris): Fix: exceeded maximum number of instructions allowed.
-test.skip('[candyMachineModule] it can mint from candy machine with a collection', async (t) => {
+test('[candyMachineModule] it can mint from candy machine with a collection', async (t) => {
   // Given a Candy Machine with a set Collection.
   const mx = await metaplex();
   const collection = await createNft(mx);
@@ -105,6 +104,10 @@ test.skip('[candyMachineModule] it can mint from candy machine with a collection
     $topic: 'Minted NFT',
     model: 'nft',
     name: 'Degen #1',
+    collection: {
+      verified: true,
+      key: spokSamePubkey(collection.mintAddress),
+    },
   } as Specifications<Nft>);
 });
 
@@ -204,8 +207,7 @@ test('[candyMachineModule] it can mint from candy machine with an SPL treasury',
   );
 });
 
-// TODO(loris): Fix: exceeded maximum number of instructions allowed.
-test.skip('[candyMachineModule] it can mint from candy machine with a collection and maximum settings', async (t) => {
+test('[candyMachineModule] it can mint from candy machine even when we max out the instructions needed', async (t) => {
   // Given a mint accounts with two token accounts:
   // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
   // - One for the candy machine "treasuryTokenAccount".
