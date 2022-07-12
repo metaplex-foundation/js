@@ -2,6 +2,7 @@ import test from 'tape';
 import spok, { Specifications } from 'spok';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
+  createNft,
   createWallet,
   killStuckProcess,
   metaplex,
@@ -18,6 +19,7 @@ import {
   toDateTime,
   token,
 } from '@/index';
+import { WhitelistMintMode } from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 
@@ -123,7 +125,7 @@ test('[candyMachineModule] it can mint from candy machine as another payer', asy
   );
 });
 
-test.only('[candyMachineModule] it can mint from candy machine with a collection and maximum settings', async (t) => {
+test('[candyMachineModule] it can mint from candy machine with an SPL treasury', async (t) => {
   // Given a mint accounts with two token accounts:
   // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
   // - One for the candy machine "treasuryTokenAccount".
@@ -177,4 +179,66 @@ test.only('[candyMachineModule] it can mint from candy machine with a collection
     5,
     'Payer token account was debited'
   );
+});
+
+test.only('[candyMachineModule] it can mint from candy machine with a collection and maximum settings', async (t) => {
+  // Given a mint accounts with two token accounts:
+  // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
+  // - One for the candy machine "treasuryTokenAccount".
+  const mx = await metaplex();
+  const payer = await createWallet(mx);
+  const { token: payerTokenAccount } = await mx
+    .tokens()
+    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey })
+    .run();
+  const mintTreasury = payerTokenAccount.mint;
+  const { token: treasuryTokenAccount } = await mx
+    .tokens()
+    .createToken({ mint: mintTreasury.address })
+    .run();
+
+  // And the following whitelist settings.
+  const { token: payerWhitelistTokenAccount } = await mx
+    .tokens()
+    .createTokenWithMint({ initialSupply: token(1), owner: payer.publicKey })
+    .run();
+  const whitelistMintSettings = {
+    mode: WhitelistMintMode.BurnEveryTime,
+    mint: payerWhitelistTokenAccount.mint.address,
+    presale: false,
+    discountPrice: null,
+  };
+
+  // And the following collection.
+  const collection = await createNft(mx, { symbol: 'CANDY' });
+
+  // And given a Candy Machine with all of these settings.
+  const { candyMachine } = await createCandyMachine(mx, {
+    price: token(5),
+    goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
+    itemsAvailable: toBigNumber(2),
+    symbol: 'CANDY',
+    sellerFeeBasisPoints: 123,
+    tokenMint: mintTreasury.address,
+    wallet: treasuryTokenAccount.address,
+    whitelistMintSettings,
+    collection,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
+
+  // When we mint an NFT from that candy machine.
+  const { nft } = await mx
+    .candyMachines()
+    .mint(candyMachine, { payer, newOwner: payer.publicKey })
+    .run();
+
+  // Then an NFT was created.
+  spok(t, nft, {
+    $topic: 'Minted NFT',
+    model: 'nft',
+    name: 'Degen #1',
+  } as Specifications<Nft>);
 });
