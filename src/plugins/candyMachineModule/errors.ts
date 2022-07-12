@@ -129,3 +129,21 @@ export class CandyMachineEndedError extends CandyMachineError {
     });
   }
 }
+
+export class CandyMachineBotTaxError extends CandyMachineError {
+  constructor(explorerLink: string, cause: Error) {
+    super({
+      cause,
+      key: 'candy_machine_bot_tax',
+      title: 'Candy Machine Bot Tax',
+      problem:
+        `The NFT couldn't be fetched after being minted. ` +
+        `This is most likely due to a bot tax that occured during minting. ` +
+        `When someone tries to mint an NFT from a Candy Machine which cannot be minted from, ` +
+        `the program will succeed and charge a small tax to fight against bots.`,
+      solution:
+        `Ensure you can mint from the Candy Machine. ` +
+        `You may want to check the transaction logs for more details: [${explorerLink}].`,
+    });
+  }
+}

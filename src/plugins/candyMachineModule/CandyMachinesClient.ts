@@ -42,6 +42,7 @@ import {
   mintCandyMachineOperation,
   MintCandyMachineOutput,
 } from './mintCandyMachine';
+import { CandyMachineBotTaxError } from './errors';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -146,11 +147,21 @@ export class CandyMachinesClient {
       const operation = mintCandyMachineOperation({ candyMachine, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      // TODO(loris): Identify if the mint was actually successful or if it was a bot tax. Throw an error for the latter.
-      const nft = await this.metaplex
-        .nfts()
-        .findByMint(output.mintSigner.publicKey)
-        .run(scope);
+
+      let nft: Nft;
+      try {
+        nft = await this.metaplex
+          .nfts()
+          .findByMint(output.mintSigner.publicKey)
+          .run(scope);
+      } catch (error) {
+        throw new CandyMachineBotTaxError(
+          this.metaplex.rpc().getSolanaExporerUrl(output.response.signature),
+          error as Error
+        );
+      }
+      scope.throwIfCanceled();
+
       const updatedCandyMachine = await this.findByAddress(
         candyMachine.address
       ).run(scope);

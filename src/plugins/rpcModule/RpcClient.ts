@@ -206,6 +206,25 @@ export class RpcClient {
       .blockhash;
   }
 
+  getSolanaExporerUrl(signature: string): string {
+    let clusterParam = '';
+    switch (this.metaplex.cluster) {
+      case 'devnet':
+        clusterParam = '?cluster=devnet';
+        break;
+      case 'testnet':
+        clusterParam = '?cluster=testnet';
+        break;
+      case 'localnet':
+      case 'custom':
+        const url = encodeURIComponent(this.metaplex.connection.rpcEndpoint);
+        clusterParam = `?cluster=custom&customUrl=${url}`;
+        break;
+    }
+
+    return `https://explorer.solana.com/tx/${signature}${clusterParam}`;
+  }
+
   protected getDefaultFeePayer(): PublicKey | undefined {
     const identity = this.metaplex.identity().publicKey;
 
