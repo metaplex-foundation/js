@@ -210,7 +210,7 @@ test.only('[candyMachineModule] it can mint from candy machine with a collection
   };
 
   // And the following collection.
-  const collection = await createNft(mx, { symbol: 'CANDY' });
+  const collection = await createNft(mx);
 
   // And given a Candy Machine with all of these settings.
   const { candyMachine } = await createCandyMachine(mx, {

@@ -294,7 +294,7 @@ export const mintCandyMachineBuilder = async (
             collectionMint: candyMachineCollectionAccount.data.mint,
             collectionMetadata,
             collectionMasterEdition,
-            authority: payer.publicKey,
+            authority: candyMachine.authorityAddress,
             collectionAuthorityRecord,
           }),
           signers: [payer],
