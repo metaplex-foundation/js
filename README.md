@@ -2,7 +2,7 @@
 
 This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience whilst allowing third parties to extend its features via plugins.
 
-⚠️ [Stability 1 - Experimental](https://docs.metaplex.com/stability). Please note that this SDK has been re-implemented from scratch and is still in active development. This means **some of the core API and interfaces might change from one version to another**. However, feel free to use it and provide some early feedback if you wish to contribute to the direction of this project.
+Please note that this SDK has been re-implemented from scratch and is still in active development. This means **some of the core API and interfaces might change from one version to another**. However, feel free to use it and provide some early feedback if you wish to contribute to the direction of this project.
 
 ## Installation
 ```sh
@@ -14,7 +14,7 @@ npm install @metaplex-foundation/js @solana/web3.js
 ## Setup
 The entry point to the JavaScript SDK is a `Metaplex` instance that will give you access to its API.
 
-It accepts a `Connection` instance that will be used to communicate with the cluster.
+It accepts a `Connection` instance from `@solana/web3.js` that will be used to communicate with the cluster.
 
 ```ts
 import { Metaplex } from "@metaplex-foundation/js";
@@ -41,25 +41,49 @@ const metaplex = Metaplex.make(connection)
 Notice how you can create a `Metaplex` instance using `Metaplex.make(...)` instead of `new Metaplex(...)` in order to make the fluent API more readable.
 
 ## Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one (documented) NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
 
-Here is a little visual representation of the SDK in its current state.
+Every method that you call on the SDK will return an instance of type `Task<T>` where `T` is the return value you can expect when running the task. For instance, say you want to fetch an NFT via its mint address, you can access the `Task<Nft>` and run it like so:
 
-![High-level architecture of the SDK.](https://user-images.githubusercontent.com/3642397/167716670-16c6ec5e-76ba-4c15-9dfc-7790d90099dd.png)
+```ts
+const task = metaplex.nfts().findByMint(mintAddress);
+const nft = await task.run();
+
+// Or for short:
+const nft = await metaplex.nfts().findByMint(mintAddress).run();
+```
+
+There are several advantages in consistently wrapping these operations into tasks. For instance, you can use the `task` instance to keep track of its progress _and_ you can cancel the task using an `AbortSignal` (similarly to how you cancel an HTTP request).
+
+```ts
+// Access the task that fetches the NFT.
+const task = metaplex.nfts().findByMint(mintAddress);
+
+// Listen to status changes an log them in the console.
+task.onStatusChange((status: TaskStatus) => console.log(status));
+
+// Create an AbortController that aborts in 100ms.
+const abortController = new AbortController();
+setTimeout(() => abortController.abort(), 100);
+
+// Run the task using the AbortController's signal.
+const nft = await task.run({ signal: abortController.signal });
+```
+
+We'll talk more about tasks and what you can do with them in a later section.
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
 ## NFTs
-The NFT module can be accessed via `metaplex.nfts()` and provide the following methods.
+The NFT module can be accessed via `metaplex.nfts()` and provides the following methods.
 
-- [`findByMint(mint)`](#findByMint)
-- [`findAllByMintList(mints)`](#findAllByMintList)
-- [`findAllByOwner(owner)`](#findAllByOwner)
-- [`findAllByCreator(creator, position = 1)`](#findAllByCreator)
-- [`findAllByCandyMachine(candyMachine, version = 2)`](#findAllByCandyMachine)
+- [`findByMint(mint, options)`](#findByMint)
+- [`findAllByMintList(mints, options)`](#findAllByMintList)
+- [`findAllByOwner(owner, options)`](#findAllByOwner)
+- [`findAllByCreator(creator, options)`](#findAllByCreator)
 - [`uploadMetadata(metadata)`](#uploadMetadata)
-- [`create(onChainData)`](#create)
-- [`update(nft, onChainData)`](#update)
+- [`create(input)`](#create)
+- [`update(nft, input)`](#update)
 - [`printNewEdition(originalMint, params)`](#printNewEdition)
 
 And the following model, either returned or used by the above methods.
@@ -73,20 +97,27 @@ The `findByMint` method accepts a `mint` public key and returns [an `Nft` object
 ```ts
 const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findByMint(mint);
+const nft = await metaplex.nfts().findByMint(mint).run();
 ```
 
 The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
 
 ```ts
-const imageUrl = nft.metadata.image;
+const imageUrl = nft.json.image;
 ```
 
-Similarly, the `OriginalEdition` account (a.k.a the Master Edition) of the NFT will also be already loaded and, if it exists on that NFT, you can use it like so.
+Similarly, the `Edition` information of the NFT — original or printed — is also available on the object via the `edition` property. Its type depends on whether the NFT is the original or a printed edition.
 
 ```ts
-const supply = nft.originalEdition.supply;
-const maxSupply = nft.originalEdition.maxSupply;
+const editionAddress = nft.edition.address;
+
+if (nft.edition.isOriginal) {
+    const totalPrintedNfts = nft.edition.supply;
+    const maxNftsThatCanBePrinted = nft.edition.maxSupply;
+} else {
+    const mintAddressOfOriginalNft = nft.edition.parent;
+    const editionNumber = nft.edition.number;
+}
 ```
 
 You can [read more about the `NFT` model below](#the-nft-model).
@@ -375,6 +406,10 @@ You may also provide an `AbortSignal` using the `signal` property of the `TaskOp
 Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
 
 Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
+
+## Tasks
+
+TODO
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
