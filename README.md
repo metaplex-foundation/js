@@ -70,7 +70,7 @@ setTimeout(() => abortController.abort(), 100);
 const nft = await task.run({ signal: abortController.signal });
 ```
 
-We'll talk more about tasks and what you can do with them in a later section.
+We'll talk more about tasks and what you can do with them [in a later section](#tasks).
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -79,6 +79,7 @@ The NFT module can be accessed via `metaplex.nfts()` and provides the following 
 
 - [`findByMint(mint, options)`](#findByMint)
 - [`findAllByMintList(mints, options)`](#findAllByMintList)
+- [`loadNft(lazyNft, options)`](#loadNft)
 - [`findAllByOwner(owner, options)`](#findAllByOwner)
 - [`findAllByCreator(creator, options)`](#findAllByCreator)
 - [`uploadMetadata(metadata)`](#uploadMetadata)
@@ -124,78 +125,59 @@ You can [read more about the `NFT` model below](#the-nft-model).
 
 ### findAllByMintList
 
-The `findAllByMintList` method accepts an array of mint addresses and returns an array of `Nft`s. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
+The `findAllByMintList` operation accepts an array of mint addresses and returns an array of NFTs. However, `null` values will be returned for each provided mint address that is not associated with an NFT.
 
 Note that this is much more efficient than calling `findByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
 
 ```ts
-const [nftA, nftB] = await metaplex.nfts().findAllByMintList([mintA, mintB]);
+const [nftA, nftB] = await metaplex
+    .nfts()
+    .findAllByMintList([mintA, mintB])
+    .run();
 ```
 
-NFTs retrieved via `findAllByMintList` will not have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `Edition` account which might be irrelevant until the user clicks on the NFT.
+NFTs retrieved via `findAllByMintList` may be of type `LazyNft` rather than `Nft`.
 
-Thus, if you want to load the JSON metadata and/or the `Edition` account of an NFT, you may do this like so.
+What this means is they won't have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `edition` property which requires an extra account to fetch and might be irrelevant until the user clicks on the NFT.
+
+Note that, since plugins can swap operation handlers with their own implementations, it is possible that a plugin relying on indexers return an array of `Nft`s directly instead of `LazyNft`s. The default implementation though, will return `LazyNft`s.
+
+Thus, if you want to load the `json` and/or `edition` properties of an NFT, you need to load that `LazyNft` into an `Nft`. Which you can do with the next operation.
+
+### loadNft
+
+For performance reasons, when fetching NFTs in bulk, you may received `LazyNft`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `LazyNft` into an `Nft`, you may use the `loadNft` operation like so.
 
 ```ts
-await nft.metadataTask.run();
-await nft.editionTask.run();
+const nft = await metaplex.nfts().loadNft(lazyNft).run();
 ```
 
-This will give you access to the `metadata`, `originalEdition` and `printEdition` properties of the NFT. The last two depend on whether the NFT is an original edition or a print edition.
-
-```ts
-const imageUrl = nft.metadata.image;
-
-if (nft.isOriginal()) {
-    const currentSupply = nft.originalEdition.supply;
-    const maxSupply = nft.originalEdition.maxSupply;
-}
-
-if (nft.isPrint()) {
-  const parentEdition = nft.printEdition.parent;
-  const editionNumber = nft.printEdition.edition;
-}
-```
-
-We'll talk more about these tasks when documenting [the `NFT` model](#the-nft-model).
+This will give you access to the `json` and `edition` properties of the NFT as explained in [the NFT model documentation](#the-nft-model).
 
 ### findAllByOwner
 
-The `findAllByOwner` method accepts a public key and returns all `Nft`s owned by that public key.
+The `findAllByOwner` method accepts a public key and returns all NFTs owned by that public key.
 
 ```ts
-const myNfts = await metaplex.nfts().findAllByOwner(metaplex.identity().publicKey);
+const myNfts = await metaplex
+    .nfts()
+    .findAllByOwner(metaplex.identity().publicKey)
+    .run();
 ```
 
-Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
+Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
 
 ### findAllByCreator
 
-The `findAllByCreator` method accepts a public key and returns all `Nft`s that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
+The `findAllByCreator` method accepts a public key and returns all NFTs that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
 
 ```ts
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey);
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, 1); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, 2); // Now matching the second creator field.
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey).run();
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position: 1 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position: 2 }).run(); // Now matching the second creator field.
 ```
 
-Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
-
-### findAllByCandyMachine
-
-The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
-
-By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
-
-```ts
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
-```
-
-Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
-
-Similarly to `findAllByMintList`, the returned `Nft`s will not have their JSON metadata nor their edition account loaded.
+Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
 
 ### uploadMetadata
 
@@ -406,6 +388,24 @@ You may also provide an `AbortSignal` using the `signal` property of the `TaskOp
 Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
 
 Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
+
+## Candy Machines
+
+### findAllByCandyMachine
+
+The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+
+By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
+
+```ts
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+```
+
+Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+
+Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
 
 ## Tasks
 
