@@ -183,14 +183,17 @@ Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
 
 When creating or updating an NFT, you will need a URI pointing to some JSON Metadata describing the NFT. Depending on your requirement, you may do this on-chain or off-chain.
 
-If your metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and returns the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
+If your JSON metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and returns the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
 
 ```ts
-const { uri } = await metaplex.nfts().uploadMetadata({
-    name: "My NFT",
-    description: "My description",
-    image: "https://arweave.net/123",
-});
+const { uri } = await metaplex
+    .nfts()
+    .uploadMetadata({
+        name: "My NFT",
+        description: "My description",
+        image: "https://arweave.net/123",
+    })
+    .run();
 
 console.log(uri) // https://arweave.net/789
 ```
@@ -200,21 +203,24 @@ Some properties inside that metadata object will also require you to upload some
 To make this process easier, the `uploadMetadata` method will recognise any instances of `MetaplexFile` within the provided object and upload them in bulk to the current storage driver. It will then create a new version of the provided metadata where all instances of `MetaplexFile` are replaced with their URI. Finally, it will upload that replaced metadata to the storage driver and return it.
 
 ```ts
-// Assuming the user uploaded two images via an input of type "file".
+// Assuming the user uploaded two images via an input field of type "file".
 const browserFiles = event.target.files;
 
-const { uri, metadata } = await metaplex.nfts().uploadMetadata({
-    name: "My NFT",
-    image: await useMetaplexFileFromBrowser(browserFiles[0]),
-    properties: {
-        files: [
-            {
-                type: "video/mp4",
-                uri: await useMetaplexFileFromBrowser(browserFiles[1]),
-            },
-        ]
-    }
-});
+const { uri, metadata } = await metaplex
+    .nfts()
+    .uploadMetadata({
+        name: "My NFT",
+        image: await toMetaplexFileFromBrowser(browserFiles[0]),
+        properties: {
+            files: [
+                {
+                    type: "video/mp4",
+                    uri: await toMetaplexFileFromBrowser(browserFiles[1]),
+                },
+            ]
+        }
+    })
+    .run();
 
 console.log(metadata.image) // https://arweave.net/123
 console.log(metadata.properties.files[0].uri) // https://arweave.net/456
@@ -225,24 +231,27 @@ Note that `MetaplexFile`s can be created in various different ways based on wher
 
 ### create
 
-The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only required parameter is the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
 ```ts
-const { nft } = await metaplex.nfts().create({
-    uri: "https://arweave.net/123",
-});
+const { nft } = await metaplex
+    .nfts()
+    .create({
+        uri: "https://arweave.net/123",
+        name: "My NFT",
+        sellerFeeBasisPoints: 500; // Represents 5.00%.
+    })
+    .run();
 ```
 
 This will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you.
 
 Additionally, since no other optional parameters were provided, it will do its best to provide sensible default values for the rest of the parameters. Namely:
-- It will fetch the JSON metadata from the provided URI and try to use some of its fields to fill the gaps in the on-chain data. E.g. the metadata name will be used for the on-chain name as a fallback.
 - Since no owner, mint authority or update authority were provided, the “identity” of the SDK will be used by default for these parameters. Meaning the SDK's identity will be the owner of that new NFT.
 - It will also default to setting the identity as the first and only creator with a 100% share.
-- It will try to fetch the secondary sales royalties from the downloaded JSON metadata or will default to 5%.
-- It will default to making the NFT immutable — meaning you won't be able to update it later on.
+- It will default to making the NFT mutable — meaning the update authority will be able to update it later on.
 
 If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/plugins/nftModule/createNft.ts) accepted by the `create` method.
 
@@ -253,9 +262,10 @@ The `update` method accepts an `Nft` object and a set of parameters to update on
 For instance, here is how you would change the on-chain name of an NFT.
 
 ```ts
-const { nft: updatedNft } = await metaplex.nfts().update(nft, {
-    name: "My Updated Name",
-});
+const { nft: updatedNft } = await metaplex
+    .nfts()
+    .update(nft, { name: "My Updated Name" })
+    .run();
 ```
 
 Anything that you don’t provide in the parameters will stay unchanged.
@@ -263,15 +273,19 @@ Anything that you don’t provide in the parameters will stay unchanged.
 If you’d like to change the JSON metadata of the NFT, you’d first need to upload a new metadata object using the `uploadMetadata` method and then use the provided URI to update the NFT.
 
 ```ts
-const { uri: newUri } = await metaplex.nfts().uploadMetadata({
-    ...nft.metadata,
-    name: "My Updated Metadata Name",
-    description: "My Updated Metadata Description",
-});
+const { uri: newUri } = await metaplex
+    .nfts()
+    .uploadMetadata({
+        ...nft.json,
+        name: "My Updated Metadata Name",
+        description: "My Updated Metadata Description",
+    })
+    .run();
 
-const { nft: updatedNft } = await metaplex.nfts().update(nft, {
-    uri: newUri,
-});
+const { nft: updatedNft } = await metaplex
+    .nfts()
+    .update(nft, { uri: newUri })
+    .run();
 ```
 
 ### printNewEdition
@@ -525,16 +539,16 @@ type MetaplexFile {
 }
 ```
 
-You may use the `useMetaplexFile` function to create a `MetaplexFile` object from a `Buffer` instance (or content `string`) and a filename. The filename is necessary to infer the extension and the mime type of the provided file.
+You may use the `toMetaplexFile` function to create a `MetaplexFile` object from a `Buffer` instance (or content `string`) and a filename. The filename is necessary to infer the extension and the mime type of the provided file.
 
 ```ts
-const file = useMetaplexFile('The content of my file', 'my-file.txt');
+const file = toMetaplexFile('The content of my file', 'my-file.txt');
 ```
 
 You may also explicitly provide these options by passing a third parameter to the constructor.
 
 ```ts
-const file = useMetaplexFile('The content of my file', 'my-file.txt', {
+const file = toMetaplexFile('The content of my file', 'my-file.txt', {
     displayName = 'A Nice Title For My File'; // Defaults to the filename.
     uniqueName = 'my-company/files/some-identifier'; // Defaults to a random string.
     contentType = 'text/plain'; // Infer it from filename by default.
@@ -543,7 +557,7 @@ const file = useMetaplexFile('The content of my file', 'my-file.txt', {
 });
 ```
 
-Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a `useMetaplexFileFromJson` helper method that you can use like so.
+Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a `toMetaplexFileFromJson` helper method that you can use like so.
 
 ```ts
 const file = MetaplexFile.fromJson({ foo: 42 });
@@ -553,14 +567,14 @@ In practice, you will most likely be creating `MetaplexFile`s from files either 
 
 ```ts
 const buffer = fs.readFileSync('/path/to/my-file.txt');
-const file = useMetaplexFile(buffer, 'my-file.txt');
+const file = toMetaplexFile(buffer, 'my-file.txt');
 ```
 
-And the latter by using the `useMetaplexFileFromBrowser` helper method which accepts a `File` object as defined in the browser.
+And the latter by using the `toMetaplexFileFromBrowser` helper method which accepts a `File` object as defined in the browser.
 
 ```ts
 const browserFile: File = event.target.files[0];
-const file: MetaplexFile = await useMetaplexFileFromBrowser(browserFile);
+const file: MetaplexFile = await toMetaplexFileFromBrowser(browserFile);
 ```
 
 Okay, now let’s talk about the concrete storage drivers available to us and how to set them up.
@@ -622,7 +636,7 @@ metaplex.use(awsStorage(awsClient, 'my-nft-bucket'));
 When uploading a `MetaplexFile` using `metaplex.storage().upload(file)`, the unique name of the file will be used as the AWS key. By default, this will be a random string generated by the SDK but you may explicitly provide your own like so.
 
 ```ts
-const file = useMetaplexFile('file-content', 'filename.jpg', {
+const file = toMetaplexFile('file-content', 'filename.jpg', {
     uniqueName: 'my-unique-aws-key',
 })
 
