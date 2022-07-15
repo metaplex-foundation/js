@@ -292,10 +292,13 @@ const { nft: updatedNft } = await metaplex
 
 The `printNewEdition` method requires the mint address of the original NFT and returns a brand-new NFT printed from the original edition.
 
-For instance, this is how you would print a new edition of the `originalNft` NFT.
+This is how you would print a new edition of the `originalNft` NFT.
 
 ```ts
-const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalNft.mint);
+const { nft: printedNft } = await metaplex
+    .nfts()
+    .printNewEdition(originalNft.mint)
+    .run();
 ```
 
 By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
@@ -303,63 +306,96 @@ By default, it will print using the token account of the original NFT as proof o
 ```ts
 const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalMint, {
   newMint,                   // Defaults to a brand-new Keypair.
-  newMintAuthority,          // Defaults to the current identity.
   newUpdateAuthority,        // Defaults to the current identity.
   newOwner,                  // Defaults to the current identity.
-  newFreezeAuthority,        // Defaults to undefined.
   payer,                     // Defaults to the current identity.
   originalTokenAccountOwner, // Defaults to the current identity.
-  originalTokenAccount,      // Defaults to the ATA of the current identity.
+  originalTokenAccount,      // Defaults to the associated token account of the current identity.
 });
 ```
 
 ### The `Nft` model
 
-All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level — i.e. no more `metadata.data.data`.
+All of the methods above either return or interact with an `Nft` object. The `Nft` object is a read-only data representation of your NFT that contains all the information you need at the top level.
 
-You can see [its full data representation by checking the code](/src/plugins/nftModule/Nft.ts) but here is an overview of the properties that are available on the `Nft` object.
-
-```ts
-// Always loaded.
-updateAuthority: PublicKey;
-mint: PublicKey;
-name: string;
-symbol: string;
-uri: string;
-sellerFeeBasisPoints: number;
-creators: Creator[] | null;
-primarySaleHappened: boolean;
-isMutable: boolean;
-editionNonce: number | null;
-tokenStandard: TokenStandard | null;
-collection: Collection | null;
-uses: Uses | null;
-
-// Sometimes loaded.
-metadata: JsonMetadata | null;
-editionAccount: OriginalOrPrintEditionAccount | null;
-originalEdition: null | {
-    supply: number | BN;
-    maxSupply: number | BN;
-};
-printEdition: null | {
-  parent: PublicKey;
-  edition: number | BN;
-};
-```
-
-As you can see, some of the properties — such as `metadata` — are loaded on demand. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
-- If you're only fetching one NFT — e.g. by using `findByMint` — then these properties will already be loaded.
-- If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then these properties will not be loaded and you will need to load them as and when you need them.
-
-In order to load these properties, you may run the `metadataTask` and `editionTask` properties of the `Nft` object.
+Here is an overview of the properties that are available on the `Nft` object.
 
 ```ts
-await nft.metadataTask.run();
-await nft.editionTask.run();
+type Nft = Readonly<{
+    model: 'nft';
+    lazy: false;
+    metadataAddress: Pda;
+    mintAddress: PublicKey;
+    updateAuthorityAddress: PublicKey;
+    json: Option<JsonMetadata>;
+    name: string;
+    symbol: string;
+    uri: string;
+    isMutable: boolean;
+    primarySaleHappened: boolean;
+    sellerFeeBasisPoints: number;
+    editionNonce: Option<number>;
+    creators: Creator[];
+    tokenStandard: Option<TokenStandard>;
+    collection: Option<Collection>;
+    uses: Option<Uses>;
+    mint: {
+        model: 'mint';
+        address: PublicKey;
+        mintAuthorityAddress: Option<PublicKey>;
+        freezeAuthorityAddress: Option<PublicKey>;
+        decimals: number;
+        supply: SplTokenAmount;
+        isWrappedSol: boolean;
+        currency: SplTokenCurrency;
+    };
+    edition:
+        | {
+            model: 'nftEdition';
+            isOriginal: true;
+            address: PublicKey;
+            supply: BigNumber;
+            maxSupply: Option<BigNumber>;
+        }
+        | {
+            model: 'nftEdition';
+            isOriginal: false;
+            address: PublicKey;
+            parent: PublicKey;
+            number: BigNumber;
+        };
+}>
 ```
 
-After these two promises resolve, you should have access to the `metadata`, `editionAccount`, `originalEdition` and `printEdition` properties. Note that if a task fails to load the data, an error will be thrown.
+Additionally, The SDK may sometimes return a `LazyNft` insteand of an `Nft` object. The `LazyNft` model contains the same data as the `Nft` model but it excludes the following properties: `json`, `mint` and `edition`. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
+- If you're only fetching one NFT — e.g. by using `findByMint` — then you will receive an `Nft` object containing these properties.
+- If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then you will receive an array of `LazyNft` that do not contain these properties.
+
+You may obtain an `Nft` object from a `LazyNft` object by using [the `loadNft` method](#loadnft) explained above,
+
+## Candy Machines
+
+TODO
+
+### findAllByCandyMachine
+
+The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+
+By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
+
+```ts
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+```
+
+Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+
+Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
+
+## Tasks
+
+TODO
 
 Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
 
@@ -402,28 +438,6 @@ You may also provide an `AbortSignal` using the `signal` property of the `TaskOp
 Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
 
 Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
-
-## Candy Machines
-
-### findAllByCandyMachine
-
-The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
-
-By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
-
-```ts
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
-```
-
-Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
-
-Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
-
-## Tasks
-
-TODO
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
