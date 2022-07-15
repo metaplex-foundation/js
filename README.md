@@ -478,22 +478,22 @@ class StorageClient {
 }
 ```
 
-Similarly to the `IdentityClient`, the `StorageClient` delegates to the current `StorageDriver` when executing these methods. We'll take a look at the storage drivers available to us, but first, let's talk about the `MetaplexFile` class which is being used throughout the StorageClient API.
+Similarly to the `IdentityClient`, the `StorageClient` delegates to the current `StorageDriver` when executing these methods. We'll take a look at the storage drivers available to us, but first, let's talk about the `MetaplexFile` type which is being used throughout the `StorageClient` API.
 
 ### MetaplexFile
 
 The `MetaplexFile` type is a simple wrapper around `Buffer` that adds additional context relevant to files and assets such as their filename, content type, extension, etc. It contains the following data.
 
 ```ts
-type MetaplexFile {
-    readonly buffer: Buffer;
-    readonly fileName: string;
-    readonly displayName: string;
-    readonly uniqueName: string;
-    readonly contentType: string | null;
-    readonly extension: string | null;
-    readonly tags: { name: string; value: string }[];
-}
+type MetaplexFile = Readonly<{
+    buffer: Buffer;
+    fileName: string;
+    displayName: string;
+    uniqueName: string;
+    contentType: string | null;
+    extension: string | null;
+    tags: MetaplexFileTag[];
+}>
 ```
 
 You may use the `toMetaplexFile` function to create a `MetaplexFile` object from a `Buffer` instance (or content `string`) and a filename. The filename is necessary to infer the extension and the mime type of the provided file.
@@ -517,7 +517,7 @@ const file = toMetaplexFile('The content of my file', 'my-file.txt', {
 Note that if you want to create a `MetaplexFile` directly from a JSON object, there's a `toMetaplexFileFromJson` helper method that you can use like so.
 
 ```ts
-const file = MetaplexFile.fromJson({ foo: 42 });
+const file = toMetaplexFileFromJson({ foo: 42 });
 ```
 
 In practice, you will most likely be creating `MetaplexFile`s from files either present on your computer or uploaded by some user on the browser. You can do the former by using `fs.readFileSync`.
