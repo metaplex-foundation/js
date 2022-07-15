@@ -374,70 +374,27 @@ Additionally, The SDK may sometimes return a `LazyNft` insteand of an `Nft` obje
 You may obtain an `Nft` object from a `LazyNft` object by using [the `loadNft` method](#loadnft) explained above,
 
 ## Candy Machines
+The Candy Machine module can be accessed via `metaplex.candyMachines()` and provides the following documented methods.
 
-TODO
+- [`findMintedNfts(candyMachine, options)`](#findMintedNfts)
 
-### findAllByCandyMachine
+The Candy Machine actually contains more features and models but we are still in the process of documenting them.
 
-The `findAllByCandyMachine` method accepts the public key of a Candy Machine and returns all `Nft`s that have been minted from that Candy Machine so far.
+### findMintedNfts
+
+The `findMintedNfts` method accepts the public key of a Candy Machine and returns all NFTs that have been minted from that Candy Machine so far.
 
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey);
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 2); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCandyMachine(candyMachinePublicKey, 1); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine).run();
+const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine, { version: 2 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine, { version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
 ```
 
-Note that the current implementation of this method delegates to `findAllByCreator` whilst fetching the appropriate PDA for Candy Machines v2.
+Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.
 
 Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
-
-## Tasks
-
-TODO
-
-Also, note that both `metadataTask` and `editionTask` are of type `Task` which contains a bunch of helper methods. Here's an overview of the methods available in the `Task` class:
-
-```ts
-class Task<T> = {
-    getStatus: () => TaskStatus;
-    getResult: () => T | undefined;
-    getError: () => unknown;
-    isPending: () => boolean;
-    isRunning: () => boolean;
-    isCompleted: () => boolean;
-    isSuccessful: () => boolean;
-    isFailed: () => boolean;
-    isCanceled: () => boolean;
-    run: (options?: TaskOptions) => Promise<T>;
-    loadWith: (preloadedResult: T) => Task<T>;
-    reset: () => Task<T>;
-    onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
-    onStatusChangeTo: (status: TaskStatus, callback: () => unknown) => Task<T>;
-    onSuccess: (callback: () => unknown) => Task<T>;
-    onFailure: (callback: () => unknown) => Task<T>;
-    onCancel: (callback: () => unknown) => Task<T>;
-    setChildren: (children: Task<any>[]) => Task<T>;
-    getChildren: () => Task<any>[];
-    getDescendants: () => Task<any>[];
-    setContext: (context: object) => Task<T>;
-    getContext: () => object;
-};
-
-export type TaskOptions = {
-    signal?: AbortSignal;
-    force?: boolean;
-};
-```
-
-As you can see, you get a bunch of methods to check the status of a task, listen to its changes, run it and reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly — this can be useful when loading NFTs in batch.
-
-You may also provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
-
-Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
-
-Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.
@@ -666,3 +623,54 @@ import { mockStorage } from "@metaplex-foundation/js";
 
 metaplex.use(mockStorage());
 ```
+
+## Tasks
+
+Tasks are a core component of the JS SDK and enable you to do more with your asynchronous operations. This includes:
+    - Cancelling asynchronous operations via `AbortController`s.
+    - Listening to status updates — e.g. pending, running, failed, etc.
+    - Nesting tasks together to create and keep track of more complex asynchronous operations.
+
+The client of every module will return a `Task<T>` object where `T` is the return value you can expect when running the task using `await task.run()`.
+
+Here's an overview of the methods available in `Task` objects.
+
+```ts
+class Task<T> = {
+    getStatus: () => TaskStatus;
+    getResult: () => T | undefined;
+    getError: () => unknown;
+    isPending: () => boolean;
+    isRunning: () => boolean;
+    isCompleted: () => boolean;
+    isSuccessful: () => boolean;
+    isFailed: () => boolean;
+    isCanceled: () => boolean;
+    run: (options?: TaskOptions) => Promise<T>;
+    loadWith: (preloadedResult: T) => Task<T>;
+    reset: () => Task<T>;
+    onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
+    onStatusChangeTo: (status: TaskStatus, callback: () => unknown) => Task<T>;
+    onSuccess: (callback: () => unknown) => Task<T>;
+    onFailure: (callback: () => unknown) => Task<T>;
+    onCancel: (callback: () => unknown) => Task<T>;
+    setChildren: (children: Task<any>[]) => Task<T>;
+    getChildren: () => Task<any>[];
+    getDescendants: () => Task<any>[];
+    setContext: (context: object) => Task<T>;
+    getContext: () => object;
+};
+
+export type TaskOptions = {
+    signal?: AbortSignal;
+    force?: boolean;
+};
+```
+
+As you can see, you get a bunch of methods to check the status of a task, listen to its changes, run it and reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly.
+
+You may also provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
+
+Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
+
+Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
