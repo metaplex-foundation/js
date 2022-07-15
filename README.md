@@ -456,22 +456,8 @@ The `walletAdapterIdentity` driver accepts a wallet adapter as defined by the [�
 import { walletAdapterIdentity } from "@metaplex-foundation/js";
 import { useWallet } from '@solana/wallet-adapter-react';
 
-const { wallet } = useWallet();
-
-if (wallet) {
-    metaplex.use(walletAdapterIdentity(wallet));
-}
-```
-
-Note that we have to wrap `metaplex.use(...)` in an if-statement because `wallet` could be `null` — meaning there’s no connected wallet at this time. If you’d like to accept a nullable wallet and use the `guestIdentity` when it is null, you may use the `walletOrGuestIdentity` helper method instead.
-
-```ts
-import { walletOrGuestIdentity } from "@metaplex-foundation/js";
-import { useWallet } from '@solana/wallet-adapter-react';
-
-const { wallet } = useWallet();
-
-metaplex.use(walletOrGuestIdentity(wallet));
+const wallet = useWallet();
+metaplex.use(walletAdapterIdentity(wallet));
 ```
 
 ## Storage
