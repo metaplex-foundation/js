@@ -60,11 +60,11 @@ export class GpaBuilder {
   }
 
   where(offset: number, bytes: string | Buffer | PublicKey | BN | number) {
-    if (bytes instanceof Buffer) {
+    if (Buffer.isBuffer(bytes)) {
       bytes = base58.encode(bytes);
-    } else if (bytes instanceof PublicKey) {
+    } else if (typeof bytes === 'object' && 'toBase58' in bytes) {
       bytes = bytes.toBase58();
-    } else if (bytes instanceof BN) {
+    } else if (BN.isBN(bytes)) {
       bytes = base58.encode(bytes.toArray());
     } else if (typeof bytes !== 'string') {
       bytes = base58.encode(new BN(bytes, 'le').toArray());
