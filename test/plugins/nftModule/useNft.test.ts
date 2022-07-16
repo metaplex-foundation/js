@@ -81,7 +81,7 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
   await assertThrows(t, promise, /invalid account data for instruction/);
 });
 
-test('[nftModule] it can only be used up to the total uses', async (t: Test) => {
+test('[nftModule] it cannot be used more times than the remaining uses', async (t: Test) => {
   // Given an existing NFT with 2 remaining uses.
   const mx = await metaplex();
   const uses = {
