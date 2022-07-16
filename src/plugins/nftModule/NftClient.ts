@@ -59,9 +59,14 @@ import {
   UpdateNftOutput,
 } from './updateNft';
 import { LoadNftInput, loadNftOperation } from './loadNft';
+import { NftBuildersClient } from './NftBuildersClient';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
+
+  builders() {
+    return new NftBuildersClient(this.metaplex);
+  }
 
   create(input: CreateNftInput): Task<CreateNftOutput & { nft: Nft }> {
     return new Task(async (scope) => {
