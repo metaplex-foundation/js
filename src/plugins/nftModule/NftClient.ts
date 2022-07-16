@@ -224,14 +224,14 @@ export class NftClient {
   }
 
   use(
-    nft: Nft | LazyNft,
+    nft: Nft | LazyNft | PublicKey,
     input: Omit<UseNftInput, 'nft'> = {}
   ): Task<UseNftOutput & { nft: Nft }> {
     return new Task(async (scope) => {
       const operation = useNftOperation({ ...input, nft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
+      const updatedNft = await this.findByMint(output.mintAddress).run(scope);
       return { ...output, nft: updatedNft };
     });
   }

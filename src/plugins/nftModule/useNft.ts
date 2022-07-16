@@ -32,6 +32,7 @@ export interface UseNftInput {
 
 export interface UseNftOutput {
   response: SendAndConfirmTransactionResponse;
+  mintAddress: PublicKey;
 }
 
 // -----------------
@@ -58,10 +59,12 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
   utilizeInstructionKey?: string;
 };
 
+export type UseNftBuilderContext = Omit<UseNftOutput, 'response'>;
+
 export const useNftBuilder = (
   metaplex: Metaplex,
   params: UseNftBuilderParams
-): TransactionBuilder => {
+): TransactionBuilder<UseNftBuilderContext> => {
   const {
     numberOfUses = 1,
     useAuthority = metaplex.identity(),
@@ -81,7 +84,7 @@ export const useNftBuilder = (
     : undefined;
 
   return (
-    TransactionBuilder.make()
+    TransactionBuilder.make<UseNftBuilderContext>()
 
       // Update the metadata account.
       .add({
