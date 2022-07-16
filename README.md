@@ -304,13 +304,21 @@ const { nft: printedNft } = await metaplex
 By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
 
 ```ts
-const { nft: printedNft } = await metaplex.nfts().printNewEdition(originalMint, {
+metaplex.nfts().printNewEdition(originalMint, {
   newMint,                   // Defaults to a brand-new Keypair.
   newUpdateAuthority,        // Defaults to the current identity.
   newOwner,                  // Defaults to the current identity.
   payer,                     // Defaults to the current identity.
   originalTokenAccountOwner, // Defaults to the current identity.
   originalTokenAccount,      // Defaults to the associated token account of the current identity.
+});
+```
+
+Notice that, by default, update authority will be transfered to the metaplex identity. If you want the printed edition to retain the update authority of the original edition, you might want to provide it explicitly like so.
+
+```ts
+metaplex.nfts().printNewEdition(originalMint, {
+  newUpdateAuthority: originalNft.updateAuthorityAddress,
 });
 ```
 
