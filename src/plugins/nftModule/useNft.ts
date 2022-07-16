@@ -73,18 +73,19 @@ export const useNftBuilder = (
     burner,
   } = params;
 
-  const nftMintAddress =
+  const mintAddress =
     isNft(params.nft) || isLazyNft(params.nft)
       ? params.nft.mintAddress
       : params.nft;
-  const metadata = findMetadataPda(nftMintAddress);
-  const tokenAccount = findAssociatedTokenAccountPda(nftMintAddress, owner);
+  const metadata = findMetadataPda(mintAddress);
+  const tokenAccount = findAssociatedTokenAccountPda(mintAddress, owner);
   const useAuthorityRecord = isDelegated
-    ? findUseAuthorityRecordPda(nftMintAddress, useAuthority.publicKey)
+    ? findUseAuthorityRecordPda(mintAddress, useAuthority.publicKey)
     : undefined;
 
   return (
     TransactionBuilder.make<UseNftBuilderContext>()
+      .setContext({ mintAddress })
 
       // Update the metadata account.
       .add({
@@ -93,14 +94,12 @@ export const useNftBuilder = (
             metadata,
             tokenAccount,
             useAuthority: useAuthority.publicKey,
-            mint: nftMintAddress,
+            mint: mintAddress,
             owner,
             useAuthorityRecord,
             burner,
           },
-          {
-            utilizeArgs: { numberOfUses },
-          }
+          { utilizeArgs: { numberOfUses } }
         ),
         signers: [useAuthority],
         key: params.utilizeInstructionKey ?? 'utilize',
