@@ -5,6 +5,7 @@ import {
   PrintNewEditionBuilderParams,
 } from './printNewEdition';
 import { updateNftBuilder, UpdateNftBuilderParams } from './updateNft';
+import { useNftBuilder, UseNftBuilderParams } from './useNft';
 
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -19,5 +20,9 @@ export class NftBuildersClient {
 
   update(input: UpdateNftBuilderParams) {
     return updateNftBuilder(this.metaplex, input);
+  }
+
+  use(input: UseNftBuilderParams) {
+    return useNftBuilder(this.metaplex, input);
   }
 }

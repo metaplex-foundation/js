@@ -55,6 +55,7 @@ import {
   uploadMetadataOperation,
   uploadMetadataOperationHandler,
 } from './uploadMetadata';
+import { useNftOperation, useNftOperationHandler } from './useNft';
 
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -103,6 +104,7 @@ export const nftModule = (): MetaplexPlugin => ({
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
+    op.register(useNftOperation, useNftOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);
