@@ -85,7 +85,8 @@ The NFT module can be accessed via `metaplex.nfts()` and provides the following 
 - [`uploadMetadata(metadata)`](#uploadMetadata)
 - [`create(input)`](#create)
 - [`update(nft, input)`](#update)
-- [`printNewEdition(originalMint, params)`](#printNewEdition)
+- [`printNewEdition(originalMint, input)`](#printNewEdition)
+- [`use(nft, input)`](#useNft)
 
 And the following model, either returned or used by the above methods.
 
@@ -320,6 +321,15 @@ Notice that, by default, update authority will be transfered to the metaplex ide
 metaplex.nfts().printNewEdition(originalMint, {
   newUpdateAuthority: originalNft.updateAuthorityAddress,
 });
+```
+
+### useNft
+
+The `use` method requires [a usable NFT](https://docs.metaplex.com/programs/token-metadata/using-nfts) and will decrease the amount of uses by one. You may also provide the `numberOfUses` parameter, if you'd like to use it more than once in the same instruction.
+
+```ts
+const { nft: usedNft } = await mx.nfts().use(nft).run(); // Use once.
+const { nft: usedNft } = await mx.nfts().use(nft, { numberOfUses: 3 }).run(); // Use three times.
 ```
 
 ### The `Nft` model
