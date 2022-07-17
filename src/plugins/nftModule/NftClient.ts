@@ -60,6 +60,7 @@ import {
 } from './updateNft';
 import { LoadNftInput, loadNftOperation } from './loadNft';
 import { NftBuildersClient } from './NftBuildersClient';
+import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -218,6 +219,19 @@ export class NftClient {
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
+      return { ...output, nft: updatedNft };
+    });
+  }
+
+  use(
+    nft: Nft | LazyNft | PublicKey,
+    input: Omit<UseNftInput, 'nft'> = {}
+  ): Task<UseNftOutput & { nft: Nft }> {
+    return new Task(async (scope) => {
+      const operation = useNftOperation({ ...input, nft });
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const updatedNft = await this.findByMint(output.mintAddress).run(scope);
       return { ...output, nft: updatedNft };
     });
   }
