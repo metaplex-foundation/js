@@ -38,6 +38,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         { commitment, loadJsonMetadata }
       )
       .run(scope);
+    scope.throwIfCanceled();
 
     return {
       ...lazyBid,

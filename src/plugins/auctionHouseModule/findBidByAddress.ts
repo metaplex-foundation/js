@@ -58,6 +58,7 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
           { commitment, loadJsonMetadata }
         )
         .run(scope);
+      scope.throwIfCanceled();
 
       return toBid(account, auctionHouse, tokenModel);
     },

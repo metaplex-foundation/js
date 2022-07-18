@@ -49,23 +49,23 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       createAuctionHouseOperation,
       createAuctionHouseOperationHandler
     );
+    op.register(createBidOperation, createBidOperationHandler);
     op.register(createListingOperation, createListingOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,
       findAuctionHouseByAddressOperationHandler
     );
+    op.register(findBidByAddressOperation, findBidByAddressOperationHandler);
     op.register(
       findListingByAddressOperation,
       findListingByAddressOperationHandler
     );
+    op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);
     op.register(
       updateAuctionHouseOperation,
       updateAuctionHouseOperationHandler
     );
-    op.register(createBidOperation, createBidOperationHandler);
-    op.register(findBidByAddressOperation, findBidByAddressOperationHandler);
-    op.register(loadBidOperation, loadBidOperationHandler);
 
     metaplex.auctions = function () {
       return new AuctionsClient(this);

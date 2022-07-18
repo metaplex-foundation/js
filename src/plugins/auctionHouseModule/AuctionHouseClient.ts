@@ -8,17 +8,17 @@ import {
   createListingOperation,
   CreateListingOutput,
 } from './createListing';
-import { findListingByAddressOperation } from './findListingByAddress';
+import { FindListingByAddressInput, findListingByAddressOperation } from './findListingByAddress';
 import { LazyListing, Listing } from './Listing';
-import { loadListingOperation } from './loadListing';
+import { LoadListingInput, loadListingOperation } from './loadListing';
 import {
   CreateBidInput,
   createBidOperation,
   CreateBidOutput,
 } from './createBid';
-import { findBidByAddressOperation } from './findBidByAddress';
+import { FindBidByAddressInput, findBidByAddressOperation } from './findBidByAddress';
 import { Bid, LazyBid } from './Bid';
-import { loadBidOperation } from './loadBid';
+import { LoadBidInput, loadBidOperation } from './loadBid';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -54,7 +54,7 @@ export class AuctionHouseClient {
         auctionHouse: this.auctionHouse,
         tradeStateAddress: output.sellerTradeState,
         bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
-        sellerAddress: output.wallet,
+        sellerAddress: output.seller,
         metadataAddress: output.metadata,
         receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
@@ -73,7 +73,7 @@ export class AuctionHouseClient {
 
   findListingByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
   ) {
     return this.metaplex.operations().getTask(
       findListingByAddressOperation({
@@ -86,7 +86,7 @@ export class AuctionHouseClient {
 
   loadListing(
     lazyListing: LazyListing,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<LoadListingInput, 'lazyListing'> = {}
   ): Task<Listing> {
     return this.metaplex
       .operations()
@@ -116,7 +116,7 @@ export class AuctionHouseClient {
         auctionHouse: this.auctionHouse,
         tradeStateAddress: output.buyerTradeState,
         bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
-        buyerAddress: output.wallet,
+        buyerAddress: output.buyer,
         metadataAddress: output.metadata,
         receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
@@ -135,7 +135,7 @@ export class AuctionHouseClient {
 
   findBidByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'> = {}
   ) {
     return this.metaplex.operations().getTask(
       findBidByAddressOperation({
@@ -148,7 +148,7 @@ export class AuctionHouseClient {
 
   loadBid(
     lazyBid: LazyBid,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<LoadBidInput, 'lazyBid'> = {}
   ): Task<Bid> {
     return this.metaplex
       .operations()

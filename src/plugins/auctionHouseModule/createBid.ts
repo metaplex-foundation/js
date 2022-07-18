@@ -48,7 +48,7 @@ export type CreateBidOperation = Operation<
 
 export type CreateBidInput = {
   auctionHouse: AuctionHouse;
-  wallet?: PublicKey | Signer; // Default: identity
+  buyer?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
@@ -66,7 +66,7 @@ export type CreateBidOutput = {
   buyerTradeState: Pda;
   tokenAccount: PublicKey;
   metadata: Pda;
-  wallet: PublicKey;
+  buyer: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
   price: SolAmount | SplTokenAmount;
@@ -109,15 +109,15 @@ export const createBidBuilder = (
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
   // Accounts.
-  const wallet = params.wallet ?? (metaplex.identity() as Signer);
+  const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(wallet));
+    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(buyer));
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
-    toPublicKey(wallet),
+    toPublicKey(buyer),
     tokenAccount,
     auctionHouse.treasuryMint.address,
     params.mintAccount,
@@ -126,13 +126,13 @@ export const createBidBuilder = (
   );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
-    toPublicKey(wallet)
+    toPublicKey(buyer)
   );
 
   const accounts: BuyInstructionAccounts = {
-    wallet: toPublicKey(wallet),
-    paymentAccount: toPublicKey(wallet),
-    transferAuthority: toPublicKey(wallet),
+    wallet: toPublicKey(buyer),
+    paymentAccount: toPublicKey(buyer),
+    transferAuthority: toPublicKey(buyer),
     treasuryMint: auctionHouse.treasuryMint.address,
     tokenAccount,
     metadata,
@@ -156,7 +156,7 @@ export const createBidBuilder = (
   const buyInstruction = createBuyInstruction(accounts, args);
 
   // Signers.
-  const buySigners = [wallet, authority].filter(
+  const buySigners = [buyer, authority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
 
@@ -170,7 +170,7 @@ export const createBidBuilder = (
         buyerTradeState,
         tokenAccount,
         metadata,
-        wallet: toPublicKey(wallet),
+        buyer: toPublicKey(buyer),
         receipt,
         bookkeeper: bookkeeper.publicKey,
         price,
