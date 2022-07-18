@@ -8,7 +8,10 @@ import {
   createListingOperation,
   CreateListingOutput,
 } from './createListing';
-import { FindListingByAddressInput, findListingByAddressOperation } from './findListingByAddress';
+import {
+  FindListingByAddressInput,
+  findListingByAddressOperation,
+} from './findListingByAddress';
 import { LazyListing, Listing } from './Listing';
 import { LoadListingInput, loadListingOperation } from './loadListing';
 import {
@@ -16,7 +19,10 @@ import {
   createBidOperation,
   CreateBidOutput,
 } from './createBid';
-import { FindBidByAddressInput, findBidByAddressOperation } from './findBidByAddress';
+import {
+  FindBidByAddressInput,
+  findBidByAddressOperation,
+} from './findBidByAddress';
 import { Bid, LazyBid } from './Bid';
 import { LoadBidInput, loadBidOperation } from './loadBid';
 
