@@ -631,9 +631,10 @@ metaplex.use(mockStorage());
 ## Tasks
 
 Tasks are a core component of the JS SDK and enable you to do more with your asynchronous operations. This includes:
-    - Cancelling asynchronous operations via `AbortController`s.
-    - Listening to status updates — e.g. pending, running, failed, etc.
-    - Nesting tasks together to create and keep track of more complex asynchronous operations.
+
+- Cancelling asynchronous operations via `AbortController`s.
+- Listening to status updates — e.g. pending, running, failed, etc.
+- Nesting tasks together to create and keep track of more complex asynchronous operations.
 
 The client of every module will return a `Task<T>` object where `T` is the return value you can expect when running the task using `await task.run()`.
 
