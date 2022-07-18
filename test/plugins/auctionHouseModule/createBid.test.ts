@@ -36,7 +36,6 @@ test('[auctionHouseModule] create a new bid on an Auction House', async (t: Test
     })
     .run();
 
-
   // Then we created and returned the new Bid with appropriate defaults.
   const expectedBid = {
     tradeStateAddress: spokSamePubkey(buyerTradeState),
@@ -61,9 +60,7 @@ test('[auctionHouseModule] create a new bid on an Auction House', async (t: Test
   } as unknown as Specifications<Bid>);
 
   // And we get the same result when we fetch the Auction House by address.
-  const retrieveBid = await client
-    .findBidByAddress(buyerTradeState)
-    .run();
+  const retrieveBid = await client.findBidByAddress(buyerTradeState).run();
   spok(t, retrieveBid, {
     $topic: 'Retrieved Bid',
     ...expectedBid,
@@ -129,7 +126,6 @@ test('[auctionHouseModule] create a new bid on an Auction House with 0 SOL', asy
     })
     .run();
 
-
   // Then we created and returned the new Bid with appropriate defaults.
   const expectedBid = {
     tradeStateAddress: spokSamePubkey(buyerTradeState),
@@ -154,9 +150,7 @@ test('[auctionHouseModule] create a new bid on an Auction House with 0 SOL', asy
   } as unknown as Specifications<Bid>);
 
   // And we get the same result when we fetch the Auction House by address.
-  const retrieveBid = await client
-    .findBidByAddress(buyerTradeState)
-    .run();
+  const retrieveBid = await client.findBidByAddress(buyerTradeState).run();
   spok(t, retrieveBid, {
     $topic: 'Retrieved Bid',
     ...expectedBid,

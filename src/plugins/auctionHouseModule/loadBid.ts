@@ -10,11 +10,7 @@ import { Bid, LazyBid } from './Bid';
 
 const Key = 'LoadBidOperation' as const;
 export const loadBidOperation = useOperation<LoadBidOperation>(Key);
-export type LoadBidOperation = Operation<
-  typeof Key,
-  LoadBidInput,
-  Bid
->;
+export type LoadBidOperation = Operation<typeof Key, LoadBidInput, Bid>;
 
 export type LoadBidInput = {
   lazyBid: LazyBid;
@@ -26,34 +22,29 @@ export type LoadBidInput = {
 // Handler
 // -----------------
 
-export const loadBidOperationHandler: OperationHandler<LoadBidOperation> =
-  {
-    handle: async (
-      operation: LoadBidOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        lazyBid,
-        loadJsonMetadata = true,
-        commitment,
-      } = operation.input;
+export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
+  handle: async (
+    operation: LoadBidOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
 
-      const tokenModel = await metaplex
-        .nfts()
-        .findTokenWithMetadataByMetadata(
-          lazyBid.metadataAddress,
-          lazyBid.buyerAddress,
-          { commitment, loadJsonMetadata }
-        )
-        .run(scope);
+    const tokenModel = await metaplex
+      .nfts()
+      .findTokenWithMetadataByMetadata(
+        lazyBid.metadataAddress,
+        lazyBid.buyerAddress,
+        { commitment, loadJsonMetadata }
+      )
+      .run(scope);
 
-      return {
-        ...lazyBid,
-        model: 'bid',
-        lazy: false,
-        token: tokenModel,
-        tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
-      };
-    },
-  };
+    return {
+      ...lazyBid,
+      model: 'bid',
+      lazy: false,
+      token: tokenModel,
+      tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
+    };
+  },
+};

@@ -27,7 +27,10 @@ import {
   findListingByAddressOperation,
   findListingByAddressOperationHandler,
 } from './findListingByAddress';
-import { findBidByAddressOperation, findBidByAddressOperationHandler } from './findBidByAddress';
+import {
+  findBidByAddressOperation,
+  findBidByAddressOperationHandler,
+} from './findBidByAddress';
 import { loadBidOperation, loadBidOperationHandler } from './loadBid';
 import { createBidOperation, createBidOperationHandler } from './createBid';
 
@@ -61,10 +64,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       updateAuctionHouseOperationHandler
     );
     op.register(createBidOperation, createBidOperationHandler);
-    op.register(
-      findBidByAddressOperation,
-      findBidByAddressOperationHandler
-    );
+    op.register(findBidByAddressOperation, findBidByAddressOperationHandler);
     op.register(loadBidOperation, loadBidOperationHandler);
 
     metaplex.auctions = function () {

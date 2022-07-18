@@ -34,7 +34,6 @@ import {
   findBidReceiptPda,
 } from './pdas';
 
-
 // -----------------
 // Operation
 // -----------------
@@ -125,7 +124,10 @@ export const createBidBuilder = (
     price.basisPoints,
     tokens.basisPoints
   );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(auctionHouse.address, toPublicKey(wallet))
+  const escrowPayment = findAuctionHouseBuyerEscrowPda(
+    auctionHouse.address,
+    toPublicKey(wallet)
+  );
 
   const accounts: BuyInstructionAccounts = {
     wallet: toPublicKey(wallet),

@@ -11,7 +11,11 @@ import {
 import { findListingByAddressOperation } from './findListingByAddress';
 import { LazyListing, Listing } from './Listing';
 import { loadListingOperation } from './loadListing';
-import { CreateBidInput, createBidOperation, CreateBidOutput } from './createBid';
+import {
+  CreateBidInput,
+  createBidOperation,
+  CreateBidOutput,
+} from './createBid';
 import { findBidByAddressOperation } from './findBidByAddress';
 import { Bid, LazyBid } from './Bid';
 import { loadBidOperation } from './loadBid';
@@ -89,9 +93,7 @@ export class AuctionHouseClient {
       .getTask(loadListingOperation({ lazyListing, ...options }));
   }
 
-  bid(
-    input: WithoutAH<CreateBidInput>
-  ): Task<CreateBidOutput & { bid: Bid }> {
+  bid(input: WithoutAH<CreateBidInput>): Task<CreateBidOutput & { bid: Bid }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -99,9 +101,9 @@ export class AuctionHouseClient {
       scope.throwIfCanceled();
 
       try {
-        const bid = await this.findBidByAddress(
-          output.buyerTradeState
-        ).run(scope);
+        const bid = await this.findBidByAddress(output.buyerTradeState).run(
+          scope
+        );
         return { bid, ...output };
       } catch (error) {
         // Fallback to manually creating a bid from inputs and outputs.
