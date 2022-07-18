@@ -3,6 +3,7 @@ import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
 } from './createAuctionHouse';
+import { createBidBuilder, CreateBidBuilderParams } from './createBid';
 import {
   createListingBuilder,
   CreateListingBuilderParams,
@@ -25,5 +26,9 @@ export class AuctionsBuildersClient {
 
   createListing(input: CreateListingBuilderParams) {
     return createListingBuilder(this.metaplex, input);
+  }
+
+  createBid(input: CreateBidBuilderParams) {
+    return createBidBuilder(this.metaplex, input);
   }
 }
