@@ -60,7 +60,7 @@ export function assertBid(value: any): asserts value is Bid {
 export const toBid = (
   account: BidReceiptAccount,
   auctionHouseModel: AuctionHouse,
-  model: TokenWithMetadata | MintWithMetadata
+  metadataModel: TokenWithMetadata | MintWithMetadata
 ): Bid => {
   const lazyBid = toLazyBid(account, auctionHouseModel);
 
@@ -68,14 +68,14 @@ export const toBid = (
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    ...(isTokenWithMetadata(model)
+    ...(isTokenWithMetadata(metadataModel)
       ? {
-          token: model,
-          tokens: amount(lazyBid.tokens, model.mint.currency),
+          token: metadataModel,
+          tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
         }
       : {
-          mint: model,
-          tokens: amount(lazyBid.tokens, model.currency),
+          mint: metadataModel,
+          tokens: amount(lazyBid.tokens, metadataModel.currency),
         }),
   };
 };

@@ -52,7 +52,7 @@ export type CreateBidInput = {
   buyer?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   mintAccount: PublicKey; // Required for checking Metadata
-  seller?: Option<PublicKey>; // Default: null (i.e. public bid)
+  seller?: Option<PublicKey>; // Default: null (i.e. public bid unless token account is provided)
   tokenAccount?: Option<PublicKey>; // Default: null (i.e. public bid unless seller is provided).
   price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
   tokens?: SplTokenAmount; // Default: token(1)
