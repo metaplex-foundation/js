@@ -105,7 +105,6 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
   } as unknown as Specifications<Bid>);
 });
 
-
 test('[auctionHouseModule] create a new private bid by seller account on an Auction House', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();

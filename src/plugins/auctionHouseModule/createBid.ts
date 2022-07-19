@@ -123,24 +123,28 @@ export const createBidBuilder = (
   );
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(params.seller ?? buyer));
+    findAssociatedTokenAccountPda(
+      params.mintAccount,
+      toPublicKey(params.seller ?? buyer)
+    );
   const buyerTradeState = isPublic
     ? findAuctionHousePublicTradeStatePda(
-      auctionHouse.address,
-      toPublicKey(buyer),
-      auctionHouse.treasuryMint.address,
-      params.mintAccount,
-      price.basisPoints,
-      tokens.basisPoints,
-    ) : findAuctionHouseTradeStatePda(
-      auctionHouse.address,
-      toPublicKey(buyer),
-      tokenAccount,
-      auctionHouse.treasuryMint.address,
-      params.mintAccount,
-      price.basisPoints,
-      tokens.basisPoints,
-    )
+        auctionHouse.address,
+        toPublicKey(buyer),
+        auctionHouse.treasuryMint.address,
+        params.mintAccount,
+        price.basisPoints,
+        tokens.basisPoints
+      )
+    : findAuctionHouseTradeStatePda(
+        auctionHouse.address,
+        toPublicKey(buyer),
+        tokenAccount,
+        auctionHouse.treasuryMint.address,
+        params.mintAccount,
+        price.basisPoints,
+        tokens.basisPoints
+      );
 
   const accounts: BuyInstructionAccounts = {
     wallet: toPublicKey(buyer),
