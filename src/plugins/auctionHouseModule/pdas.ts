@@ -92,6 +92,26 @@ export const findAuctionHouseTradeStatePda = (
   ]);
 };
 
+export const findAuctionHousePublicTradeStatePda = (
+  auctionHouse: PublicKey,
+  wallet: PublicKey,
+  treasuryMint: PublicKey,
+  tokenMint: PublicKey,
+  buyPrice: BigNumber,
+  tokenSize: BigNumber,
+  programId: PublicKey = AuctionHouseProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('auction_house', 'utf8'),
+    wallet.toBuffer(),
+    auctionHouse.toBuffer(),
+    treasuryMint.toBuffer(),
+    tokenMint.toBuffer(),
+    buyPrice.toArrayLike(Buffer, 'le', 8),
+    tokenSize.toArrayLike(Buffer, 'le', 8),
+  ]);
+};
+
 export const findListingReceiptPda = (
   tradeState: PublicKey,
   programId: PublicKey = AuctionHouseProgram.publicKey

@@ -9,6 +9,7 @@ import {
   BuyInstructionAccounts,
   createBuyInstruction,
   createPrintBidReceiptInstruction,
+  createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   useOperation,
@@ -31,6 +32,7 @@ import { AuctionHouse } from './AuctionHouse';
 import {
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseTradeStatePda,
+  findAuctionHousePublicTradeStatePda,
   findBidReceiptPda,
 } from './pdas';
 
@@ -65,7 +67,7 @@ export type CreateBidInput = {
 export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
-  tokenAccount: Option<PublicKey>;
+  tokenAccount: PublicKey;
   metadata: Pda;
   buyer: PublicKey;
   receipt: Pda;
@@ -109,31 +111,36 @@ export const createBidBuilder = (
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
-  const isPublic = !params.tokenAccount && params.seller;
+  const isPublic = !params.tokenAccount && !params.seller;
 
   // Accounts.
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
-  const tokenAccount =
-    params.tokenAccount ??
-    findAssociatedTokenAccountPda(
-      params.mintAccount,
-      toPublicKey(params.seller ?? buyer)
-    );
-  const buyerTradeState = findAuctionHouseTradeStatePda(
-    auctionHouse.address,
-    toPublicKey(buyer),
-    tokenAccount,
-    auctionHouse.treasuryMint.address,
-    params.mintAccount,
-    price.basisPoints,
-    tokens.basisPoints
-  );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     toPublicKey(buyer)
   );
+  const tokenAccount =
+    params.tokenAccount ??
+    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(params.seller ?? buyer));
+  const buyerTradeState = isPublic
+    ? findAuctionHousePublicTradeStatePda(
+      auctionHouse.address,
+      toPublicKey(buyer),
+      auctionHouse.treasuryMint.address,
+      params.mintAccount,
+      price.basisPoints,
+      tokens.basisPoints,
+    ) : findAuctionHouseTradeStatePda(
+      auctionHouse.address,
+      toPublicKey(buyer),
+      tokenAccount,
+      auctionHouse.treasuryMint.address,
+      params.mintAccount,
+      price.basisPoints,
+      tokens.basisPoints,
+    )
 
   const accounts: BuyInstructionAccounts = {
     wallet: toPublicKey(buyer),
@@ -159,7 +166,12 @@ export const createBidBuilder = (
 
   // Sell Instruction.
   // ToDo: Add support for the auctioneerAuthority
-  const buyInstruction = createBuyInstruction(accounts, args);
+  let buyInstruction;
+  if (isPublic) {
+    buyInstruction = createPublicBuyInstruction(accounts, args);
+  } else {
+    buyInstruction = createBuyInstruction(accounts, args);
+  }
 
   // Signers.
   const buySigners = [buyer, authority].filter(
@@ -174,7 +186,7 @@ export const createBidBuilder = (
     TransactionBuilder.make<CreateBidBuilderContext>()
       .setContext({
         buyerTradeState,
-        tokenAccount: isPublic ? tokenAccount : null,
+        tokenAccount,
         metadata,
         buyer: toPublicKey(buyer),
         receipt,
