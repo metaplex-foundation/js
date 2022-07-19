@@ -1,16 +1,17 @@
 {
-  "include": ["src"],
+  "include": ["packages/*/src"],
+  "exclude": ["node_modules", "packages/*/node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist/esm",
-    "declarationDir": "dist/types",
+    "outDir": "packages/js/dist/esm",
+    "declarationDir": "packages/js/dist/types",
     "declaration": true,
     "sourceMap": true,
     "noEmit": false,
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["packages/js/src/*"]
     },
     "plugins": [
       {

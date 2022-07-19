@@ -1,22 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.12.2",
-  "sideEffects": false,
-  "module": "dist/esm/index.mjs",
-  "main": "dist/cjs/index.cjs",
-  "types": "dist/types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/cjs/index.cjs"
-    }
-  },
-  "files": [
-    "/dist/cjs",
-    "/dist/esm",
-    "/dist/types",
-    "/src"
-  ],
+  "private": true,
   "publishConfig": {
     "access": "public"
   },
@@ -34,44 +18,14 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "check:publish-ready": "yarn build && yarn test",
-    "prepublishOnly": "yarn check:publish-ready",
-    "preversion": "yarn check:publish-ready",
-    "postversion": "git push --follow-tags",
-    "clean": "rimraf dist",
-    "build": "yarn clean && yarn build:types && yarn build:rollup && yarn build:tests",
-    "build:types": "ttsc",
-    "build:rollup": "rollup -c",
-    "build:tests": "ttsc -p test/tsconfig.json",
+    "clean": "lerna run clean",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix",
+    "publish": "lerna publish from-package",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
-    "amman:stop": "amman stop",
-    "test": "tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "lint": "prettier -c .",
-    "lint:fix": "prettier --write ."
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.54.1",
-    "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.2.0",
-    "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-auction-house": "^2.0.0",
-    "@metaplex-foundation/mpl-candy-machine": "^4.3.0",
-    "@metaplex-foundation/mpl-token-metadata": "^2.1.2",
-    "@solana/spl-token": "^0.2.0",
-    "@solana/web3.js": "^1.47.3",
-    "abort-controller": "^3.0.0",
-    "bignumber.js": "^9.0.2",
-    "bn.js": "^5.2.0",
-    "bs58": "^5.0.0",
-    "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
-    "debug": "^4.3.4",
-    "eventemitter3": "^4.0.7",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
-    "mime": "^3.0.0",
-    "tweetnacl": "^1.0.3"
+    "amman:stop": "amman stop"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
