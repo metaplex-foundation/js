@@ -34,7 +34,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
       ...lazyBid,
       model: 'bid',
       lazy: false,
-    }
+    };
 
     if (lazyBid.tokenAddress) {
       const tokenModel = await metaplex
