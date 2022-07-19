@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { BigNumber, Pda } from '@/types';
+import { Option } from '@/utils';
 import { AuctionHouseProgram } from './program';
 
 export const findAuctionHousePda = (
@@ -73,38 +74,18 @@ export const findAuctionHouseBuyerEscrowPda = (
 export const findAuctionHouseTradeStatePda = (
   auctionHouse: PublicKey,
   wallet: PublicKey,
-  tokenAccount: PublicKey,
   treasuryMint: PublicKey,
   tokenMint: PublicKey,
   buyPrice: BigNumber,
   tokenSize: BigNumber,
+  tokenAccount?: Option<PublicKey>,
   programId: PublicKey = AuctionHouseProgram.publicKey
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('auction_house', 'utf8'),
     wallet.toBuffer(),
     auctionHouse.toBuffer(),
-    tokenAccount.toBuffer(),
-    treasuryMint.toBuffer(),
-    tokenMint.toBuffer(),
-    buyPrice.toArrayLike(Buffer, 'le', 8),
-    tokenSize.toArrayLike(Buffer, 'le', 8),
-  ]);
-};
-
-export const findAuctionHousePublicTradeStatePda = (
-  auctionHouse: PublicKey,
-  wallet: PublicKey,
-  treasuryMint: PublicKey,
-  tokenMint: PublicKey,
-  buyPrice: BigNumber,
-  tokenSize: BigNumber,
-  programId: PublicKey = AuctionHouseProgram.publicKey
-): Pda => {
-  return Pda.find(programId, [
-    Buffer.from('auction_house', 'utf8'),
-    wallet.toBuffer(),
-    auctionHouse.toBuffer(),
+    ...tokenAccount ? [tokenAccount.toBuffer()] : [],
     treasuryMint.toBuffer(),
     tokenMint.toBuffer(),
     buyPrice.toArrayLike(Buffer, 'le', 8),

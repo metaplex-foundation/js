@@ -128,20 +128,20 @@ export const createListingBuilder = (
   const sellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
     toPublicKey(seller),
-    tokenAccount,
     auctionHouse.treasuryMint.address,
     params.mintAccount,
     price.basisPoints,
-    tokens.basisPoints
+    tokens.basisPoints,
+    tokenAccount,
   );
   const freeSellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
     toPublicKey(seller),
-    tokenAccount,
     auctionHouse.treasuryMint.address,
     params.mintAccount,
     lamports(0).basisPoints,
-    tokens.basisPoints
+    tokens.basisPoints,
+    tokenAccount,
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
   const accounts = {

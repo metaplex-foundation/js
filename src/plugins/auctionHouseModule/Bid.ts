@@ -64,22 +64,17 @@ export const toBid = (
 ): Bid => {
   const lazyBid = toLazyBid(account, auctionHouseModel);
 
-  if (isTokenWithMetadata(model)) {
-    return {
-      ...lazyBid,
-      model: 'bid',
-      lazy: false,
-      token: model,
-      tokens: amount(lazyBid.tokens, model.mint.currency),
-    };
-  }
-
   return {
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    mint: model,
-    tokens: amount(lazyBid.tokens, model.currency),
+    ...isTokenWithMetadata(model) ? {
+      token: model,
+      tokens: amount(lazyBid.tokens, model.mint.currency),
+    } : {
+      mint: model,
+      tokens: amount(lazyBid.tokens, model.currency),
+    }
   };
 };
 
@@ -87,7 +82,7 @@ export type LazyBid = Omit<Bid, 'lazy' | 'token' | 'mint' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
-    tokenAddress: Option<PublicKey>;
+    tokenAddress?: Option<PublicKey>;
     tokens: BigNumber;
   }>;
 
