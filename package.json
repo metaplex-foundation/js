@@ -1,6 +1,7 @@
 {
   "name": "@metaplex-foundation/js",
   "private": true,
+  "workspaces": ["packages/*"],
   "publishConfig": {
     "access": "public"
   },
