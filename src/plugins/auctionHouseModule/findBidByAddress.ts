@@ -6,6 +6,7 @@ import { DisposableScope } from '@/utils';
 import { findBidReceiptPda } from './pdas';
 import { Bid, toBid } from './Bid';
 import { toBidReceiptAccount } from './accounts';
+import { MintWithMetadata, TokenWithMetadata } from '../nftModule';
 
 // -----------------
 // Operation
@@ -51,15 +52,27 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
       );
       scope.throwIfCanceled();
 
-      const tokenModel = await metaplex
-        .nfts()
-        .findTokenWithMetadataByMetadata(
-          account.data.metadata,
-          account.data.buyer,
-          { commitment, loadJsonMetadata }
-        )
-        .run(scope);
+      let model: TokenWithMetadata | MintWithMetadata;
 
-      return toBid(account, auctionHouse, tokenModel);
+      if (account.data.tokenAccount) {
+        model = await metaplex
+          .nfts()
+          .findTokenWithMetadataByMetadata(
+            account.data.metadata,
+            account.data.buyer,
+            { commitment, loadJsonMetadata }
+          )
+          .run(scope);
+      } else {
+        model = await metaplex
+          .nfts()
+          .findMintWithMetadataByMetadata(
+            account.data.metadata,
+            { commitment, loadJsonMetadata }
+          )
+          .run(scope);
+      }
+
+      return toBid(account, auctionHouse, model);
     },
   };
