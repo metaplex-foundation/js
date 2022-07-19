@@ -22,11 +22,11 @@
     "clean": "lerna run clean",
     "build": "lerna run build",
     "test": "lerna run test",
-    "lint": "lerna run lint",
-    "lint:fix": "lerna run lint:fix",
     "publish": "lerna publish from-package",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
-    "amman:stop": "amman stop"
+    "amman:stop": "amman stop",
+    "lint": "prettier -c .",
+    "lint:fix": "prettier --write ."
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
