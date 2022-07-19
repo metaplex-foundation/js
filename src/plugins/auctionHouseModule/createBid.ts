@@ -9,7 +9,6 @@ import {
   BuyInstructionAccounts,
   createBuyInstruction,
   createPrintBidReceiptInstruction,
-  createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   useOperation,
@@ -158,8 +157,6 @@ export const createBidBuilder = (
   // Sell Instruction.
   // ToDo: Add support for the auctioneerAuthority
   const buyInstruction = createBuyInstruction(accounts, args);
-
-  // createPublicBuyInstruction()
 
   // Signers.
   const buySigners = [buyer, authority].filter(

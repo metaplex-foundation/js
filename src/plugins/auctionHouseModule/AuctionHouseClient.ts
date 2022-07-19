@@ -1,7 +1,7 @@
 import { Metaplex } from '@/Metaplex';
-import { Signer, toDateTime } from '@/types';
+import { now, Signer } from '@/types';
 import { Task } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
   CreateListingInput,
@@ -66,7 +66,7 @@ export class AuctionHouseClient {
         purchaseReceiptAddress: null,
         price: output.price,
         tokens: output.tokens.basisPoints,
-        createdAt: toDateTime(new Date()),
+        createdAt: now(),
         canceledAt: null,
       };
 
@@ -122,13 +122,14 @@ export class AuctionHouseClient {
         auctionHouse: this.auctionHouse,
         tradeStateAddress: output.buyerTradeState,
         bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
+        tokenAddress: output.tokenAccount,
         buyerAddress: output.buyer,
         metadataAddress: output.metadata,
         receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
         price: output.price,
         tokens: output.tokens.basisPoints,
-        createdAt: toDateTime(new Date()),
+        createdAt: now(),
         canceledAt: null,
       };
 
