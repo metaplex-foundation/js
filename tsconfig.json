@@ -3,8 +3,6 @@
   "exclude": ["node_modules", "packages/*/node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "packages/js/dist/esm",
-    "declarationDir": "packages/js/dist/types",
     "declaration": true,
     "sourceMap": true,
     "noEmit": false,
@@ -40,7 +38,7 @@
     "jsx": "preserve"
   },
   "typedocOptions": {
-    "entryPoints": "src/index.ts",
+    "entryPoints": "packages/*/src/index.ts",
     "out": "docs",
     "readme": "README.md"
   }
