@@ -30,6 +30,12 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
 
+    const bid: Omit<Bid, 'token' | 'mint' | 'tokens'> = {
+      ...lazyBid,
+      model: 'bid',
+      lazy: false,
+    }
+
     if (lazyBid.tokenAddress) {
       const tokenModel = await metaplex
         .nfts()
@@ -42,9 +48,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
       scope.throwIfCanceled();
 
       return {
-        ...lazyBid,
-        model: 'bid',
-        lazy: false,
+        ...bid,
         token: tokenModel,
         tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
       };
@@ -59,9 +63,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
       scope.throwIfCanceled();
 
       return {
-        ...lazyBid,
-        model: 'bid',
-        lazy: false,
+        ...bid,
         mint: mintModel,
         tokens: amount(lazyBid.tokens, mintModel.currency),
       };
