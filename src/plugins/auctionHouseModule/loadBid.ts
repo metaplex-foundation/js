@@ -66,6 +66,5 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         tokens: amount(lazyBid.tokens, mintModel.currency),
       };
     }
-
   },
 };

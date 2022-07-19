@@ -85,7 +85,7 @@ export const findAuctionHouseTradeStatePda = (
     Buffer.from('auction_house', 'utf8'),
     wallet.toBuffer(),
     auctionHouse.toBuffer(),
-    ...tokenAccount ? [tokenAccount.toBuffer()] : [],
+    ...(tokenAccount ? [tokenAccount.toBuffer()] : []),
     treasuryMint.toBuffer(),
     tokenMint.toBuffer(),
     buyPrice.toArrayLike(Buffer, 'le', 8),

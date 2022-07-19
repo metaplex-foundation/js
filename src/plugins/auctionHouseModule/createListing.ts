@@ -132,7 +132,7 @@ export const createListingBuilder = (
     params.mintAccount,
     price.basisPoints,
     tokens.basisPoints,
-    tokenAccount,
+    tokenAccount
   );
   const freeSellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
@@ -141,7 +141,7 @@ export const createListingBuilder = (
     params.mintAccount,
     lamports(0).basisPoints,
     tokens.basisPoints,
-    tokenAccount,
+    tokenAccount
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
   const accounts = {

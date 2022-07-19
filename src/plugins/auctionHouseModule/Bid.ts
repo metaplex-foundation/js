@@ -68,13 +68,15 @@ export const toBid = (
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    ...isTokenWithMetadata(model) ? {
-      token: model,
-      tokens: amount(lazyBid.tokens, model.mint.currency),
-    } : {
-      mint: model,
-      tokens: amount(lazyBid.tokens, model.currency),
-    }
+    ...(isTokenWithMetadata(model)
+      ? {
+          token: model,
+          tokens: amount(lazyBid.tokens, model.mint.currency),
+        }
+      : {
+          mint: model,
+          tokens: amount(lazyBid.tokens, model.currency),
+        }),
   };
 };
 

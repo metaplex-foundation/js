@@ -120,17 +120,18 @@ export const createBidBuilder = (
   );
   const tokenAccount =
     params.tokenAccount ??
-    (params.seller && findAssociatedTokenAccountPda(params.mintAccount, params.seller));
+    (params.seller &&
+      findAssociatedTokenAccountPda(params.mintAccount, params.seller));
 
   const buyerTradeState = findAuctionHouseTradeStatePda(
-      auctionHouse.address,
-      toPublicKey(buyer),
-      auctionHouse.treasuryMint.address,
-      params.mintAccount,
-      price.basisPoints,
-      tokens.basisPoints,
-      tokenAccount,
-    )
+    auctionHouse.address,
+    toPublicKey(buyer),
+    auctionHouse.treasuryMint.address,
+    params.mintAccount,
+    price.basisPoints,
+    tokens.basisPoints,
+    tokenAccount
+  );
 
   const accounts: Omit<BuyInstructionAccounts, 'tokenAccount'> = {
     wallet: toPublicKey(buyer),
@@ -157,10 +158,16 @@ export const createBidBuilder = (
   // ToDo: Add support for the auctioneerAuthority
   let buyInstruction;
   if (tokenAccount) {
-    buyInstruction = createBuyInstruction({...accounts, tokenAccount}, args);
+    buyInstruction = createBuyInstruction({ ...accounts, tokenAccount }, args);
   } else {
-    const tokenAccount = findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(buyer));
-    buyInstruction = createPublicBuyInstruction({...accounts, tokenAccount}, args);
+    const tokenAccount = findAssociatedTokenAccountPda(
+      params.mintAccount,
+      toPublicKey(buyer)
+    );
+    buyInstruction = createPublicBuyInstruction(
+      { ...accounts, tokenAccount },
+      args
+    );
   }
 
   // Signers.
