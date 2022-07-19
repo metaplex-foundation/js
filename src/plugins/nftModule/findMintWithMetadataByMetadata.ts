@@ -42,11 +42,7 @@ export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<Fi
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<MintWithMetadata> => {
-      const {
-        address,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { address, commitment, loadJsonMetadata = true } = operation.input;
 
       const metadataAccount = toMetadataAccount(
         await metaplex.rpc().getAccount(address, commitment)

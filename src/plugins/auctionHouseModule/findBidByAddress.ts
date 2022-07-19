@@ -66,10 +66,10 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
       } else {
         model = await metaplex
           .nfts()
-          .findMintWithMetadataByMetadata(
-            account.data.metadata,
-            { commitment, loadJsonMetadata }
-          )
+          .findMintWithMetadataByMetadata(account.data.metadata, {
+            commitment,
+            loadJsonMetadata,
+          })
           .run(scope);
       }
 

@@ -12,36 +12,43 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { BidReceiptAccount } from './accounts';
-import { isTokenWithMetadata, MintWithMetadata, TokenWithMetadata } from '../nftModule';
+import {
+  isTokenWithMetadata,
+  MintWithMetadata,
+  TokenWithMetadata,
+} from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
-export type Bid = Readonly<{
-  model: 'bid';
-  lazy: false;
-
-  // Models.
-  auctionHouse: AuctionHouse;
-
-  // Addresses.
-  tradeStateAddress: Pda;
-  buyerAddress: PublicKey;
-  bookkeeperAddress: Option<PublicKey>;
-  receiptAddress: Option<Pda>;
-  purchaseReceiptAddress: Option<PublicKey>;
-
-  // Data.
-  price: SolAmount | SplTokenAmount;
-  tokens: SplTokenAmount;
-  createdAt: DateTime;
-  canceledAt: Option<DateTime>;
-} & (
+export type Bid = Readonly<
   {
-    token: TokenWithMetadata;
-  } | {
-    mint: MintWithMetadata;
-  }
-)>;
+    model: 'bid';
+    lazy: false;
+
+    // Models.
+    auctionHouse: AuctionHouse;
+
+    // Addresses.
+    tradeStateAddress: Pda;
+    buyerAddress: PublicKey;
+    bookkeeperAddress: Option<PublicKey>;
+    receiptAddress: Option<Pda>;
+    purchaseReceiptAddress: Option<PublicKey>;
+
+    // Data.
+    price: SolAmount | SplTokenAmount;
+    tokens: SplTokenAmount;
+    createdAt: DateTime;
+    canceledAt: Option<DateTime>;
+  } & (
+    | {
+        token: TokenWithMetadata;
+      }
+    | {
+        mint: MintWithMetadata;
+      }
+  )
+>;
 
 export const isBid = (value: any): value is Bid =>
   typeof value === 'object' && value.model === 'bid' && !value.lazy;

@@ -117,7 +117,10 @@ export const createBidBuilder = (
   const metadata = findMetadataPda(params.mintAccount);
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(params.seller ?? buyer));
+    findAssociatedTokenAccountPda(
+      params.mintAccount,
+      toPublicKey(params.seller ?? buyer)
+    );
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
     toPublicKey(buyer),

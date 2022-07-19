@@ -31,11 +31,15 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
 
-    let bidExtra: Pick<Bid, 'tokens'> & ({
-      token: TokenWithMetadata;
-    } | {
-      mint: MintWithMetadata;
-    });
+    let bidExtra: Pick<Bid, 'tokens'> &
+      (
+        | {
+            token: TokenWithMetadata;
+          }
+        | {
+            mint: MintWithMetadata;
+          }
+      );
 
     if (lazyBid.tokenAddress) {
       const tokenModel = await metaplex
@@ -49,21 +53,21 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
 
       bidExtra = {
         token: tokenModel,
-        tokens: amount(lazyBid.tokens, tokenModel.mint.currency)
-      }
+        tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
+      };
     } else {
       const mintModel = await metaplex
         .nfts()
-        .findMintWithMetadataByMetadata(
-          lazyBid.metadataAddress,
-          { commitment, loadJsonMetadata }
-        )
+        .findMintWithMetadataByMetadata(lazyBid.metadataAddress, {
+          commitment,
+          loadJsonMetadata,
+        })
         .run(scope);
 
       bidExtra = {
         mint: mintModel,
-        tokens: amount(lazyBid.tokens, mintModel.currency)
-      }
+        tokens: amount(lazyBid.tokens, mintModel.currency),
+      };
     }
 
     scope.throwIfCanceled();
