@@ -49,6 +49,7 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
       const account = toBidReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
+      scope.throwIfCanceled();
 
       const tokenModel = await metaplex
         .nfts()
@@ -58,7 +59,6 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
           { commitment, loadJsonMetadata }
         )
         .run(scope);
-      scope.throwIfCanceled();
 
       return toBid(account, auctionHouse, tokenModel);
     },

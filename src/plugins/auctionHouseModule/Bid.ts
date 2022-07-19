@@ -12,7 +12,7 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { BidReceiptAccount } from './accounts';
-import { TokenWithMetadata } from '../nftModule';
+import { isTokenWithMetadata, MintWithMetadata, TokenWithMetadata } from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
@@ -22,7 +22,6 @@ export type Bid = Readonly<{
 
   // Models.
   auctionHouse: AuctionHouse;
-  token: TokenWithMetadata;
 
   // Addresses.
   tradeStateAddress: Pda;
@@ -36,7 +35,13 @@ export type Bid = Readonly<{
   tokens: SplTokenAmount;
   createdAt: DateTime;
   canceledAt: Option<DateTime>;
-}>;
+} & (
+  {
+    token: TokenWithMetadata;
+  } | {
+    mint: MintWithMetadata;
+  }
+)>;
 
 export const isBid = (value: any): value is Bid =>
   typeof value === 'object' && value.model === 'bid' && !value.lazy;
@@ -44,25 +49,38 @@ export const isBid = (value: any): value is Bid =>
 export function assertBid(value: any): asserts value is Bid {
   assert(isBid(value), `Expected Bid type`);
 }
+
 export const toBid = (
   account: BidReceiptAccount,
   auctionHouseModel: AuctionHouse,
-  tokenModel: TokenWithMetadata
+  model: TokenWithMetadata | MintWithMetadata
 ): Bid => {
   const lazyBid = toLazyBid(account, auctionHouseModel);
+
+  if (isTokenWithMetadata(model)) {
+    return {
+      ...lazyBid,
+      model: 'bid',
+      lazy: false,
+      token: model,
+      tokens: amount(lazyBid.tokens, model.mint.currency),
+    };
+  }
+
   return {
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    token: tokenModel,
-    tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
+    mint: model,
+    tokens: amount(lazyBid.tokens, model.currency),
   };
 };
 
-export type LazyBid = Omit<Bid, 'lazy' | 'token' | 'tokens'> &
+export type LazyBid = Omit<Bid, 'lazy' | 'token' | 'mint' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
+    tokenAddress: Option<PublicKey>;
     tokens: BigNumber;
   }>;
 
@@ -87,6 +105,7 @@ export const toLazyBid = (
     bookkeeperAddress: account.data.bookkeeper,
     buyerAddress: account.data.buyer,
     metadataAddress: account.data.metadata,
+    tokenAddress: account.data.tokenAccount,
     receiptAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump

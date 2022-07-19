@@ -4,11 +4,12 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, Option } from '@/utils';
 import {
   BuyInstructionAccounts,
   createBuyInstruction,
   createPrintBidReceiptInstruction,
+  createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   useOperation,
@@ -51,7 +52,8 @@ export type CreateBidInput = {
   buyer?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   mintAccount: PublicKey; // Required for checking Metadata
-  tokenAccount?: PublicKey; // Default: ATA
+  seller?: Option<PublicKey>; // Default: null (i.e. public bid)
+  tokenAccount?: Option<PublicKey>; // Default: null (i.e. public bid unless seller is provided).
   price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
   tokens?: SplTokenAmount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
@@ -64,7 +66,7 @@ export type CreateBidInput = {
 export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
-  tokenAccount: PublicKey;
+  tokenAccount: Option<PublicKey>;
   metadata: Pda;
   buyer: PublicKey;
   receipt: Pda;
@@ -108,13 +110,15 @@ export const createBidBuilder = (
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
+  const isPublic = !params.tokenAccount && params.seller;
+
   // Accounts.
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(buyer));
+    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(params.seller ?? buyer));
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
     toPublicKey(buyer),
@@ -155,6 +159,8 @@ export const createBidBuilder = (
   // ToDo: Add support for the auctioneerAuthority
   const buyInstruction = createBuyInstruction(accounts, args);
 
+  // createPublicBuyInstruction()
+
   // Signers.
   const buySigners = [buyer, authority].filter(
     (input): input is Signer => !!input && isSigner(input)
@@ -168,7 +174,7 @@ export const createBidBuilder = (
     TransactionBuilder.make<CreateBidBuilderContext>()
       .setContext({
         buyerTradeState,
-        tokenAccount,
+        tokenAccount: isPublic ? tokenAccount : null,
         metadata,
         buyer: toPublicKey(buyer),
         receipt,
