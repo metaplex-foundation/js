@@ -36,7 +36,7 @@ const createConfig = (build, options) => {
   });
 
   const outputExtension = format === 'es' ? 'mjs' : 'cjs';
-  const entryFileNames = bundle ? undefined : `[name].${outputExtension}`;
+  const entryFileNames = `[name].${outputExtension}`;
 
   return {
     input: ['src/index.ts'],
