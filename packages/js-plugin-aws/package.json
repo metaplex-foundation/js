@@ -1,6 +1,6 @@
 {
-  "name": "@metaplex-foundation/js",
-  "version": "0.12.2",
+  "name": "@metaplex-foundation/js-plugin-aws",
+  "version": "0.1.0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -43,30 +43,11 @@
     "build:types": "ttsc",
     "build:rollup": "rollup -c",
     "build:tests": "ttsc -p test/tsconfig.json",
-    "test": "tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
+    "test": "tape dist/test/**/*.test.js"
   },
   "dependencies": {
-    "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.2.0",
-    "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-auction-house": "^2.0.0",
-    "@metaplex-foundation/mpl-candy-machine": "^4.3.0",
-    "@metaplex-foundation/mpl-token-metadata": "^2.1.2",
-    "@solana/spl-token": "^0.2.0",
-    "@solana/web3.js": "^1.47.3",
-    "abort-controller": "^3.0.0",
-    "bignumber.js": "^9.0.2",
-    "bn.js": "^5.2.0",
-    "bs58": "^5.0.0",
-    "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
-    "debug": "^4.3.4",
-    "eventemitter3": "^4.0.7",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
-    "mime": "^3.0.0",
-    "tweetnacl": "^1.0.3"
+    "@aws-sdk/client-s3": "^3.54.1",
+    "@metaplex-foundation/js": "*"
   },
   "engines": {
     "node": "^14.0 || >=16.0"

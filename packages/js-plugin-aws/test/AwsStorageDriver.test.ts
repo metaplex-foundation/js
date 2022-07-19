@@ -1,8 +1,9 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { toMetaplexFile } from '@metaplex-foundation/js';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
-import { killStuckProcess, metaplex } from '../../helpers';
-import { awsStorage, toMetaplexFile } from '@/index';
+import { killStuckProcess, metaplex } from '../../js/test/helpers';
+import { awsStorage } from '../src';
 
 killStuckProcess();
 

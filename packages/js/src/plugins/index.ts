@@ -1,5 +1,4 @@
 export * from './auctionHouseModule';
-export * from './awsStorage';
 export * from './bundlrStorage';
 export * from './candyMachineModule';
 export * from './corePlugins';
