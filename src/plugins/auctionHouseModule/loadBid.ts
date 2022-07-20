@@ -48,8 +48,11 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         .run(scope);
       scope.throwIfCanceled();
 
-      if(isTokenWithMint(tokenModel)) {
-        throw new AccountNotFoundError(lazyBid.tokenAddress, 'TokenWithMetadata');
+      if (isTokenWithMint(tokenModel)) {
+        throw new AccountNotFoundError(
+          lazyBid.tokenAddress,
+          'TokenWithMetadata'
+        );
       }
 
       return {

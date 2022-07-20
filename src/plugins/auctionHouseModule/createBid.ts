@@ -198,7 +198,7 @@ export const createBidBuilder = async (
 
   // Create a TA for public bid if it doesn't exist
   if (!tokenAccount) {
-    const account = await metaplex.rpc().getAccount(buyerTokenAccount)
+    const account = await metaplex.rpc().getAccount(buyerTokenAccount);
     if (!account.exists) {
       builder.add(
         await metaplex

@@ -72,14 +72,15 @@ export const toBid = (
     lazy: false,
     ...(isMintWithMetadata(metadataModel)
       ? {
-        mint: metadataModel,
-        tokens: amount(lazyBid.tokens, metadataModel.currency),
-        isPublic: true,
-      }: {
-        token: metadataModel,
-        tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
-        isPublic: false,
-      }),
+          mint: metadataModel,
+          tokens: amount(lazyBid.tokens, metadataModel.currency),
+          isPublic: true,
+        }
+      : {
+          token: metadataModel,
+          tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
+          isPublic: false,
+        }),
   };
 };
 
