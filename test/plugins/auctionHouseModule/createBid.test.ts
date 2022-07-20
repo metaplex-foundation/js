@@ -2,6 +2,7 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { sol, token } from '@/types';
 import {
+  assertThrows,
   metaplex,
   killStuckProcess,
   createNft,
@@ -169,16 +170,8 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   t.ok(bid.isPublic);
 
   // But we cannot retrieve it later with the default operation handler.
-  try {
-    await client.findBidByAddress(buyerTradeState).run();
-    t.fail('expected to throw AccountNotFoundError');
-  } catch (error: any) {
-    const hasNotFoundMessage = error.message.includes(
-      'The account of type [BidReceipt] was not found'
-    );
-    t.ok(error instanceof AccountNotFoundError, 'throws AccountNotFoundError');
-    t.ok(hasNotFoundMessage, 'has BidReceipt Not Found message');
-  }
+  const promise = client.findBidByAddress(buyerTradeState).run();
+  await assertThrows(t, promise, /The account of type [BidReceipt] was not found/);
 });
 
 test('[auctionHouseModule] create private receipt-less bid but cannot fetch it afterwards by default', async (t: Test) => {
@@ -205,14 +198,6 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   t.false(bid.isPublic);
 
   // But we cannot retrieve it later with the default operation handler.
-  try {
-    await client.findBidByAddress(buyerTradeState).run();
-    t.fail('expected to throw AccountNotFoundError');
-  } catch (error: any) {
-    const hasNotFoundMessage = error.message.includes(
-      'The account of type [BidReceipt] was not found'
-    );
-    t.ok(error instanceof AccountNotFoundError, 'throws AccountNotFoundError');
-    t.ok(hasNotFoundMessage, 'has BidReceipt Not Found message');
-  }
+  const promise = client.findBidByAddress(buyerTradeState).run();
+  await assertThrows(t, promise, /The account of type [BidReceipt] was not found/);
 });
