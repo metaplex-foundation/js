@@ -4,7 +4,7 @@ import pkg from './package.json';
 export default createConfigs({
   pkg,
   dependenciesToExcludeInBundle: [
-    '@metaplex-foundation/js',
+    '@loris-sandbox/mx-monorepo-js',
     '@aws-sdk/client-s3',
   ],
   builds: [
