@@ -171,7 +171,11 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
 
   // But we cannot retrieve it later with the default operation handler.
   const promise = client.findBidByAddress(buyerTradeState).run();
-  await assertThrows(t, promise, /The account of type [BidReceipt] was not found/);
+  await assertThrows(
+    t,
+    promise,
+    /The account of type [BidReceipt] was not found/
+  );
 });
 
 test('[auctionHouseModule] create private receipt-less bid but cannot fetch it afterwards by default', async (t: Test) => {
@@ -199,5 +203,9 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
 
   // But we cannot retrieve it later with the default operation handler.
   const promise = client.findBidByAddress(buyerTradeState).run();
-  await assertThrows(t, promise, /The account of type [BidReceipt] was not found/);
+  await assertThrows(
+    t,
+    promise,
+    /The account of type [BidReceipt] was not found/
+  );
 });
