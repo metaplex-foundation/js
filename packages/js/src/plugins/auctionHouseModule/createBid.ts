@@ -204,7 +204,10 @@ export const createBidBuilder = async (
         await metaplex
           .tokens()
           .builders()
-          .createToken({ mint: params.mintAccount })
+          .createToken({
+            mint: params.mintAccount,
+            owner: toPublicKey(buyer),
+          })
       );
     }
   }
