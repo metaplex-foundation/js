@@ -26,6 +26,10 @@ import {
   findNftsByOwnerOperation,
 } from './findNftsByOwner';
 import {
+  FindNftsByUpdateAuthorityInput,
+  findNftsByUpdateAuthorityOperation,
+} from './findNftsByUpdateAuthority';
+import {
   FindNftsByCreatorInput,
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
@@ -104,6 +108,17 @@ export class NftClient {
     return this.metaplex
       .operations()
       .getTask(findNftsByOwnerOperation({ owner, ...options }));
+  }
+
+  findAllByUpdateAuthority(
+    updateAuthority: PublicKey,
+    options?: Omit<FindNftsByUpdateAuthorityInput, 'updateAuthority'>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(
+        findNftsByUpdateAuthorityOperation({ updateAuthority, ...options })
+      );
   }
 
   findAllByCreator(
