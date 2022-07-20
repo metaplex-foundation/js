@@ -1,10 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { DisposableScope } from '@/utils';
+import { assert, DisposableScope } from '@/utils';
 import { Bid, LazyBid } from './Bid';
-import { AccountNotFoundError } from '@/errors';
-import { isTokenWithMint } from '../tokenModule';
+import { assertTokenWithMetadata } from '../nftModule';
 
 // -----------------
 // Operation
@@ -48,12 +47,11 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         .run(scope);
       scope.throwIfCanceled();
 
-      if (isTokenWithMint(tokenModel)) {
-        throw new AccountNotFoundError(
-          lazyBid.tokenAddress,
-          'TokenWithMetadata'
-        );
-      }
+      assertTokenWithMetadata(tokenModel);
+      assert(
+        tokenModel.metadata.address.equals(lazyBid.metadataAddress),
+        `Token Modal metadata address must be ${lazyBid.metadataAddress}`
+      );
 
       return {
         ...bid,
