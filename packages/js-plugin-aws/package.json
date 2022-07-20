@@ -35,10 +35,6 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "check:publish-ready": "yarn build && yarn test",
-    "prepublishOnly": "yarn check:publish-ready",
-    "preversion": "yarn check:publish-ready",
-    "postversion": "git push --follow-tags",
     "build": "yarn clean && yarn build:types && yarn build:rollup && yarn build:tests",
     "build:types": "ttsc",
     "build:rollup": "rollup -c",
