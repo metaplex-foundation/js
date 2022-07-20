@@ -37,7 +37,9 @@
     "clean": "rimraf dist",
     "build": "yarn clean && ttsc && ttsc -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
+    "preversion": "yarn build && yarn test",
+    "postversion": "git push --follow-tags"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.7.14",

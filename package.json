@@ -26,7 +26,8 @@
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "lint": "prettier -c .",
-    "lint:fix": "prettier --write ."
+    "lint:fix": "prettier --write .",
+    "prepublishOnly": "yarn lint && yarn build && yarn test"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
