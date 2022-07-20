@@ -1,16 +1,30 @@
 import { Metaplex } from '@/Metaplex';
-import { Signer, toDateTime } from '@/types';
+import { now, Signer } from '@/types';
 import { Task } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
   CreateListingInput,
   createListingOperation,
   CreateListingOutput,
 } from './createListing';
-import { findListingByAddressOperation } from './findListingByAddress';
+import {
+  FindListingByAddressInput,
+  findListingByAddressOperation,
+} from './findListingByAddress';
 import { LazyListing, Listing } from './Listing';
-import { loadListingOperation } from './loadListing';
+import { LoadListingInput, loadListingOperation } from './loadListing';
+import {
+  CreateBidInput,
+  createBidOperation,
+  CreateBidOutput,
+} from './createBid';
+import {
+  FindBidByAddressInput,
+  findBidByAddressOperation,
+} from './findBidByAddress';
+import { Bid, LazyBid } from './Bid';
+import { LoadBidInput, loadBidOperation } from './loadBid';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -46,13 +60,13 @@ export class AuctionHouseClient {
         auctionHouse: this.auctionHouse,
         tradeStateAddress: output.sellerTradeState,
         bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
-        sellerAddress: output.wallet,
+        sellerAddress: output.seller,
         metadataAddress: output.metadata,
         receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
         price: output.price,
         tokens: output.tokens.basisPoints,
-        createdAt: toDateTime(new Date()),
+        createdAt: now(),
         canceledAt: null,
       };
 
@@ -65,7 +79,7 @@ export class AuctionHouseClient {
 
   findListingByAddress(
     address: PublicKey,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
   ) {
     return this.metaplex.operations().getTask(
       findListingByAddressOperation({
@@ -78,11 +92,75 @@ export class AuctionHouseClient {
 
   loadListing(
     lazyListing: LazyListing,
-    options: { commitment?: Commitment; loadJsonMetadata?: boolean } = {}
+    options: Omit<LoadListingInput, 'lazyListing'> = {}
   ): Task<Listing> {
     return this.metaplex
       .operations()
       .getTask(loadListingOperation({ lazyListing, ...options }));
+  }
+
+  bid(input: WithoutAH<CreateBidInput>): Task<CreateBidOutput & { bid: Bid }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(createBidOperation(this.addAH(input)), scope);
+      scope.throwIfCanceled();
+
+      try {
+        const bid = await this.findBidByAddress(output.buyerTradeState).run(
+          scope
+        );
+        return { bid, ...output };
+      } catch (error) {
+        // Fallback to manually creating a bid from inputs and outputs.
+      }
+
+      scope.throwIfCanceled();
+      const lazyBid: LazyBid = {
+        model: 'bid',
+        lazy: true,
+        auctionHouse: this.auctionHouse,
+        tradeStateAddress: output.buyerTradeState,
+        bookkeeperAddress: input.printReceipt ? output.bookkeeper : null,
+        tokenAddress: output.tokenAccount,
+        buyerAddress: output.buyer,
+        metadataAddress: output.metadata,
+        receiptAddress: input.printReceipt ? output.receipt : null,
+        purchaseReceiptAddress: null,
+        isPublic: Boolean(output.tokenAccount),
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+        canceledAt: null,
+      };
+
+      return {
+        bid: await this.loadBid(lazyBid).run(scope),
+        ...output,
+      };
+    });
+  }
+
+  findBidByAddress(
+    address: PublicKey,
+    options: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'> = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findBidByAddressOperation({
+        address,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  loadBid(
+    lazyBid: LazyBid,
+    options: Omit<LoadBidInput, 'lazyBid'> = {}
+  ): Task<Bid> {
+    return this.metaplex
+      .operations()
+      .getTask(loadBidOperation({ lazyBid, ...options }));
   }
 
   protected addAH<T>(input: WithoutAH<T>): T {

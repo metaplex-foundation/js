@@ -50,7 +50,7 @@ export type CreateListingOperation = Operation<
 
 export type CreateListingInput = {
   auctionHouse: AuctionHouse;
-  wallet?: PublicKey | Signer; // Default: identity
+  seller?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
@@ -70,7 +70,7 @@ export type CreateListingOutput = {
   freeSellerTradeState: Pda;
   tokenAccount: PublicKey;
   metadata: Pda;
-  wallet: PublicKey;
+  seller: PublicKey;
   receipt: Pda;
   bookkeeper: PublicKey;
   price: SolAmount | SplTokenAmount;
@@ -119,33 +119,33 @@ export const createListingBuilder = (
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
   // Accounts.
-  const wallet = params.wallet ?? (metaplex.identity() as Signer);
+  const seller = params.seller ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(wallet));
+    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(seller));
   const sellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
-    toPublicKey(wallet),
-    tokenAccount,
+    toPublicKey(seller),
     auctionHouse.treasuryMint.address,
     params.mintAccount,
     price.basisPoints,
-    tokens.basisPoints
+    tokens.basisPoints,
+    tokenAccount
   );
   const freeSellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
-    toPublicKey(wallet),
-    tokenAccount,
+    toPublicKey(seller),
     auctionHouse.treasuryMint.address,
     params.mintAccount,
     lamports(0).basisPoints,
-    tokens.basisPoints
+    tokens.basisPoints,
+    tokenAccount
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
   const accounts = {
-    wallet: toPublicKey(wallet),
+    wallet: toPublicKey(seller),
     tokenAccount,
     metadata,
     authority: toPublicKey(authority),
@@ -184,7 +184,7 @@ export const createListingBuilder = (
   }
 
   // Signers.
-  const sellSigners = [wallet, authority, params.auctioneerAuthority].filter(
+  const sellSigners = [seller, authority, params.auctioneerAuthority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
 
@@ -199,7 +199,7 @@ export const createListingBuilder = (
         freeSellerTradeState,
         tokenAccount,
         metadata,
-        wallet: toPublicKey(wallet),
+        seller: toPublicKey(seller),
         receipt,
         bookkeeper: bookkeeper.publicKey,
         price,

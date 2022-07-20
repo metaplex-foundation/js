@@ -140,13 +140,13 @@ export class NftClient {
   }
 
   findMintWithMetadataByMetadata(
-    metadataAddress: PublicKey,
+    address: PublicKey,
     options?: Omit<FindMintWithMetadataByMetadataInput, 'address'>
   ) {
     return this.metaplex
       .operations()
       .getTask(
-        findMintWithMetadataByMetadataOperation({ metadataAddress, ...options })
+        findMintWithMetadataByMetadataOperation({ address, ...options })
       );
   }
 

@@ -1,6 +1,7 @@
 import {
   AuctionHouse,
   ListingReceipt,
+  BidReceipt,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   Account,
@@ -18,3 +19,8 @@ export const parseListingReceiptAccount =
   getAccountParsingFunction(ListingReceipt);
 export const toListingReceiptAccount =
   getAccountParsingAndAssertingFunction(ListingReceipt);
+
+export type BidReceiptAccount = Account<BidReceipt>;
+export const parseBidReceiptAccount = getAccountParsingFunction(BidReceipt);
+export const toBidReceiptAccount =
+  getAccountParsingAndAssertingFunction(BidReceipt);

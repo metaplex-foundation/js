@@ -26,7 +26,7 @@ export type FindMintWithMetadataByMetadataOperation = Operation<
 >;
 
 export type FindMintWithMetadataByMetadataInput = {
-  metadataAddress: PublicKey;
+  address: PublicKey;
   commitment?: Commitment;
   loadJsonMetadata?: boolean; // Default: true
 };
@@ -42,14 +42,10 @@ export const findMintWithMetadataByMetadataOperationHandler: OperationHandler<Fi
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<MintWithMetadata> => {
-      const {
-        metadataAddress,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { address, commitment, loadJsonMetadata = true } = operation.input;
 
       const metadataAccount = toMetadataAccount(
-        await metaplex.rpc().getAccount(metadataAddress, commitment)
+        await metaplex.rpc().getAccount(address, commitment)
       );
       scope.throwIfCanceled();
 
