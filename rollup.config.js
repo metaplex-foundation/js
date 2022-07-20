@@ -5,28 +5,13 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
-import pkg from './package.json';
 
-const builds = [
-  {
-    dir: 'dist/esm',
-    format: 'es',
-  },
-  {
-    dir: 'dist/cjs',
-    format: 'cjs',
-  },
-];
+export const createConfigs = (options) => {
+  const { builds, ...otherOptions } = options;
+  return builds.map((build) => createConfig(build, otherOptions));
+};
 
-// The options below can be used to configure what should be bundled.
-// Currently, we're not bundling our library to support tree-shaking.
-const extensions = ['.js', '.ts'];
-const globals = {};
-const allDependencies = Object.keys(pkg.dependencies);
-const dependenciesToExcludeInBundle = [];
-const dependenciesToDedupes = [];
-
-const createConfig = (build) => {
+const createConfig = (build, options) => {
   const {
     file,
     dir,
@@ -37,12 +22,21 @@ const createConfig = (build) => {
     minified = false,
   } = build;
 
+  const {
+    pkg,
+    extensions = ['.js', '.ts'],
+    globals = {},
+    dependenciesToExcludeInBundle = [],
+    dependenciesToDedupes = [],
+  } = options;
+
+  const allDependencies = Object.keys(pkg.dependencies);
   const external = allDependencies.filter((dependency) => {
     return !bundle || dependenciesToExcludeInBundle.includes(dependency);
   });
 
   const outputExtension = format === 'es' ? 'mjs' : 'cjs';
-  const entryFileNames = bundle ? undefined : `[name].${outputExtension}`;
+  const entryFileNames = `[name].${outputExtension}`;
 
   return {
     input: ['src/index.ts'],
@@ -94,5 +88,3 @@ const createConfig = (build) => {
     },
   };
 };
-
-export default builds.map((build) => createConfig(build));

@@ -1,16 +1,15 @@
 {
-  "include": ["src"],
+  "include": ["packages/*/src"],
+  "exclude": ["node_modules", "packages/*/node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist/esm",
-    "declarationDir": "dist/types",
     "declaration": true,
     "sourceMap": true,
     "noEmit": false,
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["packages/js/src/*"]
     },
     "plugins": [
       {
@@ -39,7 +38,7 @@
     "jsx": "preserve"
   },
   "typedocOptions": {
-    "entryPoints": "src/index.ts",
+    "entryPoints": "packages/*/src/index.ts",
     "out": "docs",
     "readme": "README.md"
   }
