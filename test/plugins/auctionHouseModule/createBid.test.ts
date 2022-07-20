@@ -91,10 +91,7 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
     },
     mint: spok.notDefined,
     token: {
-      address: findAssociatedTokenAccountPda(
-        nft.mintAddress,
-        seller.publicKey
-      ),
+      address: findAssociatedTokenAccountPda(nft.mintAddress, seller.publicKey),
       mint: {
         address: spokSamePubkey(nft.mintAddress),
       },
@@ -134,10 +131,7 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
     },
     mint: spok.notDefined,
     token: {
-      address: findAssociatedTokenAccountPda(
-        nft.mintAddress,
-        seller.publicKey
-      ),
+      address: findAssociatedTokenAccountPda(nft.mintAddress, seller.publicKey),
       mint: {
         address: spokSamePubkey(nft.mintAddress),
       },

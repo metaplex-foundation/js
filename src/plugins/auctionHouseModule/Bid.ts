@@ -42,11 +42,11 @@ export type Bid = Readonly<
     canceledAt: Option<DateTime>;
   } & (
     | {
-        isPublic: false,
+        isPublic: false;
         token: TokenWithMetadata;
       }
     | {
-        isPublic: true,
+        isPublic: true;
         mint: MintWithMetadata;
       }
   )

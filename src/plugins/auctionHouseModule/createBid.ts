@@ -120,7 +120,9 @@ export const createBidBuilder = (
   );
   const tokenAccount =
     params.tokenAccount ??
-    (params.seller ? findAssociatedTokenAccountPda(params.mintAccount, params.seller) : null);
+    (params.seller
+      ? findAssociatedTokenAccountPda(params.mintAccount, params.seller)
+      : null);
 
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
