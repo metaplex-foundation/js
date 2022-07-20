@@ -35,10 +35,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn clean && yarn build:types && yarn build:rollup && yarn build:tests",
-    "build:types": "ttsc",
-    "build:rollup": "rollup -c",
-    "build:tests": "ttsc -p test/tsconfig.json",
+    "build": "yarn clean && ttsc && ttsc -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js && yarn test:exports",
     "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
   },
