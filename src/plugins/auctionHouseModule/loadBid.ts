@@ -39,10 +39,10 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
     if (lazyBid.tokenAddress) {
       const tokenModel = await metaplex
         .nfts()
-        .findTokenWithMetadataByAddress(
-          lazyBid.tokenAddress,
-          { commitment, loadJsonMetadata }
-        )
+        .findTokenWithMetadataByAddress(lazyBid.tokenAddress, {
+          commitment,
+          loadJsonMetadata,
+        })
         .run(scope);
       scope.throwIfCanceled();
 
