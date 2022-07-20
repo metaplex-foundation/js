@@ -13,10 +13,11 @@ import {
 } from '@/types';
 import { BidReceiptAccount } from './accounts';
 import {
-  isTokenWithMetadata,
+  isMintWithMetadata,
   MintWithMetadata,
   TokenWithMetadata,
 } from '../nftModule';
+import { TokenWithMint } from '../tokenModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
@@ -43,7 +44,7 @@ export type Bid = Readonly<
   } & (
     | {
         isPublic: false;
-        token: TokenWithMetadata;
+        token: TokenWithMetadata | TokenWithMint;
       }
     | {
         isPublic: true;
@@ -62,7 +63,7 @@ export function assertBid(value: any): asserts value is Bid {
 export const toBid = (
   account: BidReceiptAccount,
   auctionHouseModel: AuctionHouse,
-  metadataModel: TokenWithMetadata | MintWithMetadata
+  metadataModel: TokenWithMetadata | TokenWithMint | MintWithMetadata
 ): Bid => {
   const lazyBid = toLazyBid(account, auctionHouseModel);
 
@@ -70,17 +71,16 @@ export const toBid = (
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    ...(isTokenWithMetadata(metadataModel)
+    ...(isMintWithMetadata(metadataModel)
       ? {
+        mint: metadataModel,
+        tokens: amount(lazyBid.tokens, metadataModel.currency),
+        isPublic: true,
+      }: {
           token: metadataModel,
           tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
           isPublic: false,
-        }
-      : {
-          mint: metadataModel,
-          tokens: amount(lazyBid.tokens, metadataModel.currency),
-          isPublic: true,
-        }),
+      }),
   };
 };
 

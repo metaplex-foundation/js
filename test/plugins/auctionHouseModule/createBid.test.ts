@@ -144,39 +144,6 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
   } as unknown as Specifications<Bid>);
 });
 
-test('[auctionHouseModule] create public receipt-less bid but cannot fetch it afterwards by default', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
-  const mx = await metaplex();
-  const seller = await createWallet(mx);
-  const nft = await createNft(mx, {}, { owner: seller.publicKey });
-
-  const { client } = await createAuctionHouse(mx);
-
-  // When we create a public bid on that NFT for 1 SOL.
-  const { bid, buyerTradeState } = await client
-    .bid({
-      mintAccount: nft.mintAddress,
-      seller: seller.publicKey,
-      price: sol(1),
-      printReceipt: false,
-    })
-    .run();
-
-  // Then we still get a bid model.
-  t.equal(bid.tradeStateAddress, buyerTradeState);
-  t.same(bid.price, sol(1));
-  t.same(bid.tokens, token(1));
-  t.ok(bid.isPublic);
-
-  // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByAddress(buyerTradeState).run();
-  await assertThrows(
-    t,
-    promise,
-    /The account of type [BidReceipt] was not found/
-  );
-});
-
 test('[auctionHouseModule] create private receipt-less bid but cannot fetch it afterwards by default', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
@@ -189,6 +156,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   const { bid, buyerTradeState } = await client
     .bid({
       mintAccount: nft.mintAddress,
+      seller: seller.publicKey,
       price: sol(1),
       printReceipt: false,
     })
@@ -205,6 +173,38 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   await assertThrows(
     t,
     promise,
-    /The account of type [BidReceipt] was not found/
+    /The account of type \[BidReceipt\] was not found/
+  );
+});
+
+test('[auctionHouseModule] create public receipt-less bid but cannot fetch it afterwards by default', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
+
+  const { client } = await createAuctionHouse(mx);
+
+  // When we create a public bid on that NFT for 1 SOL.
+  const { bid, buyerTradeState } = await client
+    .bid({
+      mintAccount: nft.mintAddress,
+      price: sol(1),
+      printReceipt: false,
+    })
+    .run();
+
+  // Then we still get a bid model.
+  t.equal(bid.tradeStateAddress, buyerTradeState);
+  t.same(bid.price, sol(1));
+  t.same(bid.tokens, token(1));
+  t.ok(bid.isPublic);
+
+  // But we cannot retrieve it later with the default operation handler.
+  const promise = client.findBidByAddress(buyerTradeState).run();
+  await assertThrows(
+    t,
+    promise,
+    /The account of type \[BidReceipt\] was not found/
   );
 });

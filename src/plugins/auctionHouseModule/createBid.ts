@@ -4,7 +4,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   BuyInstructionAccounts,
   createBuyInstruction,
@@ -80,8 +80,10 @@ export type CreateBidOutput = {
 // -----------------
 
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
-  handle: async (operation: CreateBidOperation, metaplex: Metaplex) => {
-    return createBidBuilder(metaplex, operation.input).sendAndConfirm(
+  handle: async (operation: CreateBidOperation, metaplex: Metaplex, scope: DisposableScope) => {
+    const builder = await createBidBuilder(metaplex, operation.input);
+    scope.throwIfCanceled();
+    return builder.sendAndConfirm(
       metaplex,
       operation.input.confirmOptions
     );
@@ -98,10 +100,10 @@ export type CreateBidBuilderParams = Omit<CreateBidInput, 'confirmOptions'> & {
 
 export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response'>;
 
-export const createBidBuilder = (
+export const createBidBuilder = async (
   metaplex: Metaplex,
   params: CreateBidBuilderParams
-): TransactionBuilder<CreateBidBuilderContext> => {
+): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
   const auctionHouse = params.auctionHouse;
   const tokens = params.tokens ?? token(1);
@@ -123,6 +125,8 @@ export const createBidBuilder = (
     (params.seller
       ? findAssociatedTokenAccountPda(params.mintAccount, params.seller)
       : null);
+  const buyerTokenAccount =
+    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(buyer));
 
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
@@ -159,14 +163,13 @@ export const createBidBuilder = (
   // ToDo: Add support for the auctioneerAuthority
   let buyInstruction;
   if (tokenAccount) {
-    buyInstruction = createBuyInstruction({ ...accounts, tokenAccount }, args);
-  } else {
-    const tokenAccount = findAssociatedTokenAccountPda(
-      params.mintAccount,
-      toPublicKey(buyer)
+    buyInstruction = createBuyInstruction(
+      {...accounts, tokenAccount},
+      args
     );
+  } else {
     buyInstruction = createPublicBuyInstruction(
-      { ...accounts, tokenAccount },
+      {...accounts, tokenAccount: buyerTokenAccount},
       args
     );
   }
@@ -180,19 +183,37 @@ export const createBidBuilder = (
   const bookkeeper: Signer = params.bookkeeper ?? metaplex.identity();
   const receipt = findBidReceiptPda(buyerTradeState);
 
-  return (
-    TransactionBuilder.make<CreateBidBuilderContext>()
-      .setContext({
-        buyerTradeState,
-        tokenAccount,
-        metadata,
-        buyer: toPublicKey(buyer),
-        receipt,
-        bookkeeper: bookkeeper.publicKey,
-        price,
-        tokens,
-      })
+  const builder = TransactionBuilder.make<CreateBidBuilderContext>()
+    .setContext({
+      buyerTradeState,
+      tokenAccount,
+      metadata,
+      buyer: toPublicKey(buyer),
+      receipt,
+      bookkeeper: bookkeeper.publicKey,
+      price,
+      tokens,
+    })
 
+  // Create a TA for public bid if it doesn't exist
+  if (!tokenAccount) {
+    try {
+      await metaplex
+        .tokens()
+        .findTokenByAddress(buyerTokenAccount)
+        .run();
+    } catch {
+      builder.add(
+        await metaplex
+          .tokens()
+          .builders()
+          .createToken({ mint: params.mintAccount })
+      )
+    }
+  }
+
+  return (
+    builder
       // Create bid.
       .add({
         instruction: buyInstruction,
