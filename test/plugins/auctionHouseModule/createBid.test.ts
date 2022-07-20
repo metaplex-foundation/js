@@ -13,7 +13,6 @@ import {
 import { createAuctionHouse } from './helpers';
 import { findAssociatedTokenAccountPda } from '@/plugins';
 import { Bid } from '@/plugins/auctionHouseModule/Bid';
-import { AccountNotFoundError } from '@/errors';
 
 killStuckProcess();
 

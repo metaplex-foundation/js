@@ -127,6 +127,7 @@ export class AuctionHouseClient {
         metadataAddress: output.metadata,
         receiptAddress: input.printReceipt ? output.receipt : null,
         purchaseReceiptAddress: null,
+        isPublic: Boolean(output.tokenAccount),
         price: output.price,
         tokens: output.tokens.basisPoints,
         createdAt: now(),

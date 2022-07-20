@@ -49,6 +49,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
 
       return {
         ...bid,
+        isPublic: false,
         token: tokenModel,
         tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
       };
@@ -64,6 +65,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
 
       return {
         ...bid,
+        isPublic: true,
         mint: mintModel,
         tokens: amount(lazyBid.tokens, mintModel.currency),
       };
