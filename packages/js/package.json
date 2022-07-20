@@ -1,5 +1,5 @@
 {
-  "name": "@loris-sandbox/mx-monorepo-js",
+  "name": "@metaplex-foundation/js",
   "version": "0.12.2",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",

@@ -1,5 +1,5 @@
 {
-  "name": "@loris-sandbox/mx-monorepo-js-plugin-aws",
+  "name": "@metaplex-foundation/js-plugin-aws",
   "version": "0.1.1",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
-    "@loris-sandbox/mx-monorepo-js": "*"
+    "@metaplex-foundation/js": "*"
   },
   "engines": {
     "node": "^14.0 || >=16.0"

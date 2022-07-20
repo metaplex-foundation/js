@@ -8,7 +8,7 @@ import {
   mockStorage,
   KeypairSigner,
   sol,
-} from '@loris-sandbox/mx-monorepo-js';
+} from '@metaplex-foundation/js';
 
 export interface MetaplexTestOptions {
   rpcEndpoint?: string;

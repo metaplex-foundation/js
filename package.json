@@ -1,5 +1,5 @@
 {
-  "name": "@loris-sandbox/mx-monorepo-js",
+  "name": "@metaplex-foundation/js",
   "private": true,
   "workspaces": ["packages/*"],
   "publishConfig": {

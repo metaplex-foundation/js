@@ -4,7 +4,7 @@ import {
   StorageDriver,
   lamports,
   Amount,
-} from '@loris-sandbox/mx-monorepo-js';
+} from '@metaplex-foundation/js';
 
 export class AwsStorageDriver implements StorageDriver {
   protected client: S3Client;

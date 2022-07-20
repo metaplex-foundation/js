@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { toMetaplexFile } from '@loris-sandbox/mx-monorepo-js';
+import { toMetaplexFile } from '@metaplex-foundation/js';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
 import { killStuckProcess, metaplex } from './helpers';
