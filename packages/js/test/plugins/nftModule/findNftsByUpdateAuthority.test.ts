@@ -1,19 +1,32 @@
+import type { Metaplex } from '@/index';
+import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { metaplex, createNft, killStuckProcess } from 'test/helpers';
+import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-test('[nftModule] it can fetch all NFTs in a wallet', async (t: Test) => {
-  // Given a metaplex instance and a connected wallet.
+const createNftWithAuthority = (
+  mx: Metaplex,
+  name: string,
+  updateAuthority: Keypair
+) => createNft(mx, {}, { name, updateAuthority });
+
+test('[nftModule] it can fetch all NFTs for a given update authority', async (t: Test) => {
+  // Given a metaplex instance and 2 wallet.
   const mx = await metaplex();
-  const owner = mx.identity().publicKey;
+  const walletA = Keypair.generate();
+  const walletB = Keypair.generate();
 
-  // And two NFTs inside that wallets.
-  const nftA = await createNft(mx, {}, { name: 'NFT A' });
-  const nftB = await createNft(mx, {}, { name: 'NFT B' });
+  // Where wallet A is the update authority of NFT A and B but not C.
+  const nftA = await createNftWithAuthority(mx, 'NFT A', walletA);
+  const nftB = await createNftWithAuthority(mx, 'NFT B', walletA);
+  await createNftWithAuthority(mx, 'NFT C', walletB);
 
-  // When we fetch all NFTs in the wallet.
-  const nfts = await mx.nfts().findAllByUpdateAuthority(owner).run();
+  // When we fetch all NFTs where wallet A is the authority.
+  const nfts = await mx
+    .nfts()
+    .findAllByUpdateAuthority(walletA.publicKey)
+    .run();
 
   // Then we get the right NFTs.
   t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);
