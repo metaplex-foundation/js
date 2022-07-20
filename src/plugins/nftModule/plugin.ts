@@ -91,7 +91,10 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByMintListOperationHandler
     );
     op.register(findNftsByOwnerOperation, findNftsByOwnerOperationHandler);
-    op.register(findNftsByUpdateAuthorityOperation, findNftsByUpdateAuthorityOperationHandler);
+    op.register(
+      findNftsByUpdateAuthorityOperation,
+      findNftsByUpdateAuthorityOperationHandler
+    );
     op.register(
       findTokenWithMetadataByAddressOperation,
       findTokenWithMetadataByAddressOperationHandler
