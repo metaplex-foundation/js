@@ -116,7 +116,9 @@ export class NftClient {
   ) {
     return this.metaplex
       .operations()
-      .getTask(findNftsByUpdateAuthorityOperation({ updateAuthority, ...options }));
+      .getTask(
+        findNftsByUpdateAuthorityOperation({ updateAuthority, ...options })
+      );
   }
 
   findAllByCreator(
