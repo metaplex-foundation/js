@@ -22,6 +22,10 @@ import {
   findNftsByOwnerOperation,
 } from './findNftsByOwner';
 import {
+  findNftsByUpdateAuthorityOperationHandler,
+  findNftsByUpdateAuthorityOperation,
+} from './findNftsByUpdateAuthority';
+import {
   findMintWithMetadataByAddressOperation,
   findMintWithMetadataByAddressOperationHandler,
 } from './findMintWithMetadataByAddress';
@@ -87,6 +91,10 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByMintListOperationHandler
     );
     op.register(findNftsByOwnerOperation, findNftsByOwnerOperationHandler);
+    op.register(
+      findNftsByUpdateAuthorityOperation,
+      findNftsByUpdateAuthorityOperationHandler
+    );
     op.register(
       findTokenWithMetadataByAddressOperation,
       findTokenWithMetadataByAddressOperationHandler

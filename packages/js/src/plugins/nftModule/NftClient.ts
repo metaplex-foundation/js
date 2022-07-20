@@ -26,6 +26,10 @@ import {
   findNftsByOwnerOperation,
 } from './findNftsByOwner';
 import {
+  FindNftsByUpdateAuthorityInput,
+  findNftsByUpdateAuthorityOperation,
+} from './findNftsByUpdateAuthority';
+import {
   FindNftsByCreatorInput,
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
@@ -106,6 +110,17 @@ export class NftClient {
       .getTask(findNftsByOwnerOperation({ owner, ...options }));
   }
 
+  findAllByUpdateAuthority(
+    updateAuthority: PublicKey,
+    options?: Omit<FindNftsByUpdateAuthorityInput, 'updateAuthority'>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(
+        findNftsByUpdateAuthorityOperation({ updateAuthority, ...options })
+      );
+  }
+
   findAllByCreator(
     creator: PublicKey,
     options?: Omit<FindNftsByCreatorInput, 'creator'>
@@ -125,13 +140,13 @@ export class NftClient {
   }
 
   findMintWithMetadataByMetadata(
-    metadataAddress: PublicKey,
+    address: PublicKey,
     options?: Omit<FindMintWithMetadataByMetadataInput, 'address'>
   ) {
     return this.metaplex
       .operations()
       .getTask(
-        findMintWithMetadataByMetadataOperation({ metadataAddress, ...options })
+        findMintWithMetadataByMetadataOperation({ address, ...options })
       );
   }
 
