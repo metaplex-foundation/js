@@ -66,7 +66,7 @@ export type CreateBidInput = {
 export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
-  tokenAccount?: Option<PublicKey>;
+  tokenAccount: Option<PublicKey>;
   metadata: Pda;
   buyer: PublicKey;
   receipt: Pda;
@@ -120,8 +120,7 @@ export const createBidBuilder = (
   );
   const tokenAccount =
     params.tokenAccount ??
-    (params.seller &&
-      findAssociatedTokenAccountPda(params.mintAccount, params.seller));
+    (params.seller ? findAssociatedTokenAccountPda(params.mintAccount, params.seller) : null);
 
   const buyerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,

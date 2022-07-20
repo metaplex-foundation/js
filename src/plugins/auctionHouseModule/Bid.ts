@@ -42,9 +42,11 @@ export type Bid = Readonly<
     canceledAt: Option<DateTime>;
   } & (
     | {
+        isPublic: false,
         token: TokenWithMetadata;
       }
     | {
+        isPublic: true,
         mint: MintWithMetadata;
       }
   )
@@ -72,10 +74,12 @@ export const toBid = (
       ? {
           token: metadataModel,
           tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
+          isPublic: false,
         }
       : {
           mint: metadataModel,
           tokens: amount(lazyBid.tokens, metadataModel.currency),
+          isPublic: true,
         }),
   };
 };
@@ -84,7 +88,7 @@ export type LazyBid = Omit<Bid, 'lazy' | 'token' | 'mint' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
-    tokenAddress?: Option<PublicKey>;
+    tokenAddress: Option<PublicKey>;
     tokens: BigNumber;
   }>;
 
@@ -115,6 +119,7 @@ export const toLazyBid = (
       account.data.tradeStateBump
     ),
     purchaseReceiptAddress: account.data.purchaseReceipt,
+    isPublic: Boolean(account.data.tokenAccount),
 
     // Data.
     price: auctionHouseModel.isNative
