@@ -201,7 +201,7 @@ export class NftClient {
       .getTask(loadMetadataOperation({ metadata }));
   }
 
-  loadNft(nft: LazyNft, options: Omit<LoadNftInput, 'nft'>): Task<Nft> {
+  loadNft(nft: LazyNft, options: Omit<LoadNftInput, 'nft'> = {}): Task<Nft> {
     return this.metaplex
       .operations()
       .getTask(loadNftOperation({ nft, ...options }));

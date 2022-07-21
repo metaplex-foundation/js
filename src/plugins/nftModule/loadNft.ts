@@ -41,7 +41,7 @@ export const loadNftOperationHandler: OperationHandler<LoadNftOperation> = {
     scope.throwIfCanceled();
 
     const mintAccount = toMintAccount(accounts[0]);
-    const editionAccount = toOriginalOrPrintEditionAccount(accounts[2]);
+    const editionAccount = toOriginalOrPrintEditionAccount(accounts[1]);
     const lazyMetadata: LazyMetadata = {
       ...nft,
       model: 'metadata',
