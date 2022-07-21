@@ -37,8 +37,7 @@
     "clean": "rimraf dist",
     "build": "yarn clean && ttsc && ttsc -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js",
-    "prepack": "yarn build",
-    "prepublish": "yarn test"
+    "prepublish": "yarn build && yarn test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
