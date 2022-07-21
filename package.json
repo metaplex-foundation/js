@@ -1,9 +1,7 @@
 {
   "name": "@metaplex-foundation/js",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "license": "MIT",
   "description": "Metaplex JavaScript SDK",
   "keywords": [
@@ -60,6 +58,5 @@
     "tape": "^5.5.2",
     "ttypescript": "^1.5.13",
     "typescript": "^4.5.4"
-  },
-  "packageManager": "yarn@3.2.1"
+  }
 }
