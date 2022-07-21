@@ -25,12 +25,3 @@ dist-ssr
 
 # Bundle stats file
 stats.html
-
-# Yarn Berry (Without Zero-Installs)
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions

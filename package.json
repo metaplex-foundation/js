@@ -1,9 +1,7 @@
 {
-  "name": "@metaplex-foundation/js-sdk",
+  "name": "@metaplex-foundation/js",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "license": "MIT",
   "description": "Metaplex JavaScript SDK",
   "keywords": [
