@@ -3791,7 +3791,7 @@ __metadata:
   resolution: "@metaplex-foundation/js-plugin-aws@workspace:packages/js-plugin-aws"
   dependencies:
     "@aws-sdk/client-s3": ^3.54.1
-    "@metaplex-foundation/js": ^0.13.0-0
+    "@metaplex-foundation/js": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3833,7 +3833,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metaplex-foundation/js@^0.13.0-0, @metaplex-foundation/js@workspace:packages/js":
+"@metaplex-foundation/js@workspace:*, @metaplex-foundation/js@workspace:packages/js":
   version: 0.0.0-use.local
   resolution: "@metaplex-foundation/js@workspace:packages/js"
   dependencies:
