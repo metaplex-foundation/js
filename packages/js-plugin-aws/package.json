@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js-plugin-aws",
-  "version": "0.1.1",
+  "version": "0.1.2-0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -37,8 +37,8 @@
     "clean": "rimraf dist",
     "build": "yarn clean && ttsc && ttsc -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js",
-    "preversion": "yarn build && yarn test",
-    "postversion": "git push --follow-tags"
+    "prepack": "yarn build",
+    "prepublish": "yarn test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.54.1",
@@ -83,5 +83,6 @@
     "defaults",
     "not IE 11",
     "maintained node versions"
-  ]
+  ],
+  "stableVersion": "0.1.1"
 }
