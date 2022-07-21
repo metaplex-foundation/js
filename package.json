@@ -21,12 +21,10 @@
     "clean": "nx run-many --target=clean --all",
     "build": "nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
-    "publish": "lerna publish from-package",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "lint": "prettier -c .",
-    "lint:fix": "prettier --write .",
-    "prepublishOnly": "yarn lint && yarn build && yarn test"
+    "lint:fix": "prettier --write ."
   },
   "packageManager": "yarn@3.2.1"
 }
