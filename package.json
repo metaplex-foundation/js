@@ -34,7 +34,6 @@
     "@babel/preset-typescript": "^7.16.7",
     "@metaplex-foundation/amman": "^0.10.0",
     "@metaplex-foundation/amman-client": "^0.1.0",
-    "@ovos-media/ts-transform-paths": "^1.7.18-1",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-json": "^4.1.0",
@@ -59,7 +58,6 @@
     "spok": "^1.4.3",
     "tape": "^5.5.2",
     "tsc-alias": "^1.7.0",
-    "ttypescript": "^1.5.13",
     "typescript": "^4.5.4"
   }
 }
