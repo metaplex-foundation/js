@@ -242,7 +242,7 @@ const { nft } = await metaplex
     .create({
         uri: "https://arweave.net/123",
         name: "My NFT",
-        sellerFeeBasisPoints: 500; // Represents 5.00%.
+        sellerFeeBasisPoints: 500, // Represents 5.00%.
     })
     .run();
 ```
