@@ -71,15 +71,12 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
   {
     handle: async (
       operation: CreateAuctionHouseOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
+      metaplex: Metaplex
     ) => {
-      const builder = await createAuctionHouseBuilder(
+      return createAuctionHouseBuilder(
         metaplex,
         operation.input
-      );
-      scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -99,10 +96,10 @@ export type CreateAuctionHouseBuilderContext = Omit<
   'response'
 >;
 
-export const createAuctionHouseBuilder = async (
+export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
-): Promise<TransactionBuilder<CreateAuctionHouseBuilderContext>> => {
+): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
