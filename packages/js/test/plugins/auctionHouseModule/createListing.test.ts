@@ -1,3 +1,4 @@
+import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { sol, token } from '@/types';
@@ -7,6 +8,7 @@ import {
   createNft,
   spokSamePubkey,
   spokSameAmount,
+  assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import {
@@ -14,6 +16,7 @@ import {
   Listing,
   AccountNotFoundError,
 } from '@/index';
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 
@@ -95,4 +98,82 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
     t.ok(error instanceof AccountNotFoundError, 'throws AccountNotFoundError');
     t.ok(hasNotFoundMessage, 'has ListingReceipt Not Found message');
   }
+});
+
+test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Auction House', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  const { client } = await createAuctionHouse(mx, { auctioneerAuthority });
+
+  // When we list that NFT for 6.5 SOL.
+  const { listing, sellerTradeState } = await client
+    .list({
+      mintAccount: nft.mintAddress,
+    })
+    .run();
+
+  // Then we still get a listing model.
+  t.equal(listing.tradeStateAddress, sellerTradeState);
+  t.same(listing.tokens, token(1));
+});
+
+test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Auction House with late Auctioneer delegation', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // Create simple Auction House.
+  const { auctionHouse } = await createAuctionHouse(mx);
+  // Delegate Auctioneer on update.
+  const { auctionHouse: updatedAuctionHouse } = await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, { auctioneerAuthority })
+    .run();
+  // Get a client for updated Auction House.
+  const client = mx.auctions().for(updatedAuctionHouse, auctioneerAuthority);
+
+  // When we list that NFT for 6.5 SOL.
+  const { listing, sellerTradeState } = await client
+    .list({
+      mintAccount: nft.mintAddress,
+    })
+    .run();
+
+  // Then we still get a listing model.
+  t.equal(listing.tradeStateAddress, sellerTradeState);
+  t.same(listing.tokens, token(1));
+});
+
+test('[auctionHouseModule] Auctioneer listing creation is blocked when not allowed in scopes', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // Create Auction House with Auctioneer to allow only Buy
+  const { client } = await createAuctionHouse(mx, {
+    auctioneerAuthority,
+    auctioneerScopes: [AuthorityScope.Buy],
+  });
+
+  // When we list that NFT for 6.5 SOL.
+  const promise = client
+    .list({
+      mintAccount: nft.mintAddress,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /The Auctioneer does not have the correct scope for this action/
+  );
 });

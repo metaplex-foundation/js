@@ -1,3 +1,4 @@
+import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { sol, token } from '@/types';
@@ -13,6 +14,7 @@ import {
 import { createAuctionHouse } from './helpers';
 import { findAssociatedTokenAccountPda } from '@/plugins';
 import { Bid } from '@/plugins/auctionHouseModule/Bid';
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 
@@ -206,5 +208,105 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
     t,
     promise,
     /The account of type \[BidReceipt\] was not found/
+  );
+});
+
+test('[auctionHouseModule] create private receipt-less Auctioneer bid but cannot fetch it afterwards by default', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
+
+  const auctioneerAuthority = Keypair.generate();
+
+  const { client } = await createAuctionHouse(mx, {
+    auctioneerAuthority,
+  });
+
+  // When we create a private bid on that NFT for 1 SOL.
+  const { bid, buyerTradeState } = await client
+    .bid({
+      mintAccount: nft.mintAddress,
+      seller: seller.publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  // Then we created and returned the new Bid with appropriate defaults.
+  t.equal(bid.tradeStateAddress, buyerTradeState);
+  t.same(bid.price, sol(1));
+  t.same(bid.tokens, token(1));
+  t.false(bid.isPublic);
+
+  // But we cannot retrieve it later with the default operation handler.
+  const promise = client.findBidByAddress(buyerTradeState).run();
+  await assertThrows(
+    t,
+    promise,
+    /The account of type \[BidReceipt\] was not found/
+  );
+});
+
+test('[auctionHouseModule] create public receipt-less Auctioneer bid but cannot fetch it afterwards by default', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
+
+  const auctioneerAuthority = Keypair.generate();
+
+  const { client } = await createAuctionHouse(mx, {
+    auctioneerAuthority,
+  });
+
+  // When we create a public bid on that NFT for 1 SOL.
+  const { bid, buyerTradeState } = await client
+    .bid({
+      mintAccount: nft.mintAddress,
+      price: sol(1),
+    })
+    .run();
+
+  // Then we created and returned the new Bid with appropriate defaults.
+  t.equal(bid.tradeStateAddress, buyerTradeState);
+  t.same(bid.price, sol(1));
+  t.same(bid.tokens, token(1));
+  t.ok(bid.isPublic);
+
+  // But we cannot retrieve it later with the default operation handler.
+  const promise = client.findBidByAddress(buyerTradeState).run();
+  await assertThrows(
+    t,
+    promise,
+    /The account of type \[BidReceipt\] was not found/
+  );
+});
+
+test('[auctionHouseModule] create private receipt-less Auctioneer with invalid scope', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
+
+  const auctioneerAuthority = Keypair.generate();
+
+  const { client } = await createAuctionHouse(mx, {
+    auctioneerAuthority,
+    auctioneerScopes: [AuthorityScope.Sell],
+  });
+
+  // When we create a private bid on that NFT for 1 SOL.
+  const promise = client
+    .bid({
+      mintAccount: nft.mintAddress,
+      seller: seller.publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await assertThrows(
+    t,
+    promise,
+    /The Auctioneer does not have the correct scope for this action/
   );
 });

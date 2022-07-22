@@ -19,6 +19,7 @@ export type AuctionHouse = Readonly<{
   requiresSignOff: boolean;
   canChangeSalePrice: boolean;
   isNative: boolean;
+  hasAuctioneer: boolean;
 }>;
 
 export const isAuctionHouse = (value: any): value is AuctionHouse =>
@@ -54,5 +55,6 @@ export const toAuctionHouse = (
   sellerFeeBasisPoints: auctionHouseAccount.data.sellerFeeBasisPoints,
   requiresSignOff: auctionHouseAccount.data.requiresSignOff,
   canChangeSalePrice: auctionHouseAccount.data.canChangeSalePrice,
+  hasAuctioneer: auctionHouseAccount.data.hasAuctioneer,
   isNative: treasuryMint.isWrappedSol,
 });

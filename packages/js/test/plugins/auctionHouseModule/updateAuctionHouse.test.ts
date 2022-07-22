@@ -9,6 +9,7 @@ import {
 } from '../../helpers';
 import {
   findAssociatedTokenAccountPda,
+  findAuctioneerPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
@@ -111,6 +112,81 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
 
   // When we send an update without providing any changes.
   const promise = mx.auctions().updateAuctionHouse(auctionHouse, {}).run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /No Instructions To Send/);
+});
+
+test('[auctionHouseModule] delegate Auctioneer on Auction House update.', async (t) => {
+  // Given an existing Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({ sellerFeeBasisPoints: 200 })
+    .run();
+
+  t.false(auctionHouse.hasAuctioneer);
+
+  // When we send an update without providing any changes but with auctioneerAuthority to delegate.
+  const { auctionHouse: updatedAuctionHouse } = await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, { auctioneerAuthority })
+    .run();
+
+  t.ok(updatedAuctionHouse.hasAuctioneer);
+
+  // Auctioneer was delegated.
+  const ahAuctioneerPda = findAuctioneerPda(
+    auctionHouse.address,
+    auctioneerAuthority.publicKey
+  );
+  const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
+  t.ok(ahAuctioneerAccount.exists);
+});
+
+test('[auctionHouseModule] it throws an error if delegates different Auctioneer Authority on Auctioneer Auction House update.', async (t) => {
+  // Given an existing Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+  const secondAuctioneerAuthority = Keypair.generate();
+
+  // Create Auction House and delegate auctioneerAuthority.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({ auctioneerAuthority, sellerFeeBasisPoints: 200 })
+    .run();
+
+  t.ok(auctionHouse.hasAuctioneer);
+
+  // When we send an update without providing any changes but with different auctioneerAuthority to delegate.
+  const promise = mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: secondAuctioneerAuthority,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /No Instructions To Send/);
+});
+
+test('[auctionHouseModule] it throws an error if delegating the same auctioneerAuthority on Auction House.', async (t) => {
+  // Given an existing Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({ sellerFeeBasisPoints: 200, auctioneerAuthority })
+    .run();
+
+  // When we send an update without providing any changes but with auctioneerAuthority to delegate once more.
+  const promise = mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, { auctioneerAuthority })
+    .run();
 
   // Then we expect an error.
   await assertThrows(t, promise, /No Instructions To Send/);

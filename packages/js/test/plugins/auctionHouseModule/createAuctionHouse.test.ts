@@ -6,6 +6,7 @@ import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
+  findAuctioneerPda,
   WRAPPED_SOL_MINT,
 } from '@/index';
 
@@ -142,4 +143,62 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
       address: spokSamePubkey(token.mint.address),
     },
   });
+});
+
+test('[auctionHouseModule] create new Auction House with Auctioneer', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // When we create a new Auction House with minimum configuration.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({ sellerFeeBasisPoints: 200, auctioneerAuthority })
+    .run();
+
+  // Then we created and returned the new Auction House and it has appropriate defaults.
+  const expectedCreator = mx.identity().publicKey;
+  const expectedMint = WRAPPED_SOL_MINT;
+  const expectedAddress = findAuctionHousePda(expectedCreator, expectedMint);
+  const expectedAuctionHouse = {
+    address: spokSamePubkey(expectedAddress),
+    creatorAddress: spokSamePubkey(expectedCreator),
+    authorityAddress: spokSamePubkey(expectedCreator),
+    treasuryMint: {
+      address: spokSamePubkey(expectedMint),
+    },
+    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    treasuryAccountAddress: spokSamePubkey(
+      findAuctionHouseTreasuryPda(expectedAddress)
+    ),
+    feeWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
+    treasuryWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
+    sellerFeeBasisPoints: 200,
+    requiresSignOff: false,
+    canChangeSalePrice: false,
+    isNative: true,
+    hasAuctioneer: true,
+  };
+
+  spok(t, auctionHouse, { $topic: 'Auction House', ...expectedAuctionHouse });
+
+  // And we get the same result when we fetch the Auction House by address.
+  const retrievedAuctionHouse = await mx
+    .auctions()
+    .findAuctionHouseByAddress(auctionHouse.address)
+    .run();
+
+  spok(t, retrievedAuctionHouse, {
+    $topic: 'Retrieved Auction House',
+    ...expectedAuctionHouse,
+  });
+
+  // Auctioneer was delegated.
+  const ahAuctioneerPda = findAuctioneerPda(
+    auctionHouse.address,
+    auctioneerAuthority.publicKey
+  );
+  const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
+  t.ok(ahAuctioneerAccount.exists);
 });

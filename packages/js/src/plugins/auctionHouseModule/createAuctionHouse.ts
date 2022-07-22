@@ -1,5 +1,9 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { createCreateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
+import {
+  AuthorityScope,
+  createCreateAuctionHouseInstruction,
+  createDelegateAuctioneerInstruction,
+} from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import {
   useOperation,
@@ -8,9 +12,10 @@ import {
   OperationHandler,
   Pda,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, DisposableScope } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
+  findAuctioneerPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
@@ -36,6 +41,7 @@ export type CreateAuctionHouseInput = {
   sellerFeeBasisPoints: number;
   requiresSignOff?: boolean;
   canChangeSalePrice?: boolean;
+  auctioneerScopes?: AuthorityScope[];
 
   // Accounts.
   treasuryMint?: PublicKey;
@@ -43,6 +49,7 @@ export type CreateAuctionHouseInput = {
   authority?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
+  auctioneerAuthority?: Signer;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -64,12 +71,15 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
   {
     handle: async (
       operation: CreateAuctionHouseOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ) => {
-      return createAuctionHouseBuilder(
+      const builder = await createAuctionHouseBuilder(
         metaplex,
         operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      );
+      scope.throwIfCanceled();
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -89,10 +99,10 @@ export type CreateAuctionHouseBuilderContext = Omit<
   'response'
 >;
 
-export const createAuctionHouseBuilder = (
+export const createAuctionHouseBuilder = async (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
-): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
+): Promise<TransactionBuilder<CreateAuctionHouseBuilderContext>> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
@@ -149,5 +159,41 @@ export const createAuctionHouseBuilder = (
       ),
       signers: [payer],
       key: params.instructionKey ?? 'createAuctionHouse',
+    })
+    .when(Boolean(params.auctioneerAuthority?.publicKey), (builder) => {
+      const auctioneerAuthority = params.auctioneerAuthority
+        ?.publicKey as PublicKey;
+      const ahAuctioneerPda = findAuctioneerPda(
+        auctionHouse,
+        auctioneerAuthority
+      );
+
+      const scopes = params.auctioneerScopes ?? [
+        AuthorityScope.Deposit,
+        AuthorityScope.Buy,
+        AuthorityScope.PublicBuy,
+        AuthorityScope.ExecuteSale,
+        AuthorityScope.Sell,
+        AuthorityScope.Cancel,
+        AuthorityScope.Withdraw,
+      ];
+
+      builder.add({
+        instruction: createDelegateAuctioneerInstruction(
+          {
+            auctionHouse,
+            authority,
+            auctioneerAuthority,
+            ahAuctioneerPda,
+          },
+          {
+            scopes,
+          }
+        ),
+        signers: [payer],
+        key: params.instructionKey ?? 'delegateAuctioneer',
+      });
+
+      return builder;
     });
 };

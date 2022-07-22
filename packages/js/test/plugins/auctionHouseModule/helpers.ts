@@ -18,6 +18,6 @@ export const createAuctionHouse = async (
 
   return {
     auctionHouse,
-    client: mx.auctions().for(auctionHouse),
+    client: mx.auctions().for(auctionHouse, input.auctioneerAuthority),
   };
 };

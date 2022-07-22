@@ -1,5 +1,9 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
+import {
+  AuthorityScope,
+  createDelegateAuctioneerInstruction,
+  createUpdateAuctionHouseInstruction,
+} from '@metaplex-foundation/mpl-auction-house';
 import isEqual from 'lodash.isequal';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
@@ -9,6 +13,7 @@ import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { TreasuryDestinationOwnerRequiredError } from './errors';
+import { findAuctioneerPda } from './pdas';
 
 // -----------------
 // Operation
@@ -36,6 +41,8 @@ export type UpdateAuctionHouseInput = {
   newAuthority?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
+  auctioneerAuthority?: Signer;
+  auctioneerScopes?: AuthorityScope[];
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -55,7 +62,10 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const builder = updateAuctionHouseBuilder(metaplex, operation.input);
+      const builder = await updateAuctionHouseBuilder(
+        metaplex,
+        operation.input
+      );
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
@@ -76,10 +86,10 @@ export type UpdateAuctionHouseBuilderParams = Omit<
   instructionKey?: string;
 };
 
-export const updateAuctionHouseBuilder = (
+export const updateAuctionHouseBuilder = async (
   metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder> => {
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
@@ -124,7 +134,7 @@ export const updateAuctionHouseBuilder = (
   };
   const shouldSendUpdateInstruction = !isEqual(originalData, updatedData);
 
-  return TransactionBuilder.make()
+  const builder = TransactionBuilder.make()
     .setFeePayer(payer)
     .when(shouldSendUpdateInstruction, (builder) =>
       builder.add({
@@ -149,4 +159,50 @@ export const updateAuctionHouseBuilder = (
         key: params.instructionKey ?? 'updateAuctionHouse',
       })
     );
+
+  if (!auctionHouse.hasAuctioneer && params.auctioneerAuthority) {
+    const auctioneerAuthority = params.auctioneerAuthority
+      ?.publicKey as PublicKey;
+    const ahAuctioneerPda = findAuctioneerPda(
+      auctionHouse.address,
+      auctioneerAuthority
+    );
+
+    const ahAuctioneerAccount = await metaplex
+      .rpc()
+      .getAccount(ahAuctioneerPda);
+
+    // Skip delegate if it has been made already
+    if (ahAuctioneerAccount.exists) {
+      return builder;
+    }
+
+    const scopes = params.auctioneerScopes ?? [
+      AuthorityScope.Deposit,
+      AuthorityScope.Buy,
+      AuthorityScope.PublicBuy,
+      AuthorityScope.ExecuteSale,
+      AuthorityScope.Sell,
+      AuthorityScope.Cancel,
+      AuthorityScope.Withdraw,
+    ];
+
+    builder.add({
+      instruction: createDelegateAuctioneerInstruction(
+        {
+          auctionHouse: auctionHouse.address,
+          authority: authority.publicKey,
+          auctioneerAuthority,
+          ahAuctioneerPda,
+        },
+        {
+          scopes,
+        }
+      ),
+      signers: [payer],
+      key: params.instructionKey ?? 'delegateAuctioneer',
+    });
+  }
+
+  return builder;
 };
