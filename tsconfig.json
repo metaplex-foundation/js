@@ -11,12 +11,6 @@
     "paths": {
       "@/*": ["packages/js/src/*"]
     },
-    "plugins": [
-      {
-        "transform": "@ovos-media/ts-transform-paths",
-        "exclude": ["*"]
-      }
-    ],
 
     "target": "es2019",
     "module": "esnext",
