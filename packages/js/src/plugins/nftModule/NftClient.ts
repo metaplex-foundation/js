@@ -1,7 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import { LazyMetadata, Metadata } from './Metadata';
+import {
+  assertMintWithMetadata,
+  LazyMetadata,
+  Metadata,
+  MintWithMetadata,
+} from './Metadata';
 import { LazyNft, Nft } from './Nft';
 import {
   CreateNftInput,
@@ -65,9 +70,29 @@ import {
 import { LoadNftInput, loadNftOperation } from './loadNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
+import {
+  AddMetadataInput,
+  addMetadataOperation,
+  AddMetadataOutput,
+} from '@/plugins';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
+
+  addMetadata(
+    input: AddMetadataInput
+  ): Task<AddMetadataOutput & { mintWithMetadata: MintWithMetadata }> {
+    return new Task(async (scope) => {
+      const operation = addMetadataOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const mintWithMetadata = await this.findMintWithMetadataByAddress(
+        input.mint
+      ).run(scope);
+      assertMintWithMetadata(mintWithMetadata);
+      return { ...output, mintWithMetadata };
+    });
+  }
 
   builders() {
     return new NftBuildersClient(this.metaplex);
