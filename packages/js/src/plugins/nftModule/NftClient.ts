@@ -74,7 +74,7 @@ import {
   AddMetadataInput,
   addMetadataOperation,
   AddMetadataOutput,
-} from '@/plugins';
+} from './addMetadata';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
