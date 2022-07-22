@@ -12,7 +12,7 @@ import {
   OperationHandler,
   Pda,
 } from '@/types';
-import { TransactionBuilder, DisposableScope } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
   findAuctioneerPda,
