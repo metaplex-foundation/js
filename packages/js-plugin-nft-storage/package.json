@@ -43,7 +43,9 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@metaplex-foundation/js": "*"
+    "@metaplex-foundation/js": "*",
+    "@nftstorage/metaplex-auth": "^1.2.0",
+    "nft.storage": "^6.4.1"
   },
   "engines": {
     "node": "^14.0 || >=16.0"
