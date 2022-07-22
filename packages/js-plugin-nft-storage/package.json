@@ -45,6 +45,7 @@
   "dependencies": {
     "@metaplex-foundation/js": "*",
     "@nftstorage/metaplex-auth": "^1.2.0",
+    "ipfs-car": "^0.7.0",
     "nft.storage": "^6.4.1"
   },
   "engines": {

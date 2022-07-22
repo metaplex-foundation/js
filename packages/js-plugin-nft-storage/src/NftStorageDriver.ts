@@ -1,4 +1,5 @@
 import { NFTStorage } from 'nft.storage';
+import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
 import { NFTStorageMetaplexor } from '@nftstorage/metaplex-auth';
 import {
   MetaplexFile,
@@ -10,11 +11,13 @@ import {
   isKeypairSigner,
   assert,
 } from '@metaplex-foundation/js';
+import { toGatewayUri, toIpfsUri } from './utils';
 
 export type NftStorageDriverOptions = {
   identity?: Signer;
   token?: string;
   endpoint?: URL;
+  gatewayHost?: string;
   batchSize?: number;
   useGatewayUrls?: boolean;
 };
@@ -24,6 +27,7 @@ export class NftStorageDriver implements StorageDriver {
   readonly identity?: Signer;
   readonly token?: string;
   readonly endpoint?: URL;
+  readonly gatewayHost?: string;
   onStoredChunk?: (size: number) => void;
   batchSize: number;
   useGatewayUrls: boolean;
@@ -33,6 +37,7 @@ export class NftStorageDriver implements StorageDriver {
     this.identity = options.identity;
     this.token = options.token;
     this.endpoint = options.endpoint;
+    this.gatewayHost = options.gatewayHost;
     this.batchSize = options.batchSize ?? 50;
     this.useGatewayUrls = options.useGatewayUrls ?? true;
   }
@@ -53,6 +58,7 @@ export class NftStorageDriver implements StorageDriver {
   async uploadAll(files: MetaplexFile[]): Promise<string[]> {
     assert(this.batchSize > 0, 'batchSize must be greater than 0');
     const client = await this.client();
+    const blockstore = new MemoryBlockStore();
     const uris: string[] = [];
     const numBatches = Math.ceil(files.length / this.batchSize);
     const batches: MetaplexFile[][] = new Array(numBatches).map((_, i) =>
@@ -64,8 +70,15 @@ export class NftStorageDriver implements StorageDriver {
 
       for (let j = 0; j < batch.length; j++) {
         const file = batch[j];
+        const blob = new Blob([file.buffer]);
+        const { cid } = await NFTStorage.encodeBlob(blob, { blockstore });
+        const fileUri = this.useGatewayUrls
+          ? toGatewayUri(cid.toString(), file.fileName, this.gatewayHost)
+          : toIpfsUri(cid.toString(), file.fileName);
+        uris.push(fileUri);
       }
 
+      const { cid } = await NFTStorage.encodeDirectory([batch], { blockstore });
       const cid = ''; // TODO
       const car = ''; // TODO
 
