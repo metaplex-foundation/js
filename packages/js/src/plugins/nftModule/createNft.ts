@@ -15,6 +15,7 @@ import {
   Creator,
   BigNumber,
   toUniformVerifiedCreators,
+  toNullCreators,
 } from '@/types';
 import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
@@ -177,7 +178,7 @@ export const createNftBuilder = async (
                 symbol: params.symbol ?? '',
                 uri: params.uri,
                 sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-                creators,
+                creators: toNullCreators(creators),
                 collection: params.collection ?? null,
                 uses: params.uses ?? null,
               },
