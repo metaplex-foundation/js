@@ -43,9 +43,12 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
+    "@ipld/dag-pb": "^2.1.17",
     "@metaplex-foundation/js": "*",
     "@nftstorage/metaplex-auth": "^1.2.0",
     "ipfs-car": "^0.7.0",
+    "ipfs-unixfs": "^6.0.9",
+    "multiformats": "^9.7.0",
     "nft.storage": "^6.4.1"
   },
   "engines": {

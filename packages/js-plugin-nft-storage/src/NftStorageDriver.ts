@@ -11,7 +11,13 @@ import {
   isKeypairSigner,
   assert,
 } from '@metaplex-foundation/js';
-import { toGatewayUri, toIpfsUri } from './utils';
+import {
+  toDagPbLink,
+  toDirectoryBlock,
+  toEncodedCar,
+  toGatewayUri,
+  toIpfsUri,
+} from './utils';
 
 export type NftStorageDriverOptions = {
   identity?: Signer;
@@ -67,20 +73,21 @@ export class NftStorageDriver implements StorageDriver {
 
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
+      const batchLinks = [];
 
       for (let j = 0; j < batch.length; j++) {
         const file = batch[j];
         const blob = new Blob([file.buffer]);
-        const { cid } = await NFTStorage.encodeBlob(blob, { blockstore });
+        const node = await NFTStorage.encodeBlob(blob, { blockstore });
         const fileUri = this.useGatewayUrls
-          ? toGatewayUri(cid.toString(), file.fileName, this.gatewayHost)
-          : toIpfsUri(cid.toString(), file.fileName);
+          ? toGatewayUri(node.cid.toString(), file.fileName, this.gatewayHost)
+          : toIpfsUri(node.cid.toString(), file.fileName);
         uris.push(fileUri);
+        batchLinks.push(await toDagPbLink(node, file.uniqueName));
       }
 
-      const { cid } = await NFTStorage.encodeDirectory([batch], { blockstore });
-      const cid = ''; // TODO
-      const car = ''; // TODO
+      const batchBlock = await toDirectoryBlock(batchLinks);
+      const { cid, car } = await toEncodedCar(batchBlock, blockstore);
 
       const options = { onStoredChunk: this.onStoredChunk };
       const promise = isNFTStorageMetaplexor(client)
