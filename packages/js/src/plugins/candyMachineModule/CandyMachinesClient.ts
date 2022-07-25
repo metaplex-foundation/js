@@ -81,7 +81,7 @@ export class CandyMachinesClient {
   }
 
   delete(
-    candyMachine: CandyMachine | PublicKey,
+    candyMachine: CandyMachine,
     options?: Omit<DeleteCandyMachineInput, 'candyMachine'>
   ): Task<DeleteCandyMachineOutput> {
     return this.metaplex

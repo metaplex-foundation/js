@@ -9,6 +9,7 @@ import {
   isCandyMachine,
 } from './CandyMachine';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import { findCandyMachineCollectionPda } from './pdas';
 
 // -----------------
 // Operation
@@ -25,7 +26,7 @@ export type DeleteCandyMachineOperation = Operation<
 
 export type DeleteCandyMachineInputWithoutConfigs = {
   // Models and accounts.
-  candyMachine: CandyMachine | PublicKey;
+  candyMachine: CandyMachine;
   authority?: Signer; // Defaults to mx.identity().
 
   // Transaction Options.
@@ -72,9 +73,21 @@ export const deleteCandyMachineBuilder = (
   params: DeleteCandyMachineBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
-  const candyMachine = isCandyMachine(params.candyMachine)
-    ? params.candyMachine.address
-    : params.candyMachine;
+  const candyMachine = params.candyMachine;
+
+  const deleteInstruction = createWithdrawFundsInstruction({
+    candyMachine: candyMachine.address,
+    authority: authority.publicKey,
+  });
+
+  if (candyMachine.collectionMintAddress) {
+    const collectionPda = findCandyMachineCollectionPda(candyMachine.address);
+    deleteInstruction.keys.push({
+      pubkey: collectionPda,
+      isWritable: true,
+      isSigner: false,
+    });
+  }
 
   return (
     TransactionBuilder.make()
@@ -84,10 +97,7 @@ export const deleteCandyMachineBuilder = (
       .setFeePayer(authority)
 
       .add({
-        instruction: createWithdrawFundsInstruction({
-          candyMachine,
-          authority: authority.publicKey,
-        }),
+        instruction: deleteInstruction,
         signers: [authority],
         key: params.instructionKey ?? 'widrawFunds',
       })
