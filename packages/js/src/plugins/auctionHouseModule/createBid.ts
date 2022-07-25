@@ -181,7 +181,10 @@ export const createBidBuilder = async (
     };
 
     buyInstruction = tokenAccount
-      ? createAuctioneerBuyInstruction({ ...accountsWithAuctioneer, tokenAccount }, args)
+      ? createAuctioneerBuyInstruction(
+          { ...accountsWithAuctioneer, tokenAccount },
+          args
+        )
       : createAuctioneerPublicBuyInstruction(
           {
             ...accountsWithAuctioneer,
