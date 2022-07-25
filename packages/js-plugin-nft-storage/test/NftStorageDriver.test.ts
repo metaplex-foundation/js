@@ -44,7 +44,6 @@ test('[nftStorage] it can upload one file without a Gateway URL', async (t: Test
   // Then the URI should be a valid IPFS URI but not a Gateway URL.
   t.ok(uri, 'should return a URI');
   t.ok(uri.startsWith('ipfs://'), 'should use Gateway URI by default');
-  console.log(uri);
 });
 
 test('[nftStorage] it can upload multiple files in batch', async (t: Test) => {

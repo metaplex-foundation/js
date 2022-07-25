@@ -8,7 +8,7 @@ This plugin provides a storage driver for the Metaplex JavaScript SDK that uses 
 npm install @metaplex-foundation/js-plugin-nft-storage
 ```
 
-### Usage
+## Usage
 
 Once installed, you can use NFT.Storage as a Storage driver for the Metaplex JavaScript SDK like so:
 
@@ -34,7 +34,7 @@ Additionally, the `nftStorage` plugins accepts the following options.
 - `useGatewayUrls`: Whether to use the gateway hostname for asset URLs. Defaults to `true`.
 - `batchSize`: The number of assets to upload in a single batch. If the number of assets goes above this number, multiple calls to NFT.Storage will be executed sequentially. Defaults to `50`.
 
-### Upload listener
+## Upload listener
 
 NFT.Storage also allows us to listen to upload progress by accepting an optional event listener that will be called whenever a chunk of data is uploaded. These chunks weight around 10MB each. Here's an example of how to listener to this event using the JS SDK.
 
