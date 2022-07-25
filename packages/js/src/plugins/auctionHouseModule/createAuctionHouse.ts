@@ -89,6 +89,7 @@ export type CreateAuctionHouseBuilderParams = Omit<
   'confirmOptions'
 > & {
   instructionKey?: string;
+  delegateAuctioneerInstructionKey?: string;
 };
 
 export type CreateAuctionHouseBuilderContext = Omit<
@@ -188,7 +189,7 @@ export const createAuctionHouseBuilder = (
           }
         ),
         signers: [payer],
-        key: params.instructionKey ?? 'delegateAuctioneer',
+        key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
       });
 
       return builder;

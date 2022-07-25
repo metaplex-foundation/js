@@ -174,17 +174,17 @@ export const createBidBuilder = async (
       params.auctioneerAuthority.publicKey
     );
 
-    const buyAccounts = {
+    const accountsWithAuctioneer = {
       ...accounts,
       auctioneerAuthority: params.auctioneerAuthority.publicKey,
       ahAuctioneerPda,
     };
 
     buyInstruction = tokenAccount
-      ? createAuctioneerBuyInstruction({ ...buyAccounts, tokenAccount }, args)
+      ? createAuctioneerBuyInstruction({ ...accountsWithAuctioneer, tokenAccount }, args)
       : createAuctioneerPublicBuyInstruction(
           {
-            ...buyAccounts,
+            ...accountsWithAuctioneer,
             tokenAccount: buyerTokenAccount,
           },
           args
