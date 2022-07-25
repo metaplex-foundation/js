@@ -1,4 +1,4 @@
-import { NFTStorage } from 'nft.storage';
+import { Blob, NFTStorage } from 'nft.storage';
 import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
 import { NFTStorageMetaplexor } from '@nftstorage/metaplex-auth';
 import {
@@ -67,9 +67,9 @@ export class NftStorageDriver implements StorageDriver {
     const blockstore = new MemoryBlockStore();
     const uris: string[] = [];
     const numBatches = Math.ceil(files.length / this.batchSize);
-    const batches: MetaplexFile[][] = new Array(numBatches).map((_, i) =>
-      files.slice(i * this.batchSize, (i + 1) * this.batchSize)
-    );
+    const batches: MetaplexFile[][] = new Array(numBatches)
+      .fill([])
+      .map((_, i) => files.slice(i * this.batchSize, (i + 1) * this.batchSize));
 
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
@@ -80,8 +80,8 @@ export class NftStorageDriver implements StorageDriver {
         const blob = new Blob([file.buffer]);
         const node = await NFTStorage.encodeBlob(blob, { blockstore });
         const fileUri = this.useGatewayUrls
-          ? toGatewayUri(node.cid.toString(), file.fileName, this.gatewayHost)
-          : toIpfsUri(node.cid.toString(), file.fileName);
+          ? toGatewayUri(node.cid.toString(), undefined, this.gatewayHost)
+          : toIpfsUri(node.cid.toString());
         uris.push(fileUri);
         batchLinks.push(await toDagPbLink(node, file.uniqueName));
       }
