@@ -1,13 +1,9 @@
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import type { ConfirmOptions } from '@solana/web3.js';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import {
-  CandyMachine,
-  CandyMachineConfigs,
-  isCandyMachine,
-} from './CandyMachine';
+import { CandyMachine, CandyMachineConfigs } from './CandyMachine';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import { findCandyMachineCollectionPda } from './pdas';
 
