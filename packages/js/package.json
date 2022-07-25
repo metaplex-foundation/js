@@ -64,7 +64,7 @@
     "tweetnacl": "^1.0.3"
   },
   "engines": {
-    "node": "^14.0 || >=16.0"
+    "node": ">=16.0"
   },
   "browserslist": [
     "defaults",

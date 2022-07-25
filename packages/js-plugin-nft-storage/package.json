@@ -52,7 +52,7 @@
     "nft.storage": "^6.4.1"
   },
   "engines": {
-    "node": "^14.0 || >=16.0"
+    "node": ">=16.0"
   },
   "browserslist": [
     "defaults",
