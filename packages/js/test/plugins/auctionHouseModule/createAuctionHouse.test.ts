@@ -157,12 +157,8 @@ test('[auctionHouseModule] create new Auction House with Auctioneer', async (t: 
     .createAuctionHouse({ sellerFeeBasisPoints: 200, auctioneerAuthority })
     .run();
 
-  // Then we created and returned the new Auction House and it has Auctioneer attached.
-  const expectedAuctionHouse = {
-    hasAuctioneer: true,
-  };
-
-  spok(t, auctionHouse, { $topic: 'Auction House', ...expectedAuctionHouse });
+  // Then the new Auction House has Auctioneer attached.
+  t.ok(auctionHouse.hasAuctioneer);
 
   // And the Auctioneer PDA for that Auction House was created.
   const ahAuctioneerPda = findAuctioneerPda(
