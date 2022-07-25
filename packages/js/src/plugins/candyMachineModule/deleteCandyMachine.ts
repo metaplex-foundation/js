@@ -76,12 +76,20 @@ export const deleteCandyMachineBuilder = (
     ? params.candyMachine.address
     : params.candyMachine;
 
-  return TransactionBuilder.make().add({
-    instruction: createWithdrawFundsInstruction({
-      candyMachine,
-      authority: authority.publicKey,
-    }),
-    signers: [authority],
-    key: params.instructionKey ?? 'widrawFunds',
-  });
+  return (
+    TransactionBuilder.make()
+
+      // This is important because, otherwise, the authority will not be identitied
+      // as a mutable account and debitting it will cause an error.
+      .setFeePayer(authority)
+
+      .add({
+        instruction: createWithdrawFundsInstruction({
+          candyMachine,
+          authority: authority.publicKey,
+        }),
+        signers: [authority],
+        key: params.instructionKey ?? 'widrawFunds',
+      })
+  );
 };
