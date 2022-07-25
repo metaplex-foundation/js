@@ -43,6 +43,11 @@ import {
   MintCandyMachineOutput,
 } from './mintCandyMachine';
 import { CandyMachineBotTaxError } from './errors';
+import {
+  DeleteCandyMachineInput,
+  deleteCandyMachineOperation,
+  DeleteCandyMachineOutput,
+} from './deleteCandyMachine';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
@@ -73,6 +78,15 @@ export class CandyMachinesClient {
     const { json, ...otherInputs } = input;
     const configs = toCandyMachineConfigsFromJson(json);
     return this.create({ ...otherInputs, ...configs });
+  }
+
+  delete(
+    candyMachine: CandyMachine,
+    options?: Omit<DeleteCandyMachineInput, 'candyMachine'>
+  ): Task<DeleteCandyMachineOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(deleteCandyMachineOperation({ candyMachine, ...options }));
   }
 
   findAllByWallet(

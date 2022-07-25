@@ -4,6 +4,10 @@ import {
   CreateCandyMachineBuilderParams,
 } from './createCandyMachine';
 import {
+  deleteCandyMachineBuilder,
+  DeleteCandyMachineBuilderParams,
+} from './deleteCandyMachine';
+import {
   insertItemsToCandyMachineBuilder,
   InsertItemsToCandyMachineBuilderParams,
 } from './insertItemsToCandyMachine';
@@ -21,6 +25,10 @@ export class CandyMachinesBuildersClient {
 
   create(input: CreateCandyMachineBuilderParams) {
     return createCandyMachineBuilder(this.metaplex, input);
+  }
+
+  delete(input: DeleteCandyMachineBuilderParams) {
+    return deleteCandyMachineBuilder(this.metaplex, input);
   }
 
   insertItems(input: InsertItemsToCandyMachineBuilderParams) {
