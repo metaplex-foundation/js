@@ -300,16 +300,14 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
 
   const auctioneerAuthority = Keypair.generate();
 
-  // Create Auctioneer Auction House to only allow Sell.
+  // And an Auctioneer Auction House that, at first, could only Sell.
   const { auctionHouse, client } = await createAuctionHouse(
     mx,
     auctioneerAuthority,
-    {
-      auctioneerScopes: [AuthorityScope.Sell],
-    }
+    { auctioneerScopes: [AuthorityScope.Sell] },
   );
 
-  // When we update scope to allow Buy.
+  // But was later on updated to also allow the Buy scope.
   await mx
     .auctions()
     .updateAuctionHouse(auctionHouse, {
