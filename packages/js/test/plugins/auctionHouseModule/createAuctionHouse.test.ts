@@ -200,6 +200,7 @@ test('[auctionHouseModule] create new Auctioneer Auction House with separate aut
     auctionHouse.authorityAddress.toBase58(),
     authority.publicKey.toBase58()
   );
+
   // And Auctioneer was delegated.
   t.ok(auctionHouse.hasAuctioneer);
 });
