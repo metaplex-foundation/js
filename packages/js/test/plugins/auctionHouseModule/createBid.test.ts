@@ -284,6 +284,7 @@ test('[auctionHouseModule] it throws an error if Buy is not included in Auctione
     })
     .run();
 
+  // Then we expect an error.
   await assertThrows(
     t,
     promise,
@@ -357,6 +358,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
     })
     .run();
 
+  // Then we expect an error.
   await assertThrows(
     t,
     promise,

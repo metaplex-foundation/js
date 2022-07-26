@@ -224,7 +224,7 @@ test('[auctionHouseModule] it throws when creating Auctioneer Auction House with
     })
     .run();
 
-  // Then we expect an error. Because Auctioneer delegation requiers authority signer.
+  // Then we expect an error. Because Auctioneer delegation requires authority signer.
   await assertThrows(
     t,
     promise,

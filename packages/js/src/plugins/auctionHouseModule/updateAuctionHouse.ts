@@ -195,7 +195,7 @@ export const updateAuctionHouseBuilder = async (
       return builder.add({
         instruction: createUpdateAuctioneerInstruction(instructionAccounts, {
           // Scope resets when updating auctioneer.
-          // Need to provide needed list everytime or it will get to the default value.
+          // Need to provide the needed list every time or it will get to the default value.
           scopes,
         }),
         signers: [authority],
