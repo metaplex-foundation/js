@@ -304,7 +304,7 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
   const { auctionHouse, client } = await createAuctionHouse(
     mx,
     auctioneerAuthority,
-    { auctioneerScopes: [AuthorityScope.Sell] },
+    { auctioneerScopes: [AuthorityScope.Sell] }
   );
 
   // But was later on updated to also allow the Buy scope.
@@ -344,7 +344,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
- 
+
   // When we create a client for that Auction House without providing the auctioneerAuthority.
   const client = mx.auctions().for(auctionHouse);
 
