@@ -37,6 +37,7 @@ import {
   findAuctionHouseTradeStatePda,
   findBidReceiptPda,
 } from './pdas';
+import { AuctioneerAuthorityRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -116,6 +117,10 @@ export const createBidBuilder = async (
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+
+  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
+  }
 
   // Accounts.
   const buyer = params.buyer ?? (metaplex.identity() as Signer);

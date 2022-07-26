@@ -2,6 +2,7 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   AuthorityScope,
   createDelegateAuctioneerInstruction,
+  createUpdateAuctioneerInstruction,
   createUpdateAuctionHouseInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import isEqual from 'lodash.isequal';
@@ -41,7 +42,7 @@ export type UpdateAuctionHouseInput = {
   newAuthority?: PublicKey;
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
-  auctioneerAuthority?: Signer;
+  auctioneerAuthority?: PublicKey;
   auctioneerScopes?: AuthorityScope[];
 
   // Options.
@@ -84,6 +85,8 @@ export type UpdateAuctionHouseBuilderParams = Omit<
   'confirmOptions'
 > & {
   instructionKey?: string;
+  delegateAuctioneerInstructionKey?: string;
+  updateAuctioneerInstructionKey?: string;
 };
 
 export const updateAuctionHouseBuilder = async (
@@ -160,22 +163,12 @@ export const updateAuctionHouseBuilder = async (
       })
     );
 
-  if (!auctionHouse.hasAuctioneer && params.auctioneerAuthority) {
-    const auctioneerAuthority = params.auctioneerAuthority
-      ?.publicKey as PublicKey;
+  if (params.auctioneerAuthority) {
+    const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
       auctioneerAuthority
     );
-
-    const ahAuctioneerAccount = await metaplex
-      .rpc()
-      .getAccount(ahAuctioneerPda);
-
-    // Skip delegate if it has been made already
-    if (ahAuctioneerAccount.exists) {
-      return builder;
-    }
 
     const scopes = params.auctioneerScopes ?? [
       AuthorityScope.Deposit,
@@ -186,21 +179,36 @@ export const updateAuctionHouseBuilder = async (
       AuthorityScope.Cancel,
       AuthorityScope.Withdraw,
     ];
+    const instructionAccounts = {
+      auctionHouse: auctionHouse.address,
+      authority: authority.publicKey,
+      auctioneerAuthority,
+      ahAuctioneerPda,
+    };
+
+    const ahAuctioneerAccount = await metaplex
+      .rpc()
+      .getAccount(ahAuctioneerPda);
+
+    // Run Auctioneer update if it has been delegated.
+    if (auctionHouse.hasAuctioneer && ahAuctioneerAccount.exists) {
+      return builder.add({
+        instruction: createUpdateAuctioneerInstruction(instructionAccounts, {
+          // Scope resets when updating auctioneer.
+          // Need to provide needed list everytime or it will get to the default value.
+          scopes,
+        }),
+        signers: [authority],
+        key: params.updateAuctioneerInstructionKey ?? 'updateAuctioneer',
+      });
+    }
 
     builder.add({
-      instruction: createDelegateAuctioneerInstruction(
-        {
-          auctionHouse: auctionHouse.address,
-          authority: authority.publicKey,
-          auctioneerAuthority,
-          ahAuctioneerPda,
-        },
-        {
-          scopes,
-        }
-      ),
-      signers: [payer],
-      key: params.instructionKey ?? 'delegateAuctioneer',
+      instruction: createDelegateAuctioneerInstruction(instructionAccounts, {
+        scopes,
+      }),
+      signers: [authority],
+      key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
     });
   }
 

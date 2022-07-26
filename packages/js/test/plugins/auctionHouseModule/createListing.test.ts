@@ -101,15 +101,16 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
 });
 
 test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Auction House', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+  // Given we have an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { client } = await createAuctionHouse(mx, { auctioneerAuthority });
+  // Create a simple Auctioneer Auction House.
+  const { client } = await createAuctionHouse(mx, auctioneerAuthority);
 
-  // When we list that NFT for 6.5 SOL.
+  // When we list that NFT.
   const { listing, sellerTradeState } = await client
     .list({
       mintAccount: nft.mintAddress,
@@ -118,27 +119,28 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
 
   // Then we still get a listing model.
   t.equal(listing.tradeStateAddress, sellerTradeState);
-  t.same(listing.tokens, token(1));
 });
 
 test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Auction House with late Auctioneer delegation', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+  // Given we have an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
 
-  // Create simple Auction House.
+  // Create a simple Auction House.
   const { auctionHouse } = await createAuctionHouse(mx);
   // Delegate Auctioneer on update.
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctions()
-    .updateAuctionHouse(auctionHouse, { auctioneerAuthority })
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+    })
     .run();
   // Get a client for updated Auction House.
   const client = mx.auctions().for(updatedAuctionHouse, auctioneerAuthority);
 
-  // When we list that NFT for 6.5 SOL.
+  // When we list that NFT.
   const { listing, sellerTradeState } = await client
     .list({
       mintAccount: nft.mintAddress,
@@ -147,23 +149,21 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
 
   // Then we still get a listing model.
   t.equal(listing.tradeStateAddress, sellerTradeState);
-  t.same(listing.tokens, token(1));
 });
 
-test('[auctionHouseModule] Auctioneer listing creation is blocked when not allowed in scopes', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+test('[auctionHouseModule] it throws an error if Sell is not included in Auctioneer scopes', async (t: Test) => {
+  // Given we have an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
 
-  // Create Auction House with Auctioneer to allow only Buy
-  const { client } = await createAuctionHouse(mx, {
-    auctioneerAuthority,
+  // Create Auctioneer Auction House to only allow Buy.
+  const { client } = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Buy],
   });
 
-  // When we list that NFT for 6.5 SOL.
+  // When we list that NFT.
   const promise = client
     .list({
       mintAccount: nft.mintAddress,
@@ -175,5 +175,74 @@ test('[auctionHouseModule] Auctioneer listing creation is blocked when not allow
     t,
     promise,
     /The Auctioneer does not have the correct scope for this action/
+  );
+});
+
+test('[auctionHouseModule] it allows to List after Auctioneer scope update', async (t: Test) => {
+  // Given we have an NFT.
+  const mx = await metaplex();
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // Create Auctioneer Auction House to only allow Buy.
+  const { auctionHouse, client } = await createAuctionHouse(
+    mx,
+    auctioneerAuthority,
+    {
+      auctioneerScopes: [AuthorityScope.Buy],
+    }
+  );
+
+  // When we update scope to allow Listing.
+  await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
+    })
+    .run();
+
+  // When we list that NFT.
+  const { listing, sellerTradeState } = await client
+    .list({
+      mintAccount: nft.mintAddress,
+    })
+    .run();
+
+  // Then we still get a listing model.
+  t.equal(listing.tradeStateAddress, sellerTradeState);
+});
+
+test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Listing', async (t: Test) => {
+  // Given we have an NFT.
+  const mx = await metaplex();
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // Create Auctioneer Auction House.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+    })
+    .run();
+  // Create a client for Auction House, but don't provide auctioneerAuthority.
+  const client = mx.auctions().for(auctionHouse);
+
+  // When we list that NFT.
+  const promise = client
+    .list({
+      mintAccount: nft.mintAddress,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /You have not provided the "auctioneerAuthority" which is required to work with Auctioneer Auction House/
   );
 });

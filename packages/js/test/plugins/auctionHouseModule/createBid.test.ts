@@ -211,17 +211,15 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   );
 });
 
-test('[auctionHouseModule] create private receipt-less Auctioneer bid but cannot fetch it afterwards by default', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+test('[auctionHouseModule] create private receipt-less Auctioneer bid', async (t: Test) => {
+  // Given we have an Auctioneer Auction House and an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const nft = await createNft(mx, {}, { owner: seller.publicKey });
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { client } = await createAuctionHouse(mx, {
-    auctioneerAuthority,
-  });
+  const { client } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await client
@@ -237,27 +235,17 @@ test('[auctionHouseModule] create private receipt-less Auctioneer bid but cannot
   t.same(bid.price, sol(1));
   t.same(bid.tokens, token(1));
   t.false(bid.isPublic);
-
-  // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByAddress(buyerTradeState).run();
-  await assertThrows(
-    t,
-    promise,
-    /The account of type \[BidReceipt\] was not found/
-  );
 });
 
-test('[auctionHouseModule] create public receipt-less Auctioneer bid but cannot fetch it afterwards by default', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+test('[auctionHouseModule] create public receipt-less Auctioneer bid', async (t: Test) => {
+  // Given we have an Auctioneer Auction House and an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const nft = await createNft(mx, {}, { owner: seller.publicKey });
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { client } = await createAuctionHouse(mx, {
-    auctioneerAuthority,
-  });
+  const { client } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we create a public bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await client
@@ -272,26 +260,18 @@ test('[auctionHouseModule] create public receipt-less Auctioneer bid but cannot 
   t.same(bid.price, sol(1));
   t.same(bid.tokens, token(1));
   t.ok(bid.isPublic);
-
-  // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByAddress(buyerTradeState).run();
-  await assertThrows(
-    t,
-    promise,
-    /The account of type \[BidReceipt\] was not found/
-  );
 });
 
-test('[auctionHouseModule] create private receipt-less Auctioneer with invalid scope', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+test('[auctionHouseModule] it throws an error if Buy is not included in Auctioneer scopes', async (t: Test) => {
+  // Given we have an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const nft = await createNft(mx, {}, { owner: seller.publicKey });
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { client } = await createAuctionHouse(mx, {
-    auctioneerAuthority,
+  // Create Auctioneer Auction House to only allow Sell.
+  const { client } = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Sell],
   });
 
@@ -308,5 +288,78 @@ test('[auctionHouseModule] create private receipt-less Auctioneer with invalid s
     t,
     promise,
     /The Auctioneer does not have the correct scope for this action/
+  );
+});
+
+test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', async (t: Test) => {
+  // Given we have an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // Create Auctioneer Auction House to only allow Sell.
+  const { auctionHouse, client } = await createAuctionHouse(
+    mx,
+    auctioneerAuthority,
+    {
+      auctioneerScopes: [AuthorityScope.Sell],
+    }
+  );
+
+  // When we update scope to allow Buy.
+  await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
+    })
+    .run();
+
+  // When we create a private bid on that NFT for 1 SOL.
+  const { bid, buyerTradeState } = await client
+    .bid({
+      mintAccount: nft.mintAddress,
+      seller: seller.publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  // Then we still get a listing model.
+  t.equal(bid.tradeStateAddress, buyerTradeState);
+});
+
+test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Bid', async (t: Test) => {
+  // Given we have an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx);
+
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+    })
+    .run();
+  // Create a client for Auction House, but don't provide auctioneerAuthority.
+  const client = mx.auctions().for(auctionHouse);
+
+  // When we create a private bid on that NFT for 1 SOL.
+  const promise = client
+    .bid({
+      mintAccount: nft.mintAddress,
+      seller: seller.publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await assertThrows(
+    t,
+    promise,
+    /You have not provided the "auctioneerAuthority" which is required to work with Auctioneer Auction House/
   );
 });

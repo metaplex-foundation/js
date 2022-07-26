@@ -1,15 +1,17 @@
 import type { Metaplex } from '@/Metaplex';
 import { CreateAuctionHouseInput } from '@/plugins';
-import { sol } from '@/types';
+import { sol, Signer } from '@/types';
 
 export const createAuctionHouse = async (
   mx: Metaplex,
+  auctioneerAuthority?: Signer,
   input: Partial<CreateAuctionHouseInput> = {}
 ) => {
   const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({
       sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority?.publicKey,
       ...input,
     })
     .run();
@@ -18,6 +20,6 @@ export const createAuctionHouse = async (
 
   return {
     auctionHouse,
-    client: mx.auctions().for(auctionHouse, input.auctioneerAuthority),
+    client: mx.auctions().for(auctionHouse, auctioneerAuthority),
   };
 };

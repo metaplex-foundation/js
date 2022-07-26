@@ -35,6 +35,7 @@ import { AuctionHouse } from './AuctionHouse';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { findMetadataPda } from '../nftModule';
 import { AUCTIONEER_PRICE } from './constants';
+import { AuctioneerAuthorityRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -117,6 +118,10 @@ export const createListingBuilder = (
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+
+  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
+  }
 
   // Accounts.
   const seller = params.seller ?? (metaplex.identity() as Signer);

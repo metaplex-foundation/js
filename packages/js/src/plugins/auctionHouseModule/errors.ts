@@ -30,3 +30,35 @@ export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
     });
   }
 }
+
+export class AuthoritySignerRequiredError extends AuctionHouseError {
+  constructor(cause?: Error) {
+    super({
+      cause,
+      key: 'authority_signer_required',
+      title: 'Authority Signer Required',
+      problem:
+        'You are trying to delegate an Auctioneer which requires authority to sign a transaction. ' +
+        'But you have provided only a Public Key.',
+      solution:
+        'Please provide the current "authority" parameter as a Signer (pair of Public Key and Secret Key).',
+    });
+  }
+}
+
+export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
+  constructor(cause?: Error) {
+    super({
+      cause,
+      key: 'auctioneer_authority_required',
+      title: 'Auctioneer Authority Required',
+      problem:
+        'You are trying to use an Auction House which has Auctioneer delegated to it. ' +
+        'You have not provided the "auctioneerAuthority" which is required to work with Auctioneer Auction House.',
+      solution:
+        'Please provide the current "auctioneerAuthority" parameter so you can call an Auctioneer action.' +
+        'Note that we keep that parameter optional because no Auctioneer Authority is needed for Auction Houses ' +
+        'that use native Auction House behavior.',
+    });
+  }
+}

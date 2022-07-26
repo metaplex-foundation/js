@@ -11,6 +11,8 @@ import {
   Signer,
   OperationHandler,
   Pda,
+  isSigner,
+  toPublicKey,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
@@ -22,6 +24,7 @@ import {
 } from './pdas';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from '../tokenModule';
+import { AuthoritySignerRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -46,10 +49,10 @@ export type CreateAuctionHouseInput = {
   // Accounts.
   treasuryMint?: PublicKey;
   payer?: Signer;
-  authority?: PublicKey;
+  authority?: PublicKey | Signer; // Authority is required to sign when delegating to an Auctioneer instance.
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
-  auctioneerAuthority?: Signer;
+  auctioneerAuthority?: PublicKey;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -106,7 +109,7 @@ export const createAuctionHouseBuilder = (
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
 
   // Accounts.
-  const authority = params.authority ?? metaplex.identity().publicKey;
+  const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const treasuryMint = params.treasuryMint ?? WRAPPED_SOL_MINT;
   const treasuryWithdrawalDestinationOwner =
@@ -114,8 +117,16 @@ export const createAuctionHouseBuilder = (
   const feeWithdrawalDestination =
     params.feeWithdrawalDestination ?? metaplex.identity().publicKey;
 
+  // Auctioneer delegate instruction needs to be signed by authority
+  if (params.auctioneerAuthority && !isSigner(authority)) {
+    throw new AuthoritySignerRequiredError();
+  }
+
   // PDAs.
-  const auctionHouse = findAuctionHousePda(authority, treasuryMint);
+  const auctionHouse = findAuctionHousePda(
+    toPublicKey(authority),
+    treasuryMint
+  );
   const auctionHouseFeeAccount = findAuctionHouseFeePda(auctionHouse);
   const auctionHouseTreasury = findAuctionHouseTreasuryPda(auctionHouse);
   const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
@@ -138,7 +149,7 @@ export const createAuctionHouseBuilder = (
         {
           treasuryMint,
           payer: payer.publicKey,
-          authority,
+          authority: toPublicKey(authority),
           feeWithdrawalDestination,
           treasuryWithdrawalDestination,
           treasuryWithdrawalDestinationOwner,
@@ -158,9 +169,9 @@ export const createAuctionHouseBuilder = (
       signers: [payer],
       key: params.instructionKey ?? 'createAuctionHouse',
     })
-    .when(Boolean(params.auctioneerAuthority?.publicKey), (builder) => {
-      const auctioneerAuthority = params.auctioneerAuthority
-        ?.publicKey as PublicKey;
+    .when(Boolean(params.auctioneerAuthority), (builder) => {
+      const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+
       const ahAuctioneerPda = findAuctioneerPda(
         auctionHouse,
         auctioneerAuthority
@@ -180,7 +191,7 @@ export const createAuctionHouseBuilder = (
         instruction: createDelegateAuctioneerInstruction(
           {
             auctionHouse,
-            authority,
+            authority: toPublicKey(authority as Signer),
             auctioneerAuthority,
             ahAuctioneerPda,
           },
@@ -188,7 +199,7 @@ export const createAuctionHouseBuilder = (
             scopes,
           }
         ),
-        signers: [payer],
+        signers: [authority as Signer],
         key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
       });
 
