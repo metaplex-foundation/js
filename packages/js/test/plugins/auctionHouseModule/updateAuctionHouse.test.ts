@@ -152,8 +152,7 @@ test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House upd
   // Given an existing Auction House with separate Authority Signer.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-  const authority = Keypair.generate();
-  await mx.rpc().airdrop(authority.publicKey, sol(100));
+  const authority = await createWallet(mx);
 
   const { auctionHouse } = await mx
     .auctions()
