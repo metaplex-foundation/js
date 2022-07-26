@@ -337,8 +337,8 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const seller = await createWallet(mx);
   const nft = await createNft(mx);
 
+  // And an Auctioneer Auction House.
   const auctioneerAuthority = Keypair.generate();
-
   const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({
@@ -346,10 +346,11 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
-  // Create a client for Auction House, but don't provide auctioneerAuthority.
+ 
+  // When we create a client for that Auction House without providing the auctioneerAuthority.
   const client = mx.auctions().for(auctionHouse);
 
-  // When we create a private bid on that NFT for 1 SOL.
+  // And we create a private bid on that NFT for 1 SOL.
   const promise = client
     .bid({
       mintAccount: nft.mintAddress,
