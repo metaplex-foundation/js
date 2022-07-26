@@ -183,9 +183,7 @@ test('[auctionHouseModule] create new Auctioneer Auction House with separate aut
   const mx = await metaplex();
 
   const auctioneerAuthority = Keypair.generate();
-  const authority = Keypair.generate();
-
-  await mx.rpc().airdrop(authority.publicKey, sol(100));
+  const authority = await createWallet(mx);
 
   // When we create a new Auctioneer Auction House with a separate authority.
   const { auctionHouse } = await mx
