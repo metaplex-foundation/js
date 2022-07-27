@@ -184,7 +184,7 @@ test('[auctionHouseModule] it can assign an Auctioneer authority with an explici
   });
 });
 
-test.only('[auctionHouseModule] it keeps the original scope when updating the Auctioneer Authority', async (t) => {
+test('[auctionHouseModule] it keeps the original scope when updating the Auctioneer Authority', async (t) => {
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
@@ -248,53 +248,53 @@ test('[auctionHouseModule] it can update Auctioneer Scope', async (t) => {
   });
 });
 
-test.skip('[auctionHouseModule] it allows to use already delegated newAuctioneerAuthority', async (t) => {
+test('[auctionHouseModule] it can update both the Auctioneer authority and scopes', async (t) => {
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+    auctioneerScopes: [AuthorityScope.Sell],
+  });
 
-  const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-      auctioneerScopes: [AuthorityScope.PublicBuy],
-      sellerFeeBasisPoints: 200,
-    })
-    .run();
-
-  // When we send the scope update and provide the newAuctioneerAuthority that's the same as auctioneerAuthority.
-  const { auctioneer } = await mx
+  // When we update both the scopes and the authority of the Auctioneer instance.
+  const newAuctioneerAuthority = Keypair.generate();
+  const { auctionHouse: updatedAuctionHouse } = await mx
     .auctions()
     .updateAuctionHouse(auctionHouse, {
-      newAuctioneerAuthority: auctioneerAuthority.publicKey,
-      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerAuthority: newAuctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Buy],
     })
     .run();
 
-  // Then we update and return the updated Auctioneer with the new scope.
-  t.ok(auctioneer);
-  t.same(auctioneer?.scopes, [AuthorityScope.Buy]);
+  // Then the new auctioneer data has been correctly set.
+  const ahAuctioneerPda = findAuctioneerPda(
+    updatedAuctionHouse.address,
+    newAuctioneerAuthority.publicKey
+  );
+  spok(t, updatedAuctionHouse, {
+    hasAuctioneer: true,
+    auctioneer: {
+      address: spokSamePubkey(ahAuctioneerPda),
+      authority: spokSamePubkey(newAuctioneerAuthority.publicKey),
+      scopes: [AuthorityScope.Buy],
+    },
+  });
 });
 
 test('[auctionHouseModule] it throws an error if nothing has changed when updating an Auctioneer', async (t) => {
   // Given an Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-
-  const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-      sellerFeeBasisPoints: 200,
-    })
-    .run();
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+    auctioneerScopes: [AuthorityScope.Sell],
+  });
 
   // When we send an update without providing any changes.
   const promise = mx
     .auctions()
     .updateAuctionHouse(auctionHouse, {
       auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Sell],
     })
     .run();
 

@@ -138,7 +138,7 @@ export const updateAuctionHouseBuilder = async (
   };
 
   const shouldSendUpdateInstruction = !isEqual(originalData, updatedData);
-  const shouldDelegateAuctioneer =
+  const shouldAddAuctioneerAuthority =
     !auctionHouse.hasAuctioneer && !!params.auctioneerAuthority;
   const shouldUpdateAuctioneerAuthority =
     auctionHouse.hasAuctioneer &&
@@ -151,8 +151,8 @@ export const updateAuctionHouseBuilder = async (
       params.auctioneerScopes.sort(),
       auctionHouse.auctioneer.scopes.sort()
     );
-  const shouldUpdateAuctioneer =
-    shouldUpdateAuctioneerAuthority || shouldUpdateAuctioneerScopes;
+  const shouldDelegateAuctioneer =
+    shouldAddAuctioneerAuthority || shouldUpdateAuctioneerAuthority;
 
   return (
     TransactionBuilder.make()
@@ -183,9 +183,12 @@ export const updateAuctionHouseBuilder = async (
         })
       )
 
-      // Attach a new Auctioneer instance to the Auction House.
+      // Attach or update a new Auctioneer instance to the Auction House.
       .when(shouldDelegateAuctioneer, (builder) => {
         const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+        const defaultScopes = auctionHouse.hasAuctioneer
+          ? auctionHouse.auctioneer.scopes
+          : AUCTIONEER_ALL_SCOPES;
         return builder.add({
           instruction: createDelegateAuctioneerInstruction(
             {
@@ -197,15 +200,15 @@ export const updateAuctionHouseBuilder = async (
                 auctioneerAuthority
               ),
             },
-            { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
+            { scopes: params.auctioneerScopes ?? defaultScopes }
           ),
           signers: [authority],
           key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
         });
       })
 
-      // Update the Auctioneer instance of the Auction House or its scope.
-      .when(shouldUpdateAuctioneer, (builder) => {
+      // Update the Auctioneer scopes of the Auction House.
+      .when(shouldUpdateAuctioneerScopes, (builder) => {
         assertAuctioneerAuctionHouse(auctionHouse);
         const auctioneerAuthority =
           params.auctioneerAuthority ??
