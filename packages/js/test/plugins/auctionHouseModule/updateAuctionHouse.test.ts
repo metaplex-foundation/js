@@ -6,15 +6,15 @@ import {
   spokSamePubkey,
   killStuckProcess,
   assertThrows,
+  createWallet,
 } from '../../helpers';
 import {
   findAssociatedTokenAccountPda,
-  findAuctioneerPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
-  sol,
 } from '@/index';
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 
@@ -131,24 +131,19 @@ test('[auctionHouseModule] delegate Auctioneer on Auction House update.', async 
   t.false(auctionHouse.hasAuctioneer);
 
   // When we send an update with auctioneerAuthority to delegate.
-  const { auctionHouse: updatedAuctionHouse } = await mx
+  const { auctionHouse: updatedAuctionHouse, auctioneer } = await mx
     .auctions()
     .updateAuctionHouse(auctionHouse, {
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
 
-  // Auctioneer was delegated.
+  // Then the Auctioneer is delegated and account is created.
   t.ok(updatedAuctionHouse.hasAuctioneer);
-  const ahAuctioneerPda = findAuctioneerPda(
-    auctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
-  const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
-  t.ok(ahAuctioneerAccount.exists);
+  t.equals(auctioneer?.auctioneerAuthority.toBase58(), auctioneerAuthority.publicKey.toBase58());
 });
 
-test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House update with different authority.', async (t) => {
+test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House update with separate authority.', async (t) => {
   // Given an existing Auction House with separate Authority Signer.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
@@ -160,7 +155,7 @@ test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House upd
     .run();
 
   // When we send an update with auctioneerAuthority to delegate.
-  const { auctionHouse: updatedAuctionHouse } = await mx
+  const { auctioneer } = await mx
     .auctions()
     .updateAuctionHouse(auctionHouse, {
       authority,
@@ -168,17 +163,101 @@ test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House upd
     })
     .run();
 
-  // It updates Auction House.
-  t.ok(updatedAuctionHouse.hasAuctioneer);
+  // Then the Auctioneer is delegated and account is created.
+  t.equals(auctioneer?.auctioneerAuthority.toBase58(), auctioneerAuthority.publicKey.toBase58());
 });
 
-test('[auctionHouseModule] it allows to delegate a different Auctioneer Authority on Auction House update.', async (t) => {
-  // Given an existing Auction House.
+test('[auctionHouseModule] it persists scope when delegating a different Auctioneer Authority on Auction House update.', async (t) => {
+  // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
   const secondAuctioneerAuthority = Keypair.generate();
 
-  // Create Auctioneer Auction House.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Buy],
+      sellerFeeBasisPoints: 200,
+    })
+    .run();
+
+  // When we send an update with different auctioneerAuthority to delegate.
+  const { auctioneer } = await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      newAuctioneerAuthority: secondAuctioneerAuthority.publicKey,
+    })
+    .run();
+
+  // Then the new Auctioneer is delegated with persisted scope.
+  t.equals(auctioneer?.auctioneerAuthority.toBase58(), secondAuctioneerAuthority.publicKey.toBase58());
+  t.same(auctioneer?.scopes, [AuthorityScope.Buy]);
+});
+
+test('[auctionHouseModule] it allows to update Auctioneer Scope.', async (t) => {
+  // Given an existing Auctioneer Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.PublicBuy],
+      sellerFeeBasisPoints: 200,
+    })
+    .run();
+
+  // When we send the scope update.
+  const { auctioneer } = await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Buy],
+    })
+    .run();
+
+  // Then we update and return the updated Auctioneer with the new scope.
+  t.ok(auctioneer);
+  t.same(auctioneer?.scopes, [AuthorityScope.Buy]);
+});
+
+test('[auctionHouseModule] it allows to use already delegated newAuctioneerAuthority.', async (t) => {
+  // Given an existing Auctioneer Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.PublicBuy],
+      sellerFeeBasisPoints: 200,
+    })
+    .run();
+
+  // When we send the scope update and provide the newAuctioneerAuthority that's the same as auctioneerAuthority.
+  const { auctioneer } = await mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      newAuctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      auctioneerScopes: [AuthorityScope.Buy],
+    })
+    .run();
+
+  // Then we update and return the updated Auctioneer with the new scope.
+  t.ok(auctioneer);
+  t.same(auctioneer?.scopes, [AuthorityScope.Buy]);
+});
+
+test('[auctionHouseModule] it throws an error if nothing has changed when updating an Auctioneer.', async (t) => {
+  // Given an Auctioneer Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
   const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({
@@ -187,19 +266,11 @@ test('[auctionHouseModule] it allows to delegate a different Auctioneer Authorit
     })
     .run();
 
-  // When we send an update with different auctioneerAuthority to delegate.
-  await mx
-    .auctions()
-    .updateAuctionHouse(auctionHouse, {
-      auctioneerAuthority: secondAuctioneerAuthority.publicKey,
-    })
-    .run();
+  // When we send an update without providing any changes.
+  const promise = mx.auctions().updateAuctionHouse(auctionHouse, {
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  }).run();
 
-  // New auctioneer is delegated.
-  const ahAuctioneerPda = findAuctioneerPda(
-    auctionHouse.address,
-    secondAuctioneerAuthority.publicKey
-  );
-  const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
-  t.ok(ahAuctioneerAccount.exists);
+  // Then we expect an error.
+  await assertThrows(t, promise, /No Instructions To Send/);
 });

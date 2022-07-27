@@ -4,7 +4,7 @@ import type { PublicKey } from '@solana/web3.js';
 import { Auctioneer } from './Auctioneer';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionsBuildersClient } from './AuctionsBuildersClient';
-import { findAuctionHousePda } from './pdas';
+import { findAuctioneerPda, findAuctionHousePda } from './pdas';
 import {
   CreateAuctionHouseInput,
   createAuctionHouseOperation,
@@ -24,6 +24,7 @@ import {
   UpdateAuctionHouseOutput,
 } from './updateAuctionHouse';
 import { AuctionHouseClient } from './AuctionHouseClient';
+import { Signer } from '@/types';
 
 export class AuctionsClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -32,7 +33,7 @@ export class AuctionsClient {
     return new AuctionsBuildersClient(this.metaplex);
   }
 
-  for(auctionHouse: AuctionHouse, auctioneerAuthority?: PublicKey) {
+  for(auctionHouse: AuctionHouse, auctioneerAuthority?: Signer) {
     return new AuctionHouseClient(
       this.metaplex,
       auctionHouse,
@@ -59,17 +60,29 @@ export class AuctionsClient {
   updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
+  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse, auctioneer: Auctioneer | null }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
         .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
         .run(scope);
       scope.throwIfCanceled();
+
       const updatedAuctionHouse = await this.findAuctionHouseByAddress(
         auctionHouse.address
       ).run(scope);
-      return { ...output, auctionHouse: updatedAuctionHouse };
+
+      let auctioneer = null;
+      if (input.auctioneerAuthority) {
+        const ahAuctioneerPda = findAuctioneerPda(
+          auctionHouse.address,
+          input.newAuctioneerAuthority ?? input.auctioneerAuthority
+        );
+
+        auctioneer = await this.metaplex.auctions().findAuctioneerByAddress(ahAuctioneerPda).run()
+      }
+
+      return { ...output, auctionHouse: updatedAuctionHouse, auctioneer };
     });
   }
 

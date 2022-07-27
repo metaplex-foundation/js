@@ -361,6 +361,6 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   await assertThrows(
     t,
     promise,
-    /You have not provided the "auctioneerAuthority" which is required to work with Auctioneer Auction House/
+    /you have not provided the required "auctioneerAuthority" parameter/
   );
 });

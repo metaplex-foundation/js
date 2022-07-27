@@ -6,6 +6,7 @@ import {
   spokSamePubkey,
   killStuckProcess,
   assertThrows,
+  createWallet,
 } from '../../helpers';
 import {
   findAuctionHouseFeePda,
@@ -13,7 +14,6 @@ import {
   findAuctionHouseTreasuryPda,
   findAuctioneerPda,
   WRAPPED_SOL_MINT,
-  sol,
 } from '@/index';
 
 killStuckProcess();
