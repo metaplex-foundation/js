@@ -25,6 +25,7 @@ import {
   MaybeCandyMachineCollectionAccount,
 } from './accounts';
 import { Creator } from '@/types/Creator';
+import { CandyMachineProgram } from './program';
 
 // -----------------
 // Model
@@ -33,6 +34,8 @@ import { Creator } from '@/types/Creator';
 export type CandyMachine = Readonly<{
   model: 'candyMachine';
   address: PublicKey;
+  programAddress: PublicKey;
+  version: 1 | 2;
   authorityAddress: PublicKey;
   walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
   tokenMintAddress: Option<PublicKey>;
@@ -123,6 +126,8 @@ export const toCandyMachine = (
   return {
     model: 'candyMachine',
     address: account.publicKey,
+    programAddress: account.owner,
+    version: account.owner.equals(CandyMachineProgram.publicKey) ? 2 : 1,
     authorityAddress: account.data.authority,
     walletAddress: account.data.wallet,
     tokenMintAddress: account.data.tokenMint,
