@@ -30,7 +30,7 @@ export const findAuctioneerByAddressOperationHandler: OperationHandler<FindAucti
   {
     handle: async (
       operation: FindAuctioneerByAddressOperation,
-      metaplex: Metaplex,
+      metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
 

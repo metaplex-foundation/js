@@ -7,17 +7,14 @@ import {
   createAuctionHouseOperation,
   createAuctionHouseOperationHandler,
 } from './createAuctionHouse';
-import {
-  createBidOperation,
-  createBidOperationHandler
-} from './createBid';
+import { createBidOperation, createBidOperationHandler } from './createBid';
 import {
   createListingOperation,
   createListingOperationHandler,
 } from './createListing';
 import {
   findAuctioneerByAddressOperation,
-  findAuctioneerByAddressOperationHandler
+  findAuctioneerByAddressOperationHandler,
 } from './findAuctioneerByAddress';
 import {
   findAuctionHouseByAddressOperation,
@@ -35,10 +32,7 @@ import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
 } from './updateAuctionHouse';
-import {
-  loadBidOperation,
-  loadBidOperationHandler
-} from './loadBid';
+import { loadBidOperation, loadBidOperationHandler } from './loadBid';
 import {
   loadListingOperation,
   loadListingOperationHandler,

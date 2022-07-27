@@ -12,7 +12,7 @@ import {
 } from './createAuctionHouse';
 import {
   FindAuctioneerByAddressInput,
-  findAuctioneerByAddressOperation
+  findAuctioneerByAddressOperation,
 } from './findAuctioneerByAddress';
 import {
   FindAuctionHouseByAddressInput,
