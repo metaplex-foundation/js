@@ -40,6 +40,25 @@ export const isAuctionHouse = (value: any): value is AuctionHouse =>
 export function assertAuctionHouse(value: any): asserts value is AuctionHouse {
   assert(isAuctionHouse(value), `Expected AuctionHouse type`);
 }
+
+export type AuctioneerAuctionHouse = AuctionHouse & {
+  hasAuctioneer: true;
+};
+
+export const isAuctioneerAuctionHouse = (
+  value: any
+): value is AuctioneerAuctionHouse =>
+  isAuctionHouse(value) && value.hasAuctioneer;
+
+export function assertAuctioneerAuctionHouse(
+  value: any
+): asserts value is AuctioneerAuctionHouse {
+  assert(
+    isAuctioneerAuctionHouse(value),
+    `Expected AuctioneerAuctionHouse type`
+  );
+}
+
 export const toAuctionHouse = (
   auctionHouseAccount: AuctionHouseAccount,
   treasuryMint: Mint | MintWithMetadata,

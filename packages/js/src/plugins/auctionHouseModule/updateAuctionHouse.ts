@@ -12,7 +12,7 @@ import { TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { AuctionHouse } from './AuctionHouse';
+import { assertAuctioneerAuctionHouse, AuctionHouse } from './AuctionHouse';
 import { TreasuryDestinationOwnerRequiredError } from './errors';
 import { findAuctioneerPda } from './pdas';
 import { AUCTIONEER_ALL_SCOPES } from './constants';
@@ -136,43 +136,17 @@ export const updateAuctionHouseBuilder = async (
     canChangeSalePrice:
       params.canChangeSalePrice ?? originalData.canChangeSalePrice,
   };
+
   const shouldSendUpdateInstruction = !isEqual(originalData, updatedData);
-
-  const builder = TransactionBuilder.make()
-    .setFeePayer(payer)
-    .when(shouldSendUpdateInstruction, (builder) =>
-      builder.add({
-        instruction: createUpdateAuctionHouseInstruction(
-          {
-            treasuryMint: auctionHouse.treasuryMint.address,
-            payer: payer.publicKey,
-            authority: authority.publicKey,
-            newAuthority: updatedData.authority,
-            feeWithdrawalDestination: updatedData.feeWithdrawalDestination,
-            treasuryWithdrawalDestination,
-            treasuryWithdrawalDestinationOwner,
-            auctionHouse: auctionHouse.address,
-          },
-          {
-            sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
-            requiresSignOff: params.requiresSignOff ?? null,
-            canChangeSalePrice: params.canChangeSalePrice ?? null,
-          }
-        ),
-        signers: [payer, authority],
-        key: params.instructionKey ?? 'updateAuctionHouse',
-      })
-    );
-
   const shouldDelegateAuctioneer =
     !auctionHouse.hasAuctioneer && !!params.auctioneerAuthority;
   const shouldUpdateAuctioneerAuthority =
     auctionHouse.hasAuctioneer &&
-    params.auctioneerAuthority &&
+    !!params.auctioneerAuthority &&
     !params.auctioneerAuthority.equals(auctionHouse.auctioneer.authority);
   const shouldUpdateAuctioneerScopes =
     auctionHouse.hasAuctioneer &&
-    params.auctioneerScopes &&
+    !!params.auctioneerScopes &&
     !isEqual(
       params.auctioneerScopes.sort(),
       auctionHouse.auctioneer.scopes.sort()
@@ -180,46 +154,80 @@ export const updateAuctionHouseBuilder = async (
   const shouldUpdateAuctioneer =
     shouldUpdateAuctioneerAuthority || shouldUpdateAuctioneerScopes;
 
-  if (shouldDelegateAuctioneer) {
-    const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
-    return builder.add({
-      instruction: createDelegateAuctioneerInstruction(
-        {
-          auctionHouse: auctionHouse.address,
-          authority: authority.publicKey,
-          auctioneerAuthority,
-          ahAuctioneerPda: findAuctioneerPda(
-            auctionHouse.address,
-            auctioneerAuthority
-          ),
-        },
-        { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
-      ),
-      signers: [authority],
-      key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
-    });
-  }
+  return (
+    TransactionBuilder.make()
+      .setFeePayer(payer)
 
-  if (shouldUpdateAuctioneer) {
-    const auctioneerAuthority =
-      params.auctioneerAuthority ?? auctionHouse.auctioneer.authority;
-    return builder.add({
-      instruction: createUpdateAuctioneerInstruction(
-        {
-          auctionHouse: auctionHouse.address,
-          authority: authority.publicKey,
-          auctioneerAuthority,
-          ahAuctioneerPda: findAuctioneerPda(
-            auctionHouse.address,
-            auctioneerAuthority
+      // Update the Auction House data.
+      .when(shouldSendUpdateInstruction, (builder) =>
+        builder.add({
+          instruction: createUpdateAuctionHouseInstruction(
+            {
+              treasuryMint: auctionHouse.treasuryMint.address,
+              payer: payer.publicKey,
+              authority: authority.publicKey,
+              newAuthority: updatedData.authority,
+              feeWithdrawalDestination: updatedData.feeWithdrawalDestination,
+              treasuryWithdrawalDestination,
+              treasuryWithdrawalDestinationOwner,
+              auctionHouse: auctionHouse.address,
+            },
+            {
+              sellerFeeBasisPoints: params.sellerFeeBasisPoints ?? null,
+              requiresSignOff: params.requiresSignOff ?? null,
+              canChangeSalePrice: params.canChangeSalePrice ?? null,
+            }
           ),
-        },
-        { scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes }
-      ),
-      signers: [authority],
-      key: params.updateAuctioneerInstructionKey ?? 'updateAuctioneer',
-    });
-  }
+          signers: [payer, authority],
+          key: params.instructionKey ?? 'updateAuctionHouse',
+        })
+      )
 
-  return builder;
+      // Attach a new Auctioneer instance to the Auction House.
+      .when(shouldDelegateAuctioneer, (builder) => {
+        const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+        return builder.add({
+          instruction: createDelegateAuctioneerInstruction(
+            {
+              auctionHouse: auctionHouse.address,
+              authority: authority.publicKey,
+              auctioneerAuthority,
+              ahAuctioneerPda: findAuctioneerPda(
+                auctionHouse.address,
+                auctioneerAuthority
+              ),
+            },
+            { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
+          ),
+          signers: [authority],
+          key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
+        });
+      })
+
+      // Update the Auctioneer instance of the Auction House or its scope.
+      .when(shouldUpdateAuctioneer, (builder) => {
+        assertAuctioneerAuctionHouse(auctionHouse);
+        const auctioneerAuthority =
+          params.auctioneerAuthority ??
+          (auctionHouse.auctioneer.authority as PublicKey);
+        return builder.add({
+          instruction: createUpdateAuctioneerInstruction(
+            {
+              auctionHouse: auctionHouse.address,
+              authority: authority.publicKey,
+              auctioneerAuthority,
+              ahAuctioneerPda: findAuctioneerPda(
+                auctionHouse.address,
+                auctioneerAuthority
+              ),
+            },
+            {
+              scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes,
+            }
+          ),
+          signers: [authority],
+          key: params.updateAuctioneerInstructionKey ?? 'updateAuctioneer',
+        });
+      })
+  );
 };
