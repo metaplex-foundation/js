@@ -1,6 +1,7 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
+import { Auctioneer } from './Auctioneer';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionsBuildersClient } from './AuctionsBuildersClient';
 import { findAuctionHousePda } from './pdas';
@@ -10,6 +11,10 @@ import {
   CreateAuctionHouseOutput,
 } from './createAuctionHouse';
 import {
+  FindAuctioneerByAddressInput,
+  findAuctioneerByAddressOperation
+} from './findAuctioneerByAddress';
+import {
   FindAuctionHouseByAddressInput,
   findAuctionHouseByAddressOperation,
 } from './findAuctionHouseByAddress';
@@ -18,7 +23,6 @@ import {
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './updateAuctionHouse';
-import { Signer } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 
 export class AuctionsClient {
@@ -28,7 +32,7 @@ export class AuctionsClient {
     return new AuctionsBuildersClient(this.metaplex);
   }
 
-  for(auctionHouse: AuctionHouse, auctioneerAuthority?: Signer) {
+  for(auctionHouse: AuctionHouse, auctioneerAuthority?: PublicKey) {
     return new AuctionHouseClient(
       this.metaplex,
       auctionHouse,
@@ -67,6 +71,15 @@ export class AuctionsClient {
       ).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
+  }
+
+  findAuctioneerByAddress(
+    address: PublicKey,
+    options?: Omit<FindAuctioneerByAddressInput, 'address'>
+  ): Task<Auctioneer> {
+    return this.metaplex
+      .operations()
+      .getTask(findAuctioneerByAddressOperation({ address, ...options }));
   }
 
   findAuctionHouseByAddress(

@@ -8,31 +8,41 @@ import {
   createAuctionHouseOperationHandler,
 } from './createAuctionHouse';
 import {
+  createBidOperation,
+  createBidOperationHandler
+} from './createBid';
+import {
   createListingOperation,
   createListingOperationHandler,
 } from './createListing';
+import {
+  findAuctioneerByAddressOperation,
+  findAuctioneerByAddressOperationHandler
+} from './findAuctioneerByAddress';
 import {
   findAuctionHouseByAddressOperation,
   findAuctionHouseByAddressOperationHandler,
 } from './findAuctionHouseByAddress';
 import {
-  updateAuctionHouseOperation,
-  updateAuctionHouseOperationHandler,
-} from './updateAuctionHouse';
-import {
-  loadListingOperation,
-  loadListingOperationHandler,
-} from './loadListing';
+  findBidByAddressOperation,
+  findBidByAddressOperationHandler,
+} from './findBidByAddress';
 import {
   findListingByAddressOperation,
   findListingByAddressOperationHandler,
 } from './findListingByAddress';
 import {
-  findBidByAddressOperation,
-  findBidByAddressOperationHandler,
-} from './findBidByAddress';
-import { loadBidOperation, loadBidOperationHandler } from './loadBid';
-import { createBidOperation, createBidOperationHandler } from './createBid';
+  updateAuctionHouseOperation,
+  updateAuctionHouseOperationHandler,
+} from './updateAuctionHouse';
+import {
+  loadBidOperation,
+  loadBidOperationHandler
+} from './loadBid';
+import {
+  loadListingOperation,
+  loadListingOperationHandler,
+} from './loadListing';
 
 export const auctionHouseModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -51,6 +61,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     );
     op.register(createBidOperation, createBidOperationHandler);
     op.register(createListingOperation, createListingOperationHandler);
+    op.register(
+      findAuctioneerByAddressOperation,
+      findAuctioneerByAddressOperationHandler
+    );
     op.register(
       findAuctionHouseByAddressOperation,
       findAuctionHouseByAddressOperationHandler
