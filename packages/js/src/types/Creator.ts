@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Option } from '@/utils';
 
 export type Creator = Readonly<{
   address: PublicKey;
@@ -15,6 +16,10 @@ export const toUniformCreators = (...addresses: PublicKey[]): Creator[] => {
     verified: false,
     share: index < shareModulo ? shareFloor + 1 : shareFloor,
   }));
+};
+
+export const toNullCreators = (creators: Creator[]): Option<Creator[]> => {
+  return creators === [] ? null : creators;
 };
 
 export const toUniformVerifiedCreators = (

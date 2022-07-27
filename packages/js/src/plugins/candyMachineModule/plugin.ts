@@ -6,6 +6,10 @@ import {
   createCandyMachineOperationHandler,
 } from './createCandyMachine';
 import {
+  deleteCandyMachineOperation,
+  deleteCandyMachineOperationHandler,
+} from './deleteCandyMachine';
+import {
   findCandyMachineByAddressOperation,
   findCandyMachineByAddressOperationHandler,
 } from './findCandyMachineByAddress';
@@ -36,6 +40,10 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     op.register(
       createCandyMachineOperation,
       createCandyMachineOperationHandler
+    );
+    op.register(
+      deleteCandyMachineOperation,
+      deleteCandyMachineOperationHandler
     );
     op.register(
       findCandyMachineByAddressOperation,

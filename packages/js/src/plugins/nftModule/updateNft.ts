@@ -11,6 +11,7 @@ import {
   Signer,
   OperationHandler,
   Creator,
+  toNullCreators,
 } from '@/types';
 import { LazyNft, Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
@@ -122,6 +123,7 @@ const toInstructionData = (
   nft: LazyNft | Nft,
   input: Partial<UpdateNftInput> = {}
 ): UpdateMetadataAccountArgsV2 => {
+  const creators = input.creators ?? nft.creators;
   return {
     updateAuthority: input.newUpdateAuthority ?? nft.updateAuthorityAddress,
     primarySaleHappened: input.primarySaleHappened ?? nft.primarySaleHappened,
@@ -132,7 +134,7 @@ const toInstructionData = (
       uri: input.uri ?? nft.uri,
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
-      creators: input.creators ?? nft.creators,
+      creators: toNullCreators(creators),
       collection:
         input.collection === undefined ? nft.collection : input.collection,
       uses: input.uses === undefined ? nft.uses : input.uses,

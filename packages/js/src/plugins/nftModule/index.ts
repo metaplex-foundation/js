@@ -1,4 +1,5 @@
 export * from './accounts';
+export * from './addMetadata';
 export * from './createNft';
 export * from './errors';
 export * from './findMintWithMetadataByAddress';

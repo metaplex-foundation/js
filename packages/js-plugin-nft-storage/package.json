@@ -1,6 +1,6 @@
 {
-  "name": "@metaplex-foundation/js",
-  "version": "0.13.3",
+  "name": "@metaplex-foundation/js-plugin-nft-storage",
+  "version": "0.1.1",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -26,7 +26,9 @@
     "nft",
     "metaplex",
     "solana",
-    "blockchain"
+    "blockchain",
+    "plugin",
+    "nft.storage"
   ],
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "homepage": "https://metaplex.com",
@@ -36,32 +38,18 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
-    "test": "tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
+    "test": "tape dist/test/**/*.test.js",
     "preversion": "yarn build && yarn test",
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.2.0",
-    "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-auction-house": "^2.0.0",
-    "@metaplex-foundation/mpl-candy-machine": "^4.3.0",
-    "@metaplex-foundation/mpl-token-metadata": "^2.1.2",
-    "@solana/spl-token": "^0.2.0",
-    "@solana/web3.js": "^1.47.3",
-    "abort-controller": "^3.0.0",
-    "bignumber.js": "^9.0.2",
-    "bn.js": "^5.2.0",
-    "bs58": "^5.0.0",
-    "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
-    "debug": "^4.3.4",
-    "eventemitter3": "^4.0.7",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
-    "mime": "^3.0.0",
-    "tweetnacl": "^1.0.3"
+    "@ipld/dag-pb": "^2.1.17",
+    "@metaplex-foundation/js": "*",
+    "@nftstorage/metaplex-auth": "^1.2.0",
+    "ipfs-car": "^0.7.0",
+    "ipfs-unixfs": "^6.0.9",
+    "multiformats": "^9.7.0",
+    "nft.storage": "^6.4.1"
   },
   "engines": {
     "node": ">=16.0"
