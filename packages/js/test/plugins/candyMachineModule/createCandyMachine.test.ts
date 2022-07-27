@@ -21,8 +21,9 @@ import {
   CreateCandyMachineInput,
   toBigNumber,
   toDateTime,
+  CandyMachineProgram,
+  getCandyMachineUuidFromAddress,
 } from '@/index';
-import { getCandyMachineUuidFromAddress } from '@/plugins/candyMachineModule/helpers';
 import { create32BitsHash, create32BitsHashString } from './helpers';
 
 killStuckProcess();
@@ -57,6 +58,8 @@ test('[candyMachineModule] create with minimal input', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
+    programAddress: spokSamePubkey(CandyMachineProgram.publicKey),
+    version: 2,
     tokenMintAddress: null,
     collectionMintAddress: null,
     uuid: getCandyMachineUuidFromAddress(candyMachine.address),
