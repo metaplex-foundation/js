@@ -60,11 +60,11 @@ export type UpdateAuctionHouseOutput = {
 
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
   {
-    handle: async (
+    handle: (
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex
     ) => {
-      const builder = await updateAuctionHouseBuilder(
+      const builder = updateAuctionHouseBuilder(
         metaplex,
         operation.input
       );
@@ -90,10 +90,10 @@ export type UpdateAuctionHouseBuilderParams = Omit<
   updateAuctioneerInstructionKey?: string;
 };
 
-export const updateAuctionHouseBuilder = async (
+export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams
-): Promise<TransactionBuilder> => {
+): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const auctionHouse = params.auctionHouse;
