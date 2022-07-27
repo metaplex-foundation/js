@@ -60,7 +60,12 @@ export class AuctionsClient {
   updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse, auctioneer: Auctioneer | null }> {
+  ): Task<
+    UpdateAuctionHouseOutput & {
+      auctionHouse: AuctionHouse;
+      auctioneer: Auctioneer | null;
+    }
+  > {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -79,7 +84,10 @@ export class AuctionsClient {
           input.newAuctioneerAuthority ?? input.auctioneerAuthority
         );
 
-        auctioneer = await this.metaplex.auctions().findAuctioneerByAddress(ahAuctioneerPda).run()
+        auctioneer = await this.metaplex
+          .auctions()
+          .findAuctioneerByAddress(ahAuctioneerPda)
+          .run();
       }
 
       return { ...output, auctionHouse: updatedAuctionHouse, auctioneer };

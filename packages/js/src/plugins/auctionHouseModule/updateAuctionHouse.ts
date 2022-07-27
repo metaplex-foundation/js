@@ -165,7 +165,8 @@ export const updateAuctionHouseBuilder = async (
     );
 
   if (params.auctioneerAuthority) {
-    const auctioneerAuthority = params.newAuctioneerAuthority ?? params.auctioneerAuthority;
+    const auctioneerAuthority =
+      params.newAuctioneerAuthority ?? params.auctioneerAuthority;
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
       auctioneerAuthority
@@ -192,15 +193,21 @@ export const updateAuctionHouseBuilder = async (
         AuthorityScope.Withdraw,
       ];
 
-      if (params.newAuctioneerAuthority && params.auctioneerAuthority !== params.newAuctioneerAuthority) {
+      if (
+        params.newAuctioneerAuthority &&
+        params.auctioneerAuthority !== params.newAuctioneerAuthority
+      ) {
         const ahPreviousAuctioneerPda = findAuctioneerPda(
           auctionHouse.address,
           params.auctioneerAuthority
         );
-        const auctioneer = await metaplex.auctions().findAuctioneerByAddress(ahPreviousAuctioneerPda).run()
+        const auctioneer = await metaplex
+          .auctions()
+          .findAuctioneerByAddress(ahPreviousAuctioneerPda)
+          .run();
 
         // Use scopes from the previous auctioneer.
-        scopes = auctioneer.scopes
+        scopes = auctioneer.scopes;
       }
 
       return builder.add({

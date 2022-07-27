@@ -20,7 +20,10 @@ export const toAuctioneer = (
   auctioneerAccount: AuctioneerAccount
 ): Auctioneer => {
   // Convert an array of booleans to a list of allowed scopes to be consistent with instruction input.
-  const scopes = auctioneerAccount.data.scopes.reduce<number[]>((acc, isAllowed, index) => isAllowed ? [...acc, index] : acc, [] as number[])
+  const scopes = auctioneerAccount.data.scopes.reduce<number[]>(
+    (acc, isAllowed, index) => (isAllowed ? [...acc, index] : acc),
+    [] as number[]
+  );
 
   return {
     model: 'auctioneer',
@@ -28,4 +31,4 @@ export const toAuctioneer = (
     auctionHouse: auctioneerAccount.data.auctionHouse,
     scopes,
   };
-}
+};

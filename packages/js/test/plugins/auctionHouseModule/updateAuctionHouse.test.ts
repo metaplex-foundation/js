@@ -140,7 +140,10 @@ test('[auctionHouseModule] delegate Auctioneer on Auction House update.', async 
 
   // Then the Auctioneer is delegated and account is created.
   t.ok(updatedAuctionHouse.hasAuctioneer);
-  t.equals(auctioneer?.auctioneerAuthority.toBase58(), auctioneerAuthority.publicKey.toBase58());
+  t.equals(
+    auctioneer?.auctioneerAuthority.toBase58(),
+    auctioneerAuthority.publicKey.toBase58()
+  );
 });
 
 test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House update with separate authority.', async (t) => {
@@ -164,7 +167,10 @@ test('[auctionHouseModule] it allows to delegate Auctioneer on Auction House upd
     .run();
 
   // Then the Auctioneer is delegated and account is created.
-  t.equals(auctioneer?.auctioneerAuthority.toBase58(), auctioneerAuthority.publicKey.toBase58());
+  t.equals(
+    auctioneer?.auctioneerAuthority.toBase58(),
+    auctioneerAuthority.publicKey.toBase58()
+  );
 });
 
 test('[auctionHouseModule] it persists scope when delegating a different Auctioneer Authority on Auction House update.', async (t) => {
@@ -192,7 +198,10 @@ test('[auctionHouseModule] it persists scope when delegating a different Auction
     .run();
 
   // Then the new Auctioneer is delegated with persisted scope.
-  t.equals(auctioneer?.auctioneerAuthority.toBase58(), secondAuctioneerAuthority.publicKey.toBase58());
+  t.equals(
+    auctioneer?.auctioneerAuthority.toBase58(),
+    secondAuctioneerAuthority.publicKey.toBase58()
+  );
   t.same(auctioneer?.scopes, [AuthorityScope.Buy]);
 });
 
@@ -267,9 +276,12 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
     .run();
 
   // When we send an update without providing any changes.
-  const promise = mx.auctions().updateAuctionHouse(auctionHouse, {
-    auctioneerAuthority: auctioneerAuthority.publicKey,
-  }).run();
+  const promise = mx
+    .auctions()
+    .updateAuctionHouse(auctionHouse, {
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+    })
+    .run();
 
   // Then we expect an error.
   await assertThrows(t, promise, /No Instructions To Send/);
