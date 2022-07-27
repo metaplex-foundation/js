@@ -15,6 +15,7 @@ import {
   findAuctioneerPda,
   WRAPPED_SOL_MINT,
 } from '@/index';
+import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
 
@@ -131,7 +132,7 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
     .createTokenWithMint({ owner: treasuryOwner })
     .run();
 
-  // When we create a new Auction House with minimum configuration.
+  // When we create a new Auction House using that treasury.
   const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({
@@ -141,6 +142,7 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
     })
     .run();
 
+  // Then the created Auction House stores the treasury information.
   spok(t, auctionHouse, {
     $topic: 'Auction House with Spl Token',
     isNative: false,
@@ -167,13 +169,20 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
     .run();
 
   // Then the new Auction House has Auctioneer attached.
-  t.ok(auctionHouse.hasAuctioneer);
-
-  // And the Auctioneer PDA for that Auction House was created.
   const ahAuctioneerPda = findAuctioneerPda(
     auctionHouse.address,
     auctioneerAuthority.publicKey
   );
+  spok(t, auctionHouse, {
+    hasAuctioneer: true,
+    auctioneer: {
+      address: spokSamePubkey(ahAuctioneerPda),
+      authority: spokSamePubkey(auctioneerAuthority.publicKey),
+      scopes: AUCTIONEER_ALL_SCOPES,
+    },
+  });
+
+  // And the Auctioneer PDA for that Auction House was created.
   const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
   t.ok(ahAuctioneerAccount.exists);
 });
@@ -222,7 +231,7 @@ test('[auctionHouseModule] it throws when creating Auctioneer Auction House with
     })
     .run();
 
-  // Then we expect an error. Because Auctioneer delegation requires authority signer.
+  // Then we expect an error because Auctioneer delegation requires authority signer.
   await assertThrows(
     t,
     promise,

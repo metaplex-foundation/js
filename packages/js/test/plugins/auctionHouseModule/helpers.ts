@@ -4,7 +4,7 @@ import { sol, Signer } from '@/types';
 
 export const createAuctionHouse = async (
   mx: Metaplex,
-  auctioneerAuthority?: Signer,
+  auctioneerAuthority?: Signer | null,
   input: Partial<CreateAuctionHouseInput> = {}
 ) => {
   const { auctionHouse } = await mx
@@ -20,6 +20,6 @@ export const createAuctionHouse = async (
 
   return {
     auctionHouse,
-    client: mx.auctions().for(auctionHouse, auctioneerAuthority),
+    client: mx.auctions().for(auctionHouse, auctioneerAuthority || undefined),
   };
 };
