@@ -53,10 +53,10 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
       key: 'auctioneer_authority_required',
       title: 'Auctioneer Authority Required',
       problem:
-        'You are trying to use an Auction House which delegates to an Auctioneer authority ' +
+        'You are trying to use or fetch an Auction House which delegates to an Auctioneer authority ' +
         'but you have not provided the required "auctioneerAuthority" parameter.',
       solution:
-        'Please provide the "auctioneerAuthority" parameter as a Signer so Auctioneer instructions can be sent. ' +
+        'Please provide the "auctioneerAuthority" parameter so the SDK can figure out which Auctioneer instance to interact with. ' +
         'Note that we keep that parameter optional because no Auctioneer Authority is needed for Auction Houses ' +
         'that use native Auction House behavior.',
     });

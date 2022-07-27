@@ -15,6 +15,7 @@ import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { TreasuryDestinationOwnerRequiredError } from './errors';
 import { findAuctioneerPda } from './pdas';
+import { AUCTIONEER_ALL_SCOPES } from './constants';
 
 // -----------------
 // Operation
@@ -43,7 +44,6 @@ export type UpdateAuctionHouseInput = {
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
   auctioneerAuthority?: PublicKey;
-  newAuctioneerAuthority?: PublicKey;
   auctioneerScopes?: AuthorityScope[];
 
   // Options.
@@ -164,71 +164,61 @@ export const updateAuctionHouseBuilder = async (
       })
     );
 
-  if (params.auctioneerAuthority) {
-    const auctioneerAuthority =
-      params.newAuctioneerAuthority ?? params.auctioneerAuthority;
-    const ahAuctioneerPda = findAuctioneerPda(
-      auctionHouse.address,
-      auctioneerAuthority
+  const shouldDelegateAuctioneer =
+    !auctionHouse.hasAuctioneer && !!params.auctioneerAuthority;
+  const shouldUpdateAuctioneerAuthority =
+    auctionHouse.hasAuctioneer &&
+    params.auctioneerAuthority &&
+    !params.auctioneerAuthority.equals(auctionHouse.auctioneer.authority);
+  const shouldUpdateAuctioneerScopes =
+    auctionHouse.hasAuctioneer &&
+    params.auctioneerScopes &&
+    !isEqual(
+      params.auctioneerScopes.sort(),
+      auctionHouse.auctioneer.scopes.sort()
     );
-    const ahAuctioneerAccount = await metaplex
-      .rpc()
-      .getAccount(ahAuctioneerPda);
+  const shouldUpdateAuctioneer =
+    shouldUpdateAuctioneerAuthority || shouldUpdateAuctioneerScopes;
 
-    const instructionAccounts = {
-      auctionHouse: auctionHouse.address,
-      authority: authority.publicKey,
-      auctioneerAuthority,
-      ahAuctioneerPda,
-    };
+  if (shouldDelegateAuctioneer) {
+    const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+    return builder.add({
+      instruction: createDelegateAuctioneerInstruction(
+        {
+          auctionHouse: auctionHouse.address,
+          authority: authority.publicKey,
+          auctioneerAuthority,
+          ahAuctioneerPda: findAuctioneerPda(
+            auctionHouse.address,
+            auctioneerAuthority
+          ),
+        },
+        { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
+      ),
+      signers: [authority],
+      key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
+    });
+  }
 
-    if (!ahAuctioneerAccount.exists) {
-      let scopes = params.auctioneerScopes ?? [
-        AuthorityScope.Deposit,
-        AuthorityScope.Buy,
-        AuthorityScope.PublicBuy,
-        AuthorityScope.ExecuteSale,
-        AuthorityScope.Sell,
-        AuthorityScope.Cancel,
-        AuthorityScope.Withdraw,
-      ];
-
-      if (
-        params.newAuctioneerAuthority &&
-        params.auctioneerAuthority !== params.newAuctioneerAuthority
-      ) {
-        const ahPreviousAuctioneerPda = findAuctioneerPda(
-          auctionHouse.address,
-          params.auctioneerAuthority
-        );
-        const auctioneer = await metaplex
-          .auctions()
-          .findAuctioneerByAddress(ahPreviousAuctioneerPda)
-          .run();
-
-        // Use scopes from the previous auctioneer.
-        scopes = auctioneer.scopes;
-      }
-
-      return builder.add({
-        instruction: createDelegateAuctioneerInstruction(instructionAccounts, {
-          scopes,
-        }),
-        signers: [authority],
-        key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
-      });
-    }
-
-    // Scope is only changeable, so it means that we update current Auctioneer account.
-    if (params.auctioneerScopes) {
-      return builder.add({
-        instruction: createUpdateAuctioneerInstruction(instructionAccounts, {
-          scopes: params.auctioneerScopes,
-        }),
-        signers: [authority],
-        key: params.updateAuctioneerInstructionKey ?? 'updateAuctioneer',
-      });
-    }
+  if (shouldUpdateAuctioneer) {
+    const auctioneerAuthority =
+      params.auctioneerAuthority ?? auctionHouse.auctioneer.authority;
+    return builder.add({
+      instruction: createUpdateAuctioneerInstruction(
+        {
+          auctionHouse: auctionHouse.address,
+          authority: authority.publicKey,
+          auctioneerAuthority,
+          ahAuctioneerPda: findAuctioneerPda(
+            auctionHouse.address,
+            auctioneerAuthority
+          ),
+        },
+        { scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes }
+      ),
+      signers: [authority],
+      key: params.updateAuctioneerInstructionKey ?? 'updateAuctioneer',
+    });
   }
 
   return builder;

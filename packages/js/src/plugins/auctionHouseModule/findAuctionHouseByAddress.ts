@@ -1,9 +1,11 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { toAuctionHouseAccount } from './accounts';
+import { toAuctioneerAccount, toAuctionHouseAccount } from './accounts';
 import { AuctionHouse, toAuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
+import { findAuctioneerPda } from './pdas';
+import { AuctioneerAuthorityRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -20,6 +22,7 @@ export type FindAuctionHouseByAddressOperation = Operation<
 
 export type FindAuctionHouseByAddressInput = {
   address: PublicKey;
+  auctioneerAuthority?: PublicKey;
   commitment?: Commitment;
 };
 
@@ -34,20 +37,36 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const { address, commitment } = operation.input;
-
-      const account = toAuctionHouseAccount(
-        await metaplex.rpc().getAccount(address, commitment)
+      const { address, auctioneerAuthority, commitment } = operation.input;
+      const auctioneerPda = auctioneerAuthority
+        ? findAuctioneerPda(address, auctioneerAuthority)
+        : undefined;
+      const accountsToFetch = [address, auctioneerPda].filter(
+        (account): account is PublicKey => !!account
       );
 
+      const accounts = await metaplex
+        .rpc()
+        .getMultipleAccounts(accountsToFetch, commitment);
+
+      const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
       const mintModel = await metaplex
         .nfts()
-        .findMintWithMetadataByAddress(account.data.treasuryMint, {
+        .findMintWithMetadataByAddress(auctionHouseAccount.data.treasuryMint, {
           loadJsonMetadata: false,
           commitment,
         })
         .run(scope);
 
-      return toAuctionHouse(account, mintModel);
+      if (!auctionHouseAccount.data.hasAuctioneer) {
+        return toAuctionHouse(auctionHouseAccount, mintModel);
+      }
+
+      if (!accounts[1] || !accounts[1].exists) {
+        throw new AuctioneerAuthorityRequiredError();
+      }
+
+      const auctioneerAccount = toAuctioneerAccount(accounts[1]);
+      return toAuctionHouse(auctionHouseAccount, mintModel, auctioneerAccount);
     },
   };

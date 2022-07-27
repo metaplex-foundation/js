@@ -1,19 +1,14 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { Auctioneer } from './Auctioneer';
 import { AuctionHouse } from './AuctionHouse';
 import { AuctionsBuildersClient } from './AuctionsBuildersClient';
-import { findAuctioneerPda, findAuctionHousePda } from './pdas';
+import { findAuctionHousePda } from './pdas';
 import {
   CreateAuctionHouseInput,
   createAuctionHouseOperation,
   CreateAuctionHouseOutput,
 } from './createAuctionHouse';
-import {
-  FindAuctioneerByAddressInput,
-  findAuctioneerByAddressOperation,
-} from './findAuctioneerByAddress';
 import {
   FindAuctionHouseByAddressInput,
   findAuctionHouseByAddressOperation,
@@ -51,7 +46,8 @@ export class AuctionsClient {
         .run(scope);
       scope.throwIfCanceled();
       const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouseAddress
+        output.auctionHouseAddress,
+        input.auctioneerAuthority
       ).run(scope);
       return { ...output, auctionHouse };
     });
@@ -60,65 +56,50 @@ export class AuctionsClient {
   updateAuctionHouse(
     auctionHouse: AuctionHouse,
     input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
-  ): Task<
-    UpdateAuctionHouseOutput & {
-      auctionHouse: AuctionHouse;
-      auctioneer: Auctioneer | null;
-    }
-  > {
+  ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
         .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
         .run(scope);
       scope.throwIfCanceled();
-
       const updatedAuctionHouse = await this.findAuctionHouseByAddress(
-        auctionHouse.address
+        auctionHouse.address,
+        input.auctioneerAuthority
       ).run(scope);
-
-      let auctioneer = null;
-      if (input.auctioneerAuthority) {
-        const ahAuctioneerPda = findAuctioneerPda(
-          auctionHouse.address,
-          input.newAuctioneerAuthority ?? input.auctioneerAuthority
-        );
-
-        auctioneer = await this.metaplex
-          .auctions()
-          .findAuctioneerByAddress(ahAuctioneerPda)
-          .run();
-      }
-
-      return { ...output, auctionHouse: updatedAuctionHouse, auctioneer };
+      return { ...output, auctionHouse: updatedAuctionHouse };
     });
-  }
-
-  findAuctioneerByAddress(
-    address: PublicKey,
-    options?: Omit<FindAuctioneerByAddressInput, 'address'>
-  ): Task<Auctioneer> {
-    return this.metaplex
-      .operations()
-      .getTask(findAuctioneerByAddressOperation({ address, ...options }));
   }
 
   findAuctionHouseByAddress(
     address: PublicKey,
-    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
+    auctioneerAuthority?: PublicKey,
+    options?: Omit<
+      FindAuctionHouseByAddressInput,
+      'address' | 'auctioneerAuthority'
+    >
   ): Task<AuctionHouse> {
-    return this.metaplex
-      .operations()
-      .getTask(findAuctionHouseByAddressOperation({ address, ...options }));
+    return this.metaplex.operations().getTask(
+      findAuctionHouseByAddressOperation({
+        address,
+        auctioneerAuthority,
+        ...options,
+      })
+    );
   }
 
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
-    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
+    auctioneerAuthority?: PublicKey,
+    options?: Omit<
+      FindAuctionHouseByAddressInput,
+      'address' | 'auctioneerAuthority'
+    >
   ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),
+      auctioneerAuthority,
       options
     );
   }
