@@ -184,7 +184,7 @@ test('[auctionHouseModule] it can assign an Auctioneer authority with an explici
   });
 });
 
-test.skip('[auctionHouseModule] it keeps the original scope when updating the Auctioneer Authority', async (t) => {
+test.only('[auctionHouseModule] it keeps the original scope when updating the Auctioneer Authority', async (t) => {
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();

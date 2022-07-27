@@ -63,9 +63,12 @@ export class AuctionsClient {
         .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
         .run(scope);
       scope.throwIfCanceled();
+      const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
+        ? auctionHouse.auctioneer.authority
+        : undefined;
       const updatedAuctionHouse = await this.findAuctionHouseByAddress(
         auctionHouse.address,
-        input.auctioneerAuthority
+        input.auctioneerAuthority ?? currentAuctioneerAuthority
       ).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
