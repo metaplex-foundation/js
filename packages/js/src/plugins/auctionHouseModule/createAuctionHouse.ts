@@ -25,6 +25,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from '../tokenModule';
 import { AuthoritySignerRequiredError } from './errors';
+import { AUCTIONEER_ALL_SCOPES } from './constants';
 
 // -----------------
 // Operation
@@ -177,15 +178,7 @@ export const createAuctionHouseBuilder = (
         auctioneerAuthority
       );
 
-      const scopes = params.auctioneerScopes ?? [
-        AuthorityScope.Deposit,
-        AuthorityScope.Buy,
-        AuthorityScope.PublicBuy,
-        AuthorityScope.ExecuteSale,
-        AuthorityScope.Sell,
-        AuthorityScope.Cancel,
-        AuthorityScope.Withdraw,
-      ];
+      const scopes = params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES;
 
       builder.add({
         instruction: createDelegateAuctioneerInstruction(
