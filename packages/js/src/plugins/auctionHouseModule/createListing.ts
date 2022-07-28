@@ -35,6 +35,7 @@ import { AuctionHouse } from './AuctionHouse';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { findMetadataPda } from '../nftModule';
 import { AUCTIONEER_PRICE } from './constants';
+import { AuctioneerAuthorityRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -55,7 +56,7 @@ export type CreateListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
   tokenAccount?: PublicKey; // Default: ATA
-  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
+  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens, ignored in Auctioneer.
   tokens?: SplTokenAmount; // Default: token(1)
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
@@ -117,6 +118,10 @@ export const createListingBuilder = (
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+
+  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
+  }
 
   // Accounts.
   const seller = params.seller ?? (metaplex.identity() as Signer);
@@ -214,7 +219,9 @@ export const createListingBuilder = (
       })
 
       // Print the Listing Receipt.
-      .when(params.printReceipt ?? true, (builder) =>
+      // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
+      // Don't print Auctioneer Sell receipt for the time being.
+      .when(params.printReceipt ?? !params.auctioneerAuthority, (builder) =>
         builder.add({
           instruction: createPrintListingReceiptInstruction(
             {

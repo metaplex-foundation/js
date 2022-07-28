@@ -1,5 +1,9 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { createCreateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
+import {
+  AuthorityScope,
+  createCreateAuctionHouseInstruction,
+  createDelegateAuctioneerInstruction,
+} from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import {
   useOperation,
@@ -7,16 +11,21 @@ import {
   Signer,
   OperationHandler,
   Pda,
+  isSigner,
+  toPublicKey,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import {
+  findAuctioneerPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from './pdas';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from '../tokenModule';
+import { AuthoritySignerRequiredError } from './errors';
+import { AUCTIONEER_ALL_SCOPES } from './constants';
 
 // -----------------
 // Operation
@@ -36,13 +45,15 @@ export type CreateAuctionHouseInput = {
   sellerFeeBasisPoints: number;
   requiresSignOff?: boolean;
   canChangeSalePrice?: boolean;
+  auctioneerScopes?: AuthorityScope[];
 
   // Accounts.
   treasuryMint?: PublicKey;
   payer?: Signer;
-  authority?: PublicKey;
+  authority?: PublicKey | Signer; // Authority is required to sign when delegating to an Auctioneer instance.
   feeWithdrawalDestination?: PublicKey;
   treasuryWithdrawalDestinationOwner?: PublicKey;
+  auctioneerAuthority?: PublicKey;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -82,6 +93,7 @@ export type CreateAuctionHouseBuilderParams = Omit<
   'confirmOptions'
 > & {
   instructionKey?: string;
+  delegateAuctioneerInstructionKey?: string;
 };
 
 export type CreateAuctionHouseBuilderContext = Omit<
@@ -98,7 +110,7 @@ export const createAuctionHouseBuilder = (
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
 
   // Accounts.
-  const authority = params.authority ?? metaplex.identity().publicKey;
+  const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const treasuryMint = params.treasuryMint ?? WRAPPED_SOL_MINT;
   const treasuryWithdrawalDestinationOwner =
@@ -106,8 +118,16 @@ export const createAuctionHouseBuilder = (
   const feeWithdrawalDestination =
     params.feeWithdrawalDestination ?? metaplex.identity().publicKey;
 
+  // Auctioneer delegate instruction needs to be signed by authority
+  if (params.auctioneerAuthority && !isSigner(authority)) {
+    throw new AuthoritySignerRequiredError();
+  }
+
   // PDAs.
-  const auctionHouse = findAuctionHousePda(authority, treasuryMint);
+  const auctionHouse = findAuctionHousePda(
+    toPublicKey(authority),
+    treasuryMint
+  );
   const auctionHouseFeeAccount = findAuctionHouseFeePda(auctionHouse);
   const auctionHouseTreasury = findAuctionHouseTreasuryPda(auctionHouse);
   const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
@@ -117,37 +137,62 @@ export const createAuctionHouseBuilder = (
         treasuryWithdrawalDestinationOwner
       );
 
-  return TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({
-      auctionHouseAddress: auctionHouse,
-      auctionHouseFeeAccountAddress: auctionHouseFeeAccount,
-      auctionHouseTreasuryAddress: auctionHouseTreasury,
-      treasuryWithdrawalDestinationAddress: treasuryWithdrawalDestination,
-    })
-    .add({
-      instruction: createCreateAuctionHouseInstruction(
-        {
-          treasuryMint,
-          payer: payer.publicKey,
-          authority,
-          feeWithdrawalDestination,
-          treasuryWithdrawalDestination,
-          treasuryWithdrawalDestinationOwner,
-          auctionHouse,
-          auctionHouseFeeAccount,
-          auctionHouseTreasury,
-        },
-        {
-          bump: auctionHouse.bump,
-          feePayerBump: auctionHouseFeeAccount.bump,
-          treasuryBump: auctionHouseTreasury.bump,
-          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-          requiresSignOff,
-          canChangeSalePrice,
-        }
-      ),
-      signers: [payer],
-      key: params.instructionKey ?? 'createAuctionHouse',
-    });
+  return (
+    TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
+      .setFeePayer(payer)
+      .setContext({
+        auctionHouseAddress: auctionHouse,
+        auctionHouseFeeAccountAddress: auctionHouseFeeAccount,
+        auctionHouseTreasuryAddress: auctionHouseTreasury,
+        treasuryWithdrawalDestinationAddress: treasuryWithdrawalDestination,
+      })
+
+      // Create and initialize the Auction House account.
+      .add({
+        instruction: createCreateAuctionHouseInstruction(
+          {
+            treasuryMint,
+            payer: payer.publicKey,
+            authority: toPublicKey(authority),
+            feeWithdrawalDestination,
+            treasuryWithdrawalDestination,
+            treasuryWithdrawalDestinationOwner,
+            auctionHouse,
+            auctionHouseFeeAccount,
+            auctionHouseTreasury,
+          },
+          {
+            bump: auctionHouse.bump,
+            feePayerBump: auctionHouseFeeAccount.bump,
+            treasuryBump: auctionHouseTreasury.bump,
+            sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+            requiresSignOff,
+            canChangeSalePrice,
+          }
+        ),
+        signers: [payer],
+        key: params.instructionKey ?? 'createAuctionHouse',
+      })
+
+      // Delegate to the Auctioneer authority when provided.
+      .when(Boolean(params.auctioneerAuthority), (builder) => {
+        const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+        return builder.add({
+          instruction: createDelegateAuctioneerInstruction(
+            {
+              auctionHouse,
+              authority: toPublicKey(authority as Signer),
+              auctioneerAuthority,
+              ahAuctioneerPda: findAuctioneerPda(
+                auctionHouse,
+                auctioneerAuthority
+              ),
+            },
+            { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
+          ),
+          signers: [authority as Signer],
+          key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
+        });
+      })
+  );
 };

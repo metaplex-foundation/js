@@ -1,4 +1,5 @@
 import {
+  Auctioneer,
   AuctionHouse,
   ListingReceipt,
   BidReceipt,
@@ -8,6 +9,11 @@ import {
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@/types';
+
+export type AuctioneerAccount = Account<Auctioneer>;
+export const parseAuctioneerAccount = getAccountParsingFunction(Auctioneer);
+export const toAuctioneerAccount =
+  getAccountParsingAndAssertingFunction(Auctioneer);
 
 export type AuctionHouseAccount = Account<AuctionHouse>;
 export const parseAuctionHouseAccount = getAccountParsingFunction(AuctionHouse);

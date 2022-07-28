@@ -18,8 +18,8 @@ import {
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './updateAuctionHouse';
-import { Signer } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
+import { Signer } from '@/types';
 
 export class AuctionsClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -46,7 +46,8 @@ export class AuctionsClient {
         .run(scope);
       scope.throwIfCanceled();
       const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouseAddress
+        output.auctionHouseAddress,
+        input.auctioneerAuthority
       ).run(scope);
       return { ...output, auctionHouse };
     });
@@ -62,8 +63,12 @@ export class AuctionsClient {
         .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
         .run(scope);
       scope.throwIfCanceled();
+      const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
+        ? auctionHouse.auctioneer.authority
+        : undefined;
       const updatedAuctionHouse = await this.findAuctionHouseByAddress(
-        auctionHouse.address
+        auctionHouse.address,
+        input.auctioneerAuthority ?? currentAuctioneerAuthority
       ).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
@@ -71,20 +76,33 @@ export class AuctionsClient {
 
   findAuctionHouseByAddress(
     address: PublicKey,
-    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
+    auctioneerAuthority?: PublicKey,
+    options?: Omit<
+      FindAuctionHouseByAddressInput,
+      'address' | 'auctioneerAuthority'
+    >
   ): Task<AuctionHouse> {
-    return this.metaplex
-      .operations()
-      .getTask(findAuctionHouseByAddressOperation({ address, ...options }));
+    return this.metaplex.operations().getTask(
+      findAuctionHouseByAddressOperation({
+        address,
+        auctioneerAuthority,
+        ...options,
+      })
+    );
   }
 
   findAuctionHouseByCreatorAndMint(
     creator: PublicKey,
     treasuryMint: PublicKey,
-    options?: Omit<FindAuctionHouseByAddressInput, 'address'>
+    auctioneerAuthority?: PublicKey,
+    options?: Omit<
+      FindAuctionHouseByAddressInput,
+      'address' | 'auctioneerAuthority'
+    >
   ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress(
       findAuctionHousePda(creator, treasuryMint),
+      auctioneerAuthority,
       options
     );
   }

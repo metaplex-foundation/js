@@ -1,13 +1,21 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
 import { Keypair } from '@solana/web3.js';
-import { metaplex, spokSamePubkey, killStuckProcess } from '../../helpers';
+import {
+  metaplex,
+  spokSamePubkey,
+  killStuckProcess,
+  assertThrows,
+  createWallet,
+} from '../../helpers';
 import {
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
+  findAuctioneerPda,
   WRAPPED_SOL_MINT,
 } from '@/index';
+import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
 
@@ -124,7 +132,7 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
     .createTokenWithMint({ owner: treasuryOwner })
     .run();
 
-  // When we create a new Auction House with minimum configuration.
+  // When we create a new Auction House using that treasury.
   const { auctionHouse } = await mx
     .auctions()
     .createAuctionHouse({
@@ -134,6 +142,7 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
     })
     .run();
 
+  // Then the created Auction House stores the treasury information.
   spok(t, auctionHouse, {
     $topic: 'Auction House with Spl Token',
     isNative: false,
@@ -142,4 +151,90 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
       address: spokSamePubkey(token.mint.address),
     },
   });
+});
+
+test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  const auctioneerAuthority = Keypair.generate();
+
+  // When we create a new Auctioneer Auction House.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+    })
+    .run();
+
+  // Then the new Auction House has Auctioneer attached.
+  const ahAuctioneerPda = findAuctioneerPda(
+    auctionHouse.address,
+    auctioneerAuthority.publicKey
+  );
+  spok(t, auctionHouse, {
+    hasAuctioneer: true,
+    auctioneer: {
+      address: spokSamePubkey(ahAuctioneerPda),
+      authority: spokSamePubkey(auctioneerAuthority.publicKey),
+      scopes: AUCTIONEER_ALL_SCOPES,
+    },
+  });
+
+  // And the Auctioneer PDA for that Auction House was created.
+  const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
+  t.ok(ahAuctioneerAccount.exists);
+});
+
+test('[auctionHouseModule] create new Auctioneer Auction House with separate authority', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  const auctioneerAuthority = Keypair.generate();
+  const authority = await createWallet(mx);
+
+  // When we create a new Auctioneer Auction House with a separate authority.
+  const { auctionHouse } = await mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      authority,
+    })
+    .run();
+
+  // Then the new Auction House has separate authority.
+  t.equal(
+    auctionHouse.authorityAddress.toBase58(),
+    authority.publicKey.toBase58()
+  );
+
+  // And Auctioneer was delegated.
+  t.ok(auctionHouse.hasAuctioneer);
+});
+
+test('[auctionHouseModule] it throws when creating Auctioneer Auction House with a PublicKey authority provided', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  const auctioneerAuthority = Keypair.generate();
+  const authority = await createWallet(mx);
+
+  // When we create a new Auctioneer Auction House with an separate authority provided as PublicKey.
+  const promise = mx
+    .auctions()
+    .createAuctionHouse({
+      sellerFeeBasisPoints: 200,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      authority: authority.publicKey, // Provide PublicKey instead of Signer to catch an error
+    })
+    .run();
+
+  // Then we expect an error because Auctioneer delegation requires authority signer.
+  await assertThrows(
+    t,
+    promise,
+    /You are trying to delegate an Auctioneer which requires authority to sign a transaction/
+  );
 });

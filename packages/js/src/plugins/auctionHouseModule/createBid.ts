@@ -7,6 +7,8 @@ import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   BuyInstructionAccounts,
+  createAuctioneerBuyInstruction,
+  createAuctioneerPublicBuyInstruction,
   createBuyInstruction,
   createPrintBidReceiptInstruction,
   createPublicBuyInstruction,
@@ -30,10 +32,12 @@ import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { findMetadataPda } from '../nftModule';
 import { AuctionHouse } from './AuctionHouse';
 import {
+  findAuctioneerPda,
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseTradeStatePda,
   findBidReceiptPda,
 } from './pdas';
+import { AuctioneerAuthorityRequiredError } from './errors';
 
 // -----------------
 // Operation
@@ -51,6 +55,7 @@ export type CreateBidInput = {
   auctionHouse: AuctionHouse;
   buyer?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
+  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   mintAccount: PublicKey; // Required for checking Metadata
   seller?: Option<PublicKey>; // Default: null (i.e. public bid unless token account is provided)
   tokenAccount?: Option<PublicKey>; // Default: null (i.e. public bid unless seller is provided).
@@ -113,6 +118,10 @@ export const createBidBuilder = async (
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
+  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
+  }
+
   // Accounts.
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
@@ -163,19 +172,42 @@ export const createBidBuilder = async (
   };
 
   // Sell Instruction.
-  // ToDo: Add support for the auctioneerAuthority
   let buyInstruction;
-  if (tokenAccount) {
-    buyInstruction = createBuyInstruction({ ...accounts, tokenAccount }, args);
-  } else {
-    buyInstruction = createPublicBuyInstruction(
-      { ...accounts, tokenAccount: buyerTokenAccount },
-      args
+  if (params.auctioneerAuthority) {
+    const ahAuctioneerPda = findAuctioneerPda(
+      auctionHouse.address,
+      params.auctioneerAuthority.publicKey
     );
+
+    const accountsWithAuctioneer = {
+      ...accounts,
+      auctioneerAuthority: params.auctioneerAuthority.publicKey,
+      ahAuctioneerPda,
+    };
+
+    buyInstruction = tokenAccount
+      ? createAuctioneerBuyInstruction(
+          { ...accountsWithAuctioneer, tokenAccount },
+          args
+        )
+      : createAuctioneerPublicBuyInstruction(
+          {
+            ...accountsWithAuctioneer,
+            tokenAccount: buyerTokenAccount,
+          },
+          args
+        );
+  } else {
+    buyInstruction = tokenAccount
+      ? createBuyInstruction({ ...accounts, tokenAccount }, args)
+      : createPublicBuyInstruction(
+          { ...accounts, tokenAccount: buyerTokenAccount },
+          args
+        );
   }
 
   // Signers.
-  const buySigners = [buyer, authority].filter(
+  const buySigners = [buyer, authority, params.auctioneerAuthority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
 
@@ -222,7 +254,9 @@ export const createBidBuilder = async (
       })
 
       // Print the Bid Receipt.
-      .when(params.printReceipt ?? true, (builder) =>
+      // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug
+      // Don't print Auctioneer Bid receipt for the time being.
+      .when(params.printReceipt ?? !params.auctioneerAuthority, (builder) =>
         builder.add({
           instruction: createPrintBidReceiptInstruction(
             {
