@@ -137,65 +137,62 @@ export const createAuctionHouseBuilder = (
         treasuryWithdrawalDestinationOwner
       );
 
-  return TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({
-      auctionHouseAddress: auctionHouse,
-      auctionHouseFeeAccountAddress: auctionHouseFeeAccount,
-      auctionHouseTreasuryAddress: auctionHouseTreasury,
-      treasuryWithdrawalDestinationAddress: treasuryWithdrawalDestination,
-    })
-    .add({
-      instruction: createCreateAuctionHouseInstruction(
-        {
-          treasuryMint,
-          payer: payer.publicKey,
-          authority: toPublicKey(authority),
-          feeWithdrawalDestination,
-          treasuryWithdrawalDestination,
-          treasuryWithdrawalDestinationOwner,
-          auctionHouse,
-          auctionHouseFeeAccount,
-          auctionHouseTreasury,
-        },
-        {
-          bump: auctionHouse.bump,
-          feePayerBump: auctionHouseFeeAccount.bump,
-          treasuryBump: auctionHouseTreasury.bump,
-          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-          requiresSignOff,
-          canChangeSalePrice,
-        }
-      ),
-      signers: [payer],
-      key: params.instructionKey ?? 'createAuctionHouse',
-    })
-    .when(Boolean(params.auctioneerAuthority), (builder) => {
-      const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+  return (
+    TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
+      .setFeePayer(payer)
+      .setContext({
+        auctionHouseAddress: auctionHouse,
+        auctionHouseFeeAccountAddress: auctionHouseFeeAccount,
+        auctionHouseTreasuryAddress: auctionHouseTreasury,
+        treasuryWithdrawalDestinationAddress: treasuryWithdrawalDestination,
+      })
 
-      const ahAuctioneerPda = findAuctioneerPda(
-        auctionHouse,
-        auctioneerAuthority
-      );
-
-      const scopes = params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES;
-
-      builder.add({
-        instruction: createDelegateAuctioneerInstruction(
+      // Create and initialize the Auction House account.
+      .add({
+        instruction: createCreateAuctionHouseInstruction(
           {
+            treasuryMint,
+            payer: payer.publicKey,
+            authority: toPublicKey(authority),
+            feeWithdrawalDestination,
+            treasuryWithdrawalDestination,
+            treasuryWithdrawalDestinationOwner,
             auctionHouse,
-            authority: toPublicKey(authority as Signer),
-            auctioneerAuthority,
-            ahAuctioneerPda,
+            auctionHouseFeeAccount,
+            auctionHouseTreasury,
           },
           {
-            scopes,
+            bump: auctionHouse.bump,
+            feePayerBump: auctionHouseFeeAccount.bump,
+            treasuryBump: auctionHouseTreasury.bump,
+            sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+            requiresSignOff,
+            canChangeSalePrice,
           }
         ),
-        signers: [authority as Signer],
-        key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
-      });
+        signers: [payer],
+        key: params.instructionKey ?? 'createAuctionHouse',
+      })
 
-      return builder;
-    });
+      // Delegate to the Auctioneer authority when provided.
+      .when(Boolean(params.auctioneerAuthority), (builder) => {
+        const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
+        return builder.add({
+          instruction: createDelegateAuctioneerInstruction(
+            {
+              auctionHouse,
+              authority: toPublicKey(authority as Signer),
+              auctioneerAuthority,
+              ahAuctioneerPda: findAuctioneerPda(
+                auctionHouse,
+                auctioneerAuthority
+              ),
+            },
+            { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
+          ),
+          signers: [authority as Signer],
+          key: params.delegateAuctioneerInstructionKey ?? 'delegateAuctioneer',
+        });
+      })
+  );
 };
