@@ -48,6 +48,7 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       const accounts = await metaplex
         .rpc()
         .getMultipleAccounts(accountsToFetch, commitment);
+      scope.throwIfCanceled();
 
       const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
       const mintModel = await metaplex
@@ -57,6 +58,7 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
           commitment,
         })
         .run(scope);
+      scope.throwIfCanceled();
 
       if (!auctionHouseAccount.data.hasAuctioneer) {
         return toAuctionHouse(auctionHouseAccount, mintModel);
