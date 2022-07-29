@@ -225,21 +225,40 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
   } as unknown as Specifications<Sft>);
 });
 
-test.only('[nftModule] it can create an SFT with an associated token', async (t: Test) => {
+test('[nftModule] it can create an SFT with an associated token', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
-  // When we create a new SFT ...
+  // When we create a new SFT with a token account.
   const { sft } = await mx
     .nfts()
-    .createSft({ ...minimalInput() })
+    .createSft({
+      ...minimalInput(),
+      token: {
+        owner: mx.identity().publicKey,
+        amount: token(42),
+      },
+    })
     .run();
 
-  // Then ...
+  // Then the created SFT has the expected configuration.
   spok(t, sft, {
     $topic: 'SFT',
-    model: 'SFT',
-    // ...
+    model: 'sft',
+    mint: {
+      model: 'mint',
+      decimals: 0,
+      supply: spokSameAmount(token(42)),
+    },
+    token: {
+      model: 'token',
+      isAssociatedToken: true,
+      ownerAddress: spokSamePubkey(mx.identity().publicKey),
+      amount: spokSameAmount(token(42)),
+      closeAuthorityAddress: null,
+      delegateAddress: null,
+      delegateAmount: token(0),
+    },
   } as unknown as Specifications<Sft>);
 });
 
@@ -247,17 +266,43 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
-  // When we create a new SFT ...
+  // And a token and a mint account.
+  const tokenSigner = Keypair.generate();
+  const { token: existingToken } = await mx
+    .tokens()
+    .createTokenWithMint({ token: tokenSigner })
+    .run();
+  const existingMint = existingToken.mint;
+
+  // When we create a new SFT for that mint and mint to an existing token account.
   const { sft } = await mx
     .nfts()
-    .createSft({ ...minimalInput() })
+    .createSft({
+      ...minimalInput(),
+      mint: { existing: existingMint.address },
+      token: { address: existingToken.address, amount: token(42) },
+    })
     .run();
 
-  // Then ...
+  // Then the created SFT has the expected configuration.
   spok(t, sft, {
     $topic: 'SFT',
-    model: 'SFT',
-    // ...
+    model: 'sft',
+    mint: {
+      model: 'mint',
+      address: spokSamePubkey(existingMint.address),
+      decimals: 0,
+      supply: spokSameAmount(token(42)),
+    },
+    token: {
+      model: 'token',
+      address: spokSamePubkey(existingToken.address),
+      isAssociatedToken: false,
+      amount: spokSameAmount(token(42)),
+      closeAuthorityAddress: null,
+      delegateAddress: null,
+      delegateAmount: token(0),
+    },
   } as unknown as Specifications<Sft>);
 });
 
