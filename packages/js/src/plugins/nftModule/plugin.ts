@@ -26,26 +26,6 @@ import {
   findNftsByUpdateAuthorityOperation,
 } from './findNftsByUpdateAuthority';
 import {
-  findMintWithMetadataByAddressOperation,
-  findMintWithMetadataByAddressOperationHandler,
-} from './findMintWithMetadataByAddress';
-import {
-  findMintWithMetadataByMetadataOperation,
-  findMintWithMetadataByMetadataOperationHandler,
-} from './findMintWithMetadataByMetadata';
-import {
-  findTokenWithMetadataByAddressOperation,
-  findTokenWithMetadataByAddressOperationHandler,
-} from './findTokenWithMetadataByAddress';
-import {
-  findTokenWithMetadataByMetadataOperation,
-  findTokenWithMetadataByMetadataOperationHandler,
-} from './findTokenWithMetadataByMetadata';
-import {
-  findTokenWithMetadataByMintOperation,
-  findTokenWithMetadataByMintOperationHandler,
-} from './findTokenWithMetadataByMint';
-import {
   loadMetadataOperation,
   loadMetadataOperationHandler,
 } from './loadMetadata';
@@ -81,14 +61,6 @@ export const nftModule = (): MetaplexPlugin => ({
     const op = metaplex.operations();
     op.register(addMetadataOperation, addMetadataOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
-    op.register(
-      findMintWithMetadataByAddressOperation,
-      findMintWithMetadataByAddressOperationHandler
-    );
-    op.register(
-      findMintWithMetadataByMetadataOperation,
-      findMintWithMetadataByMetadataOperationHandler
-    );
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
     op.register(
@@ -99,18 +71,6 @@ export const nftModule = (): MetaplexPlugin => ({
     op.register(
       findNftsByUpdateAuthorityOperation,
       findNftsByUpdateAuthorityOperationHandler
-    );
-    op.register(
-      findTokenWithMetadataByAddressOperation,
-      findTokenWithMetadataByAddressOperationHandler
-    );
-    op.register(
-      findTokenWithMetadataByMetadataOperation,
-      findTokenWithMetadataByMetadataOperationHandler
-    );
-    op.register(
-      findTokenWithMetadataByMintOperation,
-      findTokenWithMetadataByMintOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
     op.register(loadNftOperation, loadNftOperationHandler);
