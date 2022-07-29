@@ -194,7 +194,11 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
   const mx = await metaplex();
 
   // And an existing mint.
-  const { mint } = await mx.tokens().createMint({ decimals: 2 }).run();
+  const mintAuthority = Keypair.generate();
+  const { mint } = await mx
+    .tokens()
+    .createMint({ decimals: 2, mintAuthority: mintAuthority.publicKey })
+    .run();
 
   // When we create a new SFT from that mint.
   const { sft } = await mx
@@ -202,6 +206,7 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
     .createSft({
       ...minimalInput(),
       useExistingMint: mint.address,
+      mintAuthority: mintAuthority,
       name: 'My SFT from an existing mint',
       symbol: 'MYSFT',
       decimals: 9, // <- This will not be used on existing mints.
