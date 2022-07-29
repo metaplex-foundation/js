@@ -177,7 +177,7 @@ export class NftClient {
   ): Task<LoadMetadataOutput> {
     return this.metaplex
       .operations()
-      .getTask(loadMetadataOperation({ metadata }));
+      .getTask(loadMetadataOperation({ metadata, ...options }));
   }
 
   printNewEdition<T extends Nft | NftWithToken | Metadata | PublicKey>(
