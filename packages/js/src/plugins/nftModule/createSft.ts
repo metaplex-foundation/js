@@ -118,7 +118,8 @@ export const createSftBuilder = async (
   const tokenAddress = token ? toTokenAddress(mintAddress, token) : null;
   const mintAndTokenBuilder = await createMintAndTokenForSftBuilder(
     metaplex,
-    params
+    params,
+    mint
   );
 
   const metadataPda = findMetadataPda(mintAddress);
@@ -170,11 +171,11 @@ export const createSftBuilder = async (
 
 const createMintAndTokenForSftBuilder = async (
   metaplex: Metaplex,
-  params: CreateSftBuilderParams
+  params: CreateSftBuilderParams,
+  mint: { new: Signer } | { existing: PublicKey }
 ): Promise<TransactionBuilder> => {
   const {
     payer = metaplex.identity(),
-    mint = { new: Keypair.generate() },
     token,
     mintAuthority = metaplex.identity(),
     freezeAuthority = metaplex.identity().publicKey,

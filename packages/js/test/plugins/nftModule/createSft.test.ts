@@ -13,7 +13,7 @@ import {
 
 killStuckProcess();
 
-test.only('[nftModule] it can create an SFT with minimum configuration', async (t: Test) => {
+test('[nftModule] it can create an SFT with minimum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -21,8 +21,8 @@ test.only('[nftModule] it can create an SFT with minimum configuration', async (
   const { uri, metadata } = await mx
     .nfts()
     .uploadMetadata({
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
+      name: 'JSON SFT name',
+      description: 'JSON SFT description',
       image: toMetaplexFile('some_image', 'some-image.jpg'),
     })
     .run();
@@ -32,7 +32,7 @@ test.only('[nftModule] it can create an SFT with minimum configuration', async (
     .nfts()
     .createSft({
       uri,
-      name: 'My NFT',
+      name: 'On-chain SFT name',
       sellerFeeBasisPoints: 200,
     })
     .run();
@@ -40,17 +40,17 @@ test.only('[nftModule] it can create an SFT with minimum configuration', async (
   // Then we created and returned the new SFT and it has appropriate defaults.
   const expectedSft = {
     model: 'sft',
-    name: 'On-chain NFT name',
+    name: 'On-chain SFT name',
     uri,
-    mintAddress: spokSamePubkey(mintAddress),
+    address: spokSamePubkey(mintAddress),
     metadataAddress: spokSamePubkey(metadataAddress),
     updateAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
     json: {
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
+      name: 'JSON SFT name',
+      description: 'JSON SFT description',
       image: metadata.image,
     },
-    sellerFeeBasisPoints: 500,
+    sellerFeeBasisPoints: 200,
     primarySaleHappened: false,
     creators: [
       {
