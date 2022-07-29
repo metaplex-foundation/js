@@ -261,16 +261,17 @@ test('[nftModule] it can create an SFT with a new associated token', async (t: T
   } as unknown as Specifications<Sft>);
 });
 
-test.skip('[nftModule] it can create an SFT with a new non-associated token', async (t: Test) => {
+test('[nftModule] it can create an SFT with a new non-associated token', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
-  // When we create a new SFT with a token account.
+  // When we create a new SFT with a non-associated token account.
+  const tokenSigner = Keypair.generate();
   const { sft } = await mx
     .nfts()
     .createSft({
       ...minimalInput(),
-      tokenOwner: mx.identity().publicKey,
+      tokenAddress: tokenSigner,
       tokenAmount: token(42),
     })
     .run();
@@ -286,8 +287,8 @@ test.skip('[nftModule] it can create an SFT with a new non-associated token', as
     },
     token: {
       model: 'token',
-      isAssociatedToken: true,
-      ownerAddress: spokSamePubkey(mx.identity().publicKey),
+      address: spokSamePubkey(tokenSigner.publicKey),
+      isAssociatedToken: false,
       amount: spokSameAmount(token(42)),
       closeAuthorityAddress: null,
       delegateAddress: null,
