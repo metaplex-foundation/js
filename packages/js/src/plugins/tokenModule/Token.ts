@@ -1,5 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
-import { amount, Amount, BigNumber, Pda, toBigNumber } from '@/types';
+import { amount, Pda, SplTokenAmount, token } from '@/types';
 import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
@@ -11,10 +11,10 @@ export type Token = Readonly<{
   isAssociatedToken: boolean;
   mintAddress: PublicKey;
   ownerAddress: PublicKey;
-  amount: BigNumber;
+  amount: SplTokenAmount;
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
-  delegateAmount: BigNumber;
+  delegateAmount: SplTokenAmount;
 }>;
 
 export const isToken = (value: any): value is Token =>
@@ -36,24 +36,19 @@ export const toToken = (account: TokenAccount): Token => {
     isAssociatedToken,
     mintAddress: account.data.mint,
     ownerAddress: account.data.owner,
-    amount: toBigNumber(account.data.amount.toString()),
+    amount: token(account.data.amount.toString()),
     closeAuthorityAddress: account.data.closeAuthorityOption
       ? account.data.closeAuthority
       : null,
     delegateAddress: account.data.delegateOption ? account.data.delegate : null,
-    delegateAmount: toBigNumber(account.data.delegatedAmount.toString()),
+    delegateAmount: token(account.data.delegatedAmount.toString()),
   };
 };
 
-export type TokenWithMint = Omit<
-  Token,
-  'model' | 'mintAddress' | 'amount' | 'delegateAmount'
-> &
+export type TokenWithMint = Omit<Token, 'model' | 'mintAddress'> &
   Readonly<{
     model: 'tokenWithMint';
     mint: Mint;
-    amount: Amount;
-    delegateAmount: Amount;
   }>;
 
 export const isTokenWithMint = (value: any): value is TokenWithMint =>
@@ -74,7 +69,10 @@ export const toTokenWithMint = (
     ...token,
     model: 'tokenWithMint',
     mint: mintModel,
-    amount: amount(token.amount, mintModel.currency),
-    delegateAmount: amount(token.delegateAmount, mintModel.currency),
+    amount: amount(token.amount.basisPoints, mintModel.currency),
+    delegateAmount: amount(
+      token.delegateAmount.basisPoints,
+      mintModel.currency
+    ),
   };
 };

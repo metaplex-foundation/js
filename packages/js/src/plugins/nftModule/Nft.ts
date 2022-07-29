@@ -1,9 +1,10 @@
 import type { PublicKey } from '@solana/web3.js';
-import { Pda } from '@/types';
+import type { Pda } from '@/types';
+import type { Metadata } from './Metadata';
+import type { Mint, Token } from '../tokenModule';
+import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
-import { Metadata } from './Metadata';
-import { Mint, Token } from '../tokenModule';
-import { NftEdition } from './NftEdition';
+import { toSft, toSftWithToken } from './Sft';
 
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
@@ -45,57 +46,8 @@ export const toNftWithToken = (
   mint: Mint,
   edition: NftEdition,
   token: Token
-): Nft => ({
+): NftWithToken => ({
   ...toSftWithToken(metadata, mint, token),
   model: 'nft',
   edition,
-});
-
-export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
-  Readonly<{
-    model: 'sft';
-    address: PublicKey;
-    metadataAddress: Pda;
-    mint: Mint;
-  }>;
-
-export const isSft = (value: any): value is Sft =>
-  typeof value === 'object' && value.model === 'sft';
-
-export function assertSft(value: any): asserts value is Sft {
-  assert(isSft(value), `Expected Sft model`);
-}
-
-export const toSft = (metadata: Metadata, mint: Mint): Sft => {
-  const { address, mintAddress, ...shared } = metadata;
-  assert(
-    mintAddress.equals(mint.address),
-    'The provided mint does not match the mint address in the metadata'
-  );
-
-  return {
-    ...shared,
-    model: 'sft',
-    address: mintAddress,
-    metadataAddress: address,
-    mint,
-  };
-};
-
-export type SftWithToken = Sft & { token: Token };
-
-export const isSftWithToken = (value: any): value is SftWithToken =>
-  isSft(value) && 'token' in value;
-
-export function assertSftWithToken(value: any): asserts value is SftWithToken {
-  assert(isSftWithToken(value), `Expected Sft model with token`);
-}
-
-export const toSftWithToken = (
-  metadata: Metadata,
-  mint: Mint,
-  token: Token
-): SftWithToken => ({
-  ...toSft(metadata, mint),
-  token,
 });
