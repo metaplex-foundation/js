@@ -228,7 +228,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   } as unknown as Specifications<Nft>);
 });
 
-test.only('[nftModule] it can create an NFT from an existing mint', async (t: Test) => {
+test('[nftModule] it can create an NFT from an existing mint', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -236,18 +236,20 @@ test.only('[nftModule] it can create an NFT from an existing mint', async (t: Te
   const mintAuthority = Keypair.generate();
   const { mint } = await mx
     .tokens()
-    .createMint({ decimals: 0, mintAuthority: mintAuthority.publicKey })
+    .createMint({
+      decimals: 0,
+      mintAuthority: mintAuthority.publicKey,
+    })
     .run();
 
   // When we create a new SFT from that mint.
-  const { nft } = await mx
+  const { nft, masterEditionAddress } = await mx
     .nfts()
     .create({
       ...minimalInput(),
       useExistingMint: mint.address,
       mintAuthority: mintAuthority,
       name: 'My NFT from an existing mint',
-      symbol: 'MYNFT',
     })
     .run();
 
@@ -256,14 +258,13 @@ test.only('[nftModule] it can create an NFT from an existing mint', async (t: Te
     $topic: 'NFT',
     model: 'nft',
     name: 'My NFT from an existing mint',
-    symbol: 'MYNFT',
     mint: {
       model: 'mint',
       address: spokSamePubkey(mint.address),
-      decimals: 2,
-      supply: spokSameAmount(token(1, 0, 'MYNFT')),
-      mintAuthorityAddress: spokSamePubkey(mint.mintAuthorityAddress),
-      freezeAuthorityAddress: spokSamePubkey(mint.freezeAuthorityAddress),
+      decimals: 0,
+      supply: spokSameAmount(token(1)),
+      mintAuthorityAddress: spokSamePubkey(masterEditionAddress),
+      freezeAuthorityAddress: spokSamePubkey(masterEditionAddress),
     },
     token: {
       model: 'token',
