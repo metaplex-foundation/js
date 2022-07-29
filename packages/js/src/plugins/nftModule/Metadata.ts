@@ -4,19 +4,11 @@ import {
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { amount, BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
 import { JsonMetadata } from '../nftModule';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { findMetadataPda } from './pdas';
 import { MetadataAccount } from './accounts';
-import {
-  toMint,
-  toTokenWithMint,
-  Mint,
-  MintAccount,
-  TokenAccount,
-  TokenWithMint,
-} from '../tokenModule';
 
 export type Metadata<Json extends object = JsonMetadata> = Readonly<{
   model: 'metadata';
@@ -81,79 +73,3 @@ export const toMetadata = (
       }
     : null,
 });
-
-// TODO(loris): Everything below needs to be replaced by Sft and/or SftWithToken.
-
-export type MintWithMetadata = Omit<Mint, 'model'> &
-  Readonly<{
-    model: 'mintWithMetadata';
-    metadata: Metadata;
-  }>;
-
-export const isMintWithMetadata = (value: any): value is MintWithMetadata =>
-  typeof value === 'object' && value.model === 'mintWithMetadata';
-
-export function assertMintWithMetadata(
-  value: any
-): asserts value is MintWithMetadata {
-  assert(isMintWithMetadata(value), `Expected MintWithMetadata model`);
-}
-
-export const toMintWithMetadata = (
-  mintAccount: MintAccount,
-  metadataModel: Metadata
-): MintWithMetadata => {
-  const mint = toMint(mintAccount);
-  const currency = {
-    ...mint.currency,
-    symbol: metadataModel.symbol || 'Token',
-  };
-
-  return {
-    ...mint,
-    model: 'mintWithMetadata',
-    metadata: metadataModel,
-    currency,
-    supply: amount(mint.supply.basisPoints, currency),
-  };
-};
-
-export type TokenWithMetadata = Omit<TokenWithMint, 'model'> &
-  Readonly<{
-    model: 'tokenWithMetadata';
-    metadata: Metadata;
-  }>;
-
-export const isTokenWithMetadata = (value: any): value is TokenWithMetadata =>
-  typeof value === 'object' && value.model === 'tokenWithMetadata';
-
-export function assertTokenWithMetadata(
-  value: any
-): asserts value is TokenWithMetadata {
-  assert(isTokenWithMetadata(value), `Expected TokenWithMetadata model`);
-}
-
-export const toTokenWithMetadata = (
-  tokenAccount: TokenAccount,
-  mintModel: Mint,
-  metadataModel: Metadata
-): TokenWithMetadata => {
-  const token = toTokenWithMint(tokenAccount, mintModel);
-  const currency = {
-    ...token.mint.currency,
-    symbol: metadataModel.symbol || 'Token',
-  };
-
-  return {
-    ...token,
-    model: 'tokenWithMetadata',
-    mint: {
-      ...token.mint,
-      currency,
-      supply: amount(token.mint.supply.basisPoints, currency),
-    },
-    metadata: metadataModel,
-    amount: amount(token.amount.basisPoints, currency),
-    delegateAmount: amount(token.delegateAmount.basisPoints, currency),
-  };
-};

@@ -21,7 +21,11 @@ import {
   FindMintWithMetadataByMetadataInput,
   findMintWithMetadataByMetadataOperation,
 } from './findMintWithMetadataByMetadata';
-import { FindNftByMintInput, findNftByMintOperation } from './findNftByMint';
+import {
+  FindNftByMintInput,
+  findNftByMintOperation,
+  FindNftByMintOutput,
+} from './findNftByMint';
 import {
   FindNftsByMintListInput,
   findNftsByMintListOperation,
@@ -50,7 +54,11 @@ import {
   FindTokenWithMetadataByMintInput,
   findTokenWithMetadataByMintOperation,
 } from './findTokenWithMetadataByMint';
-import { loadMetadataOperation } from './loadMetadata';
+import {
+  LoadMetadataInput,
+  loadMetadataOperation,
+  LoadMetadataOutput,
+} from './loadMetadata';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
@@ -111,7 +119,7 @@ export class NftClient {
   findByMint(
     mint: PublicKey,
     options?: Omit<FindNftByMintInput, 'mint'>
-  ): Task<Nft> {
+  ): Task<FindNftByMintOutput> {
     return this.metaplex
       .operations()
       .getTask(findNftByMintOperation({ mint, ...options }));
@@ -220,7 +228,10 @@ export class NftClient {
     );
   }
 
-  loadMetadata(metadata: LazyMetadata): Task<Metadata> {
+  loadMetadata(
+    metadata: Metadata,
+    options?: Omit<LoadMetadataInput, 'metadata'>
+  ): Task<LoadMetadataOutput> {
     return this.metaplex
       .operations()
       .getTask(loadMetadataOperation({ metadata }));

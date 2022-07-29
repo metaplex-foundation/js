@@ -1,7 +1,7 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
-import { LazyMetadata, Metadata } from './Metadata';
+import { Metadata } from './Metadata';
 import { JsonMetadata } from './JsonMetadata';
 
 // -----------------
@@ -13,12 +13,14 @@ export const loadMetadataOperation = useOperation<LoadMetadataOperation>(Key);
 export type LoadMetadataOperation = Operation<
   typeof Key,
   LoadMetadataInput,
-  Metadata
+  LoadMetadataOutput
 >;
 
 export type LoadMetadataInput = {
-  metadata: LazyMetadata;
+  metadata: Metadata;
 };
+
+export type LoadMetadataOutput = Metadata & { jsonLoaded: true };
 
 // -----------------
 // Handler
@@ -30,16 +32,16 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
       operation: LoadMetadataOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Metadata> => {
+    ): Promise<LoadMetadataOutput> => {
       const { metadata } = operation.input;
 
       try {
         const json = await metaplex
           .storage()
           .downloadJson<JsonMetadata>(metadata.uri, scope);
-        return { ...metadata, lazy: false, json };
+        return { ...metadata, jsonLoaded: true, json };
       } catch (error) {
-        return { ...metadata, lazy: false, json: null };
+        return { ...metadata, jsonLoaded: true, json: null };
       }
     },
   };
