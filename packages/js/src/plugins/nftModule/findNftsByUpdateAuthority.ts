@@ -3,8 +3,10 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TokenMetadataProgram } from './program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-import { LazyNft, Nft } from './Nft';
+import { Nft } from './Nft';
 import { DisposableScope } from '@/utils';
+import { Metadata } from './Metadata';
+import { Sft } from './Sft';
 
 // -----------------
 // Operation
@@ -16,13 +18,15 @@ export const findNftsByUpdateAuthorityOperation =
 export type FindNftsByUpdateAuthorityOperation = Operation<
   typeof Key,
   FindNftsByUpdateAuthorityInput,
-  (LazyNft | Nft)[]
+  FindNftsByUpdateAuthorityOutput
 >;
 
 export interface FindNftsByUpdateAuthorityInput {
   updateAuthority: PublicKey;
   commitment?: Commitment;
 }
+
+export type FindNftsByUpdateAuthorityOutput = (Metadata | Nft | Sft)[];
 
 // -----------------
 // Handler
@@ -34,7 +38,7 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
       operation: FindNftsByUpdateAuthorityOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ) => {
+    ): Promise<FindNftsByUpdateAuthorityOutput> => {
       const { updateAuthority, commitment } = operation.input;
 
       const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
@@ -46,7 +50,8 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
       const nfts = await metaplex
         .operations()
         .execute(findNftsByMintListOperation({ mints, commitment }), scope);
+      scope.throwIfCanceled();
 
-      return nfts.filter((nft): nft is LazyNft => nft !== null);
+      return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);
     },
   };

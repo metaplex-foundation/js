@@ -128,6 +128,15 @@ export class NftClient {
       .getTask(findNftByTokenOperation({ token, ...options }));
   }
 
+  findAllByCreator(
+    creator: PublicKey,
+    options?: Omit<FindNftsByCreatorInput, 'creator'>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByCreatorOperation({ creator, ...options }));
+  }
+
   findAllByMintList(
     mints: PublicKey[],
     options?: Omit<FindNftsByMintListInput, 'mints'>
@@ -155,15 +164,6 @@ export class NftClient {
       .getTask(
         findNftsByUpdateAuthorityOperation({ updateAuthority, ...options })
       );
-  }
-
-  findAllByCreator(
-    creator: PublicKey,
-    options?: Omit<FindNftsByCreatorInput, 'creator'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findNftsByCreatorOperation({ creator, ...options }));
   }
 
   loadMetadata(
