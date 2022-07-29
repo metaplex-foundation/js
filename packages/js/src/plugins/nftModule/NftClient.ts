@@ -69,29 +69,9 @@ import {
 import { LoadNftInput, loadNftOperation } from './loadNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
-import {
-  AddMetadataInput,
-  addMetadataOperation,
-  AddMetadataOutput,
-} from './addMetadata';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
-
-  addMetadata(
-    input: AddMetadataInput
-  ): Task<AddMetadataOutput & { mintWithMetadata: MintWithMetadata }> {
-    return new Task(async (scope) => {
-      const operation = addMetadataOperation(input);
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const mintWithMetadata = await this.findMintWithMetadataByAddress(
-        input.mint
-      ).run(scope);
-      assertMintWithMetadata(mintWithMetadata);
-      return { ...output, mintWithMetadata };
-    });
-  }
 
   builders() {
     return new NftBuildersClient(this.metaplex);
@@ -210,17 +190,22 @@ export class NftClient {
       .getTask(loadNftOperation({ metadata, ...options }));
   }
 
-  printNewEdition(
-    originalNft: Nft | LazyNft | PublicKey,
+  printNewEdition<T extends Nft | NftWithToken | Metadata | PublicKey>(
+    originalNft: T,
     input: Omit<PrintNewEditionSharedInput, 'originalNft'> &
       PrintNewEditionViaInput = {}
-  ): Task<PrintNewEditionOutput & { nft: Nft }> {
+  ): Task<
+    PrintNewEditionOutput & { nft: T extends NftWithToken ? NftWithToken : Nft }
+  > {
     return new Task(async (scope) => {
       const operation = printNewEditionOperation({ originalNft, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
-      return { ...output, nft };
+      return {
+        ...output,
+        nft: nft as T extends NftWithToken ? NftWithToken : Nft,
+      };
     });
   }
 
@@ -244,15 +229,15 @@ export class NftClient {
   }
 
   use(
-    nft: Nft | Sft | PublicKey,
+    nftOrSft: Nft | Sft | PublicKey,
     input: Omit<UseNftInput, 'nft'> = {}
-  ): Task<UseNftOutput & { nft: Nft }> {
+  ): Task<UseNftOutput & { nftOrSft: Nft | Sft }> {
     return new Task(async (scope) => {
-      const operation = useNftOperation({ ...input, nft });
+      const operation = useNftOperation({ ...input, nftOrSft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const updatedNft = await this.findByMint(output.mintAddress).run(scope);
-      return { ...output, nft: updatedNft };
+      return { ...output, nftOrSft: updatedNft };
     });
   }
 }

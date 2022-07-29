@@ -49,10 +49,6 @@ import {
   uploadMetadataOperationHandler,
 } from './uploadMetadata';
 import { useNftOperation, useNftOperationHandler } from './useNft';
-import {
-  addMetadataOperation,
-  addMetadataOperationHandler,
-} from './addMetadata';
 
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -68,7 +64,6 @@ export const nftModule = (): MetaplexPlugin => ({
 
     // Operations.
     const op = metaplex.operations();
-    op.register(addMetadataOperation, addMetadataOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
     op.register(createSftOperation, createSftOperationHandler);
     op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
