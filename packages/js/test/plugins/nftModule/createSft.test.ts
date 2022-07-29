@@ -2,13 +2,14 @@ import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { toMetaplexFile, Nft, toBigNumber, Sft } from '@/index';
+import { toMetaplexFile, Nft, toBigNumber, Sft, token } from '@/index';
 import {
   metaplex,
   spokSamePubkey,
   spokSameBignum,
   killStuckProcess,
   amman,
+  createWallet,
 } from '../../helpers';
 
 killStuckProcess();
@@ -45,6 +46,7 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
     address: spokSamePubkey(mintAddress),
     metadataAddress: spokSamePubkey(metadataAddress),
     updateAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
+    jsonLoaded: true,
     json: {
       name: 'JSON SFT name',
       description: 'JSON SFT description',
@@ -69,46 +71,36 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
   spok(t, retrievedSft, { $topic: 'Retrieved SFT', ...expectedSft });
 });
 
-test('[nftModule] it can create an NFT with maximum configuration', async (t: Test) => {
+test.only('[nftModule] it can create an SFT with maximum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
-  // And we uploaded some metadata.
-  const { uri, metadata } = await mx
-    .nfts()
-    .uploadMetadata({
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
-      image: toMetaplexFile('some_image', 'some-image.jpg'),
-    })
-    .run();
-
   // And a various keypairs for different access.
+  const payer = await createWallet(mx);
   const mint = Keypair.generate();
   const collection = Keypair.generate();
   const owner = Keypair.generate();
   const mintAuthority = Keypair.generate();
+  const freezeAuthority = Keypair.generate();
   const updateAuthority = Keypair.generate();
   const otherCreator = Keypair.generate();
 
-  // When we create a new NFT with minimum configuration.
-  const { nft } = await mx
+  // When we create a new SFT with minimum configuration.
+  const { sft } = await mx
     .nfts()
-    .create({
-      uri,
-      name: 'On-chain NFT name',
-      symbol: 'MYNFT',
+    .createSft({
+      uri: 'https://example.com/some-json-uri',
+      name: 'On-chain SFT name',
+      symbol: 'MYSFT',
       sellerFeeBasisPoints: 456,
-      isMutable: true,
+      isMutable: false,
       maxSupply: toBigNumber(123),
-      mint: mint,
-      payer: mx.identity(),
-      mintAuthority: mintAuthority,
-      updateAuthority: updateAuthority,
-      owner: owner.publicKey,
-      // Must be the same as mint authority.
-      // https://github.com/metaplex-foundation/metaplex-program-library/blob/c0bf49d416d6aaf5aa9db999343b20be720df67a/token-metadata/program/src/utils.rs#L346
-      freezeAuthority: mintAuthority.publicKey,
+      mint: { new: mint },
+      token: { owner: owner.publicKey, amount: token(42) },
+      payer,
+      mintAuthority,
+      updateAuthority,
+      freezeAuthority: freezeAuthority.publicKey,
       collection: {
         verified: false,
         key: collection.publicKey,
@@ -134,17 +126,15 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
     .run();
 
   // Then we created and retrieved the new NFT and it has appropriate defaults.
-  spok(t, nft, {
-    $topic: 'nft',
-    model: 'nft',
+  spok(t, sft, {
+    $topic: 'SFT',
+    model: 'sft',
     lazy: false,
-    name: 'On-chain NFT name',
-    uri,
-    json: {
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
-      image: metadata.image,
-    },
+    uri: 'https://example.com/some-json-uri',
+    name: 'On-chain SFT name',
+    symbol: 'MYSFT',
+    json: null,
+    jsonLoaded: true,
     sellerFeeBasisPoints: 456,
     primarySaleHappened: false,
     updateAuthorityAddress: spokSamePubkey(updateAuthority.publicKey),
@@ -169,7 +159,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
         verified: false,
       },
     ],
-  } as unknown as Specifications<Nft>);
+  } as unknown as Specifications<Sft>);
 });
 
 test('[nftModule] it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
