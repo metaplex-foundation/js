@@ -66,7 +66,6 @@ import {
   updateNftOperation,
   UpdateNftOutput,
 } from './updateNft';
-import { LoadNftInput, loadNftOperation } from './loadNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
 
@@ -172,22 +171,13 @@ export class NftClient {
       );
   }
 
-  loadMetadata(
+  load(
     metadata: Metadata,
     options?: Omit<LoadMetadataInput, 'metadata'>
   ): Task<LoadMetadataOutput> {
     return this.metaplex
       .operations()
       .getTask(loadMetadataOperation({ metadata }));
-  }
-
-  load(
-    metadata: Metadata,
-    options: Omit<LoadNftInput, 'nft'> = {}
-  ): Task<LoadNftOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(loadNftOperation({ metadata, ...options }));
   }
 
   printNewEdition<T extends Nft | NftWithToken | Metadata | PublicKey>(

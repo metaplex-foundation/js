@@ -38,7 +38,6 @@ import {
   loadMetadataOperation,
   loadMetadataOperationHandler,
 } from './loadMetadata';
-import { loadNftOperation, loadNftOperationHandler } from './loadNft';
 import {
   printNewEditionOperation,
   printNewEditionOperationHandler,
@@ -80,7 +79,6 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByUpdateAuthorityOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
-    op.register(loadNftOperation, loadNftOperationHandler);
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);

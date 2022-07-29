@@ -18,6 +18,7 @@ import {
   toTokenAccount,
 } from '../tokenModule';
 import { Sft, SftWithToken, toSft, toSftWithToken } from './Sft';
+import { JsonMetadata } from './JsonMetadata';
 
 // -----------------
 // Operation
@@ -81,8 +82,14 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
       const token = accounts[3] ? toToken(toTokenAccount(accounts[3])) : null;
 
       if (loadJsonMetadata) {
-        metadata = await metaplex.nfts().loadMetadata(metadata).run(scope);
-        scope.throwIfCanceled();
+        try {
+          const json = await metaplex
+            .storage()
+            .downloadJson<JsonMetadata>(metadata.uri, scope);
+          metadata = { ...metadata, jsonLoaded: true, json };
+        } catch (error) {
+          metadata = { ...metadata, jsonLoaded: true, json: null };
+        }
       }
 
       const isNft =

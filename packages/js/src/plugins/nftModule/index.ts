@@ -11,7 +11,6 @@ export * from './findNftsByOwner';
 export * from './gpaBuilders';
 export * from './JsonMetadata';
 export * from './loadMetadata';
-export * from './loadNft';
 export * from './Metadata';
 export * from './Nft';
 export * from './NftClient';

@@ -1,8 +1,10 @@
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Metadata } from './Metadata';
-import { JsonMetadata } from './JsonMetadata';
+import { Nft, NftWithToken } from './Nft';
+import { Sft, SftWithToken } from './Sft';
 
 // -----------------
 // Operation
@@ -18,9 +20,13 @@ export type LoadMetadataOperation = Operation<
 
 export type LoadMetadataInput = {
   metadata: Metadata;
+  tokenAddress?: PublicKey;
+  tokenOwner?: PublicKey;
+  loadJsonMetadata?: boolean;
+  commitment?: Commitment;
 };
 
-export type LoadMetadataOutput = Metadata & { jsonLoaded: true };
+export type LoadMetadataOutput = Nft | Sft | NftWithToken | SftWithToken;
 
 // -----------------
 // Handler
@@ -33,15 +39,20 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<LoadMetadataOutput> => {
-      const { metadata } = operation.input;
+      const { metadata, loadJsonMetadata = true } = operation.input;
 
-      try {
-        const json = await metaplex
-          .storage()
-          .downloadJson<JsonMetadata>(metadata.uri, scope);
-        return { ...metadata, jsonLoaded: true, json };
-      } catch (error) {
-        return { ...metadata, jsonLoaded: true, json: null };
+      let nftOrSft = await metaplex
+        .nfts()
+        .findByMint(metadata.mintAddress, {
+          ...operation.input,
+          loadJsonMetadata: !metadata.jsonLoaded && loadJsonMetadata,
+        })
+        .run(scope);
+
+      if (!nftOrSft.jsonLoaded && metadata.jsonLoaded) {
+        nftOrSft = { ...nftOrSft, json: metadata.json, jsonLoaded: true };
       }
+
+      return nftOrSft;
     },
   };
