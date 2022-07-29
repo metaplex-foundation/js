@@ -104,8 +104,9 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       sellerFeeBasisPoints: 456,
       isMutable: false,
       maxSupply: toBigNumber(123),
-      mint: { new: mint },
-      token: { owner: owner.publicKey, amount: token(4200) },
+      useNewMint: mint,
+      tokenOwner: owner.publicKey,
+      tokenAmount: token(4200),
       payer,
       mintAuthority,
       updateAuthority,
@@ -200,7 +201,7 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
     .nfts()
     .createSft({
       ...minimalInput(),
-      mint: { existing: mint.address },
+      useExistingMint: mint.address,
       name: 'My SFT from an existing mint',
       symbol: 'MYSFT',
       decimals: 9, // <- This will not be used on existing mints.
@@ -225,7 +226,7 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
   } as unknown as Specifications<Sft>);
 });
 
-test('[nftModule] it can create an SFT with an associated token', async (t: Test) => {
+test('[nftModule] it can create an SFT with a new associated token', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -234,10 +235,43 @@ test('[nftModule] it can create an SFT with an associated token', async (t: Test
     .nfts()
     .createSft({
       ...minimalInput(),
-      token: {
-        owner: mx.identity().publicKey,
-        amount: token(42),
-      },
+      tokenOwner: mx.identity().publicKey,
+      tokenAmount: token(42),
+    })
+    .run();
+
+  // Then the created SFT has the expected configuration.
+  spok(t, sft, {
+    $topic: 'SFT',
+    model: 'sft',
+    mint: {
+      model: 'mint',
+      decimals: 0,
+      supply: spokSameAmount(token(42)),
+    },
+    token: {
+      model: 'token',
+      isAssociatedToken: true,
+      ownerAddress: spokSamePubkey(mx.identity().publicKey),
+      amount: spokSameAmount(token(42)),
+      closeAuthorityAddress: null,
+      delegateAddress: null,
+      delegateAmount: token(0),
+    },
+  } as unknown as Specifications<Sft>);
+});
+
+test.skip('[nftModule] it can create an SFT with a new non-associated token', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a new SFT with a token account.
+  const { sft } = await mx
+    .nfts()
+    .createSft({
+      ...minimalInput(),
+      tokenOwner: mx.identity().publicKey,
+      tokenAmount: token(42),
     })
     .run();
 
@@ -279,8 +313,10 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
     .nfts()
     .createSft({
       ...minimalInput(),
-      mint: { existing: existingMint.address },
-      token: { address: existingToken.address, amount: token(42) },
+      useExistingMint: existingMint.address,
+      tokenAddress: tokenSigner,
+      tokenAmount: token(42),
+      tokenExists: true,
     })
     .run();
 

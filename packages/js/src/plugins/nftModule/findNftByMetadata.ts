@@ -4,7 +4,6 @@ import { toMetadataAccount } from './accounts';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Nft, NftWithToken } from './Nft';
-import { TokenAddressOrOwner } from '../tokenModule';
 import { Sft, SftWithToken } from './Sft';
 
 // -----------------
@@ -22,7 +21,8 @@ export type FindNftByMetadataOperation = Operation<
 
 export type FindNftByMetadataInput = {
   metadata: PublicKey;
-  token?: TokenAddressOrOwner;
+  tokenAddress?: PublicKey;
+  tokenOwner?: PublicKey;
   loadJsonMetadata?: boolean;
   commitment?: Commitment;
 };

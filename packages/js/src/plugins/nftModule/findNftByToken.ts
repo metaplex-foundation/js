@@ -47,7 +47,7 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
         .nfts()
         .findByMint(token.data.mint, {
           ...operation.input,
-          token: { address: operation.input.token },
+          tokenAddress: operation.input.token,
         })
         .run(scope);
 

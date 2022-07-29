@@ -103,7 +103,7 @@ export class NftClient {
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintSigner.publicKey, {
-        token: { address: output.tokenAddress },
+        tokenAddress: output.tokenAddress,
         commitment: input.confirmOptions?.commitment,
       }).run(scope);
       assertNftWithToken(nft);
@@ -119,7 +119,7 @@ export class NftClient {
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const sft = await this.findByMint(output.mintAddress, {
-        token: input.token,
+        tokenAddress: output.tokenAddress ?? undefined,
         commitment: input.confirmOptions?.commitment,
       }).run(scope);
       assertSft(sft);

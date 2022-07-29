@@ -11,12 +11,11 @@ import { Nft, NftWithToken, toNft, toNftWithToken } from './Nft';
 import { toMetadata } from './Metadata';
 import { toNftEdition } from './NftEdition';
 import {
-  TokenAddressOrOwner,
+  findAssociatedTokenAccountPda,
   toMint,
   toMintAccount,
   toToken,
   toTokenAccount,
-  toTokenAddress,
 } from '../tokenModule';
 import { Sft, SftWithToken, toSft, toSftWithToken } from './Sft';
 
@@ -34,7 +33,8 @@ export type FindNftByMintOperation = Operation<
 
 export type FindNftByMintInput = {
   mint: PublicKey;
-  token?: TokenAddressOrOwner;
+  tokenAddress?: PublicKey;
+  tokenOwner?: PublicKey;
   loadJsonMetadata?: boolean;
   commitment?: Commitment;
 };
@@ -54,17 +54,20 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
     ): Promise<FindNftByMintOutput> => {
       const {
         mint: mintAddress,
-        token: tokenAddressOrOwner,
+        tokenAddress,
+        tokenOwner,
         loadJsonMetadata = true,
         commitment,
       } = operation.input;
+
+      const associatedTokenAddress = tokenOwner
+        ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+        : undefined;
       const accountAddresses = [
         mintAddress,
         findMetadataPda(mintAddress),
         findMasterEditionV2Pda(mintAddress),
-        tokenAddressOrOwner
-          ? toTokenAddress(mintAddress, tokenAddressOrOwner)
-          : null,
+        tokenAddress ?? associatedTokenAddress,
       ].filter((address): address is PublicKey => !!address);
 
       const accounts = await metaplex

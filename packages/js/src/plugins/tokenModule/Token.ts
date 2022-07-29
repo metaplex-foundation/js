@@ -76,14 +76,3 @@ export const toTokenWithMint = (
     ),
   };
 };
-
-export type TokenAddressOrOwner = { address: PublicKey } | { owner: PublicKey };
-
-export const toTokenAddress = (
-  mint: PublicKey,
-  token: TokenAddressOrOwner
-): PublicKey => {
-  return 'address' in token
-    ? token.address
-    : findAssociatedTokenAccountPda(mint, token.owner);
-};
