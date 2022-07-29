@@ -102,7 +102,7 @@ export class NftClient {
       const operation = createNftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mintSigner.publicKey, {
+      const nft = await this.findByMint(output.mintAddress, {
         tokenAddress: output.tokenAddress,
         commitment: input.confirmOptions?.commitment,
       }).run(scope);
