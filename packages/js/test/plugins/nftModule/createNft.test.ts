@@ -22,6 +22,7 @@ import {
   killStuckProcess,
   amman,
   spokSameAmount,
+  createWallet,
 } from '../../helpers';
 
 killStuckProcess();
@@ -124,6 +125,7 @@ test.only('[nftModule] it can create an NFT with maximum configuration', async (
     .run();
 
   // And a various keypairs for different access.
+  const payer = await createWallet(mx);
   const mint = Keypair.generate();
   const collection = Keypair.generate();
   const owner = Keypair.generate();
@@ -142,9 +144,9 @@ test.only('[nftModule] it can create an NFT with maximum configuration', async (
       isMutable: true,
       maxSupply: toBigNumber(123),
       useNewMint: mint,
-      payer: mx.identity(),
-      // mintAuthority: mintAuthority,
-      updateAuthority: updateAuthority,
+      payer,
+      // mintAuthority,
+      updateAuthority,
       tokenOwner: owner.publicKey,
       collection: {
         verified: false,
