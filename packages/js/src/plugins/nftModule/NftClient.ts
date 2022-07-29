@@ -228,22 +228,23 @@ export class NftClient {
     return this.metaplex.operations().getTask(uploadMetadataOperation(input));
   }
 
-  update(
-    nft: Nft,
-    input: Omit<UpdateNftInput, 'nft'>
-  ): Task<UpdateNftOutput & { nft: Nft }> {
+  update<T extends Nft | Sft | NftWithToken | SftWithToken>(
+    nftOrSft: T,
+    input: Omit<UpdateNftInput, 'nftOrSft'>
+  ): Task<UpdateNftOutput & { nftOrSft: T }> {
     return new Task(async (scope) => {
-      const operation = updateNftOperation({ ...input, nft });
+      const operation = updateNftOperation({ ...input, nftOrSft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nft.address).run(scope);
-      assertNft(updatedNft);
-      return { ...output, nft: updatedNft };
+      const updatedNft = await this.findByMint(nftOrSft.address, {
+        tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
+      }).run(scope);
+      return { ...output, nftOrSft: updatedNft as T };
     });
   }
 
   use(
-    nft: Nft | LazyNft | PublicKey,
+    nft: Nft | Sft | PublicKey,
     input: Omit<UseNftInput, 'nft'> = {}
   ): Task<UseNftOutput & { nft: Nft }> {
     return new Task(async (scope) => {
