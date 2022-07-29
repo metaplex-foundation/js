@@ -5,6 +5,7 @@ import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
+import { createSftOperation, createSftOperationHandler } from './createSft';
 import {
   findNftByMetadataOperation,
   findNftByMetadataOperationHandler,
@@ -69,6 +70,7 @@ export const nftModule = (): MetaplexPlugin => ({
     const op = metaplex.operations();
     op.register(addMetadataOperation, addMetadataOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
+    op.register(createSftOperation, createSftOperationHandler);
     op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(findNftByTokenOperation, findNftByTokenOperationHandler);

@@ -2,12 +2,18 @@ import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import { Metadata } from './Metadata';
-import { Nft } from './Nft';
+import { Nft, NftWithToken } from './Nft';
+import { Sft, SftWithToken } from './Sft';
 import {
   CreateNftInput,
   createNftOperation,
   CreateNftOutput,
 } from './createNft';
+import {
+  CreateSftInput,
+  createSftOperation,
+  CreateSftOutput,
+} from './createSft';
 import {
   FindNftByMetadataInput,
   findNftByMetadataOperation,
@@ -91,13 +97,25 @@ export class NftClient {
     return new NftBuildersClient(this.metaplex);
   }
 
-  create(input: CreateNftInput): Task<CreateNftOutput & { nft: Nft }> {
+  create(input: CreateNftInput): Task<CreateNftOutput & { nft: NftWithToken }> {
     return new Task(async (scope) => {
       const operation = createNftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
       return { ...output, nft };
+    });
+  }
+
+  createSft(
+    input: CreateSftInput
+  ): Task<CreateSftOutput & { sft: Sft | SftWithToken }> {
+    return new Task(async (scope) => {
+      const operation = createSftOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const sft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      return { ...output, sft };
     });
   }
 

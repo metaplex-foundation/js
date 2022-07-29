@@ -1,6 +1,7 @@
 export * from './accounts';
 export * from './addMetadata';
 export * from './createNft';
+export * from './createSft';
 export * from './errors';
 export * from './findNftByMetadata';
 export * from './findNftByMint';
