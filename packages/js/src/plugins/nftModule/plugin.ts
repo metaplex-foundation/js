@@ -6,9 +6,17 @@ import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
 import {
+  findNftByMetadataOperation,
+  findNftByMetadataOperationHandler,
+} from './findNftByMetadata';
+import {
   findNftByMintOperationHandler,
   findNftByMintOperation,
 } from './findNftByMint';
+import {
+  findNftByTokenOperation,
+  findNftByTokenOperationHandler,
+} from './findNftByToken';
 import {
   findNftsByCreatorOperationHandler,
   findNftsByCreatorOperation,
@@ -61,7 +69,9 @@ export const nftModule = (): MetaplexPlugin => ({
     const op = metaplex.operations();
     op.register(addMetadataOperation, addMetadataOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
+    op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
+    op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
     op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
     op.register(
       findNftsByMintListOperation,

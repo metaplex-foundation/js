@@ -1,31 +1,28 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import {
-  assertMintWithMetadata,
-  LazyMetadata,
-  Metadata,
-  MintWithMetadata,
-} from './Metadata';
-import { LazyNft, Nft } from './Nft';
+import { Metadata } from './Metadata';
+import { Nft } from './Nft';
 import {
   CreateNftInput,
   createNftOperation,
   CreateNftOutput,
 } from './createNft';
 import {
-  FindMintWithMetadataByAddressInput,
-  findMintWithMetadataByAddressOperation,
-} from './findMintWithMetadataByAddress';
-import {
-  FindMintWithMetadataByMetadataInput,
-  findMintWithMetadataByMetadataOperation,
-} from './findMintWithMetadataByMetadata';
+  FindNftByMetadataInput,
+  findNftByMetadataOperation,
+  FindNftByMetadataOutput,
+} from './findNftByMetadata';
 import {
   FindNftByMintInput,
   findNftByMintOperation,
   FindNftByMintOutput,
 } from './findNftByMint';
+import {
+  FindNftByTokenInput,
+  findNftByTokenOperation,
+  FindNftByTokenOutput,
+} from './findNftByToken';
 import {
   FindNftsByMintListInput,
   findNftsByMintListOperation,
@@ -42,18 +39,6 @@ import {
   FindNftsByCreatorInput,
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
-import {
-  FindTokenWithMetadataByAddressInput,
-  findTokenWithMetadataByAddressOperation,
-} from './findTokenWithMetadataByAddress';
-import {
-  FindTokenWithMetadataByMetadataInput,
-  findTokenWithMetadataByMetadataOperation,
-} from './findTokenWithMetadataByMetadata';
-import {
-  FindTokenWithMetadataByMintInput,
-  findTokenWithMetadataByMintOperation,
-} from './findTokenWithMetadataByMint';
 import {
   LoadMetadataInput,
   loadMetadataOperation,
@@ -116,6 +101,15 @@ export class NftClient {
     });
   }
 
+  findByMetadata(
+    metadata: PublicKey,
+    options?: Omit<FindNftByMetadataInput, 'metadata'>
+  ): Task<FindNftByMetadataOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftByMetadataOperation({ metadata, ...options }));
+  }
+
   findByMint(
     mint: PublicKey,
     options?: Omit<FindNftByMintInput, 'mint'>
@@ -123,6 +117,15 @@ export class NftClient {
     return this.metaplex
       .operations()
       .getTask(findNftByMintOperation({ mint, ...options }));
+  }
+
+  findByToken(
+    token: PublicKey,
+    options?: Omit<FindNftByTokenInput, 'Token'>
+  ): Task<FindNftByTokenOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftByTokenOperation({ token, ...options }));
   }
 
   findAllByMintList(
@@ -161,71 +164,6 @@ export class NftClient {
     return this.metaplex
       .operations()
       .getTask(findNftsByCreatorOperation({ creator, ...options }));
-  }
-
-  findMintWithMetadataByAddress(
-    address: PublicKey,
-    options?: Omit<FindMintWithMetadataByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findMintWithMetadataByAddressOperation({ address, ...options }));
-  }
-
-  findMintWithMetadataByMetadata(
-    address: PublicKey,
-    options?: Omit<FindMintWithMetadataByMetadataInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(
-        findMintWithMetadataByMetadataOperation({ address, ...options })
-      );
-  }
-
-  findTokenWithMetadataByAddress(
-    address: PublicKey,
-    options?: Omit<FindTokenWithMetadataByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(
-        findTokenWithMetadataByAddressOperation({ address, ...options })
-      );
-  }
-
-  findTokenWithMetadataByMetadata(
-    metadataAddress: PublicKey,
-    ownerAddress: PublicKey,
-    options?: Omit<
-      FindTokenWithMetadataByMetadataInput,
-      'metadataAddress' | 'ownerAddress'
-    >
-  ) {
-    return this.metaplex.operations().getTask(
-      findTokenWithMetadataByMetadataOperation({
-        metadataAddress,
-        ownerAddress,
-        ...options,
-      })
-    );
-  }
-
-  findTokenWithMetadataByMint(
-    mintAddress: PublicKey,
-    ownerAddress: PublicKey,
-    options?: Omit<
-      FindTokenWithMetadataByMintInput,
-      'metadataAddress' | 'ownerAddress'
-    >
-  ) {
-    return this.metaplex.operations().getTask(
-      findTokenWithMetadataByMintOperation({
-        mintAddress,
-        ownerAddress,
-        ...options,
-      })
-    );
   }
 
   loadMetadata(
