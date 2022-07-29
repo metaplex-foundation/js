@@ -126,6 +126,34 @@ export const createSftBuilder = async (
   const creators =
     params.creators ?? toUniformVerifiedCreators(updateAuthority.publicKey);
 
+  const createMetadataInstruction = createCreateMetadataAccountV2Instruction(
+    {
+      metadata: metadataPda,
+      mint: mintAddress,
+      mintAuthority: mintAuthority.publicKey,
+      payer: payer.publicKey,
+      updateAuthority: updateAuthority.publicKey,
+    },
+    {
+      createMetadataAccountArgsV2: {
+        data: {
+          name: params.name,
+          symbol: params.symbol ?? '',
+          uri: params.uri,
+          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+          creators: toNullCreators(creators),
+          collection: params.collection ?? null,
+          uses: params.uses ?? null,
+        },
+        isMutable: params.isMutable ?? true,
+      },
+    }
+  );
+
+  // When the payer is different than the update authority, the latter will
+  // not be marked as a signer and therefore signing as a creator will fail.
+  createMetadataInstruction.keys[4].isSigner = true;
+
   return (
     TransactionBuilder.make<CreateSftBuilderContext>()
       .setFeePayer(payer)
@@ -140,30 +168,8 @@ export const createSftBuilder = async (
 
       // Create metadata account.
       .add({
-        instruction: createCreateMetadataAccountV2Instruction(
-          {
-            metadata: metadataPda,
-            mint: mintAddress,
-            mintAuthority: mintAuthority.publicKey,
-            payer: payer.publicKey,
-            updateAuthority: updateAuthority.publicKey,
-          },
-          {
-            createMetadataAccountArgsV2: {
-              data: {
-                name: params.name,
-                symbol: params.symbol ?? '',
-                uri: params.uri,
-                sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-                creators: toNullCreators(creators),
-                collection: params.collection ?? null,
-                uses: params.uses ?? null,
-              },
-              isMutable: params.isMutable ?? true,
-            },
-          }
-        ),
-        signers: [payer, mintAuthority],
+        instruction: createMetadataInstruction,
+        signers: [payer, mintAuthority, updateAuthority],
         key: params.createMetadataInstructionKey ?? 'createMetadata',
       })
   );
