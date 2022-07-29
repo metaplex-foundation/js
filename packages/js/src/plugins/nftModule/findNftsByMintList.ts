@@ -1,11 +1,12 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { parseMetadataAccount } from './accounts';
+import { toMetadataAccount } from './accounts';
 import { findMetadataPda } from './pdas';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, GmaBuilder, zipMap } from '@/utils';
-import { LazyNft, Nft, toLazyNft } from './Nft';
-import { toLazyMetadata } from './Metadata';
+import { DisposableScope, GmaBuilder } from '@/utils';
+import { Nft } from './Nft';
+import { Metadata, toMetadata } from './Metadata';
+import { Sft } from './Sft';
 
 // -----------------
 // Operation
@@ -17,13 +18,15 @@ export const findNftsByMintListOperation =
 export type FindNftsByMintListOperation = Operation<
   typeof Key,
   FindNftsByMintListInput,
-  (LazyNft | Nft | null)[]
+  FindNftsByMintListOutput
 >;
 
 export type FindNftsByMintListInput = {
   mints: PublicKey[];
   commitment?: Commitment;
 };
+
+export type FindNftsByMintListOutput = (Metadata | Nft | Sft | null)[];
 
 // -----------------
 // Handler
@@ -35,7 +38,7 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
       operation: FindNftsByMintListOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ) => {
+    ): Promise<FindNftsByMintListOutput> => {
       const { mints, commitment } = operation.input;
       const metadataPdas = mints.map((mint) => findMetadataPda(mint));
       const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas, {
@@ -43,19 +46,16 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
       }).get();
       scope.throwIfCanceled();
 
-      return zipMap(
-        metadataPdas,
-        metadataInfos,
-        (metadataPda, metadataInfo) => {
-          if (!metadataInfo || !metadataInfo.exists) return null;
-
-          try {
-            const metadata = parseMetadataAccount(metadataInfo);
-            return toLazyNft(toLazyMetadata(metadata));
-          } catch (error) {
-            return null;
-          }
+      return metadataInfos.map<Metadata | null>((account) => {
+        if (account.exists) {
+          return null;
         }
-      );
+
+        try {
+          return toMetadata(toMetadataAccount(account));
+        } catch (error) {
+          return null;
+        }
+      });
     },
   };
