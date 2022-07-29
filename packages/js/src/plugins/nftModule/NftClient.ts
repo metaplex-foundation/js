@@ -2,8 +2,8 @@ import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import { Metadata } from './Metadata';
-import { Nft, NftWithToken } from './Nft';
-import { Sft, SftWithToken } from './Sft';
+import { assertNftWithToken, Nft, NftWithToken } from './Nft';
+import { assertSft, Sft, SftWithToken } from './Sft';
 import {
   CreateNftInput,
   createNftOperation,
@@ -103,6 +103,7 @@ export class NftClient {
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      assertNftWithToken(nft);
       return { ...output, nft };
     });
   }
@@ -114,7 +115,8 @@ export class NftClient {
       const operation = createSftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const sft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      const sft = await this.findByMint(output.mintAddress).run(scope);
+      assertSft(sft);
       return { ...output, sft };
     });
   }

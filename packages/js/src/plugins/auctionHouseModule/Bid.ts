@@ -12,11 +12,6 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { BidReceiptAccount } from './accounts';
-import {
-  isMintWithMetadata,
-  MintWithMetadata,
-  TokenWithMetadata,
-} from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 

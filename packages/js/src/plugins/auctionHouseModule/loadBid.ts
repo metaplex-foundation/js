@@ -3,7 +3,6 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { assert, DisposableScope } from '@/utils';
 import { Bid, LazyBid } from './Bid';
-import { assertTokenWithMetadata } from '../nftModule';
 
 // -----------------
 // Operation

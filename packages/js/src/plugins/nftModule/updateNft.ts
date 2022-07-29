@@ -13,7 +13,7 @@ import {
   Creator,
   toNullCreators,
 } from '@/types';
-import { LazyNft, Nft } from './Nft';
+import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import { Option, TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';

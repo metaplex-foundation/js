@@ -28,9 +28,7 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  isLazyNft,
   isNft,
-  LazyNft,
   Nft,
   TokenMetadataProgram,
 } from '../nftModule';

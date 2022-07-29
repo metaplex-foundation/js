@@ -1,7 +1,7 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
+import { isNft, Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';

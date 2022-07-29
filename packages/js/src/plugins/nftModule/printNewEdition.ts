@@ -20,7 +20,7 @@ import {
   InstructionWithSigners,
   TransactionBuilder,
 } from '@/utils';
-import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
+import { isNft, Nft } from './Nft';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
