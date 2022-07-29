@@ -102,7 +102,10 @@ export class NftClient {
       const operation = createNftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      const nft = await this.findByMint(output.mintSigner.publicKey, {
+        token: { address: output.tokenAddress },
+        commitment: input.confirmOptions?.commitment,
+      }).run(scope);
       assertNftWithToken(nft);
       return { ...output, nft };
     });
@@ -115,7 +118,10 @@ export class NftClient {
       const operation = createSftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const sft = await this.findByMint(output.mintAddress).run(scope);
+      const sft = await this.findByMint(output.mintAddress, {
+        token: input.token,
+        commitment: input.confirmOptions?.commitment,
+      }).run(scope);
       assertSft(sft);
       return { ...output, sft };
     });

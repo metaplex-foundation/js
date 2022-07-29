@@ -48,10 +48,10 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
     updateAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
     mint: {
       model: 'mint',
-      decimals: 4,
-      supply: spokSameAmount(token(0, 4)),
-      mintAuthority: spokSamePubkey(mx.identity().publicKey),
-      freezeAuthority: spokSamePubkey(mx.identity().publicKey),
+      decimals: 0,
+      supply: spokSameAmount(token(0)),
+      mintAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
+      freezeAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
     },
     token: spok.notDefined,
     jsonLoaded: true,
@@ -79,7 +79,7 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
   spok(t, retrievedSft, { $topic: 'Retrieved SFT', ...expectedSft });
 });
 
-test.only('[nftModule] it can create an SFT with maximum configuration', async (t: Test) => {
+test('[nftModule] it can create an SFT with maximum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -159,10 +159,10 @@ test.only('[nftModule] it can create an SFT with maximum configuration', async (
       isAssociatedToken: true,
       mintAddress: spokSamePubkey(mint.publicKey),
       ownerAddress: spokSamePubkey(owner.publicKey),
-      amount: spokSameAmount(token(42, 4, 'MYSFT')),
+      amount: spokSameAmount(token(42, 2, 'MYSFT')),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0, 4, 'MYSFT'),
+      delegateAmount: token(0, 2, 'MYSFT'),
     },
     collection: {
       verified: false,
