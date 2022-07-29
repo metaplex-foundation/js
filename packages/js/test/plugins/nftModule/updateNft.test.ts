@@ -5,7 +5,7 @@ import { metaplex, createNft, killStuckProcess } from '../../helpers';
 
 killStuckProcess();
 
-test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test) => {
+test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -52,7 +52,6 @@ test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test
   const expectedNft = {
     $topic: 'Updated Nft',
     model: 'nft',
-    lazy: false,
     name: 'Updated On-chain NFT name',
     symbol: 'UPDATED',
     sellerFeeBasisPoints: 500,
@@ -68,6 +67,6 @@ test('[nftModule] it can update the on-chain metadata of an nft', async (t: Test
   spok(t, updatedNft, expectedNft);
 
   // And the same goes if we try to fetch the NFT again.
-  const fetchedUpdatedNft = await mx.nfts().findByMint(nft.mintAddress).run();
+  const fetchedUpdatedNft = await mx.nfts().findByMint(nft.address).run();
   spok(t, fetchedUpdatedNft, expectedNft);
 });

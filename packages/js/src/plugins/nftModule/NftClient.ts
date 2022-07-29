@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import { Metadata } from './Metadata';
-import { assertNftWithToken, Nft, NftWithToken } from './Nft';
+import { assertNft, assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { assertSft, Sft, SftWithToken } from './Sft';
 import {
   CreateNftInput,
@@ -201,10 +201,13 @@ export class NftClient {
       .getTask(loadMetadataOperation({ metadata }));
   }
 
-  loadNft(nft: LazyNft, options: Omit<LoadNftInput, 'nft'> = {}): Task<Nft> {
+  load(
+    metadata: Metadata,
+    options: Omit<LoadNftInput, 'nft'> = {}
+  ): Task<LoadNftOutput> {
     return this.metaplex
       .operations()
-      .getTask(loadNftOperation({ nft, ...options }));
+      .getTask(loadNftOperation({ metadata, ...options }));
   }
 
   printNewEdition(
@@ -226,14 +229,15 @@ export class NftClient {
   }
 
   update(
-    nft: Nft | LazyNft,
+    nft: Nft,
     input: Omit<UpdateNftInput, 'nft'>
   ): Task<UpdateNftOutput & { nft: Nft }> {
     return new Task(async (scope) => {
       const operation = updateNftOperation({ ...input, nft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
+      const updatedNft = await this.findByMint(nft.address).run(scope);
+      assertNft(updatedNft);
       return { ...output, nft: updatedNft };
     });
   }

@@ -19,6 +19,7 @@ import { Option, TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import isEqual from 'lodash.isequal';
+import { Sft } from './Sft';
 
 // -----------------
 // Operation
@@ -34,7 +35,7 @@ export type UpdateNftOperation = Operation<
 
 export interface UpdateNftInput {
   // Accounts and models.
-  nft: Nft | LazyNft;
+  nft: Nft | Sft;
   updateAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey;
 
@@ -120,7 +121,7 @@ export const updateNftBuilder = (
 };
 
 const toInstructionData = (
-  nft: LazyNft | Nft,
+  nft: Nft | Sft,
   input: Partial<UpdateNftInput> = {}
 ): UpdateMetadataAccountArgsV2 => {
   const creators = input.creators ?? nft.creators;
