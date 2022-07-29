@@ -333,7 +333,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // Given we have an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
-  const nft = await createNft(mx);
+  const nft = await createNft(mx, {}, { owner: seller.publicKey });
 
   // And an Auctioneer Auction House.
   const auctioneerAuthority = Keypair.generate();

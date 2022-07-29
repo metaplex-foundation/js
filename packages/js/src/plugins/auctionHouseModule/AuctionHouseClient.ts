@@ -25,6 +25,11 @@ import {
 } from './findBidByAddress';
 import { Bid, LazyBid } from './Bid';
 import { LoadBidInput, loadBidOperation } from './loadBid';
+import {
+  ExecuteSaleInput,
+  executeSaleOperation,
+  ExecuteSaleOutput,
+} from './executeSale';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -34,6 +39,12 @@ export class AuctionHouseClient {
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
   ) {}
+
+  executeSale(input: WithoutAH<ExecuteSaleInput>): Task<ExecuteSaleOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(executeSaleOperation(this.addAH(input)));
+  }
 
   list(
     input: WithoutAH<CreateListingInput>

@@ -45,7 +45,7 @@
     "@bundlr-network/client": "^0.7.14",
     "@metaplex-foundation/beet": "^0.2.0",
     "@metaplex-foundation/beet-solana": "^0.1.1",
-    "@metaplex-foundation/mpl-auction-house": "^2.0.0",
+    "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-machine": "^4.3.0",
     "@metaplex-foundation/mpl-token-metadata": "^2.1.2",
     "@solana/spl-token": "^0.2.0",

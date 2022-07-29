@@ -8,6 +8,7 @@ import {
   createListingBuilder,
   CreateListingBuilderParams,
 } from './createListing';
+import { executeSaleBuilder, ExecuteSaleBuilderParams } from './executeSale';
 import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
@@ -26,6 +27,10 @@ export class AuctionsBuildersClient {
 
   createListing(input: CreateListingBuilderParams) {
     return createListingBuilder(this.metaplex, input);
+  }
+
+  executeSale(input: ExecuteSaleBuilderParams) {
+    return executeSaleBuilder(this.metaplex, input);
   }
 
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
