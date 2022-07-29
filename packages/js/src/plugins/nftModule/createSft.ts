@@ -3,6 +3,7 @@ import {
   Collection,
   Uses,
   createCreateMetadataAccountV2Instruction,
+  createCreateMetadataAccountV3Instruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -134,7 +135,7 @@ export const createSftBuilder = async (
   const creators =
     params.creators ?? toUniformVerifiedCreators(updateAuthority.publicKey);
 
-  const createMetadataInstruction = createCreateMetadataAccountV2Instruction(
+  const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
     {
       metadata: metadataPda,
       mint: mintAddress,
@@ -143,7 +144,7 @@ export const createSftBuilder = async (
       updateAuthority: updateAuthority.publicKey,
     },
     {
-      createMetadataAccountArgsV2: {
+      createMetadataAccountArgsV3: {
         data: {
           name: params.name,
           symbol: params.symbol ?? '',
@@ -154,6 +155,7 @@ export const createSftBuilder = async (
           uses: params.uses ?? null,
         },
         isMutable: params.isMutable ?? true,
+        collectionDetails: null, // TODO(loris): Support collection details.
       },
     }
   );
