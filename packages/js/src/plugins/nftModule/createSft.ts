@@ -2,7 +2,6 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   Collection,
   Uses,
-  createCreateMetadataAccountV2Instruction,
   createCreateMetadataAccountV3Instruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
@@ -108,7 +107,6 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   initializeTokenInstructionKey?: string;
   mintTokensInstructionKey?: string;
   createMetadataInstructionKey?: string;
-  createMasterEditionInstructionKey?: string;
 };
 
 export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response'>;
@@ -196,10 +194,12 @@ const createMintAndTokenForSftBuilder = async (
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     freezeAuthority = metaplex.identity().publicKey,
-    tokenExists = false,
   } = params;
 
   const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
+  const tokenExists = !params.useExistingMint
+    ? false
+    : params.tokenExists ?? false;
   const associatedTokenAddress = params.tokenOwner
     ? findAssociatedTokenAccountPda(mintAddress, params.tokenOwner)
     : null;

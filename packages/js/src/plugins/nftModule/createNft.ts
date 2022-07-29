@@ -2,7 +2,6 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   Collection,
   Uses,
-  createCreateMetadataAccountV2Instruction,
   createCreateMasterEditionV3Instruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
@@ -14,10 +13,8 @@ import {
   token,
   Creator,
   BigNumber,
-  toUniformVerifiedCreators,
-  toNullCreators,
 } from '@/types';
-import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
+import { findMasterEditionV2Pda } from './pdas';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 
@@ -35,13 +32,18 @@ export type CreateNftOperation = Operation<
 
 export interface CreateNftInput {
   // Accounts.
-  mint?: Signer; // Defaults to new generated Keypair.
   payer?: Signer; // Defaults to mx.identity().
   updateAuthority?: Signer; // Defaults to mx.identity().
-  owner?: PublicKey; // Defaults to mx.identity().
-  tokenAccount?: Signer; // Defaults to creating an associated token account.
-  mintAuthority?: Signer; // Defaults to mx.identity().
-  freezeAuthority?: Option<PublicKey>; // Defaults to mx.identity().
+  mintAuthority?: Signer; // Defaults to mx.identity(). Only necessary for existing mints.
+
+  // Mint Account.
+  useNewMint?: Signer; // Defaults to new generated Keypair.
+  useExistingMint?: PublicKey;
+
+  // Token Account.
+  tokenOwner?: PublicKey; // Defaults to mx.identity().publicKey.
+  tokenAddress?: PublicKey | Signer;
+  tokenExists?: boolean; // Defaults to false.
 
   // Data.
   uri: string;
@@ -64,7 +66,7 @@ export interface CreateNftInput {
 
 export interface CreateNftOutput {
   response: SendAndConfirmTransactionResponse;
-  mintSigner: Signer;
+  mintAddress: PublicKey;
   metadataAddress: PublicKey;
   masterEditionAddress: PublicKey;
   tokenAddress: PublicKey;
@@ -108,31 +110,39 @@ export const createNftBuilder = async (
   params: CreateNftBuilderParams
 ): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
   const {
-    mint = Keypair.generate(),
+    useNewMint = Keypair.generate(),
     payer = metaplex.identity(),
     updateAuthority = metaplex.identity(),
-    owner = metaplex.identity().publicKey,
-    tokenAccount,
     mintAuthority = metaplex.identity(),
-    freezeAuthority = metaplex.identity().publicKey,
-    tokenProgram,
-    associatedTokenProgram,
+    tokenOwner = metaplex.identity().publicKey,
   } = params;
 
-  const tokenWithMintBuilder = await metaplex
-    .tokens()
+  const sftBuilder = await metaplex
+    .nfts()
     .builders()
-    .createTokenWithMint({
-      decimals: 0,
-      initialSupply: token(1),
-      mint,
-      mintAuthority,
-      freezeAuthority: freezeAuthority ?? null,
-      owner,
-      token: tokenAccount,
+    .createSft({
       payer,
-      tokenProgram,
-      associatedTokenProgram,
+      updateAuthority,
+      mintAuthority,
+      freezeAuthority: metaplex.identity().publicKey,
+      useNewMint,
+      useExistingMint: params.useExistingMint,
+      tokenAddress: params.tokenAddress,
+      tokenOwner,
+      tokenAmount: token(1),
+      tokenExists: params.tokenExists,
+      decimals: 0,
+      uri: params.uri,
+      name: params.name,
+      sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+      symbol: params.symbol,
+      creators: params.creators,
+      isMutable: params.isMutable,
+      maxSupply: params.maxSupply,
+      collection: params.collection,
+      uses: params.uses,
+      tokenProgram: params.tokenProgram,
+      associatedTokenProgram: params.associatedTokenProgram,
       createMintAccountInstructionKey: params.createMintAccountInstructionKey,
       initializeMintInstructionKey: params.initializeMintInstructionKey,
       createAssociatedTokenAccountInstructionKey:
@@ -140,66 +150,36 @@ export const createNftBuilder = async (
       createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
       initializeTokenInstructionKey: params.initializeTokenInstructionKey,
       mintTokensInstructionKey: params.mintTokensInstructionKey,
+      createMetadataInstructionKey: params.createMetadataInstructionKey,
     });
 
-  const { tokenAddress } = tokenWithMintBuilder.getContext();
-  const metadataPda = findMetadataPda(mint.publicKey);
-  const masterEditionPda = findMasterEditionV2Pda(mint.publicKey);
-  const creators =
-    params.creators ?? toUniformVerifiedCreators(updateAuthority.publicKey);
+  const { mintAddress, metadataAddress, tokenAddress } =
+    sftBuilder.getContext();
+  const masterEditionAddress = findMasterEditionV2Pda(mintAddress);
 
   return (
     TransactionBuilder.make<CreateNftBuilderContext>()
       .setFeePayer(payer)
       .setContext({
-        mintSigner: mint,
-        metadataAddress: metadataPda,
-        masterEditionAddress: masterEditionPda,
-        tokenAddress,
+        mintAddress,
+        metadataAddress,
+        masterEditionAddress,
+        tokenAddress: tokenAddress as PublicKey,
       })
 
-      // Create the mint and token accounts before minting 1 token to the owner.
-      .add(tokenWithMintBuilder)
-
-      // Create metadata account.
-      .add({
-        instruction: createCreateMetadataAccountV2Instruction(
-          {
-            metadata: metadataPda,
-            mint: mint.publicKey,
-            mintAuthority: mintAuthority.publicKey,
-            payer: payer.publicKey,
-            updateAuthority: updateAuthority.publicKey,
-          },
-          {
-            createMetadataAccountArgsV2: {
-              data: {
-                name: params.name,
-                symbol: params.symbol ?? '',
-                uri: params.uri,
-                sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-                creators: toNullCreators(creators),
-                collection: params.collection ?? null,
-                uses: params.uses ?? null,
-              },
-              isMutable: params.isMutable ?? true,
-            },
-          }
-        ),
-        signers: [payer, mintAuthority],
-        key: params.createMetadataInstructionKey ?? 'createMetadata',
-      })
+      // Create the mint, the token and the metadata.
+      .add(sftBuilder)
 
       // Create master edition account (prevents further minting).
       .add({
         instruction: createCreateMasterEditionV3Instruction(
           {
-            edition: masterEditionPda,
-            mint: mint.publicKey,
+            edition: masterEditionAddress,
+            mint: mintAddress,
             updateAuthority: updateAuthority.publicKey,
             mintAuthority: mintAuthority.publicKey,
             payer: payer.publicKey,
-            metadata: metadataPda,
+            metadata: metadataAddress,
           },
           {
             createMasterEditionArgs: {
