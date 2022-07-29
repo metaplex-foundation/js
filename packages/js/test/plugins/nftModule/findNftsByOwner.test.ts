@@ -9,8 +9,8 @@ test('[nftModule] it can fetch all NFTs in a wallet', async (t: Test) => {
   const owner = mx.identity().publicKey;
 
   // And two NFTs inside that wallets.
-  const nftA = await createNft(mx, {}, { name: 'NFT A' });
-  const nftB = await createNft(mx, {}, { name: 'NFT B' });
+  const nftA = await createNft(mx, { name: 'NFT A' });
+  const nftB = await createNft(mx, { name: 'NFT B' });
 
   // When we fetch all NFTs in the wallet.
   const nfts = await mx.nfts().findAllByOwner(owner).run();
@@ -18,7 +18,7 @@ test('[nftModule] it can fetch all NFTs in a wallet', async (t: Test) => {
   // Then we get the right NFTs.
   t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);
   t.same(
-    nfts.map((nft) => nft.mintAddress.toBase58()).sort(),
-    [nftA.mintAddress.toBase58(), nftB.mintAddress.toBase58()].sort()
+    nfts.map((nft) => nft.address.toBase58()).sort(),
+    [nftA.address.toBase58(), nftB.address.toBase58()].sort()
   );
 });

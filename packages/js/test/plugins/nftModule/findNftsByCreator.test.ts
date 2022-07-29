@@ -21,7 +21,7 @@ test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test)
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.same(nftsA[0].mintAddress, nftA.mintAddress);
+  t.same(nftsA[0].address, nftA.address);
 
   // And vice versa.
   const nftsB = await mx.nfts().findAllByCreator(creatorB).run();
@@ -29,7 +29,7 @@ test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test)
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.same(nftsB[0].mintAddress, nftB.mintAddress);
+  t.same(nftsB[0].address, nftB.address);
 });
 
 test('[nftModule] it can fetch all NFTs from other creator positions', async (t: Test) => {
@@ -51,7 +51,7 @@ test('[nftModule] it can fetch all NFTs from other creator positions', async (t:
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.same(nftsA[0].mintAddress, nftA.mintAddress);
+  t.same(nftsA[0].address, nftA.address);
 
   // And vice versa.
   const nftsB = await mx
@@ -62,7 +62,7 @@ test('[nftModule] it can fetch all NFTs from other creator positions', async (t:
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.same(nftsB[0].mintAddress, nftB.mintAddress);
+  t.same(nftsB[0].address, nftB.address);
 });
 
 const createNftWithFirstCreator = (
@@ -70,17 +70,13 @@ const createNftWithFirstCreator = (
   name: string,
   creator: PublicKey
 ) => {
-  return createNft(
-    mx,
-    {},
-    {
-      name,
-      creators: [
-        { address: creator, share: 50, verified: false },
-        { address: mx.identity().publicKey, share: 50, verified: true },
-      ],
-    }
-  );
+  return createNft(mx, {
+    name,
+    creators: [
+      { address: creator, share: 50, verified: false },
+      { address: mx.identity().publicKey, share: 50, verified: true },
+    ],
+  });
 };
 
 const createNftWithSecondCreator = (
@@ -88,15 +84,11 @@ const createNftWithSecondCreator = (
   name: string,
   creator: PublicKey
 ) => {
-  return createNft(
-    mx,
-    {},
-    {
-      name,
-      creators: [
-        { address: mx.identity().publicKey, share: 50, verified: true },
-        { address: creator, share: 50, verified: false },
-      ],
-    }
-  );
+  return createNft(mx, {
+    name,
+    creators: [
+      { address: mx.identity().publicKey, share: 50, verified: true },
+      { address: creator, share: 50, verified: false },
+    ],
+  });
 };

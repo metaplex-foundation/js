@@ -21,7 +21,7 @@ test('[nftModule] it can use an nft', async (t: Test) => {
     remaining: 10,
     total: 10,
   };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, { uses });
 
   // When we use the NFT once.
   const { nft: usedNft } = await mx.nfts().use(nft).run();
@@ -45,7 +45,7 @@ test('[nftModule] it can use an nft multiple times', async (t: Test) => {
     remaining: 7,
     total: 10,
   };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, { uses });
 
   // When we use the NFT 3 times.
   const { nft: usedNft } = await mx.nfts().use(nft, { numberOfUses: 3 }).run();
@@ -69,7 +69,7 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
     remaining: 10,
     total: 10,
   };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, { uses });
 
   // And an another wallet that do not own that NFT.
   const anotherWallet = Keypair.generate();
@@ -89,7 +89,7 @@ test('[nftModule] it cannot be used more times than the remaining uses', async (
     remaining: 2,
     total: 10,
   };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, { uses });
 
   // When this other wallet tries to use that NFT.
   const promise = mx.nfts().use(nft, { numberOfUses: 3 }).run();

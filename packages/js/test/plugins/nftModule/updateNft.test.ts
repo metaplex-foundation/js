@@ -16,20 +16,17 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
   const mx = await metaplex();
 
   // And an existing NFT.
-  const nft = await createNft(
-    mx,
-    {
+  const nft = await createNft(mx, {
+    name: 'On-chain NFT name',
+    symbol: 'OLD',
+    sellerFeeBasisPoints: 100,
+    isMutable: true,
+    json: {
       name: 'JSON NFT name',
       description: 'JSON NFT description',
       image: toMetaplexFile('some image', 'some-image.jpg'),
     },
-    {
-      name: 'On-chain NFT name',
-      symbol: 'OLD',
-      sellerFeeBasisPoints: 100,
-      isMutable: true,
-    }
-  );
+  });
 
   // And some new updated metadata that has been uploadeds.
   const { uri: updatedUri, metadata: updatedMetadata } = await mx

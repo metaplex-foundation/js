@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
-import { toLazyMetadata, toLazyNft, toMetadataAccount } from '@/plugins';
+import { toMetadata, toMetadataAccount } from '@/index';
 import {
   metaplex,
   createNft,
@@ -10,34 +10,33 @@ import {
 
 killStuckProcess();
 
-test('[nftModule] it can load a lazy NFT', async (t: Test) => {
-  // Given a metaplex instance and a lazy NFT.
+test('[nftModule] it can load a Metadata model', async (t: Test) => {
+  // Given a metaplex instance and a Metadata model.
   const mx = await metaplex();
-  const originalNft = await createNft(
-    mx,
-    { name: 'Json Name' },
-    { name: 'On-chain Name' }
-  );
+  const originalNft = await createNft(mx, {
+    name: 'On-chain Name',
+    json: { name: 'Json Name' },
+  });
   const metadataAccount = toMetadataAccount(
     await mx.rpc().getAccount(originalNft.metadataAddress)
   );
-  const lazyNft = toLazyNft(toLazyMetadata(metadataAccount));
+  const metadata = toMetadata(metadataAccount);
 
-  // When we load that lazy NFT.
-  const nft = await mx.nfts().loadNft(lazyNft).run();
+  // When we load that Metadata model.
+  const nft = await mx.nfts().load(metadata).run();
 
-  // Then we get the fully loaded version of that NFT.
+  // Then we get the fully loaded NFT model.
   spok(t, nft, {
     $topic: 'Loaded NFT',
     model: 'nft',
-    lazy: false,
-    metadataAddress: spokSamePubkey(lazyNft.metadataAddress),
+    address: spokSamePubkey(metadata.mintAddress),
+    metadataAddress: spokSamePubkey(metadata.address),
     name: 'On-chain Name',
     json: {
       name: 'Json Name',
     },
     mint: {
-      address: spokSamePubkey(lazyNft.mintAddress),
+      address: spokSamePubkey(metadata.mintAddress),
     },
     edition: {
       isOriginal: true,

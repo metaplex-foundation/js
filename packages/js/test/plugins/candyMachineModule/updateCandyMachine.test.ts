@@ -461,7 +461,7 @@ test('[candyMachineModule] it can set the collection of a candy machine', async 
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
     $topic: 'Updated Candy Machine',
-    collectionMintAddress: spokSamePubkey(collectionNft.mintAddress),
+    collectionMintAddress: spokSamePubkey(collectionNft.address),
   } as unknown as Specifications<CandyMachine>);
 });
 
@@ -486,7 +486,7 @@ test('[candyMachineModule] it can update the collection of a candy machine', asy
   // Then the Candy Machine has been updated properly.
   spok(t, updatedCandyMachine, {
     $topic: 'Updated Candy Machine',
-    collectionMintAddress: spokSamePubkey(newCollectionNft.mintAddress),
+    collectionMintAddress: spokSamePubkey(newCollectionNft.address),
   } as unknown as Specifications<CandyMachine>);
 });
 

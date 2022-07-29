@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import { Metadata } from './Metadata';
-import { assertNft, assertNftWithToken, Nft, NftWithToken } from './Nft';
+import { assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { assertSft, Sft, SftWithToken } from './Sft';
 import {
   CreateNftInput,

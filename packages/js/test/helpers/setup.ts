@@ -45,17 +45,20 @@ export const createWallet = async (
 
 export const createNft = async (
   mx: Metaplex,
-  metadata: UploadMetadataInput = {},
-  onChain: Partial<CreateNftInput> = {}
+  input: Partial<CreateNftInput & { json: UploadMetadataInput }> = {}
 ) => {
-  const { uri } = await mx.nfts().uploadMetadata(metadata).run();
+  const { uri } = await mx
+    .nfts()
+    .uploadMetadata(input.json ?? {})
+    .run();
+
   const { nft } = await mx
     .nfts()
     .create({
       uri,
       name: 'My NFT',
       sellerFeeBasisPoints: 200,
-      ...onChain,
+      ...input,
     })
     .run();
 

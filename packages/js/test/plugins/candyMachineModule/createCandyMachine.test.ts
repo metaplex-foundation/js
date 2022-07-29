@@ -433,6 +433,6 @@ test('[candyMachineModule] create with collection', async (t) => {
   // Then we created the Candy Machine as configured
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    collectionMintAddress: spokSamePubkey(collectionNft.mintAddress),
+    collectionMintAddress: spokSamePubkey(collectionNft.address),
   } as unknown as Specifications<CandyMachine>);
 });

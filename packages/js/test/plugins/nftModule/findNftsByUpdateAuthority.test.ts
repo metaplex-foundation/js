@@ -9,7 +9,7 @@ const createNftWithAuthority = (
   mx: Metaplex,
   name: string,
   updateAuthority: Keypair
-) => createNft(mx, {}, { name, updateAuthority });
+) => createNft(mx, { name, updateAuthority });
 
 test('[nftModule] it can fetch all NFTs for a given update authority', async (t: Test) => {
   // Given a metaplex instance and 2 wallet.
@@ -31,7 +31,7 @@ test('[nftModule] it can fetch all NFTs for a given update authority', async (t:
   // Then we get the right NFTs.
   t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);
   t.same(
-    nfts.map((nft) => nft.mintAddress.toBase58()).sort(),
-    [nftA.mintAddress.toBase58(), nftB.mintAddress.toBase58()].sort()
+    nfts.map((nft) => nft.address.toBase58()).sort(),
+    [nftA.address.toBase58(), nftB.address.toBase58()].sort()
   );
 });
