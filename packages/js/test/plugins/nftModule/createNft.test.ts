@@ -110,7 +110,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   spok(t, retrievedNft, { $topic: 'Retrieved NFT', ...expectedNft });
 });
 
-test.only('[nftModule] it can create an NFT with maximum configuration', async (t: Test) => {
+test('[nftModule] it can create an NFT with maximum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -146,6 +146,7 @@ test.only('[nftModule] it can create an NFT with maximum configuration', async (
       useNewMint: mint,
       payer,
       // mintAuthority,
+      mintAuthority,
       updateAuthority,
       tokenOwner: owner.publicKey,
       collection: {
@@ -294,7 +295,7 @@ test.skip('[nftModule] it can create an NFT for other signer wallets without usi
   } as unknown as Specifications<Nft>);
 });
 
-test.skip('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => {
+test.only('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 

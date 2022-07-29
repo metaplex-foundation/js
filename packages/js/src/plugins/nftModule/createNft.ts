@@ -124,7 +124,7 @@ export const createNftBuilder = async (
       payer,
       updateAuthority,
       mintAuthority,
-      freezeAuthority: metaplex.identity().publicKey,
+      freezeAuthority: mintAuthority.publicKey,
       useNewMint,
       useExistingMint: params.useExistingMint,
       tokenAddress: params.tokenAddress,
