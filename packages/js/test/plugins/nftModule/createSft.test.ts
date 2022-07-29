@@ -202,27 +202,30 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
       ...minimalInput(),
       mint: { existing: mint.address },
       name: 'My SFT from an existing mint',
-      symbol: '',
+      symbol: 'MYSFT',
       decimals: 9, // <- This will not be used on existing mints.
     })
     .run();
 
-  // Then ...
+  // Then we created an SFT whilst keeping the provided mint.
   spok(t, sft, {
     $topic: 'SFT',
     model: 'sft',
     name: 'My SFT from an existing mint',
+    symbol: 'MYSFT',
     mint: {
       model: 'mint',
       address: spokSamePubkey(mint.address),
       decimals: 2,
-      supply: spokSameAmount(token(0, 2)),
+      supply: spokSameAmount(token(0, 2, 'MYSFT')),
+      mintAuthorityAddress: spokSamePubkey(mint.mintAuthorityAddress),
+      freezeAuthorityAddress: spokSamePubkey(mint.freezeAuthorityAddress),
     },
     token: spok.notDefined,
   } as unknown as Specifications<Sft>);
 });
 
-test('[nftModule] it can create an SFT with an associated token', async (t: Test) => {
+test.only('[nftModule] it can create an SFT with an associated token', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
