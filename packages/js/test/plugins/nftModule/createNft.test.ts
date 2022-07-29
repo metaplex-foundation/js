@@ -14,6 +14,7 @@ import {
   findEditionPda,
   TransactionBuilder,
   token,
+  NftWithToken,
 } from '@/index';
 import {
   metaplex,
@@ -79,7 +80,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
       amount: spokSameAmount(token(1)),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0),
+      delegateAmount: spokSameAmount(token(0)),
     },
     metadataAddress: spokSamePubkey(metadataAddress),
     updateAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
@@ -145,7 +146,6 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
       maxSupply: toBigNumber(123),
       useNewMint: mint,
       payer,
-      // mintAuthority,
       mintAuthority,
       updateAuthority,
       tokenOwner: owner.publicKey,
@@ -228,7 +228,54 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   } as unknown as Specifications<Nft>);
 });
 
-test.skip('[nftModule] it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
+test.only('[nftModule] it can create an NFT from an existing mint', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing mint.
+  const mintAuthority = Keypair.generate();
+  const { mint } = await mx
+    .tokens()
+    .createMint({ decimals: 0, mintAuthority: mintAuthority.publicKey })
+    .run();
+
+  // When we create a new SFT from that mint.
+  const { nft } = await mx
+    .nfts()
+    .create({
+      ...minimalInput(),
+      useExistingMint: mint.address,
+      mintAuthority: mintAuthority,
+      name: 'My NFT from an existing mint',
+      symbol: 'MYNFT',
+    })
+    .run();
+
+  // Then we created an SFT whilst keeping the provided mint.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    name: 'My NFT from an existing mint',
+    symbol: 'MYNFT',
+    mint: {
+      model: 'mint',
+      address: spokSamePubkey(mint.address),
+      decimals: 2,
+      supply: spokSameAmount(token(1, 0, 'MYNFT')),
+      mintAuthorityAddress: spokSamePubkey(mint.mintAuthorityAddress),
+      freezeAuthorityAddress: spokSamePubkey(mint.freezeAuthorityAddress),
+    },
+    token: {
+      model: 'token',
+      isAssociatedToken: true,
+      mintAddress: spokSamePubkey(mint.address),
+      ownerAddress: spokSamePubkey(mx.identity().publicKey),
+      amount: spokSameAmount(token(1)),
+    },
+  } as unknown as Specifications<NftWithToken>);
+});
+
+test('[nftModule] it can make another signer wallet pay for the storage and transaction fees', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
   const initialIdentityBalance = await mx.connection.getBalance(
@@ -236,8 +283,7 @@ test.skip('[nftModule] it can make another signer wallet pay for the storage and
   );
 
   // And a keypair that will pay for the storage.
-  const payer = Keypair.generate();
-  await amman.airdrop(mx.connection, payer.publicKey, 1);
+  const payer = await createWallet(mx, 1);
   t.equal(await mx.connection.getBalance(payer.publicKey), 1000000000);
 
   // When we create a new NFT using that account as a payer.
@@ -256,46 +302,10 @@ test.skip('[nftModule] it can make another signer wallet pay for the storage and
   );
 
   // And the NFT was successfully created.
-  spok(t, nft, { $topic: 'nft', model: 'nft', lazy: false });
+  spok(t, nft, { $topic: 'NFT', model: 'nft' });
 });
 
-test.skip('[nftModule] it can create an NFT for other signer wallets without using the identity', async (t: Test) => {
-  // Given we have a Metaplex instance.
-  const mx = await metaplex();
-
-  // And a bunch of wallet used instead of the identity.
-  const payer = Keypair.generate();
-  const updateAuthority = Keypair.generate();
-  const owner = Keypair.generate();
-  await amman.airdrop(mx.connection, payer.publicKey, 1);
-
-  // When we create a new NFT using these accounts.
-  const { nft } = await mx
-    .nfts()
-    .create({
-      ...minimalInput(),
-      payer,
-      updateAuthority,
-      owner: owner.publicKey,
-    })
-    .run();
-
-  // Then the NFT was successfully created and assigned to the right wallets.
-  spok(t, nft, {
-    $topic: 'nft',
-    name: 'My NFT',
-    updateAuthorityAddress: spokSamePubkey(updateAuthority.publicKey),
-    creators: [
-      {
-        address: spokSamePubkey(updateAuthority.publicKey),
-        share: 100,
-        verified: true,
-      },
-    ],
-  } as unknown as Specifications<Nft>);
-});
-
-test.only('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => {
+test('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
