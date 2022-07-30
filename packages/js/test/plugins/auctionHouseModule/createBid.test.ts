@@ -42,10 +42,11 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    mint: {
+    asset: {
+      model: 'nft',
       address: spokSamePubkey(nft.address),
+      token: spok.notDefined,
     },
-    token: spok.notDefined,
     isPublic: true,
   };
   spok(t, bid, {
@@ -91,11 +92,11 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    mint: spok.notDefined,
-    token: {
-      address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
-      mint: {
-        address: spokSamePubkey(nft.address),
+    asset: {
+      model: 'nft',
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
       },
     },
     isPublic: false,
@@ -131,11 +132,11 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    mint: spok.notDefined,
-    token: {
-      address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
-      mint: {
-        address: spokSamePubkey(nft.address),
+    asset: {
+      model: 'nft',
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
       },
     },
     isPublic: false,
