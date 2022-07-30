@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { Nft } from '@/index';
+import { Nft, Sft, token } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import {
@@ -9,25 +9,28 @@ import {
   killStuckProcess,
   spokSameBignum,
   assertThrows,
+  createSft,
 } from '../../helpers';
 
 killStuckProcess();
 
-test('[nftModule] it can use an nft', async (t: Test) => {
+test('[nftModule] it can use an NFT', async (t: Test) => {
   // Given an existing NFT with 10 uses.
   const mx = await metaplex();
-  const uses = {
-    useMethod: UseMethod.Multiple,
-    remaining: 10,
-    total: 10,
-  };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, {
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: 10,
+      total: 10,
+    },
+  });
 
   // When we use the NFT once.
-  const { nft: usedNft } = await mx.nfts().use(nft).run();
+  const { nftOrSft: usedNft } = await mx.nfts().use(nft).run();
 
   // Then the returned usable NFT should have one less use.
   spok(t, usedNft, {
+    model: 'nft',
     $topic: 'Used NFT',
     uses: {
       useMethod: UseMethod.Multiple,
@@ -37,18 +40,50 @@ test('[nftModule] it can use an nft', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 });
 
-test('[nftModule] it can use an nft multiple times', async (t: Test) => {
+test('[nftModule] it can use an SFT', async (t: Test) => {
+  // Given an existing SFT with 10 uses.
+  const mx = await metaplex();
+  const sft = await createSft(mx, {
+    tokenOwner: mx.identity().publicKey,
+    tokenAmount: token(10),
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: 10,
+      total: 10,
+    },
+  });
+
+  // When we use the NFT once.
+  const { nftOrSft: usedSft } = await mx.nfts().use(sft).run();
+
+  // Then the returned usable NFT should have one less use.
+  spok(t, usedSft, {
+    $topic: 'Used SFT',
+    model: 'sft',
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: spokSameBignum(9),
+      total: spokSameBignum(10),
+    },
+  } as unknown as Specifications<Sft>);
+});
+
+test('[nftModule] it can use an NFT multiple times', async (t: Test) => {
   // Given an existing NFT with 7 remaining uses.
   const mx = await metaplex();
-  const uses = {
-    useMethod: UseMethod.Multiple,
-    remaining: 7,
-    total: 10,
-  };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, {
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: 7,
+      total: 10,
+    },
+  });
 
   // When we use the NFT 3 times.
-  const { nft: usedNft } = await mx.nfts().use(nft, { numberOfUses: 3 }).run();
+  const { nftOrSft: usedNft } = await mx
+    .nfts()
+    .use(nft, { numberOfUses: 3 })
+    .run();
 
   // Then the returned NFT should have 4 remaining uses.
   spok(t, usedNft, {
@@ -64,12 +99,13 @@ test('[nftModule] it can use an nft multiple times', async (t: Test) => {
 test('[nftModule] it only allows the owner to update the uses', async (t: Test) => {
   // Given an existing NFT with 10 remaining uses.
   const mx = await metaplex();
-  const uses = {
-    useMethod: UseMethod.Multiple,
-    remaining: 10,
-    total: 10,
-  };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, {
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: 10,
+      total: 10,
+    },
+  });
 
   // And an another wallet that do not own that NFT.
   const anotherWallet = Keypair.generate();
@@ -84,12 +120,13 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
 test('[nftModule] it cannot be used more times than the remaining uses', async (t: Test) => {
   // Given an existing NFT with 2 remaining uses.
   const mx = await metaplex();
-  const uses = {
-    useMethod: UseMethod.Multiple,
-    remaining: 2,
-    total: 10,
-  };
-  const nft = await createNft(mx, {}, { uses });
+  const nft = await createNft(mx, {
+    uses: {
+      useMethod: UseMethod.Multiple,
+      remaining: 2,
+      total: 10,
+    },
+  });
 
   // When this other wallet tries to use that NFT.
   const promise = mx.nfts().use(nft, { numberOfUses: 3 }).run();

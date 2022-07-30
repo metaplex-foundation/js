@@ -1,51 +1,62 @@
-import { Pda } from '@/types';
+import type { PublicKey } from '@solana/web3.js';
+import type { Pda } from '@/types';
+import type { Metadata } from './Metadata';
+import type { Mint, Token } from '../tokenModule';
+import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
-import { LazyMetadata, Metadata } from './Metadata';
-import { Mint } from '../tokenModule';
-import { NftEdition } from './NftEdition';
+import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
-export type Nft = Omit<Metadata, 'model' | 'address'> &
+export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
     model: 'nft';
-    lazy: false;
+    address: PublicKey;
     metadataAddress: Pda;
     mint: Mint;
     edition: NftEdition;
   }>;
 
 export const isNft = (value: any): value is Nft =>
-  typeof value === 'object' && value.model === 'nft' && !value.lazy;
+  typeof value === 'object' && value.model === 'nft';
 
 export function assertNft(value: any): asserts value is Nft {
   assert(isNft(value), `Expected Nft model`);
 }
+
 export const toNft = (
   metadata: Metadata,
   mint: Mint,
   edition: NftEdition
 ): Nft => ({
-  ...metadata,
+  ...toSft(metadata, mint),
   model: 'nft',
-  lazy: false,
-  metadataAddress: metadata.address,
-  mint,
   edition,
 });
 
-export type LazyNft = Omit<Nft, 'lazy' | 'mint' | 'edition' | 'json'> &
-  Readonly<{
-    lazy: true;
-  }>;
+export type NftWithToken = Nft & { token: Token };
 
-export const isLazyNft = (value: any): value is LazyNft =>
-  typeof value === 'object' && value.model === 'nft' && value.lazy;
+export const isNftWithToken = (value: any): value is NftWithToken =>
+  isNft(value) && 'token' in value;
 
-export function assertLazyNft(value: any): asserts value is LazyNft {
-  assert(isLazyNft(value), `Expected LazyNft model`);
+export function assertNftWithToken(value: any): asserts value is NftWithToken {
+  assert(isNftWithToken(value), `Expected Nft model with token`);
 }
-export const toLazyNft = (metadata: Metadata | LazyMetadata): LazyNft => ({
-  ...metadata,
+
+export function assertNftOrSftWithToken(
+  value: any
+): asserts value is NftWithToken | SftWithToken {
+  assert(
+    isNftWithToken(value) || isSftWithToken(value),
+    `Expected Nft or Sft model with token`
+  );
+}
+
+export const toNftWithToken = (
+  metadata: Metadata,
+  mint: Mint,
+  edition: NftEdition,
+  token: Token
+): NftWithToken => ({
+  ...toSftWithToken(metadata, mint, token),
   model: 'nft',
-  lazy: true,
-  metadataAddress: metadata.address,
+  edition,
 });

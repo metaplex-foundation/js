@@ -1,27 +1,35 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import {
-  assertMintWithMetadata,
-  LazyMetadata,
-  Metadata,
-  MintWithMetadata,
-} from './Metadata';
-import { LazyNft, Nft } from './Nft';
+import { toPublicKey, PublicKeyValues, token } from '@/types';
+import { Metadata } from './Metadata';
+import { assertNftWithToken, Nft, NftWithToken } from './Nft';
+import { assertSft, Sft, SftWithToken } from './Sft';
 import {
   CreateNftInput,
   createNftOperation,
   CreateNftOutput,
 } from './createNft';
 import {
-  FindMintWithMetadataByAddressInput,
-  findMintWithMetadataByAddressOperation,
-} from './findMintWithMetadataByAddress';
+  CreateSftInput,
+  createSftOperation,
+  CreateSftOutput,
+} from './createSft';
 import {
-  FindMintWithMetadataByMetadataInput,
-  findMintWithMetadataByMetadataOperation,
-} from './findMintWithMetadataByMetadata';
-import { FindNftByMintInput, findNftByMintOperation } from './findNftByMint';
+  FindNftByMetadataInput,
+  findNftByMetadataOperation,
+  FindNftByMetadataOutput,
+} from './findNftByMetadata';
+import {
+  FindNftByMintInput,
+  findNftByMintOperation,
+  FindNftByMintOutput,
+} from './findNftByMint';
+import {
+  FindNftByTokenInput,
+  findNftByTokenOperation,
+  FindNftByTokenOutput,
+} from './findNftByToken';
 import {
   FindNftsByMintListInput,
   findNftsByMintListOperation,
@@ -39,18 +47,10 @@ import {
   findNftsByCreatorOperation,
 } from './findNftsByCreator';
 import {
-  FindTokenWithMetadataByAddressInput,
-  findTokenWithMetadataByAddressOperation,
-} from './findTokenWithMetadataByAddress';
-import {
-  FindTokenWithMetadataByMetadataInput,
-  findTokenWithMetadataByMetadataOperation,
-} from './findTokenWithMetadataByMetadata';
-import {
-  FindTokenWithMetadataByMintInput,
-  findTokenWithMetadataByMintOperation,
-} from './findTokenWithMetadataByMint';
-import { loadMetadataOperation } from './loadMetadata';
+  LoadMetadataInput,
+  loadMetadataOperation,
+  LoadMetadataOutput,
+} from './loadMetadata';
 import {
   printNewEditionOperation,
   PrintNewEditionOutput,
@@ -67,54 +67,79 @@ import {
   updateNftOperation,
   UpdateNftOutput,
 } from './updateNft';
-import { LoadNftInput, loadNftOperation } from './loadNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
-import {
-  AddMetadataInput,
-  addMetadataOperation,
-  AddMetadataOutput,
-} from './addMetadata';
+import { SendTokensInput, SendTokensOutput } from '../tokenModule';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
-
-  addMetadata(
-    input: AddMetadataInput
-  ): Task<AddMetadataOutput & { mintWithMetadata: MintWithMetadata }> {
-    return new Task(async (scope) => {
-      const operation = addMetadataOperation(input);
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const mintWithMetadata = await this.findMintWithMetadataByAddress(
-        input.mint
-      ).run(scope);
-      assertMintWithMetadata(mintWithMetadata);
-      return { ...output, mintWithMetadata };
-    });
-  }
 
   builders() {
     return new NftBuildersClient(this.metaplex);
   }
 
-  create(input: CreateNftInput): Task<CreateNftOutput & { nft: Nft }> {
+  create(input: CreateNftInput): Task<CreateNftOutput & { nft: NftWithToken }> {
     return new Task(async (scope) => {
       const operation = createNftOperation(input);
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      const nft = await this.findByMint(output.mintAddress, {
+        tokenAddress: output.tokenAddress,
+      }).run(scope);
+      assertNftWithToken(nft);
       return { ...output, nft };
     });
+  }
+
+  createSft(
+    input: CreateSftInput
+  ): Task<CreateSftOutput & { sft: Sft | SftWithToken }> {
+    return new Task(async (scope) => {
+      const operation = createSftOperation(input);
+      const output = await this.metaplex.operations().execute(operation, scope);
+      scope.throwIfCanceled();
+      const sft = await this.findByMint(output.mintAddress, {
+        tokenAddress: output.tokenAddress ?? undefined,
+      }).run(scope);
+      assertSft(sft);
+      return { ...output, sft };
+    });
+  }
+
+  findByMetadata(
+    metadata: PublicKey,
+    options?: Omit<FindNftByMetadataInput, 'metadata'>
+  ): Task<FindNftByMetadataOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftByMetadataOperation({ metadata, ...options }));
   }
 
   findByMint(
     mint: PublicKey,
     options?: Omit<FindNftByMintInput, 'mint'>
-  ): Task<Nft> {
+  ): Task<FindNftByMintOutput> {
     return this.metaplex
       .operations()
       .getTask(findNftByMintOperation({ mint, ...options }));
+  }
+
+  findByToken(
+    token: PublicKey,
+    options?: Omit<FindNftByTokenInput, 'token'>
+  ): Task<FindNftByTokenOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(findNftByTokenOperation({ token, ...options }));
+  }
+
+  findAllByCreator(
+    creator: PublicKey,
+    options?: Omit<FindNftsByCreatorInput, 'creator'>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByCreatorOperation({ creator, ...options }));
   }
 
   findAllByMintList(
@@ -146,103 +171,59 @@ export class NftClient {
       );
   }
 
-  findAllByCreator(
-    creator: PublicKey,
-    options?: Omit<FindNftsByCreatorInput, 'creator'>
-  ) {
+  load(
+    metadata: Metadata,
+    options?: Omit<LoadMetadataInput, 'metadata'>
+  ): Task<LoadMetadataOutput> {
     return this.metaplex
       .operations()
-      .getTask(findNftsByCreatorOperation({ creator, ...options }));
-  }
-
-  findMintWithMetadataByAddress(
-    address: PublicKey,
-    options?: Omit<FindMintWithMetadataByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findMintWithMetadataByAddressOperation({ address, ...options }));
-  }
-
-  findMintWithMetadataByMetadata(
-    address: PublicKey,
-    options?: Omit<FindMintWithMetadataByMetadataInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(
-        findMintWithMetadataByMetadataOperation({ address, ...options })
-      );
-  }
-
-  findTokenWithMetadataByAddress(
-    address: PublicKey,
-    options?: Omit<FindTokenWithMetadataByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(
-        findTokenWithMetadataByAddressOperation({ address, ...options })
-      );
-  }
-
-  findTokenWithMetadataByMetadata(
-    metadataAddress: PublicKey,
-    ownerAddress: PublicKey,
-    options?: Omit<
-      FindTokenWithMetadataByMetadataInput,
-      'metadataAddress' | 'ownerAddress'
-    >
-  ) {
-    return this.metaplex.operations().getTask(
-      findTokenWithMetadataByMetadataOperation({
-        metadataAddress,
-        ownerAddress,
-        ...options,
-      })
-    );
-  }
-
-  findTokenWithMetadataByMint(
-    mintAddress: PublicKey,
-    ownerAddress: PublicKey,
-    options?: Omit<
-      FindTokenWithMetadataByMintInput,
-      'metadataAddress' | 'ownerAddress'
-    >
-  ) {
-    return this.metaplex.operations().getTask(
-      findTokenWithMetadataByMintOperation({
-        mintAddress,
-        ownerAddress,
-        ...options,
-      })
-    );
-  }
-
-  loadMetadata(metadata: LazyMetadata): Task<Metadata> {
-    return this.metaplex
-      .operations()
-      .getTask(loadMetadataOperation({ metadata }));
-  }
-
-  loadNft(nft: LazyNft, options: Omit<LoadNftInput, 'nft'> = {}): Task<Nft> {
-    return this.metaplex
-      .operations()
-      .getTask(loadNftOperation({ nft, ...options }));
+      .getTask(loadMetadataOperation({ metadata, ...options }));
   }
 
   printNewEdition(
-    originalNft: Nft | LazyNft | PublicKey,
-    input: Omit<PrintNewEditionSharedInput, 'originalNft'> &
+    originalNft: Nft | NftWithToken | Metadata | PublicKey,
+    input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
       PrintNewEditionViaInput = {}
-  ): Task<PrintNewEditionOutput & { nft: Nft }> {
+  ): Task<PrintNewEditionOutput & { nft: NftWithToken }> {
     return new Task(async (scope) => {
-      const operation = printNewEditionOperation({ originalNft, ...input });
+      const originalMint = toMintAddress(originalNft);
+      const operation = printNewEditionOperation({ originalMint, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
+      const nft = await this.findByMint(output.mintSigner.publicKey, {
+        tokenAddress: output.tokenAddress,
+      }).run(scope);
+      assertNftWithToken(nft);
       return { ...output, nft };
+    });
+  }
+
+  refresh<
+    T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey
+  >(
+    nftOrSft: T,
+    options?: Omit<FindNftByMintInput, 'mint' | 'tokenAddres' | 'tokenOwner'>
+  ): Task<T extends Metadata | PublicKey ? Nft | Sft : T> {
+    const task = this.metaplex.operations().getTask(
+      findNftByMintOperation({
+        mint: toMintAddress(nftOrSft),
+        tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
+        ...options,
+      })
+    );
+    return task as Task<T extends Metadata | PublicKey ? Nft | Sft : T>;
+  }
+
+  send(
+    nftOrSft: Nft | Sft | Metadata | PublicKey,
+    newOwner: PublicKey,
+    options?: Omit<SendTokensInput, 'toOwner' | 'toToken'>
+  ): Task<SendTokensOutput> {
+    return this.metaplex.tokens().send({
+      mint: toMintAddress(nftOrSft),
+      toOwner: newOwner,
+      amount: token(1),
+      ...options,
     });
   }
 
@@ -250,29 +231,43 @@ export class NftClient {
     return this.metaplex.operations().getTask(uploadMetadataOperation(input));
   }
 
-  update(
-    nft: Nft | LazyNft,
-    input: Omit<UpdateNftInput, 'nft'>
-  ): Task<UpdateNftOutput & { nft: Nft }> {
+  update<T extends Nft | Sft | NftWithToken | SftWithToken>(
+    nftOrSft: T,
+    input: Omit<UpdateNftInput, 'nftOrSft'>
+  ): Task<UpdateNftOutput & { nftOrSft: T }> {
     return new Task(async (scope) => {
-      const operation = updateNftOperation({ ...input, nft });
+      const operation = updateNftOperation({ ...input, nftOrSft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nft.mintAddress).run(scope);
-      return { ...output, nft: updatedNft };
+      const updatedNft = await this.refresh(nftOrSft).run(scope);
+      return { ...output, nftOrSft: updatedNft as T };
     });
   }
 
-  use(
-    nft: Nft | LazyNft | PublicKey,
-    input: Omit<UseNftInput, 'nft'> = {}
-  ): Task<UseNftOutput & { nft: Nft }> {
+  use<T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey>(
+    nftOrSft: T,
+    input: Omit<UseNftInput, 'mintAddress'> = {}
+  ): Task<
+    UseNftOutput & {
+      nftOrSft: T extends Metadata | PublicKey ? Nft | Sft : T;
+    }
+  > {
     return new Task(async (scope) => {
-      const operation = useNftOperation({ ...input, nft });
+      const mintAddress = toMintAddress(nftOrSft);
+      const operation = useNftOperation({ ...input, mintAddress });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(output.mintAddress).run(scope);
-      return { ...output, nft: updatedNft };
+      const updatedNft = await this.refresh(nftOrSft).run(scope);
+      return {
+        ...output,
+        nftOrSft: updatedNft as T extends Metadata | PublicKey ? Nft | Sft : T,
+      };
     });
   }
 }
+
+export const toMintAddress = (value: PublicKeyValues | Metadata): PublicKey => {
+  return typeof value === 'object' && 'mintAddress' in value
+    ? value.mintAddress
+    : toPublicKey(value);
+};

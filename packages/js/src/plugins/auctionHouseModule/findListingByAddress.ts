@@ -3,7 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
-import { Listing, toListing } from './Listing';
+import { Listing, toLazyListing } from './Listing';
 import { DisposableScope } from '@/utils';
 import { findListingReceiptPda } from './pdas';
 
@@ -49,16 +49,13 @@ export const findListingByAddressOperationHandler: OperationHandler<FindListingB
       const account = toListingReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
+      scope.throwIfCanceled();
 
-      const tokenModel = await metaplex
-        .nfts()
-        .findTokenWithMetadataByMetadata(
-          account.data.metadata,
-          account.data.seller,
-          { commitment, loadJsonMetadata }
-        )
+      const lazyListing = toLazyListing(account, auctionHouse);
+      return metaplex
+        .auctions()
+        .for(auctionHouse)
+        .loadListing(lazyListing, { loadJsonMetadata, commitment })
         .run(scope);
-
-      return toListing(account, auctionHouse, tokenModel);
     },
   };

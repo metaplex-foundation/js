@@ -162,9 +162,9 @@ export const createTokenWithMintBuilder = async (
           metaplex
             .tokens()
             .builders()
-            .mintTokens({
+            .mint({
               mint: mint.publicKey,
-              destination: tokenAddress,
+              toToken: tokenAddress,
               amount: initialSupply as SplTokenAmount,
               mintAuthority,
               tokenProgram,

@@ -1,8 +1,10 @@
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
-import { LazyMetadata, Metadata } from './Metadata';
-import { JsonMetadata } from './JsonMetadata';
+import { Metadata } from './Metadata';
+import { Nft, NftWithToken } from './Nft';
+import { Sft, SftWithToken } from './Sft';
 
 // -----------------
 // Operation
@@ -13,12 +15,18 @@ export const loadMetadataOperation = useOperation<LoadMetadataOperation>(Key);
 export type LoadMetadataOperation = Operation<
   typeof Key,
   LoadMetadataInput,
-  Metadata
+  LoadMetadataOutput
 >;
 
 export type LoadMetadataInput = {
-  metadata: LazyMetadata;
+  metadata: Metadata;
+  tokenAddress?: PublicKey;
+  tokenOwner?: PublicKey;
+  loadJsonMetadata?: boolean;
+  commitment?: Commitment;
 };
+
+export type LoadMetadataOutput = Nft | Sft | NftWithToken | SftWithToken;
 
 // -----------------
 // Handler
@@ -30,16 +38,21 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
       operation: LoadMetadataOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Metadata> => {
-      const { metadata } = operation.input;
+    ): Promise<LoadMetadataOutput> => {
+      const { metadata, loadJsonMetadata = true } = operation.input;
 
-      try {
-        const json = await metaplex
-          .storage()
-          .downloadJson<JsonMetadata>(metadata.uri, scope);
-        return { ...metadata, lazy: false, json };
-      } catch (error) {
-        return { ...metadata, lazy: false, json: null };
+      let nftOrSft = await metaplex
+        .nfts()
+        .findByMint(metadata.mintAddress, {
+          ...operation.input,
+          loadJsonMetadata: !metadata.jsonLoaded && loadJsonMetadata,
+        })
+        .run(scope);
+
+      if (!nftOrSft.jsonLoaded && metadata.jsonLoaded) {
+        nftOrSft = { ...nftOrSft, json: metadata.json, jsonLoaded: true };
       }
+
+      return nftOrSft;
     },
   };

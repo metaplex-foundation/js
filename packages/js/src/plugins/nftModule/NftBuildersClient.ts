@@ -6,17 +6,17 @@ import {
 } from './printNewEdition';
 import { updateNftBuilder, UpdateNftBuilderParams } from './updateNft';
 import { useNftBuilder, UseNftBuilderParams } from './useNft';
-import { addMetadataBuilder, AddMetadataBuilderParams } from './addMetadata';
+import { createSftBuilder, CreateSftBuilderParams } from './createSft';
 
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  addMetadata(input: AddMetadataBuilderParams) {
-    return addMetadataBuilder(this.metaplex, input);
-  }
-
   create(input: CreateNftBuilderParams) {
     return createNftBuilder(this.metaplex, input);
+  }
+
+  createSft(input: CreateSftBuilderParams) {
+    return createSftBuilder(this.metaplex, input);
   }
 
   printNewEdition(input: PrintNewEditionBuilderParams) {

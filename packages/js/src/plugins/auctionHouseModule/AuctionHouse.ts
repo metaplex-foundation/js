@@ -4,7 +4,6 @@ import { Pda } from '@/types';
 import { AuctioneerAccount, AuctionHouseAccount } from './accounts';
 import { assert } from '@/utils';
 import { Mint } from '../tokenModule';
-import { MintWithMetadata } from '../nftModule';
 
 export type AuctionHouse = Readonly<
   {
@@ -12,7 +11,7 @@ export type AuctionHouse = Readonly<
     address: Pda;
     creatorAddress: PublicKey;
     authorityAddress: PublicKey;
-    treasuryMint: Mint | MintWithMetadata;
+    treasuryMint: Mint;
     feeAccountAddress: Pda;
     treasuryAccountAddress: Pda;
     feeWithdrawalDestinationAddress: PublicKey;
@@ -61,7 +60,7 @@ export function assertAuctioneerAuctionHouse(
 
 export const toAuctionHouse = (
   auctionHouseAccount: AuctionHouseAccount,
-  treasuryMint: Mint | MintWithMetadata,
+  treasuryMint: Mint,
   auctioneerAccount?: AuctioneerAccount | null
 ): AuctionHouse => {
   if (auctionHouseAccount.data.hasAuctioneer) {

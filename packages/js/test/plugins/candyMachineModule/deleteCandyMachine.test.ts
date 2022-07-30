@@ -59,7 +59,7 @@ test('[candyMachineModule] it can delete a candy machine with a collection NFT',
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
   const { candyMachine } = await createCandyMachine(mx, {
-    collection: collectionNft,
+    collection: collectionNft.address,
   });
 
   // When we delete that candy machine.

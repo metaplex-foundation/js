@@ -5,10 +5,19 @@ import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { NftClient } from './NftClient';
 import { createNftOperation, createNftOperationHandler } from './createNft';
+import { createSftOperation, createSftOperationHandler } from './createSft';
+import {
+  findNftByMetadataOperation,
+  findNftByMetadataOperationHandler,
+} from './findNftByMetadata';
 import {
   findNftByMintOperationHandler,
   findNftByMintOperation,
 } from './findNftByMint';
+import {
+  findNftByTokenOperation,
+  findNftByTokenOperationHandler,
+} from './findNftByToken';
 import {
   findNftsByCreatorOperationHandler,
   findNftsByCreatorOperation,
@@ -26,30 +35,9 @@ import {
   findNftsByUpdateAuthorityOperation,
 } from './findNftsByUpdateAuthority';
 import {
-  findMintWithMetadataByAddressOperation,
-  findMintWithMetadataByAddressOperationHandler,
-} from './findMintWithMetadataByAddress';
-import {
-  findMintWithMetadataByMetadataOperation,
-  findMintWithMetadataByMetadataOperationHandler,
-} from './findMintWithMetadataByMetadata';
-import {
-  findTokenWithMetadataByAddressOperation,
-  findTokenWithMetadataByAddressOperationHandler,
-} from './findTokenWithMetadataByAddress';
-import {
-  findTokenWithMetadataByMetadataOperation,
-  findTokenWithMetadataByMetadataOperationHandler,
-} from './findTokenWithMetadataByMetadata';
-import {
-  findTokenWithMetadataByMintOperation,
-  findTokenWithMetadataByMintOperationHandler,
-} from './findTokenWithMetadataByMint';
-import {
   loadMetadataOperation,
   loadMetadataOperationHandler,
 } from './loadMetadata';
-import { loadNftOperation, loadNftOperationHandler } from './loadNft';
 import {
   printNewEditionOperation,
   printNewEditionOperationHandler,
@@ -60,10 +48,6 @@ import {
   uploadMetadataOperationHandler,
 } from './uploadMetadata';
 import { useNftOperation, useNftOperationHandler } from './useNft';
-import {
-  addMetadataOperation,
-  addMetadataOperationHandler,
-} from './addMetadata';
 
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -79,17 +63,11 @@ export const nftModule = (): MetaplexPlugin => ({
 
     // Operations.
     const op = metaplex.operations();
-    op.register(addMetadataOperation, addMetadataOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
-    op.register(
-      findMintWithMetadataByAddressOperation,
-      findMintWithMetadataByAddressOperationHandler
-    );
-    op.register(
-      findMintWithMetadataByMetadataOperation,
-      findMintWithMetadataByMetadataOperationHandler
-    );
+    op.register(createSftOperation, createSftOperationHandler);
+    op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
+    op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
     op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
     op.register(
       findNftsByMintListOperation,
@@ -100,20 +78,7 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByUpdateAuthorityOperation,
       findNftsByUpdateAuthorityOperationHandler
     );
-    op.register(
-      findTokenWithMetadataByAddressOperation,
-      findTokenWithMetadataByAddressOperationHandler
-    );
-    op.register(
-      findTokenWithMetadataByMetadataOperation,
-      findTokenWithMetadataByMetadataOperationHandler
-    );
-    op.register(
-      findTokenWithMetadataByMintOperation,
-      findTokenWithMetadataByMintOperationHandler
-    );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
-    op.register(loadNftOperation, loadNftOperationHandler);
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);

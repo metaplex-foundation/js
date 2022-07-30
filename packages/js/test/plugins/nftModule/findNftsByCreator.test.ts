@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import { Metaplex, Metadata } from '@/index';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
@@ -14,22 +14,28 @@ test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test)
   const nftB = await createNftWithFirstCreator(mx, 'NFT B', creatorB);
 
   // When we fetch the NFTs by creator A.
-  const nftsA = await mx.nfts().findAllByCreator(creatorA).run();
+  const nftsA = (await mx
+    .nfts()
+    .findAllByCreator(creatorA)
+    .run()) as Metadata[];
 
   // Then we don't get the NFTs from creator B.
   t.same(
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.same(nftsA[0].mintAddress, nftA.mintAddress);
+  t.same(nftsA[0].mintAddress, nftA.address);
 
   // And vice versa.
-  const nftsB = await mx.nfts().findAllByCreator(creatorB).run();
+  const nftsB = (await mx
+    .nfts()
+    .findAllByCreator(creatorB)
+    .run()) as Metadata[];
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.same(nftsB[0].mintAddress, nftB.mintAddress);
+  t.same(nftsB[0].mintAddress, nftB.address);
 });
 
 test('[nftModule] it can fetch all NFTs from other creator positions', async (t: Test) => {
@@ -41,28 +47,28 @@ test('[nftModule] it can fetch all NFTs from other creator positions', async (t:
   const nftB = await createNftWithSecondCreator(mx, 'NFT B', creatorB);
 
   // When we fetch the NFTs by second creator A.
-  const nftsA = await mx
+  const nftsA = (await mx
     .nfts()
     .findAllByCreator(creatorA, { position: 2 })
-    .run();
+    .run()) as Metadata[];
 
   // Then we don't get the NFTs from second creator B.
   t.same(
     nftsA.map((nft) => nft.name),
     ['NFT A']
   );
-  t.same(nftsA[0].mintAddress, nftA.mintAddress);
+  t.same(nftsA[0].mintAddress, nftA.address);
 
   // And vice versa.
-  const nftsB = await mx
+  const nftsB = (await mx
     .nfts()
     .findAllByCreator(creatorB, { position: 2 })
-    .run();
+    .run()) as Metadata[];
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']
   );
-  t.same(nftsB[0].mintAddress, nftB.mintAddress);
+  t.same(nftsB[0].mintAddress, nftB.address);
 });
 
 const createNftWithFirstCreator = (
@@ -70,17 +76,13 @@ const createNftWithFirstCreator = (
   name: string,
   creator: PublicKey
 ) => {
-  return createNft(
-    mx,
-    {},
-    {
-      name,
-      creators: [
-        { address: creator, share: 50, verified: false },
-        { address: mx.identity().publicKey, share: 50, verified: true },
-      ],
-    }
-  );
+  return createNft(mx, {
+    name,
+    creators: [
+      { address: creator, share: 50, verified: false },
+      { address: mx.identity().publicKey, share: 50, verified: true },
+    ],
+  });
 };
 
 const createNftWithSecondCreator = (
@@ -88,15 +90,11 @@ const createNftWithSecondCreator = (
   name: string,
   creator: PublicKey
 ) => {
-  return createNft(
-    mx,
-    {},
-    {
-      name,
-      creators: [
-        { address: mx.identity().publicKey, share: 50, verified: true },
-        { address: creator, share: 50, verified: false },
-      ],
-    }
-  );
+  return createNft(mx, {
+    name,
+    creators: [
+      { address: mx.identity().publicKey, share: 50, verified: true },
+      { address: creator, share: 50, verified: false },
+    ],
+  });
 };

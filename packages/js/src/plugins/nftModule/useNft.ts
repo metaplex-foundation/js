@@ -1,7 +1,6 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
@@ -18,7 +17,7 @@ export type UseNftOperation = Operation<typeof Key, UseNftInput, UseNftOutput>;
 
 export interface UseNftInput {
   // Accounts and models.
-  nft: Nft | LazyNft | PublicKey;
+  mintAddress: PublicKey;
   numberOfUses?: number; // Defaults to 1.
   useAuthority?: Signer; // Defaults to mx.identity().
   owner?: PublicKey; // Defaults to mx.identity().publicKey.
@@ -32,7 +31,6 @@ export interface UseNftInput {
 
 export interface UseNftOutput {
   response: SendAndConfirmTransactionResponse;
-  mintAddress: PublicKey;
 }
 
 // -----------------
@@ -59,13 +57,12 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
   utilizeInstructionKey?: string;
 };
 
-export type UseNftBuilderContext = Omit<UseNftOutput, 'response'>;
-
 export const useNftBuilder = (
   metaplex: Metaplex,
   params: UseNftBuilderParams
-): TransactionBuilder<UseNftBuilderContext> => {
+): TransactionBuilder => {
   const {
+    mintAddress,
     numberOfUses = 1,
     useAuthority = metaplex.identity(),
     owner = metaplex.identity().publicKey,
@@ -73,10 +70,6 @@ export const useNftBuilder = (
     burner,
   } = params;
 
-  const mintAddress =
-    isNft(params.nft) || isLazyNft(params.nft)
-      ? params.nft.mintAddress
-      : params.nft;
   const metadata = findMetadataPda(mintAddress);
   const tokenAccount = findAssociatedTokenAccountPda(mintAddress, owner);
   const useAuthorityRecord = isDelegated
@@ -84,8 +77,7 @@ export const useNftBuilder = (
     : undefined;
 
   return (
-    TransactionBuilder.make<UseNftBuilderContext>()
-      .setContext({ mintAddress })
+    TransactionBuilder.make()
 
       // Update the metadata account.
       .add({

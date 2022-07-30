@@ -130,11 +130,11 @@ export class TokenClient {
       .getTask(findTokenWithMintByMintOperation(input));
   }
 
-  mintTokens(input: MintTokensInput): Task<MintTokensOutput> {
+  mint(input: MintTokensInput): Task<MintTokensOutput> {
     return this.metaplex.operations().getTask(mintTokensOperation(input));
   }
 
-  sendTokens(input: SendTokensInput): Task<SendTokensOutput> {
+  send(input: SendTokensInput): Task<SendTokensOutput> {
     return this.metaplex.operations().getTask(sendTokensOperation(input));
   }
 }

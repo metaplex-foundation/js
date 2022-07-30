@@ -23,11 +23,11 @@ export class TokenBuildersClient {
     return createTokenWithMintBuilder(this.metaplex, input);
   }
 
-  mintTokens(input: MintTokensBuilderParams) {
+  mint(input: MintTokensBuilderParams) {
     return mintTokensBuilder(this.metaplex, input);
   }
 
-  sendTokens(input: SendTokensBuilderParams) {
+  send(input: SendTokensBuilderParams) {
     return sendTokensBuilder(this.metaplex, input);
   }
 }

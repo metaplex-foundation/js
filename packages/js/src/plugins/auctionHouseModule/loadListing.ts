@@ -3,6 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { LazyListing, Listing } from './Listing';
 import { DisposableScope } from '@/utils';
+import { assertNftOrSftWithToken } from '../nftModule';
 
 // -----------------
 // Operation
@@ -39,21 +40,22 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
         commitment,
       } = operation.input;
 
-      const tokenModel = await metaplex
+      const asset = await metaplex
         .nfts()
-        .findTokenWithMetadataByMetadata(
-          lazyListing.metadataAddress,
-          lazyListing.sellerAddress,
-          { commitment, loadJsonMetadata }
-        )
+        .findByMetadata(lazyListing.metadataAddress, {
+          tokenOwner: lazyListing.sellerAddress,
+          commitment,
+          loadJsonMetadata,
+        })
         .run(scope);
+      assertNftOrSftWithToken(asset);
 
       return {
         ...lazyListing,
         model: 'listing',
         lazy: false,
-        token: tokenModel,
-        tokens: amount(lazyListing.tokens, tokenModel.mint.currency),
+        asset,
+        tokens: amount(lazyListing.tokens, asset.mint.currency),
       };
     },
   };

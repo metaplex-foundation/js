@@ -12,13 +12,9 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { BidReceiptAccount } from './accounts';
-import {
-  isMintWithMetadata,
-  MintWithMetadata,
-  TokenWithMetadata,
-} from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../nftModule';
 
 export type Bid = Readonly<
   {
@@ -43,11 +39,11 @@ export type Bid = Readonly<
   } & (
     | {
         isPublic: false;
-        token: TokenWithMetadata;
+        asset: SftWithToken | NftWithToken;
       }
     | {
         isPublic: true;
-        mint: MintWithMetadata;
+        asset: Sft | Nft;
       }
   )
 >;
@@ -61,30 +57,30 @@ export function assertBid(value: any): asserts value is Bid {
 
 export const toBid = (
   account: BidReceiptAccount,
-  auctionHouseModel: AuctionHouse,
-  metadataModel: TokenWithMetadata | MintWithMetadata
+  auctionHouse: AuctionHouse,
+  asset: Nft | Sft | NftWithToken | SftWithToken
 ): Bid => {
-  const lazyBid = toLazyBid(account, auctionHouseModel);
+  const lazyBid = toLazyBid(account, auctionHouse);
 
   return {
     ...lazyBid,
     model: 'bid',
     lazy: false,
-    ...(isMintWithMetadata(metadataModel)
+    ...('token' in asset
       ? {
-          mint: metadataModel,
-          tokens: amount(lazyBid.tokens, metadataModel.currency),
-          isPublic: true,
+          asset,
+          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          isPublic: false,
         }
       : {
-          token: metadataModel,
-          tokens: amount(lazyBid.tokens, metadataModel.mint.currency),
-          isPublic: false,
+          asset,
+          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          isPublic: true,
         }),
   };
 };
 
-export type LazyBid = Omit<Bid, 'lazy' | 'token' | 'mint' | 'tokens'> &
+export type LazyBid = Omit<Bid, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
@@ -100,12 +96,12 @@ export function assertLazyBid(value: any): asserts value is LazyBid {
 }
 export const toLazyBid = (
   account: BidReceiptAccount,
-  auctionHouseModel: AuctionHouse
+  auctionHouse: AuctionHouse
 ): LazyBid => {
   return {
     model: 'bid',
     lazy: true,
-    auctionHouse: auctionHouseModel,
+    auctionHouse,
     tradeStateAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump
@@ -122,9 +118,9 @@ export const toLazyBid = (
     isPublic: Boolean(account.data.tokenAccount),
 
     // Data.
-    price: auctionHouseModel.isNative
+    price: auctionHouse.isNative
       ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouseModel.treasuryMint.currency),
+      : amount(account.data.price, auctionHouse.treasuryMint.currency),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),

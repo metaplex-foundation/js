@@ -1,4 +1,4 @@
-import type { Metaplex } from '@/index';
+import type { Metadata, Metaplex } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
@@ -9,7 +9,7 @@ const createNftWithAuthority = (
   mx: Metaplex,
   name: string,
   updateAuthority: Keypair
-) => createNft(mx, {}, { name, updateAuthority });
+) => createNft(mx, { name, updateAuthority });
 
 test('[nftModule] it can fetch all NFTs for a given update authority', async (t: Test) => {
   // Given a metaplex instance and 2 wallet.
@@ -23,15 +23,15 @@ test('[nftModule] it can fetch all NFTs for a given update authority', async (t:
   await createNftWithAuthority(mx, 'NFT C', walletB);
 
   // When we fetch all NFTs where wallet A is the authority.
-  const nfts = await mx
+  const nfts = (await mx
     .nfts()
     .findAllByUpdateAuthority(walletA.publicKey)
-    .run();
+    .run()) as Metadata[];
 
   // Then we get the right NFTs.
   t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);
   t.same(
     nfts.map((nft) => nft.mintAddress.toBase58()).sort(),
-    [nftA.mintAddress.toBase58(), nftB.mintAddress.toBase58()].sort()
+    [nftA.address.toBase58(), nftB.address.toBase58()].sort()
   );
 });

@@ -3,7 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { assert, DisposableScope } from '@/utils';
 import { Bid, LazyBid } from './Bid';
-import { assertTokenWithMetadata } from '../nftModule';
+import { assertNftOrSftWithToken } from '../nftModule';
 
 // -----------------
 // Operation
@@ -31,38 +31,38 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
 
-    const bid: Omit<Bid, 'token' | 'mint' | 'tokens'> = {
+    const bid: Omit<Bid, 'asset' | 'tokens'> = {
       ...lazyBid,
       model: 'bid',
       lazy: false,
     };
 
     if (lazyBid.tokenAddress) {
-      const tokenModel = await metaplex
+      const asset = await metaplex
         .nfts()
-        .findTokenWithMetadataByAddress(lazyBid.tokenAddress, {
+        .findByToken(lazyBid.tokenAddress, {
           commitment,
           loadJsonMetadata,
         })
         .run(scope);
       scope.throwIfCanceled();
 
-      assertTokenWithMetadata(tokenModel);
+      assertNftOrSftWithToken(asset);
       assert(
-        tokenModel.metadata.address.equals(lazyBid.metadataAddress),
-        `Token Modal metadata address must be ${lazyBid.metadataAddress}`
+        asset.metadataAddress.equals(lazyBid.metadataAddress),
+        `Asset metadata address must be ${lazyBid.metadataAddress}`
       );
 
       return {
         ...bid,
         isPublic: false,
-        token: tokenModel,
-        tokens: amount(lazyBid.tokens, tokenModel.mint.currency),
+        asset,
+        tokens: amount(lazyBid.tokens, asset.mint.currency),
       };
     } else {
-      const mintModel = await metaplex
+      const asset = await metaplex
         .nfts()
-        .findMintWithMetadataByMetadata(lazyBid.metadataAddress, {
+        .findByMetadata(lazyBid.metadataAddress, {
           commitment,
           loadJsonMetadata,
         })
@@ -72,8 +72,8 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
       return {
         ...bid,
         isPublic: true,
-        mint: mintModel,
-        tokens: amount(lazyBid.tokens, mintModel.currency),
+        asset,
+        tokens: amount(lazyBid.tokens, asset.mint.currency),
       };
     }
   },

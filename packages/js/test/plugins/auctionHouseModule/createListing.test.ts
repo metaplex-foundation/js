@@ -29,7 +29,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   // When we list that NFT for 6.5 SOL.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
       price: sol(6.5),
     })
     .run();
@@ -42,13 +42,14 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    token: {
-      address: findAssociatedTokenAccountPda(
-        nft.mintAddress,
-        mx.identity().publicKey
-      ),
-      mint: {
-        address: spokSamePubkey(nft.mintAddress),
+    asset: {
+      model: 'nft',
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(
+          nft.address,
+          mx.identity().publicKey
+        ),
       },
     },
   };
@@ -76,7 +77,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   // When we list that NFT without printing a receipt.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
       price: sol(1),
       printReceipt: false,
     })
@@ -113,7 +114,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   // When we list that NFT.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
     })
     .run();
 
@@ -143,7 +144,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   // When we list that NFT.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
     })
     .run();
 
@@ -166,7 +167,7 @@ test('[auctionHouseModule] it throws an error if Sell is not included in Auction
   // When we list that NFT.
   const promise = client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
     })
     .run();
 
@@ -206,7 +207,7 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
   // When we list that NFT.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
     })
     .run();
 
@@ -235,7 +236,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // When we list that NFT.
   const promise = client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
     })
     .run();
 

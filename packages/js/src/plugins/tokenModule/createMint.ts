@@ -19,7 +19,7 @@ export type CreateMintInput = {
   mint?: Signer; // Defaults to new generated Keypair.
   payer?: Signer; // Defaults to mx.identity().
   mintAuthority?: PublicKey; // Defaults to mx.identity().
-  freezeAuthority?: Option<PublicKey>; // Defaults to mx.identity().
+  freezeAuthority?: Option<PublicKey>; // Defaults to mintAuthority.
   tokenProgram?: PublicKey; // Defaults to System Program.
   confirmOptions?: ConfirmOptions;
 };
@@ -65,7 +65,7 @@ export const createMintBuilder = async (
     mint = Keypair.generate(),
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity().publicKey,
-    freezeAuthority = metaplex.identity().publicKey,
+    freezeAuthority = mintAuthority,
     tokenProgram = TokenProgram.publicKey,
   } = params;
 

@@ -20,7 +20,6 @@ import {
   InstructionWithSigners,
   TransactionBuilder,
 } from '@/utils';
-import { isLazyNft, isNft, LazyNft, Nft } from './Nft';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
@@ -46,7 +45,7 @@ export type PrintNewEditionInput = PrintNewEditionSharedInput &
   PrintNewEditionViaInput;
 
 export type PrintNewEditionSharedInput = {
-  originalNft: Nft | LazyNft | PublicKey;
+  originalMint: PublicKey;
   newMint?: Signer; // Defaults to Keypair.generate().
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
@@ -125,6 +124,7 @@ export const printNewEditionBuilder = async (
   params: PrintNewEditionBuilderParams
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {
+    originalMint,
     newMint = Keypair.generate(),
     newMintAuthority = metaplex.identity(),
     newUpdateAuthority = metaplex.identity().publicKey,
@@ -138,10 +138,6 @@ export const printNewEditionBuilder = async (
   } = params;
 
   // Original NFT.
-  const originalMint =
-    isNft(params.originalNft) || isLazyNft(params.originalNft)
-      ? params.originalNft.mintAddress
-      : params.originalNft;
   const originalMetadataAddress = findMetadataPda(originalMint);
   const originalEditionAddress = findMasterEditionV2Pda(originalMint);
   const originalEditionAccount = toOriginalEditionAccount(

@@ -13,12 +13,13 @@ import {
   Creator,
   toNullCreators,
 } from '@/types';
-import { LazyNft, Nft } from './Nft';
+import { Nft } from './Nft';
 import { Metaplex } from '@/Metaplex';
 import { Option, TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import isEqual from 'lodash.isequal';
+import { Sft } from './Sft';
 
 // -----------------
 // Operation
@@ -34,7 +35,7 @@ export type UpdateNftOperation = Operation<
 
 export interface UpdateNftInput {
   // Accounts and models.
-  nft: Nft | LazyNft;
+  nftOrSft: Nft | Sft;
   updateAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey;
 
@@ -88,9 +89,9 @@ export const updateNftBuilder = (
   metaplex: Metaplex,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
-  const { nft, updateAuthority = metaplex.identity() } = params;
-  const updateInstructionDataWithoutChanges = toInstructionData(nft);
-  const updateInstructionData = toInstructionData(nft, params);
+  const { nftOrSft, updateAuthority = metaplex.identity() } = params;
+  const updateInstructionDataWithoutChanges = toInstructionData(nftOrSft);
+  const updateInstructionData = toInstructionData(nftOrSft, params);
   const shouldSendUpdateInstruction = !isEqual(
     updateInstructionData,
     updateInstructionDataWithoutChanges
@@ -105,7 +106,7 @@ export const updateNftBuilder = (
         builder.add({
           instruction: createUpdateMetadataAccountV2Instruction(
             {
-              metadata: nft.metadataAddress,
+              metadata: nftOrSft.metadataAddress,
               updateAuthority: updateAuthority.publicKey,
             },
             {
@@ -120,24 +121,26 @@ export const updateNftBuilder = (
 };
 
 const toInstructionData = (
-  nft: LazyNft | Nft,
+  nftOrSft: Nft | Sft,
   input: Partial<UpdateNftInput> = {}
 ): UpdateMetadataAccountArgsV2 => {
-  const creators = input.creators ?? nft.creators;
+  const creators = input.creators ?? nftOrSft.creators;
   return {
-    updateAuthority: input.newUpdateAuthority ?? nft.updateAuthorityAddress,
-    primarySaleHappened: input.primarySaleHappened ?? nft.primarySaleHappened,
-    isMutable: input.isMutable ?? nft.isMutable,
+    updateAuthority:
+      input.newUpdateAuthority ?? nftOrSft.updateAuthorityAddress,
+    primarySaleHappened:
+      input.primarySaleHappened ?? nftOrSft.primarySaleHappened,
+    isMutable: input.isMutable ?? nftOrSft.isMutable,
     data: {
-      name: input.name ?? nft.name,
-      symbol: input.symbol ?? nft.symbol,
-      uri: input.uri ?? nft.uri,
+      name: input.name ?? nftOrSft.name,
+      symbol: input.symbol ?? nftOrSft.symbol,
+      uri: input.uri ?? nftOrSft.uri,
       sellerFeeBasisPoints:
-        input.sellerFeeBasisPoints ?? nft.sellerFeeBasisPoints,
+        input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
       creators: toNullCreators(creators),
       collection:
-        input.collection === undefined ? nft.collection : input.collection,
-      uses: input.uses === undefined ? nft.uses : input.uses,
+        input.collection === undefined ? nftOrSft.collection : input.collection,
+      uses: input.uses === undefined ? nftOrSft.uses : input.uses,
     },
   };
 };

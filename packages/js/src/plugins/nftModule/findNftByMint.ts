@@ -1,13 +1,24 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
-import { toMetadataAccount, toOriginalOrPrintEditionAccount } from './accounts';
+import {
+  parseOriginalOrPrintEditionAccount,
+  toMetadataAccount,
+} from './accounts';
 import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
-import { Nft, toNft } from './Nft';
-import { toLazyMetadata } from './Metadata';
+import { Nft, NftWithToken, toNft, toNftWithToken } from './Nft';
+import { toMetadata } from './Metadata';
 import { toNftEdition } from './NftEdition';
-import { toMint, toMintAccount } from '../tokenModule';
+import {
+  findAssociatedTokenAccountPda,
+  toMint,
+  toMintAccount,
+  toToken,
+  toTokenAccount,
+} from '../tokenModule';
+import { Sft, SftWithToken, toSft, toSftWithToken } from './Sft';
+import { JsonMetadata } from './JsonMetadata';
 
 // -----------------
 // Operation
@@ -18,13 +29,18 @@ export const findNftByMintOperation = useOperation<FindNftByMintOperation>(Key);
 export type FindNftByMintOperation = Operation<
   typeof Key,
   FindNftByMintInput,
-  Nft
+  FindNftByMintOutput
 >;
 
 export type FindNftByMintInput = {
   mint: PublicKey;
+  tokenAddress?: PublicKey;
+  tokenOwner?: PublicKey;
+  loadJsonMetadata?: boolean;
   commitment?: Commitment;
 };
+
+export type FindNftByMintOutput = Nft | Sft | NftWithToken | SftWithToken;
 
 // -----------------
 // Handler
@@ -36,27 +52,60 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
       operation: FindNftByMintOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Nft> => {
-      const { mint, commitment } = operation.input;
+    ): Promise<FindNftByMintOutput> => {
+      const {
+        mint: mintAddress,
+        tokenAddress,
+        tokenOwner,
+        loadJsonMetadata = true,
+        commitment,
+      } = operation.input;
+
+      const associatedTokenAddress = tokenOwner
+        ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+        : undefined;
+      const accountAddresses = [
+        mintAddress,
+        findMetadataPda(mintAddress),
+        findMasterEditionV2Pda(mintAddress),
+        tokenAddress ?? associatedTokenAddress,
+      ].filter((address): address is PublicKey => !!address);
+
       const accounts = await metaplex
         .rpc()
-        .getMultipleAccounts(
-          [mint, findMetadataPda(mint), findMasterEditionV2Pda(mint)],
-          commitment
-        );
+        .getMultipleAccounts(accountAddresses, commitment);
       scope.throwIfCanceled();
 
-      const mintAccount = toMintAccount(accounts[0]);
-      const metadataAccount = toMetadataAccount(accounts[1]);
-      const editionAccount = toOriginalOrPrintEditionAccount(accounts[2]);
-      const lazyMetadata = toLazyMetadata(metadataAccount);
+      const mint = toMint(toMintAccount(accounts[0]));
+      let metadata = toMetadata(toMetadataAccount(accounts[1]));
+      const editionAccount = parseOriginalOrPrintEditionAccount(accounts[2]);
+      const token = accounts[3] ? toToken(toTokenAccount(accounts[3])) : null;
 
-      const metadata = await metaplex
-        .nfts()
-        .loadMetadata(lazyMetadata)
-        .run(scope);
-      scope.throwIfCanceled();
+      if (loadJsonMetadata) {
+        try {
+          const json = await metaplex
+            .storage()
+            .downloadJson<JsonMetadata>(metadata.uri, scope);
+          metadata = { ...metadata, jsonLoaded: true, json };
+        } catch (error) {
+          metadata = { ...metadata, jsonLoaded: true, json: null };
+        }
+      }
 
-      return toNft(metadata, toMint(mintAccount), toNftEdition(editionAccount));
+      const isNft =
+        editionAccount.exists &&
+        mint.mintAuthorityAddress &&
+        mint.mintAuthorityAddress.equals(editionAccount.publicKey);
+
+      if (isNft) {
+        const edition = toNftEdition(editionAccount);
+        return token
+          ? toNftWithToken(metadata, mint, edition, token)
+          : toNft(metadata, mint, edition);
+      }
+
+      return token
+        ? toSftWithToken(metadata, mint, token)
+        : toSft(metadata, mint);
     },
   };

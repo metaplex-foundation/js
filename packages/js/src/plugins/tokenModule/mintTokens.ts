@@ -2,18 +2,19 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { createMintToInstruction } from '@solana/spl-token';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   isSigner,
   KeypairSigner,
   Operation,
   OperationHandler,
   Signer,
+  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
 import { TokenProgram } from './program';
+import { findAssociatedTokenAccountPda } from './pdas';
 
 // -----------------
 // Operation
@@ -29,8 +30,9 @@ export type MintTokensOperation = Operation<
 
 export type MintTokensInput = {
   mint: PublicKey | Mint;
-  destination: PublicKey;
-  amount: Amount;
+  amount: SplTokenAmount;
+  toOwner?: PublicKey; // Defaults to mx.identity().
+  toToken?: PublicKey; // Defaults to associated account.
   mintAuthority?: PublicKey | Signer; // Defaults to mx.identity().
   multiSigners?: KeypairSigner[]; // Defaults to [].
   tokenProgram?: PublicKey; // Defaults to Token Program.
@@ -75,8 +77,9 @@ export const mintTokensBuilder = (
 ): TransactionBuilder => {
   const {
     mint,
-    destination,
     amount,
+    toOwner = metaplex.identity().publicKey,
+    toToken,
     mintAuthority = metaplex.identity(),
     multiSigners = [],
     tokenProgram = TokenProgram.publicKey,
@@ -86,9 +89,13 @@ export const mintTokensBuilder = (
     ? [mintAuthority.publicKey, [mintAuthority]]
     : [mintAuthority, multiSigners];
 
+  const mintAddress = isMint(mint) ? mint.address : mint;
+  const destination =
+    toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+
   return TransactionBuilder.make().add({
     instruction: createMintToInstruction(
-      isMint(mint) ? mint.address : mint,
+      mintAddress,
       destination,
       mintAuthorityPublicKey,
       amount.basisPoints.toNumber(),
