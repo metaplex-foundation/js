@@ -28,6 +28,7 @@ import {
   createMintNewEditionFromMasterEditionViaTokenInstruction,
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
+import { isMetadata, Metadata } from './Metadata';
 
 // -----------------
 // Operation
@@ -46,7 +47,7 @@ export type PrintNewEditionInput = PrintNewEditionSharedInput &
   PrintNewEditionViaInput;
 
 export type PrintNewEditionSharedInput = {
-  originalNft: Nft | LazyNft | PublicKey;
+  originalNft: Nft | Metadata | PublicKey;
   newMint?: Signer; // Defaults to Keypair.generate().
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
@@ -138,10 +139,11 @@ export const printNewEditionBuilder = async (
   } = params;
 
   // Original NFT.
-  const originalMint =
-    isNft(params.originalNft) || isLazyNft(params.originalNft)
-      ? params.originalNft.mintAddress
-      : params.originalNft;
+  const originalMint = isNft(params.originalNft)
+    ? params.originalNft.address
+    : isMetadata(params.originalNft)
+    ? params.originalNft.mintAddress
+    : params.originalNft;
   const originalMetadataAddress = findMetadataPda(originalMint);
   const originalEditionAddress = findMasterEditionV2Pda(originalMint);
   const originalEditionAccount = toOriginalEditionAccount(
