@@ -20,7 +20,6 @@ import {
   InstructionWithSigners,
   TransactionBuilder,
 } from '@/utils';
-import { isNft, Nft } from './Nft';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
@@ -28,7 +27,6 @@ import {
   createMintNewEditionFromMasterEditionViaTokenInstruction,
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { isMetadata } from './Metadata';
 
 // -----------------
 // Operation

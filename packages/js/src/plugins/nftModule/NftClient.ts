@@ -84,7 +84,6 @@ export class NftClient {
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintAddress, {
         tokenAddress: output.tokenAddress,
-        commitment: input.confirmOptions?.commitment,
       }).run(scope);
       assertNftWithToken(nft);
       return { ...output, nft };
@@ -100,7 +99,6 @@ export class NftClient {
       scope.throwIfCanceled();
       const sft = await this.findByMint(output.mintAddress, {
         tokenAddress: output.tokenAddress ?? undefined,
-        commitment: input.confirmOptions?.commitment,
       }).run(scope);
       assertSft(sft);
       return { ...output, sft };
@@ -227,9 +225,7 @@ export class NftClient {
       const operation = updateNftOperation({ ...input, nftOrSft });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(nftOrSft.address, {
-        tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
-      }).run(scope);
+      const updatedNft = await this.refresh(nftOrSft).run(scope);
       return { ...output, nftOrSft: updatedNft as T };
     });
   }
@@ -247,10 +243,11 @@ export class NftClient {
       const operation = useNftOperation({ ...input, mintAddress });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = (await this.findByMint(mintAddress, {
-        tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
-      }).run(scope)) as T extends Metadata | PublicKey ? Nft | Sft : T;
-      return { ...output, nftOrSft: updatedNft };
+      const updatedNft = await this.refresh(nftOrSft).run(scope);
+      return {
+        ...output,
+        nftOrSft: updatedNft as T extends Metadata | PublicKey ? Nft | Sft : T,
+      };
     });
   }
 }
