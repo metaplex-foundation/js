@@ -28,8 +28,6 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  isNft,
-  Nft,
   TokenMetadataProgram,
 } from '../nftModule';
 import { findCandyMachineCollectionPda } from './pdas';
@@ -53,7 +51,7 @@ export type UpdateCandyMachineInputWithoutConfigs = {
   authority?: Signer; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
   newAuthority?: PublicKey;
-  newCollection?: Option<PublicKey | Nft | LazyNft>;
+  newCollection?: Option<PublicKey>;
 
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
@@ -109,7 +107,7 @@ export const updateCandyMachineBuilder = (
     authority = metaplex.identity(),
     payer = metaplex.identity(),
     newAuthority,
-    newCollection: newCollectionParam,
+    newCollection,
     ...updatableFields
   } = params;
   const currentConfigs = toCandyMachineConfigs(candyMachine);
@@ -129,11 +127,6 @@ export const updateCandyMachineBuilder = (
   const shouldSendUpdateAuthorityInstruction =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
 
-  const newCollection =
-    newCollectionParam &&
-    (isNft(newCollectionParam) || isLazyNft(newCollectionParam))
-      ? newCollectionParam.mintAddress
-      : newCollectionParam;
   const sameCollection =
     newCollection &&
     candyMachine.collectionMintAddress &&

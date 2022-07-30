@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { findNftsByCreatorOperation, LazyNft, Nft } from '../nftModule';
+import { findNftsByCreatorOperation, Metadata, Nft } from '../nftModule';
 import { DisposableScope } from '@/utils';
 import { findCandyMachineCreatorPda } from './pdas';
 
@@ -15,14 +15,16 @@ export const findMintedNftsByCandyMachineOperation =
 export type FindMintedNftsByCandyMachineOperation = Operation<
   typeof Key,
   FindMintedNftsByCandyMachineInput,
-  (LazyNft | Nft)[]
+  FindMintedNftsByCandyMachineOutput
 >;
 
-export interface FindMintedNftsByCandyMachineInput {
+export type FindMintedNftsByCandyMachineInput = {
   candyMachine: PublicKey;
   version?: 1 | 2;
   commitment?: Commitment;
-}
+};
+
+export type FindMintedNftsByCandyMachineOutput = (Metadata | Nft)[];
 
 // -----------------
 // Handler
@@ -39,7 +41,7 @@ export const findMintedNftsByCandyMachineOperationHandler: OperationHandler<Find
       const firstCreator =
         version === 2 ? findCandyMachineCreatorPda(candyMachine) : candyMachine;
 
-      return metaplex.operations().execute(
+      const mintedNfts = await metaplex.operations().execute(
         findNftsByCreatorOperation({
           creator: firstCreator,
           position: 1,
@@ -47,5 +49,7 @@ export const findMintedNftsByCandyMachineOperationHandler: OperationHandler<Find
         }),
         scope
       );
+
+      return mintedNfts as (Nft | Metadata)[];
     },
   };

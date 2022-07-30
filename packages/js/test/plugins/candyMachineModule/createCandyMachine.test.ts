@@ -426,7 +426,7 @@ test('[candyMachineModule] create with collection', async (t) => {
   const { candyMachine } = await client
     .create({
       ...minimalInput,
-      collection: collectionNft,
+      collection: collectionNft.address,
     })
     .run();
 

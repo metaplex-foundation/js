@@ -454,7 +454,7 @@ test('[candyMachineModule] it can set the collection of a candy machine', async 
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      newCollection: collectionNft,
+      newCollection: collectionNft.address,
     })
     .run();
 
@@ -470,7 +470,7 @@ test('[candyMachineModule] it can update the collection of a candy machine', asy
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
   const { candyMachine } = await createCandyMachine(mx, {
-    collection: collectionNft,
+    collection: collectionNft.address,
   });
 
   // When we update the Candy Machine with a new collection.
@@ -479,7 +479,7 @@ test('[candyMachineModule] it can update the collection of a candy machine', asy
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
-      newCollection: newCollectionNft,
+      newCollection: newCollectionNft.address,
     })
     .run();
 
@@ -495,7 +495,7 @@ test('[candyMachineModule] it can remove the collection of a candy machine', asy
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
   const { candyMachine } = await createCandyMachine(mx, {
-    collection: collectionNft,
+    collection: collectionNft.address,
   });
 
   // When we remove the collection of that Candy Machine.
@@ -519,7 +519,7 @@ test('[candyMachineModule] it keeps the same collection when the new collection 
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
   const { candyMachine } = await createCandyMachine(mx, {
-    collection: collectionNft,
+    collection: collectionNft.address,
   });
 
   // When we try to update the Candy Machine with an undefined collection.

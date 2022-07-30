@@ -92,7 +92,7 @@ test('[candyMachineModule] it can mint from candy machine with a collection', as
   const { candyMachine } = await createCandyMachine(mx, {
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(1),
-    collection,
+    collection: collection.address,
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
@@ -248,7 +248,7 @@ test('[candyMachineModule] it can mint from candy machine even when we max out t
     tokenMint: mintTreasury.address,
     wallet: treasuryTokenAccount.address,
     whitelistMintSettings,
-    collection,
+    collection: collection.address,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },

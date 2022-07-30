@@ -1,7 +1,7 @@
 import type { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
-import { LazyNft, Nft } from '../nftModule';
+import { NftWithToken } from '../nftModule';
 import { Task } from '@/utils';
 import { CandyMachine } from './CandyMachine';
 import {
@@ -25,6 +25,7 @@ import {
 import {
   FindMintedNftsByCandyMachineInput,
   findMintedNftsByCandyMachineOperation,
+  FindMintedNftsByCandyMachineOutput,
 } from './findMintedNftsByCandyMachine';
 import {
   InsertItemsToCandyMachineInput,
@@ -127,7 +128,7 @@ export class CandyMachinesClient {
   findMintedNfts(
     candyMachine: PublicKey,
     options?: Omit<FindMintedNftsByCandyMachineInput, 'candyMachine'>
-  ): Task<(LazyNft | Nft)[]> {
+  ): Task<FindMintedNftsByCandyMachineOutput> {
     return this.metaplex
       .operations()
       .getTask(
@@ -156,18 +157,22 @@ export class CandyMachinesClient {
   mint(
     candyMachine: CandyMachine,
     input: Omit<MintCandyMachineInput, 'candyMachine'> = {}
-  ): Task<MintCandyMachineOutput & { nft: Nft; candyMachine: CandyMachine }> {
+  ): Task<
+    MintCandyMachineOutput & { nft: NftWithToken; candyMachine: CandyMachine }
+  > {
     return new Task(async (scope) => {
       const operation = mintCandyMachineOperation({ candyMachine, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
 
-      let nft: Nft;
+      let nft: NftWithToken;
       try {
-        nft = await this.metaplex
+        nft = (await this.metaplex
           .nfts()
-          .findByMint(output.mintSigner.publicKey)
-          .run(scope);
+          .findByMint(output.mintSigner.publicKey, {
+            tokenAddress: output.tokenAddress,
+          })
+          .run(scope)) as NftWithToken;
       } catch (error) {
         throw new CandyMachineBotTaxError(
           this.metaplex.rpc().getSolanaExporerUrl(output.response.signature),
