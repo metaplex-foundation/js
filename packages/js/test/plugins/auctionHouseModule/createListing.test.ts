@@ -42,13 +42,14 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    token: {
-      address: findAssociatedTokenAccountPda(
-        nft.address,
-        mx.identity().publicKey
-      ),
-      mint: {
-        address: spokSamePubkey(nft.address),
+    asset: {
+      model: 'nft',
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(
+          nft.address,
+          mx.identity().publicKey
+        ),
       },
     },
   };
