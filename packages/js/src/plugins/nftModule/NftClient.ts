@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
-import { toPublicKey, PublicKeyValues } from '@/types';
+import { toPublicKey, PublicKeyValues, token } from '@/types';
 import { Metadata } from './Metadata';
 import { assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { assertSft, Sft, SftWithToken } from './Sft';
@@ -69,6 +69,7 @@ import {
 } from './updateNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
+import { SendTokensInput, SendTokensOutput } from '../tokenModule';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -211,6 +212,19 @@ export class NftClient {
       })
     );
     return task as Task<T extends Metadata | PublicKey ? Nft | Sft : T>;
+  }
+
+  send(
+    nftOrSft: Nft | Sft | Metadata | PublicKey,
+    newOwner: PublicKey,
+    options?: Omit<SendTokensInput, 'toOwner' | 'toToken'>
+  ): Task<SendTokensOutput> {
+    return this.metaplex.tokens().send({
+      mint: toMintAddress(nftOrSft),
+      toOwner: newOwner,
+      amount: token(1),
+      ...options,
+    });
   }
 
   uploadMetadata(input: UploadMetadataInput): Task<UploadMetadataOutput> {
