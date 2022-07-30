@@ -26,13 +26,15 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   });
 
   // When we print a new edition of the NFT.
-  const { nft: printNft, updatedOriginalEdition } = await mx
-    .nfts()
-    .printNewEdition(originalNft)
-    .run();
+  const {
+    nft: printNft,
+    updatedOriginalEdition,
+    tokenAddress,
+  } = await mx.nfts().printNewEdition(originalNft).run();
 
   // Then we created and returned the printed NFT with the right data.
   const expectedNft = {
+    model: 'nft',
     name: 'Original Nft On-Chain Name',
     json: {
       name: 'Original Nft Name',
@@ -43,11 +45,15 @@ test('[nftModule] it can print a new edition from an original edition', async (t
       parent: spokSamePubkey(originalNft.edition.address),
       number: spokSameBignum(1),
     },
+    token: {
+      address: spokSamePubkey(tokenAddress),
+      isAssociatedToken: true,
+    },
   } as unknown as Specifications<Nft>;
   spok(t, printNft, { $topic: 'nft', ...expectedNft });
 
   // And the data was stored in the blockchain.
-  const retrievedNft = await mx.nfts().findByMint(printNft.address).run();
+  const retrievedNft = await mx.nfts().refresh(printNft).run();
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 
   // And the original NFT edition was updated.
