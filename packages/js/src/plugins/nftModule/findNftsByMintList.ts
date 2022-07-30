@@ -47,7 +47,7 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
       scope.throwIfCanceled();
 
       return metadataInfos.map<Metadata | null>((account) => {
-        if (account.exists) {
+        if (!account.exists) {
           return null;
         }
 

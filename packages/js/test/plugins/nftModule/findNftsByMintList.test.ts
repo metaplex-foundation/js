@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
-import { isMetadata } from '@/index';
+import { isMetadata, Metadata } from '@/index';
 
 killStuckProcess();
 
@@ -12,18 +12,18 @@ test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Te
   const nftB = await createNft(mx, { name: 'NFT B' });
 
   // When we fetch these NFTs by mint addresses.
-  const nfts = await mx
+  const nfts = (await mx
     .nfts()
     .findAllByMintList([nftA.address, nftB.address])
-    .run();
+    .run()) as Metadata[];
 
   // Then we get the right NFTs.
   t.same(
     nfts.map((nft) => nft?.name),
     ['NFT A', 'NFT B']
   );
-  t.same(nfts[0]?.address, nftA.address);
-  t.same(nfts[1]?.address, nftB.address);
+  t.same(nfts[0]?.mintAddress, nftA.address);
+  t.same(nfts[1]?.mintAddress, nftB.address);
 });
 
 test('[nftModule] it returns null when an NFT is not found in a mint list', async (t: Test) => {
