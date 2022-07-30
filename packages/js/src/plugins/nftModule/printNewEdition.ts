@@ -28,7 +28,7 @@ import {
   createMintNewEditionFromMasterEditionViaTokenInstruction,
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { isMetadata, Metadata } from './Metadata';
+import { isMetadata } from './Metadata';
 
 // -----------------
 // Operation
@@ -47,7 +47,7 @@ export type PrintNewEditionInput = PrintNewEditionSharedInput &
   PrintNewEditionViaInput;
 
 export type PrintNewEditionSharedInput = {
-  originalNft: Nft | Metadata | PublicKey;
+  originalMint: PublicKey;
   newMint?: Signer; // Defaults to Keypair.generate().
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
@@ -126,6 +126,7 @@ export const printNewEditionBuilder = async (
   params: PrintNewEditionBuilderParams
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {
+    originalMint,
     newMint = Keypair.generate(),
     newMintAuthority = metaplex.identity(),
     newUpdateAuthority = metaplex.identity().publicKey,
@@ -139,11 +140,6 @@ export const printNewEditionBuilder = async (
   } = params;
 
   // Original NFT.
-  const originalMint = isNft(params.originalNft)
-    ? params.originalNft.address
-    : isMetadata(params.originalNft)
-    ? params.originalNft.mintAddress
-    : params.originalNft;
   const originalMetadataAddress = findMetadataPda(originalMint);
   const originalEditionAddress = findMasterEditionV2Pda(originalMint);
   const originalEditionAccount = toOriginalEditionAccount(

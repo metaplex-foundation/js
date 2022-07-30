@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
+import { toPublicKey, PublicKeyValues } from '@/types';
 import { Metadata } from './Metadata';
 import { assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { assertSft, Sft, SftWithToken } from './Sft';
@@ -182,13 +183,14 @@ export class NftClient {
 
   printNewEdition<T extends Nft | NftWithToken | Metadata | PublicKey>(
     originalNft: T,
-    input: Omit<PrintNewEditionSharedInput, 'originalNft'> &
+    input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
       PrintNewEditionViaInput = {}
   ): Task<
     PrintNewEditionOutput & { nft: T extends NftWithToken ? NftWithToken : Nft }
   > {
     return new Task(async (scope) => {
-      const operation = printNewEditionOperation({ originalNft, ...input });
+      const originalMint = toMintAddress(originalNft);
+      const operation = printNewEditionOperation({ originalMint, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
       const nft = await this.findByMint(output.mintSigner.publicKey).run(scope);
@@ -218,16 +220,29 @@ export class NftClient {
     });
   }
 
-  use(
-    nftOrSft: Nft | Sft | PublicKey,
-    input: Omit<UseNftInput, 'nft'> = {}
-  ): Task<UseNftOutput & { nftOrSft: Nft | Sft }> {
+  use<T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey>(
+    nftOrSft: T,
+    input: Omit<UseNftInput, 'mintAddress'> = {}
+  ): Task<
+    UseNftOutput & {
+      nftOrSft: T extends Metadata | PublicKey ? Nft | Sft : T;
+    }
+  > {
     return new Task(async (scope) => {
-      const operation = useNftOperation({ ...input, nftOrSft });
+      const mintAddress = toMintAddress(nftOrSft);
+      const operation = useNftOperation({ ...input, mintAddress });
       const output = await this.metaplex.operations().execute(operation, scope);
       scope.throwIfCanceled();
-      const updatedNft = await this.findByMint(output.mintAddress).run(scope);
+      const updatedNft = (await this.findByMint(mintAddress, {
+        tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
+      }).run(scope)) as T extends Metadata | PublicKey ? Nft | Sft : T;
       return { ...output, nftOrSft: updatedNft };
     });
   }
 }
+
+export const toMintAddress = (value: PublicKeyValues | Metadata): PublicKey => {
+  return typeof value === 'object' && 'mintAddress' in value
+    ? value.mintAddress
+    : toPublicKey(value);
+};
