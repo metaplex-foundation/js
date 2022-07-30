@@ -1,12 +1,12 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
-  Amount,
   isSigner,
   KeypairSigner,
   Operation,
   OperationHandler,
   Signer,
+  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
@@ -30,8 +30,9 @@ export type SendTokensOperation = Operation<
 
 export type SendTokensInput = {
   mint: PublicKey | Mint;
-  to: PublicKey;
-  amount: Amount;
+  amount: SplTokenAmount;
+  toOwner?: PublicKey; // Defaults to mx.identity().
+  toToken?: PublicKey; // Defaults to associated account.
   fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
   fromToken?: PublicKey; // Defaults to associated account.
   fromMultiSigners?: KeypairSigner[]; // Defaults to [].
@@ -77,8 +78,9 @@ export const sendTokensBuilder = (
 ): TransactionBuilder => {
   const {
     mint,
-    to,
     amount,
+    toOwner = metaplex.identity().publicKey,
+    toToken,
     fromOwner = metaplex.identity(),
     fromToken,
     fromMultiSigners = [],
@@ -91,14 +93,16 @@ export const sendTokensBuilder = (
 
   const mintAddress = isMint(mint) ? mint.address : mint;
   const decimals = isMint(mint) ? mint.decimals : amount.currency.decimals;
-  const fromTokenOrAssociated =
+  const source =
     fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
+  const destination =
+    toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
   return TransactionBuilder.make().add({
     instruction: createTransferCheckedInstruction(
-      fromTokenOrAssociated,
+      source,
       mintAddress,
-      to,
+      destination,
       fromOwnerPublicKey,
       amount.basisPoints.toNumber(),
       decimals,
