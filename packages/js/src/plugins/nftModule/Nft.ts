@@ -4,7 +4,7 @@ import type { Metadata } from './Metadata';
 import type { Mint, Token } from '../tokenModule';
 import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
-import { toSft, toSftWithToken } from './Sft';
+import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
@@ -39,6 +39,15 @@ export const isNftWithToken = (value: any): value is NftWithToken =>
 
 export function assertNftWithToken(value: any): asserts value is NftWithToken {
   assert(isNftWithToken(value), `Expected Nft model with token`);
+}
+
+export function assertNftOrSftWithToken(
+  value: any
+): asserts value is NftWithToken | SftWithToken {
+  assert(
+    isNftWithToken(value) || isSftWithToken(value),
+    `Expected Nft or Sft model with token`
+  );
 }
 
 export const toNftWithToken = (

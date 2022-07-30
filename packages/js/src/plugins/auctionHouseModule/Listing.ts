@@ -12,7 +12,7 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { ListingReceiptAccount } from './accounts';
-import { TokenWithMetadata } from '../nftModule';
+import { NftWithToken, SftWithToken } from '../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
@@ -22,7 +22,7 @@ export type Listing = Readonly<{
 
   // Models.
   auctionHouse: AuctionHouse;
-  token: TokenWithMetadata;
+  asset: NftWithToken | SftWithToken;
 
   // Addresses.
   tradeStateAddress: Pda;
@@ -46,20 +46,20 @@ export function assertListing(value: any): asserts value is Listing {
 }
 export const toListing = (
   account: ListingReceiptAccount,
-  auctionHouseModel: AuctionHouse,
-  tokenModel: TokenWithMetadata
+  auctionHouse: AuctionHouse,
+  asset: NftWithToken | SftWithToken
 ): Listing => {
-  const lazyListing = toLazyListing(account, auctionHouseModel);
+  const lazyListing = toLazyListing(account, auctionHouse);
   return {
     ...lazyListing,
     model: 'listing',
     lazy: false,
-    token: tokenModel,
-    tokens: amount(lazyListing.tokens, tokenModel.mint.currency),
+    asset,
+    tokens: amount(lazyListing.tokens, asset.mint.currency),
   };
 };
 
-export type LazyListing = Omit<Listing, 'lazy' | 'token' | 'tokens'> &
+export type LazyListing = Omit<Listing, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
@@ -74,12 +74,12 @@ export function assertLazyListing(value: any): asserts value is LazyListing {
 }
 export const toLazyListing = (
   account: ListingReceiptAccount,
-  auctionHouseModel: AuctionHouse
+  auctionHouse: AuctionHouse
 ): LazyListing => {
   return {
     model: 'listing',
     lazy: true,
-    auctionHouse: auctionHouseModel,
+    auctionHouse: auctionHouse,
     tradeStateAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump
@@ -94,9 +94,9 @@ export const toLazyListing = (
     purchaseReceiptAddress: account.data.purchaseReceipt,
 
     // Data.
-    price: auctionHouseModel.isNative
+    price: auctionHouse.isNative
       ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouseModel.treasuryMint.currency),
+      : amount(account.data.price, auctionHouse.treasuryMint.currency),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),

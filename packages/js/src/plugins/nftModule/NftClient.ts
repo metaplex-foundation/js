@@ -126,7 +126,7 @@ export class NftClient {
 
   findByToken(
     token: PublicKey,
-    options?: Omit<FindNftByTokenInput, 'Token'>
+    options?: Omit<FindNftByTokenInput, 'token'>
   ): Task<FindNftByTokenOutput> {
     return this.metaplex
       .operations()
