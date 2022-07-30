@@ -52,9 +52,8 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
 
       const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
       const mintModel = await metaplex
-        .nfts()
-        .findMintWithMetadataByAddress(auctionHouseAccount.data.treasuryMint, {
-          loadJsonMetadata: false,
+        .tokens()
+        .findMintByAddress(auctionHouseAccount.data.treasuryMint, {
           commitment,
         })
         .run(scope);

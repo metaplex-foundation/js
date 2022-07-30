@@ -4,7 +4,7 @@ import { useOperation, Operation, OperationHandler } from '@/types';
 import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
 import { findBidReceiptPda } from './pdas';
-import { Bid, toBid } from './Bid';
+import { Bid, toLazyBid } from './Bid';
 import { toBidReceiptAccount } from './accounts';
 
 // -----------------
@@ -51,27 +51,11 @@ export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddress
       );
       scope.throwIfCanceled();
 
-      if (account.data.tokenAccount) {
-        const tokenModel = await metaplex
-          .nfts()
-          .findTokenWithMetadataByMetadata(
-            account.data.metadata,
-            account.data.buyer,
-            { commitment, loadJsonMetadata }
-          )
-          .run(scope);
-
-        return toBid(account, auctionHouse, tokenModel);
-      }
-
-      const mintModel = await metaplex
-        .nfts()
-        .findMintWithMetadataByMetadata(account.data.metadata, {
-          commitment,
-          loadJsonMetadata,
-        })
+      const lazyBid = toLazyBid(account, auctionHouse);
+      return metaplex
+        .auctions()
+        .for(auctionHouse)
+        .loadBid(lazyBid, { loadJsonMetadata, commitment })
         .run(scope);
-
-      return toBid(account, auctionHouse, mintModel);
     },
   };
