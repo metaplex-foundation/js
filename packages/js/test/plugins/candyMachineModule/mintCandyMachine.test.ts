@@ -37,9 +37,10 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
   });
 
   // When we mint an NFT from the candy machine.
-  const { nft, candyMachine: updatedCandyMachine } = await mx
+  const { nft } = await mx.candyMachines().mint(candyMachine).run();
+  const updatedCandyMachine = await mx
     .candyMachines()
-    .mint(candyMachine)
+    .refresh(candyMachine)
     .run();
 
   // Then an NFT was created with the right data.

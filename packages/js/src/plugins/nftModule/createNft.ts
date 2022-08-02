@@ -11,12 +11,44 @@ import {
   Signer,
   OperationHandler,
   token,
-  Creator,
   BigNumber,
+  CreatorInput,
 } from '@/types';
 import { findMasterEditionV2Pda } from './pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { assertNftWithToken, NftWithToken } from './Nft';
+import type { NftClient } from './NftClient';
+import type { NftBuildersClient } from './NftBuildersClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createNftClient(
+  this: NftClient,
+  input: CreateNftInput
+): Task<CreateNftOutput & { nft: NftWithToken }> {
+  return new Task(async (scope) => {
+    const operation = createNftOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const nft = await this.findByMint(output.mintAddress, {
+      tokenAddress: output.tokenAddress,
+    }).run(scope);
+    assertNftWithToken(nft);
+    return { ...output, nft };
+  });
+}
+
+/** @internal */
+export function _createNftBuildersClient(
+  this: NftBuildersClient,
+  input: CreateNftBuilderParams
+) {
+  return createNftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation
@@ -50,7 +82,7 @@ export interface CreateNftInput {
   name: string;
   sellerFeeBasisPoints: number;
   symbol?: string; // Defaults to an empty string.
-  creators?: Creator[]; // Defaults to mx.identity() as a single Creator.
+  creators?: CreatorInput[]; // Defaults to mx.identity() as a single Creator.
   isMutable?: boolean; // Defaults to true.
   maxSupply?: Option<BigNumber>; // Defaults to 0.
   collection?: Option<Collection>; // Defaults to null.
@@ -121,36 +153,16 @@ export const createNftBuilder = async (
     .nfts()
     .builders()
     .createSft({
+      ...params,
       payer,
       updateAuthority,
       mintAuthority,
       freezeAuthority: mintAuthority.publicKey,
       useNewMint,
-      useExistingMint: params.useExistingMint,
-      tokenAddress: params.tokenAddress,
       tokenOwner,
       tokenAmount: token(1),
       tokenExists: params.tokenExists,
       decimals: 0,
-      uri: params.uri,
-      name: params.name,
-      sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-      symbol: params.symbol,
-      creators: params.creators,
-      isMutable: params.isMutable,
-      maxSupply: params.maxSupply,
-      collection: params.collection,
-      uses: params.uses,
-      tokenProgram: params.tokenProgram,
-      associatedTokenProgram: params.associatedTokenProgram,
-      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
-      initializeMintInstructionKey: params.initializeMintInstructionKey,
-      createAssociatedTokenAccountInstructionKey:
-        params.createAssociatedTokenAccountInstructionKey,
-      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
-      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-      mintTokensInstructionKey: params.mintTokensInstructionKey,
-      createMetadataInstructionKey: params.createMetadataInstructionKey,
     });
 
   const { mintAddress, metadataAddress, tokenAddress } =

@@ -26,7 +26,8 @@ test('[nftModule] it can use an NFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  const { nftOrSft: usedNft } = await mx.nfts().use(nft).run();
+  await mx.nfts().use(nft).run();
+  const usedNft = await mx.nfts().refresh(nft).run();
 
   // Then the returned usable NFT should have one less use.
   spok(t, usedNft, {
@@ -54,7 +55,8 @@ test('[nftModule] it can use an SFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  const { nftOrSft: usedSft } = await mx.nfts().use(sft).run();
+  await mx.nfts().use(sft).run();
+  const usedSft = await mx.nfts().refresh(sft).run();
 
   // Then the returned usable NFT should have one less use.
   spok(t, usedSft, {
@@ -80,10 +82,8 @@ test('[nftModule] it can use an NFT multiple times', async (t: Test) => {
   });
 
   // When we use the NFT 3 times.
-  const { nftOrSft: usedNft } = await mx
-    .nfts()
-    .use(nft, { numberOfUses: 3 })
-    .run();
+  await mx.nfts().use(nft, { numberOfUses: 3 }).run();
+  const usedNft = await mx.nfts().refresh(nft).run();
 
   // Then the returned NFT should have 4 remaining uses.
   spok(t, usedNft, {

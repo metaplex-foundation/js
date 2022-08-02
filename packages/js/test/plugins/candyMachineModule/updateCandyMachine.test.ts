@@ -1,5 +1,11 @@
-import test from 'tape';
+import { CandyMachine, sol, toBigNumber, toDateTime } from '@/index';
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
+import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
+import test from 'tape';
 import {
   assertThrows,
   createNft,
@@ -9,19 +15,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import {
-  CandyMachine,
-  sol,
-  toBigNumber,
-  toDateTime,
-  toUniformCreators,
-} from '@/index';
-import { createCandyMachine, create32BitsHash } from './helpers';
-import { Keypair } from '@solana/web3.js';
-import {
-  EndSettingType,
-  WhitelistMintMode,
-} from '@metaplex-foundation/mpl-candy-machine';
+import { create32BitsHash, createCandyMachine } from './helpers';
 
 killStuckProcess();
 
@@ -37,13 +31,12 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
     isMutable: true,
     retainAuthority: true,
     goLiveDate: toDateTime(1000000000),
-    creators: toUniformCreators(mx.identity().publicKey),
   });
 
   // When we update the Candy Machine with the following data.
   const creatorA = Keypair.generate();
   const creatorB = Keypair.generate();
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
@@ -60,6 +53,10 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
         { address: creatorB.publicKey, verified: false, share: 50 },
       ],
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -102,11 +99,15 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
   });
 
   // When we update the items available of a Candy Machine.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       itemsAvailable: toBigNumber(200),
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -126,7 +127,7 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
 
   // When we update these hidden settings.
   const newHash = create32BitsHash('new-cache-file');
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       hiddenSettings: {
@@ -135,6 +136,10 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
         uri: 'https://example.com/new',
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -156,7 +161,7 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
   });
 
   // When we add hidden settings to the Candy Machine.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
@@ -166,6 +171,10 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
         uri: 'https://example.com',
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -189,7 +198,7 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   });
 
   // When we update these end settings.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       endSettings: {
@@ -197,6 +206,10 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
         date: toDateTime(1000000000),
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -222,7 +235,7 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
 
   // When we update these whitelist settings.
   const newWhitelistMint = Keypair.generate().publicKey;
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       whitelistMintSettings: {
@@ -232,6 +245,10 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
         discountPrice: sol(0),
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -257,7 +274,7 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
 
   // When we update the gatekeeper of the Candy Machine.
   const newGatekeeperNetwork = Keypair.generate().publicKey;
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       gatekeeper: {
@@ -265,6 +282,10 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
         expireOnUse: false,
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -286,12 +307,16 @@ test('[candyMachineModule] it can update the authority of a candy machine', asyn
 
   // When we update the authority of the Candy Machine.
   const newAuthority = Keypair.generate();
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority,
       newAuthority: newAuthority.publicKey,
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -358,12 +383,16 @@ test('[candyMachineModule] it can update the treasury of a candy machine', async
   const { token } = await mx.tokens().createTokenWithMint().run();
 
   // When we update the treasury of the Candy Machine to use that SPL token.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       wallet: token.address,
       tokenMint: token.mint.address,
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -384,7 +413,6 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
     retainAuthority: true,
     goLiveDate: toDateTime('4 Jul 2022 00:00:00 GMT'),
     wallet: mx.identity().publicKey,
-    creators: toUniformCreators(mx.identity().publicKey),
   });
 
   // And an existing SPL token.
@@ -396,7 +424,7 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
   const creatorB = Keypair.generate().publicKey;
 
   // When we update the Candy Machine with the following JSON configurations.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .updateFromJsonConfig(candyMachine, {
       newAuthority,
@@ -418,6 +446,10 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
         splToken: token.mint.address.toBase58(),
       },
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -450,12 +482,16 @@ test('[candyMachineModule] it can set the collection of a candy machine', async 
 
   // When we update the Candy Machine with a new collection NFT.
   const collectionNft = await createNft(mx);
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
       newCollection: collectionNft.address,
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -475,12 +511,16 @@ test('[candyMachineModule] it can update the collection of a candy machine', asy
 
   // When we update the Candy Machine with a new collection.
   const newCollectionNft = await createNft(mx);
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
       newCollection: newCollectionNft.address,
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -499,12 +539,16 @@ test('[candyMachineModule] it can remove the collection of a candy machine', asy
   });
 
   // When we remove the collection of that Candy Machine.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .update(candyMachine, {
       authority: mx.identity(),
       newCollection: null,
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.

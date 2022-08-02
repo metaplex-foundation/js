@@ -48,6 +48,14 @@ import {
   uploadMetadataOperationHandler,
 } from './uploadMetadata';
 import { useNftOperation, useNftOperationHandler } from './useNft';
+import {
+  verifyNftCreatorOperation,
+  verifyNftCreatorOperationHandler,
+} from './verifyNftCreator';
+import {
+  unverifyNftCreatorOperation,
+  unverifyNftCreatorOperationHandler,
+} from './unverifyNftCreator';
 
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
@@ -80,9 +88,14 @@ export const nftModule = (): MetaplexPlugin => ({
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
+    op.register(
+      unverifyNftCreatorOperation,
+      unverifyNftCreatorOperationHandler
+    );
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
     op.register(useNftOperation, useNftOperationHandler);
+    op.register(verifyNftCreatorOperation, verifyNftCreatorOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);

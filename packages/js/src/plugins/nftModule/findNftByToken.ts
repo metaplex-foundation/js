@@ -5,6 +5,22 @@ import { DisposableScope } from '@/utils';
 import { NftWithToken } from './Nft';
 import { toTokenAccount } from '../tokenModule';
 import { SftWithToken } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftByTokenClient(
+  this: NftClient,
+  token: PublicKey,
+  options?: Omit<FindNftByTokenInput, 'token'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findNftByTokenOperation({ token, ...options }));
+}
 
 // -----------------
 // Operation

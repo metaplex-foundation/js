@@ -124,12 +124,10 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
         {
           address: updateAuthority.publicKey,
           share: 60,
-          verified: true,
         },
         {
           address: otherCreator.publicKey,
           share: 40,
-          verified: false,
         },
       ],
     })
@@ -346,6 +344,60 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
       delegateAmount: token(0),
     },
   } as unknown as Specifications<Sft>);
+});
+
+test('[nftModule] it can create an SFT with additional verified creators', async (t: Test) => {
+  // Given we have a Metaplex instance and 2 additional creators.
+  const mx = await metaplex();
+  const creatorA = Keypair.generate();
+  const creatorB = Keypair.generate();
+
+  // When we create a new SFT with these creators as signers.
+  const { sft } = await mx
+    .nfts()
+    .createSft({
+      ...minimalInput(),
+      creators: [
+        {
+          address: mx.identity().publicKey,
+          share: 40,
+        },
+        {
+          address: creatorA.publicKey,
+          authority: creatorA,
+          share: 35,
+        },
+        {
+          address: creatorB.publicKey,
+          authority: creatorB,
+          share: 25,
+        },
+      ],
+    })
+    .run();
+
+  // Then the created SFT has all creators verified.
+  spok(t, sft, {
+    $topic: 'SFT',
+    model: 'sft',
+    creators: [
+      {
+        address: spokSamePubkey(mx.identity().publicKey),
+        share: 40,
+        verified: true,
+      },
+      {
+        address: spokSamePubkey(creatorA.publicKey),
+        share: 35,
+        verified: true,
+      },
+      {
+        address: spokSamePubkey(creatorB.publicKey),
+        share: 25,
+        verified: true,
+      },
+    ],
+  } as Specifications<Sft>);
 });
 
 const minimalInput = () => ({

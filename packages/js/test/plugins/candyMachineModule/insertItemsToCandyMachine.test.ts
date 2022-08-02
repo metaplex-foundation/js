@@ -17,7 +17,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   });
 
   // When we add two items to the Candy Machine.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .insertItems(candyMachine, {
       authority: mx.identity(),
@@ -26,6 +26,10 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
         { name: 'Degen #2', uri: 'https://example.com/degen/2' },
       ],
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.
@@ -123,7 +127,7 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
   });
 
   // When we add 2 items to the Candy Machine at index 1.
-  const { candyMachine: updatedCandyMachine } = await mx
+  await mx
     .candyMachines()
     .insertItems(candyMachine, {
       authority: mx.identity(),
@@ -133,6 +137,10 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
         { name: 'Degen #4', uri: 'https://example.com/degen/4' },
       ],
     })
+    .run();
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
     .run();
 
   // Then the Candy Machine has been updated properly.

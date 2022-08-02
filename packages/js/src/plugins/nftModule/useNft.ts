@@ -1,11 +1,37 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { TransactionBuilder } from '@/utils';
+import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findMetadataPda, findUseAuthorityRecordPda } from './pdas';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { HasMintAddress, toMintAddress } from './helpers';
+import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import { findMetadataPda, findUseAuthorityRecordPda } from './pdas';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _useNftClient(
+  this: NftClient,
+  nft: HasMintAddress,
+  input: Omit<UseNftInput, 'mintAddress'> = {}
+) {
+  return this.metaplex
+    .operations()
+    .getTask(useNftOperation({ ...input, mintAddress: toMintAddress(nft) }));
+}
+
+/** @internal */
+export function _useNftBuildersClient(
+  this: NftBuildersClient,
+  input: UseNftBuilderParams
+) {
+  return useNftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

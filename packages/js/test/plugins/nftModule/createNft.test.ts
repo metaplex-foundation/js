@@ -162,12 +162,10 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
         {
           address: updateAuthority.publicKey,
           share: 60,
-          verified: true,
         },
         {
           address: otherCreator.publicKey,
           share: 40,
-          verified: false,
         },
       ],
     })

@@ -5,6 +5,22 @@ import { Operation, useOperation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Nft, NftWithToken } from './Nft';
 import { Sft, SftWithToken } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftByMetadataClient(
+  this: NftClient,
+  metadata: PublicKey,
+  options?: Omit<FindNftByMetadataInput, 'metadata'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findNftByMetadataOperation({ metadata, ...options }));
+}
 
 // -----------------
 // Operation

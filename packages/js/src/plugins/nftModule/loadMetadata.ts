@@ -5,6 +5,22 @@ import { DisposableScope } from '@/utils';
 import { Metadata } from './Metadata';
 import { Nft, NftWithToken } from './Nft';
 import { Sft, SftWithToken } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _loadMetadataClient(
+  this: NftClient,
+  metadata: Metadata,
+  options?: Omit<LoadMetadataInput, 'metadata'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(loadMetadataOperation({ metadata, ...options }));
+}
 
 // -----------------
 // Operation

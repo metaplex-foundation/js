@@ -7,6 +7,24 @@ import { Nft } from './Nft';
 import { DisposableScope } from '@/utils';
 import { Metadata } from './Metadata';
 import { Sft } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftsByUpdateAuthorityClient(
+  this: NftClient,
+  updateAuthority: PublicKey,
+  options?: Omit<FindNftsByUpdateAuthorityInput, 'updateAuthority'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(
+      findNftsByUpdateAuthorityOperation({ updateAuthority, ...options })
+    );
+}
 
 // -----------------
 // Operation

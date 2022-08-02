@@ -1,27 +1,58 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  Collection,
-  Uses,
-  createCreateMetadataAccountV3Instruction,
-} from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  Creator,
   BigNumber,
-  toUniformVerifiedCreators,
-  toNullCreators,
+  Creator,
+  CreatorInput,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
   SplTokenAmount,
   toPublicKey,
-  isSigner,
+  useOperation,
 } from '@/types';
-import { findMetadataPda } from './pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import {
+  Collection,
+  createCreateMetadataAccountV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
+import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import { findMetadataPda } from './pdas';
+import { assertSft, Sft, SftWithToken } from './Sft';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createSftClient(
+  this: NftClient,
+  input: CreateSftInput
+): Task<CreateSftOutput & { sft: Sft | SftWithToken }> {
+  return new Task(async (scope) => {
+    const operation = createSftOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const sft = await this.findByMint(output.mintAddress, {
+      tokenAddress: output.tokenAddress ?? undefined,
+    }).run(scope);
+    assertSft(sft);
+    return { ...output, sft };
+  });
+}
+
+/** @internal */
+export function _createSftBuildersClient(
+  this: NftBuildersClient,
+  input: CreateSftBuilderParams
+) {
+  return createSftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation
@@ -58,7 +89,7 @@ export interface CreateSftInput {
   name: string;
   sellerFeeBasisPoints: number;
   symbol?: string; // Defaults to an empty string.
-  creators?: Creator[]; // Defaults to mx.identity() as a single Creator.
+  creators?: CreatorInput[]; // Defaults to mx.identity() as a single Creator.
   isMutable?: boolean; // Defaults to true.
   maxSupply?: Option<BigNumber>; // Defaults to 0.
   collection?: Option<Collection>; // Defaults to null.
@@ -130,8 +161,20 @@ export const createSftBuilder = async (
   const { mintAddress, tokenAddress } = mintAndTokenBuilder.getContext();
 
   const metadataPda = findMetadataPda(mintAddress);
-  const creators =
-    params.creators ?? toUniformVerifiedCreators(updateAuthority.publicKey);
+  const creatorsInput: CreatorInput[] = params.creators ?? [
+    {
+      address: updateAuthority.publicKey,
+      authority: updateAuthority,
+      share: 100,
+    },
+  ];
+  const creators: Option<Creator[]> =
+    creatorsInput.length > 0
+      ? creatorsInput.map((creator) => ({
+          ...creator,
+          verified: creator.address.equals(updateAuthority.publicKey),
+        }))
+      : null;
 
   const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
     {
@@ -148,7 +191,7 @@ export const createSftBuilder = async (
           symbol: params.symbol ?? '',
           uri: params.uri,
           sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-          creators: toNullCreators(creators),
+          creators,
           collection: params.collection ?? null,
           uses: params.uses ?? null,
         },
@@ -161,6 +204,20 @@ export const createSftBuilder = async (
   // When the payer is different than the update authority, the latter will
   // not be marked as a signer and therefore signing as a creator will fail.
   createMetadataInstruction.keys[4].isSigner = true;
+
+  const verifyAdditionalCreatorInstructions = creatorsInput
+    .filter((creator) => {
+      return (
+        !!creator.authority &&
+        !creator.address.equals(updateAuthority.publicKey)
+      );
+    })
+    .map((creator) => {
+      return metaplex.nfts().builders().verifyCreator({
+        mintAddress,
+        creator: creator.authority,
+      });
+    });
 
   return (
     TransactionBuilder.make<CreateSftBuilderContext>()
@@ -180,6 +237,9 @@ export const createSftBuilder = async (
         signers: [payer, mintAuthority, updateAuthority],
         key: params.createMetadataInstructionKey ?? 'createMetadata',
       })
+
+      // Verify additional creators.
+      .add(...verifyAdditionalCreatorInstructions)
   );
 };
 

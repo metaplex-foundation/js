@@ -1,21 +1,14 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  createInitializeCandyMachineInstruction,
-  createSetCollectionInstruction,
-  Creator,
-} from '@metaplex-foundation/mpl-candy-machine';
 import { Metaplex } from '@/Metaplex';
 import {
-  Operation,
-  useOperation,
-  Signer,
-  OperationHandler,
   assertSameCurrencies,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
   SOL,
   toBigNumber,
-  toUniformCreators,
   toPublicKey,
-  isSigner,
+  useOperation,
 } from '@/types';
 import {
   DisposableScope,
@@ -23,21 +16,27 @@ import {
   RequiredKeys,
   TransactionBuilder,
 } from '@/utils';
-import { CandyMachineProgram } from './program';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { getCandyMachineAccountSizeFromData } from './helpers';
 import {
-  CandyMachineConfigs,
-  toCandyMachineInstructionData,
-} from './CandyMachine';
+  createInitializeCandyMachineInstruction,
+  createSetCollectionInstruction,
+  Creator,
+} from '@metaplex-foundation/mpl-candy-machine';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
   TokenMetadataProgram,
 } from '../nftModule';
-import { findCandyMachineCollectionPda } from './pdas';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import {
+  CandyMachineConfigs,
+  toCandyMachineInstructionData,
+} from './CandyMachine';
 import { CandyMachineAuthorityRequiredAsASignerError } from './errors';
+import { getCandyMachineAccountSizeFromData } from './helpers';
+import { findCandyMachineCollectionPda } from './pdas';
+import { CandyMachineProgram } from './program';
 
 // -----------------
 // Operation
@@ -137,8 +136,13 @@ export const createCandyMachineBuilder = async (
       retainAuthority: params.retainAuthority ?? true,
       goLiveDate: params.goLiveDate ?? null,
       endSettings: params.endSettings ?? null,
-      creators:
-        params.creators ?? toUniformCreators(metaplex.identity().publicKey),
+      creators: params.creators ?? [
+        {
+          address: metaplex.identity().publicKey,
+          share: 100,
+          verified: false,
+        },
+      ],
       hiddenSettings: params.hiddenSettings ?? null,
       whitelistMintSettings: params.whitelistMintSettings ?? null,
       gatekeeper: params.gatekeeper ?? null,
