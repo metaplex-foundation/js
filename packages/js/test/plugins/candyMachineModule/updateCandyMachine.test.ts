@@ -1,5 +1,11 @@
-import test from 'tape';
+import { CandyMachine, sol, toBigNumber, toDateTime } from '@/index';
+import {
+  EndSettingType,
+  WhitelistMintMode,
+} from '@metaplex-foundation/mpl-candy-machine';
+import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
+import test from 'tape';
 import {
   assertThrows,
   createNft,
@@ -9,19 +15,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import {
-  CandyMachine,
-  sol,
-  toBigNumber,
-  toDateTime,
-  toUniformCreators,
-} from '@/index';
-import { createCandyMachine, create32BitsHash } from './helpers';
-import { Keypair } from '@solana/web3.js';
-import {
-  EndSettingType,
-  WhitelistMintMode,
-} from '@metaplex-foundation/mpl-candy-machine';
+import { create32BitsHash, createCandyMachine } from './helpers';
 
 killStuckProcess();
 
@@ -37,7 +31,6 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
     isMutable: true,
     retainAuthority: true,
     goLiveDate: toDateTime(1000000000),
-    creators: toUniformCreators(mx.identity().publicKey),
   });
 
   // When we update the Candy Machine with the following data.
@@ -420,7 +413,6 @@ test('[candyMachineModule] it can update the data of a candy machine via JSON co
     retainAuthority: true,
     goLiveDate: toDateTime('4 Jul 2022 00:00:00 GMT'),
     wallet: mx.identity().publicKey,
-    creators: toUniformCreators(mx.identity().publicKey),
   });
 
   // And an existing SPL token.

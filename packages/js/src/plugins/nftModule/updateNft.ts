@@ -10,8 +10,7 @@ import {
   Operation,
   Signer,
   OperationHandler,
-  Creator,
-  toNullCreators,
+  CreatorInput,
 } from '@/types';
 import { Nft, NftWithToken } from './Nft';
 import { Metaplex } from '@/Metaplex';
@@ -69,7 +68,7 @@ export interface UpdateNftInput {
   symbol?: string;
   uri?: string;
   sellerFeeBasisPoints?: number;
-  creators?: Creator[];
+  creators?: CreatorInput[];
   collection?: Option<Collection>;
   uses?: Option<Uses>;
   primarySaleHappened?: boolean;
@@ -122,7 +121,22 @@ export const updateNftBuilder = (
     updateInstructionDataWithoutChanges
   );
 
-  // TODO
+  const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;
+  const verifyAdditionalCreatorInstructions = creatorsInput
+    .filter((creator) => {
+      const currentCreator = nftOrSft.creators.find(({ address }) =>
+        address.equals(creator.address)
+      );
+      const currentlyVerified = currentCreator?.verified ?? false;
+      return !!creator.authority && !currentlyVerified;
+    })
+    .map((creator) => {
+      return metaplex.nfts().builders().verifyCreator({
+        mintAddress: nftOrSft.address,
+        creator: creator.authority,
+      });
+    });
+
   return (
     TransactionBuilder.make()
 
@@ -142,6 +156,9 @@ export const updateNftBuilder = (
           key: params.updateMetadataInstructionKey ?? 'updateMetadata',
         })
       )
+
+      // Verify additional creators.
+      .add(...verifyAdditionalCreatorInstructions)
   );
 };
 
@@ -149,7 +166,19 @@ const toInstructionData = (
   nftOrSft: Nft | Sft,
   input: Partial<UpdateNftInput> = {}
 ): UpdateMetadataAccountArgsV2 => {
-  const creators = input.creators ?? nftOrSft.creators;
+  const creators =
+    input.creators === undefined
+      ? nftOrSft.creators
+      : input.creators.map((creator) => {
+          const currentCreator = nftOrSft.creators.find(({ address }) =>
+            address.equals(creator.address)
+          );
+          return {
+            ...creator,
+            verified: currentCreator?.verified ?? false,
+          };
+        });
+
   return {
     updateAuthority:
       input.newUpdateAuthority ?? nftOrSft.updateAuthorityAddress,
@@ -162,7 +191,7 @@ const toInstructionData = (
       uri: input.uri ?? nftOrSft.uri,
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
-      creators: toNullCreators(creators),
+      creators: creators.length > 0 ? creators : null,
       collection:
         input.collection === undefined ? nftOrSft.collection : input.collection,
       uses: input.uses === undefined ? nftOrSft.uses : input.uses,
