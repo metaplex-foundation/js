@@ -2,6 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
 import { Task } from '@/utils';
 import { SendTokensInput, SendTokensOutput } from '../tokenModule';
+import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
 import { _createNftClient } from './createNft';
 import { _createSftClient } from './createSft';
 import { _findNftByMetadataClient } from './findNftByMetadata';
@@ -15,6 +16,7 @@ import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
 import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
+import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
 import { _unverifyNftCreatorClient } from './unverifyNftCreator';
 import { _updateNftClient } from './updateNft';
 import { _uploadMetadataClient } from './uploadMetadata';
@@ -48,8 +50,8 @@ export class NftClient {
 
   // Use.
   use = _useNftClient;
-  // TODO(loris): approveUseAuthority;
-  // TODO(loris): revokeUseAuthority;
+  approveUseAuthority = _approveNftUseAuthorityClient;
+  revokeUseAuthority = _revokeNftUseAuthorityClient;
 
   // Creators.
   verifyCreator = _verifyNftCreatorClient;

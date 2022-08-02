@@ -133,7 +133,7 @@ export const approveNftUseAuthorityBuilder = (
     TransactionBuilder.make()
       .setFeePayer(payer)
 
-      // Update the metadata account.
+      // Approve the use authority.
       .add({
         instruction: createApproveUseAuthorityInstruction(
           {
