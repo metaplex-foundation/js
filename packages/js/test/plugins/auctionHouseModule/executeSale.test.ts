@@ -1,12 +1,16 @@
 import test, { Test } from 'tape';
-import { sol, toPublicKey } from '@/types';
+import spok, { Specifications } from 'spok';
+import { sol, token } from '@/types';
 import {
   metaplex,
   killStuckProcess,
   createNft,
   createWallet,
+  spokSamePubkey,
+  spokSameAmount,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { findAssociatedTokenAccountPda, Purchase } from '@/index';
 
 killStuckProcess();
 
@@ -16,10 +20,10 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { client } = await createAuctionHouse(mx);
+  const { auctionHouse, client } = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { sellerTradeState } = await client
+  const { listing, sellerTradeState } = await client
     .list({
       mintAccount: nft.mintAddress,
       price: sol(1),
@@ -27,7 +31,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     .run();
 
   // And we created a private bid on that NFT for 1 SOL.
-  const { buyerTradeState } = await client
+  const { bid, buyerTradeState } = await client
     .bid({
       buyer,
       mintAccount: nft.mintAddress,
@@ -37,14 +41,35 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     .run();
 
   // When we execute a sale with given listing and bid.
-  await client
-    .executeSale({
-      buyer: toPublicKey(buyer),
-      mintAccount: nft.mintAddress,
-      sellerTradeState,
-      buyerTradeState,
-      price: sol(1),
-      confirmOptions: { skipPreflight: true },
-    })
+  const { purchase } = await client.executeSale({ listing, bid }).run();
+
+  // Then we created and returned the new Purchase with appropriate values.
+  const expectedPurchase = {
+    price: spokSameAmount(sol(1)),
+    tokens: spokSameAmount(token(1)),
+    buyerAddress: spokSamePubkey(buyer.publicKey),
+    sellerAddress: spokSamePubkey(mx.identity().publicKey),
+    auctionHouse: {
+      address: spokSamePubkey(auctionHouse.address),
+    },
+    token: {
+      address: findAssociatedTokenAccountPda(nft.mintAddress, buyer.publicKey),
+      mint: {
+        address: spokSamePubkey(nft.mintAddress),
+      },
+    },
+  };
+  spok(t, purchase, {
+    $topic: 'Purchase',
+    ...expectedPurchase,
+  } as unknown as Specifications<Purchase>);
+
+  // And we get the same result when we fetch the Purchase by address.
+  const retrievePurchase = await client
+    .findPurchaseByAddress(sellerTradeState, buyerTradeState)
     .run();
+  spok(t, retrievePurchase, {
+    $topic: 'Retrieved Purchase',
+    ...expectedPurchase,
+  } as unknown as Specifications<Purchase>);
 });

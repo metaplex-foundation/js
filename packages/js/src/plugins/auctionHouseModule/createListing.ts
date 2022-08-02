@@ -24,7 +24,7 @@ import {
   SolAmount,
   SplTokenAmount,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, Option } from '@/utils';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
@@ -72,8 +72,8 @@ export type CreateListingOutput = {
   tokenAccount: PublicKey;
   metadata: Pda;
   seller: PublicKey;
-  receipt: Pda;
-  bookkeeper: PublicKey;
+  receipt: Option<Pda>;
+  bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
 };
@@ -194,8 +194,16 @@ export const createListingBuilder = (
   );
 
   // Receipt.
-  const bookkeeper: Signer = params.bookkeeper ?? metaplex.identity();
-  const receipt = findListingReceiptPda(sellerTradeState);
+  // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
+  // Don't print Auctioneer Sell receipt for the time being.
+  const shouldPrintReceipt =
+    (params.printReceipt ?? true) && !params.auctioneerAuthority;
+  const bookkeeper = shouldPrintReceipt
+    ? params.bookkeeper ?? metaplex.identity()
+    : null;
+  const receipt = shouldPrintReceipt
+    ? findListingReceiptPda(sellerTradeState)
+    : null;
 
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
@@ -206,7 +214,7 @@ export const createListingBuilder = (
         metadata,
         seller: toPublicKey(seller),
         receipt,
-        bookkeeper: bookkeeper.publicKey,
+        bookkeeper: bookkeeper ? bookkeeper.publicKey : null,
         price,
         tokens,
       })
@@ -219,19 +227,17 @@ export const createListingBuilder = (
       })
 
       // Print the Listing Receipt.
-      // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
-      // Don't print Auctioneer Sell receipt for the time being.
-      .when(params.printReceipt ?? !params.auctioneerAuthority, (builder) =>
+      .when(shouldPrintReceipt, (builder) =>
         builder.add({
           instruction: createPrintListingReceiptInstruction(
             {
-              receipt,
-              bookkeeper: bookkeeper.publicKey,
+              receipt: receipt as Pda,
+              bookkeeper: (bookkeeper as Signer).publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
-            { receiptBump: receipt.bump }
+            { receiptBump: (receipt as Pda).bump }
           ),
-          signers: [bookkeeper],
+          signers: [bookkeeper as Signer],
           key: 'printListingReceipt',
         })
       )

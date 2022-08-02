@@ -1,3 +1,4 @@
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
@@ -16,7 +17,6 @@ import {
   Listing,
   AccountNotFoundError,
 } from '@/index';
-import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 
@@ -58,7 +58,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     ...expectedListing,
   } as unknown as Specifications<Listing>);
 
-  // And we get the same result when we fetch the Auction House by address.
+  // And we get the same result when we fetch the Listing by address.
   const retrieveListing = await client
     .findListingByAddress(sellerTradeState)
     .run();

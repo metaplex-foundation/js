@@ -12,8 +12,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda } from '@/plugins';
-import { Bid } from '@/plugins/auctionHouseModule/Bid';
+import { Bid, findAssociatedTokenAccountPda } from '@/index';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();

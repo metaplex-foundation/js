@@ -110,10 +110,7 @@ export const toLazyBid = (
     buyerAddress: account.data.buyer,
     metadataAddress: account.data.metadata,
     tokenAddress: account.data.tokenAccount,
-    receiptAddress: new Pda(
-      account.data.tradeState,
-      account.data.tradeStateBump
-    ),
+    receiptAddress: new Pda(account.publicKey, account.data.bump),
     purchaseReceiptAddress: account.data.purchaseReceipt,
     isPublic: Boolean(account.data.tokenAccount),
 

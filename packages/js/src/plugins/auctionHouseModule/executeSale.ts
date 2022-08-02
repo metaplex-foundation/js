@@ -1,28 +1,35 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import {
+  ConfirmOptions,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
-import { createExecuteSaleInstruction } from '@metaplex-foundation/mpl-auction-house';
+import { TransactionBuilder, Option } from '@/utils';
+import {
+  createExecuteSaleInstruction,
+  createPrintPurchaseReceiptInstruction,
+} from '@metaplex-foundation/mpl-auction-house';
 import {
   useOperation,
   Operation,
   OperationHandler,
-  Signer,
-  toPublicKey,
-  token,
+  Pda,
   lamports,
-  amount,
+  Signer,
   SolAmount,
   SplTokenAmount,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { findMetadataPda } from '../nftModule';
 import { AuctionHouse } from './AuctionHouse';
 import {
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseProgramAsSignerPda,
   findAuctionHouseTradeStatePda,
+  findPurchaseReceiptPda,
 } from './pdas';
+import { Bid } from './Bid';
+import { Listing } from './Listing';
 
 // -----------------
 // Operation
@@ -38,13 +45,10 @@ export type ExecuteSaleOperation = Operation<
 
 export type ExecuteSaleInput = {
   auctionHouse: AuctionHouse;
-  buyer: PublicKey | Signer;
-  seller?: PublicKey | Signer; // Default: identity
-  mintAccount: PublicKey; // Required for checking Metadata
-  sellerTradeState: PublicKey;
-  buyerTradeState: PublicKey;
-  price: SolAmount | SplTokenAmount;
-  tokens?: SplTokenAmount; // Default: token(1)
+  listing: Listing;
+  bid: Bid;
+  bookkeeper?: Signer; // Default: identity
+  printReceipt?: boolean; // Default: true
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -52,6 +56,15 @@ export type ExecuteSaleInput = {
 
 export type ExecuteSaleOutput = {
   response: SendAndConfirmTransactionResponse;
+  sellerTradeState: PublicKey;
+  buyerTradeState: PublicKey;
+  buyer: PublicKey;
+  seller: PublicKey;
+  metadata: PublicKey;
+  bookkeeper: Option<PublicKey>;
+  receipt: Option<Pda>;
+  price: SolAmount | SplTokenAmount;
+  tokens: SplTokenAmount;
 };
 
 // -----------------
@@ -86,54 +99,45 @@ export const executeSaleBuilder = (
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
   // Data.
   const auctionHouse = params.auctionHouse;
-  const tokens = params.tokens ?? token(1);
-  const priceBasisPoint = params.price?.basisPoints ?? 0;
-  const price = auctionHouse.isNative
-    ? lamports(priceBasisPoint)
-    : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+  const { sellerAddress, tokens, price, token } = params.listing;
+  const { buyerAddress } = params.bid;
 
   // Accounts.
-  const seller = params.seller ?? (metaplex.identity() as Signer);
-  const tokenAccount = findAssociatedTokenAccountPda(
-    params.mintAccount,
-    toPublicKey(seller)
-  );
   const buyerTokenAccount = findAssociatedTokenAccountPda(
-    params.mintAccount,
-    toPublicKey(params.buyer)
+    token.mint.address,
+    buyerAddress
   );
-  const metadata = findMetadataPda(params.mintAccount);
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
-    toPublicKey(params.buyer)
+    buyerAddress
   );
   const freeTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
-    toPublicKey(seller),
+    sellerAddress,
     auctionHouse.treasuryMint.address,
-    params.mintAccount,
+    token.mint.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
-    tokenAccount
+    token.address
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
 
   const accounts = {
-    buyer: toPublicKey(params.buyer),
-    seller: toPublicKey(seller),
-    tokenAccount,
-    tokenMint: params.mintAccount,
-    metadata,
+    buyer: buyerAddress,
+    seller: sellerAddress,
+    tokenAccount: token.address,
+    tokenMint: token.mint.address,
+    metadata: token.metadata.address,
     treasuryMint: auctionHouse.treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
-    sellerPaymentReceiptAccount: toPublicKey(seller),
+    sellerPaymentReceiptAccount: sellerAddress,
     buyerReceiptTokenAccount: buyerTokenAccount,
     authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
     auctionHouseTreasury: auctionHouse.treasuryAccountAddress,
-    buyerTradeState: params.buyerTradeState,
-    sellerTradeState: params.sellerTradeState,
+    buyerTradeState: params.bid.tradeStateAddress,
+    sellerTradeState: params.listing.tradeStateAddress,
     freeTradeState,
     programAsSigner,
   };
@@ -147,9 +151,66 @@ export const executeSaleBuilder = (
     tokenSize: tokens.basisPoints,
   };
 
-  return TransactionBuilder.make<ExecuteSaleBuilderContext>().add({
-    instruction: createExecuteSaleInstruction(accounts, args),
-    signers: [],
-    key: params.instructionKey ?? 'executeSale',
-  });
+  const executeSaleInstruction = createExecuteSaleInstruction(accounts, args);
+  executeSaleInstruction.keys = [
+    ...executeSaleInstruction.keys,
+    // Provide additional keys to pay royalties.
+    ...token.metadata.creators.map(({ address }) => ({
+      pubkey: address,
+      isWritable: false,
+      isSigner: false,
+    })),
+  ];
+
+  // Receipt.
+  const shouldPrintReceipt = params.printReceipt ?? true;
+  const bookkeeper = shouldPrintReceipt
+    ? params.bookkeeper ?? metaplex.identity()
+    : null;
+  const purchaseReceipt = shouldPrintReceipt
+    ? findPurchaseReceiptPda(
+        params.listing.tradeStateAddress,
+        params.bid.tradeStateAddress
+      )
+    : null;
+
+  return (
+    TransactionBuilder.make<ExecuteSaleBuilderContext>()
+      .setContext({
+        sellerTradeState: params.listing.tradeStateAddress,
+        buyerTradeState: params.bid.tradeStateAddress,
+        buyer: buyerAddress,
+        seller: sellerAddress,
+        metadata: token.metadata.address,
+        bookkeeper: (bookkeeper as Signer).publicKey,
+        receipt: purchaseReceipt,
+        price,
+        tokens,
+      })
+
+      // Execute Sale.
+      .add({
+        instruction: executeSaleInstruction,
+        signers: [],
+        key: params.instructionKey ?? 'executeSale',
+      })
+
+      // Print the Purchase Receipt.
+      .when(params.printReceipt ?? true, (builder) =>
+        builder.add({
+          instruction: createPrintPurchaseReceiptInstruction(
+            {
+              purchaseReceipt: purchaseReceipt as Pda,
+              listingReceipt: params.listing.receiptAddress as Pda,
+              bidReceipt: params.bid.receiptAddress as Pda,
+              bookkeeper: params.listing.bookkeeperAddress as PublicKey,
+              instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+            },
+            { purchaseReceiptBump: (purchaseReceipt as Pda).bump }
+          ),
+          signers: [bookkeeper as Signer],
+          key: 'printListingReceipt',
+        })
+      )
+  );
 };

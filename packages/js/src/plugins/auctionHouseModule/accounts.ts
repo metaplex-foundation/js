@@ -3,6 +3,7 @@ import {
   AuctionHouse,
   ListingReceipt,
   BidReceipt,
+  PurchaseReceipt,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   Account,
@@ -30,3 +31,9 @@ export type BidReceiptAccount = Account<BidReceipt>;
 export const parseBidReceiptAccount = getAccountParsingFunction(BidReceipt);
 export const toBidReceiptAccount =
   getAccountParsingAndAssertingFunction(BidReceipt);
+
+export type PurchaseReceiptAccount = Account<PurchaseReceipt>;
+export const parsePurchaseReceiptAccount =
+  getAccountParsingFunction(PurchaseReceipt);
+export const toPurchaseReceiptAccount =
+  getAccountParsingAndAssertingFunction(PurchaseReceipt);
