@@ -1,7 +1,9 @@
 import type { Metaplex } from '@/Metaplex';
+import { _approveNftUseAuthorityBuildersClient } from './approveNftUseAuthority';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
+import { _revokeNftUseAuthorityBuildersClient } from './revokeNftUseAuthority';
 import { _unverifyNftCreatorBuildersClient } from './unverifyNftCreator';
 import { _updateNftBuildersClient } from './updateNft';
 import { _useNftBuildersClient } from './useNft';
@@ -18,8 +20,8 @@ export class NftBuildersClient {
 
   // Use.
   use = _useNftBuildersClient;
-  // TODO(loris): approveUseAuthority;
-  // TODO(loris): revokeUseAuthority;
+  approveUseAuthority = _approveNftUseAuthorityBuildersClient;
+  revokeUseAuthority = _revokeNftUseAuthorityBuildersClient;
 
   // Creators.
   verifyCreator = _verifyNftCreatorBuildersClient;
