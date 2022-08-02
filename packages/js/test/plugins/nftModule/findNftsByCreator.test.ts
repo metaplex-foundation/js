@@ -79,8 +79,8 @@ const createNftWithFirstCreator = (
   return createNft(mx, {
     name,
     creators: [
-      { address: creator, share: 50, verified: false },
-      { address: mx.identity().publicKey, share: 50, verified: true },
+      { address: creator, share: 50 },
+      { address: mx.identity().publicKey, share: 50 },
     ],
   });
 };
@@ -93,8 +93,8 @@ const createNftWithSecondCreator = (
   return createNft(mx, {
     name,
     creators: [
-      { address: mx.identity().publicKey, share: 50, verified: true },
-      { address: creator, share: 50, verified: false },
+      { address: mx.identity().publicKey, share: 50 },
+      { address: creator, share: 50 },
     ],
   });
 };

@@ -66,7 +66,6 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
       {
         address: spokSamePubkey(mx.identity().publicKey),
         share: 100,
-        verified: true,
       },
     ],
     collection: null,
@@ -124,12 +123,10 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
         {
           address: updateAuthority.publicKey,
           share: 60,
-          verified: true,
         },
         {
           address: otherCreator.publicKey,
           share: 40,
-          verified: false,
         },
       ],
     })
@@ -178,12 +175,10 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       {
         address: spokSamePubkey(updateAuthority.publicKey),
         share: 60,
-        verified: true,
       },
       {
         address: spokSamePubkey(otherCreator.publicKey),
         share: 40,
-        verified: false,
       },
     ],
   } as unknown as Specifications<SftWithToken>);
