@@ -244,25 +244,13 @@ export class NftClient {
     });
   }
 
-  use<T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey>(
-    nftOrSft: T,
+  use(
+    nft: Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey,
     input: Omit<UseNftInput, 'mintAddress'> = {}
-  ): Task<
-    UseNftOutput & {
-      nftOrSft: T extends Metadata | PublicKey ? Nft | Sft : T;
-    }
-  > {
-    return new Task(async (scope) => {
-      const mintAddress = toMintAddress(nftOrSft);
-      const operation = useNftOperation({ ...input, mintAddress });
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const updatedNft = await this.refresh(nftOrSft).run(scope);
-      return {
-        ...output,
-        nftOrSft: updatedNft as T extends Metadata | PublicKey ? Nft | Sft : T,
-      };
-    });
+  ): Task<UseNftOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(useNftOperation({ ...input, mintAddress: toMintAddress(nft) }));
   }
 }
 
