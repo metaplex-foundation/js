@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Task, TransactionBuilder } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';

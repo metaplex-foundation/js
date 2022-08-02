@@ -21,6 +21,7 @@ export * from './plugin';
 export * from './printNewEdition';
 export * from './program';
 export * from './Sft';
+export * from './unverifyNftCreator';
 export * from './updateNft';
 export * from './uploadMetadata';
 export * from './verifyNftCreator';

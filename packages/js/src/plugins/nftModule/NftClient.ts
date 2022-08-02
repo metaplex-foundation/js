@@ -15,6 +15,7 @@ import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
 import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
+import { _unverifyNftCreatorClient } from './unverifyNftCreator';
 import { _updateNftClient } from './updateNft';
 import { _uploadMetadataClient } from './uploadMetadata';
 import { _useNftClient } from './useNft';
@@ -52,7 +53,7 @@ export class NftClient {
 
   // Creators.
   verifyCreator = _verifyNftCreatorClient;
-  // TODO(loris): unverifyCollection;
+  unverifyCreator = _unverifyNftCreatorClient;
 
   // Collections.
   // TODO(loris): verifyCollection;

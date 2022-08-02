@@ -2,6 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
+import { _unverifyNftCreatorBuildersClient } from './unverifyNftCreator';
 import { _updateNftBuildersClient } from './updateNft';
 import { _useNftBuildersClient } from './useNft';
 import { _verifyNftCreatorBuildersClient } from './verifyNftCreator';
@@ -22,7 +23,7 @@ export class NftBuildersClient {
 
   // Creators.
   verifyCreator = _verifyNftCreatorBuildersClient;
-  // TODO(loris): unverifyCollection;
+  unverifyCreator = _unverifyNftCreatorBuildersClient;
 
   // Collections.
   // TODO(loris): verifyCollection;
