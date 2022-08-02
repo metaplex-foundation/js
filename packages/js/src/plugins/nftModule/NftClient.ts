@@ -13,12 +13,7 @@ import { _findNftsByMintListClient } from './findNftsByMintList';
 import { _findNftsByOwnerClient } from './findNftsByOwner';
 import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
 import { HasMintAddress, toMintAddress } from './helpers';
-import {
-  LoadMetadataInput,
-  loadMetadataOperation,
-  LoadMetadataOutput,
-} from './loadMetadata';
-import { Metadata } from './Metadata';
+import { _loadMetadataClient } from './loadMetadata';
 import { assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { NftBuildersClient } from './NftBuildersClient';
 import {
@@ -59,15 +54,7 @@ export class NftClient {
   findAllByOwner = _findNftsByOwnerClient;
   findAllByUpdateAuthority = _findNftsByUpdateAuthorityClient;
   refresh = _refreshNftClient;
-
-  load(
-    metadata: Metadata,
-    options?: Omit<LoadMetadataInput, 'metadata'>
-  ): Task<LoadMetadataOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(loadMetadataOperation({ metadata, ...options }));
-  }
+  load = _loadMetadataClient;
 
   printNewEdition(
     originalNft: HasMintAddress,
