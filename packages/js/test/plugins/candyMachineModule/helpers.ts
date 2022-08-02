@@ -24,14 +24,14 @@ export async function createCandyMachine(
     .run();
 
   if (input.items) {
-    const insertItemsOutput = await mx
+    await mx
       .candyMachines()
       .insertItems(candyMachine, {
         authority: mx.identity(),
         items: input.items,
       })
       .run();
-    candyMachine = insertItemsOutput.candyMachine;
+    candyMachine = await mx.candyMachines().refresh(candyMachine).run();
   }
 
   await amman.addr.addLabel('candy-machine', candyMachine.address);

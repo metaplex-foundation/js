@@ -3,6 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
 import { NftWithToken } from '../nftModule';
 import { Task } from '@/utils';
+import { toPublicKey } from '@/types';
 import { CandyMachine } from './CandyMachine';
 import {
   CreateCandyMachineInput,
@@ -118,7 +119,7 @@ export class CandyMachinesClient {
 
   findByAddress(
     address: PublicKey,
-    options?: Omit<FindCandyMachineByAddressInput, 'type' | 'publicKey'>
+    options?: Omit<FindCandyMachineByAddressInput, 'address'>
   ): Task<CandyMachine> {
     return this.metaplex
       .operations()
@@ -139,27 +140,19 @@ export class CandyMachinesClient {
   insertItems(
     candyMachine: CandyMachine,
     input: Omit<InsertItemsToCandyMachineInput, 'candyMachine'>
-  ): Task<InsertItemsToCandyMachineOutput & { candyMachine: CandyMachine }> {
-    return new Task(async (scope) => {
-      const operation = insertItemsToCandyMachineOperation({
+  ): Task<InsertItemsToCandyMachineOutput> {
+    return this.metaplex.operations().getTask(
+      insertItemsToCandyMachineOperation({
         candyMachine,
         ...input,
-      });
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const updatedCandyMachine = await this.findByAddress(
-        candyMachine.address
-      ).run();
-      return { candyMachine: updatedCandyMachine, ...output };
-    });
+      })
+    );
   }
 
   mint(
     candyMachine: CandyMachine,
     input: Omit<MintCandyMachineInput, 'candyMachine'> = {}
-  ): Task<
-    MintCandyMachineOutput & { nft: NftWithToken; candyMachine: CandyMachine }
-  > {
+  ): Task<MintCandyMachineOutput & { nft: NftWithToken }> {
     return new Task(async (scope) => {
       const operation = mintCandyMachineOperation({ candyMachine, ...input });
       const output = await this.metaplex.operations().execute(operation, scope);
@@ -179,32 +172,24 @@ export class CandyMachinesClient {
           error as Error
         );
       }
-      scope.throwIfCanceled();
-
-      const updatedCandyMachine = await this.findByAddress(
-        candyMachine.address
-      ).run(scope);
-      return { nft, candyMachine: updatedCandyMachine, ...output };
+      return { nft, ...output };
     });
+  }
+
+  refresh(
+    candyMachine: CandyMachine | PublicKey,
+    options?: Omit<FindCandyMachineByAddressInput, 'address'>
+  ): Task<CandyMachine> {
+    return this.findByAddress(toPublicKey(candyMachine), options);
   }
 
   update(
     candyMachine: CandyMachine,
     input: Omit<UpdateCandyMachineInput, 'candyMachine'>
-  ): Task<UpdateCandyMachineOutput & { candyMachine: CandyMachine }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(
-          updateCandyMachineOperation({ candyMachine, ...input }),
-          scope
-        );
-      scope.throwIfCanceled();
-      const updatedCandyMachine = await this.findByAddress(
-        candyMachine.address
-      ).run();
-      return { candyMachine: updatedCandyMachine, ...output };
-    });
+  ): Task<UpdateCandyMachineOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(updateCandyMachineOperation({ candyMachine, ...input }));
   }
 
   updateFromJsonConfig(

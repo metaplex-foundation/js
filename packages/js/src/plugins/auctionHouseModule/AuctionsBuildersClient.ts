@@ -16,15 +16,15 @@ import {
 export class AuctionsBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  bid(input: CreateBidBuilderParams) {
+    return createBidBuilder(this.metaplex, input);
+  }
+
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
     return createAuctionHouseBuilder(this.metaplex, input);
   }
 
-  createBid(input: CreateBidBuilderParams) {
-    return createBidBuilder(this.metaplex, input);
-  }
-
-  createListing(input: CreateListingBuilderParams) {
+  list(input: CreateListingBuilderParams) {
     return createListingBuilder(this.metaplex, input);
   }
 

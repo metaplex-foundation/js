@@ -39,7 +39,7 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
     .run();
 
   // When we update the NFT with new on-chain data.
-  const { nftOrSft: updatedNft } = await mx
+  await mx
     .nfts()
     .update(nft, {
       name: 'Updated On-chain NFT name',
@@ -52,7 +52,8 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
     .run();
 
   // Then the returned NFT should have the updated data.
-  const expectedNft = {
+  const updatedNft = await mx.nfts().refresh(nft).run();
+  spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
     name: 'Updated On-chain NFT name',
@@ -69,15 +70,7 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
     token: {
       address: spokSamePubkey(nft.token.address),
     },
-  } as unknown as Specifications<Nft>;
-  spok(t, updatedNft, expectedNft);
-
-  // And the same goes if we try to fetch the NFT again.
-  const fetchedUpdatedNft = await mx
-    .nfts()
-    .findByMint(nft.address, { tokenAddress: nft.token.address })
-    .run();
-  spok(t, fetchedUpdatedNft, expectedNft);
+  } as unknown as Specifications<Nft>);
 });
 
 test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test) => {
@@ -108,7 +101,7 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
     .run();
 
   // When we update the NFT with new on-chain data.
-  const { nftOrSft: updatedSft } = await mx
+  await mx
     .nfts()
     .update(sft, {
       name: 'Updated On-chain SFT name',
@@ -121,7 +114,8 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
     .run();
 
   // Then the returned NFT should have the updated data.
-  const expectedSft = {
+  const updatedSft = await mx.nfts().refresh(sft).run();
+  spok(t, updatedSft, {
     $topic: 'Updated SFT',
     model: 'sft',
     name: 'Updated On-chain SFT name',
@@ -135,10 +129,5 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
       description: 'Updated JSON SFT description',
       image: updatedMetadata.image,
     },
-  } as unknown as Specifications<Sft>;
-  spok(t, updatedSft, expectedSft);
-
-  // And the same goes if we try to fetch the NFT again.
-  const fetchedUpdatedSft = await mx.nfts().findByMint(sft.address).run();
-  spok(t, fetchedUpdatedSft, expectedSft);
+  } as unknown as Specifications<Sft>);
 });
