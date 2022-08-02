@@ -29,7 +29,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "removeComments": false,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "stripInternal": true
   },
   "typedocOptions": {
     "entryPoints": "packages/*/src/index.ts",

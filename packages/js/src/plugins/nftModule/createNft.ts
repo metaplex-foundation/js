@@ -15,8 +15,40 @@ import {
   BigNumber,
 } from '@/types';
 import { findMasterEditionV2Pda } from './pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { assertNftWithToken, NftWithToken } from './Nft';
+import type { NftClient } from './NftClient';
+import type { NftBuildersClient } from './NftBuildersClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createNftClient(
+  this: NftClient,
+  input: CreateNftInput
+): Task<CreateNftOutput & { nft: NftWithToken }> {
+  return new Task(async (scope) => {
+    const operation = createNftOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const nft = await this.findByMint(output.mintAddress, {
+      tokenAddress: output.tokenAddress,
+    }).run(scope);
+    assertNftWithToken(nft);
+    return { ...output, nft };
+  });
+}
+
+/** @internal */
+export function _createNftBuildersClient(
+  this: NftBuildersClient,
+  input: CreateNftBuilderParams
+) {
+  return createNftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

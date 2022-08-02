@@ -6,9 +6,9 @@ import {
   toMetadataAccount,
 } from './accounts';
 import { Operation, useOperation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
+import { DisposableScope, Task } from '@/utils';
 import { Nft, NftWithToken, toNft, toNftWithToken } from './Nft';
-import { toMetadata } from './Metadata';
+import { Metadata, toMetadata } from './Metadata';
 import { toNftEdition } from './NftEdition';
 import {
   findAssociatedTokenAccountPda,
@@ -19,6 +19,37 @@ import {
 } from '../tokenModule';
 import { Sft, SftWithToken, toSft, toSftWithToken } from './Sft';
 import { JsonMetadata } from './JsonMetadata';
+import { toMintAddress } from './helpers';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftByMintClient(
+  this: NftClient,
+  mint: PublicKey,
+  options?: Omit<FindNftByMintInput, 'mint'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findNftByMintOperation({ mint, ...options }));
+}
+
+/** @internal */
+export function _refreshNftClient<
+  T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey
+>(
+  this: NftClient,
+  nftOrSft: T,
+  options?: Omit<FindNftByMintInput, 'mint' | 'tokenAddres' | 'tokenOwner'>
+): Task<T extends Metadata | PublicKey ? Nft | Sft : T> {
+  return this.findByMint(toMintAddress(nftOrSft), {
+    tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
+    ...options,
+  }) as Task<T extends Metadata | PublicKey ? Nft | Sft : T>;
+}
 
 // -----------------
 // Operation

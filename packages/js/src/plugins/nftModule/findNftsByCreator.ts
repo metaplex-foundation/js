@@ -7,6 +7,22 @@ import { Nft } from './Nft';
 import { DisposableScope } from '@/utils';
 import { Metadata } from './Metadata';
 import { Sft } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftsByCreatorsClient(
+  this: NftClient,
+  creator: PublicKey,
+  options?: Omit<FindNftsByCreatorInput, 'creator'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findNftsByCreatorOperation({ creator, ...options }));
+}
 
 // -----------------
 // Operation

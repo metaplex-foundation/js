@@ -19,9 +19,41 @@ import {
   isSigner,
 } from '@/types';
 import { findMetadataPda } from './pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { assertSft, Sft, SftWithToken } from './Sft';
+import type { NftClient } from './NftClient';
+import type { NftBuildersClient } from './NftBuildersClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createSftClient(
+  this: NftClient,
+  input: CreateSftInput
+): Task<CreateSftOutput & { sft: Sft | SftWithToken }> {
+  return new Task(async (scope) => {
+    const operation = createSftOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const sft = await this.findByMint(output.mintAddress, {
+      tokenAddress: output.tokenAddress ?? undefined,
+    }).run(scope);
+    assertSft(sft);
+    return { ...output, sft };
+  });
+}
+
+/** @internal */
+export function _createSftBuildersClient(
+  this: NftBuildersClient,
+  input: CreateSftBuilderParams
+) {
+  return createSftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

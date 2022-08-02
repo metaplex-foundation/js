@@ -7,6 +7,22 @@ import { DisposableScope, GmaBuilder } from '@/utils';
 import { Nft } from './Nft';
 import { Metadata, toMetadata } from './Metadata';
 import { Sft } from './Sft';
+import type { NftClient } from './NftClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findNftsByMintListClient(
+  this: NftClient,
+  mints: PublicKey[],
+  options?: Omit<FindNftsByMintListInput, 'mints'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findNftsByMintListOperation({ mints, ...options }));
+}
 
 // -----------------
 // Operation
