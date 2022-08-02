@@ -17,7 +17,7 @@ import { HasMintAddress, toMintAddress } from './helpers';
 export function _unverifyNftCreatorClient(
   this: NftClient,
   nftOrSft: HasMintAddress,
-  creator: Signer,
+  creator?: Signer,
   input: Omit<UnverifyNftCreatorInput, 'mintAddress' | 'creator'> = {}
 ) {
   return this.metaplex.operations().getTask(
@@ -100,7 +100,7 @@ export const unverifyNftCreatorBuilder = (
   return (
     TransactionBuilder.make()
 
-      // Update the metadata account.
+      // Verify the creator.
       .add({
         instruction: createRemoveCreatorVerificationInstruction({
           metadata: findMetadataPda(mintAddress),

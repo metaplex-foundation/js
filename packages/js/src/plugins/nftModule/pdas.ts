@@ -79,3 +79,13 @@ export const findUseAuthorityRecordPda = (
     useAuthority.toBuffer(),
   ]);
 };
+
+export const findProgramAsBurnerPda = (
+  programId: PublicKey = TokenMetadataProgram.publicKey
+): Pda => {
+  return Pda.find(programId, [
+    Buffer.from('metadata', 'utf8'),
+    programId.toBuffer(),
+    Buffer.from('burn', 'utf8'),
+  ]);
+};
