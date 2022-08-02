@@ -1,7 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
 import { Task } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
 import { SendTokensInput, SendTokensOutput } from '../tokenModule';
 import { _createNftClient } from './createNft';
 import { _createSftClient } from './createSft';
@@ -14,26 +13,12 @@ import { _findNftsByOwnerClient } from './findNftsByOwner';
 import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
 import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
-import { assertNftWithToken, Nft, NftWithToken } from './Nft';
 import { NftBuildersClient } from './NftBuildersClient';
-import {
-  printNewEditionOperation,
-  PrintNewEditionOutput,
-  PrintNewEditionSharedInput,
-  PrintNewEditionViaInput,
-} from './printNewEdition';
-import { Sft, SftWithToken } from './Sft';
-import {
-  UpdateNftInput,
-  updateNftOperation,
-  UpdateNftOutput,
-} from './updateNft';
-import {
-  UploadMetadataInput,
-  uploadMetadataOperation,
-  UploadMetadataOutput,
-} from './uploadMetadata';
-import { UseNftInput, useNftOperation, UseNftOutput } from './useNft';
+import { _printNewEditionClient } from './printNewEdition';
+import { _updateNftClient } from './updateNft';
+import { _uploadMetadataClient } from './uploadMetadata';
+import { _useNftClient } from './useNft';
+import { _verifyNftCreatorClient } from './verifyNftCreator';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -41,9 +26,6 @@ export class NftClient {
   builders() {
     return new NftBuildersClient(this.metaplex);
   }
-
-  create = _createNftClient;
-  createSft = _createSftClient;
 
   // Queries.
   findByMint = _findNftByMintClient;
@@ -56,56 +38,42 @@ export class NftClient {
   refresh = _refreshNftClient;
   load = _loadMetadataClient;
 
-  printNewEdition(
-    originalNft: HasMintAddress,
-    input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
-      PrintNewEditionViaInput = {}
-  ): Task<PrintNewEditionOutput & { nft: NftWithToken }> {
-    return new Task(async (scope) => {
-      const originalMint = toMintAddress(originalNft);
-      const operation = printNewEditionOperation({ originalMint, ...input });
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const nft = await this.findByMint(output.mintSigner.publicKey, {
-        tokenAddress: output.tokenAddress,
-      }).run(scope);
-      assertNftWithToken(nft);
-      return { ...output, nft };
-    });
-  }
+  // Create and Update.
+  create = _createNftClient;
+  createSft = _createSftClient;
+  printNewEdition = _printNewEditionClient;
+  uploadMetadata = _uploadMetadataClient;
+  update = _updateNftClient;
+
+  // Use.
+  use = _useNftClient;
+  // TODO(loris): approveUseAuthority;
+  // TODO(loris): revokeUseAuthority;
+
+  // Creators.
+  verifyCreator = _verifyNftCreatorClient;
+  // TODO(loris): unverifyCollection;
+
+  // Collections.
+  // TODO(loris): verifyCollection;
+  // TODO(loris): unverifyCollection;
+  // TODO(loris): approveCollectionAuthority;
+  // TODO(loris): revokeCollectionAuthority;
+
+  // Token.
+  // TODO(loris): freeze;
+  // TODO(loris): thaw;
+  // TODO(loris): approveDelegateAuthority;
+  // TODO(loris): revokeDelegateAuthority;
 
   send(
     nftOrSft: HasMintAddress,
-    newOwner: PublicKey,
-    options?: Omit<SendTokensInput, 'toOwner' | 'toToken'>
+    options?: Omit<SendTokensInput, 'mint'>
   ): Task<SendTokensOutput> {
     return this.metaplex.tokens().send({
       mint: toMintAddress(nftOrSft),
-      toOwner: newOwner,
       amount: token(1),
       ...options,
     });
-  }
-
-  uploadMetadata(input: UploadMetadataInput): Task<UploadMetadataOutput> {
-    return this.metaplex.operations().getTask(uploadMetadataOperation(input));
-  }
-
-  update(
-    nftOrSft: Nft | Sft | NftWithToken | SftWithToken,
-    input: Omit<UpdateNftInput, 'nftOrSft'>
-  ): Task<UpdateNftOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(updateNftOperation({ ...input, nftOrSft }));
-  }
-
-  use(
-    nft: HasMintAddress,
-    input: Omit<UseNftInput, 'mintAddress'> = {}
-  ): Task<UseNftOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(useNftOperation({ ...input, mintAddress: toMintAddress(nft) }));
   }
 }

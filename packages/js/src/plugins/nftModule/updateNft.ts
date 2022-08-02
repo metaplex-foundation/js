@@ -13,13 +13,38 @@ import {
   Creator,
   toNullCreators,
 } from '@/types';
-import { Nft } from './Nft';
+import { Nft, NftWithToken } from './Nft';
 import { Metaplex } from '@/Metaplex';
-import { Option, TransactionBuilder } from '@/utils';
+import { Option, Task, TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import isEqual from 'lodash.isequal';
-import { Sft } from './Sft';
+import { Sft, SftWithToken } from './Sft';
+import type { NftClient } from './NftClient';
+import type { NftBuildersClient } from './NftBuildersClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _updateNftClient(
+  this: NftClient,
+  nftOrSft: Nft | Sft | NftWithToken | SftWithToken,
+  input: Omit<UpdateNftInput, 'nftOrSft'>
+): Task<UpdateNftOutput> {
+  return this.metaplex
+    .operations()
+    .getTask(updateNftOperation({ ...input, nftOrSft }));
+}
+
+/** @internal */
+export function _updateNftBuildersClient(
+  this: NftBuildersClient,
+  input: UpdateNftBuilderParams
+) {
+  return updateNftBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

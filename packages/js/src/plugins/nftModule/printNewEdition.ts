@@ -1,32 +1,69 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  Signer,
+  toBigNumber,
+  token,
+  useOperation,
+} from '@/types';
+import {
+  DisposableScope,
+  InstructionWithSigners,
+  Task,
+  TransactionBuilder,
+} from '@/utils';
+import {
+  createMintNewEditionFromMasterEditionViaTokenInstruction,
+  createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { toOriginalEditionAccount } from './accounts';
+import { HasMintAddress, toMintAddress } from './helpers';
+import { assertNftWithToken, NftWithToken } from './Nft';
+import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
 import {
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
 } from './pdas';
-import { toOriginalEditionAccount } from './accounts';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  Signer,
-  token,
-  toBigNumber,
-} from '@/types';
-import {
-  DisposableScope,
-  InstructionWithSigners,
-  TransactionBuilder,
-} from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
-import {
-  createMintNewEditionFromMasterEditionViaTokenInstruction,
-  createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _printNewEditionClient(
+  this: NftClient,
+  originalNft: HasMintAddress,
+  input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
+    PrintNewEditionViaInput = {}
+): Task<PrintNewEditionOutput & { nft: NftWithToken }> {
+  return new Task(async (scope) => {
+    const originalMint = toMintAddress(originalNft);
+    const operation = printNewEditionOperation({ originalMint, ...input });
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const nft = await this.findByMint(output.mintSigner.publicKey, {
+      tokenAddress: output.tokenAddress,
+    }).run(scope);
+    assertNftWithToken(nft);
+    return { ...output, nft };
+  });
+}
+
+/** @internal */
+export function _printNewEditionBuildersClient(
+  this: NftBuildersClient,
+  input: PrintNewEditionBuilderParams
+) {
+  return printNewEditionBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

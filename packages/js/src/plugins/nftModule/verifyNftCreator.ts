@@ -1,4 +1,3 @@
-import type { NftClient } from './NftClient';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { createSignMetadataInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
@@ -6,13 +5,35 @@ import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findMetadataPda } from './pdas';
+import type { NftClient } from './NftClient';
+import type { NftBuildersClient } from './NftBuildersClient';
+import { HasMintAddress, toMintAddress } from './helpers';
 
 // -----------------
-// Client
+// Clients
 // -----------------
 
 /** @internal */
-export function _verifyNftCreator(this: NftClient) {}
+export function _verifyNftCreatorClient(
+  this: NftClient,
+  nftOrSft: HasMintAddress,
+  input: Omit<VerifyNftCreatorInput, 'mintAddress'> = {}
+) {
+  return this.metaplex.operations().getTask(
+    verifyNftCreatorOperation({
+      ...input,
+      mintAddress: toMintAddress(nftOrSft),
+    })
+  );
+}
+
+/** @internal */
+export function _verifyNftCreatorBuildersClient(
+  this: NftBuildersClient,
+  input: VerifyNftCreatorBuilderParams
+) {
+  return verifyNftCreatorBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

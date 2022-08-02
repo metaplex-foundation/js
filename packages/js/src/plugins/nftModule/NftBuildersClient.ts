@@ -1,33 +1,36 @@
 import type { Metaplex } from '@/Metaplex';
-import { createNftBuilder, CreateNftBuilderParams } from './createNft';
-import {
-  printNewEditionBuilder,
-  PrintNewEditionBuilderParams,
-} from './printNewEdition';
-import { updateNftBuilder, UpdateNftBuilderParams } from './updateNft';
-import { useNftBuilder, UseNftBuilderParams } from './useNft';
-import { createSftBuilder, CreateSftBuilderParams } from './createSft';
+import { _createNftBuildersClient } from './createNft';
+import { _createSftBuildersClient } from './createSft';
+import { _printNewEditionBuildersClient } from './printNewEdition';
+import { _updateNftBuildersClient } from './updateNft';
+import { _useNftBuildersClient } from './useNft';
+import { _verifyNftCreatorBuildersClient } from './verifyNftCreator';
 
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  create(input: CreateNftBuilderParams) {
-    return createNftBuilder(this.metaplex, input);
-  }
+  // Create and Update.
+  create = _createNftBuildersClient;
+  createSft = _createSftBuildersClient;
+  printNewEdition = _printNewEditionBuildersClient;
+  update = _updateNftBuildersClient;
 
-  createSft(input: CreateSftBuilderParams) {
-    return createSftBuilder(this.metaplex, input);
-  }
+  // Use.
+  use = _useNftBuildersClient;
+  // TODO(loris): approveUseAuthority;
+  // TODO(loris): revokeUseAuthority;
 
-  printNewEdition(input: PrintNewEditionBuilderParams) {
-    return printNewEditionBuilder(this.metaplex, input);
-  }
+  // Creators.
+  verifyCreator = _verifyNftCreatorBuildersClient;
+  // TODO(loris): unverifyCollection;
 
-  update(input: UpdateNftBuilderParams) {
-    return updateNftBuilder(this.metaplex, input);
-  }
+  // Collections.
+  // TODO(loris): verifyCollection;
+  // TODO(loris): unverifyCollection;
+  // TODO(loris): approveCollectionAuthority;
+  // TODO(loris): revokeCollectionAuthority;
 
-  use(input: UseNftBuilderParams) {
-    return useNftBuilder(this.metaplex, input);
-  }
+  // Token.
+  // TODO(loris): freeze;
+  // TODO(loris): thaw;
 }
