@@ -1,14 +1,26 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
+import { OwnerMustBeProvidedAsASignerError } from './errors';
 import { HasMintAddress, toMintAddress } from './helpers';
 import type { NftBuildersClient } from './NftBuildersClient';
 import type { NftClient } from './NftClient';
-import { findMetadataPda, findUseAuthorityRecordPda } from './pdas';
+import {
+  findMetadataPda,
+  findProgramAsBurnerPda,
+  findUseAuthorityRecordPda,
+} from './pdas';
 
 // -----------------
 // Clients
@@ -45,11 +57,9 @@ export interface UseNftInput {
   // Accounts and models.
   mintAddress: PublicKey;
   numberOfUses?: number; // Defaults to 1.
-  useAuthority?: Signer; // Defaults to mx.identity().
-  owner?: PublicKey; // Defaults to mx.identity().publicKey.
-  tokenAccount?: PublicKey; // Defaults to associated token account.
-  isDelegated?: boolean; // Defaults to false.
-  burner?: PublicKey; // Defaults to not being used.
+  owner?: PublicKey | Signer; // Defaults to mx.identity().
+  ownerTokenAccount?: PublicKey; // Defaults to associated token account.
+  useAuthority?: Signer; // Defaults to not being used.
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -90,17 +100,22 @@ export const useNftBuilder = (
   const {
     mintAddress,
     numberOfUses = 1,
-    useAuthority = metaplex.identity(),
-    owner = metaplex.identity().publicKey,
-    isDelegated = false,
-    burner,
+    owner = metaplex.identity(),
+    useAuthority,
   } = params;
 
+  if (!isSigner(owner) && !useAuthority) {
+    throw new OwnerMustBeProvidedAsASignerError();
+  }
+
   const metadata = findMetadataPda(mintAddress);
-  const tokenAccount = findAssociatedTokenAccountPda(mintAddress, owner);
-  const useAuthorityRecord = isDelegated
+  const tokenAccount =
+    params.ownerTokenAccount ??
+    findAssociatedTokenAccountPda(mintAddress, toPublicKey(owner));
+  const useAuthorityRecord = useAuthority
     ? findUseAuthorityRecordPda(mintAddress, useAuthority.publicKey)
     : undefined;
+  const programAsBurner = findProgramAsBurnerPda();
 
   return (
     TransactionBuilder.make()
@@ -111,15 +126,17 @@ export const useNftBuilder = (
           {
             metadata,
             tokenAccount,
-            useAuthority: useAuthority.publicKey,
+            useAuthority: useAuthority
+              ? useAuthority.publicKey
+              : toPublicKey(owner),
             mint: mintAddress,
-            owner,
+            owner: toPublicKey(owner),
             useAuthorityRecord,
-            burner,
+            burner: useAuthorityRecord ? programAsBurner : undefined,
           },
           { utilizeArgs: { numberOfUses } }
         ),
-        signers: [useAuthority],
+        signers: [owner, useAuthority].filter(isSigner),
         key: params.utilizeInstructionKey ?? 'utilize',
       })
   );

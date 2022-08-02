@@ -111,7 +111,7 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
   const anotherWallet = Keypair.generate();
 
   // When this other wallet tries to use that NFT.
-  const promise = mx.nfts().use(nft, { owner: anotherWallet.publicKey }).run();
+  const promise = mx.nfts().use(nft, { owner: anotherWallet }).run();
 
   // Then we get an error.
   await assertThrows(t, promise, /invalid account data for instruction/);
