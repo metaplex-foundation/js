@@ -1,12 +1,6 @@
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import { createApproveUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  BigNumber,
-} from '@/types';
+import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
@@ -70,7 +64,7 @@ export interface ApproveNftUseAuthorityInput {
   payer?: Signer; // Defaults to mx.identity().
 
   // Data.
-  numberOfUses?: BigNumber; // Defaults to 1.
+  numberOfUses?: number; // Defaults to 1.
 
   // Programs.
   tokenProgram?: PublicKey;

@@ -78,28 +78,40 @@ export const nftModule = (): MetaplexPlugin => ({
     });
 
     // Operations.
-    const o = metaplex.operations().register;
-    o(approveNftUseAuthorityOperation, approveNftUseAuthorityOperationHandler);
-    o(createNftOperation, createNftOperationHandler);
-    o(createSftOperation, createSftOperationHandler);
-    o(findNftByMetadataOperation, findNftByMetadataOperationHandler);
-    o(findNftByMintOperation, findNftByMintOperationHandler);
-    o(findNftByTokenOperation, findNftByTokenOperationHandler);
-    o(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
-    o(findNftsByMintListOperation, findNftsByMintListOperationHandler);
-    o(findNftsByOwnerOperation, findNftsByOwnerOperationHandler);
-    o(
+    const op = metaplex.operations();
+    op.register(
+      approveNftUseAuthorityOperation,
+      approveNftUseAuthorityOperationHandler
+    );
+    op.register(createNftOperation, createNftOperationHandler);
+    op.register(createSftOperation, createSftOperationHandler);
+    op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
+    op.register(findNftByMintOperation, findNftByMintOperationHandler);
+    op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
+    op.register(findNftsByCreatorOperation, findNftsByCreatorOperationHandler);
+    op.register(
+      findNftsByMintListOperation,
+      findNftsByMintListOperationHandler
+    );
+    op.register(findNftsByOwnerOperation, findNftsByOwnerOperationHandler);
+    op.register(
       findNftsByUpdateAuthorityOperation,
       findNftsByUpdateAuthorityOperationHandler
     );
-    o(loadMetadataOperation, loadMetadataOperationHandler);
-    o(printNewEditionOperation, printNewEditionOperationHandler);
-    o(revokeNftUseAuthorityOperation, revokeNftUseAuthorityOperationHandler);
-    o(unverifyNftCreatorOperation, unverifyNftCreatorOperationHandler);
-    o(updateNftOperation, updateNftOperationHandler);
-    o(uploadMetadataOperation, uploadMetadataOperationHandler);
-    o(useNftOperation, useNftOperationHandler);
-    o(verifyNftCreatorOperation, verifyNftCreatorOperationHandler);
+    op.register(loadMetadataOperation, loadMetadataOperationHandler);
+    op.register(printNewEditionOperation, printNewEditionOperationHandler);
+    op.register(
+      revokeNftUseAuthorityOperation,
+      revokeNftUseAuthorityOperationHandler
+    );
+    op.register(
+      unverifyNftCreatorOperation,
+      unverifyNftCreatorOperationHandler
+    );
+    op.register(updateNftOperation, updateNftOperationHandler);
+    op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
+    op.register(useNftOperation, useNftOperationHandler);
+    op.register(verifyNftCreatorOperation, verifyNftCreatorOperationHandler);
 
     metaplex.nfts = function () {
       return new NftClient(this);
