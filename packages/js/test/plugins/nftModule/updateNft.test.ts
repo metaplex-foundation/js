@@ -8,6 +8,7 @@ import {
   createSft,
   spokSamePubkey,
 } from '../../helpers';
+import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
@@ -130,4 +131,106 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
       image: updatedMetadata.image,
     },
   } as unknown as Specifications<Sft>);
+});
+
+test('[nftModule] it can update and verify creators at the same time', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // And 4 creators.
+  const creatorA = Keypair.generate();
+  const creatorB = Keypair.generate();
+  const creatorC = Keypair.generate();
+  const creatorD = Keypair.generate();
+
+  // And an existing NFT with:
+  // - creatorA verified
+  // - creatorB unverified
+  // - creatorC unverified
+  const nft = await createNft(mx, {
+    creators: [
+      {
+        address: mx.identity().publicKey,
+        share: 40,
+      },
+      {
+        address: creatorA.publicKey,
+        authority: creatorA,
+        share: 30,
+      },
+      {
+        address: creatorB.publicKey,
+        share: 20,
+      },
+      {
+        address: creatorC.publicKey,
+        share: 10,
+      },
+    ],
+  });
+  t.ok(nft.creators[0].verified, 'update authority is verified');
+  t.ok(nft.creators[1].verified, 'creatorA is verified');
+  t.ok(!nft.creators[2].verified, 'creatorB is not verified');
+  t.ok(!nft.creators[3].verified, 'creatorC is not verified');
+
+  // When we update the NFT with such that:
+  // - update authority was removed from the creators
+  // - creatorA is still verified
+  // - creatorB is still unverified
+  // - creatorC is now verified
+  // - creatorD is added and verified
+  await mx
+    .nfts()
+    .update(nft, {
+      creators: [
+        {
+          address: creatorA.publicKey,
+          share: 30,
+        },
+        {
+          address: creatorB.publicKey,
+          share: 20,
+        },
+        {
+          address: creatorC.publicKey,
+          authority: creatorC,
+          share: 10,
+        },
+        {
+          address: creatorD.publicKey,
+          authority: creatorD,
+          share: 40,
+        },
+      ],
+    })
+    .run();
+
+  // Then the returned NFT should have the updated data.
+  const updatedNft = await mx.nfts().refresh(nft).run();
+  spok(t, updatedNft, {
+    $topic: 'Updated Nft',
+    model: 'nft',
+    creators: [
+      {
+        address: creatorA.publicKey,
+        verified: true,
+        share: 30,
+      },
+      {
+        address: creatorB.publicKey,
+        verified: false,
+        share: 20,
+      },
+      {
+        address: creatorC.publicKey,
+        verified: true,
+        share: 10,
+      },
+      {
+        address: creatorD.publicKey,
+        verified: true,
+        share: 40,
+      },
+    ],
+  } as unknown as Specifications<Nft>);
 });

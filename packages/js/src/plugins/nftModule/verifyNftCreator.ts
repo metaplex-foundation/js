@@ -17,12 +17,14 @@ import { HasMintAddress, toMintAddress } from './helpers';
 export function _verifyNftCreatorClient(
   this: NftClient,
   nftOrSft: HasMintAddress,
-  input: Omit<VerifyNftCreatorInput, 'mintAddress'> = {}
+  creator: Signer,
+  input: Omit<VerifyNftCreatorInput, 'mintAddress' | 'creator'> = {}
 ) {
   return this.metaplex.operations().getTask(
     verifyNftCreatorOperation({
       ...input,
       mintAddress: toMintAddress(nftOrSft),
+      creator,
     })
   );
 }
