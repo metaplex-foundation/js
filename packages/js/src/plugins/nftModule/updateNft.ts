@@ -75,6 +75,7 @@ export interface UpdateNftInput {
   collectionAuthority?: Option<Signer>;
   collectionAuthorityIsDelegated?: boolean; // Defaults to false.
   collectionIsSized?: boolean; // Defaults to true.
+  oldCollectionIsSized?: boolean; // Defaults to true.
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -122,6 +123,11 @@ export const updateNftBuilder = (
     updateInstructionData,
     updateInstructionDataWithoutChanges
   );
+  const shouldUnverifyCurrentCollection =
+    !!nftOrSft.collection &&
+    !!nftOrSft.collection.verified &&
+    !!params.collection &&
+    !params.collection.equals(nftOrSft.collection.address);
 
   const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;
   const verifyAdditionalCreatorInstructions = creatorsInput
@@ -141,6 +147,22 @@ export const updateNftBuilder = (
 
   return (
     TransactionBuilder.make()
+
+      // Unverify current collection before overriding it.
+      // Otherwise, the previous collection size will not be properly decremented.
+      .when(shouldUnverifyCurrentCollection, (builder) =>
+        builder.add(
+          metaplex
+            .nfts()
+            .builders()
+            .unverifyCollection({
+              mintAddress: nftOrSft.address,
+              collectionMintAddress: nftOrSft.collection?.address as PublicKey,
+              collectionAuthority: updateAuthority,
+              isSizedCollection: params.oldCollectionIsSized ?? true,
+            })
+        )
+      )
 
       // Update the metadata account.
       .when(shouldSendUpdateInstruction, (builder) =>
