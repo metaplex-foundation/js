@@ -1,18 +1,22 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Task, TransactionBuilder } from '@/utils';
 import {
-  createSignMetadataInstruction,
   createVerifyCollectionInstruction,
   createVerifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from './pdas';
-import type { NftClient } from './NftClient';
-import type { NftBuildersClient } from './NftBuildersClient';
+import { toMetadataAccount } from './accounts';
 import { HasMintAddress, toMintAddress } from './helpers';
-import { Nft } from './Nft';
+import { toMetadata } from './Metadata';
+import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import {
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from './pdas';
 
 // -----------------
 // Clients
@@ -22,16 +26,41 @@ import { Nft } from './Nft';
 export function _verifyNftCollectionClient(
   this: NftClient,
   nftOrSft: HasMintAddress,
-  creator?: Signer,
-  input: Omit<VerifyNftCollectionInput, 'mintAddress' | 'creator'> = {}
+  input: Partial<Omit<VerifyNftCollectionInput, 'mintAddress'>> = {}
 ) {
-  return this.metaplex.operations().getTask(
-    verifyNftCollectionOperation({
-      ...input,
-      mintAddress: toMintAddress(nftOrSft),
-      creator,
-    })
-  );
+  return new Task(async (scope) => {
+    const mintAddress = toMintAddress(nftOrSft);
+    const collectionFromNft =
+      'collection' in nftOrSft && nftOrSft.collection
+        ? nftOrSft.collection.key // TODO(loris): Rename "address".
+        : undefined;
+    let collectionMintAddress =
+      input.collectionMintAddress ?? collectionFromNft;
+
+    if (!collectionMintAddress) {
+      const metadata = toMetadata(
+        toMetadataAccount(await this.metaplex.rpc().getAccount(mintAddress))
+      );
+      scope.throwIfCanceled();
+      collectionMintAddress = metadata.collection
+        ? metadata.collection.key // TODO(loris): Rename "address".
+        : undefined;
+    }
+
+    if (!collectionMintAddress) {
+      // TODO(loris): Custom error.
+      throw new Error(`No collection mint address found for ${mintAddress}`);
+    }
+
+    return this.metaplex.operations().execute(
+      verifyNftCollectionOperation({
+        ...input,
+        mintAddress,
+        collectionMintAddress,
+      }),
+      scope
+    );
+  });
 }
 
 /** @internal */
@@ -58,9 +87,13 @@ export type VerifyNftCollectionOperation = Operation<
 export interface VerifyNftCollectionInput {
   // Accounts and models.
   mintAddress: PublicKey;
-  collectionNft: Nft;
+  collectionMintAddress: PublicKey;
   collectionAuthority?: Signer; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
+
+  // Data.
+  isSizedCollection?: boolean; // Defaults to true.
+  isDelegated?: boolean; // Defaults to false.
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -104,31 +137,38 @@ export const verifyNftCollectionBuilder = (
 ): TransactionBuilder => {
   const {
     mintAddress,
-    collectionNft,
+    collectionMintAddress,
+    isSizedCollection = true,
+    isDelegated = false,
     collectionAuthority = metaplex.identity(),
     payer = metaplex.identity(),
   } = params;
 
-  const metadataAddress = findMetadataPda(mintAddress);
-  const isSizedCollection = collectionNft.collectionDetails !== null;
   const accounts = {
-    metadata: metadataAddress,
+    metadata: findMetadataPda(mintAddress),
     collectionAuthority: collectionAuthority.publicKey,
     payer: payer.publicKey,
-    collectionMint: collectionNft.address,
-    collection: collectionNft.metadataAddress,
-    collectionMasterEditionAccount: collectionNft.edition.address,
-
-    // TODO(loris): Only add if using delegated authority.
-    collectionAuthorityRecord: findCollectionAuthorityRecordPda(
-      mintAddress,
-      collectionAuthority.publicKey
+    collectionMint: collectionMintAddress,
+    collection: findMetadataPda(collectionMintAddress),
+    collectionMasterEditionAccount: findMasterEditionV2Pda(
+      collectionMintAddress
     ),
   };
 
   const instruction = isSizedCollection
     ? createVerifySizedCollectionItemInstruction(accounts)
     : createVerifyCollectionInstruction(accounts);
+
+  if (isDelegated) {
+    instruction.keys.push({
+      pubkey: findCollectionAuthorityRecordPda(
+        mintAddress,
+        collectionAuthority.publicKey
+      ),
+      isWritable: false,
+      isSigner: false,
+    });
+  }
 
   return (
     TransactionBuilder.make()
