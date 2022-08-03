@@ -346,7 +346,7 @@ test('[nftModule] it can create an NFT with a parent Collection', async (t: Test
   // Given a Metaplex instance and a collection NFT
   const mx = await metaplex();
   const collectionNft = await createCollectionNft(mx);
-  t.equal(collectionNft.collectionDetails?.size?.toNumber(), 0);
+  assertCollectionHasSize(t, collectionNft, 0);
 
   // When we create a new NFT with this collection as a parent.
   const { nft } = await mx
@@ -365,7 +365,40 @@ test('[nftModule] it can create an NFT with a parent Collection', async (t: Test
   } as unknown as Specifications<Nft>);
 
   // And the collection NFT has the same size because we did not verify it.
-  await assertRefreshCollectionHasSize(t, mx, collectionNft, 0);
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 0);
+});
+
+test('[nftModule] it can create an NFT with a verified parent Collection', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT
+  const mx = await metaplex();
+  const collectionUpdateAuthority = Keypair.generate();
+  const collectionNft = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthority,
+  });
+  assertCollectionHasSize(t, collectionNft, 0);
+
+  // When we create a new NFT with this collection as a parent.
+  const { nft } = await mx
+    .nfts()
+    .create({
+      ...minimalInput(),
+      collection: collectionNft.address,
+      collectionAuthority: collectionUpdateAuthority,
+    })
+    .run();
+
+  // Then the created NFT is from that collection.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT size has been increase by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
 const minimalInput = () => ({
@@ -374,18 +407,26 @@ const minimalInput = () => ({
   sellerFeeBasisPoints: 200,
 });
 
-const assertRefreshCollectionHasSize = async (
+const assertCollectionHasSize = (
+  t: Test,
+  collectionNft: Nft,
+  expectedSize: number
+) => {
+  t.equal(
+    collectionNft.collectionDetails?.size?.toNumber(),
+    expectedSize,
+    `collection NFT has the expected size: ${expectedSize}`
+  );
+};
+
+const assertRefreshedCollectionHasSize = async (
   t: Test,
   mx: Metaplex,
   collectionNft: Nft,
   expectedSize: number
 ) => {
   const updateCollectionNft = await mx.nfts().refresh(collectionNft).run();
-  t.equal(
-    updateCollectionNft.collectionDetails?.size?.toNumber(),
-    expectedSize,
-    `collection NFT has the expected size: ${expectedSize}`
-  );
+  assertCollectionHasSize(t, updateCollectionNft, expectedSize);
 };
 
 /*
