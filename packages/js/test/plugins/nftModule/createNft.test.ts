@@ -1,29 +1,31 @@
-import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
-import { Keypair } from '@solana/web3.js';
+import {
+  findEditionPda,
+  findMetadataPda,
+  Metaplex,
+  Nft,
+  NftWithToken,
+  toBigNumber,
+  token,
+  toMetaplexFile,
+  TransactionBuilder,
+} from '@/index';
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
+import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
-  toMetaplexFile,
-  Nft,
-  toBigNumber,
-  findMetadataPda,
-  findEditionPda,
-  TransactionBuilder,
-  token,
-  NftWithToken,
-} from '@/index';
-import {
-  metaplex,
-  spokSamePubkey,
-  spokSameBignum,
-  killStuckProcess,
   amman,
-  spokSameAmount,
+  createCollectionNft,
   createWallet,
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
 } from '../../helpers';
 
 killStuckProcess();
@@ -319,11 +321,72 @@ test('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => 
   t.equal(nft.json, null);
 });
 
+test('[nftModule] it can create a collection NFT', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a collection NFT.
+  const { nft } = await mx
+    .nfts()
+    .create({ ...minimalInput(), isCollection: true })
+    .run();
+
+  // Then the created NFT is a sized collection.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collectionDetails: {
+      version: 'V1',
+      size: spokSameBignum(0),
+    },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can create an NFT with a parent Collection', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+  t.equal(collectionNft.collectionDetails?.size?.toNumber(), 0);
+
+  // When we create a new NFT with this collection as a parent.
+  const { nft } = await mx
+    .nfts()
+    .create({ ...minimalInput(), collection: collectionNft.address })
+    .run();
+
+  // Then the created NFT is from that collection.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: false,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT has the same size because we did not verify it.
+  await assertRefreshCollectionHasSize(t, mx, collectionNft, 0);
+});
+
 const minimalInput = () => ({
   uri: 'https://example.com/some-json-uri',
   name: 'My NFT',
   sellerFeeBasisPoints: 200,
 });
+
+const assertRefreshCollectionHasSize = async (
+  t: Test,
+  mx: Metaplex,
+  collectionNft: Nft,
+  expectedSize: number
+) => {
+  const updateCollectionNft = await mx.nfts().refresh(collectionNft).run();
+  t.equal(
+    updateCollectionNft.collectionDetails?.size?.toNumber(),
+    expectedSize,
+    `collection NFT has the expected size: ${expectedSize}`
+  );
+};
 
 /*
  * Regression test.
