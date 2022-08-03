@@ -2,6 +2,10 @@ import type { Metaplex } from '@/Metaplex';
 import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { cusper } from '@metaplex-foundation/mpl-token-metadata';
 import {
+  approveNftCollectionAuthorityOperation,
+  approveNftCollectionAuthorityOperationHandler,
+} from './approveNftCollectionAuthority';
+import {
   approveNftUseAuthorityOperation,
   approveNftUseAuthorityOperationHandler,
 } from './approveNftUseAuthority';
@@ -47,6 +51,10 @@ import {
 } from './printNewEdition';
 import { TokenMetadataProgram } from './program';
 import {
+  revokeNftCollectionAuthorityOperation,
+  revokeNftCollectionAuthorityOperationHandler,
+} from './revokeNftCollectionAuthority';
+import {
   revokeNftUseAuthorityOperation,
   revokeNftUseAuthorityOperationHandler,
 } from './revokeNftUseAuthority';
@@ -88,6 +96,10 @@ export const nftModule = (): MetaplexPlugin => ({
     // Operations.
     const op = metaplex.operations();
     op.register(
+      approveNftCollectionAuthorityOperation,
+      approveNftCollectionAuthorityOperationHandler
+    );
+    op.register(
       approveNftUseAuthorityOperation,
       approveNftUseAuthorityOperationHandler
     );
@@ -108,6 +120,10 @@ export const nftModule = (): MetaplexPlugin => ({
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
+    op.register(
+      revokeNftCollectionAuthorityOperation,
+      revokeNftCollectionAuthorityOperationHandler
+    );
     op.register(
       revokeNftUseAuthorityOperation,
       revokeNftUseAuthorityOperationHandler

@@ -32,8 +32,9 @@ export class NftBuildersClient {
   // Collections.
   verifyCollection = _verifyNftCollectionBuildersClient;
   unverifyCollection = _unverifyNftCollectionBuildersClient;
-  // TODO(loris): approveCollectionAuthority;
-  // TODO(loris): revokeCollectionAuthority;
+  approveCollectionAuthority = _approveNftUseAuthorityBuildersClient;
+  revokeCollectionAuthority = _revokeNftUseAuthorityBuildersClient;
+  // TODO(loris): migrateToSizedCollection;
 
   // Token.
   // TODO(loris): freeze;

@@ -1,3 +1,5 @@
+export * from './approveNftCollectionAuthority';
+export * from './approveNftUseAuthority';
 export * from './accounts';
 export * from './createNft';
 export * from './createSft';
@@ -20,6 +22,8 @@ export * from './pdas';
 export * from './plugin';
 export * from './printNewEdition';
 export * from './program';
+export * from './revokeNftCollectionAuthority';
+export * from './revokeNftUseAuthority';
 export * from './Sft';
 export * from './unverifyNftCollection';
 export * from './unverifyNftCreator';
