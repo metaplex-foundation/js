@@ -4,9 +4,11 @@ import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
 import { _revokeNftUseAuthorityBuildersClient } from './revokeNftUseAuthority';
+import { _unverifyNftCollectionBuildersClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorBuildersClient } from './unverifyNftCreator';
 import { _updateNftBuildersClient } from './updateNft';
 import { _useNftBuildersClient } from './useNft';
+import { _verifyNftCollectionBuildersClient } from './verifyNftCollection';
 import { _verifyNftCreatorBuildersClient } from './verifyNftCreator';
 
 export class NftBuildersClient {
@@ -28,8 +30,8 @@ export class NftBuildersClient {
   unverifyCreator = _unverifyNftCreatorBuildersClient;
 
   // Collections.
-  // TODO(loris): verifyCollection;
-  // TODO(loris): unverifyCollection;
+  verifyCollection = _verifyNftCollectionBuildersClient;
+  unverifyCollection = _unverifyNftCollectionBuildersClient;
   // TODO(loris): approveCollectionAuthority;
   // TODO(loris): revokeCollectionAuthority;
 

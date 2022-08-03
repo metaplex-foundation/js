@@ -28,14 +28,14 @@ export class OwnerMustBeProvidedAsASignerError extends NftError {
 }
 
 export class ParentCollectionMissingError extends NftError {
-  constructor(mint: PublicKey, cause?: Error) {
+  constructor(mint: PublicKey, operation: string, cause?: Error) {
     super({
       cause,
       key: 'parent_collection_missing',
       title: 'Parent Collection Missing',
       problem:
-        'You are trying to send an operation that requires the NFT to have a parent collection ' +
-        `but that is not the case for the NFT at address [${mint}].`,
+        `You are trying to send the operation [${operation}] which requires the NFT to have ` +
+        `a parent collection but that is not the case for the NFT at address [${mint}].`,
       solution:
         'Ensure the NFT you are interacting with has a parent collection.',
     });

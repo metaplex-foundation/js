@@ -17,10 +17,12 @@ import { _loadMetadataClient } from './loadMetadata';
 import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
 import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
+import { _unverifyNftCollectionClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorClient } from './unverifyNftCreator';
 import { _updateNftClient } from './updateNft';
 import { _uploadMetadataClient } from './uploadMetadata';
 import { _useNftClient } from './useNft';
+import { _verifyNftCollectionClient } from './verifyNftCollection';
 import { _verifyNftCreatorClient } from './verifyNftCreator';
 
 export class NftClient {
@@ -58,8 +60,8 @@ export class NftClient {
   unverifyCreator = _unverifyNftCreatorClient;
 
   // Collections.
-  // TODO(loris): verifyCollection;
-  // TODO(loris): unverifyCollection;
+  verifyCollection = _verifyNftCollectionClient;
+  unverifyCollection = _unverifyNftCollectionClient;
   // TODO(loris): approveCollectionAuthority;
   // TODO(loris): revokeCollectionAuthority;
   // TODO(loris): migrateToSizedCollection;

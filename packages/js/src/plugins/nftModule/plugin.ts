@@ -51,6 +51,10 @@ import {
   revokeNftUseAuthorityOperationHandler,
 } from './revokeNftUseAuthority';
 import {
+  unverifyNftCollectionOperation,
+  unverifyNftCollectionOperationHandler,
+} from './unverifyNftCollection';
+import {
   unverifyNftCreatorOperation,
   unverifyNftCreatorOperationHandler,
 } from './unverifyNftCreator';
@@ -60,6 +64,10 @@ import {
   uploadMetadataOperationHandler,
 } from './uploadMetadata';
 import { useNftOperation, useNftOperationHandler } from './useNft';
+import {
+  verifyNftCollectionOperation,
+  verifyNftCollectionOperationHandler,
+} from './verifyNftCollection';
 import {
   verifyNftCreatorOperation,
   verifyNftCreatorOperationHandler,
@@ -105,12 +113,20 @@ export const nftModule = (): MetaplexPlugin => ({
       revokeNftUseAuthorityOperationHandler
     );
     op.register(
+      unverifyNftCollectionOperation,
+      unverifyNftCollectionOperationHandler
+    );
+    op.register(
       unverifyNftCreatorOperation,
       unverifyNftCreatorOperationHandler
     );
     op.register(updateNftOperation, updateNftOperationHandler);
     op.register(uploadMetadataOperation, uploadMetadataOperationHandler);
     op.register(useNftOperation, useNftOperationHandler);
+    op.register(
+      verifyNftCollectionOperation,
+      verifyNftCollectionOperationHandler
+    );
     op.register(verifyNftCreatorOperation, verifyNftCreatorOperationHandler);
 
     metaplex.nfts = function () {

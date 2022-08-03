@@ -2,8 +2,8 @@ import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Task, TransactionBuilder } from '@/utils';
 import {
-  createVerifyCollectionInstruction,
-  createVerifySizedCollectionItemInstruction,
+  createUnverifyCollectionInstruction,
+  createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
@@ -24,10 +24,10 @@ import {
 // -----------------
 
 /** @internal */
-export function _verifyNftCollectionClient(
+export function _unverifyNftCollectionClient(
   this: NftClient,
   nftOrSft: HasMintAddress,
-  input: Partial<Omit<VerifyNftCollectionInput, 'mintAddress'>> = {}
+  input: Partial<Omit<UnverifyNftCollectionInput, 'mintAddress'>> = {}
 ) {
   return new Task(async (scope) => {
     const mintAddress = toMintAddress(nftOrSft);
@@ -49,11 +49,11 @@ export function _verifyNftCollectionClient(
     }
 
     if (!collectionMintAddress) {
-      throw new ParentCollectionMissingError(mintAddress, 'verifyCollection');
+      throw new ParentCollectionMissingError(mintAddress, 'unverifyCollection');
     }
 
     return this.metaplex.operations().execute(
-      verifyNftCollectionOperation({
+      unverifyNftCollectionOperation({
         ...input,
         mintAddress,
         collectionMintAddress,
@@ -64,27 +64,27 @@ export function _verifyNftCollectionClient(
 }
 
 /** @internal */
-export function _verifyNftCollectionBuildersClient(
+export function _unverifyNftCollectionBuildersClient(
   this: NftBuildersClient,
-  input: VerifyNftCollectionBuilderParams
+  input: UnverifyNftCollectionBuilderParams
 ) {
-  return verifyNftCollectionBuilder(this.metaplex, input);
+  return unverifyNftCollectionBuilder(this.metaplex, input);
 }
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'VerifyNftCollectionOperation' as const;
-export const verifyNftCollectionOperation =
-  useOperation<VerifyNftCollectionOperation>(Key);
-export type VerifyNftCollectionOperation = Operation<
+const Key = 'UnverifyNftCollectionOperation' as const;
+export const unverifyNftCollectionOperation =
+  useOperation<UnverifyNftCollectionOperation>(Key);
+export type UnverifyNftCollectionOperation = Operation<
   typeof Key,
-  VerifyNftCollectionInput,
-  VerifyNftCollectionOutput
+  UnverifyNftCollectionInput,
+  UnverifyNftCollectionOutput
 >;
 
-export interface VerifyNftCollectionInput {
+export interface UnverifyNftCollectionInput {
   // Accounts and models.
   mintAddress: PublicKey;
   collectionMintAddress: PublicKey;
@@ -99,7 +99,7 @@ export interface VerifyNftCollectionInput {
   confirmOptions?: ConfirmOptions;
 }
 
-export interface VerifyNftCollectionOutput {
+export interface UnverifyNftCollectionOutput {
   response: SendAndConfirmTransactionResponse;
 }
 
@@ -107,13 +107,13 @@ export interface VerifyNftCollectionOutput {
 // Handler
 // -----------------
 
-export const verifyNftCollectionOperationHandler: OperationHandler<VerifyNftCollectionOperation> =
+export const unverifyNftCollectionOperationHandler: OperationHandler<UnverifyNftCollectionOperation> =
   {
     handle: async (
-      operation: VerifyNftCollectionOperation,
+      operation: UnverifyNftCollectionOperation,
       metaplex: Metaplex
-    ): Promise<VerifyNftCollectionOutput> => {
-      return verifyNftCollectionBuilder(
+    ): Promise<UnverifyNftCollectionOutput> => {
+      return unverifyNftCollectionBuilder(
         metaplex,
         operation.input
       ).sendAndConfirm(metaplex, operation.input.confirmOptions);
@@ -124,16 +124,16 @@ export const verifyNftCollectionOperationHandler: OperationHandler<VerifyNftColl
 // Builder
 // -----------------
 
-export type VerifyNftCollectionBuilderParams = Omit<
-  VerifyNftCollectionInput,
+export type UnverifyNftCollectionBuilderParams = Omit<
+  UnverifyNftCollectionInput,
   'confirmOptions'
 > & {
   instructionKey?: string;
 };
 
-export const verifyNftCollectionBuilder = (
+export const unverifyNftCollectionBuilder = (
   metaplex: Metaplex,
-  params: VerifyNftCollectionBuilderParams
+  params: UnverifyNftCollectionBuilderParams
 ): TransactionBuilder => {
   const {
     mintAddress,
@@ -153,32 +153,27 @@ export const verifyNftCollectionBuilder = (
     collectionMasterEditionAccount: findMasterEditionV2Pda(
       collectionMintAddress
     ),
+    collectionAuthorityRecord: isDelegated
+      ? findCollectionAuthorityRecordPda(
+          mintAddress,
+          collectionAuthority.publicKey
+        )
+      : undefined,
   };
 
   const instruction = isSizedCollection
-    ? createVerifySizedCollectionItemInstruction(accounts)
-    : createVerifyCollectionInstruction(accounts);
-
-  if (isDelegated) {
-    instruction.keys.push({
-      pubkey: findCollectionAuthorityRecordPda(
-        mintAddress,
-        collectionAuthority.publicKey
-      ),
-      isWritable: false,
-      isSigner: false,
-    });
-  }
+    ? createUnverifySizedCollectionItemInstruction(accounts)
+    : createUnverifyCollectionInstruction(accounts);
 
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
 
-      // Verify the collection.
+      // Unverify the collection.
       .add({
         instruction: instruction,
         signers: [payer, collectionAuthority],
-        key: params.instructionKey ?? 'verifyCollection',
+        key: params.instructionKey ?? 'unverifyCollection',
       })
   );
 };
