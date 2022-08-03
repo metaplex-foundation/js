@@ -1,12 +1,17 @@
 import type { Metaplex } from '@/Metaplex';
+import { _approveNftCollectionAuthorityBuildersClient } from './approveNftCollectionAuthority';
 import { _approveNftUseAuthorityBuildersClient } from './approveNftUseAuthority';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
+import { _migrateToSizedCollectionNftBuildersClient } from './migrateToSizedCollectionNft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
+import { _revokeNftCollectionAuthorityBuildersClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityBuildersClient } from './revokeNftUseAuthority';
+import { _unverifyNftCollectionBuildersClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorBuildersClient } from './unverifyNftCreator';
 import { _updateNftBuildersClient } from './updateNft';
 import { _useNftBuildersClient } from './useNft';
+import { _verifyNftCollectionBuildersClient } from './verifyNftCollection';
 import { _verifyNftCreatorBuildersClient } from './verifyNftCreator';
 
 export class NftBuildersClient {
@@ -28,10 +33,11 @@ export class NftBuildersClient {
   unverifyCreator = _unverifyNftCreatorBuildersClient;
 
   // Collections.
-  // TODO(loris): verifyCollection;
-  // TODO(loris): unverifyCollection;
-  // TODO(loris): approveCollectionAuthority;
-  // TODO(loris): revokeCollectionAuthority;
+  verifyCollection = _verifyNftCollectionBuildersClient;
+  unverifyCollection = _unverifyNftCollectionBuildersClient;
+  approveCollectionAuthority = _approveNftCollectionAuthorityBuildersClient;
+  revokeCollectionAuthority = _revokeNftCollectionAuthorityBuildersClient;
+  migrateToSizedCollection = _migrateToSizedCollectionNftBuildersClient;
 
   // Token.
   // TODO(loris): freeze;

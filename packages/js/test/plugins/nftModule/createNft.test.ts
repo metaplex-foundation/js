@@ -1,30 +1,35 @@
-import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
-import { Keypair } from '@solana/web3.js';
+import {
+  findEditionPda,
+  findMetadataPda,
+  Nft,
+  NftWithToken,
+  toBigNumber,
+  token,
+  toMetaplexFile,
+  TransactionBuilder,
+} from '@/index';
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
+import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
-  toMetaplexFile,
-  Nft,
-  toBigNumber,
-  findMetadataPda,
-  findEditionPda,
-  TransactionBuilder,
-  token,
-  NftWithToken,
-} from '@/index';
-import {
-  metaplex,
-  spokSamePubkey,
-  spokSameBignum,
-  killStuckProcess,
   amman,
-  spokSameAmount,
+  createCollectionNft,
   createWallet,
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
 } from '../../helpers';
+import {
+  assertCollectionHasSize,
+  assertRefreshedCollectionHasSize,
+} from './helpers';
 
 killStuckProcess();
 
@@ -149,10 +154,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
       mintAuthority,
       updateAuthority,
       tokenOwner: owner.publicKey,
-      collection: {
-        verified: false,
-        key: collection.publicKey,
-      },
+      collection: collection.publicKey,
       uses: {
         useMethod: UseMethod.Burn,
         remaining: 0,
@@ -203,8 +205,8 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
     primarySaleHappened: false,
     updateAuthorityAddress: spokSamePubkey(updateAuthority.publicKey),
     collection: {
+      address: spokSamePubkey(collection.publicKey),
       verified: false,
-      key: spokSamePubkey(collection.publicKey),
     },
     uses: {
       useMethod: UseMethod.Burn,
@@ -320,6 +322,127 @@ test('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => 
 
   // But its JSON metadata is null.
   t.equal(nft.json, null);
+});
+
+test('[nftModule] it can create a collection NFT', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a collection NFT.
+  const { nft } = await mx
+    .nfts()
+    .create({ ...minimalInput(), isCollection: true })
+    .run();
+
+  // Then the created NFT is a sized collection.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collectionDetails: {
+      version: 'V1',
+      size: spokSameBignum(0),
+    },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can create an NFT with a parent Collection', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+  assertCollectionHasSize(t, collectionNft, 0);
+
+  // When we create a new NFT with this collection as a parent.
+  const { nft } = await mx
+    .nfts()
+    .create({ ...minimalInput(), collection: collectionNft.address })
+    .run();
+
+  // Then the created NFT is from that collection.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: false,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT has the same size because we did not verify it.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 0);
+});
+
+test('[nftModule] it can create an NFT with a verified parent Collection', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT with an explicit update authority.
+  const mx = await metaplex();
+  const collectionUpdateAuthority = Keypair.generate();
+  const collectionNft = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthority,
+  });
+  assertCollectionHasSize(t, collectionNft, 0);
+
+  // When we create a new NFT with this collection as a parent and with its update authority.
+  const { nft } = await mx
+    .nfts()
+    .create({
+      ...minimalInput(),
+      collection: collectionNft.address,
+      collectionAuthority: collectionUpdateAuthority,
+    })
+    .run();
+
+  // Then the created NFT is from that collection and it is verified.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT size has been increase by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+});
+
+test('[nftModule] it can create an NFT with a verified parent Collection using a delegated authority', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+  assertCollectionHasSize(t, collectionNft, 0);
+
+  // And a delegated collection authority for that collection NFT.
+  const collectionDelegatedAuthority = Keypair.generate();
+  await mx
+    .nfts()
+    .approveCollectionAuthority(
+      collectionNft,
+      collectionDelegatedAuthority.publicKey
+    )
+    .run();
+
+  // When we create a new NFT with this collection as a parent using the delegated authority.
+  const { nft } = await mx
+    .nfts()
+    .create({
+      ...minimalInput(),
+      collection: collectionNft.address,
+      collectionAuthority: collectionDelegatedAuthority,
+      collectionAuthorityIsDelegated: true,
+    })
+    .run();
+
+  // Then the created NFT is from that collection and it is verified.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT size has been increase by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
 const minimalInput = () => ({

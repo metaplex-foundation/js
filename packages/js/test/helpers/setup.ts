@@ -65,6 +65,11 @@ export const createNft = async (
   return nft;
 };
 
+export const createCollectionNft = (
+  mx: Metaplex,
+  input: Partial<CreateNftInput & { json: UploadMetadataInput }> = {}
+) => createNft(mx, { ...input, isCollection: true });
+
 export const createSft = async (
   mx: Metaplex,
   input: Partial<CreateSftInput & { json: UploadMetadataInput }> = {}

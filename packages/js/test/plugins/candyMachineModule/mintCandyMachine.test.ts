@@ -107,7 +107,7 @@ test('[candyMachineModule] it can mint from candy machine with a collection', as
     name: 'Degen #1',
     collection: {
       verified: true,
-      key: spokSamePubkey(collection.address),
+      address: spokSamePubkey(collection.address),
     },
   } as Specifications<Nft>);
 });
