@@ -354,7 +354,7 @@ test('[nftModule] it can set and verify the parent Collection of an NFT using a 
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
+test('[nftModule] it can update the parent Collection of an NFT even when verified', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -371,7 +371,7 @@ test('[nftModule] it can update the parent Collection of an NFT', async (t: Test
   await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 1);
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 0);
 
-  // When we update that NFT by providing a parent collection.
+  // When we update that NFT so it is part of collection B.
   await mx
     .nfts()
     .update(nft, {
@@ -380,7 +380,7 @@ test('[nftModule] it can update the parent Collection of an NFT', async (t: Test
     })
     .run();
 
-  // Then the updated NFT is now from that collection.
+  // Then the updated NFT is now from collection B.
   const updatedNft = await mx.nfts().refresh(nft).run();
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
@@ -391,7 +391,40 @@ test('[nftModule] it can update the parent Collection of an NFT', async (t: Test
     },
   } as unknown as Specifications<Nft>);
 
-  // And the collection NFT has the same size because we did not verify it.
+  // And the collection size of both collections were updated.
   await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 0);
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 1);
+});
+
+test('[nftModule] it can unset the parent Collection of an NFT even when verified', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with that belongs to a verified collection.
+  const collectionNft = await createCollectionNft(mx);
+  const nft = await createNft(mx, {
+    collection: collectionNft.address,
+    collectionAuthority: mx.identity(),
+  });
+  t.true(nft.collection?.verified, 'has verified parent collection');
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+
+  // When we update that NFT by removing its parent collection.
+  await mx
+    .nfts()
+    .update(nft, {
+      collection: null,
+    })
+    .run();
+
+  // Then the updated NFT should now have no parent collection.
+  const updatedNft = await mx.nfts().refresh(nft).run();
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    collection: null,
+  } as unknown as Specifications<Nft>);
+
+  // And the size of the collection NFT was decremented by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 0);
 });

@@ -123,11 +123,18 @@ export const updateNftBuilder = (
     updateInstructionData,
     updateInstructionDataWithoutChanges
   );
-  const shouldUnverifyCurrentCollection =
+
+  const isRemovingVerifiedCollection =
+    !!nftOrSft.collection &&
+    !!nftOrSft.collection.verified &&
+    !params.collection;
+  const isOverridingVerifiedCollection =
     !!nftOrSft.collection &&
     !!nftOrSft.collection.verified &&
     !!params.collection &&
     !params.collection.equals(nftOrSft.collection.address);
+  const shouldUnverifyCurrentCollection =
+    isRemovingVerifiedCollection || isOverridingVerifiedCollection;
 
   const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;
   const verifyAdditionalCreatorInstructions = creatorsInput
