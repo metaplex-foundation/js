@@ -1,26 +1,25 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { NoInstructionsToSendError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
 import {
-  Collection,
+  CreatorInput,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Option, Task, TransactionBuilder } from '@/utils';
+import {
   createUpdateMetadataAccountV2Instruction,
   UpdateMetadataAccountArgsV2,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  CreatorInput,
-} from '@/types';
-import { Nft, NftWithToken } from './Nft';
-import { Metaplex } from '@/Metaplex';
-import { Option, Task, TransactionBuilder } from '@/utils';
-import { NoInstructionsToSendError } from '@/errors';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
-import { Sft, SftWithToken } from './Sft';
-import type { NftClient } from './NftClient';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { Nft, NftWithToken } from './Nft';
 import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import { Sft, SftWithToken } from './Sft';
 
 // -----------------
 // Clients
@@ -69,10 +68,13 @@ export interface UpdateNftInput {
   uri?: string;
   sellerFeeBasisPoints?: number;
   creators?: CreatorInput[];
-  collection?: Option<Collection>;
-  uses?: Option<Uses>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
+  uses?: Option<Uses>;
+  collection?: Option<PublicKey>;
+  collectionAuthority?: Option<Signer>;
+  collectionAuthorityIsDelegated?: boolean; // Defaults to false.
+  collectionIsSized?: boolean; // Defaults to true.
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -179,6 +181,13 @@ const toInstructionData = (
           };
         });
 
+  const currentCollection = nftOrSft.collection
+    ? { ...nftOrSft.collection, key: nftOrSft.collection.address }
+    : null;
+  const newCollection = input.collection
+    ? { key: input.collection, verified: false }
+    : null;
+
   return {
     updateAuthority:
       input.newUpdateAuthority ?? nftOrSft.updateAuthorityAddress,
@@ -192,9 +201,9 @@ const toInstructionData = (
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
       creators: creators.length > 0 ? creators : null,
-      collection:
-        input.collection === undefined ? nftOrSft.collection : input.collection,
       uses: input.uses === undefined ? nftOrSft.uses : input.uses,
+      collection:
+        input.collection === undefined ? currentCollection : newCollection,
     },
   };
 };
