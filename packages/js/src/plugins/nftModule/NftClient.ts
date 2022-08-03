@@ -15,6 +15,7 @@ import { _findNftsByOwnerClient } from './findNftsByOwner';
 import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
 import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
+import { _migrateToSizedCollectionNftClient } from './migrateToSizedCollectionNft';
 import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
 import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
@@ -66,7 +67,7 @@ export class NftClient {
   unverifyCollection = _unverifyNftCollectionClient;
   approveCollectionAuthority = _approveNftCollectionAuthorityClient;
   revokeCollectionAuthority = _revokeNftCollectionAuthorityClient;
-  // TODO(loris): migrateToSizedCollection;
+  migrateToSizedCollection = _migrateToSizedCollectionNftClient;
 
   // Token.
   // TODO(loris): freeze;

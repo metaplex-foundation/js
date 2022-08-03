@@ -3,6 +3,7 @@ import { _approveNftCollectionAuthorityBuildersClient } from './approveNftCollec
 import { _approveNftUseAuthorityBuildersClient } from './approveNftUseAuthority';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
+import { _migrateToSizedCollectionNftBuildersClient } from './migrateToSizedCollectionNft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
 import { _revokeNftCollectionAuthorityBuildersClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityBuildersClient } from './revokeNftUseAuthority';
@@ -36,7 +37,7 @@ export class NftBuildersClient {
   unverifyCollection = _unverifyNftCollectionBuildersClient;
   approveCollectionAuthority = _approveNftCollectionAuthorityBuildersClient;
   revokeCollectionAuthority = _revokeNftCollectionAuthorityBuildersClient;
-  // TODO(loris): migrateToSizedCollection;
+  migrateToSizedCollection = _migrateToSizedCollectionNftBuildersClient;
 
   // Token.
   // TODO(loris): freeze;

@@ -15,6 +15,7 @@ export * from './helpers';
 export * from './JsonMetadata';
 export * from './loadMetadata';
 export * from './Metadata';
+export * from './migrateToSizedCollectionNft';
 export * from './Nft';
 export * from './NftClient';
 export * from './NftEdition';

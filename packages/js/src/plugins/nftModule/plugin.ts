@@ -44,6 +44,10 @@ import {
   loadMetadataOperation,
   loadMetadataOperationHandler,
 } from './loadMetadata';
+import {
+  migrateToSizedCollectionNftOperation,
+  migrateToSizedCollectionNftOperationHandler,
+} from './migrateToSizedCollectionNft';
 import { NftClient } from './NftClient';
 import {
   printNewEditionOperation,
@@ -119,6 +123,10 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByUpdateAuthorityOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
+    op.register(
+      migrateToSizedCollectionNftOperation,
+      migrateToSizedCollectionNftOperationHandler
+    );
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
     op.register(
       revokeNftCollectionAuthorityOperation,
