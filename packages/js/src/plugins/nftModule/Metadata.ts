@@ -5,7 +5,7 @@ import {
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import { BigNumber, Creator, Pda, Signer, toBigNumber } from '@/types';
 import { JsonMetadata } from '../nftModule';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { findMetadataPda } from './pdas';
@@ -27,8 +27,8 @@ export type Metadata<Json extends object = JsonMetadata> = Readonly<{
   editionNonce: Option<number>;
   creators: Creator[];
   tokenStandard: Option<TokenStandard>;
-  collection: Option<Collection>;
-  collectionDetails: Option<CollectionDetails>;
+  collection: Option<MetadataParentCollection>;
+  collectionDetails: Option<MetadataCollectionDetails>;
   uses: Option<MetadataUses>;
 }>;
 
@@ -38,8 +38,15 @@ type MetadataUses = {
   total: BigNumber;
 };
 
-// TODO(loris): type MetadataParentCollection
-// TODO(loris): type MetadataCollectionDetails
+type MetadataParentCollection = {
+  address: PublicKey;
+  verified: boolean;
+};
+
+type MetadataCollectionDetails = {
+  version: 'V1';
+  size: BigNumber;
+};
 
 export const isMetadata = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';
@@ -66,8 +73,18 @@ export const toMetadata = (
   editionNonce: account.data.editionNonce,
   creators: account.data.data.creators ?? [],
   tokenStandard: account.data.tokenStandard,
-  collection: account.data.collection,
-  collectionDetails: account.data.collectionDetails,
+  collection: account.data.collection
+    ? {
+        ...account.data.collection,
+        address: account.data.collection.key,
+      }
+    : null,
+  collectionDetails: account.data.collectionDetails
+    ? {
+        version: account.data.collectionDetails.__kind,
+        size: toBigNumber(account.data.collectionDetails.size),
+      }
+    : null,
   uses: account.data.uses
     ? {
         ...account.data.uses,

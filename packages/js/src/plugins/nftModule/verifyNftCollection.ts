@@ -8,6 +8,7 @@ import {
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { toMetadataAccount } from './accounts';
+import { ParentCollectionMissingError } from './errors';
 import { HasMintAddress, toMintAddress } from './helpers';
 import { toMetadata } from './Metadata';
 import type { NftBuildersClient } from './NftBuildersClient';
@@ -32,7 +33,7 @@ export function _verifyNftCollectionClient(
     const mintAddress = toMintAddress(nftOrSft);
     const collectionFromNft =
       'collection' in nftOrSft && nftOrSft.collection
-        ? nftOrSft.collection.key // TODO(loris): Rename "address".
+        ? nftOrSft.collection.address
         : undefined;
     let collectionMintAddress =
       input.collectionMintAddress ?? collectionFromNft;
@@ -43,13 +44,12 @@ export function _verifyNftCollectionClient(
       );
       scope.throwIfCanceled();
       collectionMintAddress = metadata.collection
-        ? metadata.collection.key // TODO(loris): Rename "address".
+        ? metadata.collection.address
         : undefined;
     }
 
     if (!collectionMintAddress) {
-      // TODO(loris): Custom error.
-      throw new Error(`No collection mint address found for ${mintAddress}`);
+      throw new ParentCollectionMissingError(mintAddress);
     }
 
     return this.metaplex.operations().execute(
