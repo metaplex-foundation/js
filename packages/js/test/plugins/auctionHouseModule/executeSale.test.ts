@@ -25,7 +25,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   // And we listed that NFT for 1 SOL.
   const { listing, sellerTradeState } = await client
     .list({
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
       price: sol(1),
     })
     .run();
@@ -34,7 +34,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   const { bid, buyerTradeState } = await client
     .bid({
       buyer,
-      mintAccount: nft.mintAddress,
+      mintAccount: nft.address,
       seller: mx.identity().publicKey,
       price: sol(1),
     })
@@ -52,10 +52,10 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
-    token: {
-      address: findAssociatedTokenAccountPda(nft.mintAddress, buyer.publicKey),
-      mint: {
-        address: spokSamePubkey(nft.mintAddress),
+    asset: {
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
       },
     },
   };

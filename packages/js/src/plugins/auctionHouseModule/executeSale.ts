@@ -99,12 +99,12 @@ export const executeSaleBuilder = (
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
   // Data.
   const auctionHouse = params.auctionHouse;
-  const { sellerAddress, tokens, price, token } = params.listing;
+  const { sellerAddress, tokens, price, asset } = params.listing;
   const { buyerAddress } = params.bid;
 
   // Accounts.
   const buyerTokenAccount = findAssociatedTokenAccountPda(
-    token.mint.address,
+    asset.address,
     buyerAddress
   );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
@@ -115,19 +115,19 @@ export const executeSaleBuilder = (
     auctionHouse.address,
     sellerAddress,
     auctionHouse.treasuryMint.address,
-    token.mint.address,
+    asset.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
-    token.address
+    asset.token.address
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
 
   const accounts = {
     buyer: buyerAddress,
     seller: sellerAddress,
-    tokenAccount: token.address,
-    tokenMint: token.mint.address,
-    metadata: token.metadata.address,
+    tokenAccount: asset.token.address,
+    tokenMint: asset.address,
+    metadata: asset.metadataAddress,
     treasuryMint: auctionHouse.treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
     sellerPaymentReceiptAccount: sellerAddress,
@@ -155,7 +155,7 @@ export const executeSaleBuilder = (
   executeSaleInstruction.keys = [
     ...executeSaleInstruction.keys,
     // Provide additional keys to pay royalties.
-    ...token.metadata.creators.map(({ address }) => ({
+    ...asset.creators.map(({ address }) => ({
       pubkey: address,
       isWritable: false,
       isSigner: false,
@@ -181,7 +181,7 @@ export const executeSaleBuilder = (
         buyerTradeState: params.bid.tradeStateAddress,
         buyer: buyerAddress,
         seller: sellerAddress,
-        metadata: token.metadata.address,
+        metadata: asset.metadataAddress,
         bookkeeper: (bookkeeper as Signer).publicKey,
         receipt: purchaseReceipt,
         price,

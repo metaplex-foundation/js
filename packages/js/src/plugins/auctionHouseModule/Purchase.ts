@@ -12,7 +12,7 @@ import {
 import { PurchaseReceiptAccount } from './accounts';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
-import { TokenWithMetadata } from '../nftModule';
+import { NftWithToken, SftWithToken } from '../nftModule';
 
 export type Purchase = Readonly<{
   model: 'purchase';
@@ -20,7 +20,7 @@ export type Purchase = Readonly<{
 
   // Models.
   auctionHouse: AuctionHouse;
-  token: TokenWithMetadata;
+  asset: SftWithToken | NftWithToken;
 
   // Addresses.
   buyerAddress: PublicKey;
@@ -44,7 +44,7 @@ export function assertPurchase(value: any): asserts value is Purchase {
 export const toPurchase = (
   account: PurchaseReceiptAccount,
   auctionHouseModel: AuctionHouse,
-  tokenModel: TokenWithMetadata
+  asset: NftWithToken | SftWithToken
 ): Purchase => {
   const lazyPurchase = toLazyPurchase(account, auctionHouseModel);
 
@@ -52,12 +52,12 @@ export const toPurchase = (
     ...lazyPurchase,
     model: 'purchase',
     lazy: false,
-    token: tokenModel,
-    tokens: amount(lazyPurchase.tokens, tokenModel.mint.currency),
+    asset,
+    tokens: amount(lazyPurchase.tokens, asset.mint.currency),
   };
 };
 
-export type LazyPurchase = Omit<Purchase, 'lazy' | 'token' | 'tokens'> &
+export type LazyPurchase = Omit<Purchase, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;

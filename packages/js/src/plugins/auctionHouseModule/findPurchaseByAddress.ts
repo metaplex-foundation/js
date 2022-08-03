@@ -4,7 +4,7 @@ import { useOperation, Operation, OperationHandler } from '@/types';
 import { toPurchaseReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { Purchase, toPurchase } from './Purchase';
+import { Purchase, toLazyPurchase } from './Purchase';
 import { findPurchaseReceiptPda } from './pdas';
 
 // -----------------
@@ -54,16 +54,13 @@ export const findPurchaseByAddressOperationHandler: OperationHandler<FindPurchas
       const account = toPurchaseReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
+      scope.throwIfCanceled();
 
-      const tokenModel = await metaplex
-        .nfts()
-        .findTokenWithMetadataByMetadata(
-          account.data.metadata,
-          account.data.buyer,
-          { commitment, loadJsonMetadata }
-        )
+      const lazyPurchase = toLazyPurchase(account, auctionHouse);
+      return metaplex
+        .auctions()
+        .for(auctionHouse)
+        .loadPurchase(lazyPurchase, { loadJsonMetadata, commitment })
         .run(scope);
-
-      return toPurchase(account, auctionHouse, tokenModel);
     },
   };
