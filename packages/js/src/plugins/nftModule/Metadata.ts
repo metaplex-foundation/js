@@ -1,15 +1,13 @@
-import { PublicKey } from '@solana/web3.js';
+import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import { assert, Option, removeEmptyChars } from '@/utils';
 import {
-  Collection,
-  CollectionDetails,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { BigNumber, Creator, Pda, Signer, toBigNumber } from '@/types';
+import { PublicKey } from '@solana/web3.js';
 import { JsonMetadata } from '../nftModule';
-import { assert, Option, removeEmptyChars } from '@/utils';
-import { findMetadataPda } from './pdas';
 import { MetadataAccount } from './accounts';
+import { findMetadataPda } from './pdas';
 
 export type Metadata<Json extends object = JsonMetadata> = Readonly<{
   model: 'metadata';

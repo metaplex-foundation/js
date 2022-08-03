@@ -13,7 +13,6 @@ import {
 } from '@/types';
 import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
 import {
-  Collection,
   createCreateMetadataAccountV3Instruction,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -92,8 +91,12 @@ export interface CreateSftInput {
   creators?: CreatorInput[]; // Defaults to mx.identity() as a single Creator.
   isMutable?: boolean; // Defaults to true.
   maxSupply?: Option<BigNumber>; // Defaults to 0.
-  collection?: Option<Collection>; // Defaults to null.
   uses?: Option<Uses>; // Defaults to null.
+  isCollection?: boolean; // Defaults to false.
+  collection?: Option<PublicKey>; // Defaults to null.
+  collectionAuthority?: Option<Signer>; // Defaults to null.
+  collectionAuthorityIsDelegated?: boolean; // Defaults to false.
+  collectionIsSized?: boolean; // Defaults to true.
 
   // Programs.
   tokenProgram?: PublicKey;
@@ -192,11 +195,15 @@ export const createSftBuilder = async (
           uri: params.uri,
           sellerFeeBasisPoints: params.sellerFeeBasisPoints,
           creators,
-          collection: params.collection ?? null,
+          collection: params.collection
+            ? { key: params.collection, verified: false }
+            : null,
           uses: params.uses ?? null,
         },
         isMutable: params.isMutable ?? true,
-        collectionDetails: null, // TODO(loris): Support collection details.
+        collectionDetails: params.isCollection
+          ? { __kind: 'V1', size: 0 } // Program will hardcode size to zero anyway.
+          : null,
       },
     }
   );
@@ -240,6 +247,22 @@ export const createSftBuilder = async (
 
       // Verify additional creators.
       .add(...verifyAdditionalCreatorInstructions)
+
+      // Verify collection.
+      .when(!!params.collection && !!params.collectionAuthority, (builder) =>
+        builder.add(
+          metaplex
+            .nfts()
+            .builders()
+            .verifyCollection({
+              mintAddress,
+              collectionMintAddress: params.collection as PublicKey,
+              collectionAuthority: params.collectionAuthority as Signer,
+              isDelegated: params.collectionAuthorityIsDelegated ?? false,
+              isSizedCollection: params.collectionIsSized ?? true,
+            })
+        )
+      )
   );
 };
 

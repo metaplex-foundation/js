@@ -1,25 +1,24 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  Collection,
-  Uses,
-  createCreateMasterEditionV3Instruction,
-} from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  token,
   BigNumber,
   CreatorInput,
+  Operation,
+  OperationHandler,
+  Signer,
+  token,
+  useOperation,
 } from '@/types';
-import { findMasterEditionV2Pda } from './pdas';
 import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import {
+  createCreateMasterEditionV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { assertNftWithToken, NftWithToken } from './Nft';
-import type { NftClient } from './NftClient';
 import type { NftBuildersClient } from './NftBuildersClient';
+import type { NftClient } from './NftClient';
+import { findMasterEditionV2Pda } from './pdas';
 
 // -----------------
 // Clients
@@ -85,8 +84,12 @@ export interface CreateNftInput {
   creators?: CreatorInput[]; // Defaults to mx.identity() as a single Creator.
   isMutable?: boolean; // Defaults to true.
   maxSupply?: Option<BigNumber>; // Defaults to 0.
-  collection?: Option<Collection>; // Defaults to null.
   uses?: Option<Uses>; // Defaults to null.
+  isCollection?: boolean; // Defaults to false.
+  collection?: Option<PublicKey>; // Defaults to null.
+  collectionAuthority?: Option<Signer>; // Defaults to null.
+  collectionAuthorityIsDelegated?: boolean; // Defaults to false.
+  collectionIsSized?: boolean; // Defaults to true.
 
   // Programs.
   tokenProgram?: PublicKey;
@@ -161,7 +164,6 @@ export const createNftBuilder = async (
       useNewMint,
       tokenOwner,
       tokenAmount: token(1),
-      tokenExists: params.tokenExists,
       decimals: 0,
     });
 
