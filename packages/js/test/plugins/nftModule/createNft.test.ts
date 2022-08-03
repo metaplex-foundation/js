@@ -369,7 +369,7 @@ test('[nftModule] it can create an NFT with a parent Collection', async (t: Test
 });
 
 test('[nftModule] it can create an NFT with a verified parent Collection', async (t: Test) => {
-  // Given a Metaplex instance and a collection NFT
+  // Given a Metaplex instance and a collection NFT with an explicit update authority.
   const mx = await metaplex();
   const collectionUpdateAuthority = Keypair.generate();
   const collectionNft = await createCollectionNft(mx, {
@@ -377,7 +377,7 @@ test('[nftModule] it can create an NFT with a verified parent Collection', async
   });
   assertCollectionHasSize(t, collectionNft, 0);
 
-  // When we create a new NFT with this collection as a parent.
+  // When we create a new NFT with this collection as a parent and with its update authority.
   const { nft } = await mx
     .nfts()
     .create({
@@ -387,7 +387,42 @@ test('[nftModule] it can create an NFT with a verified parent Collection', async
     })
     .run();
 
-  // Then the created NFT is from that collection.
+  // Then the created NFT is from that collection and it is verified.
+  spok(t, nft, {
+    $topic: 'NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the collection NFT size has been increase by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+});
+
+test.skip('[nftModule] it can create an NFT with a verified parent Collection using a delegated authority', async (t: Test) => {
+  // Given a Metaplex instance and a collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+  assertCollectionHasSize(t, collectionNft, 0);
+
+  // And a delegated collection authority for that collection NFT.
+  const collectionDelegatedAuthority = Keypair.generate();
+  // TODO(loris)
+
+  // When we create a new NFT with this collection as a parent using the delegated authority.
+  const { nft } = await mx
+    .nfts()
+    .create({
+      ...minimalInput(),
+      collection: collectionNft.address,
+      collectionAuthority: collectionDelegatedAuthority,
+      collectionAuthorityIsDelegated: true,
+    })
+    .run();
+
+  // Then the created NFT is from that collection and it is verified.
   spok(t, nft, {
     $topic: 'NFT',
     model: 'nft',

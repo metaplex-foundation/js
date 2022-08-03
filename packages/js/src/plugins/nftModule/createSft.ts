@@ -255,6 +255,7 @@ export const createSftBuilder = async (
             .nfts()
             .builders()
             .verifyCollection({
+              payer,
               mintAddress,
               collectionMintAddress: params.collection as PublicKey,
               collectionAuthority: params.collectionAuthority as Signer,
