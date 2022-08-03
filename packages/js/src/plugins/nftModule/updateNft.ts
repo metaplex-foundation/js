@@ -161,6 +161,22 @@ export const updateNftBuilder = (
 
       // Verify additional creators.
       .add(...verifyAdditionalCreatorInstructions)
+
+      // Verify collection.
+      .when(!!params.collection && !!params.collectionAuthority, (builder) =>
+        builder.add(
+          metaplex
+            .nfts()
+            .builders()
+            .verifyCollection({
+              mintAddress: nftOrSft.address,
+              collectionMintAddress: params.collection as PublicKey,
+              collectionAuthority: params.collectionAuthority as Signer,
+              isDelegated: params.collectionAuthorityIsDelegated ?? false,
+              isSizedCollection: params.collectionIsSized ?? true,
+            })
+        )
+      )
   );
 };
 

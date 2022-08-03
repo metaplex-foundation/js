@@ -1,7 +1,6 @@
 import {
   findEditionPda,
   findMetadataPda,
-  Metaplex,
   Nft,
   NftWithToken,
   toBigNumber,
@@ -27,6 +26,10 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
+import {
+  assertCollectionHasSize,
+  assertRefreshedCollectionHasSize,
+} from './helpers';
 
 killStuckProcess();
 
@@ -447,28 +450,6 @@ const minimalInput = () => ({
   name: 'My NFT',
   sellerFeeBasisPoints: 200,
 });
-
-const assertCollectionHasSize = (
-  t: Test,
-  collectionNft: Nft,
-  expectedSize: number
-) => {
-  t.equal(
-    collectionNft.collectionDetails?.size?.toNumber(),
-    expectedSize,
-    `collection NFT has the expected size: ${expectedSize}`
-  );
-};
-
-const assertRefreshedCollectionHasSize = async (
-  t: Test,
-  mx: Metaplex,
-  collectionNft: Nft,
-  expectedSize: number
-) => {
-  const updateCollectionNft = await mx.nfts().refresh(collectionNft).run();
-  assertCollectionHasSize(t, updateCollectionNft, expectedSize);
-};
 
 /*
  * Regression test.
