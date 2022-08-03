@@ -33,9 +33,11 @@ test('[nftModule] it can approve a collection authority for a given NFT', async 
   const delegatedCollectionAuthority = Keypair.generate();
   await mx
     .nfts()
-    .approveCollectionAuthority(nft, delegatedCollectionAuthority.publicKey, {
-      updateAuthority: collectionAuthority,
-    })
+    .approveCollectionAuthority(
+      collection,
+      delegatedCollectionAuthority.publicKey,
+      { updateAuthority: collectionAuthority }
+    )
     .run();
 
   // Then that delegated authority can successfully verify the NFT.
@@ -43,6 +45,7 @@ test('[nftModule] it can approve a collection authority for a given NFT', async 
     .nfts()
     .verifyCollection(nft, {
       collectionAuthority: delegatedCollectionAuthority,
+      isDelegated: true,
     })
     .run();
 
