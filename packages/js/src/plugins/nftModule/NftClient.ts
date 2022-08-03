@@ -62,6 +62,7 @@ export class NftClient {
   // TODO(loris): unverifyCollection;
   // TODO(loris): approveCollectionAuthority;
   // TODO(loris): revokeCollectionAuthority;
+  // TODO(loris): migrateToSizedCollection;
 
   // Token.
   // TODO(loris): freeze;

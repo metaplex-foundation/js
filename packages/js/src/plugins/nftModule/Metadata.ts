@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import {
   Collection,
+  CollectionDetails,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -27,6 +28,7 @@ export type Metadata<Json extends object = JsonMetadata> = Readonly<{
   creators: Creator[];
   tokenStandard: Option<TokenStandard>;
   collection: Option<Collection>;
+  collectionDetails: Option<CollectionDetails>;
   uses: Option<MetadataUses>;
 }>;
 
@@ -65,6 +67,7 @@ export const toMetadata = (
   creators: account.data.data.creators ?? [],
   tokenStandard: account.data.tokenStandard,
   collection: account.data.collection,
+  collectionDetails: account.data.collectionDetails,
   uses: account.data.uses
     ? {
         ...account.data.uses,
