@@ -354,7 +354,7 @@ test('[nftModule] it can set and verify the parent Collection of an NFT using a 
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test.only('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
+test('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -392,6 +392,6 @@ test.only('[nftModule] it can update the parent Collection of an NFT', async (t:
   } as unknown as Specifications<Nft>);
 
   // And the collection NFT has the same size because we did not verify it.
-  await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 0); // <- This fails.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 0);
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 1);
 });
