@@ -401,7 +401,7 @@ test('[nftModule] it can create an NFT with a verified parent Collection', async
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test.skip('[nftModule] it can create an NFT with a verified parent Collection using a delegated authority', async (t: Test) => {
+test('[nftModule] it can create an NFT with a verified parent Collection using a delegated authority', async (t: Test) => {
   // Given a Metaplex instance and a collection NFT.
   const mx = await metaplex();
   const collectionNft = await createCollectionNft(mx);
@@ -409,7 +409,13 @@ test.skip('[nftModule] it can create an NFT with a verified parent Collection us
 
   // And a delegated collection authority for that collection NFT.
   const collectionDelegatedAuthority = Keypair.generate();
-  // TODO(loris)
+  await mx
+    .nfts()
+    .approveCollectionAuthority(
+      collectionNft,
+      collectionDelegatedAuthority.publicKey
+    )
+    .run();
 
   // When we create a new NFT with this collection as a parent using the delegated authority.
   const { nft } = await mx

@@ -155,7 +155,7 @@ export const unverifyNftCollectionBuilder = (
     ),
     collectionAuthorityRecord: isDelegated
       ? findCollectionAuthorityRecordPda(
-          mintAddress,
+          collectionMintAddress,
           collectionAuthority.publicKey
         )
       : undefined,

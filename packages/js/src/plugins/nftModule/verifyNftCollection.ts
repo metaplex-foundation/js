@@ -162,7 +162,7 @@ export const verifyNftCollectionBuilder = (
   if (isDelegated) {
     instruction.keys.push({
       pubkey: findCollectionAuthorityRecordPda(
-        mintAddress,
+        collectionMintAddress,
         collectionAuthority.publicKey
       ),
       isWritable: false,

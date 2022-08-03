@@ -2,6 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
 import { Task } from '@/utils';
 import { SendTokensInput, SendTokensOutput } from '../tokenModule';
+import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuthority';
 import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
 import { _createNftClient } from './createNft';
 import { _createSftClient } from './createSft';
@@ -16,6 +17,7 @@ import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
 import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
+import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
 import { _unverifyNftCollectionClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorClient } from './unverifyNftCreator';
@@ -62,8 +64,8 @@ export class NftClient {
   // Collections.
   verifyCollection = _verifyNftCollectionClient;
   unverifyCollection = _unverifyNftCollectionClient;
-  approveCollectionAuthority = _approveNftUseAuthorityClient;
-  revokeCollectionAuthority = _revokeNftUseAuthorityClient;
+  approveCollectionAuthority = _approveNftCollectionAuthorityClient;
+  revokeCollectionAuthority = _revokeNftCollectionAuthorityClient;
   // TODO(loris): migrateToSizedCollection;
 
   // Token.

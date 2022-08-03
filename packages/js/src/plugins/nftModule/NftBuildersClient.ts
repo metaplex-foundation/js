@@ -1,8 +1,10 @@
 import type { Metaplex } from '@/Metaplex';
+import { _approveNftCollectionAuthorityBuildersClient } from './approveNftCollectionAuthority';
 import { _approveNftUseAuthorityBuildersClient } from './approveNftUseAuthority';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
+import { _revokeNftCollectionAuthorityBuildersClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityBuildersClient } from './revokeNftUseAuthority';
 import { _unverifyNftCollectionBuildersClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorBuildersClient } from './unverifyNftCreator';
@@ -32,8 +34,8 @@ export class NftBuildersClient {
   // Collections.
   verifyCollection = _verifyNftCollectionBuildersClient;
   unverifyCollection = _unverifyNftCollectionBuildersClient;
-  approveCollectionAuthority = _approveNftUseAuthorityBuildersClient;
-  revokeCollectionAuthority = _revokeNftUseAuthorityBuildersClient;
+  approveCollectionAuthority = _approveNftCollectionAuthorityBuildersClient;
+  revokeCollectionAuthority = _revokeNftCollectionAuthorityBuildersClient;
   // TODO(loris): migrateToSizedCollection;
 
   // Token.
