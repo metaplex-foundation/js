@@ -354,7 +354,7 @@ test('[nftModule] it can set and verify the parent Collection of an NFT using a 
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test.skip('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
+test.only('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -363,13 +363,22 @@ test.skip('[nftModule] it can update the parent Collection of an NFT', async (t:
   const collectionNftB = await createCollectionNft(mx);
 
   // And an existing NFT with that belongs to collection A.
-  const nft = await createNft(mx, { collection: collectionNftA.address });
-  t.true(nft.collection, 'has parent collection');
+  const nft = await createNft(mx, {
+    collection: collectionNftA.address,
+    collectionAuthority: mx.identity(),
+  });
+  t.true(nft.collection?.verified, 'has verified parent collection');
   await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 1);
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 0);
 
   // When we update that NFT by providing a parent collection.
-  await mx.nfts().update(nft, { collection: collectionNftB.address }).run();
+  await mx
+    .nfts()
+    .update(nft, {
+      collection: collectionNftB.address,
+      collectionAuthority: mx.identity(),
+    })
+    .run();
 
   // Then the updated NFT is now from that collection.
   const updatedNft = await mx.nfts().refresh(nft).run();
@@ -378,11 +387,11 @@ test.skip('[nftModule] it can update the parent Collection of an NFT', async (t:
     model: 'nft',
     collection: {
       address: spokSamePubkey(collectionNftB.address),
-      verified: false,
+      verified: true,
     },
   } as unknown as Specifications<Nft>);
 
   // And the collection NFT has the same size because we did not verify it.
-  await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 0);
+  await assertRefreshedCollectionHasSize(t, mx, collectionNftA, 0); // <- This fails.
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 1);
 });
