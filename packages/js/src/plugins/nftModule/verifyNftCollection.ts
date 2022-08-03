@@ -38,9 +38,10 @@ export function _verifyNftCollectionClient(
     let collectionMintAddress =
       input.collectionMintAddress ?? collectionFromNft;
 
-    if (!collectionMintAddress) {
+    if (!('collection' in nftOrSft) && !collectionMintAddress) {
+      const metadataAddress = findMetadataPda(mintAddress);
       const metadata = toMetadata(
-        toMetadataAccount(await this.metaplex.rpc().getAccount(mintAddress))
+        toMetadataAccount(await this.metaplex.rpc().getAccount(metadataAddress))
       );
       scope.throwIfCanceled();
       collectionMintAddress = metadata.collection
