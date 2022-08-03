@@ -149,10 +149,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
       mintAuthority,
       updateAuthority,
       tokenOwner: owner.publicKey,
-      collection: {
-        verified: false,
-        key: collection.publicKey,
-      },
+      collection: collection.publicKey,
       uses: {
         useMethod: UseMethod.Burn,
         remaining: 0,
@@ -203,8 +200,8 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
     primarySaleHappened: false,
     updateAuthorityAddress: spokSamePubkey(updateAuthority.publicKey),
     collection: {
+      address: spokSamePubkey(collection.publicKey),
       verified: false,
-      key: spokSamePubkey(collection.publicKey),
     },
     uses: {
       useMethod: UseMethod.Burn,

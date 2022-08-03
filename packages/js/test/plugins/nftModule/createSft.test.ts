@@ -111,10 +111,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       mintAuthority,
       updateAuthority,
       freezeAuthority: freezeAuthority.publicKey,
-      collection: {
-        verified: false,
-        key: collection.publicKey,
-      },
+      collection: collection.publicKey,
       uses: {
         useMethod: UseMethod.Burn,
         remaining: 0,
@@ -164,8 +161,8 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       delegateAmount: token(0, 2, 'MYSFT'),
     },
     collection: {
+      address: spokSamePubkey(collection.publicKey),
       verified: false,
-      key: spokSamePubkey(collection.publicKey),
     },
     uses: {
       useMethod: UseMethod.Burn,
