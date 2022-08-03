@@ -309,6 +309,51 @@ test('[nftModule] it can set and verify the parent Collection of an NFT', async 
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
+test('[nftModule] it can set and verify the parent Collection of an NFT using a delegated authority', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with no parent collection.
+  const nft = await createNft(mx);
+  t.false(nft.collection, 'has no parent collection');
+
+  // And a collection NFT with delegated authority and no items in it yet.
+  const delegatedCollectionAuthority = Keypair.generate();
+  const collectionNft = await createCollectionNft(mx);
+  assertCollectionHasSize(t, collectionNft, 0);
+  await mx
+    .nfts()
+    .approveCollectionAuthority(
+      collectionNft,
+      delegatedCollectionAuthority.publicKey
+    )
+    .run();
+
+  // When we update that NFT by providing a parent collection and its delegated authority.
+  await mx
+    .nfts()
+    .update(nft, {
+      collection: collectionNft.address,
+      collectionAuthority: delegatedCollectionAuthority,
+      collectionAuthorityIsDelegated: true,
+    })
+    .run();
+
+  // Then the updated NFT is now from that collection and it is verified.
+  const updatedNft = await mx.nfts().refresh(nft).run();
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // And the size of the collection NFT was incremented by 1.
+  await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+});
+
 test.skip('[nftModule] it can update the parent Collection of an NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
