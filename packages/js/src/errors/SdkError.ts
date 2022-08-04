@@ -3,6 +3,7 @@ import { Cluster, Program, Currency } from '@/types';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
 } from './MetaplexError';
 
 export class SdkError extends MetaplexError {
@@ -16,9 +17,9 @@ export class SdkError extends MetaplexError {
 }
 
 export class OperationHandlerMissingError extends SdkError {
-  constructor(operationKey: string, cause?: Error) {
+  constructor(operationKey: string, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'operation_handler_missing',
       title: 'Operation Handler Missing',
       problem: `No operation handler was registered for the [${operationKey}] operation.`,
@@ -30,9 +31,9 @@ export class OperationHandlerMissingError extends SdkError {
 }
 
 export class DriverNotProvidedError extends SdkError {
-  constructor(driver: string, cause?: Error) {
+  constructor(driver: string, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'driver_not_provided',
       title: 'Driver Not Provided',
       problem: `The SDK tried to access the driver [${driver}] but was not provided.`,
@@ -45,9 +46,13 @@ export class DriverNotProvidedError extends SdkError {
 export class UnexpectedCurrencyError extends SdkError {
   actual: Currency;
   expected: Currency;
-  constructor(actual: Currency, expected: Currency, cause?: Error) {
+  constructor(
+    actual: Currency,
+    expected: Currency,
+    options?: MetaplexErrorOptions
+  ) {
     super({
-      cause,
+      options,
       key: 'unexpected_currency',
       title: 'Unexpected Currency',
       problem: `Expected currency [${expected}] but got [${actual}].`,
@@ -67,11 +72,11 @@ export class CurrencyMismatchError extends SdkError {
     left: Currency,
     right: Currency,
     operation?: string,
-    cause?: Error
+    options?: MetaplexErrorOptions
   ) {
     const wrappedOperation = operation ? ` [${operation}]` : '';
     super({
-      cause,
+      options,
       key: 'currency_mismatch',
       title: 'Currency Mismatch',
       problem:
@@ -87,9 +92,9 @@ export class CurrencyMismatchError extends SdkError {
 }
 
 export class InvalidJsonVariableError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'invalid_json_variable',
       title: 'Invalid JSON Variable',
       problem: 'The provided JSON variable could not be parsed into a string.',
@@ -100,9 +105,9 @@ export class InvalidJsonVariableError extends SdkError {
 }
 
 export class InvalidJsonStringError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'invalid_json_string',
       title: 'Invalid JSON String',
       problem: 'The provided string could not be parsed into a JSON variable.',
@@ -112,9 +117,9 @@ export class InvalidJsonStringError extends SdkError {
 }
 
 export class OperationUnauthorizedForGuestsError extends SdkError {
-  constructor(operation: string, cause?: Error) {
+  constructor(operation: string, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'operation_unauthorized_for_guests',
       title: 'Operation Unauthorized For Guests',
       problem: `Trying to access the [${operation}] operation as a guest.`,
@@ -127,9 +132,9 @@ export class OperationUnauthorizedForGuestsError extends SdkError {
 }
 
 export class UninitializedWalletAdapterError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'uninitialized_wallet_adapter',
       title: 'Uninitialized Wallet Adapter',
       problem: 'The current wallet adapter is not initialized.',
@@ -141,9 +146,9 @@ export class UninitializedWalletAdapterError extends SdkError {
 }
 
 export class OperationNotSupportedByWalletAdapterError extends SdkError {
-  constructor(operation: string, cause?: Error) {
+  constructor(operation: string, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'operation_not_supported_by_wallet_adapter',
       title: 'Operation Not Supported By Wallet Adapter',
       problem: `The current wallet adapter does not support the following operation: [${operation}].`,
@@ -154,9 +159,9 @@ export class OperationNotSupportedByWalletAdapterError extends SdkError {
 }
 
 export class TaskIsAlreadyRunningError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'task_is_already_running',
       title: 'Task Is Already Running',
       problem: "Trying to re-run a task that hasn't completed yet.",
@@ -167,9 +172,9 @@ export class TaskIsAlreadyRunningError extends SdkError {
 }
 
 export class AssetNotFoundError extends SdkError {
-  constructor(location: string, cause?: Error) {
+  constructor(location: string, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'asset_not_found',
       title: 'Asset Not Found',
       problem: `The asset at [${location}] could not be found.`,
@@ -182,11 +187,10 @@ export class AccountNotFoundError extends SdkError {
   constructor(
     address: PublicKey,
     accountType?: string,
-    solution?: string,
-    cause?: Error
+    options?: MetaplexErrorOptions
   ) {
     super({
-      cause,
+      options,
       key: 'account_not_found',
       title: 'Account Not Found',
       problem:
@@ -195,22 +199,60 @@ export class AccountNotFoundError extends SdkError {
           : 'No account was found') +
         ` at the provided address [${address.toBase58()}].`,
       solution:
-        solution ??
         'Ensure the provided address is correct and that an account exists at this address.',
     });
   }
 }
 
 export class UnexpectedAccountError extends SdkError {
-  constructor(address: PublicKey, accountType: string, cause?: Error) {
+  constructor(
+    address: PublicKey,
+    expectedType: string,
+    options?: MetaplexErrorOptions
+  ) {
     super({
-      cause,
+      options,
       key: 'unexpected_account',
       title: 'Unexpected Account',
       problem:
         `The account at the provided address [${address.toBase58()}] ` +
-        `is not of the expected type [${accountType}].`,
-      solution: `Ensure the provided address is correct and that it holds an account of type [${accountType}].`,
+        `is not of the expected type [${expectedType}].`,
+      solution: `Ensure the provided address is correct and that it holds an account of type [${expectedType}].`,
+    });
+  }
+}
+
+export class UnexpectedTypeError extends SdkError {
+  constructor(
+    variable: string,
+    actualType: string,
+    expectedType: string,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'unexpected_type',
+      title: 'Unexpected Type',
+      problem: `Expected variable [${variable}] to be of type [${expectedType}] but got [${actualType}].`,
+      solution: `Please check that you are providing the right variable for this use case.`,
+    });
+  }
+}
+
+export class ExpectedSignerError extends SdkError {
+  constructor(
+    variable: string,
+    actualType: string,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'expected_signer',
+      title: 'Expected Signer',
+      problem: `Expected variable [${variable}] to be of type [Signer] but got [${actualType}].`,
+      solution:
+        'Please check that you are providing the variable as a signer. ' +
+        'Note that, it may be allowed to provide a non-signer variable for certain use cases but not this one.',
     });
   }
 }
@@ -221,12 +263,12 @@ export class ProgramNotRecognizedError extends SdkError {
   constructor(
     nameOrAddress: string | PublicKey,
     cluster: Cluster,
-    cause?: Error
+    options?: MetaplexErrorOptions
   ) {
     const isName = typeof nameOrAddress === 'string';
     const toString = isName ? nameOrAddress : nameOrAddress.toBase58();
     super({
-      cause,
+      options,
       key: 'program_not_recognized',
       title: 'Program Not Recognized',
       problem:
@@ -243,9 +285,9 @@ export class ProgramNotRecognizedError extends SdkError {
 
 export class MissingGpaBuilderError extends SdkError {
   program: Program;
-  constructor(program: Program, cause?: Error) {
+  constructor(program: Program, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'missing_gpa_builder',
       title: 'Missing "getProgramAccount" Builder',
       problem: `The program [${program.name}] does not have a registered "getProgramAccount" builder.`,
@@ -258,9 +300,13 @@ export class MissingGpaBuilderError extends SdkError {
 }
 
 export class NoInstructionsToSendError extends SdkError {
-  constructor(operation: string, solution?: string, cause?: Error) {
+  constructor(
+    operation: string,
+    solution?: string,
+    options?: MetaplexErrorOptions
+  ) {
     super({
-      cause,
+      options,
       key: 'no_instructions_to_send',
       title: 'No Instructions To Send',
       problem:
@@ -276,9 +322,9 @@ export class NoInstructionsToSendError extends SdkError {
 }
 
 export class NotYetImplementedError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'not_yet_implemented',
       title: 'Not Yet Implemented',
       problem: 'This feature is not yet implemented.',
@@ -288,9 +334,9 @@ export class NotYetImplementedError extends SdkError {
 }
 
 export class UnreachableCaseError extends SdkError {
-  constructor(value: never, cause?: Error) {
+  constructor(value: never, options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'unreachable_case',
       title: `The Case '${value}' in a Switch or If Statement went Unhandled.`,
       problem:

@@ -76,7 +76,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
     try {
       return JSON.parse(file.buffer.toString());
     } catch (error) {
-      throw new InvalidJsonStringError(error as Error);
+      throw new InvalidJsonStringError({ cause: error as Error });
     }
   }
 }

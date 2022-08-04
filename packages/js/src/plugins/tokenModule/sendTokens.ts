@@ -1,4 +1,3 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -7,11 +6,13 @@ import {
   OperationHandler,
   Signer,
   SplTokenAmount,
+  toPublicKey,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { createTransferCheckedInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
@@ -32,7 +33,7 @@ export type SendTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
-  toToken?: PublicKey; // Defaults to associated account.
+  toToken?: PublicKey | Signer; // If provided and token does not exist, it will create that account for you, hence the need for a Signer. Defaults to associated account.
   fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
   fromToken?: PublicKey; // Defaults to associated account.
   fromMultiSigners?: KeypairSigner[]; // Defaults to [].
@@ -54,10 +55,8 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
       operation: SendTokensOperation,
       metaplex: Metaplex
     ): Promise<SendTokensOutput> {
-      return sendTokensBuilder(metaplex, operation.input).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      );
+      const builder = await sendTokensBuilder(metaplex, operation.input);
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -72,10 +71,10 @@ export type SendTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
-export const sendTokensBuilder = (
+export const sendTokensBuilder = async (
   metaplex: Metaplex,
   params: SendTokensBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder> => {
   const {
     mint,
     amount,
@@ -102,7 +101,7 @@ export const sendTokensBuilder = (
     instruction: createTransferCheckedInstruction(
       source,
       mintAddress,
-      destination,
+      toPublicKey(destination),
       fromOwnerPublicKey,
       amount.basisPoints.toNumber(),
       decimals,

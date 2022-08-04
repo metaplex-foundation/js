@@ -3,6 +3,7 @@ import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
 } from './MetaplexError';
 
 export class RpcError extends MetaplexError {
@@ -16,14 +17,20 @@ export class RpcError extends MetaplexError {
 }
 
 export class FailedToSendTransactionError extends RpcError {
-  constructor(cause: Error) {
+  constructor(
+    cause: Error,
+    options?: Omit<MetaplexErrorOptions, 'cause' | 'logs'>
+  ) {
     super({
-      cause,
       key: 'failed_to_send_transaction',
       title: 'Failed to Send Transaction',
       problem: `The transaction could not be sent successfully to the network.`,
       solution: 'Check the error below for more information.',
-      logs: (cause as SendTransactionError).logs,
+      options: {
+        ...options,
+        logs: (cause as SendTransactionError).logs,
+        cause,
+      },
     });
   }
 
@@ -41,13 +48,13 @@ export class FailedToSendTransactionError extends RpcError {
 }
 
 export class FailedToConfirmTransactionError extends RpcError {
-  constructor(cause: Error) {
+  constructor(cause: Error, options?: Omit<MetaplexErrorOptions, 'cause'>) {
     super({
-      cause,
       key: 'failed_to_confirm_transaction',
       title: 'Failed to Confirm Transaction',
       problem: `The transaction could not be confirmed.`,
       solution: 'Check the error below for more information.',
+      options: { ...options, cause },
     });
   }
 }

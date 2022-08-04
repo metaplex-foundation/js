@@ -12,7 +12,7 @@ import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadat
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { OwnerMustBeProvidedAsASignerError } from './errors';
+import { ExpectedSignerError } from '@/errors';
 import { HasMintAddress, toMintAddress } from './helpers';
 import type { NftBuildersClient } from './NftBuildersClient';
 import type { NftClient } from './NftClient';
@@ -105,7 +105,11 @@ export const useNftBuilder = (
   } = params;
 
   if (!isSigner(owner) && !useAuthority) {
-    throw new OwnerMustBeProvidedAsASignerError();
+    throw new ExpectedSignerError('owner', 'PublicKey', {
+      problemSuffix:
+        'In order to use an NFT you must either provide the owner as a Signer ' +
+        'or a delegated use authority as a Signer.',
+    });
   }
 
   const metadata = findMetadataPda(mintAddress);

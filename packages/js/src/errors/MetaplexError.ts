@@ -12,14 +12,24 @@ export type MetaplexErrorInput = {
   solution: string;
   source: MetaplexErrorSource;
   sourceDetails?: string;
-  cause?: Error;
-  logs?: string[];
+  options?: MetaplexErrorOptions;
 };
 
 export type MetaplexErrorInputWithoutSource = Omit<
   MetaplexErrorInput,
   'source' | 'sourceDetails'
 >;
+
+export type MetaplexErrorOptions = {
+  problem?: string;
+  problemPrefix?: string;
+  problemSuffix?: string;
+  solution?: string;
+  solutionPrefix?: string;
+  solutionSuffix?: string;
+  cause?: Error;
+  logs?: string[];
+};
 
 export class MetaplexError extends Error {
   readonly name: 'MetaplexError' = 'MetaplexError';
@@ -36,12 +46,22 @@ export class MetaplexError extends Error {
     super(input.problem);
     this.key = `metaplex.errors.${input.key}`;
     this.title = input.title;
-    this.problem = input.problem;
-    this.solution = input.solution;
+    this.problem = overrideWithOptions(
+      input.problem,
+      input.options?.problem,
+      input.options?.problemPrefix,
+      input.options?.problemSuffix
+    );
+    this.solution = overrideWithOptions(
+      input.solution,
+      input.options?.solution,
+      input.options?.solutionPrefix,
+      input.options?.solutionSuffix
+    );
     this.source = input.source;
     this.sourceDetails = input.sourceDetails;
-    this.cause = input.cause;
-    this.logs = input.logs;
+    this.cause = input.options?.cause;
+    this.logs = input.options?.logs;
     this.message = this.toString(false);
   }
 
@@ -77,3 +97,14 @@ export class MetaplexError extends Error {
     );
   }
 }
+
+const overrideWithOptions = (
+  defaultText: string,
+  override?: string,
+  prefix?: string,
+  suffix?: string
+): string => {
+  return [prefix, override ?? defaultText, suffix]
+    .filter((text): text is string => !!text)
+    .join(' ');
+};

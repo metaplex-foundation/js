@@ -33,7 +33,7 @@ import {
   CandyMachineConfigs,
   toCandyMachineInstructionData,
 } from './CandyMachine';
-import { CandyMachineAuthorityRequiredAsASignerError } from './errors';
+import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineAccountSizeFromData } from './helpers';
 import { findCandyMachineCollectionPda } from './pdas';
 import { CandyMachineProgram } from './program';
@@ -207,7 +207,14 @@ export const createCandyMachineBuilder = async (
       // Set the collection.
       .when(!!collection, (builder) => {
         if (!isSigner(authority)) {
-          throw new CandyMachineAuthorityRequiredAsASignerError();
+          throw new ExpectedSignerError('authority', 'PublicKey', {
+            problemSuffix:
+              'You are trying to create a Candy Machine with a Collection NFT. ' +
+              'In order for the Collection NFT to be set successfully, you must provide the authority as a Signer.',
+            solution:
+              'Please provide the "authority" parameter as a Signer if you want to set the Collection NFT upon creation. ' +
+              'Alternatively, you may remove the "collection" parameter to create a Candy Machine without an associated Collection NFT.',
+          });
         }
 
         const collectionMint = collection as PublicKey;

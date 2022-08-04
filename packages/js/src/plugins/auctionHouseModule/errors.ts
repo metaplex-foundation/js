@@ -1,4 +1,8 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
+} from '@/errors';
 
 export class AuctionHouseError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -13,9 +17,9 @@ export class AuctionHouseError extends MetaplexError {
 }
 
 export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'treasury_destination_owner_required',
       title: 'Treasury Destination Owner Required',
       problem:
@@ -31,25 +35,10 @@ export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
   }
 }
 
-export class AuthoritySignerRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
-    super({
-      cause,
-      key: 'authority_signer_required',
-      title: 'Authority Signer Required',
-      problem:
-        'You are trying to delegate an Auctioneer which requires authority to sign a transaction. ' +
-        'But you have provided only a Public Key.',
-      solution:
-        'Please provide the current "authority" parameter as a Signer (pair of Public Key and Secret Key).',
-    });
-  }
-}
-
 export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'auctioneer_authority_required',
       title: 'Auctioneer Authority Required',
       problem:

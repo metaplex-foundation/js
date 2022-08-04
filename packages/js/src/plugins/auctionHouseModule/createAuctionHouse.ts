@@ -24,8 +24,8 @@ import {
 } from './pdas';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { WRAPPED_SOL_MINT } from '../tokenModule';
-import { AuthoritySignerRequiredError } from './errors';
 import { AUCTIONEER_ALL_SCOPES } from './constants';
+import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation
@@ -120,7 +120,12 @@ export const createAuctionHouseBuilder = (
 
   // Auctioneer delegate instruction needs to be signed by authority
   if (params.auctioneerAuthority && !isSigner(authority)) {
-    throw new AuthoritySignerRequiredError();
+    throw new ExpectedSignerError('authority', 'PublicKey', {
+      problemSuffix:
+        'You are trying to delegate to an Auctioneer authority which ' +
+        'requires the Auction House authority to sign a transaction. ' +
+        'But you provided the Auction House authority as a Public Key.',
+    });
   }
 
   // PDAs.
