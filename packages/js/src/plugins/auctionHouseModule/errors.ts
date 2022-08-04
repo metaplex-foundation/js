@@ -53,9 +53,9 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
 }
 
 export class AuctionHousesDifferError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'auction_houses_differ',
       title: 'Auctioneer Houses Differ',
       problem:
@@ -68,9 +68,9 @@ export class AuctionHousesDifferError extends AuctionHouseError {
 }
 
 export class WrongMintError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'wrong_mint',
       title: 'Wrong Mint Provided',
       problem:
