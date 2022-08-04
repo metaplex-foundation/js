@@ -17,11 +17,12 @@ import { _verifyNftCreatorBuildersClient } from './verifyNftCreator';
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  // Create and Update.
+  // Create, Update and Delete.
   create = _createNftBuildersClient;
   createSft = _createSftBuildersClient;
   printNewEdition = _printNewEditionBuildersClient;
   update = _updateNftBuildersClient;
+  // TODO(loris): delete
 
   // Use.
   use = _useNftBuildersClient;

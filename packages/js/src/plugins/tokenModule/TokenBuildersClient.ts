@@ -17,7 +17,13 @@ export class TokenBuildersClient {
   createTokenIfMissing = _createTokenIfMissingBuildersClient;
   createTokenWithMint = _createTokenWithMintBuildersClient;
 
-  // Transfers.
+  // Update.
   mint = _mintTokensBuildersClient;
   send = _sendTokensBuildersClient;
+  // TODO(loris): freeze
+  // TODO(loris): thaw
+
+  // Delegate.
+  // TODO(loris): approveDelegateAuthority
+  // TODO(loris): revokeDelegateAuthority
 }

@@ -28,7 +28,13 @@ export class TokenClient {
   createToken = _createTokenClient;
   createTokenWithMint = _createTokenWithMintClient;
 
-  // Transfers.
+  // Update.
   mint = _mintTokensClient;
   send = _sendTokensClient;
+  // TODO(loris): freeze
+  // TODO(loris): thaw
+
+  // Delegate.
+  // TODO(loris): approveDelegateAuthority
+  // TODO(loris): revokeDelegateAuthority
 }
