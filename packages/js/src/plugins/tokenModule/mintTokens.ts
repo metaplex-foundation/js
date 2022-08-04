@@ -69,7 +69,10 @@ export type MintTokensBuilderParams = Omit<
   MintTokensInput,
   'confirmOptions'
 > & {
-  instructionKey?: string;
+  createAssociatedTokenAccountInstructionKey?: string;
+  createAccountInstructionKey?: string;
+  initializeTokenInstructionKey?: string;
+  mintTokensInstructionKey?: string;
 };
 
 export const mintTokensBuilder = async (
@@ -124,7 +127,7 @@ export const mintTokensBuilder = async (
           tokenProgram
         ),
         signers,
-        key: params.instructionKey ?? 'mintTokens',
+        key: params.mintTokensInstructionKey ?? 'mintTokens',
       })
   );
 };
