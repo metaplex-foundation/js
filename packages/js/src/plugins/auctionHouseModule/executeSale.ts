@@ -270,7 +270,7 @@ export const executeSaleBuilder = (
             { purchaseReceiptBump: purchaseReceipt.bump }
           ),
           signers: [bookkeeper],
-          key: 'printListingReceipt',
+          key: 'printPurchaseReceipt',
         })
       )
   );

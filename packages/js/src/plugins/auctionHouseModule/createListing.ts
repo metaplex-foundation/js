@@ -227,7 +227,7 @@ export const createListingBuilder = (
         builder.add({
           instruction: createPrintListingReceiptInstruction(
             {
-              receipt: receipt,
+              receipt,
               bookkeeper: bookkeeper.publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },

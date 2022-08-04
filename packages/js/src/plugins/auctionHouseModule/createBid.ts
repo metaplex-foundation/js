@@ -268,7 +268,7 @@ export const createBidBuilder = async (
         builder.add({
           instruction: createPrintBidReceiptInstruction(
             {
-              receipt: receipt,
+              receipt,
               bookkeeper: bookkeeper.publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
