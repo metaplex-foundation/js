@@ -124,7 +124,7 @@ export const sendTokensBuilder = async (
       });
     }
 
-    return builder.add(
+    builder.add(
       await metaplex
         .tokens()
         .builders()
@@ -133,6 +133,7 @@ export const sendTokensBuilder = async (
           mint: mintAddress,
           owner: toOwner,
           token: toToken,
+          payer,
         })
     );
   }
