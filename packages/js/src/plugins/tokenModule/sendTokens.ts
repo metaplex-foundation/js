@@ -70,6 +70,7 @@ export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
 > & {
+  toTokenExists?: boolean; // Defaults to false.
   createAssociatedTokenAccountInstructionKey?: string;
   createAccountInstructionKey?: string;
   initializeTokenInstructionKey?: string;
@@ -108,17 +109,19 @@ export const sendTokensBuilder = async (
 
       // Create token account if missing.
       .add(
-        await metaplex
-          .tokens()
-          .builders()
-          .createTokenIfMissing({
-            ...params,
-            mint: mintAddress,
-            owner: toOwner,
-            token: toToken,
-            payer,
-            tokenVariable: 'toToken',
-          })
+        !(params.toTokenExists ?? false)
+          ? await metaplex
+              .tokens()
+              .builders()
+              .createTokenIfMissing({
+                ...params,
+                mint: mintAddress,
+                owner: toOwner,
+                token: toToken,
+                payer,
+                tokenVariable: 'toToken',
+              })
+          : TransactionBuilder.make()
       )
 
       // Transfer tokens.
