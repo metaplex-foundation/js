@@ -1,6 +1,11 @@
 import type { Metaplex } from '@/Metaplex';
 import { createMintBuilder, CreateMintBuilderParams } from './createMint';
-import { createTokenBuilder, CreateTokenBuilderParams } from './createToken';
+import {
+  createTokenBuilder,
+  CreateTokenBuilderParams,
+  createTokenIfMissingBuilder,
+  CreateTokenIfMissingBuilderParams,
+} from './createToken';
 import {
   createTokenWithMintBuilder,
   CreateTokenWithMintBuilderParams,
@@ -17,6 +22,10 @@ export class TokenBuildersClient {
 
   createToken(input: CreateTokenBuilderParams) {
     return createTokenBuilder(this.metaplex, input);
+  }
+
+  createTokenIfMissing(input: CreateTokenIfMissingBuilderParams) {
+    return createTokenIfMissingBuilder(this.metaplex, input);
   }
 
   createTokenWithMint(input: CreateTokenWithMintBuilderParams) {

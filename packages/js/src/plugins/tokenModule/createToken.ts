@@ -1,13 +1,21 @@
+import { ExpectedSignerError } from '@/errors';
+import type { Metaplex } from '@/Metaplex';
 import {
-  createInitializeAccountInstruction,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
+  createInitializeAccountInstruction,
 } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
@@ -120,6 +128,7 @@ export const createTokenBuilder = async (
 
   return (
     builder
+      .setFeePayer(payer)
       .setContext({ tokenAddress: token.publicKey })
 
       // Create an empty account for the Token.
@@ -147,6 +156,68 @@ export const createTokenBuilder = async (
         ),
         signers: [token],
         key: params.initializeTokenInstructionKey ?? 'initializeToken',
+      })
+  );
+};
+
+export type CreateTokenIfMissingBuilderParams = Omit<
+  CreateTokenBuilderParams,
+  'token'
+> & {
+  token?: PublicKey | Signer;
+  tokenVariable?: string;
+};
+
+export const createTokenIfMissingBuilder = async (
+  metaplex: Metaplex,
+  params: CreateTokenIfMissingBuilderParams
+): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
+  const {
+    mint,
+    owner = metaplex.identity().publicKey,
+    token,
+    payer = metaplex.identity(),
+    tokenVariable = 'token',
+  } = params;
+
+  const destination = token ?? findAssociatedTokenAccountPda(mint, owner);
+  const destinationAddress = toPublicKey(destination);
+  const destinationAccount = await metaplex
+    .rpc()
+    .getAccount(destinationAddress);
+
+  const builder = TransactionBuilder.make<CreateTokenBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({ tokenAddress: destinationAddress });
+
+  if (destinationAccount.exists) {
+    return builder;
+  }
+
+  // When creating a token account, ensure it is passed as a Signer.
+  if (token && !isSigner(token)) {
+    throw new ExpectedSignerError(tokenVariable, 'PublicKey', {
+      problemSuffix:
+        `The provided "${tokenVariable}" account ` +
+        `at address [${destinationAddress}] does not exist. ` +
+        `Therefore, it needs to be created and passed as a Signer.`,
+      solution:
+        `If you want to create the "${tokenVariable}" account, then please pass it as a Signer. ` +
+        `Alternatively, you can pass the owner account as a PublicKey instead to ` +
+        `use (or create) an associated token account.`,
+    });
+  }
+
+  return builder.add(
+    await metaplex
+      .tokens()
+      .builders()
+      .createToken({
+        ...params,
+        mint,
+        owner,
+        token,
+        payer,
       })
   );
 };

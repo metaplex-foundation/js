@@ -1,4 +1,3 @@
-import { ExpectedSignerError } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -103,54 +102,39 @@ export const sendTokensBuilder = async (
     fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
-  const destinationAddress = toPublicKey(destination);
-  const destinationAccount = await metaplex
-    .rpc()
-    .getAccount(destinationAddress);
 
-  const builder = TransactionBuilder.make();
+  return (
+    TransactionBuilder.make()
 
-  // Create token account if it does not exist.
-  if (!destinationAccount.exists) {
-    if (toToken && !isSigner(toToken)) {
-      throw new ExpectedSignerError('toToken', 'PublicKey', {
-        problemSuffix:
-          `The provided "toToken" account does not exist. ` +
-          `Therefore, it needs to be created and passed as a Signer.`,
-        solution:
-          `If you want to create the "toToken" account, then please pass it as a Signer. ` +
-          `Alternatively, you can pass the "toOwner" account as a PublicKey instead to ` +
-          `use or create an associated token account.`,
-      });
-    }
+      // Create token account if missing.
+      .add(
+        await metaplex
+          .tokens()
+          .builders()
+          .createTokenIfMissing({
+            ...params,
+            mint: mintAddress,
+            owner: toOwner,
+            token: toToken,
+            payer,
+            tokenVariable: 'toToken',
+          })
+      )
 
-    builder.add(
-      await metaplex
-        .tokens()
-        .builders()
-        .createToken({
-          ...params,
-          mint: mintAddress,
-          owner: toOwner,
-          token: toToken,
-          payer,
-        })
-    );
-  }
-
-  // Transfer tokens.
-  return builder.add({
-    instruction: createTransferCheckedInstruction(
-      source,
-      mintAddress,
-      destinationAddress,
-      fromOwnerPublicKey,
-      amount.basisPoints.toNumber(),
-      decimals,
-      fromMultiSigners,
-      tokenProgram
-    ),
-    signers,
-    key: params.transferTokensInstructionKey ?? 'transferTokens',
-  });
+      // Transfer tokens.
+      .add({
+        instruction: createTransferCheckedInstruction(
+          source,
+          mintAddress,
+          toPublicKey(destination),
+          fromOwnerPublicKey,
+          amount.basisPoints.toNumber(),
+          decimals,
+          fromMultiSigners,
+          tokenProgram
+        ),
+        signers,
+        key: params.transferTokensInstructionKey ?? 'transferTokens',
+      })
+  );
 };
