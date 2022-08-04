@@ -1,8 +1,24 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { Operation, useOperation, OperationHandler } from '@/types';
-import { toMint, Mint } from './Mint';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import type { Commitment, PublicKey } from '@solana/web3.js';
 import { toMintAccount } from './accounts';
+import { Mint, toMint } from './Mint';
+import type { TokenClient } from './TokenClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findMintByAddressClient(
+  this: TokenClient,
+  address: PublicKey,
+  options?: Omit<FindMintByAddressInput, 'address'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findMintByAddressOperation({ address, ...options }));
+}
 
 // -----------------
 // Operation

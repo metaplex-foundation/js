@@ -80,7 +80,6 @@ export interface CreateSftInput {
   tokenAddress?: PublicKey | Signer;
   tokenOwner?: PublicKey;
   tokenAmount?: SplTokenAmount;
-  tokenExists?: boolean; // Defaults to false.
 
   // Data.
   decimals?: number; // Defaults to 0.
@@ -281,9 +280,6 @@ const createMintAndTokenForSftBuilder = async (
   } = params;
 
   const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
-  const tokenExists = !params.useExistingMint
-    ? false
-    : params.tokenExists ?? false;
   const associatedTokenAddress = params.tokenOwner
     ? findAssociatedTokenAccountPda(mintAddress, params.tokenOwner)
     : null;
@@ -291,12 +287,20 @@ const createMintAndTokenForSftBuilder = async (
     ? toPublicKey(params.tokenAddress)
     : associatedTokenAddress;
 
+  let tokenExists: boolean;
+  if (!!params.useExistingMint && !!tokenAddress) {
+    const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
+    tokenExists = tokenAccount.exists;
+  } else {
+    tokenExists = false;
+  }
+
   const builder = TransactionBuilder.make<{
     mintAddress: PublicKey;
     tokenAddress: PublicKey | null;
   }>().setContext({
     mintAddress,
-    tokenAddress: tokenAddress ? toPublicKey(tokenAddress) : null,
+    tokenAddress,
   });
 
   // Create the mint account if it doesn't exist.
@@ -344,13 +348,14 @@ const createMintAndTokenForSftBuilder = async (
   // Mint provided amount to the token account.
   if (tokenAddress && params.tokenAmount) {
     builder.add(
-      metaplex.tokens().builders().mint({
+      await metaplex.tokens().builders().mint({
         mint: mintAddress,
         toToken: tokenAddress,
+        toTokenExists: true,
         amount: params.tokenAmount,
         mintAuthority,
         tokenProgram: params.tokenProgram,
-        instructionKey: params.mintTokensInstructionKey,
+        mintTokensInstructionKey: params.mintTokensInstructionKey,
       })
     );
   }

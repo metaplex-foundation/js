@@ -46,12 +46,13 @@ export class NftClient {
   refresh = _refreshNftClient;
   load = _loadMetadataClient;
 
-  // Create and Update.
+  // Create, Update and Delete.
   create = _createNftClient;
   createSft = _createSftClient;
   printNewEdition = _printNewEditionClient;
   uploadMetadata = _uploadMetadataClient;
   update = _updateNftClient;
+  // TODO(loris): delete
 
   // Use.
   use = _useNftClient;

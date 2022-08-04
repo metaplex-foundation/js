@@ -1,33 +1,29 @@
 import type { Metaplex } from '@/Metaplex';
-import { createMintBuilder, CreateMintBuilderParams } from './createMint';
-import { createTokenBuilder, CreateTokenBuilderParams } from './createToken';
+import { _createMintBuildersClient } from './createMint';
 import {
-  createTokenWithMintBuilder,
-  CreateTokenWithMintBuilderParams,
-} from './createTokenWithMint';
-import { mintTokensBuilder, MintTokensBuilderParams } from './mintTokens';
-import { sendTokensBuilder, SendTokensBuilderParams } from './sendTokens';
+  _createTokenBuildersClient,
+  _createTokenIfMissingBuildersClient,
+} from './createToken';
+import { _createTokenWithMintBuildersClient } from './createTokenWithMint';
+import { _mintTokensBuildersClient } from './mintTokens';
+import { _sendTokensBuildersClient } from './sendTokens';
 
 export class TokenBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  createMint(input: CreateMintBuilderParams) {
-    return createMintBuilder(this.metaplex, input);
-  }
+  // Create.
+  createMint = _createMintBuildersClient;
+  createToken = _createTokenBuildersClient;
+  createTokenIfMissing = _createTokenIfMissingBuildersClient;
+  createTokenWithMint = _createTokenWithMintBuildersClient;
 
-  createToken(input: CreateTokenBuilderParams) {
-    return createTokenBuilder(this.metaplex, input);
-  }
+  // Update.
+  mint = _mintTokensBuildersClient;
+  send = _sendTokensBuildersClient;
+  // TODO(loris): freeze
+  // TODO(loris): thaw
 
-  createTokenWithMint(input: CreateTokenWithMintBuilderParams) {
-    return createTokenWithMintBuilder(this.metaplex, input);
-  }
-
-  mint(input: MintTokensBuilderParams) {
-    return mintTokensBuilder(this.metaplex, input);
-  }
-
-  send(input: SendTokensBuilderParams) {
-    return sendTokensBuilder(this.metaplex, input);
-  }
+  // Delegate.
+  // TODO(loris): approveDelegateAuthority
+  // TODO(loris): revokeDelegateAuthority
 }

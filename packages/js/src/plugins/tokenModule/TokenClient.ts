@@ -1,50 +1,14 @@
-import type { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { Task } from '@/utils';
+import { _createMintClient } from './createMint';
+import { _createTokenClient } from './createToken';
+import { _createTokenWithMintClient } from './createTokenWithMint';
+import { _findMintByAddressClient } from './findMintByAddress';
+import { _findTokenByAddressClient } from './findTokenByAddress';
+import { _findTokenWithMintByAddressClient } from './findTokenWithMintByAddress';
+import { _findTokenWithMintByMintClient } from './findTokenWithMintByMint';
+import { _mintTokensClient } from './mintTokens';
+import { _sendTokensClient } from './sendTokens';
 import { TokenBuildersClient } from './TokenBuildersClient';
-import { Mint } from './Mint';
-import { Token, TokenWithMint } from './Token';
-import {
-  CreateMintInput,
-  createMintOperation,
-  CreateMintOutput,
-} from './createMint';
-import {
-  CreateTokenInput,
-  createTokenOperation,
-  CreateTokenOutput,
-} from './createToken';
-import {
-  CreateTokenWithMintInput,
-  createTokenWithMintOperation,
-  CreateTokenWithMintOutput,
-} from './createTokenWithMint';
-import {
-  FindMintByAddressInput,
-  findMintByAddressOperation,
-} from './findMintByAddress';
-import {
-  FindTokenByAddressInput,
-  findTokenByAddressOperation,
-} from './findTokenByAddress';
-import {
-  FindTokenWithMintByAddressInput,
-  findTokenWithMintByAddressOperation,
-} from './findTokenWithMintByAddress';
-import {
-  FindTokenWithMintByMintInput,
-  findTokenWithMintByMintOperation,
-} from './findTokenWithMintByMint';
-import {
-  MintTokensInput,
-  mintTokensOperation,
-  MintTokensOutput,
-} from './mintTokens';
-import {
-  SendTokensInput,
-  sendTokensOperation,
-  SendTokensOutput,
-} from './sendTokens';
 
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
@@ -53,88 +17,24 @@ export class TokenClient {
     return new TokenBuildersClient(this.metaplex);
   }
 
-  createMint(
-    input: CreateMintInput = {}
-  ): Task<CreateMintOutput & { mint: Mint }> {
-    return new Task(async (scope) => {
-      const operation = createMintOperation(input);
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const mint = await this.findMintByAddress(
-        output.mintSigner.publicKey
-      ).run(scope);
-      return { ...output, mint };
-    });
-  }
+  // Queries.
+  findMintByAddress = _findMintByAddressClient;
+  findTokenByAddress = _findTokenByAddressClient;
+  findTokenWithMintByAddress = _findTokenWithMintByAddressClient;
+  findTokenWithMintByMint = _findTokenWithMintByMintClient;
 
-  createToken(
-    input: CreateTokenInput
-  ): Task<CreateTokenOutput & { token: Token }> {
-    return new Task(async (scope) => {
-      const operation = createTokenOperation(input);
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const token = await this.findTokenByAddress(output.tokenAddress).run(
-        scope
-      );
-      return { ...output, token };
-    });
-  }
+  // Create.
+  createMint = _createMintClient;
+  createToken = _createTokenClient;
+  createTokenWithMint = _createTokenWithMintClient;
 
-  createTokenWithMint(
-    input: CreateTokenWithMintInput = {}
-  ): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
-    return new Task(async (scope) => {
-      const operation = createTokenWithMintOperation(input);
-      const output = await this.metaplex.operations().execute(operation, scope);
-      scope.throwIfCanceled();
-      const token = await this.findTokenWithMintByMint({
-        mint: output.mintSigner.publicKey,
-        address: output.tokenAddress,
-        addressType: 'token',
-      }).run(scope);
-      return { ...output, token };
-    });
-  }
+  // Update.
+  mint = _mintTokensClient;
+  send = _sendTokensClient;
+  // TODO(loris): freeze
+  // TODO(loris): thaw
 
-  findMintByAddress(
-    address: PublicKey,
-    options?: Omit<FindMintByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findMintByAddressOperation({ address, ...options }));
-  }
-
-  findTokenByAddress(
-    address: PublicKey,
-    options?: Omit<FindTokenByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findTokenByAddressOperation({ address, ...options }));
-  }
-
-  findTokenWithMintByAddress(
-    address: PublicKey,
-    options?: Omit<FindTokenWithMintByAddressInput, 'address'>
-  ) {
-    return this.metaplex
-      .operations()
-      .getTask(findTokenWithMintByAddressOperation({ address, ...options }));
-  }
-
-  findTokenWithMintByMint(input: FindTokenWithMintByMintInput) {
-    return this.metaplex
-      .operations()
-      .getTask(findTokenWithMintByMintOperation(input));
-  }
-
-  mint(input: MintTokensInput): Task<MintTokensOutput> {
-    return this.metaplex.operations().getTask(mintTokensOperation(input));
-  }
-
-  send(input: SendTokensInput): Task<SendTokensOutput> {
-    return this.metaplex.operations().getTask(sendTokensOperation(input));
-  }
+  // Delegate.
+  // TODO(loris): approveDelegateAuthority
+  // TODO(loris): revokeDelegateAuthority
 }

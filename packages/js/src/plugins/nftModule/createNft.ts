@@ -74,7 +74,6 @@ export interface CreateNftInput {
   // Token Account.
   tokenOwner?: PublicKey; // Defaults to mx.identity().publicKey.
   tokenAddress?: PublicKey | Signer;
-  tokenExists?: boolean; // Defaults to false.
 
   // Data.
   uri: string;

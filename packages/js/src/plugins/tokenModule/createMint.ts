@@ -1,10 +1,45 @@
-import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { Mint } from './Mint';
 import { TokenProgram } from './program';
+import type { TokenBuildersClient } from './TokenBuildersClient';
+import type { TokenClient } from './TokenClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createMintClient(
+  this: TokenClient,
+  input: CreateMintInput = {}
+): Task<CreateMintOutput & { mint: Mint }> {
+  return new Task(async (scope) => {
+    const operation = createMintOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const mint = await this.findMintByAddress(output.mintSigner.publicKey).run(
+      scope
+    );
+    return { ...output, mint };
+  });
+}
+
+/** @internal */
+export function _createMintBuildersClient(
+  this: TokenBuildersClient,
+  input: CreateMintBuilderParams
+) {
+  return createMintBuilder(this.metaplex, input);
+}
+
+// -----------------
+// Operation
+// -----------------
 
 const Key = 'CreateMintOperation' as const;
 export const createMintOperation = useOperation<CreateMintOperation>(Key);
