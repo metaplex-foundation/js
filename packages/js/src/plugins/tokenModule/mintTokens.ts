@@ -8,6 +8,7 @@ import {
   OperationHandler,
   Signer,
   SplTokenAmount,
+  toPublicKey,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
@@ -32,10 +33,12 @@ export type MintTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
-  toToken?: PublicKey; // Defaults to associated account.
+  toToken?: PublicKey | Signer; // Defaults to associated account.
   mintAuthority?: PublicKey | Signer; // Defaults to mx.identity().
   multiSigners?: KeypairSigner[]; // Defaults to [].
+  payer?: Signer; // Only used to create missing token accounts. Defaults to mx.identity().
   tokenProgram?: PublicKey; // Defaults to Token Program.
+  associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
   confirmOptions?: ConfirmOptions;
 };
 
@@ -53,10 +56,8 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
       operation: MintTokensOperation,
       metaplex: Metaplex
     ): Promise<MintTokensOutput> {
-      return mintTokensBuilder(metaplex, operation.input).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      );
+      const builder = await mintTokensBuilder(metaplex, operation.input);
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -71,10 +72,10 @@ export type MintTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
-export const mintTokensBuilder = (
+export const mintTokensBuilder = async (
   metaplex: Metaplex,
   params: MintTokensBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder> => {
   const {
     mint,
     amount,
@@ -82,6 +83,7 @@ export const mintTokensBuilder = (
     toToken,
     mintAuthority = metaplex.identity(),
     multiSigners = [],
+    payer = metaplex.identity(),
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
@@ -93,16 +95,36 @@ export const mintTokensBuilder = (
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
-  return TransactionBuilder.make().add({
-    instruction: createMintToInstruction(
-      mintAddress,
-      destination,
-      mintAuthorityPublicKey,
-      amount.basisPoints.toNumber(),
-      multiSigners,
-      tokenProgram
-    ),
-    signers,
-    key: params.instructionKey ?? 'mintTokens',
-  });
+  return (
+    TransactionBuilder.make()
+
+      // Create token account if missing.
+      .add(
+        await metaplex
+          .tokens()
+          .builders()
+          .createTokenIfMissing({
+            ...params,
+            mint: mintAddress,
+            owner: toOwner,
+            token: toToken,
+            payer,
+            tokenVariable: 'toToken',
+          })
+      )
+
+      // Mint tokens.
+      .add({
+        instruction: createMintToInstruction(
+          mintAddress,
+          toPublicKey(destination),
+          mintAuthorityPublicKey,
+          amount.basisPoints.toNumber(),
+          multiSigners,
+          tokenProgram
+        ),
+        signers,
+        key: params.instructionKey ?? 'mintTokens',
+      })
+  );
 };

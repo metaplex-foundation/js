@@ -52,7 +52,7 @@ test('[tokenModule] it can mint tokens to an existing associated token account',
   await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
 });
 
-test.skip('[tokenModule] it can mint tokens to an non-existing token account', async (t: Test) => {
+test('[tokenModule] it can mint tokens to an non-existing token account', async (t: Test) => {
   // Given a Metaplex instance and a mint.
   const mx = await metaplex();
   const { mint } = await mx.tokens().createMint().run();
@@ -78,7 +78,7 @@ test.skip('[tokenModule] it can mint tokens to an non-existing token account', a
   await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
 });
 
-test.skip('[tokenModule] it can mint tokens to an non-existing associated token account', async (t: Test) => {
+test('[tokenModule] it can mint tokens to an non-existing associated token account', async (t: Test) => {
   // Given a Metaplex instance and a mint.
   const mx = await metaplex();
   const { mint } = await mx.tokens().createMint().run();
