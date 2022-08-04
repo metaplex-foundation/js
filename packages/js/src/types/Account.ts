@@ -67,11 +67,9 @@ export function getAccountParsingFunction<T>(
       const data: T = parser.deserialize(account.data)[0];
       return { ...account, data };
     } catch (error) {
-      throw new UnexpectedAccountError(
-        account.publicKey,
-        parser.name,
-        error as Error
-      );
+      throw new UnexpectedAccountError(account.publicKey, parser.name, {
+        cause: error as Error,
+      });
     }
   }
 
@@ -112,6 +110,6 @@ export function assertAccountExists<T>(
   solution?: string
 ): asserts account is Account<T> & { exists: true } {
   if (!account.exists) {
-    throw new AccountNotFoundError(account.publicKey, name, solution);
+    throw new AccountNotFoundError(account.publicKey, name, { solution });
   }
 }

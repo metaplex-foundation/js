@@ -17,20 +17,6 @@ export class NftError extends MetaplexError {
   }
 }
 
-export class OwnerMustBeProvidedAsASignerError extends NftError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'owner_must_be_provided_as_a_signer',
-      title: 'Owner Must Be Provided As A Signer',
-      problem:
-        'The operation you are using allows you to provide the owner as a PublicKey ' +
-        'or a Signer but in this scenario, the owner must be given as a Signer.',
-      solution: 'Please provide the Owner as a Signer.',
-    });
-  }
-}
-
 export class ParentCollectionMissingError extends NftError {
   constructor(
     mint: PublicKey,

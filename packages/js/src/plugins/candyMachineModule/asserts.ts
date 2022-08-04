@@ -80,11 +80,11 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
     try {
       assertName(configLines[i].name);
       assertUri(configLines[i].uri);
-    } catch (err: any) {
+    } catch (error) {
       throw new CandyMachineAddItemConstraintsViolatedError(
         toBigNumber(i),
         configLines[i],
-        err
+        { cause: error as Error }
       );
     }
   }

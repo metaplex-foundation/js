@@ -87,22 +87,6 @@ export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineErr
   }
 }
 
-export class CandyMachineAuthorityRequiredAsASignerError extends CandyMachineError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'candy_machine_authority_required_as_a_signer',
-      title: 'Candy Machine Authority Required As A Signer',
-      problem:
-        'You are trying to create a Candy Machine with a Collection NFT. ' +
-        'In order for the Collection NFT to be set successfully, you must provide the authority as a Signer.',
-      solution:
-        'Please provide the "authority" parameter as a Signer if you want to set the Collection NFT upon creation. ' +
-        'Alternatively, you may remove the "collection" parameter to create a Candy Machine without an associated Collection NFT.',
-    });
-  }
-}
-
 export class CandyMachineNotLiveError extends CandyMachineError {
   constructor(goLiveDate: Option<DateTime>, options?: MetaplexErrorOptions) {
     super({

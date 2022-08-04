@@ -202,7 +202,9 @@ export class BundlrStorageDriver implements StorageDriver {
       // Check for valid bundlr node.
       await bundlr.utils.getBundlerAddress(currency);
     } catch (error) {
-      throw new FailedToConnectToBundlrAddressError(address, error as Error);
+      throw new FailedToConnectToBundlrAddressError(address, {
+        cause: error as Error,
+      });
     }
 
     return bundlr;
@@ -267,7 +269,7 @@ export class BundlrStorageDriver implements StorageDriver {
       // Try to initiate bundlr.
       await bundlr.ready();
     } catch (error) {
-      throw new FailedToInitializeBundlrError(error as Error);
+      throw new FailedToInitializeBundlrError({ cause: error as Error });
     }
 
     return bundlr;

@@ -57,7 +57,7 @@ export const toMetaplexFileFromJson = <T extends object = object>(
   try {
     jsonString = JSON.stringify(json);
   } catch (error) {
-    throw new InvalidJsonVariableError(error as Error);
+    throw new InvalidJsonVariableError({ cause: error as Error });
   }
 
   return toMetaplexFile(jsonString, fileName, options);
