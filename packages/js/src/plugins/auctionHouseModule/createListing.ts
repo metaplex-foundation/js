@@ -198,12 +198,8 @@ export const createListingBuilder = (
   // Don't print Auctioneer Sell receipt for the time being.
   const shouldPrintReceipt =
     (params.printReceipt ?? true) && !params.auctioneerAuthority;
-  const bookkeeper = shouldPrintReceipt
-    ? params.bookkeeper ?? metaplex.identity()
-    : null;
-  const receipt = shouldPrintReceipt
-    ? findListingReceiptPda(sellerTradeState)
-    : null;
+  const bookkeeper = params.bookkeeper ?? metaplex.identity();
+  const receipt = findListingReceiptPda(sellerTradeState);
 
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
@@ -213,8 +209,8 @@ export const createListingBuilder = (
         tokenAccount,
         metadata,
         seller: toPublicKey(seller),
-        receipt,
-        bookkeeper: bookkeeper ? bookkeeper.publicKey : null,
+        receipt: shouldPrintReceipt ? receipt : null,
+        bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
         price,
         tokens,
       })
@@ -231,13 +227,13 @@ export const createListingBuilder = (
         builder.add({
           instruction: createPrintListingReceiptInstruction(
             {
-              receipt: receipt as Pda,
-              bookkeeper: (bookkeeper as Signer).publicKey,
+              receipt: receipt,
+              bookkeeper: bookkeeper.publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
-            { receiptBump: (receipt as Pda).bump }
+            { receiptBump: receipt.bump }
           ),
-          signers: [bookkeeper as Signer],
+          signers: [bookkeeper],
           key: 'printListingReceipt',
         })
       )

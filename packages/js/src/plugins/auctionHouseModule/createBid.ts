@@ -216,12 +216,8 @@ export const createBidBuilder = async (
   // Don't print Auctioneer Bid receipt for the time being.
   const shouldPrintReceipt =
     (params.printReceipt ?? true) && !params.auctioneerAuthority;
-  const bookkeeper = shouldPrintReceipt
-    ? params.bookkeeper ?? metaplex.identity()
-    : null;
-  const receipt = shouldPrintReceipt
-    ? findBidReceiptPda(buyerTradeState)
-    : null;
+  const bookkeeper = params.bookkeeper ?? metaplex.identity();
+  const receipt = findBidReceiptPda(buyerTradeState);
 
   const builder = TransactionBuilder.make<CreateBidBuilderContext>().setContext(
     {
@@ -229,8 +225,8 @@ export const createBidBuilder = async (
       tokenAccount,
       metadata,
       buyer: toPublicKey(buyer),
-      receipt,
-      bookkeeper: bookkeeper ? bookkeeper.publicKey : null,
+      receipt: shouldPrintReceipt ? receipt : null,
+      bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
       price,
       tokens,
     }
@@ -266,13 +262,13 @@ export const createBidBuilder = async (
         builder.add({
           instruction: createPrintBidReceiptInstruction(
             {
-              receipt: receipt as Pda,
-              bookkeeper: (bookkeeper as Signer).publicKey,
+              receipt: receipt,
+              bookkeeper: bookkeeper.publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
-            { receiptBump: (receipt as Pda).bump }
+            { receiptBump: receipt.bump }
           ),
-          signers: [bookkeeper as Signer],
+          signers: [bookkeeper],
           key: 'printBidReceipt',
         })
       )

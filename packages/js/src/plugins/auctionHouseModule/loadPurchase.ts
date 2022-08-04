@@ -40,12 +40,6 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
         commitment,
       } = operation.input;
 
-      const purchase: Omit<Purchase, 'asset' | 'tokens'> = {
-        ...lazyPurchase,
-        model: 'purchase',
-        lazy: false,
-      };
-
       const asset = await metaplex
         .nfts()
         .findByMetadata(lazyPurchase.metadataAddress, {
@@ -57,7 +51,8 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
       assertNftOrSftWithToken(asset);
 
       return {
-        ...purchase,
+        ...lazyPurchase,
+        lazy: false,
         isPublic: false,
         asset,
         tokens: amount(lazyPurchase.tokens, asset.mint.currency),
