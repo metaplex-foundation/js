@@ -1,4 +1,3 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -9,9 +8,43 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { MintAuthorityMustBeSignerToMintInitialSupplyError } from './errors';
+import { TokenWithMint } from './Token';
+import type { TokenBuildersClient } from './TokenBuildersClient';
+import type { TokenClient } from './TokenClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createTokenWithMintClient(
+  this: TokenClient,
+  input: CreateTokenWithMintInput = {}
+): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
+  return new Task(async (scope) => {
+    const operation = createTokenWithMintOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const token = await this.findTokenWithMintByMint({
+      mint: output.mintSigner.publicKey,
+      address: output.tokenAddress,
+      addressType: 'token',
+    }).run(scope);
+    return { ...output, token };
+  });
+}
+
+/** @internal */
+export function _createTokenWithMintBuildersClient(
+  this: TokenBuildersClient,
+  input: CreateTokenWithMintBuilderParams
+) {
+  return createTokenWithMintBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation
@@ -141,36 +174,38 @@ export const createTokenWithMintBuilder = async (
 
   const { tokenAddress } = createTokenBuilder.getContext();
 
-  return (
-    TransactionBuilder.make<CreateTokenWithMintBuilderContext>()
-      .setFeePayer(payer)
-      .setContext({ mintSigner: mint, tokenAddress })
+  const builder = TransactionBuilder.make<CreateTokenWithMintBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({ mintSigner: mint, tokenAddress })
 
-      // Create the Mint account.
-      .add(createMintBuilder)
+    // Create the Mint account.
+    .add(createMintBuilder)
 
-      // Create the Token account.
-      .add(createTokenBuilder)
+    // Create the Token account.
+    .add(createTokenBuilder);
 
-      // Potentially mint the initial supply to the token account.
-      .when(!!initialSupply, (builder) => {
-        if (!isSigner(mintAuthority)) {
-          throw new MintAuthorityMustBeSignerToMintInitialSupplyError();
-        }
+  // Potentially mint the initial supply to the token account.
+  if (!!initialSupply) {
+    if (!isSigner(mintAuthority)) {
+      throw new MintAuthorityMustBeSignerToMintInitialSupplyError();
+    }
 
-        return builder.add(
-          metaplex
-            .tokens()
-            .builders()
-            .mint({
-              mint: mint.publicKey,
-              toToken: tokenAddress,
-              amount: initialSupply as SplTokenAmount,
-              mintAuthority,
-              tokenProgram,
-              instructionKey: params.mintTokensInstructionKey ?? 'mintTokens',
-            })
-        );
-      })
-  );
+    builder.add(
+      await metaplex
+        .tokens()
+        .builders()
+        .mint({
+          mint: mint.publicKey,
+          toToken: tokenAddress,
+          toTokenExists: true,
+          amount: initialSupply,
+          mintAuthority,
+          tokenProgram,
+          mintTokensInstructionKey:
+            params.mintTokensInstructionKey ?? 'mintTokens',
+        })
+    );
+  }
+
+  return builder;
 };

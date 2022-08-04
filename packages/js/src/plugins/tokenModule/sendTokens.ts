@@ -16,6 +16,25 @@ import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
+import type { TokenClient } from './TokenClient';
+import type { TokenBuildersClient } from './TokenBuildersClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _sendTokensClient(this: TokenClient, input: SendTokensInput) {
+  return this.metaplex.operations().getTask(sendTokensOperation(input));
+}
+
+/** @internal */
+export function _sendTokensBuildersClient(
+  this: TokenBuildersClient,
+  input: SendTokensBuilderParams
+) {
+  return sendTokensBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation

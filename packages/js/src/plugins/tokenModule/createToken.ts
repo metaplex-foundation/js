@@ -8,7 +8,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { DisposableScope, Task, TransactionBuilder } from '@/utils';
 import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -19,6 +19,43 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
+import { Token } from './Token';
+import type { TokenBuildersClient } from './TokenBuildersClient';
+import type { TokenClient } from './TokenClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _createTokenClient(
+  this: TokenClient,
+  input: CreateTokenInput
+): Task<CreateTokenOutput & { token: Token }> {
+  return new Task(async (scope) => {
+    const operation = createTokenOperation(input);
+    const output = await this.metaplex.operations().execute(operation, scope);
+    scope.throwIfCanceled();
+    const token = await this.findTokenByAddress(output.tokenAddress).run(scope);
+    return { ...output, token };
+  });
+}
+
+/** @internal */
+export function _createTokenBuildersClient(
+  this: TokenBuildersClient,
+  input: CreateTokenBuilderParams
+) {
+  return createTokenBuilder(this.metaplex, input);
+}
+
+/** @internal */
+export function _createTokenIfMissingBuildersClient(
+  this: TokenBuildersClient,
+  input: CreateTokenIfMissingBuilderParams
+) {
+  return createTokenIfMissingBuilder(this.metaplex, input);
+}
 
 // -----------------
 // Operation
