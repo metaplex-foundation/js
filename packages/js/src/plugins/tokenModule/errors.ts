@@ -1,5 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
-import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
+} from '@/errors';
 
 export class TokenError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -14,9 +18,9 @@ export class TokenError extends MetaplexError {
 }
 
 export class MintAuthorityMustBeSignerToMintInitialSupplyError extends TokenError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'mint_authority_must_be_signer_to_mint_initial_supply',
       title: 'Mint Authority Must Be Signer To Mint Initial Supply',
       problem:
@@ -35,10 +39,10 @@ export class TokenAndMintDoNotMatchError extends TokenError {
     token: PublicKey,
     tokenMint: PublicKey,
     mint: PublicKey,
-    cause?: Error
+    options?: MetaplexErrorOptions
   ) {
     super({
-      cause,
+      options,
       key: 'token_and_mint_do_not_match',
       title: 'Token And Mint Do Not Match',
       problem:

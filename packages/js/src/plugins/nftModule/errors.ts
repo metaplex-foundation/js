@@ -1,4 +1,8 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
+} from '@/errors';
 import { PublicKey } from '@solana/web3.js';
 
 export class NftError extends MetaplexError {
@@ -14,9 +18,9 @@ export class NftError extends MetaplexError {
 }
 
 export class OwnerMustBeProvidedAsASignerError extends NftError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'owner_must_be_provided_as_a_signer',
       title: 'Owner Must Be Provided As A Signer',
       problem:
@@ -28,9 +32,13 @@ export class OwnerMustBeProvidedAsASignerError extends NftError {
 }
 
 export class ParentCollectionMissingError extends NftError {
-  constructor(mint: PublicKey, operation: string, cause?: Error) {
+  constructor(
+    mint: PublicKey,
+    operation: string,
+    options?: MetaplexErrorOptions
+  ) {
     super({
-      cause,
+      options,
       key: 'parent_collection_missing',
       title: 'Parent Collection Missing',
       problem:

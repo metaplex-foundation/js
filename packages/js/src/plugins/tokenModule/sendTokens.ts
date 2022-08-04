@@ -32,7 +32,7 @@ export type SendTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
-  toToken?: PublicKey; // Defaults to associated account.
+  toToken?: PublicKey | Signer; // If provided and token does not exist, it will create that account for you, hence the need for a Signer. Defaults to associated account.
   fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
   fromToken?: PublicKey; // Defaults to associated account.
   fromMultiSigners?: KeypairSigner[]; // Defaults to [].
@@ -54,10 +54,8 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
       operation: SendTokensOperation,
       metaplex: Metaplex
     ): Promise<SendTokensOutput> {
-      return sendTokensBuilder(metaplex, operation.input).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      );
+      const builder = await sendTokensBuilder(metaplex, operation.input);
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -72,10 +70,10 @@ export type SendTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
-export const sendTokensBuilder = (
+export const sendTokensBuilder = async (
   metaplex: Metaplex,
   params: SendTokensBuilderParams
-): TransactionBuilder => {
+): Promise<TransactionBuilder> => {
   const {
     mint,
     amount,

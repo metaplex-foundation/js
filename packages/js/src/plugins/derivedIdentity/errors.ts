@@ -1,9 +1,9 @@
-import { SdkError } from '@/errors';
+import { MetaplexErrorOptions, SdkError } from '@/errors';
 
 export class UninitializedDerivedIdentityError extends SdkError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'uninitialized_derived_identity',
       title: 'Uninitialized Derived Identity',
       problem: 'The derived identity module has not been initialized.',

@@ -1,4 +1,8 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import {
+  MetaplexError,
+  MetaplexErrorInputWithoutSource,
+  MetaplexErrorOptions,
+} from '@/errors';
 
 export class AuctionHouseError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
@@ -13,9 +17,9 @@ export class AuctionHouseError extends MetaplexError {
 }
 
 export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'treasury_destination_owner_required',
       title: 'Treasury Destination Owner Required',
       problem:
@@ -32,9 +36,9 @@ export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
 }
 
 export class AuthoritySignerRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'authority_signer_required',
       title: 'Authority Signer Required',
       problem:
@@ -47,9 +51,9 @@ export class AuthoritySignerRequiredError extends AuctionHouseError {
 }
 
 export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
-  constructor(cause?: Error) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
-      cause,
+      options,
       key: 'auctioneer_authority_required',
       title: 'Auctioneer Authority Required',
       problem:
