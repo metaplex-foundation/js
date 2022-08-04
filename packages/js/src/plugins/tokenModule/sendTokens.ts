@@ -1,4 +1,3 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -7,11 +6,13 @@ import {
   OperationHandler,
   Signer,
   SplTokenAmount,
+  toPublicKey,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { createTransferCheckedInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { isMint, Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
@@ -100,7 +101,7 @@ export const sendTokensBuilder = async (
     instruction: createTransferCheckedInstruction(
       source,
       mintAddress,
-      destination,
+      toPublicKey(destination),
       fromOwnerPublicKey,
       amount.basisPoints.toNumber(),
       decimals,
