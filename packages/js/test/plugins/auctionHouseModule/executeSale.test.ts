@@ -8,6 +8,7 @@ import {
   createWallet,
   spokSamePubkey,
   spokSameAmount,
+  assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import {
@@ -79,6 +80,43 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     $topic: 'Retrieved Purchase',
     ...expectedPurchase,
   } as unknown as Specifications<Purchase>);
+});
+
+test('[auctionHouseModule] it executes sale on an Auction House with separate authority', async (t: Test) => {
+  // Given we have an Auction House with separate authority and an NFT.
+  const mx = await metaplex();
+  const authority = await createWallet(mx);
+  const buyer = await createWallet(mx);
+
+  const nft = await createNft(mx);
+
+  const { client } = await createAuctionHouse(mx, null, {
+    authority,
+  });
+
+  // And we listed that NFT for 1 SOL.
+  const { listing } = await client
+    .list({
+      mintAccount: nft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // And we created a private bid on that NFT for 1 SOL.
+  const { bid } = await client
+    .bid({
+      buyer,
+      mintAccount: nft.address,
+      seller: mx.identity().publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  // When we execute a sale with given listing and bid.
+  const { purchase } = await client.executeSale({ listing, bid }).run();
+
+  // Then we created and returned the new Purchase
+  t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 });
 
 test('[auctionHouseModule] it executes receipt-less sale on an Auction House when Bid is receipt-less but cannot fetch it afterwards by default', async (t: Test) => {
@@ -234,6 +272,78 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
+});
+
+test('[auctionHouseModule] it throws an error if Bid and Listing have different Auction House', async (t: Test) => {
+  // Given we have two Auction Houses and an NFT.
+  const sellerMx = await metaplex();
+  const buyerMx = await metaplex();
+
+  const nft = await createNft(sellerMx);
+
+  const { client: sellerClient } = await createAuctionHouse(sellerMx);
+  const { client: buyerClient } = await createAuctionHouse(buyerMx);
+
+  // And we listed that NFT for 1 SOL.
+  const { listing } = await sellerClient
+    .list({
+      mintAccount: nft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // And we created a public bid on that NFT for 1 SOL but with different AH.
+  const { bid } = await buyerClient
+    .bid({
+      mintAccount: nft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // When we execute a sale with given listing and bid.
+  const promise = sellerClient.executeSale({ listing, bid }).run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /You are trying to use Bid and Listing from different Auction Houses/
+  );
+});
+
+test('[auctionHouseModule] it throws an error if Bid and Listing have different Token', async (t: Test) => {
+  // Given we have an Auction House and two NFTs.
+  const mx = await metaplex();
+
+  const firstNft = await createNft(mx);
+  const secondNft = await createNft(mx);
+  const { client } = await createAuctionHouse(mx);
+
+  // And we listed that First NFT for 1 SOL.
+  const { listing } = await client
+    .list({
+      mintAccount: firstNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // And we created a public bid on that Second NFT.
+  const { bid } = await client
+    .bid({
+      mintAccount: secondNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // When we execute a sale with given listing and bid.
+  const promise = client.executeSale({ listing, bid }).run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /You are trying to execute a sale on a listing for a different NFT/
+  );
 });
 
 // test('[auctionHouseModule] it executes sale on an Auction House with SPL treasury', async (t: Test) => {

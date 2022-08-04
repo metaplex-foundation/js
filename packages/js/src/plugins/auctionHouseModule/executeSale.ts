@@ -34,7 +34,11 @@ import {
 } from './pdas';
 import { Bid } from './Bid';
 import { Listing } from './Listing';
-import { AuctioneerAuthorityRequiredError } from './errors';
+import {
+  AuctioneerAuthorityRequiredError,
+  AuctionHousesDifferError,
+  WrongMintError,
+} from './errors';
 
 // -----------------
 // Operation
@@ -108,6 +112,12 @@ export const executeSaleBuilder = (
   const { sellerAddress, asset } = params.listing;
   const { buyerAddress, tokens } = params.bid;
 
+  if (!params.listing.auctionHouse.address.equals(params.bid.auctionHouse.address)) {
+    throw new AuctionHousesDifferError();
+  }
+  if (!params.listing.asset.address.equals(params.bid.asset.address)) {
+    throw new WrongMintError();
+  }
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }

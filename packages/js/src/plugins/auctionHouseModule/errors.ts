@@ -51,3 +51,33 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
     });
   }
 }
+
+export class AuctionHousesDifferError extends AuctionHouseError {
+  constructor(cause?: Error) {
+    super({
+      cause,
+      key: 'auction_houses_differ',
+      title: 'Auctioneer Houses Differ',
+      problem:
+        'You are trying to use Bid and Listing from different Auction Houses.',
+      solution:
+        'Please provide Bid and Listing from the same Auction House. ' +
+        'They should have the equal "auctionHouse.address".',
+    });
+  }
+}
+
+export class WrongMintError extends AuctionHouseError {
+  constructor(cause?: Error) {
+    super({
+      cause,
+      key: 'wrong_mint',
+      title: 'Wrong Mint Provided',
+      problem:
+        'You are trying to execute a sale on a listing for a different NFT.',
+      solution:
+        'Please provide Bid and Listing with the same Mint. ' +
+        'They should have the equal "asset.address".',
+    });
+  }
+}
