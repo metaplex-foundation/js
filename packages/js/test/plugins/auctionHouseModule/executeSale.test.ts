@@ -346,46 +346,64 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
   );
 });
 
-// test('[auctionHouseModule] it executes sale on an Auction House with SPL treasury', async (t: Test) => {
-//   // Given we have a Metaplex instance.
-//   const mx = await metaplex();
+test('[auctionHouseModule] it executes sale on an Auction House with SPL treasury', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
 
-//   // And an existing SPL treasury and airdrop one token to buyer.
-//   const { token: treasuryToken } = await mx
-//     .tokens()
-//     .createTokenWithMint({ initialSupply: token(10) })
-//     .run();
-//   const treasuryMint = treasuryToken.mint.address;
+  // And an existing SPL treasury.
+  const { token: treasuryToken } = await mx
+    .tokens()
+    .createTokenWithMint()
+    .run();
 
-//   // And we created a new Auction House using that treasury.
-//   const { client } = await createAuctionHouse(mx, null, {
-//     sellerFeeBasisPoints: 200,
-//     treasuryMint,
-//   });
+  // And airdrop 10 tokens to buyer.
+  await mx
+    .tokens()
+    .createToken({
+      mint: treasuryToken.mint.address,
+      owner: buyer.publicKey,
+    })
+    .run();
+  await mx
+    .tokens()
+    .mint({
+      mint: treasuryToken.mint.address,
+      amount: token(10),
+      toOwner: buyer.publicKey,
+    })
+    .run();
 
-//   // And we created an NFT to sell.
-//   const nft = await createNft(mx);
+  // And we created a new Auction House using that treasury with NFT to sell.
+  const treasuryMint = treasuryToken.mint.address;
+  const { client } = await createAuctionHouse(mx, null, {
+    treasuryMint,
+  });
+  const nft = await createNft(mx);
 
-//   // And we listed that NFT for 1 Token.
-//   const { listing } = await client
-//     .list({
-//       mintAccount: nft.address,
-//       price: token(1),
-//     })
-//     .run();
+  // And we listed that NFT for 1 Token.
+  const { listing } = await client
+    .list({
+      mintAccount: nft.address,
+      price: token(1),
+    })
+    .run();
 
-//   // And we created a public bid on that NFT for 1 Token.
-//   const { bid } = await client
-//     .bid({
-//       mintAccount: nft.address,
-//       tokenAccount: nft.token.address,
-//       price: token(1),
-//     })
-//     .run();
+  // And we created a public bid on that NFT for 1 Token.
+  const { bid } = await client
+    .bid({
+      buyer,
+      mintAccount: nft.address,
+      tokenAccount: nft.token.address,
+      price: token(1),
+    })
+    .run();
 
-//   // When we execute a sale with given listing and bid.
-//   const { purchase } = await client.executeSale({ listing, bid }).run();
+  // When we execute a sale with given listing and bid.
+  const { purchase } = await client
+    .executeSale({ listing, bid, confirmOptions: { skipPreflight: true } })
+    .run();
 
-//   // Then we created and returned the new Purchase
-//   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
-// });
+  // Then we created and returned the new Purchase
+  t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
+});

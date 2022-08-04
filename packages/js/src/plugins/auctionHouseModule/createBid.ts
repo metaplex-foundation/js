@@ -126,6 +126,12 @@ export const createBidBuilder = async (
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
+  const paymentAccount = auctionHouse.isNative
+    ? toPublicKey(buyer)
+    : findAssociatedTokenAccountPda(
+        auctionHouse.treasuryMint.address,
+        toPublicKey(buyer)
+      );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     toPublicKey(buyer)
@@ -152,7 +158,7 @@ export const createBidBuilder = async (
 
   const accounts: Omit<BuyInstructionAccounts, 'tokenAccount'> = {
     wallet: toPublicKey(buyer),
-    paymentAccount: toPublicKey(buyer),
+    paymentAccount,
     transferAuthority: toPublicKey(buyer),
     treasuryMint: auctionHouse.treasuryMint.address,
     metadata,

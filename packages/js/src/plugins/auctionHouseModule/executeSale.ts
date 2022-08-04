@@ -131,7 +131,7 @@ export const executeSaleBuilder = (
     ? sellerAddress
     : findAssociatedTokenAccountPda(
         auctionHouse.treasuryMint.address,
-        buyerAddress
+        sellerAddress
       );
 
   // Accounts.
@@ -199,15 +199,26 @@ export const executeSaleBuilder = (
     );
   }
 
-  executeSaleInstruction.keys = [
-    ...executeSaleInstruction.keys,
-    // Provide additional keys to pay royalties.
-    ...asset.creators.map(({ address }) => ({
+  // Provide additional keys to pay royalties.
+  asset.creators.forEach(({ address }) => {
+    executeSaleInstruction.keys.push({
       pubkey: address,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
-    })),
-  ];
+    });
+
+    // Provide ATA to receive SPL token royalty if is not native SOL sale.
+    if (!auctionHouse.isNative) {
+      executeSaleInstruction.keys.push({
+        pubkey: findAssociatedTokenAccountPda(
+          auctionHouse.treasuryMint.address,
+          address
+        ),
+        isWritable: true,
+        isSigner: false,
+      });
+    }
+  });
 
   // Signers.
   const executeSaleSigners = [params.auctioneerAuthority].filter(
