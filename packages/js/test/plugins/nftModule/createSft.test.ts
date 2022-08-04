@@ -317,7 +317,6 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
       useExistingMint: existingMint.address,
       tokenAddress: tokenSigner,
       tokenAmount: token(42),
-      tokenExists: true,
     })
     .run();
 
