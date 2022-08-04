@@ -235,6 +235,6 @@ test('[auctionHouseModule] it throws when creating Auctioneer Auction House with
   await assertThrows(
     t,
     promise,
-    /You are trying to delegate an Auctioneer which requires authority to sign a transaction/
+    /Expected variable \[authority\] to be of type \[Signer\]/
   );
 });
