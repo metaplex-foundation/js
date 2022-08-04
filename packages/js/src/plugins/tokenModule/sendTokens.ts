@@ -1,3 +1,4 @@
+import { ExpectedSignerError } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -37,7 +38,9 @@ export type SendTokensInput = {
   fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
   fromToken?: PublicKey; // Defaults to associated account.
   fromMultiSigners?: KeypairSigner[]; // Defaults to [].
+  payer?: Signer; // Only used to create missing token accounts. Defaults to mx.identity().
   tokenProgram?: PublicKey; // Defaults to Token Program.
+  associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
   confirmOptions?: ConfirmOptions;
 };
 
@@ -68,7 +71,10 @@ export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
 > & {
-  instructionKey?: string;
+  createAssociatedTokenAccountInstructionKey?: string;
+  createAccountInstructionKey?: string;
+  initializeTokenInstructionKey?: string;
+  transferTokensInstructionKey?: string;
 };
 
 export const sendTokensBuilder = async (
@@ -83,6 +89,7 @@ export const sendTokensBuilder = async (
     fromOwner = metaplex.identity(),
     fromToken,
     fromMultiSigners = [],
+    payer = metaplex.identity(),
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
@@ -96,12 +103,46 @@ export const sendTokensBuilder = async (
     fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+  const destinationAddress = toPublicKey(destination);
+  const destinationAccount = await metaplex
+    .rpc()
+    .getAccount(destinationAddress);
 
-  return TransactionBuilder.make().add({
+  const builder = TransactionBuilder.make();
+
+  // Create token account if it does not exist.
+  if (!destinationAccount.exists) {
+    if (toToken && !isSigner(toToken)) {
+      throw new ExpectedSignerError('toToken', 'PublicKey', {
+        problemSuffix:
+          `The provided "toToken" account does not exist. ` +
+          `Therefore, it needs to be created and passed as a Signer.`,
+        solution:
+          `If you want to create the "toToken" account, then please pass it as a Signer. ` +
+          `Alternatively, you can pass the "toOwner" account as a PublicKey instead to ` +
+          `use or create an associated token account.`,
+      });
+    }
+
+    return builder.add(
+      await metaplex
+        .tokens()
+        .builders()
+        .createToken({
+          ...params,
+          mint: mintAddress,
+          owner: toOwner,
+          token: toToken,
+        })
+    );
+  }
+
+  // Transfer tokens.
+  return builder.add({
     instruction: createTransferCheckedInstruction(
       source,
       mintAddress,
-      toPublicKey(destination),
+      destinationAddress,
       fromOwnerPublicKey,
       amount.basisPoints.toNumber(),
       decimals,
@@ -109,6 +150,6 @@ export const sendTokensBuilder = async (
       tokenProgram
     ),
     signers,
-    key: params.instructionKey ?? 'transferTokens',
+    key: params.transferTokensInstructionKey ?? 'transferTokens',
   });
 };
