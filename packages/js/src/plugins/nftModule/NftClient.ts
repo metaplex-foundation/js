@@ -9,6 +9,7 @@ import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuth
 import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
 import { _createNftClient } from './createNft';
 import { _createSftClient } from './createSft';
+import { _deleteNftClient } from './deleteNft';
 import { _findNftByMetadataClient } from './findNftByMetadata';
 import { _findNftByMintClient, _refreshNftClient } from './findNftByMint';
 import { _findNftByTokenClient } from './findNftByToken';
@@ -57,7 +58,7 @@ export class NftClient {
   printNewEdition = _printNewEditionClient;
   uploadMetadata = _uploadMetadataClient;
   update = _updateNftClient;
-  // TODO(loris): delete
+  delete = _deleteNftClient;
 
   // Use.
   use = _useNftClient;

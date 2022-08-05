@@ -90,7 +90,7 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
 // -----------------
 
 export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
-  utilizeInstructionKey?: string;
+  instructionKey?: string;
 };
 
 export const useNftBuilder = (
@@ -141,7 +141,7 @@ export const useNftBuilder = (
           { utilizeArgs: { numberOfUses } }
         ),
         signers: [owner, useAuthority].filter(isSigner),
-        key: params.utilizeInstructionKey ?? 'utilize',
+        key: params.instructionKey ?? 'utilizeNft',
       })
   );
 };

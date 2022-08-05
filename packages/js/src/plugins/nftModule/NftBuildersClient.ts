@@ -3,6 +3,7 @@ import { _approveNftCollectionAuthorityBuildersClient } from './approveNftCollec
 import { _approveNftUseAuthorityBuildersClient } from './approveNftUseAuthority';
 import { _createNftBuildersClient } from './createNft';
 import { _createSftBuildersClient } from './createSft';
+import { _deleteNftBuildersClient } from './deleteNft';
 import { _freezeDelegatedNftBuildersClient } from './freezeDelegatedNft';
 import { _migrateToSizedCollectionNftBuildersClient } from './migrateToSizedCollectionNft';
 import { _printNewEditionBuildersClient } from './printNewEdition';
@@ -24,7 +25,7 @@ export class NftBuildersClient {
   createSft = _createSftBuildersClient;
   printNewEdition = _printNewEditionBuildersClient;
   update = _updateNftBuildersClient;
-  // TODO(loris): delete
+  delete = _deleteNftBuildersClient;
 
   // Use.
   use = _useNftBuildersClient;

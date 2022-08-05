@@ -11,6 +11,7 @@ import {
 } from './approveNftUseAuthority';
 import { createNftOperation, createNftOperationHandler } from './createNft';
 import { createSftOperation, createSftOperationHandler } from './createSft';
+import { deleteNftOperation, deleteNftOperationHandler } from './deleteNft';
 import {
   findNftByMetadataOperation,
   findNftByMetadataOperationHandler,
@@ -117,6 +118,7 @@ export const nftModule = (): MetaplexPlugin => ({
     );
     op.register(createNftOperation, createNftOperationHandler);
     op.register(createSftOperation, createSftOperationHandler);
+    op.register(deleteNftOperation, deleteNftOperationHandler);
     op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
