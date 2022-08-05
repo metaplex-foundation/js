@@ -5,6 +5,7 @@ import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mp
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../tokenModule';
+import { HasMintAddress, toMintAddress } from './helpers';
 import { NftBuildersClient } from './NftBuildersClient';
 import { NftClient } from './NftClient';
 import { findMasterEditionV2Pda } from './pdas';
@@ -16,9 +17,15 @@ import { findMasterEditionV2Pda } from './pdas';
 /** @internal */
 export function _freezeDelegatedNftClient(
   this: NftClient,
-  input: FreezeDelegatedNftInput
+  nft: HasMintAddress,
+  input: Omit<FreezeDelegatedNftInput, 'mintAddress'>
 ) {
-  return this.metaplex.operations().getTask(freezeDelegatedNftOperation(input));
+  return this.metaplex.operations().getTask(
+    freezeDelegatedNftOperation({
+      ...input,
+      mintAddress: toMintAddress(nft),
+    })
+  );
 }
 
 /** @internal */
