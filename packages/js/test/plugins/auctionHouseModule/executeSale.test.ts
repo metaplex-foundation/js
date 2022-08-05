@@ -225,7 +225,6 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
       buyer,
       mintAccount: nft.address,
       price: sol(1),
-      printReceipt: false,
     })
     .run();
 
@@ -246,7 +245,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
   const auctioneerAuthority = Keypair.generate();
   const { client } = await createAuctionHouse(mx, auctioneerAuthority);
 
-  // And we listed that NFT for 1 SOL.
+  // And we listed that NFT.
   const { listing } = await client
     .list({
       mintAccount: nft.address,
@@ -258,7 +257,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
     .bid({
       buyer,
       mintAccount: nft.address,
-      price: sol(5),
+      price: sol(1),
     })
     .run();
 
@@ -276,13 +275,15 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
 
 test('[auctionHouseModule] it throws an error if Bid and Listing have different Auction House', async (t: Test) => {
   // Given we have two Auction Houses and an NFT.
-  const sellerMx = await metaplex();
-  const buyerMx = await metaplex();
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
 
-  const nft = await createNft(sellerMx);
+  const nft = await createNft(mx);
 
-  const { client: sellerClient } = await createAuctionHouse(sellerMx);
-  const { client: buyerClient } = await createAuctionHouse(buyerMx);
+  const { client: sellerClient } = await createAuctionHouse(mx);
+  const { client: buyerClient } = await createAuctionHouse(mx, null, {
+    authority: buyer,
+  });
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await sellerClient
@@ -307,7 +308,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
   await assertThrows(
     t,
     promise,
-    /You are trying to use Bid and Listing from different Auction Houses/
+    /You are trying to use a Bid and a Listing from different Auction Houses./
   );
 });
 
@@ -342,7 +343,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
   await assertThrows(
     t,
     promise,
-    /You are trying to execute a sale on a listing for a different NFT/
+    /You are trying to execute a sale using a Bid and a Listing that have different mint addresses./
   );
 });
 
@@ -357,45 +358,38 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
     .createTokenWithMint()
     .run();
 
-  // And airdrop 10 tokens to buyer.
-  await mx
-    .tokens()
-    .createToken({
-      mint: treasuryToken.mint.address,
-      owner: buyer.publicKey,
-    })
-    .run();
+  // And airdrop 2 Tokens to buyer.
   await mx
     .tokens()
     .mint({
       mint: treasuryToken.mint.address,
-      amount: token(10),
+      amount: token(2),
       toOwner: buyer.publicKey,
     })
     .run();
 
   // And we created a new Auction House using that treasury with NFT to sell.
   const treasuryMint = treasuryToken.mint.address;
-  const { client } = await createAuctionHouse(mx, null, {
+  const { auctionHouse, client } = await createAuctionHouse(mx, null, {
     treasuryMint,
   });
   const nft = await createNft(mx);
 
-  // And we listed that NFT for 1 Token.
+  // And we listed that NFT for 2 Tokens.
   const { listing } = await client
     .list({
       mintAccount: nft.address,
-      price: token(1),
+      price: token(2),
     })
     .run();
 
-  // And we created a public bid on that NFT for 1 Token.
+  // And we created a private bid on that NFT for 2 Tokens.
   const { bid } = await client
     .bid({
       buyer,
       mintAccount: nft.address,
       tokenAccount: nft.token.address,
-      price: token(1),
+      price: token(2),
     })
     .run();
 
@@ -406,4 +400,14 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
+
+  // And treasury tokens left buyer's account.
+  const paymentAccount = findAssociatedTokenAccountPda(
+    auctionHouse.treasuryMint.address,
+    buyer.publicKey
+  );
+
+  const buyerToken = await mx.tokens().findTokenByAddress(paymentAccount).run();
+
+  t.equal(buyerToken.amount.basisPoints.toNumber(), 0);
 });

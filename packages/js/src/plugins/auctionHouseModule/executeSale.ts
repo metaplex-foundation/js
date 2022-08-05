@@ -36,8 +36,8 @@ import { Bid } from './Bid';
 import { Listing } from './Listing';
 import {
   AuctioneerAuthorityRequiredError,
-  AuctionHousesDifferError,
-  WrongMintError,
+  BidAndListingHaveDifferentAuctionHousesError,
+  BidAndListingHaveDifferentMintsError,
 } from './errors';
 
 // -----------------
@@ -107,35 +107,33 @@ export const executeSaleBuilder = (
   metaplex: Metaplex,
   params: ExecuteSaleBuilderParams
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
-  // Data.
-  const auctionHouse = params.auctionHouse;
-  const { sellerAddress, asset } = params.listing;
-  const { buyerAddress, tokens } = params.bid;
+  const { auctionHouse, listing, bid, auctioneerAuthority } = params;
+  const { sellerAddress, asset } = listing;
+  const { buyerAddress, tokens } = bid;
 
-  if (
-    !params.listing.auctionHouse.address.equals(params.bid.auctionHouse.address)
-  ) {
-    throw new AuctionHousesDifferError();
+  if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
+    throw new BidAndListingHaveDifferentAuctionHousesError();
   }
-  if (!params.listing.asset.address.equals(params.bid.asset.address)) {
-    throw new WrongMintError();
+  if (!listing.asset.address.equals(bid.asset.address)) {
+    throw new BidAndListingHaveDifferentMintsError();
   }
-  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
+  // Data.
   const price = auctionHouse.isNative
-    ? lamports(params.bid.price.basisPoints)
-    : amount(params.bid.price.basisPoints, auctionHouse.treasuryMint.currency);
+    ? lamports(bid.price.basisPoints)
+    : amount(bid.price.basisPoints, auctionHouse.treasuryMint.currency);
+
+  // Accounts.
   const sellerPaymentReceiptAccount = auctionHouse.isNative
     ? sellerAddress
     : findAssociatedTokenAccountPda(
         auctionHouse.treasuryMint.address,
         sellerAddress
       );
-
-  // Accounts.
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
+  const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
     asset.address,
     buyerAddress
   );
@@ -163,13 +161,13 @@ export const executeSaleBuilder = (
     treasuryMint: auctionHouse.treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
     sellerPaymentReceiptAccount,
-    buyerReceiptTokenAccount: buyerTokenAccount,
+    buyerReceiptTokenAccount,
     authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
     auctionHouseTreasury: auctionHouse.treasuryAccountAddress,
-    buyerTradeState: params.bid.tradeStateAddress,
-    sellerTradeState: params.listing.tradeStateAddress,
+    buyerTradeState: bid.tradeStateAddress,
+    sellerTradeState: listing.tradeStateAddress,
     freeTradeState,
     programAsSigner,
   };
@@ -185,14 +183,14 @@ export const executeSaleBuilder = (
 
   // Execute Sale Instruction
   let executeSaleInstruction = createExecuteSaleInstruction(accounts, args);
-  if (params.auctioneerAuthority) {
+  if (auctioneerAuthority) {
     executeSaleInstruction = createAuctioneerExecuteSaleInstruction(
       {
         ...accounts,
-        auctioneerAuthority: params.auctioneerAuthority.publicKey,
+        auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
           auctionHouse.address,
-          params.auctioneerAuthority.publicKey
+          auctioneerAuthority.publicKey
         ),
       },
       args
@@ -221,25 +219,23 @@ export const executeSaleBuilder = (
   });
 
   // Signers.
-  const executeSaleSigners = [params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
-  );
+  const executeSaleSigners = [auctioneerAuthority].filter(isSigner);
 
   // Receipt.
   const shouldPrintReceipt =
     (params.printReceipt ?? true) &&
-    Boolean(params.listing.receiptAddress && params.bid.receiptAddress);
+    Boolean(listing.receiptAddress && bid.receiptAddress);
   const bookkeeper = params.bookkeeper ?? metaplex.identity();
   const purchaseReceipt = findPurchaseReceiptPda(
-    params.listing.tradeStateAddress,
-    params.bid.tradeStateAddress
+    listing.tradeStateAddress,
+    bid.tradeStateAddress
   );
 
   return (
     TransactionBuilder.make<ExecuteSaleBuilderContext>()
       .setContext({
-        sellerTradeState: params.listing.tradeStateAddress,
-        buyerTradeState: params.bid.tradeStateAddress,
+        sellerTradeState: listing.tradeStateAddress,
+        buyerTradeState: bid.tradeStateAddress,
         buyer: buyerAddress,
         seller: sellerAddress,
         metadata: asset.metadataAddress,
@@ -262,8 +258,8 @@ export const executeSaleBuilder = (
           instruction: createPrintPurchaseReceiptInstruction(
             {
               purchaseReceipt: purchaseReceipt,
-              listingReceipt: params.listing.receiptAddress as Pda,
-              bidReceipt: params.bid.receiptAddress as Pda,
+              listingReceipt: listing.receiptAddress as Pda,
+              bidReceipt: bid.receiptAddress as Pda,
               bookkeeper: bookkeeper.publicKey,
               instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             },

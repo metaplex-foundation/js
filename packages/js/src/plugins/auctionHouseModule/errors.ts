@@ -52,32 +52,32 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
   }
 }
 
-export class AuctionHousesDifferError extends AuctionHouseError {
+export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'auction_houses_differ',
-      title: 'Auctioneer Houses Differ',
+      key: 'bid_and_listing_have_different_auction_houses',
+      title: 'Bid And Listing Have Different Auction Houses',
       problem:
-        'You are trying to use Bid and Listing from different Auction Houses.',
+        'You are trying to use a Bid and a Listing from different Auction Houses.',
       solution:
-        'Please provide Bid and Listing from the same Auction House. ' +
-        'They should have the equal "auctionHouse.address".',
+        'Please provide both Bid and Listing from the same Auction House. ' +
+        'They should have the same "auctionHouse.address".',
     });
   }
 }
 
-export class WrongMintError extends AuctionHouseError {
+export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'wrong_mint',
-      title: 'Wrong Mint Provided',
+      key: 'bid_and_listing_have_different_mints',
+      title: 'Bid And Listing Have Different Mints',
       problem:
-        'You are trying to execute a sale on a listing for a different NFT.',
+        'You are trying to execute a sale using a Bid and a Listing that have different mint addresses.',
       solution:
-        'Please provide Bid and Listing with the same Mint. ' +
-        'They should have the equal "asset.address".',
+        'Please provide a Bid and a Listing on the same asset in order to execute the sale. ' +
+        'They should have the same "asset.address".',
     });
   }
 }
