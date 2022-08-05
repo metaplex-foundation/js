@@ -6,6 +6,7 @@ import {
   OperationHandler,
   Signer,
   SplTokenAmount,
+  token,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
@@ -55,7 +56,7 @@ export type ApproveTokenDelegateAuthorityOperation = Operation<
 export interface ApproveTokenDelegateAuthorityInput {
   mintAddress: PublicKey;
   delegateAuthority: PublicKey;
-  amount: SplTokenAmount;
+  amount?: SplTokenAmount;
   owner?: Signer; // Defaults to mx.identity().
   tokenAddress?: PublicKey; // Defaults to associated account.
   multiSigners?: KeypairSigner[]; // Defaults to [].
@@ -102,7 +103,7 @@ export const approveTokenDelegateAuthorityBuilder = (
   const {
     mintAddress,
     delegateAuthority,
-    amount,
+    amount = token(1),
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],

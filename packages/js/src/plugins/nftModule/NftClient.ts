@@ -1,7 +1,10 @@
 import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
-import { Task } from '@/utils';
-import { SendTokensInput, SendTokensOutput } from '../tokenModule';
+import {
+  ApproveTokenDelegateAuthorityInput,
+  RevokeTokenDelegateAuthorityInput,
+  SendTokensInput,
+} from '../tokenModule';
 import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuthority';
 import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
 import { _createNftClient } from './createNft';
@@ -71,18 +74,34 @@ export class NftClient {
   migrateToSizedCollection = _migrateToSizedCollectionNftClient;
 
   // Token.
-  // TODO(loris): freeze;
-  // TODO(loris): thaw;
-  // TODO(loris): approveDelegateAuthority;
-  // TODO(loris): revokeDelegateAuthority;
+  // TODO(loris): freezeFromDelegateAuthority;
+  // TODO(loris): thawFromDelegateAuthority;
 
-  send(
-    nftOrSft: HasMintAddress,
-    options?: Omit<SendTokensInput, 'mint'>
-  ): Task<SendTokensOutput> {
+  // Syntactic sugar.
+  send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {
     return this.metaplex.tokens().send({
       mint: toMintAddress(nftOrSft),
       amount: token(1),
+      ...options,
+    });
+  }
+
+  approveDelegateAuthority(
+    nftOrSft: HasMintAddress,
+    options: Omit<ApproveTokenDelegateAuthorityInput, 'mintAddress'>
+  ) {
+    return this.metaplex.tokens().approveDelegateAuthority({
+      mintAddress: toMintAddress(nftOrSft),
+      ...options,
+    });
+  }
+
+  revokeDelegateAuthority(
+    nftOrSft: HasMintAddress,
+    options?: Omit<RevokeTokenDelegateAuthorityInput, 'mintAddress'>
+  ) {
+    return this.metaplex.tokens().revokeDelegateAuthority({
+      mintAddress: toMintAddress(nftOrSft),
       ...options,
     });
   }
