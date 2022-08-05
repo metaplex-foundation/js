@@ -123,25 +123,26 @@ export const sendTokensBuilder = async (
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
+  let createTokenIfMissingBuilder = TransactionBuilder.make();
+  if (!(params.toTokenExists ?? false)) {
+    createTokenIfMissingBuilder = await metaplex
+      .tokens()
+      .builders()
+      .createTokenIfMissing({
+        ...params,
+        mint: mintAddress,
+        owner: toOwner,
+        token: toToken,
+        payer,
+        tokenVariable: 'toToken',
+      });
+  }
+
   return (
     TransactionBuilder.make()
 
       // Create token account if missing.
-      .add(
-        !(params.toTokenExists ?? false)
-          ? await metaplex
-              .tokens()
-              .builders()
-              .createTokenIfMissing({
-                ...params,
-                mint: mintAddress,
-                owner: toOwner,
-                token: toToken,
-                payer,
-                tokenVariable: 'toToken',
-              })
-          : TransactionBuilder.make()
-      )
+      .add(createTokenIfMissingBuilder)
 
       // Transfer tokens.
       .add({
