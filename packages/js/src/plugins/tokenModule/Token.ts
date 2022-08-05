@@ -4,6 +4,7 @@ import { assert, Option } from '@/utils';
 import { TokenAccount } from './accounts';
 import { Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
+import { AccountState } from '@solana/spl-token';
 
 export type Token = Readonly<{
   model: 'token';
@@ -15,6 +16,7 @@ export type Token = Readonly<{
   closeAuthorityAddress: Option<PublicKey>;
   delegateAddress: Option<PublicKey>;
   delegateAmount: SplTokenAmount;
+  state: AccountState;
 }>;
 
 export const isToken = (value: any): value is Token =>
@@ -42,6 +44,7 @@ export const toToken = (account: TokenAccount): Token => {
       : null,
     delegateAddress: account.data.delegateOption ? account.data.delegate : null,
     delegateAmount: token(account.data.delegatedAmount.toString()),
+    state: account.data.state,
   };
 };
 

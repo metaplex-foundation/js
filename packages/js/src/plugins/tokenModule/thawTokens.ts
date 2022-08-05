@@ -47,10 +47,10 @@ export type ThawTokensOperation = Operation<
 
 export type ThawTokensInput = {
   mintAddress: PublicKey;
-  owner?: PublicKey | Signer; // Defaults to mx.identity().
+  freezeAuthority: PublicKey | Signer;
+  tokenOwner?: PublicKey; // Defaults to mx.identity().
   tokenAddress?: PublicKey; // Defaults to associated account.
   multiSigners?: KeypairSigner[]; // Defaults to [].
-  delegateAuthority?: Signer; // Defaults to not using a delegate authority.
   tokenProgram?: PublicKey; // Defaults to Token Program.
   confirmOptions?: ConfirmOptions;
 };
@@ -93,25 +93,25 @@ export const thawTokensBuilder = (
 ): TransactionBuilder => {
   const {
     mintAddress,
-    owner = metaplex.identity().publicKey,
+    tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
     multiSigners = [],
-    delegateAuthority,
+    freezeAuthority,
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
-  const [ownerPublicKey, signers] = isSigner(owner)
-    ? [owner.publicKey, [owner]]
-    : [owner, [delegateAuthority, ...multiSigners].filter(isSigner)];
+  const [authorityPublicKey, signers] = isSigner(freezeAuthority)
+    ? [freezeAuthority.publicKey, [freezeAuthority]]
+    : [freezeAuthority, multiSigners];
 
   const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
+    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
 
   return TransactionBuilder.make().add({
     instruction: createThawAccountInstruction(
       tokenAddressOrAta,
       mintAddress,
-      delegateAuthority ? delegateAuthority.publicKey : ownerPublicKey,
+      authorityPublicKey,
       multiSigners,
       tokenProgram
     ),

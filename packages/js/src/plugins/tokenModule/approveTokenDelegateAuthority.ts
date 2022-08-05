@@ -114,12 +114,12 @@ export const approveTokenDelegateAuthorityBuilder = (
     ? [owner.publicKey, [owner]]
     : [owner, multiSigners];
 
-  const tokenAccount =
+  const tokenAddressOrAta =
     tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
 
   return TransactionBuilder.make().add({
     instruction: createApproveInstruction(
-      tokenAccount,
+      tokenAddressOrAta,
       delegateAuthority,
       ownerPublicKey,
       amount.basisPoints.toNumber(),
