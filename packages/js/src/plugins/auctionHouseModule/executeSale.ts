@@ -179,6 +179,8 @@ export const executeSaleBuilder = (
     programAsSignerBump: programAsSigner.bump,
     buyerPrice: price.basisPoints,
     tokenSize: tokens.basisPoints,
+    partialOrderSize: null,
+    partialOrderPrice: null,
   };
 
   // Execute Sale Instruction
