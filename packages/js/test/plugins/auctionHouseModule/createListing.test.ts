@@ -1,3 +1,4 @@
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
@@ -16,7 +17,6 @@ import {
   Listing,
   AccountNotFoundError,
 } from '@/index';
-import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 
@@ -52,13 +52,14 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
         ),
       },
     },
+    receiptAddress: spok.defined,
   };
   spok(t, listing, {
     $topic: 'Listing',
     ...expectedListing,
   } as unknown as Specifications<Listing>);
 
-  // And we get the same result when we fetch the Auction House by address.
+  // And we get the same result when we fetch the Listing by address.
   const retrieveListing = await client
     .findListingByAddress(sellerTradeState)
     .run();
@@ -87,6 +88,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   t.equal(listing.tradeStateAddress, sellerTradeState);
   t.same(listing.price, sol(1));
   t.same(listing.tokens, token(1));
+  t.false(listing.receiptAddress);
 
   // But we cannot retrieve it later with the default operation handler.
   try {
@@ -120,6 +122,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
 
   // Then we still get a listing model.
   t.equal(listing.tradeStateAddress, sellerTradeState);
+  t.false(listing.receiptAddress);
 });
 
 test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Auction House with late Auctioneer delegation', async (t: Test) => {

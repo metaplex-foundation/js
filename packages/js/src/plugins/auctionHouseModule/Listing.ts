@@ -87,10 +87,7 @@ export const toLazyListing = (
     bookkeeperAddress: account.data.bookkeeper,
     sellerAddress: account.data.seller,
     metadataAddress: account.data.metadata,
-    receiptAddress: new Pda(
-      account.data.tradeState,
-      account.data.tradeStateBump
-    ),
+    receiptAddress: new Pda(account.publicKey, account.data.bump),
     purchaseReceiptAddress: account.data.purchaseReceipt,
 
     // Data.

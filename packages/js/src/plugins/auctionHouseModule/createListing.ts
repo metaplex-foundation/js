@@ -24,7 +24,7 @@ import {
   SolAmount,
   SplTokenAmount,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, Option } from '@/utils';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
@@ -72,8 +72,8 @@ export type CreateListingOutput = {
   tokenAccount: PublicKey;
   metadata: Pda;
   seller: PublicKey;
-  receipt: Pda;
-  bookkeeper: PublicKey;
+  receipt: Option<Pda>;
+  bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
 };
@@ -194,7 +194,11 @@ export const createListingBuilder = (
   );
 
   // Receipt.
-  const bookkeeper: Signer = params.bookkeeper ?? metaplex.identity();
+  // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
+  // Don't print Auctioneer Sell receipt for the time being.
+  const shouldPrintReceipt =
+    (params.printReceipt ?? true) && !params.auctioneerAuthority;
+  const bookkeeper = params.bookkeeper ?? metaplex.identity();
   const receipt = findListingReceiptPda(sellerTradeState);
 
   return (
@@ -205,8 +209,8 @@ export const createListingBuilder = (
         tokenAccount,
         metadata,
         seller: toPublicKey(seller),
-        receipt,
-        bookkeeper: bookkeeper.publicKey,
+        receipt: shouldPrintReceipt ? receipt : null,
+        bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
         price,
         tokens,
       })
@@ -219,9 +223,7 @@ export const createListingBuilder = (
       })
 
       // Print the Listing Receipt.
-      // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
-      // Don't print Auctioneer Sell receipt for the time being.
-      .when(params.printReceipt ?? !params.auctioneerAuthority, (builder) =>
+      .when(shouldPrintReceipt, (builder) =>
         builder.add({
           instruction: createPrintListingReceiptInstruction(
             {

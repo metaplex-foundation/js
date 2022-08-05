@@ -74,8 +74,8 @@ export type CreateBidOutput = {
   tokenAccount: Option<PublicKey>;
   metadata: Pda;
   buyer: PublicKey;
-  receipt: Pda;
-  bookkeeper: PublicKey;
+  receipt: Option<Pda>;
+  bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
 };
@@ -126,6 +126,12 @@ export const createBidBuilder = async (
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const metadata = findMetadataPda(params.mintAccount);
+  const paymentAccount = auctionHouse.isNative
+    ? toPublicKey(buyer)
+    : findAssociatedTokenAccountPda(
+        auctionHouse.treasuryMint.address,
+        toPublicKey(buyer)
+      );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     toPublicKey(buyer)
@@ -152,7 +158,7 @@ export const createBidBuilder = async (
 
   const accounts: Omit<BuyInstructionAccounts, 'tokenAccount'> = {
     wallet: toPublicKey(buyer),
-    paymentAccount: toPublicKey(buyer),
+    paymentAccount,
     transferAuthority: toPublicKey(buyer),
     treasuryMint: auctionHouse.treasuryMint.address,
     metadata,
@@ -212,7 +218,11 @@ export const createBidBuilder = async (
   );
 
   // Receipt.
-  const bookkeeper: Signer = params.bookkeeper ?? metaplex.identity();
+  // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug
+  // Don't print Auctioneer Bid receipt for the time being.
+  const shouldPrintReceipt =
+    (params.printReceipt ?? true) && !params.auctioneerAuthority;
+  const bookkeeper = params.bookkeeper ?? metaplex.identity();
   const receipt = findBidReceiptPda(buyerTradeState);
 
   const builder = TransactionBuilder.make<CreateBidBuilderContext>().setContext(
@@ -221,8 +231,8 @@ export const createBidBuilder = async (
       tokenAccount,
       metadata,
       buyer: toPublicKey(buyer),
-      receipt,
-      bookkeeper: bookkeeper.publicKey,
+      receipt: shouldPrintReceipt ? receipt : null,
+      bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
       price,
       tokens,
     }
@@ -254,9 +264,7 @@ export const createBidBuilder = async (
       })
 
       // Print the Bid Receipt.
-      // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug
-      // Don't print Auctioneer Bid receipt for the time being.
-      .when(params.printReceipt ?? !params.auctioneerAuthority, (builder) =>
+      .when(shouldPrintReceipt, (builder) =>
         builder.add({
           instruction: createPrintBidReceiptInstruction(
             {

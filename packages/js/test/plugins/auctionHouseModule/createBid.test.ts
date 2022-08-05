@@ -12,8 +12,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda } from '@/plugins';
-import { Bid } from '@/plugins/auctionHouseModule/Bid';
+import { Bid, findAssociatedTokenAccountPda } from '@/index';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
@@ -47,6 +46,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
       address: spokSamePubkey(nft.address),
       token: spok.notDefined,
     },
+    receiptAddress: spok.defined,
     isPublic: true,
   };
   spok(t, bid, {
@@ -170,6 +170,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   t.same(bid.price, sol(1));
   t.same(bid.tokens, token(1));
   t.false(bid.isPublic);
+  t.false(bid.receiptAddress);
 
   // But we cannot retrieve it later with the default operation handler.
   const promise = client.findBidByAddress(buyerTradeState).run();
@@ -236,6 +237,7 @@ test('[auctionHouseModule] create private receipt-less Auctioneer bid', async (t
   t.same(bid.price, sol(1));
   t.same(bid.tokens, token(1));
   t.false(bid.isPublic);
+  t.false(bid.receiptAddress);
 });
 
 test('[auctionHouseModule] create public receipt-less Auctioneer bid', async (t: Test) => {
@@ -334,7 +336,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // Given we have an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
-  const nft = await createNft(mx);
+  const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
   // And an Auctioneer Auction House.
   const auctioneerAuthority = Keypair.generate();

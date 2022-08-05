@@ -51,3 +51,33 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
     });
   }
 }
+
+export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'bid_and_listing_have_different_auction_houses',
+      title: 'Bid And Listing Have Different Auction Houses',
+      problem:
+        'You are trying to use a Bid and a Listing from different Auction Houses.',
+      solution:
+        'Please provide both Bid and Listing from the same Auction House. ' +
+        'They should have the same "auctionHouse.address".',
+    });
+  }
+}
+
+export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'bid_and_listing_have_different_mints',
+      title: 'Bid And Listing Have Different Mints',
+      problem:
+        'You are trying to execute a sale using a Bid and a Listing that have different mint addresses.',
+      solution:
+        'Please provide a Bid and a Listing on the same asset in order to execute the sale. ' +
+        'They should have the same "asset.address".',
+    });
+  }
+}
