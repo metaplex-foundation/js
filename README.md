@@ -79,7 +79,7 @@ The NFT module can be accessed via `metaplex.nfts()` and provides the following 
 
 - [`findByMint(mint, options)`](#findByMint)
 - [`findAllByMintList(mints, options)`](#findAllByMintList)
-- [`loadNft(lazyNft, options)`](#loadNft)
+- [`load(metadata, options)`](#load)
 - [`findAllByOwner(owner, options)`](#findAllByOwner)
 - [`findAllByCreator(creator, options)`](#findAllByCreator)
 - [`uploadMetadata(metadata)`](#uploadMetadata)
@@ -137,20 +137,20 @@ const [nftA, nftB] = await metaplex
     .run();
 ```
 
-NFTs retrieved via `findAllByMintList` may be of type `LazyNft` rather than `Nft`.
+NFTs retrieved via `findAllByMintList` may be of type `Metadata` rather than `Nft`.
 
 What this means is they won't have their JSON metadata loaded because this would require one request per NFT and could be inefficient if you provide a long list of mint addresses. Additionally, you might want to fetch these on-demand, as the NFTs are being displayed on your web app for instance. The same goes for the `edition` property which requires an extra account to fetch and might be irrelevant until the user clicks on the NFT.
 
-Note that, since plugins can swap operation handlers with their own implementations, it is possible that a plugin relying on indexers return an array of `Nft`s directly instead of `LazyNft`s. The default implementation though, will return `LazyNft`s.
+Note that, since plugins can swap operation handlers with their own implementations, it is possible that a plugin relying on indexers return an array of `Nft`s directly instead of `Metadata`s. The default implementation though, will return `Metadata`s.
 
-Thus, if you want to load the `json` and/or `edition` properties of an NFT, you need to load that `LazyNft` into an `Nft`. Which you can do with the next operation.
+Thus, if you want to load the `json` and/or `edition` properties of an NFT, you need to load that `Metadata` into an `Nft`. Which you can do with the next operation.
 
-### loadNft
+### load
 
-For performance reasons, when fetching NFTs in bulk, you may received `LazyNft`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `LazyNft` into an `Nft`, you may use the `loadNft` operation like so.
+For performance reasons, when fetching NFTs in bulk, you may received `Metadata`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `Metadata` into an `Nft`, you may use the `load` operation like so.
 
 ```ts
-const nft = await metaplex.nfts().loadNft(lazyNft).run();
+const nft = await metaplex.nfts().load(metadata).run();
 ```
 
 This will give you access to the `json` and `edition` properties of the NFT as explained in [the NFT model documentation](#the-nft-model).
@@ -166,7 +166,7 @@ const myNfts = await metaplex
     .run();
 ```
 
-Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
+Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
 
 ### findAllByCreator
 
@@ -178,7 +178,7 @@ const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position
 const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position: 2 }).run(); // Now matching the second creator field.
 ```
 
-Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
+Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
 
 ### uploadMetadata
 
@@ -232,7 +232,7 @@ Note that `MetaplexFile`s can be created in various different ways based on wher
 
 ### create
 
-The `create` method accepts [a variety of parameters](/packages/js/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
@@ -254,7 +254,7 @@ Additionally, since no other optional parameters were provided, it will do its b
 - It will also default to setting the identity as the first and only creator with a 100% share.
 - It will default to making the NFT mutable — meaning the update authority will be able to update it later on.
 
-If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/packages/js/src/plugins/nftModule/createNft.ts) accepted by the `create` method.
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](/src/plugins/nftModule/createNft.ts) accepted by the `create` method.
 
 ### update
 
@@ -341,11 +341,11 @@ Here is an overview of the properties that are available on the `Nft` object.
 ```ts
 type Nft = Readonly<{
     model: 'nft';
-    lazy: false;
+    address: PublicKey;
     metadataAddress: Pda;
-    mintAddress: PublicKey;
     updateAuthorityAddress: PublicKey;
-    json: Option<JsonMetadata>;
+    json: Option<Json>;
+    jsonLoaded: boolean;
     name: string;
     symbol: string;
     uri: string;
@@ -355,8 +355,19 @@ type Nft = Readonly<{
     editionNonce: Option<number>;
     creators: Creator[];
     tokenStandard: Option<TokenStandard>;
-    collection: Option<Collection>;
-    uses: Option<Uses>;
+    collection: Option<{
+        address: PublicKey;
+        verified: boolean;
+    }>;
+    collectionDetails: Option<{
+        version: 'V1';
+        size: BigNumber;
+    }>;
+    uses: Option<{
+        useMethod: UseMethod;
+        remaining: BigNumber;
+        total: BigNumber;
+    }>;
     mint: {
         model: 'mint';
         address: PublicKey;
@@ -385,11 +396,11 @@ type Nft = Readonly<{
 }>
 ```
 
-Additionally, The SDK may sometimes return a `LazyNft` insteand of an `Nft` object. The `LazyNft` model contains the same data as the `Nft` model but it excludes the following properties: `json`, `mint` and `edition`. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
+Additionally, The SDK may sometimes return a `Metadata` instead of an `Nft` object. The `Metadata` model contains the same data as the `Nft` model but it excludes the following properties: `json`, `mint` and `edition`. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
 - If you're only fetching one NFT — e.g. by using `findByMint` — then you will receive an `Nft` object containing these properties.
-- If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then you will receive an array of `LazyNft` that do not contain these properties.
+- If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then you will receive an array of `Metadata` that do not contain these properties.
 
-You may obtain an `Nft` object from a `LazyNft` object by using [the `loadNft` method](#loadnft) explained above,
+You may obtain an `Nft` object from a `Metadata` object by using [the `load` method](#load) explained above,
 
 ## Candy Machines
 The Candy Machine module can be accessed via `metaplex.candyMachines()` and provides the following documented methods.
@@ -412,7 +423,7 @@ const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine, { versi
 
 Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.
 
-Similarly to `findAllByMintList`, the returned NFTs may be `LazyNft`s.
+Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
 
 ## Identity
 The current identity of a `Metaplex` instance can be accessed via `metaplex.identity()` and provide information on the wallet we are acting on behalf of when interacting with the SDK.

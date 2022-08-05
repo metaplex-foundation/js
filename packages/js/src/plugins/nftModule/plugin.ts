@@ -11,6 +11,7 @@ import {
 } from './approveNftUseAuthority';
 import { createNftOperation, createNftOperationHandler } from './createNft';
 import { createSftOperation, createSftOperationHandler } from './createSft';
+import { deleteNftOperation, deleteNftOperationHandler } from './deleteNft';
 import {
   findNftByMetadataOperation,
   findNftByMetadataOperationHandler,
@@ -39,6 +40,10 @@ import {
   findNftsByUpdateAuthorityOperation,
   findNftsByUpdateAuthorityOperationHandler,
 } from './findNftsByUpdateAuthority';
+import {
+  freezeDelegatedNftOperation,
+  freezeDelegatedNftOperationHandler,
+} from './freezeDelegatedNft';
 import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import {
   loadMetadataOperation,
@@ -62,6 +67,10 @@ import {
   revokeNftUseAuthorityOperation,
   revokeNftUseAuthorityOperationHandler,
 } from './revokeNftUseAuthority';
+import {
+  thawDelegatedNftOperation,
+  thawDelegatedNftOperationHandler,
+} from './thawDelegatedNft';
 import {
   unverifyNftCollectionOperation,
   unverifyNftCollectionOperationHandler,
@@ -109,6 +118,7 @@ export const nftModule = (): MetaplexPlugin => ({
     );
     op.register(createNftOperation, createNftOperationHandler);
     op.register(createSftOperation, createSftOperationHandler);
+    op.register(deleteNftOperation, deleteNftOperationHandler);
     op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
@@ -121,6 +131,10 @@ export const nftModule = (): MetaplexPlugin => ({
     op.register(
       findNftsByUpdateAuthorityOperation,
       findNftsByUpdateAuthorityOperationHandler
+    );
+    op.register(
+      freezeDelegatedNftOperation,
+      freezeDelegatedNftOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
     op.register(
@@ -136,6 +150,7 @@ export const nftModule = (): MetaplexPlugin => ({
       revokeNftUseAuthorityOperation,
       revokeNftUseAuthorityOperationHandler
     );
+    op.register(thawDelegatedNftOperation, thawDelegatedNftOperationHandler);
     op.register(
       unverifyNftCollectionOperation,
       unverifyNftCollectionOperationHandler

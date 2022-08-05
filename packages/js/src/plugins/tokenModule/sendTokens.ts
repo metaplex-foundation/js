@@ -56,6 +56,7 @@ export type SendTokensInput = {
   fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
   fromToken?: PublicKey; // Defaults to associated account.
   fromMultiSigners?: KeypairSigner[]; // Defaults to [].
+  delegateAuthority?: Signer; // Defaults to not using a delegate authority.
   payer?: Signer; // Only used to create missing token accounts. Defaults to mx.identity().
   tokenProgram?: PublicKey; // Defaults to Token Program.
   associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
@@ -108,13 +109,14 @@ export const sendTokensBuilder = async (
     fromOwner = metaplex.identity(),
     fromToken,
     fromMultiSigners = [],
+    delegateAuthority,
     payer = metaplex.identity(),
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
   const [fromOwnerPublicKey, signers] = isSigner(fromOwner)
     ? [fromOwner.publicKey, [fromOwner]]
-    : [fromOwner, fromMultiSigners];
+    : [fromOwner, [delegateAuthority, ...fromMultiSigners].filter(isSigner)];
 
   const mintAddress = isMint(mint) ? mint.address : mint;
   const decimals = isMint(mint) ? mint.decimals : amount.currency.decimals;
@@ -123,25 +125,26 @@ export const sendTokensBuilder = async (
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
+  let createTokenIfMissingBuilder = TransactionBuilder.make();
+  if (!(params.toTokenExists ?? false)) {
+    createTokenIfMissingBuilder = await metaplex
+      .tokens()
+      .builders()
+      .createTokenIfMissing({
+        ...params,
+        mint: mintAddress,
+        owner: toOwner,
+        token: toToken,
+        payer,
+        tokenVariable: 'toToken',
+      });
+  }
+
   return (
     TransactionBuilder.make()
 
       // Create token account if missing.
-      .add(
-        !(params.toTokenExists ?? false)
-          ? await metaplex
-              .tokens()
-              .builders()
-              .createTokenIfMissing({
-                ...params,
-                mint: mintAddress,
-                owner: toOwner,
-                token: toToken,
-                payer,
-                tokenVariable: 'toToken',
-              })
-          : TransactionBuilder.make()
-      )
+      .add(createTokenIfMissingBuilder)
 
       // Transfer tokens.
       .add({
@@ -149,7 +152,7 @@ export const sendTokensBuilder = async (
           source,
           mintAddress,
           toPublicKey(destination),
-          fromOwnerPublicKey,
+          delegateAuthority ? delegateAuthority.publicKey : fromOwnerPublicKey,
           amount.basisPoints.toNumber(),
           decimals,
           fromMultiSigners,

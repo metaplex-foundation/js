@@ -1,11 +1,15 @@
 import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
-import { Task } from '@/utils';
-import { SendTokensInput, SendTokensOutput } from '../tokenModule';
+import {
+  ApproveTokenDelegateAuthorityInput,
+  RevokeTokenDelegateAuthorityInput,
+  SendTokensInput,
+} from '../tokenModule';
 import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuthority';
 import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
 import { _createNftClient } from './createNft';
 import { _createSftClient } from './createSft';
+import { _deleteNftClient } from './deleteNft';
 import { _findNftByMetadataClient } from './findNftByMetadata';
 import { _findNftByMintClient, _refreshNftClient } from './findNftByMint';
 import { _findNftByTokenClient } from './findNftByToken';
@@ -13,6 +17,7 @@ import { _findNftsByCreatorsClient } from './findNftsByCreator';
 import { _findNftsByMintListClient } from './findNftsByMintList';
 import { _findNftsByOwnerClient } from './findNftsByOwner';
 import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
+import { _freezeDelegatedNftClient } from './freezeDelegatedNft';
 import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
 import { _migrateToSizedCollectionNftClient } from './migrateToSizedCollectionNft';
@@ -20,6 +25,7 @@ import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
 import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
+import { _thawDelegatedNftClient } from './thawDelegatedNft';
 import { _unverifyNftCollectionClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorClient } from './unverifyNftCreator';
 import { _updateNftClient } from './updateNft';
@@ -52,7 +58,7 @@ export class NftClient {
   printNewEdition = _printNewEditionClient;
   uploadMetadata = _uploadMetadataClient;
   update = _updateNftClient;
-  // TODO(loris): delete
+  delete = _deleteNftClient;
 
   // Use.
   use = _useNftClient;
@@ -71,18 +77,34 @@ export class NftClient {
   migrateToSizedCollection = _migrateToSizedCollectionNftClient;
 
   // Token.
-  // TODO(loris): freeze;
-  // TODO(loris): thaw;
-  // TODO(loris): approveDelegateAuthority;
-  // TODO(loris): revokeDelegateAuthority;
+  freezeDelegatedNft = _freezeDelegatedNftClient;
+  thawDelegatedNft = _thawDelegatedNftClient;
 
-  send(
-    nftOrSft: HasMintAddress,
-    options?: Omit<SendTokensInput, 'mint'>
-  ): Task<SendTokensOutput> {
+  // Syntactic sugar.
+  send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {
     return this.metaplex.tokens().send({
       mint: toMintAddress(nftOrSft),
       amount: token(1),
+      ...options,
+    });
+  }
+
+  approveDelegateAuthority(
+    nftOrSft: HasMintAddress,
+    options: Omit<ApproveTokenDelegateAuthorityInput, 'mintAddress'>
+  ) {
+    return this.metaplex.tokens().approveDelegateAuthority({
+      mintAddress: toMintAddress(nftOrSft),
+      ...options,
+    });
+  }
+
+  revokeDelegateAuthority(
+    nftOrSft: HasMintAddress,
+    options?: Omit<RevokeTokenDelegateAuthorityInput, 'mintAddress'>
+  ) {
+    return this.metaplex.tokens().revokeDelegateAuthority({
+      mintAddress: toMintAddress(nftOrSft),
       ...options,
     });
   }
