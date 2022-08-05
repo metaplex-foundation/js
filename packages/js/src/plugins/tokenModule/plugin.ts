@@ -30,12 +30,17 @@ import {
   findTokenWithMintByMintOperation,
   findTokenWithMintByMintOperationHandler,
 } from './findTokenWithMintByMint';
+import {
+  freezeTokensOperation,
+  freezeTokensOperationHandler,
+} from './freezeTokens';
 import { mintTokensOperation, mintTokensOperationHandler } from './mintTokens';
 import {
   revokeTokenDelegateAuthorityOperation,
   revokeTokenDelegateAuthorityOperationHandler,
 } from './revokeTokenDelegateAuthority';
 import { sendTokensOperation, sendTokensOperationHandler } from './sendTokens';
+import { thawTokensOperation, thawTokensOperationHandler } from './thawTokens';
 import { TokenClient } from './TokenClient';
 
 export const tokenModule = (): MetaplexPlugin => ({
@@ -71,12 +76,14 @@ export const tokenModule = (): MetaplexPlugin => ({
       findTokenWithMintByMintOperation,
       findTokenWithMintByMintOperationHandler
     );
+    op.register(freezeTokensOperation, freezeTokensOperationHandler);
     op.register(mintTokensOperation, mintTokensOperationHandler);
     op.register(
       revokeTokenDelegateAuthorityOperation,
       revokeTokenDelegateAuthorityOperationHandler
     );
     op.register(sendTokensOperation, sendTokensOperationHandler);
+    op.register(thawTokensOperation, thawTokensOperationHandler);
 
     metaplex.tokens = function () {
       return new TokenClient(this);

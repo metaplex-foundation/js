@@ -7,9 +7,11 @@ import { _findMintByAddressClient } from './findMintByAddress';
 import { _findTokenByAddressClient } from './findTokenByAddress';
 import { _findTokenWithMintByAddressClient } from './findTokenWithMintByAddress';
 import { _findTokenWithMintByMintClient } from './findTokenWithMintByMint';
+import { _freezeTokensClient } from './freezeTokens';
 import { _mintTokensClient } from './mintTokens';
 import { _revokeTokenDelegateAuthorityClient } from './revokeTokenDelegateAuthority';
 import { _sendTokensClient } from './sendTokens';
+import { _thawTokensClient } from './thawTokens';
 import { TokenBuildersClient } from './TokenBuildersClient';
 
 export class TokenClient {
@@ -33,8 +35,8 @@ export class TokenClient {
   // Update.
   mint = _mintTokensClient;
   send = _sendTokensClient;
-  // TODO(loris): freeze
-  // TODO(loris): thaw
+  freeze = _freezeTokensClient;
+  thaw = _thawTokensClient;
 
   // Delegate.
   approveDelegateAuthority = _approveTokenDelegateAuthorityClient;
