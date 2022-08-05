@@ -1,4 +1,5 @@
 export * from './accounts';
+export * from './approveTokenDelegateAuthority';
 export * from './constants';
 export * from './createMint';
 export * from './createToken';
@@ -14,6 +15,7 @@ export * from './mintTokens';
 export * from './pdas';
 export * from './plugin';
 export * from './program';
+export * from './revokeTokenDelegateAuthority';
 export * from './sendTokens';
 export * from './Token';
 export * from './TokenClient';

@@ -1,4 +1,5 @@
 import type { Metaplex } from '@/Metaplex';
+import { _approveTokenDelegateAuthorityClient } from './approveTokenDelegateAuthority';
 import { _createMintClient } from './createMint';
 import { _createTokenClient } from './createToken';
 import { _createTokenWithMintClient } from './createTokenWithMint';
@@ -7,6 +8,7 @@ import { _findTokenByAddressClient } from './findTokenByAddress';
 import { _findTokenWithMintByAddressClient } from './findTokenWithMintByAddress';
 import { _findTokenWithMintByMintClient } from './findTokenWithMintByMint';
 import { _mintTokensClient } from './mintTokens';
+import { _revokeTokenDelegateAuthorityClient } from './revokeTokenDelegateAuthority';
 import { _sendTokensClient } from './sendTokens';
 import { TokenBuildersClient } from './TokenBuildersClient';
 
@@ -35,6 +37,6 @@ export class TokenClient {
   // TODO(loris): thaw
 
   // Delegate.
-  // TODO(loris): approveDelegateAuthority
-  // TODO(loris): revokeDelegateAuthority
+  approveDelegateAuthority = _approveTokenDelegateAuthorityClient;
+  revokeDelegateAuthority = _revokeTokenDelegateAuthorityClient;
 }
