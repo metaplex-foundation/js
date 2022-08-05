@@ -25,9 +25,13 @@ export const assertRefreshedTokenHasAmount = async (
   token: Token | TokenWithMint,
   amount: SplTokenAmount
 ) => {
-  const refreshedToken = await metaplex
-    .tokens()
-    .findTokenByAddress(token.address)
-    .run();
+  const refreshedToken = await refreshToken(metaplex, token);
   assertTokenHasAmount(t, refreshedToken, amount);
+};
+
+export const refreshToken = (
+  metaplex: Metaplex,
+  token: Token | TokenWithMint
+) => {
+  return metaplex.tokens().findTokenByAddress(token.address).run();
 };
