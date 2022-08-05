@@ -12,8 +12,8 @@ import {
 
 killStuckProcess();
 
-test('[nftModule] a delegated authority can freeze its NFT', async (t: Test) => {
-  // Given an existing delegated NFT.
+test('[nftModule] a delegated authority can thaw its NFT', async (t: Test) => {
+  // Given an existing delegated NFT that's already frozen.
   const mx = await metaplex();
   const delegateAuthority = Keypair.generate();
   const nft = await createNft(mx);
@@ -23,31 +23,44 @@ test('[nftModule] a delegated authority can freeze its NFT', async (t: Test) => 
       delegateAuthority: delegateAuthority.publicKey,
     })
     .run();
-
-  // When the delegated authority freezes the NFT.
   await mx.nfts().freezeDelegatedNft(nft, { delegateAuthority }).run();
 
-  // Then the token account for that NFT is frozen.
-  const frozenNft = await mx.nfts().refresh(nft).run();
-  spok(t, frozenNft, {
+  // When the delegated authority thaws the NFT.
+  await mx.nfts().thawDelegatedNft(nft, { delegateAuthority }).run();
+
+  // Then the token account for that NFT is thawed.
+  const thawedNft = await mx.nfts().refresh(nft).run();
+  spok(t, thawedNft, {
     model: 'nft',
-    $topic: 'Frozen NFT',
+    $topic: 'Thawed NFT',
     token: {
-      state: AccountState.Frozen,
+      state: AccountState.Initialized,
     },
   } as unknown as Specifications<NftWithToken>);
 });
 
-test('[nftModule] the owner of the NFT cannot freeze its own NFT without a delegated authority', async (t: Test) => {
-  // Given an existing NFT that's not delegated.
+test('[nftModule] the owner of the NFT cannot thaw its own NFT without a delegated authority', async (t: Test) => {
+  // Given an existing delegated NFT that's already frozen.
   const mx = await metaplex();
+  const delegateAuthority = Keypair.generate();
   const owner = Keypair.generate();
   const nft = await createNft(mx, { tokenOwner: owner.publicKey });
+  await mx
+    .nfts()
+    .approveDelegateAuthority(nft, {
+      delegateAuthority: delegateAuthority.publicKey,
+      owner,
+    })
+    .run();
+  await mx
+    .nfts()
+    .freezeDelegatedNft(nft, { delegateAuthority, tokenOwner: owner.publicKey })
+    .run();
 
-  // When the owner tries to freeze the NFT.
+  // When the owner tries to thaw the NFT.
   const promise = mx
     .nfts()
-    .freezeDelegatedNft(nft, {
+    .thawDelegatedNft(nft, {
       delegateAuthority: owner,
       tokenOwner: owner.publicKey,
     })
