@@ -41,6 +41,6 @@ export class NftBuildersClient {
   migrateToSizedCollection = _migrateToSizedCollectionNftBuildersClient;
 
   // Token.
-  // TODO(loris): freeze;
-  // TODO(loris): thaw;
+  // TODO(loris): freezeDelegatedNft;
+  // TODO(loris): thawDelegatedNft;
 }

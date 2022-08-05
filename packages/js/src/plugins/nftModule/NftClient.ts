@@ -74,8 +74,8 @@ export class NftClient {
   migrateToSizedCollection = _migrateToSizedCollectionNftClient;
 
   // Token.
-  // TODO(loris): freezeFromDelegateAuthority;
-  // TODO(loris): thawFromDelegateAuthority;
+  // TODO(loris): freezeDelegatedNft;
+  // TODO(loris): thawDelegatedNft;
 
   // Syntactic sugar.
   send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {
