@@ -16,6 +16,7 @@ import { _findNftsByCreatorsClient } from './findNftsByCreator';
 import { _findNftsByMintListClient } from './findNftsByMintList';
 import { _findNftsByOwnerClient } from './findNftsByOwner';
 import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
+import { _freezeDelegatedNftClient } from './freezeDelegatedNft';
 import { HasMintAddress, toMintAddress } from './helpers';
 import { _loadMetadataClient } from './loadMetadata';
 import { _migrateToSizedCollectionNftClient } from './migrateToSizedCollectionNft';
@@ -23,6 +24,7 @@ import { NftBuildersClient } from './NftBuildersClient';
 import { _printNewEditionClient } from './printNewEdition';
 import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
 import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
+import { _thawDelegatedNftClient } from './thawDelegatedNft';
 import { _unverifyNftCollectionClient } from './unverifyNftCollection';
 import { _unverifyNftCreatorClient } from './unverifyNftCreator';
 import { _updateNftClient } from './updateNft';
@@ -74,8 +76,8 @@ export class NftClient {
   migrateToSizedCollection = _migrateToSizedCollectionNftClient;
 
   // Token.
-  // TODO(loris): freezeDelegatedNft;
-  // TODO(loris): thawDelegatedNft;
+  freezeDelegatedNft = _freezeDelegatedNftClient;
+  thawDelegatedNft = _thawDelegatedNftClient;
 
   // Syntactic sugar.
   send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {

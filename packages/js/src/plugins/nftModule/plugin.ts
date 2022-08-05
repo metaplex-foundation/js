@@ -39,6 +39,10 @@ import {
   findNftsByUpdateAuthorityOperation,
   findNftsByUpdateAuthorityOperationHandler,
 } from './findNftsByUpdateAuthority';
+import {
+  freezeDelegatedNftOperation,
+  freezeDelegatedNftOperationHandler,
+} from './freezeDelegatedNft';
 import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import {
   loadMetadataOperation,
@@ -62,6 +66,10 @@ import {
   revokeNftUseAuthorityOperation,
   revokeNftUseAuthorityOperationHandler,
 } from './revokeNftUseAuthority';
+import {
+  thawDelegatedNftOperation,
+  thawDelegatedNftOperationHandler,
+} from './thawDelegatedNft';
 import {
   unverifyNftCollectionOperation,
   unverifyNftCollectionOperationHandler,
@@ -122,6 +130,10 @@ export const nftModule = (): MetaplexPlugin => ({
       findNftsByUpdateAuthorityOperation,
       findNftsByUpdateAuthorityOperationHandler
     );
+    op.register(
+      freezeDelegatedNftOperation,
+      freezeDelegatedNftOperationHandler
+    );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
     op.register(
       migrateToSizedCollectionNftOperation,
@@ -136,6 +148,7 @@ export const nftModule = (): MetaplexPlugin => ({
       revokeNftUseAuthorityOperation,
       revokeNftUseAuthorityOperationHandler
     );
+    op.register(thawDelegatedNftOperation, thawDelegatedNftOperationHandler);
     op.register(
       unverifyNftCollectionOperation,
       unverifyNftCollectionOperationHandler
