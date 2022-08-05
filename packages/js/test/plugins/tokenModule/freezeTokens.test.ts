@@ -1,4 +1,4 @@
-import { token } from '@/';
+import { token } from '@/index';
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
