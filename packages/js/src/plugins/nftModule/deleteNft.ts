@@ -50,7 +50,7 @@ export interface DeleteNftInput {
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
   ownerTokenAccount?: PublicKey; // Defaults to associated token account.
-  collectionMintAddress?: PublicKey; // Defaults to undefined. I.e. assuming no collection is assigned to the NFT.
+  collection?: PublicKey; // Defaults to undefined. I.e. assuming no collection is assigned to the NFT.
 
   // Programs.
   tokenProgram?: PublicKey; // Defaults to Token Program.
@@ -95,7 +95,7 @@ export const deleteNftBuilder = (
     mintAddress,
     owner = metaplex.identity(),
     ownerTokenAccount,
-    collectionMintAddress,
+    collection,
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
@@ -113,7 +113,7 @@ export const deleteNftBuilder = (
       tokenAccount: tokenAddress,
       masterEditionAccount: edition,
       splTokenProgram: tokenProgram,
-      collectionMetadata: collectionMintAddress,
+      collectionMetadata: collection ? findMetadataPda(collection) : undefined,
     }),
     signers: [owner],
     key: params.instructionKey ?? 'deleteNft',
