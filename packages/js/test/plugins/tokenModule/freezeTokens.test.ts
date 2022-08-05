@@ -1,7 +1,8 @@
+import { token } from '@/';
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
+import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
 import { refreshToken } from './helpers';
 
 killStuckProcess();
@@ -34,7 +35,7 @@ test('[tokenModule] the freeze authority can freeze any token account', async (t
   t.equal(refreshedToken.state, AccountState.Frozen, 'token account is frozen');
 });
 
-test.skip('[tokenModule] a frozen account cannot send tokens', async (t: Test) => {
+test('[tokenModule] a frozen account cannot send tokens', async (t: Test) => {
   // Given a Metaplex instance and an existing token account.
   const mx = await metaplex();
   const freezeAuthority = Keypair.generate();
@@ -44,6 +45,7 @@ test.skip('[tokenModule] a frozen account cannot send tokens', async (t: Test) =
     .createTokenWithMint({
       owner: owner.publicKey,
       freezeAuthority: freezeAuthority.publicKey,
+      initialSupply: token(42),
     })
     .run();
 
@@ -57,35 +59,17 @@ test.skip('[tokenModule] a frozen account cannot send tokens', async (t: Test) =
     })
     .run();
 
-  // When ...
-
-  // Then ...
-});
-
-test.skip('[tokenModule] a frozen account cannot be minted to', async (t: Test) => {
-  // Given a Metaplex instance and an existing token account.
-  const mx = await metaplex();
-  const freezeAuthority = Keypair.generate();
-  const owner = Keypair.generate();
-  const { token: tokenWithMint } = await mx
+  // When we try to send tokens from the frozen account.
+  const promise = mx
     .tokens()
-    .createTokenWithMint({
-      owner: owner.publicKey,
-      freezeAuthority: freezeAuthority.publicKey,
+    .send({
+      mint: tokenWithMint.mint.address,
+      amount: token(10),
+      fromOwner: owner,
+      toOwner: Keypair.generate().publicKey,
     })
     .run();
 
-  // And that token account has been frozen.
-  await mx
-    .tokens()
-    .freeze({
-      mintAddress: tokenWithMint.mint.address,
-      tokenOwner: owner.publicKey,
-      freezeAuthority,
-    })
-    .run();
-
-  // When ...
-
-  // Then ...
+  // Then we expect an error.
+  await assertThrows(t, promise, /Error: Account is frozen/);
 });
