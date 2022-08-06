@@ -232,7 +232,7 @@ Note that `MetaplexFile`s can be created in various different ways based on wher
 
 ### create
 
-The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createNft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `create` method accepts [a variety of parameters](/src/plugins/nftModule/createSft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
