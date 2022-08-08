@@ -107,29 +107,3 @@ export class CanceledListingIsNotAllowedError extends AuctionHouseError {
     });
   }
 }
-
-export class BidToCancelRequiredError extends AuctionHouseError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'bid_to_cancel_required',
-      title: 'Bid To Cancel Required',
-      problem: 'You did not provide a Bid to cancel.',
-      solution:
-        'Please provide the "bid" parameter so the SDK can figure out which Bid to cancel.',
-    });
-  }
-}
-
-export class ListingToCancelRequiredError extends AuctionHouseError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'listing_to_cancel_required',
-      title: 'Listing To Cancel Required',
-      problem: 'You did not provide a Listing to cancel.',
-      solution:
-        'Please provide the "listing" parameter so the SDK can figure out which Listing to cancel.',
-    });
-  }
-}

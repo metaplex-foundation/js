@@ -21,7 +21,6 @@ import { AuctionHouse } from './AuctionHouse';
 import { Bid } from './Bid';
 import {
   AuctioneerAuthorityRequiredError,
-  BidToCancelRequiredError,
 } from './errors';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { isNftWithToken, isSftWithToken } from '../nftModule';
@@ -79,9 +78,6 @@ export const cancelBidBuilder = (
 ): TransactionBuilder<CancelBidBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, bid } = params;
 
-  if (!bid) {
-    throw new BidToCancelRequiredError();
-  }
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }

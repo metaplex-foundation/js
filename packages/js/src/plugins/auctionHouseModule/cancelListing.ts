@@ -20,7 +20,6 @@ import { AuctionHouse } from './AuctionHouse';
 import { Listing } from './Listing';
 import {
   AuctioneerAuthorityRequiredError,
-  ListingToCancelRequiredError,
 } from './errors';
 import { findAuctioneerPda } from './pdas';
 import { AUCTIONEER_PRICE } from './constants';
@@ -81,9 +80,6 @@ export const cancelListingBuilder = (
 ): TransactionBuilder<CancelListingBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, listing } = params;
 
-  if (!listing) {
-    throw new ListingToCancelRequiredError();
-  }
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
