@@ -18,9 +18,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { Listing } from './Listing';
-import {
-  AuctioneerAuthorityRequiredError,
-} from './errors';
+import { AuctioneerAuthorityRequiredError } from './errors';
 import { findAuctioneerPda } from './pdas';
 import { AUCTIONEER_PRICE } from './constants';
 

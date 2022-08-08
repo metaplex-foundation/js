@@ -19,9 +19,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { AuctionHouse } from './AuctionHouse';
 import { Bid } from './Bid';
-import {
-  AuctioneerAuthorityRequiredError,
-} from './errors';
+import { AuctioneerAuthorityRequiredError } from './errors';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { isNftWithToken, isSftWithToken } from '../nftModule';
 import { findAuctioneerPda } from './pdas';
