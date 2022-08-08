@@ -2,6 +2,8 @@ export * from './accounts';
 export * from './AuctionHouse';
 export * from './AuctionsClient';
 export * from './Bid';
+export * from './cancelBid';
+export * from './cancelListing';
 export * from './createAuctionHouse';
 export * from './errors';
 export * from './findAuctionHouseByAddress';

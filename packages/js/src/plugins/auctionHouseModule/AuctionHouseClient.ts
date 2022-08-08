@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { now, Signer } from '@/types';
-import { Task } from '@/utils';
+import { Task, Option } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
@@ -36,6 +36,16 @@ import {
 } from './findPurchaseByAddress';
 import { LazyPurchase, Purchase } from './Purchase';
 import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
+import {
+  CancelBidInput,
+  cancelBidOperation,
+  CancelBidOutput,
+} from './cancelBid';
+import {
+  CancelListingInput,
+  cancelListingOperation,
+  CancelListingOutput,
+} from './cancelListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -45,6 +55,56 @@ export class AuctionHouseClient {
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
   ) {}
+
+  cancelBid(
+    input: WithoutAH<CancelBidInput>
+  ): Task<CancelBidOutput & { bid: Option<Bid> }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(cancelBidOperation(this.addAH(input)));
+      scope.throwIfCanceled();
+
+      if (input.bid.receiptAddress) {
+        try {
+          const bid = await this.findBidByAddress(
+            input.bid.tradeStateAddress
+          ).run(scope);
+
+          return { bid, ...output };
+        } catch (error) {
+          // Fallback to manually creating a listing from inputs and outputs.
+        }
+      }
+
+      return { ...output, bid: null };
+    });
+  }
+
+  cancelListing(
+    input: WithoutAH<CancelListingInput>
+  ): Task<CancelListingOutput & { listing: Option<Listing> }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(cancelListingOperation(this.addAH(input)));
+      scope.throwIfCanceled();
+
+      if (input.listing.receiptAddress) {
+        try {
+          const listing = await this.findListingByAddress(
+            input.listing.tradeStateAddress
+          ).run(scope);
+
+          return { listing, ...output };
+        } catch (error) {
+          // Fallback to manually creating a listing from inputs and outputs.
+        }
+      }
+
+      return { ...output, listing: null };
+    });
+  }
 
   executeSale(
     input: WithoutAH<ExecuteSaleInput>
