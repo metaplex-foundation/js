@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { now, Signer } from '@/types';
-import { Task, Option } from '@/utils';
+import { Task } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from './AuctionHouse';
 import {
@@ -56,54 +56,18 @@ export class AuctionHouseClient {
     protected readonly auctioneerAuthority?: Signer
   ) {}
 
-  cancelBid(
-    input: WithoutAH<CancelBidInput>
-  ): Task<CancelBidOutput & { bid: Option<Bid> }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(cancelBidOperation(this.addAH(input)));
-      scope.throwIfCanceled();
-
-      if (input.bid.receiptAddress) {
-        try {
-          const bid = await this.findBidByAddress(
-            input.bid.tradeStateAddress
-          ).run(scope);
-
-          return { bid, ...output };
-        } catch (error) {
-          // Fallback to manually creating a listing from inputs and outputs.
-        }
-      }
-
-      return { ...output, bid: null };
-    });
+  cancelBid(input: WithoutAH<CancelBidInput>): Task<CancelBidOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(cancelBidOperation(this.addAH(input)));
   }
 
   cancelListing(
     input: WithoutAH<CancelListingInput>
-  ): Task<CancelListingOutput & { listing: Option<Listing> }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(cancelListingOperation(this.addAH(input)));
-      scope.throwIfCanceled();
-
-      if (input.listing.receiptAddress) {
-        try {
-          const listing = await this.findListingByAddress(
-            input.listing.tradeStateAddress
-          ).run(scope);
-
-          return { listing, ...output };
-        } catch (error) {
-          // Fallback to manually creating a listing from inputs and outputs.
-        }
-      }
-
-      return { ...output, listing: null };
-    });
+  ): Task<CancelListingOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(cancelListingOperation(this.addAH(input)));
   }
 
   executeSale(

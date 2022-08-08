@@ -21,7 +21,6 @@ import { AuctionHouse } from './AuctionHouse';
 import { Bid } from './Bid';
 import { AuctioneerAuthorityRequiredError } from './errors';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { isNftWithToken, isSftWithToken } from '../nftModule';
 import { findAuctioneerPda } from './pdas';
 
 // -----------------
@@ -81,16 +80,15 @@ export const cancelBidBuilder = (
   }
 
   // Data.
-  const { asset, tradeStateAddress, price, tokens } = bid;
+  const { asset, tradeStateAddress, price, tokens, isPublic } = bid;
 
   // Accounts.
-  const tokenAccount =
-    isNftWithToken(asset) || isSftWithToken(asset)
-      ? asset.token.address
-      : findAssociatedTokenAccountPda(
-          asset.mint.address,
-          toPublicKey(bid.buyerAddress)
-        );
+  const tokenAccount = isPublic
+    ? findAssociatedTokenAccountPda(
+        asset.mint.address,
+        toPublicKey(bid.buyerAddress)
+      )
+    : bid.asset.token.address;
 
   const accounts: CancelInstructionAccounts = {
     wallet: bid.buyerAddress,

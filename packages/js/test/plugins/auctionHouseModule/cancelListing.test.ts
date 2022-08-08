@@ -9,7 +9,6 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Listing } from '@/plugins/auctionHouseModule';
 
 killStuckProcess();
 
@@ -34,26 +33,24 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
     .getBalance(listing.tradeStateAddress);
 
   t.not(tradeStateFeeBalance.basisPoints.toNumber(), 0);
-  t.notOk(listing.canceledAt);
+  t.false(listing.canceledAt);
 
   // And the NFT will have delegated authority.
   t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
-  const { listing: canceledListing } = await client
-    .cancelListing({ listing })
-    .run();
+  await client.cancelListing({ listing }).run();
 
   // Then the delegate's authority is revoked and receipt has canceledAt date.
-  t.notOk(canceledListing?.asset.token.delegateAddress);
-  t.ok(canceledListing?.canceledAt);
+  const canceledListing = await client
+    .findListingByAddress(listing.tradeStateAddress)
+    .run();
+  t.false(canceledListing.asset.token.delegateAddress);
+  t.ok(canceledListing.canceledAt);
 
   // And the trade state returns the fee to the fee payer.
-  const updatedTradeStateFeeBalance = await mx
-    .rpc()
-    .getBalance((canceledListing as Listing).tradeStateAddress);
-
-  t.equal(updatedTradeStateFeeBalance.basisPoints.toNumber(), 0);
+  const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
+  t.false(listingAccount.exists, 'listing account no longer exists');
 });
 
 test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', async (t: Test) => {
@@ -75,11 +72,8 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
   await client.cancelListing({ listing }).run();
 
   // Then the trade state returns the fee to the fee payer.
-  const updatedTradeStateFeeBalance = await mx
-    .rpc()
-    .getBalance(listing.tradeStateAddress);
-
-  t.equal(updatedTradeStateFeeBalance.basisPoints.toNumber(), 0);
+  const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
+  t.false(listingAccount.exists, 'listing account no longer exists');
 });
 
 test('[auctionHouseModule] it throws an error if executing a sale with a canceled Listing', async (t: Test) => {
@@ -108,14 +102,13 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
     .run();
 
   // And we cancel the given listing.
-  const { listing: canceledListing } = await client
-    .cancelListing({ listing })
-    .run();
+  await client.cancelListing({ listing }).run();
 
   // When we execute a sale with given canceled listing and bid.
-  const promise = client
-    .executeSale({ listing: canceledListing as Listing, bid })
+  const canceledListing = await client
+    .findListingByAddress(listing.tradeStateAddress)
     .run();
+  const promise = client.executeSale({ listing: canceledListing, bid }).run();
 
   // Then we expect an error.
   await assertThrows(
