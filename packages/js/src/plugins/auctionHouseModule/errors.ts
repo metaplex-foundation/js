@@ -81,3 +81,29 @@ export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
     });
   }
 }
+
+export class CanceledBidIsNotAllowedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'canceled_bid_is_not_allowed',
+      title: 'Canceled Bid Is Not Allowed',
+      problem: 'You are trying to execute a sale using a canceled Bid.',
+      solution:
+        'Please provide a Bid that is not cancelld in order to execute the sale.',
+    });
+  }
+}
+
+export class CanceledListingIsNotAllowedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'canceled_listing_is_not_allowed',
+      title: 'Canceled Listing Is Not Allowed',
+      problem: 'You are trying to execute a sale using a canceled Listing.',
+      solution:
+        'Please provide a Listing that is not cancelld in order to execute the sale.',
+    });
+  }
+}
