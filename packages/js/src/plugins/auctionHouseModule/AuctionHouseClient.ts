@@ -20,8 +20,7 @@ import {
   CreateBidOutput,
 } from './createBid';
 import {
-  FindBidByAddressInput,
-  findBidByAddressOperation,
+  _findBidByAddressClient,
 } from './findBidByAddress';
 import { Bid, LazyBid } from './Bid';
 import { LoadBidInput, loadBidOperation } from './loadBid';
@@ -55,6 +54,24 @@ export class AuctionHouseClient {
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
   ) {}
+
+  // Queries.
+  findBidByAddress = _findBidByAddressClient;
+  // findListingByAddress = _findListingByAddressClient;
+  // findPurchaseByAddress = _findPurchaseByAddressClient;
+
+  // Create.
+  // createBid = _createBidClient;
+  // createListing = _createListingClient;
+  // createPurchase = _createPurchaseClient;
+
+  // Execute.
+  // executeSale = _executeSaleClient;
+
+  // Cancel.
+  // cancelBid = _cancelBidClient;
+  // cancelListing = _cancelListingClient;
+  // cancelPurchase = _cancelPurchaseClient;
 
   cancelBid(input: WithoutAH<CancelBidInput>): Task<CancelBidOutput> {
     return this.metaplex
@@ -241,19 +258,6 @@ export class AuctionHouseClient {
         ...output,
       };
     });
-  }
-
-  findBidByAddress(
-    address: PublicKey,
-    options: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'> = {}
-  ) {
-    return this.metaplex.operations().getTask(
-      findBidByAddressOperation({
-        address,
-        auctionHouse: this.auctionHouse,
-        ...options,
-      })
-    );
   }
 
   loadBid(

@@ -6,6 +6,22 @@ import { DisposableScope } from '@/utils';
 import { findBidReceiptPda } from './pdas';
 import { Bid, toLazyBid } from './Bid';
 import { toBidReceiptAccount } from './accounts';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findBidByAddressClient(
+  this: AuctionHouseClient,
+  address: PublicKey,
+  options?: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'>
+) {
+  return this.metaplex
+    .operations()
+    .getTask(findBidByAddressOperation({ address, auctionHouse: this.auctionHouse, ...options }));
+}
 
 // -----------------
 // Operation
