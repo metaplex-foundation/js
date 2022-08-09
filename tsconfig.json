@@ -33,7 +33,7 @@
     "stripInternal": true
   },
   "typedocOptions": {
-    "entryPoints": "packages/*/src/index.ts",
+    "entryPoints": ["packages/js/src/index.ts", "packages/js-plugin-aws/src/index.ts"],
     "out": "docs",
     "readme": "README.md"
   }
