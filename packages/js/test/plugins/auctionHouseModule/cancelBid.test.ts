@@ -62,7 +62,7 @@ test('[auctionHouseModule] cancel a Public Bid on an Auction House', async (t: T
   // When we cancel the given bid.
   await client.cancelBid({ bid }).run();
 
-  // And the trade state account no longer exists.
+  // Then the trade state account no longer exists.
   const bidAccount = await mx.rpc().getAccount(bid.tradeStateAddress);
   t.false(bidAccount.exists, 'bid account no longer exists');
 });

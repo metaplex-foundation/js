@@ -63,7 +63,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
   // When we cancel the given listing.
   await client.cancelListing({ listing }).run();
 
-  // And the trade state account no longer exists.
+  // Then the trade state account no longer exists.
   const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
   t.false(listingAccount.exists, 'listing account no longer exists');
 });
