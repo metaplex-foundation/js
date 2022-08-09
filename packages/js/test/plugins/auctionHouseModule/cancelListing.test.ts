@@ -27,15 +27,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
     })
     .run();
 
-  // Then the trade state balance will have some SOL as a fee.
-  const tradeStateFeeBalance = await mx
-    .rpc()
-    .getBalance(listing.tradeStateAddress);
-
-  t.not(tradeStateFeeBalance.basisPoints.toNumber(), 0);
-  t.false(listing.canceledAt);
-
-  // And the NFT will have delegated authority.
+  // The NFT will have delegated authority.
   t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
@@ -48,7 +40,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   t.false(canceledListing.asset.token.delegateAddress);
   t.ok(canceledListing.canceledAt);
 
-  // And the trade state returns the fee to the fee payer.
+  // And the trade state account no longer exists.
   const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
   t.false(listingAccount.exists, 'listing account no longer exists');
 });
@@ -71,7 +63,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
   // When we cancel the given listing.
   await client.cancelListing({ listing }).run();
 
-  // Then the trade state returns the fee to the fee payer.
+  // And the trade state account no longer exists.
   const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
   t.false(listingAccount.exists, 'listing account no longer exists');
 });

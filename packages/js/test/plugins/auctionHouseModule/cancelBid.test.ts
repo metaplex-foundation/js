@@ -39,7 +39,7 @@ test('[auctionHouseModule] cancel a Private Bid on an Auction House', async (t: 
     .run();
   t.ok(canceledBid.canceledAt);
 
-  // And the trade state returns the fee to the fee payer.
+  // And the trade state account no longer exists.
   const bidAccount = await mx.rpc().getAccount(bid.tradeStateAddress);
   t.false(bidAccount.exists, 'bid account no longer exists');
 });
@@ -62,7 +62,7 @@ test('[auctionHouseModule] cancel a Public Bid on an Auction House', async (t: T
   // When we cancel the given bid.
   await client.cancelBid({ bid }).run();
 
-  // Then the trade state will return the fee to the fee payer.
+  // And the trade state account no longer exists.
   const bidAccount = await mx.rpc().getAccount(bid.tradeStateAddress);
   t.false(bidAccount.exists, 'bid account no longer exists');
 });
