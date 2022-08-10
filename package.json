@@ -34,9 +34,6 @@
     "url": "https://github.com/metaplex-foundation/js-next.git"
   },
   "scripts": {
-    "check:publish-ready": "yarn build && yarn test",
-    "prepublishOnly": "yarn check:publish-ready",
-    "preversion": "yarn check:publish-ready",
     "postversion": "git push --follow-tags",
     "clean": "rimraf dist",
     "build": "yarn clean && yarn build:types && yarn build:rollup && yarn build:tests",
