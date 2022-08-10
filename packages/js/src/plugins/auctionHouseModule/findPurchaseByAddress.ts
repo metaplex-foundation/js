@@ -6,6 +6,31 @@ import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
 import { Purchase, toLazyPurchase } from './Purchase';
 import { findPurchaseReceiptPda } from './pdas';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findPurchaseByAddressClient(
+  this: AuctionHouseClient,
+  sellerTradeState: PublicKey,
+  buyerTradeState: PublicKey,
+  options: Omit<
+    FindPurchaseByAddressInput,
+    'sellerTradeState' | 'buyerTradeState' | 'auctionHouse'
+  > = {}
+) {
+  return this.metaplex.operations().getTask(
+    findPurchaseByAddressOperation({
+      sellerTradeState,
+      buyerTradeState,
+      auctionHouse: this.auctionHouse,
+      ...options,
+    })
+  );
+}
 
 // -----------------
 // Operation

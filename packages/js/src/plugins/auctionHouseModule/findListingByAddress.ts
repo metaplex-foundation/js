@@ -6,6 +6,26 @@ import { AuctionHouse } from './AuctionHouse';
 import { Listing, toLazyListing } from './Listing';
 import { DisposableScope } from '@/utils';
 import { findListingReceiptPda } from './pdas';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _findListingByAddressClient(
+  this: AuctionHouseClient,
+  address: PublicKey,
+  options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
+) {
+  return this.metaplex.operations().getTask(
+    findListingByAddressOperation({
+      address,
+      auctionHouse: this.auctionHouse,
+      ...options,
+    })
+  );
+}
 
 // -----------------
 // Operation

@@ -9,8 +9,7 @@ import {
   CreateListingOutput,
 } from './createListing';
 import {
-  FindListingByAddressInput,
-  findListingByAddressOperation,
+  _findListingByAddressClient
 } from './findListingByAddress';
 import { LazyListing, Listing } from './Listing';
 import { LoadListingInput, loadListingOperation } from './loadListing';
@@ -30,8 +29,7 @@ import {
   ExecuteSaleOutput,
 } from './executeSale';
 import {
-  FindPurchaseByAddressInput,
-  findPurchaseByAddressOperation,
+  _findPurchaseByAddressClient,
 } from './findPurchaseByAddress';
 import { LazyPurchase, Purchase } from './Purchase';
 import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
@@ -57,8 +55,8 @@ export class AuctionHouseClient {
 
   // Queries.
   findBidByAddress = _findBidByAddressClient;
-  // findListingByAddress = _findListingByAddressClient;
-  // findPurchaseByAddress = _findPurchaseByAddressClient;
+  findListingByAddress = _findListingByAddressClient;
+  findPurchaseByAddress = _findPurchaseByAddressClient;
 
   // Create.
   // createBid = _createBidClient;
@@ -127,24 +125,6 @@ export class AuctionHouseClient {
     });
   }
 
-  findPurchaseByAddress(
-    sellerTradeState: PublicKey,
-    buyerTradeState: PublicKey,
-    options: Omit<
-      FindPurchaseByAddressInput,
-      'sellerTradeState' | 'buyerTradeState' | 'auctionHouse'
-    > = {}
-  ) {
-    return this.metaplex.operations().getTask(
-      findPurchaseByAddressOperation({
-        sellerTradeState,
-        buyerTradeState,
-        auctionHouse: this.auctionHouse,
-        ...options,
-      })
-    );
-  }
-
   loadPurchase(
     lazyPurchase: LazyPurchase,
     options: Omit<LoadPurchaseInput, 'lazyPurchase'> = {}
@@ -194,19 +174,6 @@ export class AuctionHouseClient {
         ...output,
       };
     });
-  }
-
-  findListingByAddress(
-    address: PublicKey,
-    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
-  ) {
-    return this.metaplex.operations().getTask(
-      findListingByAddressOperation({
-        address,
-        auctionHouse: this.auctionHouse,
-        ...options,
-      })
-    );
   }
 
   loadListing(
