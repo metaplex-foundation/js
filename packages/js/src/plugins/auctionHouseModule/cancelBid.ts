@@ -1,6 +1,6 @@
 import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, Task } from '@/utils';
 import {
   CancelInstructionAccounts,
   createCancelBidReceiptInstruction,
@@ -22,6 +22,23 @@ import { Bid } from './Bid';
 import { AuctioneerAuthorityRequiredError } from './errors';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { findAuctioneerPda } from './pdas';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
+
+/** @internal */
+export function _cancelBidClient(
+  this: AuctionHouseClient,
+  input: WithoutAH<CancelBidInput>
+): Task<CancelBidOutput> {
+  return this.metaplex
+    .operations()
+    .getTask(cancelBidOperation(this.addAH(input)));
+}
 
 // -----------------
 // Operation

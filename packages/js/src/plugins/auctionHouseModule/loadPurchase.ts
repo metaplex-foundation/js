@@ -1,9 +1,25 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { DisposableScope } from '@/utils';
+import { DisposableScope, Task } from '@/utils';
 import { Purchase, LazyPurchase } from './Purchase';
 import { assertNftOrSftWithToken } from '../nftModule';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _loadPurchaseClient(
+  this: AuctionHouseClient,
+  lazyPurchase: LazyPurchase,
+  options: Omit<LoadPurchaseInput, 'lazyPurchase'> = {}
+): Task<Purchase> {
+  return this.metaplex
+    .operations()
+    .getTask(loadPurchaseOperation({ lazyPurchase, ...options }));
+}
 
 // -----------------
 // Operation

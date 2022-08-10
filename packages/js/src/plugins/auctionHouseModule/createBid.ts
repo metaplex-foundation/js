@@ -4,7 +4,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope, Task } from '@/utils';
 import {
   BuyInstructionAccounts,
   createAuctioneerBuyInstruction,
@@ -26,6 +26,7 @@ import {
   SolAmount,
   SplTokenAmount,
   Pda,
+  now,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
@@ -38,6 +39,60 @@ import {
   findBidReceiptPda,
 } from './pdas';
 import { AuctioneerAuthorityRequiredError } from './errors';
+import { Bid, LazyBid } from './Bid';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
+
+/** @internal */
+export function _bidClient(
+  this: AuctionHouseClient,
+  input: WithoutAH<CreateBidInput>
+): Task<CreateBidOutput & { bid: Bid }> {
+  return new Task(async (scope) => {
+    const output = await this.metaplex
+      .operations()
+      .execute(createBidOperation(this.addAH(input)), scope);
+    scope.throwIfCanceled();
+
+    try {
+      const bid = await this.findBidByAddress(output.buyerTradeState).run(
+        scope
+      );
+      return { bid, ...output };
+    } catch (error) {
+      // Fallback to manually creating a bid from inputs and outputs.
+    }
+
+    scope.throwIfCanceled();
+    const lazyBid: LazyBid = {
+      model: 'bid',
+      lazy: true,
+      auctionHouse: this.auctionHouse,
+      tradeStateAddress: output.buyerTradeState,
+      bookkeeperAddress: output.bookkeeper,
+      tokenAddress: output.tokenAccount,
+      buyerAddress: output.buyer,
+      metadataAddress: output.metadata,
+      receiptAddress: output.receipt,
+      purchaseReceiptAddress: null,
+      isPublic: Boolean(output.tokenAccount),
+      price: output.price,
+      tokens: output.tokens.basisPoints,
+      createdAt: now(),
+      canceledAt: null,
+    };
+
+    return {
+      bid: await this.loadBid(lazyBid).run(scope),
+      ...output,
+    };
+  });
+}
 
 // -----------------
 // Operation

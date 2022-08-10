@@ -4,7 +4,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, Task } from '@/utils';
 import {
   createAuctioneerExecuteSaleInstruction,
   createExecuteSaleInstruction,
@@ -21,6 +21,7 @@ import {
   SplTokenAmount,
   amount,
   isSigner,
+  now,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from '../tokenModule';
@@ -41,6 +42,56 @@ import {
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
 } from './errors';
+import { LazyPurchase, Purchase } from './Purchase';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
+
+/** @internal */
+export function _executeSaleClient(
+  this: AuctionHouseClient,
+  input: WithoutAH<ExecuteSaleInput>
+): Task<ExecuteSaleOutput & { purchase: Purchase }> {
+  return new Task(async (scope) => {
+    const output = await this.metaplex
+      .operations()
+      .execute(executeSaleOperation(this.addAH(input)));
+    scope.throwIfCanceled();
+
+    try {
+      const purchase = await this.findPurchaseByAddress(
+        output.sellerTradeState,
+        output.buyerTradeState
+      ).run(scope);
+      return { purchase, ...output };
+    } catch (error) {
+      // Fallback to manually creating a purchase from inputs and outputs.
+    }
+
+    const lazyPurchase: LazyPurchase = {
+      model: 'purchase',
+      lazy: true,
+      auctionHouse: this.auctionHouse,
+      buyerAddress: output.buyer,
+      sellerAddress: output.seller,
+      metadataAddress: output.metadata,
+      bookkeeperAddress: output.bookkeeper,
+      receiptAddress: output.receipt,
+      price: output.price,
+      tokens: output.tokens.basisPoints,
+      createdAt: now(),
+    };
+
+    return {
+      purchase: await this.loadPurchase(lazyPurchase).run(scope),
+      ...output,
+    };
+  });
+}
 
 // -----------------
 // Operation

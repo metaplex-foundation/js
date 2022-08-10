@@ -1,48 +1,17 @@
 import { Metaplex } from '@/Metaplex';
-import { now, Signer } from '@/types';
-import { Task } from '@/utils';
-import { PublicKey } from '@solana/web3.js';
+import { Signer } from '@/types';
 import { AuctionHouse } from './AuctionHouse';
-import {
-  CreateListingInput,
-  createListingOperation,
-  CreateListingOutput,
-} from './createListing';
-import {
-  _findListingByAddressClient
-} from './findListingByAddress';
-import { LazyListing, Listing } from './Listing';
-import { LoadListingInput, loadListingOperation } from './loadListing';
-import {
-  CreateBidInput,
-  createBidOperation,
-  CreateBidOutput,
-} from './createBid';
-import {
-  _findBidByAddressClient,
-} from './findBidByAddress';
-import { Bid, LazyBid } from './Bid';
-import { LoadBidInput, loadBidOperation } from './loadBid';
-import {
-  ExecuteSaleInput,
-  executeSaleOperation,
-  ExecuteSaleOutput,
-} from './executeSale';
-import {
-  _findPurchaseByAddressClient,
-} from './findPurchaseByAddress';
-import { LazyPurchase, Purchase } from './Purchase';
-import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
-import {
-  CancelBidInput,
-  cancelBidOperation,
-  CancelBidOutput,
-} from './cancelBid';
-import {
-  CancelListingInput,
-  cancelListingOperation,
-  CancelListingOutput,
-} from './cancelListing';
+import { _listClient } from './createListing';
+import { _findListingByAddressClient } from './findListingByAddress';
+import { _loadListingClient } from './loadListing';
+import { _bidClient } from './createBid';
+import { _findBidByAddressClient } from './findBidByAddress';
+import { _loadBidClient } from './loadBid';
+import { _executeSaleClient } from './executeSale';
+import { _findPurchaseByAddressClient } from './findPurchaseByAddress';
+import { _loadPurchaseClient } from './loadPurchase';
+import { _cancelBidClient } from './cancelBid';
+import { _cancelListingClient } from './cancelListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -59,182 +28,20 @@ export class AuctionHouseClient {
   findPurchaseByAddress = _findPurchaseByAddressClient;
 
   // Create.
-  // createBid = _createBidClient;
-  // createListing = _createListingClient;
-  // createPurchase = _createPurchaseClient;
+  bid = _bidClient;
+  list = _listClient;
+
+  // Load.
+  loadBid = _loadBidClient;
+  loadListing = _loadListingClient;
+  loadPurchase = _loadPurchaseClient;
 
   // Execute.
-  // executeSale = _executeSaleClient;
+  executeSale = _executeSaleClient;
 
   // Cancel.
-  // cancelBid = _cancelBidClient;
-  // cancelListing = _cancelListingClient;
-  // cancelPurchase = _cancelPurchaseClient;
-
-  cancelBid(input: WithoutAH<CancelBidInput>): Task<CancelBidOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(cancelBidOperation(this.addAH(input)));
-  }
-
-  cancelListing(
-    input: WithoutAH<CancelListingInput>
-  ): Task<CancelListingOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(cancelListingOperation(this.addAH(input)));
-  }
-
-  executeSale(
-    input: WithoutAH<ExecuteSaleInput>
-  ): Task<ExecuteSaleOutput & { purchase: Purchase }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(executeSaleOperation(this.addAH(input)));
-      scope.throwIfCanceled();
-
-      try {
-        const purchase = await this.findPurchaseByAddress(
-          output.sellerTradeState,
-          output.buyerTradeState
-        ).run(scope);
-        return { purchase, ...output };
-      } catch (error) {
-        // Fallback to manually creating a purchase from inputs and outputs.
-      }
-
-      const lazyPurchase: LazyPurchase = {
-        model: 'purchase',
-        lazy: true,
-        auctionHouse: this.auctionHouse,
-        buyerAddress: output.buyer,
-        sellerAddress: output.seller,
-        metadataAddress: output.metadata,
-        bookkeeperAddress: output.bookkeeper,
-        receiptAddress: output.receipt,
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-      };
-
-      return {
-        purchase: await this.loadPurchase(lazyPurchase).run(scope),
-        ...output,
-      };
-    });
-  }
-
-  loadPurchase(
-    lazyPurchase: LazyPurchase,
-    options: Omit<LoadPurchaseInput, 'lazyPurchase'> = {}
-  ): Task<Purchase> {
-    return this.metaplex
-      .operations()
-      .getTask(loadPurchaseOperation({ lazyPurchase, ...options }));
-  }
-
-  list(
-    input: WithoutAH<CreateListingInput>
-  ): Task<CreateListingOutput & { listing: Listing }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(createListingOperation(this.addAH(input)), scope);
-      scope.throwIfCanceled();
-
-      try {
-        const listing = await this.findListingByAddress(
-          output.sellerTradeState
-        ).run(scope);
-        return { listing, ...output };
-      } catch (error) {
-        // Fallback to manually creating a listing from inputs and outputs.
-      }
-
-      scope.throwIfCanceled();
-      const lazyListing: LazyListing = {
-        model: 'listing',
-        lazy: true,
-        auctionHouse: this.auctionHouse,
-        tradeStateAddress: output.sellerTradeState,
-        bookkeeperAddress: output.bookkeeper,
-        sellerAddress: output.seller,
-        metadataAddress: output.metadata,
-        receiptAddress: output.receipt,
-        purchaseReceiptAddress: null,
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-        canceledAt: null,
-      };
-
-      return {
-        listing: await this.loadListing(lazyListing).run(scope),
-        ...output,
-      };
-    });
-  }
-
-  loadListing(
-    lazyListing: LazyListing,
-    options: Omit<LoadListingInput, 'lazyListing'> = {}
-  ): Task<Listing> {
-    return this.metaplex
-      .operations()
-      .getTask(loadListingOperation({ lazyListing, ...options }));
-  }
-
-  bid(input: WithoutAH<CreateBidInput>): Task<CreateBidOutput & { bid: Bid }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(createBidOperation(this.addAH(input)), scope);
-      scope.throwIfCanceled();
-
-      try {
-        const bid = await this.findBidByAddress(output.buyerTradeState).run(
-          scope
-        );
-        return { bid, ...output };
-      } catch (error) {
-        // Fallback to manually creating a bid from inputs and outputs.
-      }
-
-      scope.throwIfCanceled();
-      const lazyBid: LazyBid = {
-        model: 'bid',
-        lazy: true,
-        auctionHouse: this.auctionHouse,
-        tradeStateAddress: output.buyerTradeState,
-        bookkeeperAddress: output.bookkeeper,
-        tokenAddress: output.tokenAccount,
-        buyerAddress: output.buyer,
-        metadataAddress: output.metadata,
-        receiptAddress: output.receipt,
-        purchaseReceiptAddress: null,
-        isPublic: Boolean(output.tokenAccount),
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-        canceledAt: null,
-      };
-
-      return {
-        bid: await this.loadBid(lazyBid).run(scope),
-        ...output,
-      };
-    });
-  }
-
-  loadBid(
-    lazyBid: LazyBid,
-    options: Omit<LoadBidInput, 'lazyBid'> = {}
-  ): Task<Bid> {
-    return this.metaplex
-      .operations()
-      .getTask(loadBidOperation({ lazyBid, ...options }));
-  }
+  cancelBid = _cancelBidClient;
+  cancelListing = _cancelListingClient;
 
   protected addAH<T>(input: WithoutAH<T>): T {
     return {

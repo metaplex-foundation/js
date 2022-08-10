@@ -20,7 +20,13 @@ export function _findBidByAddressClient(
 ) {
   return this.metaplex
     .operations()
-    .getTask(findBidByAddressOperation({ address, auctionHouse: this.auctionHouse, ...options }));
+    .getTask(
+      findBidByAddressOperation({
+        address,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
 }
 
 // -----------------

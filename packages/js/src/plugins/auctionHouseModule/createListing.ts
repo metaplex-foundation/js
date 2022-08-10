@@ -23,8 +23,9 @@ import {
   amount,
   SolAmount,
   SplTokenAmount,
+  now,
 } from '@/types';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, Task } from '@/utils';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
@@ -36,6 +37,58 @@ import { findAssociatedTokenAccountPda } from '../tokenModule';
 import { findMetadataPda } from '../nftModule';
 import { AUCTIONEER_PRICE } from './constants';
 import { AuctioneerAuthorityRequiredError } from './errors';
+import { AuctionHouseClient } from './AuctionHouseClient';
+import { LazyListing, Listing } from './Listing';
+
+// -----------------
+// Clients
+// -----------------
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
+
+/** @internal */
+export function _listClient(
+  this: AuctionHouseClient,
+  input: WithoutAH<CreateListingInput>
+): Task<CreateListingOutput & { listing: Listing }> {
+  return new Task(async (scope) => {
+    const output = await this.metaplex
+      .operations()
+      .execute(createListingOperation(this.addAH(input)), scope);
+    scope.throwIfCanceled();
+
+    try {
+      const listing = await this.findListingByAddress(
+        output.sellerTradeState
+      ).run(scope);
+      return { listing, ...output };
+    } catch (error) {
+      // Fallback to manually creating a listing from inputs and outputs.
+    }
+
+    scope.throwIfCanceled();
+    const lazyListing: LazyListing = {
+      model: 'listing',
+      lazy: true,
+      auctionHouse: this.auctionHouse,
+      tradeStateAddress: output.sellerTradeState,
+      bookkeeperAddress: output.bookkeeper,
+      sellerAddress: output.seller,
+      metadataAddress: output.metadata,
+      receiptAddress: output.receipt,
+      purchaseReceiptAddress: null,
+      price: output.price,
+      tokens: output.tokens.basisPoints,
+      createdAt: now(),
+      canceledAt: null,
+    };
+
+    return {
+      listing: await this.loadListing(lazyListing).run(scope),
+      ...output,
+    };
+  });
+}
 
 // -----------------
 // Operation

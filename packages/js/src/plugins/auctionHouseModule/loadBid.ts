@@ -1,9 +1,25 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { assert, DisposableScope } from '@/utils';
+import { assert, DisposableScope, Task } from '@/utils';
 import { Bid, LazyBid } from './Bid';
 import { assertNftOrSftWithToken } from '../nftModule';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+/** @internal */
+export function _loadBidClient(
+  this: AuctionHouseClient,
+  lazyBid: LazyBid,
+  options: Omit<LoadBidInput, 'lazyBid'> = {}
+): Task<Bid> {
+  return this.metaplex
+    .operations()
+    .getTask(loadBidOperation({ lazyBid, ...options }));
+}
 
 // -----------------
 // Operation

@@ -1,6 +1,6 @@
 import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { Task, TransactionBuilder } from '@/utils';
 import {
   CancelInstructionAccounts,
   createCancelListingReceiptInstruction,
@@ -21,6 +21,23 @@ import { Listing } from './Listing';
 import { AuctioneerAuthorityRequiredError } from './errors';
 import { findAuctioneerPda } from './pdas';
 import { AUCTIONEER_PRICE } from './constants';
+import { AuctionHouseClient } from './AuctionHouseClient';
+
+// -----------------
+// Clients
+// -----------------
+
+type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
+
+/** @internal */
+export function _cancelListingClient(
+  this: AuctionHouseClient,
+  input: WithoutAH<CancelListingInput>
+): Task<CancelListingOutput> {
+  return this.metaplex
+    .operations()
+    .getTask(cancelListingOperation(this.addAH(input)));
+}
 
 // -----------------
 // Operation
