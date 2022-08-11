@@ -13,25 +13,6 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _thawTokensClient(this: TokenClient, input: ThawTokensInput) {
-  return this.metaplex.operations().getTask(thawTokensOperation(input));
-}
-
-/** @internal */
-export function _thawTokensBuildersClient(
-  this: TokenBuildersClient,
-  input: ThawTokensBuilderParams
-) {
-  return thawTokensBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

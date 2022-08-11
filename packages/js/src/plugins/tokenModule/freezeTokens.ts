@@ -13,28 +13,6 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _freezeTokensClient(
-  this: TokenClient,
-  input: FreezeTokensInput
-) {
-  return this.metaplex.operations().getTask(freezeTokensOperation(input));
-}
-
-/** @internal */
-export function _freezeTokensBuildersClient(
-  this: TokenBuildersClient,
-  input: FreezeTokensBuilderParams
-) {
-  return freezeTokensBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

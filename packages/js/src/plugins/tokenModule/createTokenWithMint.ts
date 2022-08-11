@@ -8,43 +8,11 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { MintAuthorityMustBeSignerToMintInitialSupplyError } from './errors';
 import { TokenWithMint } from './Token';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createTokenWithMintClient(
-  this: TokenClient,
-  input: CreateTokenWithMintInput = {}
-): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
-  return new Task(async (scope) => {
-    const operation = createTokenWithMintOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const token = await this.findTokenWithMintByMint({
-      mint: output.mintSigner.publicKey,
-      address: output.tokenAddress,
-      addressType: 'token',
-    }).run(scope);
-    return { ...output, token };
-  });
-}
-
-/** @internal */
-export function _createTokenWithMintBuildersClient(
-  this: TokenBuildersClient,
-  input: CreateTokenWithMintBuilderParams
-) {
-  return createTokenWithMintBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
@@ -76,7 +44,7 @@ export type CreateTokenWithMintInput = {
 export type CreateTokenWithMintOutput = {
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
-  tokenAddress: PublicKey;
+  token: TokenWithMint;
 };
 
 // -----------------
@@ -95,7 +63,23 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
         operation.input
       );
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const token = await metaplex
+        .tokens()
+        .findTokenWithMintByMint({
+          mint: output.mintSigner.publicKey,
+          address: output.tokenAddress,
+          addressType: 'token',
+        })
+        .run(scope);
+
+      return { ...output, token };
     },
   };
 
@@ -115,10 +99,10 @@ export type CreateTokenWithMintBuilderParams = Omit<
   mintTokensInstructionKey?: string;
 };
 
-export type CreateTokenWithMintBuilderContext = Omit<
-  CreateTokenWithMintOutput,
-  'response'
->;
+export type CreateTokenWithMintBuilderContext = {
+  mintSigner: Signer;
+  tokenAddress: PublicKey;
+};
 
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,

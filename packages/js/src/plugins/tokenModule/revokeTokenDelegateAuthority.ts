@@ -13,30 +13,6 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
-import { TokenBuildersClient } from './TokenBuildersClient';
-import { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _revokeTokenDelegateAuthorityClient(
-  this: TokenClient,
-  input: RevokeTokenDelegateAuthorityInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(revokeTokenDelegateAuthorityOperation(input));
-}
-
-/** @internal */
-export function _revokeTokenDelegateAuthorityBuildersClient(
-  this: TokenBuildersClient,
-  input: RevokeTokenDelegateAuthorityBuilderParams
-) {
-  return revokeTokenDelegateAuthorityBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

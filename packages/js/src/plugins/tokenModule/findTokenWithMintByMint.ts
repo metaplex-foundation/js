@@ -6,21 +6,6 @@ import { TokenAndMintDoNotMatchError } from './errors';
 import { toMint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenWithMint, toTokenWithMint } from './Token';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findTokenWithMintByMintClient(
-  this: TokenClient,
-  input: FindTokenWithMintByMintInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findTokenWithMintByMintOperation(input));
-}
 
 // -----------------
 // Operation
