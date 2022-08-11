@@ -29,7 +29,7 @@ export type ApproveTokenDelegateAuthorityOperation = Operation<
   ApproveTokenDelegateAuthorityOutput
 >;
 
-export interface ApproveTokenDelegateAuthorityInput {
+export type ApproveTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   delegateAuthority: PublicKey;
   amount?: SplTokenAmount;
@@ -38,11 +38,11 @@ export interface ApproveTokenDelegateAuthorityInput {
   multiSigners?: KeypairSigner[]; // Defaults to [].
   tokenProgram?: PublicKey; // Defaults to Token Program.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface ApproveTokenDelegateAuthorityOutput {
+export type ApproveTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
 // -----------------
 // Handler

@@ -27,18 +27,18 @@ export type RevokeTokenDelegateAuthorityOperation = Operation<
   RevokeTokenDelegateAuthorityOutput
 >;
 
-export interface RevokeTokenDelegateAuthorityInput {
+export type RevokeTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
   tokenAddress?: PublicKey; // Defaults to associated account.
   multiSigners?: KeypairSigner[]; // Defaults to [].
   tokenProgram?: PublicKey; // Defaults to Token Program.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface RevokeTokenDelegateAuthorityOutput {
+export type RevokeTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
 // -----------------
 // Handler

@@ -31,7 +31,7 @@ export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddre
     handle: async (
       operation: FindMintByAddressOperation,
       metaplex: Metaplex
-    ): Promise<Mint> => {
+    ) => {
       const { address, commitment } = operation.input;
 
       const account = toMintAccount(

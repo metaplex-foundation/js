@@ -6,18 +6,18 @@ import { Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { AccountState } from '@solana/spl-token';
 
-export type Token = Readonly<{
-  model: 'token';
-  address: PublicKey | Pda;
-  isAssociatedToken: boolean;
-  mintAddress: PublicKey;
-  ownerAddress: PublicKey;
-  amount: SplTokenAmount;
-  closeAuthorityAddress: Option<PublicKey>;
-  delegateAddress: Option<PublicKey>;
-  delegateAmount: SplTokenAmount;
-  state: AccountState;
-}>;
+export type Token = {
+  readonly model: 'token';
+  readonly address: PublicKey | Pda;
+  readonly isAssociatedToken: boolean;
+  readonly mintAddress: PublicKey;
+  readonly ownerAddress: PublicKey;
+  readonly amount: SplTokenAmount;
+  readonly closeAuthorityAddress: Option<PublicKey>;
+  readonly delegateAddress: Option<PublicKey>;
+  readonly delegateAmount: SplTokenAmount;
+  readonly state: AccountState;
+};
 
 export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';

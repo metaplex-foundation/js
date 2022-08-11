@@ -4,16 +4,16 @@ import { assert, Option } from '@/utils';
 import { MintAccount } from './accounts';
 import { WRAPPED_SOL_MINT } from './constants';
 
-export type Mint = Readonly<{
-  model: 'mint';
-  address: PublicKey;
-  mintAuthorityAddress: Option<PublicKey>;
-  freezeAuthorityAddress: Option<PublicKey>;
-  decimals: number;
-  supply: SplTokenAmount;
-  isWrappedSol: boolean;
-  currency: SplTokenCurrency;
-}>;
+export type Mint = {
+  readonly model: 'mint';
+  readonly address: PublicKey;
+  readonly mintAuthorityAddress: Option<PublicKey>;
+  readonly freezeAuthorityAddress: Option<PublicKey>;
+  readonly decimals: number;
+  readonly supply: SplTokenAmount;
+  readonly isWrappedSol: boolean;
+  readonly currency: SplTokenCurrency;
+};
 
 export const isMint = (value: any): value is Mint =>
   typeof value === 'object' && value.model === 'mint';
