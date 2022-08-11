@@ -36,6 +36,16 @@ import {
 } from './findPurchaseByAddress';
 import { LazyPurchase, Purchase } from './Purchase';
 import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
+import {
+  CancelBidInput,
+  cancelBidOperation,
+  CancelBidOutput,
+} from './cancelBid';
+import {
+  CancelListingInput,
+  cancelListingOperation,
+  CancelListingOutput,
+} from './cancelListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -45,6 +55,20 @@ export class AuctionHouseClient {
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
   ) {}
+
+  cancelBid(input: WithoutAH<CancelBidInput>): Task<CancelBidOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(cancelBidOperation(this.addAH(input)));
+  }
+
+  cancelListing(
+    input: WithoutAH<CancelListingInput>
+  ): Task<CancelListingOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(cancelListingOperation(this.addAH(input)));
+  }
 
   executeSale(
     input: WithoutAH<ExecuteSaleInput>

@@ -38,6 +38,8 @@ import {
   AuctioneerAuthorityRequiredError,
   BidAndListingHaveDifferentAuctionHousesError,
   BidAndListingHaveDifferentMintsError,
+  CanceledBidIsNotAllowedError,
+  CanceledListingIsNotAllowedError,
 } from './errors';
 
 // -----------------
@@ -116,6 +118,12 @@ export const executeSaleBuilder = (
   }
   if (!listing.asset.address.equals(bid.asset.address)) {
     throw new BidAndListingHaveDifferentMintsError();
+  }
+  if (bid.canceledAt) {
+    throw new CanceledBidIsNotAllowedError();
+  }
+  if (listing.canceledAt) {
+    throw new CanceledListingIsNotAllowedError();
   }
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
