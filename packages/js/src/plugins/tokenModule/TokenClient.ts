@@ -1,17 +1,38 @@
 import type { Metaplex } from '@/Metaplex';
-import { _approveTokenDelegateAuthorityClient } from './approveTokenDelegateAuthority';
-import { _createMintClient } from './createMint';
-import { _createTokenClient } from './createToken';
-import { _createTokenWithMintClient } from './createTokenWithMint';
-import { _findMintByAddressClient } from './findMintByAddress';
-import { _findTokenByAddressClient } from './findTokenByAddress';
-import { _findTokenWithMintByAddressClient } from './findTokenWithMintByAddress';
-import { _findTokenWithMintByMintClient } from './findTokenWithMintByMint';
-import { _freezeTokensClient } from './freezeTokens';
-import { _mintTokensClient } from './mintTokens';
-import { _revokeTokenDelegateAuthorityClient } from './revokeTokenDelegateAuthority';
-import { _sendTokensClient } from './sendTokens';
-import { _thawTokensClient } from './thawTokens';
+import {
+  ApproveTokenDelegateAuthorityInput,
+  approveTokenDelegateAuthorityOperation,
+} from './approveTokenDelegateAuthority';
+import { CreateMintInput, createMintOperation } from './createMint';
+import { CreateTokenInput, createTokenOperation } from './createToken';
+import {
+  CreateTokenWithMintInput,
+  createTokenWithMintOperation,
+} from './createTokenWithMint';
+import {
+  FindMintByAddressInput,
+  findMintByAddressOperation,
+} from './findMintByAddress';
+import {
+  FindTokenByAddressInput,
+  findTokenByAddressOperation,
+} from './findTokenByAddress';
+import {
+  FindTokenWithMintByAddressInput,
+  findTokenWithMintByAddressOperation,
+} from './findTokenWithMintByAddress';
+import {
+  FindTokenWithMintByMintInput,
+  findTokenWithMintByMintOperation,
+} from './findTokenWithMintByMint';
+import { FreezeTokensInput, freezeTokensOperation } from './freezeTokens';
+import { MintTokensInput, mintTokensOperation } from './mintTokens';
+import {
+  RevokeTokenDelegateAuthorityInput,
+  revokeTokenDelegateAuthorityOperation,
+} from './revokeTokenDelegateAuthority';
+import { SendTokensInput, sendTokensOperation } from './sendTokens';
+import { ThawTokensInput, thawTokensOperation } from './thawTokens';
 import { TokenBuildersClient } from './TokenBuildersClient';
 
 export class TokenClient {
@@ -21,24 +42,85 @@ export class TokenClient {
     return new TokenBuildersClient(this.metaplex);
   }
 
-  // Queries.
-  findMintByAddress = _findMintByAddressClient;
-  findTokenByAddress = _findTokenByAddressClient;
-  findTokenWithMintByAddress = _findTokenWithMintByAddressClient;
-  findTokenWithMintByMint = _findTokenWithMintByMintClient;
+  // -----------------
+  // Queries
+  // -----------------
 
-  // Create.
-  createMint = _createMintClient;
-  createToken = _createTokenClient;
-  createTokenWithMint = _createTokenWithMintClient;
+  findMintByAddress(input: FindMintByAddressInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findMintByAddressOperation(input));
+  }
 
-  // Update.
-  mint = _mintTokensClient;
-  send = _sendTokensClient;
-  freeze = _freezeTokensClient;
-  thaw = _thawTokensClient;
+  findTokenByAddress(input: FindTokenByAddressInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findTokenByAddressOperation(input));
+  }
 
-  // Delegate.
-  approveDelegateAuthority = _approveTokenDelegateAuthorityClient;
-  revokeDelegateAuthority = _revokeTokenDelegateAuthorityClient;
+  findTokenWithMintByAddress(input: FindTokenWithMintByAddressInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findTokenWithMintByAddressOperation(input));
+  }
+
+  findTokenWithMintByMint(input: FindTokenWithMintByMintInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findTokenWithMintByMintOperation(input));
+  }
+
+  // -----------------
+  // Create
+  // -----------------
+
+  createMint(input: CreateMintInput) {
+    return this.metaplex.operations().getTask(createMintOperation(input));
+  }
+
+  createToken(input: CreateTokenInput) {
+    return this.metaplex.operations().getTask(createTokenOperation(input));
+  }
+
+  createTokenWithMint(input: CreateTokenWithMintInput) {
+    return this.metaplex
+      .operations()
+      .getTask(createTokenWithMintOperation(input));
+  }
+
+  // -----------------
+  // Update
+  // -----------------
+
+  mint(input: MintTokensInput) {
+    return this.metaplex.operations().getTask(mintTokensOperation(input));
+  }
+
+  send(input: SendTokensInput) {
+    return this.metaplex.operations().getTask(sendTokensOperation(input));
+  }
+
+  freeze(input: FreezeTokensInput) {
+    return this.metaplex.operations().getTask(freezeTokensOperation(input));
+  }
+
+  thaw(input: ThawTokensInput) {
+    return this.metaplex.operations().getTask(thawTokensOperation(input));
+  }
+
+  // -----------------
+  // Delegate
+  // -----------------
+
+  approveDelegateAuthority(input: ApproveTokenDelegateAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(approveTokenDelegateAuthorityOperation(input));
+  }
+
+  revokeDelegateAuthority(input: RevokeTokenDelegateAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(revokeTokenDelegateAuthorityOperation(input));
+  }
 }

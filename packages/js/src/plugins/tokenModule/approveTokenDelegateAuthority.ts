@@ -15,30 +15,6 @@ import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
-import { TokenBuildersClient } from './TokenBuildersClient';
-import { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _approveTokenDelegateAuthorityClient(
-  this: TokenClient,
-  input: ApproveTokenDelegateAuthorityInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(approveTokenDelegateAuthorityOperation(input));
-}
-
-/** @internal */
-export function _approveTokenDelegateAuthorityBuildersClient(
-  this: TokenBuildersClient,
-  input: ApproveTokenDelegateAuthorityBuilderParams
-) {
-  return approveTokenDelegateAuthorityBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
