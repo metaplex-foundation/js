@@ -31,67 +31,67 @@ import { CandyMachineProgram } from './program';
 // Model
 // -----------------
 
-export type CandyMachine = Readonly<{
-  model: 'candyMachine';
-  address: PublicKey;
-  programAddress: PublicKey;
-  version: 1 | 2;
-  authorityAddress: PublicKey;
-  walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
-  tokenMintAddress: Option<PublicKey>;
-  collectionMintAddress: Option<PublicKey>;
-  uuid: string;
-  price: Amount;
-  symbol: string;
-  sellerFeeBasisPoints: number;
-  isMutable: boolean;
-  retainAuthority: boolean;
-  goLiveDate: Option<DateTime>;
-  maxEditionSupply: BigNumber;
-  items: CandyMachineItem[];
-  itemsAvailable: BigNumber;
-  itemsMinted: BigNumber;
-  itemsRemaining: BigNumber;
-  itemsLoaded: BigNumber;
-  isFullyLoaded: boolean;
-  endSettings: Option<EndSettings>;
-  hiddenSettings: Option<HiddenSettings>;
-  whitelistMintSettings: Option<WhitelistMintSettings>;
-  gatekeeper: Option<Gatekeeper>;
-  creators: Creator[];
-}>;
+export type CandyMachine = {
+  readonly model: 'candyMachine';
+  readonly address: PublicKey;
+  readonly programAddress: PublicKey;
+  readonly version: 1 | 2;
+  readonly authorityAddress: PublicKey;
+  readonly walletAddress: PublicKey; // SOL treasury OR token account for the tokenMintAddress.
+  readonly tokenMintAddress: Option<PublicKey>;
+  readonly collectionMintAddress: Option<PublicKey>;
+  readonly uuid: string;
+  readonly price: Amount;
+  readonly symbol: string;
+  readonly sellerFeeBasisPoints: number;
+  readonly isMutable: boolean;
+  readonly retainAuthority: boolean;
+  readonly goLiveDate: Option<DateTime>;
+  readonly maxEditionSupply: BigNumber;
+  readonly items: CandyMachineItem[];
+  readonly itemsAvailable: BigNumber;
+  readonly itemsMinted: BigNumber;
+  readonly itemsRemaining: BigNumber;
+  readonly itemsLoaded: BigNumber;
+  readonly isFullyLoaded: boolean;
+  readonly endSettings: Option<CandyMachineEndSettings>;
+  readonly hiddenSettings: Option<CandyMachineHiddenSettings>;
+  readonly whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
+  readonly gatekeeper: Option<CandyMachineGatekeeper>;
+  readonly creators: Creator[];
+};
 
-export type CandyMachineItem = Readonly<{
-  name: string;
-  uri: string;
-}>;
+export type CandyMachineItem = {
+  readonly name: string;
+  readonly uri: string;
+};
 
-export type EndSettings =
+export type CandyMachineEndSettings =
   | {
-      endSettingType: EndSettingType.Amount;
-      number: BigNumber;
+      readonly endSettingType: EndSettingType.Amount;
+      readonly number: BigNumber;
     }
   | {
-      endSettingType: EndSettingType.Date;
-      date: DateTime;
+      readonly endSettingType: EndSettingType.Date;
+      readonly date: DateTime;
     };
 
-export type HiddenSettings = {
-  name: string;
-  uri: string;
-  hash: number[];
+export type CandyMachineHiddenSettings = {
+  readonly name: string;
+  readonly uri: string;
+  readonly hash: number[];
 };
 
-export type WhitelistMintSettings = {
-  mode: WhitelistMintMode;
-  mint: PublicKey;
-  presale: boolean;
-  discountPrice: Option<Amount>;
+export type CandyMachineWhitelistMintSettings = {
+  readonly mode: WhitelistMintMode;
+  readonly mint: PublicKey;
+  readonly presale: boolean;
+  readonly discountPrice: Option<Amount>;
 };
 
-export type Gatekeeper = {
-  network: PublicKey;
-  expireOnUse: boolean;
+export type CandyMachineGatekeeper = {
+  readonly network: PublicKey;
+  readonly expireOnUse: boolean;
 };
 
 // -----------------
@@ -194,10 +194,10 @@ export type CandyMachineConfigs = {
   isMutable: boolean;
   retainAuthority: boolean;
   goLiveDate: Option<DateTime>;
-  endSettings: Option<EndSettings>;
-  hiddenSettings: Option<HiddenSettings>;
-  whitelistMintSettings: Option<WhitelistMintSettings>;
-  gatekeeper: Option<Gatekeeper>;
+  endSettings: Option<CandyMachineEndSettings>;
+  hiddenSettings: Option<CandyMachineHiddenSettings>;
+  whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
+  gatekeeper: Option<CandyMachineGatekeeper>;
   creators: Creator[];
 };
 

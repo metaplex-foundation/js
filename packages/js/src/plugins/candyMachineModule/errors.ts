@@ -3,7 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
-import { CandyMachineItem, EndSettings } from './CandyMachine';
+import { CandyMachineItem, CandyMachineEndSettings } from './CandyMachine';
 import { BigNumber, DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
@@ -107,7 +107,10 @@ export class CandyMachineNotLiveError extends CandyMachineError {
 }
 
 export class CandyMachineEndedError extends CandyMachineError {
-  constructor(endSetting: EndSettings, options?: MetaplexErrorOptions) {
+  constructor(
+    endSetting: CandyMachineEndSettings,
+    options?: MetaplexErrorOptions
+  ) {
     const endSettingType =
       endSetting.endSettingType === EndSettingType.Amount ? 'Amount' : 'Date';
     const endSettingExplanation =
