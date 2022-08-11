@@ -64,22 +64,22 @@ export type CandyMachineJsonConfigs = {
   /**
    * The amount in SOL or SPL token for a mint.
    */
-  price: number;
-  number: number;
-  sellerFeeBasisPoints: number;
-  solTreasuryAccount: PublicKeyString;
-  goLiveDate: DateTimeString;
-  noRetainAuthority: boolean;
-  noMutable: boolean;
-  maxEditionSupply?: number;
-  creators?: CreatorConfig[];
-  symbol?: string;
-  splTokenAccount?: PublicKeyString;
-  splToken?: PublicKeyString;
-  gatekeeper?: GatekeeperSettingsConfig;
-  endSettings?: EndSettingsConfig;
-  whitelistMintSettings?: WhitelistMintSettingsConfig;
-  hiddenSettings?: HiddenSettingsConfig;
+  readonly price: number;
+  readonly number: number;
+  readonly sellerFeeBasisPoints: number;
+  readonly solTreasuryAccount: PublicKeyString;
+  readonly goLiveDate: DateTimeString;
+  readonly noRetainAuthority: boolean;
+  readonly noMutable: boolean;
+  readonly maxEditionSupply?: number;
+  readonly creators?: CreatorConfig[];
+  readonly symbol?: string;
+  readonly splTokenAccount?: PublicKeyString;
+  readonly splToken?: PublicKeyString;
+  readonly gatekeeper?: GatekeeperSettingsConfig;
+  readonly endSettings?: EndSettingsConfig;
+  readonly whitelistMintSettings?: WhitelistMintSettingsConfig;
+  readonly hiddenSettings?: HiddenSettingsConfig;
 };
 
 /**
