@@ -88,7 +88,7 @@ test('[tokenModule] it can send tokens to an non-existing token account', async 
   // Then the account was created.
   const toToken = await mx
     .tokens()
-    .findTokenByAddress(toTokenSigner.publicKey)
+    .findTokenByAddress({ address: toTokenSigner.publicKey })
     .run();
 
   // And the transfer of tokens was successful.
@@ -122,7 +122,10 @@ test('[tokenModule] it can send tokens to an non-existing associated token accou
     .run();
 
   // Then the associated token account was created.
-  const toToken = await mx.tokens().findTokenByAddress(toAssociatedToken).run();
+  const toToken = await mx
+    .tokens()
+    .findTokenByAddress({ address: toAssociatedToken })
+    .run();
 
   // And the transfer of tokens was successful.
   await assertRefreshedTokenHasAmount(t, mx, fromToken, token(58));

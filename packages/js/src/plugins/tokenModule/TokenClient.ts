@@ -74,7 +74,7 @@ export class TokenClient {
   // Create
   // -----------------
 
-  createMint(input: CreateMintInput) {
+  createMint(input: CreateMintInput = {}) {
     return this.metaplex.operations().getTask(createMintOperation(input));
   }
 
@@ -82,7 +82,7 @@ export class TokenClient {
     return this.metaplex.operations().getTask(createTokenOperation(input));
   }
 
-  createTokenWithMint(input: CreateTokenWithMintInput) {
+  createTokenWithMint(input: CreateTokenWithMintInput = {}) {
     return this.metaplex
       .operations()
       .getTask(createTokenWithMintOperation(input));

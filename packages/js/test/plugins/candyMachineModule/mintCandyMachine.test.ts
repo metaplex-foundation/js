@@ -199,7 +199,7 @@ test('[candyMachineModule] it can mint from candy machine with an SPL treasury',
   // And the payer token account was debited.
   const updatedPayerTokenAccount = await mx
     .tokens()
-    .findTokenByAddress(payerTokenAccount.address)
+    .findTokenByAddress({ address: payerTokenAccount.address })
     .run();
   t.equal(
     updatedPayerTokenAccount.amount.basisPoints.toNumber(),
