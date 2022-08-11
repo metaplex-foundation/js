@@ -9,26 +9,26 @@ import { JsonMetadata } from '../nftModule';
 import { MetadataAccount } from './accounts';
 import { findMetadataPda } from './pdas';
 
-export type Metadata<Json extends object = JsonMetadata> = Readonly<{
-  model: 'metadata';
-  address: Pda;
-  mintAddress: PublicKey;
-  updateAuthorityAddress: PublicKey;
-  json: Option<Json>;
-  jsonLoaded: boolean;
-  name: string;
-  symbol: string;
-  uri: string;
-  isMutable: boolean;
-  primarySaleHappened: boolean;
-  sellerFeeBasisPoints: number;
-  editionNonce: Option<number>;
-  creators: Creator[];
-  tokenStandard: Option<TokenStandard>;
-  collection: Option<MetadataParentCollection>;
-  collectionDetails: Option<MetadataCollectionDetails>;
-  uses: Option<MetadataUses>;
-}>;
+export type Metadata<Json extends object = JsonMetadata> = {
+  readonly model: 'metadata';
+  readonly address: Pda;
+  readonly mintAddress: PublicKey;
+  readonly updateAuthorityAddress: PublicKey;
+  readonly json: Option<Json>;
+  readonly jsonLoaded: boolean;
+  readonly name: string;
+  readonly symbol: string;
+  readonly uri: string;
+  readonly isMutable: boolean;
+  readonly primarySaleHappened: boolean;
+  readonly sellerFeeBasisPoints: number;
+  readonly editionNonce: Option<number>;
+  readonly creators: Creator[];
+  readonly tokenStandard: Option<TokenStandard>;
+  readonly collection: Option<MetadataParentCollection>;
+  readonly collectionDetails: Option<MetadataCollectionDetails>;
+  readonly uses: Option<MetadataUses>;
+};
 
 type MetadataUses = {
   useMethod: UseMethod;
