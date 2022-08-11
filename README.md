@@ -16,6 +16,9 @@ The entry point to the JavaScript SDK is a `Metaplex` instance that will give yo
 
 It accepts a `Connection` instance from `@solana/web3.js` that will be used to communicate with the cluster.
 
+> **Note**
+> The metaplex program does not exist on localhost. Trying to use it when connected to localhost will fail with `Attempt to load a program that does not exist`. 
+
 ```ts
 import { Metaplex } from "@metaplex-foundation/js";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
