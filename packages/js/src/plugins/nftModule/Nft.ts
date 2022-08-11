@@ -6,6 +6,7 @@ import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
+/** {@inheritDoc Metadata} */
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
     model: 'nft';

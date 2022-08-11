@@ -11,16 +11,60 @@ import { findMetadataPda } from './pdas';
 
 export type Metadata<Json extends object = JsonMetadata> = {
   readonly model: 'metadata';
+
+  /** The address of the Metadata account. */
   readonly address: Pda;
+
+  /** The address of the Mint account. */
   readonly mintAddress: PublicKey;
+
+  /**
+   * The address of the authority that is allowed
+   * to make changes to the Metadata account.
+   * */
   readonly updateAuthorityAddress: PublicKey;
+
+  /** The JSON metadata associated with the metadata acount. */
   readonly json: Option<Json>;
+
+  /**
+   * Whether or not the JSON metadata was loaded in the first place.
+   * When this is `false`, the `json` property is should be ignored.
+   * */
   readonly jsonLoaded: boolean;
+
+  /**
+   * The on-chain name of the asset, stored in the Metadata account.
+   * E.g. "My NFT #123"
+   * */
   readonly name: string;
+
+  /**
+   * The on-chain symbol of the asset, stored in the Metadata account.
+   * E.g. "MYNFT"
+   * */
   readonly symbol: string;
+
+  /**
+   * The URI that points to the JSON metadata of the asset.
+   * This URI is used to load the `json` property of this object.
+   * */
   readonly uri: string;
+
+  /**
+   * Whether or not the asset is mutable.
+   * When set to `false` no one can update the Metadata account,
+   * not even the update authority.
+   * */
   readonly isMutable: boolean;
+
+  /**
+   * Whether or not the asset has already been sold to its first buyer.
+   * When set to `false`, all royalties should be paid to the creators.
+   * When set to `true`, royalties should be calculate as usual.
+   */
   readonly primarySaleHappened: boolean;
+
   readonly sellerFeeBasisPoints: number;
   readonly editionNonce: Option<number>;
   readonly creators: Creator[];
