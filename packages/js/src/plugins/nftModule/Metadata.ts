@@ -65,10 +65,31 @@ export type Metadata<Json extends object = JsonMetadata> = {
    */
   readonly primarySaleHappened: boolean;
 
+  /**
+   * The royalties in percent basis point (i.e. 250 is 2.5%) that
+   * should be paid to the creators on each secondary sale.
+   */
   readonly sellerFeeBasisPoints: number;
+
+  /** Stores the bump of the edition PDA. */
   readonly editionNonce: Option<number>;
+
+  /**
+   * The creators of the asset.
+   * Each object within the array contains the address,
+   * the shares in percent (i.e. 5 is 5%) and whether or not the
+   * creator is verified (i.e. they signed the asset).
+   * */
   readonly creators: Creator[];
+
+  /**
+   * This enum indicates which type of asset we are dealing with.
+   * It can be an NFT, a limited edition of an original NFT,
+   * a fungible asset (i.e. it has zero decimals)
+   * or a fungible token (i.e. it has more than zero decimals).
+   */
   readonly tokenStandard: Option<TokenStandard>;
+
   readonly collection: Option<MetadataParentCollection>;
   readonly collectionDetails: Option<MetadataCollectionDetails>;
   readonly uses: Option<MetadataUses>;
