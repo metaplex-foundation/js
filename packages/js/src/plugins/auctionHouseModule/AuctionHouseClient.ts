@@ -20,7 +20,7 @@ export class AuctionHouseClient {
     protected readonly metaplex: Metaplex,
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
-  ) {}
+  ) { }
 
   // Queries.
   findBidByAddress = _findBidByAddressClient;
@@ -30,14 +30,12 @@ export class AuctionHouseClient {
   // Create.
   bid = _bidClient;
   list = _listClient;
+  executeSale = _executeSaleClient;
 
   // Load.
   loadBid = _loadBidClient;
   loadListing = _loadListingClient;
   loadPurchase = _loadPurchaseClient;
-
-  // Execute.
-  executeSale = _executeSaleClient;
 
   // Cancel.
   cancelBid = _cancelBidClient;
