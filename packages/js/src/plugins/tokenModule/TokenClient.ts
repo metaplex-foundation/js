@@ -35,6 +35,29 @@ import { SendTokensInput, sendTokensOperation } from './sendTokens';
 import { ThawTokensInput, thawTokensOperation } from './thawTokens';
 import { TokenBuildersClient } from './TokenBuildersClient';
 
+/**
+ * This is a client for the Token module.
+ *
+ * It enables us to interact with the Token program in order to create,
+ * send, freeze, thaw, and mint tokens.
+ *
+ * You may access this client via the `tokens()` method of your `Metaplex` instance.
+ *
+ * ```ts
+ * const tokenClient = metaplex.tokens();
+ * ```
+ *
+ * @example
+ * You can create a new mint account with an associated token account like so.
+ * The owner of this token account will, by default, be the current identity
+ * of the metaplex instance.
+ *
+ * ```ts
+ * const { token } = await metaplex.tokens().createTokenWithMint();
+ * ```
+ *
+ * @group Modules
+ */
 export class TokenClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
@@ -74,10 +97,18 @@ export class TokenClient {
   // Create
   // -----------------
 
-  createMint(input: CreateMintInput = {}) {
-    return this.metaplex.operations().getTask(createMintOperation(input));
+  /**
+   * Create a new Mint account from the provided input
+   * and returns the newly created `Mint` model.
+   */
+  createMint(input?: CreateMintInput) {
+    return this.metaplex.operations().getTask(createMintOperation(input ?? {}));
   }
 
+  /**
+   * Create a new Token account from the provided input
+   * and returns the newly created `Token` model.
+   */
   createToken(input: CreateTokenInput) {
     return this.metaplex.operations().getTask(createTokenOperation(input));
   }
