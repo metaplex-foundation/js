@@ -52,7 +52,7 @@ export type FreezeTokensInput = {
 
 /**
  * @group Operations
- * @category Ouputs
+ * @category Outputs
  */
 export type FreezeTokensOutput = {
   response: SendAndConfirmTransactionResponse;
