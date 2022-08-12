@@ -11,14 +11,32 @@ import {
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'TransferSolOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const transferSolOperation = useOperation<TransferSolOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type TransferSolOperation = Operation<
   typeof Key,
   TransferSolInput,
   TransferSolOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type TransferSolInput = {
   from?: Signer; // Defaults to mx.identity().
   to: PublicKey;
@@ -29,10 +47,18 @@ export type TransferSolInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type TransferSolOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const transferSolOperationHandler: OperationHandler<TransferSolOperation> =
   {
     async handle(
@@ -49,6 +75,10 @@ export const transferSolOperationHandler: OperationHandler<TransferSolOperation>
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type TransferSolBuilderParams = Omit<
   TransferSolInput,
   'confirmOptions'
@@ -56,6 +86,10 @@ export type TransferSolBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const transferSolBuilder = (
   metaplex: Metaplex,
   params: TransferSolBuilderParams

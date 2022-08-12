@@ -11,6 +11,9 @@ import {
   transferSolOperationHandler,
 } from './transferSol';
 
+/**
+ * @group Plugins
+ */
 export const systemModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Program.

@@ -16,14 +16,32 @@ import {
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
 
+// -----------------
+// Operation
+// -----------------
+
 const Key = 'CreateAccountOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createAccountOperation = useOperation<CreateAccountOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateAccountOperation = Operation<
   typeof Key,
   CreateAccountInput,
   CreateAccountOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateAccountInput = {
   space: number;
   lamports?: SolAmount; // Defaults to rent-exemption for given space.
@@ -33,12 +51,20 @@ export type CreateAccountInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateAccountOutput = {
   response: SendAndConfirmTransactionResponse;
   newAccount: Signer;
   lamports: SolAmount;
 };
 
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createAccountOperationHandler: OperationHandler<CreateAccountOperation> =
   {
     async handle(
@@ -56,6 +82,10 @@ export const createAccountOperationHandler: OperationHandler<CreateAccountOperat
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateAccountBuilderParams = Omit<
   CreateAccountInput,
   'confirmOptions'
@@ -63,8 +93,16 @@ export type CreateAccountBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateAccountBuilderContext = Omit<CreateAccountOutput, 'response'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createAccountBuilder = async (
   metaplex: Metaplex,
   params: CreateAccountBuilderParams

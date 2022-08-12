@@ -38,8 +38,8 @@ import { TokenBuildersClient } from './TokenBuildersClient';
 /**
  * This is a client for the Token module.
  *
- * It enables us to interact with the Token program in order to create,
- * send, freeze, thaw, and mint tokens.
+ * It enables us to interact with the SPL Token program in order to
+ * create, send, freeze, thaw, and mint tokens.
  *
  * You may access this client via the `tokens()` method of your `Metaplex` instance.
  *
