@@ -22,13 +22,18 @@ import { findAssociatedTokenAccountPda } from './pdas';
 // -----------------
 
 const Key = 'MintTokensOperation' as const;
+
+/** @group Operations */
 export const mintTokensOperation = useOperation<MintTokensOperation>(Key);
+
+/** @group Operations */
 export type MintTokensOperation = Operation<
   typeof Key,
   MintTokensInput,
   MintTokensOutput
 >;
 
+/** @group Operations */
 export type MintTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
@@ -42,6 +47,7 @@ export type MintTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type MintTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
@@ -50,6 +56,7 @@ export type MintTokensOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
   {
     async handle(
@@ -65,6 +72,7 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type MintTokensBuilderParams = Omit<
   MintTokensInput,
   'confirmOptions'
@@ -76,6 +84,7 @@ export type MintTokensBuilderParams = Omit<
   mintTokensInstructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export const mintTokensBuilder = async (
   metaplex: Metaplex,
   params: MintTokensBuilderParams

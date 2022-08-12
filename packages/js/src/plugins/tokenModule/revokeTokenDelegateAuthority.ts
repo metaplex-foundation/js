@@ -19,14 +19,19 @@ import { TokenProgram } from './program';
 // -----------------
 
 const Key = 'RevokeTokenDelegateAuthorityOperation' as const;
+
+/** @group Operations */
 export const revokeTokenDelegateAuthorityOperation =
   useOperation<RevokeTokenDelegateAuthorityOperation>(Key);
+
+/** @group Operations */
 export type RevokeTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   RevokeTokenDelegateAuthorityInput,
   RevokeTokenDelegateAuthorityOutput
 >;
 
+/** @group Operations */
 export type RevokeTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
@@ -36,6 +41,7 @@ export type RevokeTokenDelegateAuthorityInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type RevokeTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
 };
@@ -44,6 +50,7 @@ export type RevokeTokenDelegateAuthorityOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<RevokeTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -61,6 +68,7 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   RevokeTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -68,6 +76,7 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export const revokeTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeTokenDelegateAuthorityBuilderParams

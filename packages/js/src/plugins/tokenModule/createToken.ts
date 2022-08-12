@@ -26,13 +26,18 @@ import { Token } from './Token';
 // -----------------
 
 const Key = 'CreateTokenOperation' as const;
+
+/** @group Operations */
 export const createTokenOperation = useOperation<CreateTokenOperation>(Key);
+
+/** @group Operations */
 export type CreateTokenOperation = Operation<
   typeof Key,
   CreateTokenInput,
   CreateTokenOutput
 >;
 
+/** @group Operations */
 export type CreateTokenInput = {
   mint: PublicKey;
   owner?: PublicKey; // Defaults to mx.identity().
@@ -43,6 +48,7 @@ export type CreateTokenInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type CreateTokenOutput = {
   response: SendAndConfirmTransactionResponse;
   token: Token;
@@ -52,6 +58,7 @@ export type CreateTokenOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const createTokenOperationHandler: OperationHandler<CreateTokenOperation> =
   {
     async handle(
@@ -81,6 +88,7 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type CreateTokenBuilderParams = Omit<
   CreateTokenInput,
   'confirmOptions'
@@ -90,10 +98,12 @@ export type CreateTokenBuilderParams = Omit<
   initializeTokenInstructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export type CreateTokenBuilderContext = {
   tokenAddress: PublicKey;
 };
 
+/** @group Transaction Builders */
 export const createTokenBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenBuilderParams

@@ -22,13 +22,18 @@ import { TokenProgram } from './program';
 // -----------------
 
 const Key = 'SendTokensOperation' as const;
+
+/** @group Operations */
 export const sendTokensOperation = useOperation<SendTokensOperation>(Key);
+
+/** @group Operations */
 export type SendTokensOperation = Operation<
   typeof Key,
   SendTokensInput,
   SendTokensOutput
 >;
 
+/** @group Operations */
 export type SendTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
@@ -44,6 +49,7 @@ export type SendTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type SendTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
@@ -52,6 +58,7 @@ export type SendTokensOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
   {
     async handle(
@@ -67,6 +74,7 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
@@ -78,6 +86,7 @@ export type SendTokensBuilderParams = Omit<
   transferTokensInstructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export const sendTokensBuilder = async (
   metaplex: Metaplex,
   params: SendTokensBuilderParams

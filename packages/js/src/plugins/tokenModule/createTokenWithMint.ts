@@ -87,6 +87,7 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type CreateTokenWithMintBuilderParams = Omit<
   CreateTokenWithMintInput,
   'confirmOptions'
@@ -99,11 +100,13 @@ export type CreateTokenWithMintBuilderParams = Omit<
   mintTokensInstructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export type CreateTokenWithMintBuilderContext = {
   mintSigner: Signer;
   tokenAddress: PublicKey;
 };
 
+/** @group Transaction Builders */
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenWithMintBuilderParams

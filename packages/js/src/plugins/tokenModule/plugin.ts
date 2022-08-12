@@ -43,6 +43,7 @@ import { sendTokensOperation, sendTokensOperationHandler } from './sendTokens';
 import { thawTokensOperation, thawTokensOperationHandler } from './thawTokens';
 import { TokenClient } from './TokenClient';
 
+/** @group Plugins */
 export const tokenModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Program.

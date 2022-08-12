@@ -21,14 +21,19 @@ import { TokenProgram } from './program';
 // -----------------
 
 const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
+
+/** @group Operations */
 export const approveTokenDelegateAuthorityOperation =
   useOperation<ApproveTokenDelegateAuthorityOperation>(Key);
+
+/** @group Operations */
 export type ApproveTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   ApproveTokenDelegateAuthorityInput,
   ApproveTokenDelegateAuthorityOutput
 >;
 
+/** @group Operations */
 export type ApproveTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   delegateAuthority: PublicKey;
@@ -40,6 +45,7 @@ export type ApproveTokenDelegateAuthorityInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type ApproveTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
 };
@@ -48,6 +54,7 @@ export type ApproveTokenDelegateAuthorityOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<ApproveTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -65,6 +72,7 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   ApproveTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -72,6 +80,7 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export const approveTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: ApproveTokenDelegateAuthorityBuilderParams

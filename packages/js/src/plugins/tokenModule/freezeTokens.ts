@@ -19,13 +19,18 @@ import { TokenProgram } from './program';
 // -----------------
 
 const Key = 'FreezeTokensOperation' as const;
+
+/** @group Operations */
 export const freezeTokensOperation = useOperation<FreezeTokensOperation>(Key);
+
+/** @group Operations */
 export type FreezeTokensOperation = Operation<
   typeof Key,
   FreezeTokensInput,
   FreezeTokensOutput
 >;
 
+/** @group Operations */
 export type FreezeTokensInput = {
   mintAddress: PublicKey;
   freezeAuthority: PublicKey | Signer;
@@ -36,6 +41,7 @@ export type FreezeTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/** @group Operations */
 export type FreezeTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
@@ -44,6 +50,7 @@ export type FreezeTokensOutput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperation> =
   {
     async handle(
@@ -61,6 +68,7 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
 // Builder
 // -----------------
 
+/** @group Transaction Builders */
 export type FreezeTokensBuilderParams = Omit<
   FreezeTokensInput,
   'confirmOptions'
@@ -68,6 +76,7 @@ export type FreezeTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/** @group Transaction Builders */
 export const freezeTokensBuilder = (
   metaplex: Metaplex,
   params: FreezeTokensBuilderParams

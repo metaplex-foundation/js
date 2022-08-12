@@ -6,6 +6,7 @@ import { Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { AccountState } from '@solana/spl-token';
 
+/** @group Models */
 export type Token = {
   readonly model: 'token';
   readonly address: PublicKey | Pda;
@@ -19,12 +20,16 @@ export type Token = {
   readonly state: AccountState;
 };
 
+/** @group Model Helpers */
 export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
 
+/** @group Model Helpers */
 export function assertToken(value: any): asserts value is Token {
   assert(isToken(value), `Expected Token model`);
 }
+
+/** @group Model Helpers */
 export const toToken = (account: TokenAccount): Token => {
   const associatedTokenAddress = findAssociatedTokenAccountPda(
     account.data.mint,
@@ -48,21 +53,25 @@ export const toToken = (account: TokenAccount): Token => {
   };
 };
 
+/** @group Models */
 export type TokenWithMint = Omit<Token, 'model' | 'mintAddress'> &
   Readonly<{
     model: 'tokenWithMint';
     mint: Mint;
   }>;
 
+/** @group Model Helpers */
 export const isTokenWithMint = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
 
+/** @group Model Helpers */
 export function assertTokenWithMint(
   value: any
 ): asserts value is TokenWithMint {
   assert(isTokenWithMint(value), `Expected TokenWithMint model`);
 }
 
+/** @group Model Helpers */
 export const toTokenWithMint = (
   tokenAccount: TokenAccount,
   mintModel: Mint

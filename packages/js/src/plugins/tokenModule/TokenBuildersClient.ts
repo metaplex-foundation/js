@@ -23,6 +23,10 @@ import {
 import { sendTokensBuilder, SendTokensBuilderParams } from './sendTokens';
 import { thawTokensBuilder, ThawTokensBuilderParams } from './thawTokens';
 
+/**
+ * @see {@link TokenClient}
+ * @group Module Builders
+ * */
 export class TokenBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

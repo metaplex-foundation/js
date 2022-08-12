@@ -20,8 +20,13 @@ const mintAccountParser: AccountParser<SplMintAccount> = {
   },
 };
 
+/** @group Accounts */
 export type MintAccount = Account<SplMintAccount>;
+
+/** @group Accounts */
 export const parseMintAccount = getAccountParsingFunction(mintAccountParser);
+
+/** @group Accounts */
 export const toMintAccount =
   getAccountParsingAndAssertingFunction(mintAccountParser);
 
@@ -34,7 +39,12 @@ const tokenAccountParser: AccountParser<SplTokenAccount> = {
   },
 };
 
+/** @group Accounts */
 export type TokenAccount = Account<SplTokenAccount>;
+
+/** @group Accounts */
 export const parseTokenAccount = getAccountParsingFunction(tokenAccountParser);
+
+/** @group Accounts */
 export const toTokenAccount =
   getAccountParsingAndAssertingFunction(tokenAccountParser);

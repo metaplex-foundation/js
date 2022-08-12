@@ -12,14 +12,19 @@ import { TokenWithMint, toTokenWithMint } from './Token';
 // -----------------
 
 const Key = 'FindTokenWithMintByMintOperation' as const;
+
+/** @group Operations */
 export const findTokenWithMintByMintOperation =
   useOperation<FindTokenWithMintByMintOperation>(Key);
+
+/** @group Operations */
 export type FindTokenWithMintByMintOperation = Operation<
   typeof Key,
   FindTokenWithMintByMintInput,
   TokenWithMint
 >;
 
+/** @group Operations */
 export type FindTokenWithMintByMintInput = {
   mint: PublicKey;
   address: PublicKey;
@@ -31,6 +36,7 @@ export type FindTokenWithMintByMintInput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const findTokenWithMintByMintOperationHandler: OperationHandler<FindTokenWithMintByMintOperation> =
   {
     handle: async (

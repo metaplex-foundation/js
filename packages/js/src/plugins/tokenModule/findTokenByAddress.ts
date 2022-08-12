@@ -9,14 +9,19 @@ import { Token, toToken } from './Token';
 // -----------------
 
 const Key = 'FindTokenByAddressOperation' as const;
+
+/** @group Operations */
 export const findTokenByAddressOperation =
   useOperation<FindTokenByAddressOperation>(Key);
+
+/** @group Operations */
 export type FindTokenByAddressOperation = Operation<
   typeof Key,
   FindTokenByAddressInput,
   Token
 >;
 
+/** @group Operations */
 export type FindTokenByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
@@ -26,6 +31,7 @@ export type FindTokenByAddressInput = {
 // Handler
 // -----------------
 
+/** @group Operations */
 export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAddressOperation> =
   {
     handle: async (
