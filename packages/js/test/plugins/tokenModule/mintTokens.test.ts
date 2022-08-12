@@ -22,7 +22,11 @@ test('[tokenModule] it can mint tokens to an existing token account', async (t: 
   // When we mint 42 tokens to that token account.
   await mx
     .tokens()
-    .mint({ mint: mint.address, amount: token(42), toToken: toToken.address })
+    .mint({
+      mintAddress: mint.address,
+      amount: token(42),
+      toToken: toToken.address,
+    })
     .run();
 
   // Then the mint was successful.
@@ -45,7 +49,11 @@ test('[tokenModule] it can mint tokens to an existing associated token account',
   // When we mint 42 tokens to that token account.
   await mx
     .tokens()
-    .mint({ mint: mint.address, amount: token(42), toToken: toToken.address })
+    .mint({
+      mintAddress: mint.address,
+      amount: token(42),
+      toToken: toToken.address,
+    })
     .run();
 
   // Then the mint was successful.
@@ -65,7 +73,11 @@ test('[tokenModule] it can mint tokens to an non-existing token account', async 
   // When we mint 42 tokens to that token account.
   await mx
     .tokens()
-    .mint({ mint: mint.address, amount: token(42), toToken: toTokenSigner })
+    .mint({
+      mintAddress: mint.address,
+      amount: token(42),
+      toToken: toTokenSigner,
+    })
     .run();
 
   // Then the account was created.
@@ -95,7 +107,7 @@ test('[tokenModule] it can mint tokens to an non-existing associated token accou
   // When we mint 42 tokens to that token account.
   await mx
     .tokens()
-    .mint({ mint: mint.address, amount: token(42), toOwner })
+    .mint({ mintAddress: mint.address, amount: token(42), toOwner })
     .run();
 
   // Then the associated token account was created.

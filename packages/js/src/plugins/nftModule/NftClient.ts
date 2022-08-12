@@ -83,7 +83,7 @@ export class NftClient {
   // Syntactic sugar.
   send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {
     return this.metaplex.tokens().send({
-      mint: toMintAddress(nftOrSft),
+      mintAddress: toMintAddress(nftOrSft),
       amount: token(1),
       ...options,
     });

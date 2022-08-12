@@ -27,7 +27,11 @@ test('[tokenModule] it can send tokens to an existing token account', async (t: 
   // When we send 42 tokens to that token account.
   await mx
     .tokens()
-    .send({ mint: mint.address, amount: token(42), toToken: toToken.address })
+    .send({
+      mintAddress: mint.address,
+      amount: token(42),
+      toToken: toToken.address,
+    })
     .run();
 
   // Then the transfer of tokens was successful.
@@ -56,7 +60,7 @@ test('[tokenModule] it can send tokens to an existing associated token account',
   // When we send 42 tokens to that owner.
   await mx
     .tokens()
-    .send({ mint: mint.address, amount: token(42), toOwner })
+    .send({ mintAddress: mint.address, amount: token(42), toOwner })
     .run();
 
   // Then the transfer of tokens was successful.
@@ -82,7 +86,11 @@ test('[tokenModule] it can send tokens to an non-existing token account', async 
   // When we send 42 tokens to that token account by passing it as a signer.
   await mx
     .tokens()
-    .send({ mint: mint.address, amount: token(42), toToken: toTokenSigner })
+    .send({
+      mintAddress: mint.address,
+      amount: token(42),
+      toToken: toTokenSigner,
+    })
     .run();
 
   // Then the account was created.
@@ -118,7 +126,7 @@ test('[tokenModule] it can send tokens to an non-existing associated token accou
   // When we send 42 tokens to that owner.
   await mx
     .tokens()
-    .send({ mint: mint.address, amount: token(42), toOwner })
+    .send({ mintAddress: mint.address, amount: token(42), toOwner })
     .run();
 
   // Then the associated token account was created.
