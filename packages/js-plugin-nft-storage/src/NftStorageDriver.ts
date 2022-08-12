@@ -9,7 +9,6 @@ import {
   Metaplex,
   Signer,
   isKeypairSigner,
-  assert,
 } from '@metaplex-foundation/js';
 import {
   toDagPbLink,
@@ -62,7 +61,10 @@ export class NftStorageDriver implements StorageDriver {
   }
 
   async uploadAll(files: MetaplexFile[]): Promise<string[]> {
-    assert(this.batchSize > 0, 'batchSize must be greater than 0');
+    if (this.batchSize <= 0) {
+      throw new Error('batchSize must be greater than 0');
+    }
+
     const client = await this.client();
     const blockstore = new MemoryBlockStore();
     const uris: string[] = [];
