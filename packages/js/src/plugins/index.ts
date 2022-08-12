@@ -11,6 +11,7 @@ export * from './operationModule';
 export * from './programModule';
 export * from './rpcModule';
 export * from './storageModule';
+export * from './systemModule';
 export * from './tokenModule';
 export * from './utilsModule';
 export * from './walletAdapterIdentity';
