@@ -63,7 +63,7 @@ test('[tokenModule] a frozen account cannot send tokens', async (t: Test) => {
   const promise = mx
     .tokens()
     .send({
-      mint: tokenWithMint.mint.address,
+      mintAddress: tokenWithMint.mint.address,
       amount: token(10),
       fromOwner: owner,
       toOwner: Keypair.generate().publicKey,

@@ -43,7 +43,7 @@ test('[tokenModule] a token owner can revoke an existing token delegate authorit
   const promise = mx
     .tokens()
     .send({
-      mint: tokenWithMint.mint.address,
+      mintAddress: tokenWithMint.mint.address,
       delegateAuthority,
       fromOwner: owner.publicKey,
       toOwner: newOwner.publicKey,

@@ -50,7 +50,7 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
   await mx
     .tokens()
     .send({
-      mint: tokenWithMint.mint.address,
+      mintAddress: tokenWithMint.mint.address,
       delegateAuthority,
       fromOwner: owner.publicKey,
       toOwner: newOwner.publicKey,
@@ -97,7 +97,7 @@ test('[tokenModule] an approved delegate authority is automatically revoked when
   await mx
     .tokens()
     .send({
-      mint: tokenWithMint.mint.address,
+      mintAddress: tokenWithMint.mint.address,
       delegateAuthority,
       fromOwner: owner.publicKey,
       toOwner: newOwner.publicKey,
@@ -144,7 +144,7 @@ test('[tokenModule] a delegated authority cannot use more tokens than initially 
   const promise = mx
     .tokens()
     .send({
-      mint: tokenWithMint.mint.address,
+      mintAddress: tokenWithMint.mint.address,
       delegateAuthority,
       fromOwner: owner.publicKey,
       toOwner: newOwner.publicKey,
