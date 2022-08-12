@@ -9,11 +9,10 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createTransferCheckedInstruction } from '@solana/spl-token';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createTransferInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { isMint, Mint } from './Mint';
 import { findAssociatedTokenAccountPda } from './pdas';
 import { TokenProgram } from './program';
 
@@ -44,7 +43,7 @@ export type SendTokensOperation = Operation<
  * @category Inputs
  */
 export type SendTokensInput = {
-  mint: PublicKey | Mint;
+  mintAddress: PublicKey;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
   toToken?: PublicKey | Signer; // If provided and token does not exist, it will create that account for you, hence the need for a Signer. Defaults to associated account.
@@ -74,9 +73,29 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
   {
     async handle(
       operation: SendTokensOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<SendTokensOutput> {
-      const builder = await sendTokensBuilder(metaplex, operation.input);
+      const {
+        mintAddress,
+        toOwner = metaplex.identity().publicKey,
+        toToken,
+      } = operation.input;
+
+      const destination =
+        toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+      const destinationAddress = toPublicKey(destination);
+      const destinationAccountExists = await metaplex
+        .rpc()
+        .accountExists(destinationAddress);
+      scope.throwIfCanceled();
+
+      const builder = await sendTokensBuilder(metaplex, {
+        ...operation.input,
+        toTokenExists: destinationAccountExists,
+      });
+      scope.throwIfCanceled();
+
       return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
@@ -93,7 +112,7 @@ export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
 > & {
-  toTokenExists?: boolean; // Defaults to false.
+  toTokenExists?: boolean; // Defaults to true.
   createAssociatedTokenAccountInstructionKey?: string;
   createAccountInstructionKey?: string;
   initializeTokenInstructionKey?: string;
@@ -109,10 +128,11 @@ export const sendTokensBuilder = async (
   params: SendTokensBuilderParams
 ): Promise<TransactionBuilder> => {
   const {
-    mint,
+    mintAddress,
     amount,
     toOwner = metaplex.identity().publicKey,
     toToken,
+    toTokenExists = true,
     fromOwner = metaplex.identity(),
     fromToken,
     fromMultiSigners = [],
@@ -125,43 +145,37 @@ export const sendTokensBuilder = async (
     ? [fromOwner.publicKey, [fromOwner]]
     : [fromOwner, [delegateAuthority, ...fromMultiSigners].filter(isSigner)];
 
-  const mintAddress = isMint(mint) ? mint.address : mint;
-  const decimals = isMint(mint) ? mint.decimals : amount.currency.decimals;
   const source =
     fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
-  let createTokenIfMissingBuilder = TransactionBuilder.make();
-  if (!(params.toTokenExists ?? false)) {
-    createTokenIfMissingBuilder = await metaplex
-      .tokens()
-      .builders()
-      .createTokenIfMissing({
-        ...params,
-        mint: mintAddress,
-        owner: toOwner,
-        token: toToken,
-        payer,
-        tokenVariable: 'toToken',
-      });
-  }
-
   return (
     TransactionBuilder.make()
 
       // Create token account if missing.
-      .add(createTokenIfMissingBuilder)
+      .add(
+        await metaplex
+          .tokens()
+          .builders()
+          .createTokenIfMissing({
+            ...params,
+            mint: mintAddress,
+            owner: toOwner,
+            token: toToken,
+            tokenExists: toTokenExists,
+            payer,
+            tokenVariable: 'toToken',
+          })
+      )
 
       // Transfer tokens.
       .add({
-        instruction: createTransferCheckedInstruction(
+        instruction: createTransferInstruction(
           source,
-          mintAddress,
           toPublicKey(destination),
           delegateAuthority ? delegateAuthority.publicKey : fromOwnerPublicKey,
           amount.basisPoints.toNumber(),
-          decimals,
           fromMultiSigners,
           tokenProgram
         ),

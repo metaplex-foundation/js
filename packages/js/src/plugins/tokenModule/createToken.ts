@@ -217,6 +217,7 @@ export type CreateTokenIfMissingBuilderParams = Omit<
   'token'
 > & {
   token?: PublicKey | Signer;
+  tokenExists?: boolean; // Defaults to true.
   tokenVariable?: string;
 };
 
@@ -232,21 +233,18 @@ export const createTokenIfMissingBuilder = async (
     mint,
     owner = metaplex.identity().publicKey,
     token,
+    tokenExists = true,
     payer = metaplex.identity(),
     tokenVariable = 'token',
   } = params;
 
   const destination = token ?? findAssociatedTokenAccountPda(mint, owner);
   const destinationAddress = toPublicKey(destination);
-  const destinationAccount = await metaplex
-    .rpc()
-    .getAccount(destinationAddress);
-
   const builder = TransactionBuilder.make<CreateTokenBuilderContext>()
     .setFeePayer(payer)
     .setContext({ tokenAddress: destinationAddress });
 
-  if (destinationAccount.exists) {
+  if (tokenExists) {
     return builder;
   }
 

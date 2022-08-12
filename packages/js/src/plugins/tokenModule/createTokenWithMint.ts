@@ -209,9 +209,8 @@ export const createTokenWithMintBuilder = async (
         .tokens()
         .builders()
         .mint({
-          mint: mint.publicKey,
+          mintAddress: mint.publicKey,
           toToken: tokenAddress,
-          toTokenExists: true,
           amount: initialSupply,
           mintAuthority,
           tokenProgram,
