@@ -46,7 +46,6 @@ import { LazyListing, Listing } from './Listing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
-/** @internal */
 export function _listClient(
   this: AuctionHouseClient,
   input: WithoutAH<CreateListingInput>

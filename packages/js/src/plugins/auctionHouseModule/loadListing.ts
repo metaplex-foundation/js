@@ -10,7 +10,6 @@ import { AuctionHouseClient } from './AuctionHouseClient';
 // Clients
 // -----------------
 
-/** @internal */
 export function _loadListingClient(
   this: AuctionHouseClient,
   lazyListing: LazyListing,

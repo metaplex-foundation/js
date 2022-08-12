@@ -12,7 +12,6 @@ import { AuctionHouseClient } from './AuctionHouseClient';
 // Clients
 // -----------------
 
-/** @internal */
 export function _findPurchaseByAddressClient(
   this: AuctionHouseClient,
   sellerTradeState: PublicKey,

@@ -48,7 +48,6 @@ import { AuctionHouseClient } from './AuctionHouseClient';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
-/** @internal */
 export function _bidClient(
   this: AuctionHouseClient,
   input: WithoutAH<CreateBidInput>
