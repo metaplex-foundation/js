@@ -18,15 +18,13 @@ export function _findBidByAddressClient(
   address: PublicKey,
   options?: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'>
 ) {
-  return this.metaplex
-    .operations()
-    .getTask(
-      findBidByAddressOperation({
-        address,
-        auctionHouse: this.auctionHouse,
-        ...options,
-      })
-    );
+  return this.metaplex.operations().getTask(
+    findBidByAddressOperation({
+      address,
+      auctionHouse: this.auctionHouse,
+      ...options,
+    })
+  );
 }
 
 // -----------------

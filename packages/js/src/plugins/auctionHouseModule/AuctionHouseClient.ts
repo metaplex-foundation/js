@@ -20,7 +20,7 @@ export class AuctionHouseClient {
     protected readonly metaplex: Metaplex,
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
-  ) { }
+  ) {}
 
   // Queries.
   findBidByAddress = _findBidByAddressClient;
