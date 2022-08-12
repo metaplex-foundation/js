@@ -39,9 +39,11 @@
     "excludeNotDocumented": false,
     "sort": ["static-first", "source-order"],
     "categoryOrder": [
-      "Modules",
-      "Operations",
-      "Errors",
+      "Constructors",
+      "Types",
+      "Inputs",
+      "Outputs",
+      "Contexts",
       "*"
     ],
   }

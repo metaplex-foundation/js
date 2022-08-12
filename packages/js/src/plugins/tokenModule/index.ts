@@ -20,4 +20,5 @@ export * from './revokeTokenDelegateAuthority';
 export * from './sendTokens';
 export * from './thawTokens';
 export * from './Token';
+export * from './TokenBuildersClient';
 export * from './TokenClient';

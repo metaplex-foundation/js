@@ -20,17 +20,26 @@ import { TokenProgram } from './program';
 
 const Key = 'FreezeTokensOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const freezeTokensOperation = useOperation<FreezeTokensOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FreezeTokensOperation = Operation<
   typeof Key,
   FreezeTokensInput,
   FreezeTokensOutput
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FreezeTokensInput = {
   mintAddress: PublicKey;
   freezeAuthority: PublicKey | Signer;
@@ -41,16 +50,18 @@ export type FreezeTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Ouputs
+ */
 export type FreezeTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperation> =
   {
     async handle(
@@ -68,7 +79,10 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type FreezeTokensBuilderParams = Omit<
   FreezeTokensInput,
   'confirmOptions'
@@ -76,7 +90,10 @@ export type FreezeTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const freezeTokensBuilder = (
   metaplex: Metaplex,
   params: FreezeTokensBuilderParams

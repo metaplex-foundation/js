@@ -19,14 +19,28 @@ import { TokenWithMint } from './Token';
 // -----------------
 
 const Key = 'CreateTokenWithMintOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createTokenWithMintOperation =
   useOperation<CreateTokenWithMintOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateTokenWithMintOperation = Operation<
   typeof Key,
   CreateTokenWithMintInput,
   CreateTokenWithMintOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateTokenWithMintInput = {
   decimals?: number; // Defaults to 0 decimals.
   initialSupply?: SplTokenAmount; // Defaults to 0 tokens.
@@ -41,16 +55,20 @@ export type CreateTokenWithMintInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateTokenWithMintOutput = {
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
   token: TokenWithMint;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWithMintOperation> =
   {
     async handle(
@@ -87,7 +105,10 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateTokenWithMintBuilderParams = Omit<
   CreateTokenWithMintInput,
   'confirmOptions'
@@ -100,13 +121,19 @@ export type CreateTokenWithMintBuilderParams = Omit<
   mintTokensInstructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateTokenWithMintBuilderContext = {
   mintSigner: Signer;
   tokenAddress: PublicKey;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenWithMintBuilderParams

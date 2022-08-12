@@ -34,6 +34,7 @@ export class TokenBuildersClient {
   // Create
   // -----------------
 
+  /** {@inheritDocs createMintBuilder} */
   createMint(input: CreateMintBuilderParams) {
     return createMintBuilder(this.metaplex, input);
   }

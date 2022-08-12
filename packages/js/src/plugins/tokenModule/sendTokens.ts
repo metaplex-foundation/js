@@ -23,17 +23,26 @@ import { TokenProgram } from './program';
 
 const Key = 'SendTokensOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const sendTokensOperation = useOperation<SendTokensOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type SendTokensOperation = Operation<
   typeof Key,
   SendTokensInput,
   SendTokensOutput
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type SendTokensInput = {
   mint: PublicKey | Mint;
   amount: SplTokenAmount;
@@ -49,16 +58,18 @@ export type SendTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type SendTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
   {
     async handle(
@@ -74,7 +85,10 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
@@ -86,7 +100,10 @@ export type SendTokensBuilderParams = Omit<
   transferTokensInstructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const sendTokensBuilder = async (
   metaplex: Metaplex,
   params: SendTokensBuilderParams

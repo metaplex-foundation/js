@@ -10,28 +10,36 @@ import { Mint, toMint } from './Mint';
 
 const Key = 'FindMintByAddressOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findMintByAddressOperation =
   useOperation<FindMintByAddressOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindMintByAddressOperation = Operation<
   typeof Key,
   FindMintByAddressInput,
   Mint
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindMintByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findMintByAddressOperationHandler: OperationHandler<FindMintByAddressOperation> =
   {
     handle: async (

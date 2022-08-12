@@ -20,18 +20,27 @@ import { TokenProgram } from './program';
 
 const Key = 'RevokeTokenDelegateAuthorityOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const revokeTokenDelegateAuthorityOperation =
   useOperation<RevokeTokenDelegateAuthorityOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type RevokeTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   RevokeTokenDelegateAuthorityInput,
   RevokeTokenDelegateAuthorityOutput
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type RevokeTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
@@ -41,16 +50,18 @@ export type RevokeTokenDelegateAuthorityInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type RevokeTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<RevokeTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -68,7 +79,10 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   RevokeTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -76,7 +90,10 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const revokeTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeTokenDelegateAuthorityBuilderParams

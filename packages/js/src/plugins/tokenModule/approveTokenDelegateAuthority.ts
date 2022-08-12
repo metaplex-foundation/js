@@ -22,18 +22,27 @@ import { TokenProgram } from './program';
 
 const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const approveTokenDelegateAuthorityOperation =
   useOperation<ApproveTokenDelegateAuthorityOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ApproveTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   ApproveTokenDelegateAuthorityInput,
   ApproveTokenDelegateAuthorityOutput
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ * */
 export type ApproveTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   delegateAuthority: PublicKey;
@@ -45,16 +54,18 @@ export type ApproveTokenDelegateAuthorityInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type ApproveTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<ApproveTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -72,7 +83,10 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   ApproveTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -80,7 +94,10 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const approveTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: ApproveTokenDelegateAuthorityBuilderParams

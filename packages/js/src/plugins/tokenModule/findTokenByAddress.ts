@@ -10,28 +10,36 @@ import { Token, toToken } from './Token';
 
 const Key = 'FindTokenByAddressOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findTokenByAddressOperation =
   useOperation<FindTokenByAddressOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindTokenByAddressOperation = Operation<
   typeof Key,
   FindTokenByAddressInput,
   Token
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindTokenByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAddressOperation> =
   {
     handle: async (

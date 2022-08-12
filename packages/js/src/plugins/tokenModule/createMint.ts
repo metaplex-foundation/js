@@ -13,17 +13,26 @@ import { TokenProgram } from './program';
 
 const Key = 'CreateMintOperation' as const;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createMintOperation = useOperation<CreateMintOperation>(Key);
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateMintOperation = Operation<
   typeof Key,
   CreateMintInput,
   CreateMintOutput
 >;
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateMintInput = {
   decimals?: number; // Defaults to 0 decimals.
   mint?: Signer; // Defaults to new generated Keypair.
@@ -34,14 +43,20 @@ export type CreateMintInput = {
   confirmOptions?: ConfirmOptions;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateMintOutput = {
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
   mint: Mint;
 };
 
-/** @group Operations */
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
   {
     async handle(
@@ -71,7 +86,10 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
 // Builder
 // -----------------
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateMintBuilderParams = Omit<
   CreateMintInput,
   'confirmOptions'
@@ -80,13 +98,21 @@ export type CreateMintBuilderParams = Omit<
   initializeMintInstructionKey?: string;
 };
 
-/** @group Transaction Builders */
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateMintBuilderContext = Omit<
   CreateMintOutput,
   'response' | 'mint'
 >;
 
-/** @group Transaction Builders */
+/**
+ * TODO: Some description here.
+ *
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createMintBuilder = async (
   metaplex: Metaplex,
   params: CreateMintBuilderParams
