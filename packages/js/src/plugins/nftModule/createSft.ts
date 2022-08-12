@@ -349,9 +349,8 @@ const createMintAndTokenForSftBuilder = async (
   if (tokenAddress && params.tokenAmount) {
     builder.add(
       await metaplex.tokens().builders().mint({
-        mint: mintAddress,
+        mintAddress,
         toToken: tokenAddress,
-        toTokenExists: true,
         amount: params.tokenAmount,
         mintAuthority,
         tokenProgram: params.tokenProgram,
