@@ -28,6 +28,9 @@ import { Token } from './Token';
 const Key = 'CreateTokenOperation' as const;
 
 /**
+ * Create a new Token account from the provided input
+ * and returns the newly created `Token` model.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -205,6 +208,10 @@ export const createTokenBuilder = async (
   );
 };
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateTokenIfMissingBuilderParams = Omit<
   CreateTokenBuilderParams,
   'token'
@@ -213,6 +220,10 @@ export type CreateTokenIfMissingBuilderParams = Omit<
   tokenVariable?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createTokenIfMissingBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenIfMissingBuilderParams

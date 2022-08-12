@@ -44,6 +44,9 @@ export type CreateMintInput = {
 };
 
 /**
+ * Create a new Mint account from the provided input
+ * and returns the newly created `Mint` model.
+ *
  * @group Operations
  * @category Outputs
  */
@@ -108,8 +111,6 @@ export type CreateMintBuilderContext = Omit<
 >;
 
 /**
- * TODO: Some description here.
- *
  * @group Transaction Builders
  * @category Constructors
  */
