@@ -39,7 +39,7 @@ export type UpdateCandyMachineOperation = Operation<
   UpdateCandyMachineOutput
 >;
 
-export type UpdateCandyMachineInputWithoutConfigs = {
+export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
   /**
    * The candy machine to update.
    */
@@ -53,9 +53,6 @@ export type UpdateCandyMachineInputWithoutConfigs = {
   // Transaction Options.
   confirmOptions?: ConfirmOptions;
 };
-
-export type UpdateCandyMachineInput = UpdateCandyMachineInputWithoutConfigs &
-  Partial<CandyMachineConfigs>;
 
 export type UpdateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;

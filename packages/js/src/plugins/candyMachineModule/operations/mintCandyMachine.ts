@@ -7,7 +7,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   createMintNftInstruction,
   createSetCollectionDuringMintInstruction,
@@ -24,12 +24,14 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
+  NftWithToken,
   TokenMetadataProgram,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { parseCandyMachineCollectionAccount } from '../accounts';
 import { assertCanMintCandyMachine } from '../asserts';
+import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachine } from '../models/CandyMachine';
 import {
   findCandyMachineCollectionPda,
@@ -84,6 +86,7 @@ export type MintCandyMachineInput = {
 
 export type MintCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
+  nft: NftWithToken;
   mintSigner: Signer;
   tokenAddress: PublicKey;
 };
@@ -96,7 +99,8 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
   {
     async handle(
       operation: MintCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<MintCandyMachineOutput> {
       assertCanMintCandyMachine(
         operation.input.candyMachine,
@@ -104,7 +108,31 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
       );
 
       const builder = await mintCandyMachineBuilder(metaplex, operation.input);
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      scope.throwIfCanceled();
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      let nft: NftWithToken;
+      try {
+        nft = (await metaplex
+          .nfts()
+          .findByMint({
+            mintAddress: output.mintSigner.publicKey,
+            tokenAddress: output.tokenAddress,
+          })
+          .run(scope)) as NftWithToken;
+      } catch (error) {
+        throw new CandyMachineBotTaxError(
+          metaplex.rpc().getSolanaExporerUrl(output.response.signature),
+          error as Error
+        );
+      }
+
+      return { nft, ...output };
     },
   };
 
@@ -128,7 +156,7 @@ export type MintCandyMachineBuilderParams = Omit<
 
 export type MintCandyMachineBuilderContext = Omit<
   MintCandyMachineOutput,
-  'response'
+  'response' | 'nft'
 >;
 
 export const mintCandyMachineBuilder = async (

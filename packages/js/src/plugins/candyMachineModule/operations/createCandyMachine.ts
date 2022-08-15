@@ -30,6 +30,7 @@ import {
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
+  CandyMachine,
   CandyMachineConfigs,
   toCandyMachineInstructionData,
 } from '../models/CandyMachine';
@@ -70,6 +71,7 @@ export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
 
 export type CreateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
+  candyMachine: CandyMachine;
   candyMachineSigner: Signer;
   payer: Signer;
   wallet: PublicKey;
@@ -93,7 +95,19 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
         operation.input
       );
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const candyMachine = await metaplex
+        .candyMachines()
+        .findByAddress({ address: output.candyMachineSigner.publicKey })
+        .run(scope);
+
+      return { ...output, candyMachine };
     },
   };
 
@@ -112,7 +126,7 @@ export type CreateCandyMachineBuilderParams = Omit<
 
 export type CreateCandyMachineBuilderContext = Omit<
   CreateCandyMachineOutput,
-  'response'
+  'response' | 'candyMachine'
 >;
 
 export const createCandyMachineBuilder = async (

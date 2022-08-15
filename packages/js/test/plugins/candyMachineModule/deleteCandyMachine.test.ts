@@ -17,7 +17,7 @@ test('[candyMachineModule] it can delete a candy machine', async (t) => {
   const { candyMachine } = await createCandyMachine(mx);
 
   // When we delete that candy machine using default values.
-  await mx.candyMachines().delete(candyMachine).run();
+  await mx.candyMachines().delete({ candyMachine }).run();
 
   // Then the Candy Machine has been deleted.
   const account = await mx.rpc().getAccount(candyMachine.address);
@@ -31,7 +31,7 @@ test('[candyMachineModule] it can delete a candy machine using an explicit autho
   const { candyMachine } = await createCandyMachine(mx, { authority });
 
   // When we delete that candy machine using that authority.
-  await mx.candyMachines().delete(candyMachine, { authority }).run();
+  await mx.candyMachines().delete({ candyMachine, authority }).run();
 
   // Then the Candy Machine has been deleted.
   const account = await mx.rpc().getAccount(candyMachine.address);
@@ -47,7 +47,7 @@ test('[candyMachineModule] it cannot delete a candy machine using an invalid aut
   const invalidAuthority = await createWallet(mx);
   const promise = mx
     .candyMachines()
-    .delete(candyMachine, { authority: invalidAuthority })
+    .delete({ candyMachine, authority: invalidAuthority })
     .run();
 
   // Then we expect an error.
@@ -63,7 +63,7 @@ test('[candyMachineModule] it can delete a candy machine with a collection NFT',
   });
 
   // When we delete that candy machine.
-  await mx.candyMachines().delete(candyMachine).run();
+  await mx.candyMachines().delete({ candyMachine }).run();
 
   // Then the Candy Machine has been deleted.
   const account = await mx.rpc().getAccount(candyMachine.address);
