@@ -12,7 +12,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Bid, findAssociatedTokenAccountPda } from '@/index';
+import { Bid, findAssociatedTokenAccountPda, Pda } from '@/index';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
@@ -54,8 +54,10 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
     ...expectedBid,
   } as unknown as Specifications<Bid>);
 
-  // And we get the same result when we fetch the Auction House by address.
-  const retrieveBid = await client.findBidByAddress(buyerTradeState).run();
+  // And we get the same result when we fetch the Bid by address.
+  const retrieveBid = await client
+    .findBidByReceipt(bid.receiptAddress as Pda)
+    .run();
   spok(t, retrieveBid, {
     $topic: 'Retrieved Bid',
     ...expectedBid,
@@ -173,7 +175,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   t.false(bid.receiptAddress);
 
   // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByAddress(buyerTradeState).run();
+  const promise = client.findBidByTradeState(bid.tradeStateAddress).run();
   await assertThrows(
     t,
     promise,
@@ -205,7 +207,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   t.ok(bid.isPublic);
 
   // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByAddress(buyerTradeState).run();
+  const promise = client.findBidByTradeState(bid.tradeStateAddress).run();
   await assertThrows(
     t,
     promise,

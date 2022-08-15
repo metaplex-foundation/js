@@ -11,17 +11,17 @@ import { toBidReceiptAccount } from './accounts';
 // Operation
 // -----------------
 
-const Key = 'FindBidByAddressOperation' as const;
-export const findBidByAddressOperation =
-  useOperation<FindBidByAddressOperation>(Key);
-export type FindBidByAddressOperation = Operation<
+const Key = 'FindBidByTradeStateOperation' as const;
+export const findBidByTradeStateOperation =
+  useOperation<FindBidByTradeStateOperation>(Key);
+export type FindBidByTradeStateOperation = Operation<
   typeof Key,
-  FindBidByAddressInput,
+  FindBidByTradeStateInput,
   Bid
 >;
 
-export type FindBidByAddressInput = {
-  address: PublicKey;
+export type FindBidByTradeStateInput = {
+  tradeStateAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
@@ -31,21 +31,21 @@ export type FindBidByAddressInput = {
 // Handler
 // -----------------
 
-export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddressOperation> =
+export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTradeStateOperation> =
   {
     handle: async (
-      operation: FindBidByAddressOperation,
+      operation: FindBidByTradeStateOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const {
-        address,
+        tradeStateAddress,
         auctionHouse,
         commitment,
         loadJsonMetadata = true,
       } = operation.input;
 
-      const receiptAddress = findBidReceiptPda(address);
+      const receiptAddress = findBidReceiptPda(tradeStateAddress);
       const account = toBidReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
