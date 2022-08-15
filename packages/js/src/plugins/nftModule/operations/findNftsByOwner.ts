@@ -4,23 +4,7 @@ import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { TokenProgram } from '../../tokenModule';
 import { Metadata, Nft, Sft } from '../models';
-import type { NftClient } from '../NftClient';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftsByOwnerClient(
-  this: NftClient,
-  owner: PublicKey,
-  options?: Omit<FindNftsByOwnerInput, 'owner'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftsByOwnerOperation({ owner, ...options }));
-}
 
 // -----------------
 // Operation

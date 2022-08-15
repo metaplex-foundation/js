@@ -111,7 +111,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   // And we get the same data when fetching a fresh instance of that NFT.
   const retrievedNft = await mx
     .nfts()
-    .findByMint(nft.address, { tokenAddress })
+    .findByMint({ mintAddress: nft.address, tokenAddress })
     .run();
   spok(t, retrievedNft, { $topic: 'Retrieved NFT', ...expectedNft });
 });
@@ -414,10 +414,10 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
   const collectionDelegatedAuthority = Keypair.generate();
   await mx
     .nfts()
-    .approveCollectionAuthority(
-      collectionNft,
-      collectionDelegatedAuthority.publicKey
-    )
+    .approveCollectionAuthority({
+      mintAddress: collectionNft.address,
+      collectionAuthority: collectionDelegatedAuthority.publicKey,
+    })
     .run();
 
   // When we create a new NFT with this collection as a parent using the delegated authority.
@@ -531,7 +531,7 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
   await mx.rpc().sendAndConfirmTransaction(tx);
 
   // Then the transaction succeeded and the NFT was created.
-  const nft = await mx.nfts().findByMint(mint.publicKey).run();
+  const nft = await mx.nfts().findByMint({ mintAddress: mint.publicKey }).run();
   t.equal(nft.name, 'My NFT');
   t.equal(nft.metadataAddress.toBase58(), metadata.toBase58());
 });

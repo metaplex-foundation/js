@@ -4,23 +4,7 @@ import { DisposableScope, GmaBuilder } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Metadata, Nft, Sft, toMetadata } from '../models';
-import type { NftClient } from '../NftClient';
 import { findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftsByMintListClient(
-  this: NftClient,
-  mints: PublicKey[],
-  options?: Omit<FindNftsByMintListInput, 'mints'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftsByMintListOperation({ mints, ...options }));
-}
 
 // -----------------
 // Operation

@@ -26,7 +26,7 @@ test('[nftModule] it can use an NFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  await mx.nfts().use(nft).run();
+  await mx.nfts().use({ mintAddress: nft.address }).run();
   const usedNft = await mx.nfts().refresh(nft).run();
 
   // Then the returned usable NFT should have one less use.
@@ -55,7 +55,7 @@ test('[nftModule] it can use an SFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  await mx.nfts().use(sft).run();
+  await mx.nfts().use({ mintAddress: sft.address }).run();
   const usedSft = await mx.nfts().refresh(sft).run();
 
   // Then the returned usable NFT should have one less use.
@@ -82,7 +82,7 @@ test('[nftModule] it can use an NFT multiple times', async (t: Test) => {
   });
 
   // When we use the NFT 3 times.
-  await mx.nfts().use(nft, { numberOfUses: 3 }).run();
+  await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 }).run();
   const usedNft = await mx.nfts().refresh(nft).run();
 
   // Then the returned NFT should have 4 remaining uses.
@@ -111,7 +111,10 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
   const anotherWallet = Keypair.generate();
 
   // When this other wallet tries to use that NFT.
-  const promise = mx.nfts().use(nft, { owner: anotherWallet }).run();
+  const promise = mx
+    .nfts()
+    .use({ mintAddress: nft.address, owner: anotherWallet })
+    .run();
 
   // Then we get an error.
   await assertThrows(t, promise, /invalid account data for instruction/);
@@ -129,7 +132,10 @@ test('[nftModule] it cannot be used more times than the remaining uses', async (
   });
 
   // When this other wallet tries to use that NFT.
-  const promise = mx.nfts().use(nft, { numberOfUses: 3 }).run();
+  const promise = mx
+    .nfts()
+    .use({ mintAddress: nft.address, numberOfUses: 3 })
+    .run();
 
   // Then we get an error.
   await assertThrows(

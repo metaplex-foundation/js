@@ -1,6 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, Task } from '@/utils';
+import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   findAssociatedTokenAccountPda,
@@ -13,10 +13,8 @@ import {
   parseOriginalOrPrintEditionAccount,
   toMetadataAccount,
 } from '../accounts';
-import { toMintAddress } from '../helpers';
 import {
   JsonMetadata,
-  Metadata,
   Nft,
   NftWithToken,
   Sft,
@@ -28,37 +26,7 @@ import {
   toSft,
   toSftWithToken,
 } from '../models';
-import type { NftClient } from '../NftClient';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftByMintClient(
-  this: NftClient,
-  mint: PublicKey,
-  options?: Omit<FindNftByMintInput, 'mint'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftByMintOperation({ mint, ...options }));
-}
-
-/** @internal */
-export function _refreshNftClient<
-  T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey
->(
-  this: NftClient,
-  nftOrSft: T,
-  options?: Omit<FindNftByMintInput, 'mint' | 'tokenAddres' | 'tokenOwner'>
-): Task<T extends Metadata | PublicKey ? Nft | Sft : T> {
-  return this.findByMint(toMintAddress(nftOrSft), {
-    tokenAddress: 'token' in nftOrSft ? nftOrSft.token.address : undefined,
-    ...options,
-  }) as Task<T extends Metadata | PublicKey ? Nft | Sft : T>;
-}
 
 // -----------------
 // Operation
@@ -73,7 +41,7 @@ export type FindNftByMintOperation = Operation<
 >;
 
 export type FindNftByMintInput = {
-  mint: PublicKey;
+  mintAddress: PublicKey;
   tokenAddress?: PublicKey;
   tokenOwner?: PublicKey;
   loadJsonMetadata?: boolean;
@@ -94,7 +62,7 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
       scope: DisposableScope
     ): Promise<FindNftByMintOutput> => {
       const {
-        mint: mintAddress,
+        mintAddress,
         tokenAddress,
         tokenOwner,
         loadJsonMetadata = true,

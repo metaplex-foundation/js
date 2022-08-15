@@ -14,7 +14,7 @@ test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Te
   // When we fetch these NFTs by mint addresses.
   const nfts = (await mx
     .nfts()
-    .findAllByMintList([nftA.address, nftB.address])
+    .findAllByMintList({ mints: [nftA.address, nftB.address] })
     .run()) as Metadata[];
 
   // Then we get the right NFTs.
@@ -38,7 +38,7 @@ test('[nftModule] it returns null when an NFT is not found in a mint list', asyn
   // When we fetch NFTs matching all these addresses.
   const nfts = await mx
     .nfts()
-    .findAllByMintList([emptyMintA, nft.address, emptyMintB])
+    .findAllByMintList({ mints: [emptyMintA, nft.address, emptyMintB] })
     .run();
 
   // Then we get null for mint not associated to any NFT.
@@ -54,7 +54,10 @@ test('[nftModule] it returns Metadata models by default', async (t: Test) => {
   const nft = await createNft(mx, { name: 'Some NFT' });
 
   // When we fetch that NFT by providing an array of mint addresses.
-  const [fetchedNft] = await mx.nfts().findAllByMintList([nft.address]).run();
+  const [fetchedNft] = await mx
+    .nfts()
+    .findAllByMintList({ mints: [nft.address] })
+    .run();
 
   // Then the fetched NFT is a Metadata model.
   t.ok(isMetadata(fetchedNft), 'is a lazy NFT');

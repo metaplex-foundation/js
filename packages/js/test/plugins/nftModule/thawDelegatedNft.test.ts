@@ -18,15 +18,22 @@ test('[nftModule] a delegated authority can thaw its NFT', async (t: Test) => {
   const delegateAuthority = Keypair.generate();
   const nft = await createNft(mx);
   await mx
-    .nfts()
-    .approveDelegateAuthority(nft, {
+    .tokens()
+    .approveDelegateAuthority({
+      mintAddress: nft.address,
       delegateAuthority: delegateAuthority.publicKey,
     })
     .run();
-  await mx.nfts().freezeDelegatedNft(nft, { delegateAuthority }).run();
+  await mx
+    .nfts()
+    .freezeDelegatedNft({ mintAddress: nft.address, delegateAuthority })
+    .run();
 
   // When the delegated authority thaws the NFT.
-  await mx.nfts().thawDelegatedNft(nft, { delegateAuthority }).run();
+  await mx
+    .nfts()
+    .thawDelegatedNft({ mintAddress: nft.address, delegateAuthority })
+    .run();
 
   // Then the token account for that NFT is thawed.
   const thawedNft = await mx.nfts().refresh(nft).run();
@@ -46,21 +53,27 @@ test('[nftModule] the owner of the NFT cannot thaw its own NFT without a delegat
   const owner = Keypair.generate();
   const nft = await createNft(mx, { tokenOwner: owner.publicKey });
   await mx
-    .nfts()
-    .approveDelegateAuthority(nft, {
+    .tokens()
+    .approveDelegateAuthority({
+      mintAddress: nft.address,
       delegateAuthority: delegateAuthority.publicKey,
       owner,
     })
     .run();
   await mx
     .nfts()
-    .freezeDelegatedNft(nft, { delegateAuthority, tokenOwner: owner.publicKey })
+    .freezeDelegatedNft({
+      mintAddress: nft.address,
+      delegateAuthority,
+      tokenOwner: owner.publicKey,
+    })
     .run();
 
   // When the owner tries to thaw the NFT.
   const promise = mx
     .nfts()
-    .thawDelegatedNft(nft, {
+    .thawDelegatedNft({
+      mintAddress: nft.address,
       delegateAuthority: owner,
       tokenOwner: owner.publicKey,
     })

@@ -47,7 +47,8 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
   // When we update the NFT with new on-chain data.
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       name: 'Updated On-chain NFT name',
       symbol: 'UPDATED',
       sellerFeeBasisPoints: 500,
@@ -109,7 +110,8 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
   // When we update the NFT with new on-chain data.
   await mx
     .nfts()
-    .update(sft, {
+    .update({
+      nftOrSft: sft,
       name: 'Updated On-chain SFT name',
       symbol: 'UPDATED',
       sellerFeeBasisPoints: 500,
@@ -186,7 +188,8 @@ test('[nftModule] it can update and verify creators at the same time', async (t:
   // - creatorD is added and verified
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       creators: [
         {
           address: creatorA.publicKey,
@@ -253,7 +256,13 @@ test('[nftModule] it can set the parent Collection of an NFT', async (t: Test) =
   assertCollectionHasSize(t, collectionNft, 0);
 
   // When we update that NFT by providing a parent collection.
-  await mx.nfts().update(nft, { collection: collectionNft.address }).run();
+  await mx
+    .nfts()
+    .update({
+      nftOrSft: nft,
+      collection: collectionNft.address,
+    })
+    .run();
 
   // Then the updated NFT is now from that collection.
   const updatedNft = await mx.nfts().refresh(nft).run();
@@ -288,7 +297,8 @@ test('[nftModule] it can set and verify the parent Collection of an NFT', async 
   // When we update that NFT by providing a parent collection and its authority.
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       collection: collectionNft.address,
       collectionAuthority: collectionAuthority,
     })
@@ -323,16 +333,17 @@ test('[nftModule] it can set and verify the parent Collection of an NFT using a 
   assertCollectionHasSize(t, collectionNft, 0);
   await mx
     .nfts()
-    .approveCollectionAuthority(
-      collectionNft,
-      delegatedCollectionAuthority.publicKey
-    )
+    .approveCollectionAuthority({
+      mintAddress: collectionNft.address,
+      collectionAuthority: delegatedCollectionAuthority.publicKey,
+    })
     .run();
 
   // When we update that NFT by providing a parent collection and its delegated authority.
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       collection: collectionNft.address,
       collectionAuthority: delegatedCollectionAuthority,
       collectionAuthorityIsDelegated: true,
@@ -374,7 +385,8 @@ test('[nftModule] it can update the parent Collection of an NFT even when verifi
   // When we update that NFT so it is part of collection B.
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       collection: collectionNftB.address,
       collectionAuthority: mx.identity(),
     })
@@ -412,7 +424,8 @@ test('[nftModule] it can unset the parent Collection of an NFT even when verifie
   // When we update that NFT by removing its parent collection.
   await mx
     .nfts()
-    .update(nft, {
+    .update({
+      nftOrSft: nft,
       collection: null,
     })
     .run();

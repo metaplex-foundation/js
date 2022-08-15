@@ -28,9 +28,12 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   // When we print a new edition of the NFT.
   const {
     nft: printNft,
-    updatedOriginalEdition,
+    updatedSupply,
     tokenAddress,
-  } = await mx.nfts().printNewEdition(originalNft).run();
+  } = await mx
+    .nfts()
+    .printNewEdition({ originalMint: originalNft.address })
+    .run();
 
   // Then we created and returned the printed NFT with the right data.
   const expectedNft = {
@@ -57,7 +60,7 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   spok(t, retrievedNft, { $topic: 'Retrieved Nft', ...expectedNft });
 
   // And the original NFT edition was updated.
-  t.equals(updatedOriginalEdition.supply.toNumber(), 1);
+  t.equals(updatedSupply.toNumber(), 1);
 });
 
 test('[nftModule] it keeps track of the edition number', async (t: Test) => {
@@ -66,9 +69,10 @@ test('[nftModule] it keeps track of the edition number', async (t: Test) => {
   const originalNft = await createNft(mx, { maxSupply: toBigNumber(100) });
 
   // When we print 3 new editions of the NFT.
-  const { nft: printNft1 } = await mx.nfts().printNewEdition(originalNft).run();
-  const { nft: printNft2 } = await mx.nfts().printNewEdition(originalNft).run();
-  const { nft: printNft3 } = await mx.nfts().printNewEdition(originalNft).run();
+  const input = { originalMint: originalNft.address };
+  const { nft: printNft1 } = await mx.nfts().printNewEdition(input).run();
+  const { nft: printNft2 } = await mx.nfts().printNewEdition(input).run();
+  const { nft: printNft3 } = await mx.nfts().printNewEdition(input).run();
 
   // Then each edition knows their number and are associated with the same parent.
   isPrintOfOriginal(t, printNft1, originalNft, 1);
@@ -85,7 +89,10 @@ test('[nftModule] it can print unlimited editions', async (t: Test) => {
   t.equals(originalEdition.maxSupply, null);
 
   // When we print an edition of the NFT.
-  const { nft: printNft } = await mx.nfts().printNewEdition(originalNft).run();
+  const { nft: printNft } = await mx
+    .nfts()
+    .printNewEdition({ originalMint: originalNft.address })
+    .run();
 
   // Then we successfully printed the first NFT of an unlimited collection.
   isPrintOfOriginal(t, printNft, originalNft, 1);
@@ -97,7 +104,10 @@ test('[nftModule] it cannot print when the maxSupply is zero', async (t: Test) =
   const originalNft = await createNft(mx, { maxSupply: toBigNumber(0) });
 
   // When we try to print an edition of the NFT.
-  const promise = mx.nfts().printNewEdition(originalNft).run();
+  const promise = mx
+    .nfts()
+    .printNewEdition({ originalMint: originalNft.address })
+    .run();
 
   // Then we should get an error.
   await assertThrows(t, promise, /Maximum editions printed already/);

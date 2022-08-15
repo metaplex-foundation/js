@@ -10,7 +10,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   createCreateMasterEditionV3Instruction,
   Uses,
@@ -18,38 +18,7 @@ import {
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findMasterEditionV2Pda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createNftClient(
-  this: NftClient,
-  input: CreateNftInput
-): Task<CreateNftOutput & { nft: NftWithToken }> {
-  return new Task(async (scope) => {
-    const operation = createNftOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const nft = await this.findByMint(output.mintAddress, {
-      tokenAddress: output.tokenAddress,
-    }).run(scope);
-    assertNftWithToken(nft);
-    return { ...output, nft };
-  });
-}
-
-/** @internal */
-export function _createNftBuildersClient(
-  this: NftBuildersClient,
-  input: CreateNftBuilderParams
-) {
-  return createNftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
@@ -102,6 +71,7 @@ export interface CreateNftInput {
 
 export interface CreateNftOutput {
   response: SendAndConfirmTransactionResponse;
+  nft: NftWithToken;
   mintAddress: PublicKey;
   metadataAddress: PublicKey;
   masterEditionAddress: PublicKey;
@@ -141,7 +111,20 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     });
     scope.throwIfCanceled();
 
-    return builder.sendAndConfirm(metaplex, confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+    scope.throwIfCanceled();
+
+    const nft = await metaplex
+      .nfts()
+      .findByMint({
+        mintAddress: output.mintAddress,
+        tokenAddress: output.tokenAddress,
+      })
+      .run(scope);
+    scope.throwIfCanceled();
+
+    assertNftWithToken(nft);
+    return { ...output, nft };
   },
 };
 
@@ -161,7 +144,7 @@ export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
   createMasterEditionInstructionKey?: string;
 };
 
-export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response'>;
+export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
 
 export const createNftBuilder = async (
   metaplex: Metaplex,

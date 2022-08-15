@@ -4,22 +4,6 @@ import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../../tokenModule';
 import { NftWithToken, SftWithToken } from '../models';
-import type { NftClient } from '../NftClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftByTokenClient(
-  this: NftClient,
-  token: PublicKey,
-  options?: Omit<FindNftByTokenInput, 'token'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftByTokenOperation({ token, ...options }));
-}
 
 // -----------------
 // Operation
@@ -60,8 +44,9 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
 
       const asset = await metaplex
         .nfts()
-        .findByMint(token.data.mint, {
+        .findByMint({
           ...operation.input,
+          mintAddress: token.data.mint,
           tokenAddress: operation.input.token,
         })
         .run(scope);

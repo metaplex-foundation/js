@@ -3,22 +3,6 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import type { NftClient } from '../NftClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _loadMetadataClient(
-  this: NftClient,
-  metadata: Metadata,
-  options?: Omit<LoadMetadataInput, 'metadata'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(loadMetadataOperation({ metadata, ...options }));
-}
 
 // -----------------
 // Operation
@@ -57,8 +41,9 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
 
       let nftOrSft = await metaplex
         .nfts()
-        .findByMint(metadata.mintAddress, {
+        .findByMint({
           ...operation.input,
+          mintAddress: metadata.mintAddress,
           loadJsonMetadata: !metadata.jsonLoaded && loadJsonMetadata,
         })
         .run(scope);

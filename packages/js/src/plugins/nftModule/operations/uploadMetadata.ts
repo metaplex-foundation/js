@@ -1,22 +1,9 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, Task, walk } from '@/utils';
+import { DisposableScope, walk } from '@/utils';
 import cloneDeep from 'lodash.clonedeep';
 import { isMetaplexFile, MetaplexFile } from '../../storageModule';
 import { JsonMetadata } from '../models';
-import type { NftClient } from '../NftClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _uploadMetadataClient(
-  this: NftClient,
-  input: UploadMetadataInput
-): Task<UploadMetadataOutput> {
-  return this.metaplex.operations().getTask(uploadMetadataOperation(input));
-}
 
 // -----------------
 // Operation

@@ -4,22 +4,6 @@ import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import type { NftClient } from '../NftClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftByMetadataClient(
-  this: NftClient,
-  metadata: PublicKey,
-  options?: Omit<FindNftByMetadataInput, 'metadata'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftByMetadataOperation({ metadata, ...options }));
-}
 
 // -----------------
 // Operation
@@ -62,7 +46,10 @@ export const findNftByMetadataOperationHandler: OperationHandler<FindNftByMetada
 
       return metaplex
         .nfts()
-        .findByMint(metadata.data.mint, operation.input)
+        .findByMint({
+          ...operation.input,
+          mintAddress: metadata.data.mint,
+        })
         .run(scope);
     },
   };

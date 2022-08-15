@@ -10,38 +10,7 @@ import { TransactionBuilder } from '@/utils';
 import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _migrateToSizedCollectionNftClient(
-  this: NftClient,
-  collection: HasMintAddress,
-  size: BigNumber,
-  input: Omit<MigrateToSizedCollectionNftInput, 'mintAddress' | 'size'> = {}
-) {
-  return this.metaplex.operations().getTask(
-    migrateToSizedCollectionNftOperation({
-      ...input,
-      mintAddress: toMintAddress(collection),
-      size,
-    })
-  );
-}
-
-/** @internal */
-export function _migrateToSizedCollectionNftBuildersClient(
-  this: NftBuildersClient,
-  input: MigrateToSizedCollectionNftBuilderParams
-) {
-  return migrateToSizedCollectionNftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

@@ -1,5 +1,6 @@
 import { Metaplex } from '@/Metaplex';
 import {
+  BigNumber,
   Operation,
   OperationHandler,
   Signer,
@@ -7,58 +8,23 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { DisposableScope, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { toOriginalEditionAccount } from '../accounts';
-import { HasMintAddress, toMintAddress } from '../helpers';
 import {
   assertNftWithToken,
-  NftOriginalEdition,
   NftWithToken,
   toNftOriginalEdition,
 } from '../models';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import {
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _printNewEditionClient(
-  this: NftClient,
-  originalNft: HasMintAddress,
-  input: Omit<PrintNewEditionInput, 'originalMint'> = {}
-): Task<PrintNewEditionOutput & { nft: NftWithToken }> {
-  return new Task(async (scope) => {
-    const originalMint = toMintAddress(originalNft);
-    const operation = printNewEditionOperation({ originalMint, ...input });
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const nft = await this.findByMint(output.mintSigner.publicKey, {
-      tokenAddress: output.tokenAddress,
-    }).run(scope);
-    assertNftWithToken(nft);
-    return { ...output, nft };
-  });
-}
-
-/** @internal */
-export function _printNewEditionBuildersClient(
-  this: NftBuildersClient,
-  input: PrintNewEditionBuilderParams
-) {
-  return printNewEditionBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
@@ -78,11 +44,9 @@ export type PrintNewEditionInput = {
   originalTokenAccountOwner?: Signer; // Defaults to mx.identity().
   originalTokenAccount?: PublicKey; // Defaults to associated token address.
   newMint?: Signer; // Defaults to Keypair.generate().
-  newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
   newOwner?: PublicKey; // Defaults to mx.identity().
   newTokenAccount?: Signer; // Defaults to creating an associated token account.
-  newFreezeAuthority?: PublicKey; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
@@ -91,11 +55,12 @@ export type PrintNewEditionInput = {
 
 export type PrintNewEditionOutput = {
   response: SendAndConfirmTransactionResponse;
+  nft: NftWithToken;
   mintSigner: Signer;
   metadataAddress: PublicKey;
   editionAddress: PublicKey;
   tokenAddress: PublicKey;
-  updatedOriginalEdition: NftOriginalEdition;
+  updatedSupply: BigNumber;
 };
 
 // -----------------
@@ -109,9 +74,37 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const builder = await printNewEditionBuilder(metaplex, operation.input);
+      const originalEditionAccount = await metaplex
+        .rpc()
+        .getAccount(findMasterEditionV2Pda(operation.input.originalMint));
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const originalEdition = toNftOriginalEdition(
+        toOriginalEditionAccount(originalEditionAccount)
+      );
+      const builder = await printNewEditionBuilder(metaplex, {
+        ...operation.input,
+        originalSupply: originalEdition.supply,
+      });
+      scope.throwIfCanceled();
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const nft = await metaplex
+        .nfts()
+        .findByMint({
+          mintAddress: output.mintSigner.publicKey,
+          tokenAddress: output.tokenAddress,
+        })
+        .run(scope);
+      scope.throwIfCanceled();
+
+      assertNftWithToken(nft);
+      return { ...output, nft };
     },
   };
 
@@ -123,6 +116,7 @@ export type PrintNewEditionBuilderParams = Omit<
   PrintNewEditionInput,
   'confirmOptions'
 > & {
+  originalSupply: BigNumber;
   createMintAccountInstructionKey?: string;
   initializeMintInstructionKey?: string;
   createAssociatedTokenAccountInstructionKey?: string;
@@ -134,7 +128,7 @@ export type PrintNewEditionBuilderParams = Omit<
 
 export type PrintNewEditionBuilderContext = Omit<
   PrintNewEditionOutput,
-  'response'
+  'response' | 'nft'
 >;
 
 export const printNewEditionBuilder = async (
@@ -144,11 +138,9 @@ export const printNewEditionBuilder = async (
   const {
     originalMint,
     newMint = Keypair.generate(),
-    newMintAuthority = metaplex.identity(),
     newUpdateAuthority = metaplex.identity().publicKey,
     newOwner = metaplex.identity().publicKey,
     newTokenAccount,
-    newFreezeAuthority = metaplex.identity().publicKey,
     payer = metaplex.identity(),
     tokenProgram,
     associatedTokenProgram,
@@ -158,15 +150,11 @@ export const printNewEditionBuilder = async (
   // Original NFT.
   const originalMetadataAddress = findMetadataPda(originalMint);
   const originalEditionAddress = findMasterEditionV2Pda(originalMint);
-  const originalEditionAccount = toOriginalEditionAccount(
-    await metaplex.rpc().getAccount(originalEditionAddress)
-  );
-  const originalEdition = toNftOriginalEdition(originalEditionAccount);
-  const edition = toBigNumber(originalEdition.supply.addn(1));
-  const updatedOriginalEdition = { ...originalEdition, supply: edition };
+  const edition = toBigNumber(params.originalSupply.addn(1));
   const originalEditionMarkPda = findEditionMarkerPda(originalMint, edition);
 
   // New NFT.
+  const newMintAuthority = Keypair.generate(); // Will be overwritten by edition PDA.
   const newMetadataAddress = findMetadataPda(newMint.publicKey);
   const newEditionAddress = findEditionPda(newMint.publicKey);
   const sharedAccounts = {
@@ -189,7 +177,7 @@ export const printNewEditionBuilder = async (
       initialSupply: token(1),
       mint: newMint,
       mintAuthority: newMintAuthority,
-      freezeAuthority: newFreezeAuthority ?? null,
+      freezeAuthority: newMintAuthority.publicKey,
       owner: newOwner,
       token: newTokenAccount,
       payer,
@@ -222,7 +210,7 @@ export const printNewEditionBuilder = async (
         metadataAddress: newMetadataAddress,
         editionAddress: newEditionAddress,
         tokenAddress,
-        updatedOriginalEdition,
+        updatedSupply: edition,
       })
 
       // Create the mint and token accounts before minting 1 token to the owner.

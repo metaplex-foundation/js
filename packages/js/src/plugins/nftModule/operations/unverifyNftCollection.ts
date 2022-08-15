@@ -1,76 +1,17 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Task, TransactionBuilder } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import {
   createUnverifyCollectionInstruction,
   createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { toMetadataAccount } from '../accounts';
-import { ParentCollectionMissingError } from '../errors';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import { toMetadata } from '../models';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _unverifyNftCollectionClient(
-  this: NftClient,
-  nftOrSft: HasMintAddress,
-  input: Partial<Omit<UnverifyNftCollectionInput, 'mintAddress'>> = {}
-) {
-  return new Task(async (scope) => {
-    const mintAddress = toMintAddress(nftOrSft);
-    const collectionFromNft =
-      'collection' in nftOrSft && nftOrSft.collection
-        ? nftOrSft.collection.address
-        : undefined;
-    let collectionMintAddress =
-      input.collectionMintAddress ?? collectionFromNft;
-
-    if (!('collection' in nftOrSft) && !collectionMintAddress) {
-      const metadataAddress = findMetadataPda(mintAddress);
-      const metadata = toMetadata(
-        toMetadataAccount(await this.metaplex.rpc().getAccount(metadataAddress))
-      );
-      scope.throwIfCanceled();
-      collectionMintAddress = metadata.collection
-        ? metadata.collection.address
-        : undefined;
-    }
-
-    if (!collectionMintAddress) {
-      throw new ParentCollectionMissingError(mintAddress, 'unverifyCollection');
-    }
-
-    return this.metaplex.operations().execute(
-      unverifyNftCollectionOperation({
-        ...input,
-        mintAddress,
-        collectionMintAddress,
-      }),
-      scope
-    );
-  });
-}
-
-/** @internal */
-export function _unverifyNftCollectionBuildersClient(
-  this: NftBuildersClient,
-  input: UnverifyNftCollectionBuilderParams
-) {
-  return unverifyNftCollectionBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

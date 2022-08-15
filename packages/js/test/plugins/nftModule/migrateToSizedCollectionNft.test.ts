@@ -25,7 +25,9 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection'
   // When we migrate the collection to a sized collection of 12345 items.
   await mx
     .nfts()
-    .migrateToSizedCollection(collection, toBigNumber(12345), {
+    .migrateToSizedCollection({
+      mintAddress: collection.address,
+      size: toBigNumber(12345),
       collectionAuthority,
     })
     .run();
@@ -57,17 +59,19 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection 
   const delegatedCollectionAuthority = Keypair.generate();
   await mx
     .nfts()
-    .approveCollectionAuthority(
-      collection,
-      delegatedCollectionAuthority.publicKey,
-      { updateAuthority: collectionAuthority }
-    )
+    .approveCollectionAuthority({
+      mintAddress: collection.address,
+      collectionAuthority: delegatedCollectionAuthority.publicKey,
+      updateAuthority: collectionAuthority,
+    })
     .run();
 
   // When we migrate the collection to a sized collection using that delegated authority.
   await mx
     .nfts()
-    .migrateToSizedCollection(collection, toBigNumber(12345), {
+    .migrateToSizedCollection({
+      mintAddress: collection.address,
+      size: toBigNumber(12345),
       collectionAuthority: delegatedCollectionAuthority,
       isDelegated: true,
     })

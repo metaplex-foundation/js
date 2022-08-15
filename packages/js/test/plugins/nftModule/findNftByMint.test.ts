@@ -21,7 +21,8 @@ test('[nftModule] it can fetch an NFT by its mint address', async (t: Test) => {
   // When we fetch that NFT using its mint address and its token address.
   const fetchedNft = await mx
     .nfts()
-    .findByMint(mint.publicKey, {
+    .findByMint({
+      mintAddress: nft.address,
       tokenAddress: nft.token.address,
     })
     .run();
@@ -40,7 +41,10 @@ test('[nftModule] it can fetch an SFT by its mint address', async (t: Test) => {
   });
 
   // When we fetch that SFT using its mint address.
-  const fetchedSft = await mx.nfts().findByMint(mint.publicKey).run();
+  const fetchedSft = await mx
+    .nfts()
+    .findByMint({ mintAddress: mint.publicKey })
+    .run();
 
   // Then we get the right SFT.
   t.same(fetchedSft, sft);
@@ -59,7 +63,10 @@ test('[nftModule] it can fetch an NFT with an invalid URI', async (t: Test) => {
     .run();
 
   // When we fetch that NFT using its mint address.
-  const fetchedNft = await mx.nfts().findByMint(nft.address).run();
+  const fetchedNft = await mx
+    .nfts()
+    .findByMint({ mintAddress: nft.address })
+    .run();
 
   // Then we get the right NFT.
   t.same(fetchedNft.address, nft.address);

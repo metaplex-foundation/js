@@ -3,7 +3,6 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
 import {
-  assertThrows,
   createCollectionNft,
   createNft,
   killStuckProcess,
@@ -33,7 +32,9 @@ test('[nftModule] it can verify the collection of an NFT item', async (t: Test) 
   // When we verify the collection.
   await mx
     .nfts()
-    .verifyCollection(nft, {
+    .verifyCollection({
+      mintAddress: nft.address,
+      collectionMintAddress: nft.collection!.address,
       collectionAuthority,
     })
     .run();
@@ -72,7 +73,9 @@ test('[nftModule] it can verify the legacy collection of an NFT item', async (t:
   // When we verify the collection.
   await mx
     .nfts()
-    .verifyCollection(nft, {
+    .verifyCollection({
+      mintAddress: nft.address,
+      collectionMintAddress: nft.collection!.address,
       collectionAuthority,
       isSizedCollection: false,
     })
@@ -88,19 +91,4 @@ test('[nftModule] it can verify the legacy collection of an NFT item', async (t:
       verified: true,
     },
   } as unknown as Specifications<Nft>);
-});
-
-test('[nftModule] it cannot verify the collection of an NFT item that has no parent collection', async (t: Test) => {
-  // Given a Metaplex instance.
-  const mx = await metaplex();
-
-  // And an existing NFT with no collection.
-  const nft = await createNft(mx);
-  t.false(nft.collection, 'nft has no collection');
-
-  // When we try to verify the collection.
-  const promise = mx.nfts().verifyCollection(nft).run();
-
-  // Then we should get an error.
-  await assertThrows(t, promise, /Parent Collection Missing/);
 });

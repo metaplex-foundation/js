@@ -11,7 +11,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   createCreateMetadataAccountV3Instruction,
   Uses,
@@ -20,38 +20,7 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { assertSft, Sft, SftWithToken } from '../models';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createSftClient(
-  this: NftClient,
-  input: CreateSftInput
-): Task<CreateSftOutput & { sft: Sft | SftWithToken }> {
-  return new Task(async (scope) => {
-    const operation = createSftOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const sft = await this.findByMint(output.mintAddress, {
-      tokenAddress: output.tokenAddress ?? undefined,
-    }).run(scope);
-    assertSft(sft);
-    return { ...output, sft };
-  });
-}
-
-/** @internal */
-export function _createSftBuildersClient(
-  this: NftBuildersClient,
-  input: CreateSftBuilderParams
-) {
-  return createSftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
@@ -107,6 +76,7 @@ export interface CreateSftInput {
 
 export interface CreateSftOutput {
   response: SendAndConfirmTransactionResponse;
+  sft: Sft | SftWithToken;
   mintAddress: PublicKey;
   metadataAddress: PublicKey;
   tokenAddress: PublicKey | null;
@@ -153,7 +123,20 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
     });
     scope.throwIfCanceled();
 
-    return builder.sendAndConfirm(metaplex, confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+    scope.throwIfCanceled();
+
+    const sft = await metaplex
+      .nfts()
+      .findByMint({
+        mintAddress: output.mintAddress,
+        tokenAddress: output.tokenAddress ?? undefined,
+      })
+      .run(scope);
+    scope.throwIfCanceled();
+
+    assertSft(sft);
+    return { ...output, sft };
   },
 };
 
@@ -172,7 +155,7 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   createMetadataInstructionKey?: string;
 };
 
-export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response'>;
+export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
 
 export const createSftBuilder = async (
   metaplex: Metaplex,

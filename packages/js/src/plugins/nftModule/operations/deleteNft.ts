@@ -5,33 +5,7 @@ import { createBurnNftInstruction } from '@metaplex-foundation/mpl-token-metadat
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _deleteNftClient(
-  this: NftClient,
-  nft: HasMintAddress,
-  input: Omit<DeleteNftInput, 'mintAddress'> = {}
-) {
-  return this.metaplex
-    .operations()
-    .getTask(deleteNftOperation({ ...input, mintAddress: toMintAddress(nft) }));
-}
-
-/** @internal */
-export function _deleteNftBuildersClient(
-  this: NftBuildersClient,
-  input: DeleteNftBuilderParams
-) {
-  return deleteNftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

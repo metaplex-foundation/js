@@ -7,7 +7,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Option, Task, TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder } from '@/utils';
 import {
   createUpdateMetadataAccountV2Instruction,
   UpdateMetadataAccountArgsV2,
@@ -16,33 +16,8 @@ import {
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
+import { Sft } from '../models';
 import { findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _updateNftClient(
-  this: NftClient,
-  nftOrSft: Nft | Sft | NftWithToken | SftWithToken,
-  input: Omit<UpdateNftInput, 'nftOrSft'>
-): Task<UpdateNftOutput> {
-  return this.metaplex
-    .operations()
-    .getTask(updateNftOperation({ ...input, nftOrSft }));
-}
-
-/** @internal */
-export function _updateNftBuildersClient(
-  this: NftBuildersClient,
-  input: UpdateNftBuilderParams
-) {
-  return updateNftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

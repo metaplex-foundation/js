@@ -3,24 +3,8 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, Sft } from '../models';
-import type { NftClient } from '../NftClient';
 import { TokenMetadataProgram } from '../program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findNftsByCreatorsClient(
-  this: NftClient,
-  creator: PublicKey,
-  options?: Omit<FindNftsByCreatorInput, 'creator'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findNftsByCreatorOperation({ creator, ...options }));
-}
 
 // -----------------
 // Operation

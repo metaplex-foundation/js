@@ -28,7 +28,9 @@ test('[nftModule] it can approve a use authority for a given Nft', async (t: Tes
   const newUser = Keypair.generate();
   await mx
     .nfts()
-    .approveUseAuthority(nft, newUser.publicKey, {
+    .approveUseAuthority({
+      mintAddress: nft.address,
+      user: newUser.publicKey,
       numberOfUses: 5,
     })
     .run();
@@ -36,7 +38,8 @@ test('[nftModule] it can approve a use authority for a given Nft', async (t: Tes
   // Then that user can successfully use the NFT.
   await mx
     .nfts()
-    .use(nft, {
+    .use({
+      mintAddress: nft.address,
       numberOfUses: 5,
       useAuthority: newUser,
     })
@@ -70,7 +73,9 @@ test('[nftModule] approve use authorities cannot use more than the agreed amount
   const currentUser = Keypair.generate();
   await mx
     .nfts()
-    .approveUseAuthority(nft, currentUser.publicKey, {
+    .approveUseAuthority({
+      mintAddress: nft.address,
+      user: currentUser.publicKey,
       numberOfUses: 5,
     })
     .run();
@@ -78,7 +83,8 @@ test('[nftModule] approve use authorities cannot use more than the agreed amount
   // When we try to use that authority for 6 uses.
   const promise = mx
     .nfts()
-    .use(nft, {
+    .use({
+      mintAddress: nft.address,
       useAuthority: currentUser,
       numberOfUses: 6,
     })

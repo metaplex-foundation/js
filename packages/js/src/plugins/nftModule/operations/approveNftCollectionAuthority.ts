@@ -4,41 +4,7 @@ import { TransactionBuilder } from '@/utils';
 import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _approveNftCollectionAuthorityClient(
-  this: NftClient,
-  nftOrSft: HasMintAddress,
-  collectionAuthority: PublicKey,
-  input: Omit<
-    ApproveNftCollectionAuthorityInput,
-    'mintAddress' | 'collectionAuthority'
-  > = {}
-) {
-  return this.metaplex.operations().getTask(
-    approveNftCollectionAuthorityOperation({
-      ...input,
-      mintAddress: toMintAddress(nftOrSft),
-      collectionAuthority,
-    })
-  );
-}
-
-/** @internal */
-export function _approveNftCollectionAuthorityBuildersClient(
-  this: NftBuildersClient,
-  input: ApproveNftCollectionAuthorityBuilderParams
-) {
-  return approveNftCollectionAuthorityBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

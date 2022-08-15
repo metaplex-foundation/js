@@ -4,41 +4,7 @@ import { TransactionBuilder } from '@/utils';
 import { createRevokeCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import type { NftBuildersClient } from '../NftBuildersClient';
-import type { NftClient } from '../NftClient';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _revokeNftCollectionAuthorityClient(
-  this: NftClient,
-  nftOrSft: HasMintAddress,
-  collectionAuthority: PublicKey,
-  input: Omit<
-    RevokeNftCollectionAuthorityInput,
-    'mintAddress' | 'collectionAuthority'
-  > = {}
-) {
-  return this.metaplex.operations().getTask(
-    revokeNftCollectionAuthorityOperation({
-      ...input,
-      mintAddress: toMintAddress(nftOrSft),
-      collectionAuthority,
-    })
-  );
-}
-
-/** @internal */
-export function _revokeNftCollectionAuthorityBuildersClient(
-  this: NftBuildersClient,
-  input: RevokeNftCollectionAuthorityBuilderParams
-) {
-  return revokeNftCollectionAuthorityBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation

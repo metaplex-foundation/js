@@ -5,36 +5,7 @@ import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
-import { HasMintAddress, toMintAddress } from '../helpers';
-import { NftBuildersClient } from '../NftBuildersClient';
-import { NftClient } from '../NftClient';
 import { findMasterEditionV2Pda } from '../pdas';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _thawDelegatedNftClient(
-  this: NftClient,
-  nft: HasMintAddress,
-  input: Omit<ThawDelegatedNftInput, 'mintAddress'>
-) {
-  return this.metaplex.operations().getTask(
-    thawDelegatedNftOperation({
-      ...input,
-      mintAddress: toMintAddress(nft),
-    })
-  );
-}
-
-/** @internal */
-export function _thawDelegatedNftBuildersClient(
-  this: NftBuildersClient,
-  input: ThawDelegatedNftBuilderParams
-) {
-  return thawDelegatedNftBuilder(this.metaplex, input);
-}
 
 // -----------------
 // Operation
