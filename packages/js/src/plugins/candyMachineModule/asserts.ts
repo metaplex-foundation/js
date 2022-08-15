@@ -6,7 +6,7 @@ import {
   MAX_SYMBOL_LENGTH,
   MAX_URI_LENGTH,
 } from './constants';
-import { CandyMachine } from './CandyMachine';
+import { CandyMachine } from './models/CandyMachine';
 import {
   CandyMachineAddItemConstraintsViolatedError,
   CandyMachineCannotAddAmountError,

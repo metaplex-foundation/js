@@ -3,12 +3,12 @@ import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../tokenModule';
-import { HasMintAddress, toMintAddress } from './helpers';
-import { NftBuildersClient } from './NftBuildersClient';
-import { NftClient } from './NftClient';
-import { findMasterEditionV2Pda } from './pdas';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
+import { HasMintAddress, toMintAddress } from '../helpers';
+import { NftBuildersClient } from '../NftBuildersClient';
+import { NftClient } from '../NftClient';
+import { findMasterEditionV2Pda } from '../pdas';
 
 // -----------------
 // Clients

@@ -1,5 +1,4 @@
-import type { ConfirmOptions } from '@solana/web3.js';
-import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
   Operation,
@@ -7,15 +6,16 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
-import { CandyMachine, CandyMachineItem } from './CandyMachine';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import type { ConfirmOptions } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   assertAllConfigLineConstraints,
   assertCanAdd,
   assertNotFull,
-} from './asserts';
+} from '../asserts';
+import { CandyMachine, CandyMachineItem } from '../models/CandyMachine';
 
 // -----------------
 // Operation

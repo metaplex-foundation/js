@@ -1,9 +1,9 @@
-import type { PublicKey } from '@solana/web3.js';
 import type { Pda } from '@/types';
-import type { Metadata } from './Metadata';
-import type { Mint, Token } from '../tokenModule';
-import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
+import type { PublicKey } from '@solana/web3.js';
+import type { Mint, Token } from '../../tokenModule';
+import type { Metadata } from './Metadata';
+import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {

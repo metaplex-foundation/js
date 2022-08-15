@@ -14,11 +14,11 @@ import {
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { assertNftWithToken, NftWithToken } from './Nft';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
-import { findMasterEditionV2Pda } from './pdas';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertNftWithToken, NftWithToken } from '../models';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
+import { findMasterEditionV2Pda } from '../pdas';
 
 // -----------------
 // Clients

@@ -1,9 +1,9 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { findNftsByCreatorOperation, Metadata, Nft } from '../nftModule';
 import { DisposableScope } from '@/utils';
-import { findCandyMachineCreatorPda } from './pdas';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import { findNftsByCreatorOperation, Metadata, Nft } from '../../nftModule';
+import { findCandyMachineCreatorPda } from '../pdas';
 
 // -----------------
 // Operation

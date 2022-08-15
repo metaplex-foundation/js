@@ -5,9 +5,9 @@ import {
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
-import { JsonMetadata } from '../nftModule';
-import { MetadataAccount } from './accounts';
-import { findMetadataPda } from './pdas';
+import { MetadataAccount } from '../accounts';
+import { findMetadataPda } from '../pdas';
+import { JsonMetadata } from './JsonMetadata';
 
 export type Metadata<Json extends object = JsonMetadata> = {
   readonly model: 'metadata';

@@ -1,12 +1,12 @@
-import { PublicKey } from '@solana/web3.js';
+import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
 import { assert, Option } from '@/utils';
+import { PublicKey } from '@solana/web3.js';
 import {
   isOriginalEditionAccount,
   OriginalEditionAccount,
   OriginalOrPrintEditionAccount,
   PrintEditionAccount,
-} from './accounts';
-import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
+} from '../accounts';
 
 export type NftEdition = NftOriginalEdition | NftPrintEdition;
 

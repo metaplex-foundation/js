@@ -1,26 +1,35 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { findMasterEditionV2Pda, findMetadataPda } from './pdas';
-import {
-  parseOriginalOrPrintEditionAccount,
-  toMetadataAccount,
-} from './accounts';
-import { Operation, useOperation, OperationHandler } from '@/types';
+import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope, Task } from '@/utils';
-import { Nft, NftWithToken, toNft, toNftWithToken } from './Nft';
-import { Metadata, toMetadata } from './Metadata';
-import { toNftEdition } from './NftEdition';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   findAssociatedTokenAccountPda,
   toMint,
   toMintAccount,
   toToken,
   toTokenAccount,
-} from '../tokenModule';
-import { Sft, SftWithToken, toSft, toSftWithToken } from './Sft';
-import { JsonMetadata } from './JsonMetadata';
-import { toMintAddress } from './helpers';
-import type { NftClient } from './NftClient';
+} from '../../tokenModule';
+import {
+  parseOriginalOrPrintEditionAccount,
+  toMetadataAccount,
+} from '../accounts';
+import { toMintAddress } from '../helpers';
+import {
+  JsonMetadata,
+  Metadata,
+  Nft,
+  NftWithToken,
+  Sft,
+  SftWithToken,
+  toMetadata,
+  toNft,
+  toNftEdition,
+  toNftWithToken,
+  toSft,
+  toSftWithToken,
+} from '../models';
+import type { NftClient } from '../NftClient';
+import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 
 // -----------------
 // Clients

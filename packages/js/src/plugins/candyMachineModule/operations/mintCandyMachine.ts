@@ -1,3 +1,17 @@
+import { Metaplex } from '@/Metaplex';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  Signer,
+  token,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder } from '@/utils';
+import {
+  createMintNftInstruction,
+  createSetCollectionDuringMintInstruction,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   ConfirmOptions,
   Keypair,
@@ -7,35 +21,21 @@ import {
   SYSVAR_SLOT_HASHES_PUBKEY,
 } from '@solana/web3.js';
 import {
-  createMintNftInstruction,
-  createSetCollectionDuringMintInstruction,
-} from '@metaplex-foundation/mpl-candy-machine';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  Signer,
-  token,
-  useOperation,
-} from '@/types';
-import { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
-import { CandyMachine } from './CandyMachine';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
   TokenMetadataProgram,
-} from '../nftModule';
+} from '../../nftModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { parseCandyMachineCollectionAccount } from '../accounts';
+import { assertCanMintCandyMachine } from '../asserts';
+import { CandyMachine } from '../models/CandyMachine';
 import {
   findCandyMachineCollectionPda,
   findCandyMachineCreatorPda,
-} from './pdas';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { CandyMachineProgram } from './program';
-import { parseCandyMachineCollectionAccount } from './accounts';
-import { assertCanMintCandyMachine } from './asserts';
+} from '../pdas';
+import { CandyMachineProgram } from '../program';
 
 // -----------------
 // Operation

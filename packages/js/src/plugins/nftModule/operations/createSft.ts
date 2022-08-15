@@ -17,12 +17,12 @@ import {
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
-import { findMetadataPda } from './pdas';
-import { assertSft, Sft, SftWithToken } from './Sft';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { assertSft, Sft, SftWithToken } from '../models';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
+import { findMetadataPda } from '../pdas';
 
 // -----------------
 // Clients

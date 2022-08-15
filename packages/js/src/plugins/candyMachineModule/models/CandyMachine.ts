@@ -19,13 +19,13 @@ import {
   countCandyMachineItems,
   getCandyMachineUuidFromAddress,
   parseCandyMachineItems,
-} from './helpers';
+} from '../helpers';
 import {
   CandyMachineAccount,
   MaybeCandyMachineCollectionAccount,
-} from './accounts';
-import { Creator } from '@/types/Creator';
-import { CandyMachineProgram } from './program';
+} from '../accounts';
+import { Creator } from '@/types';
+import { CandyMachineProgram } from '../program';
 
 // -----------------
 // Model

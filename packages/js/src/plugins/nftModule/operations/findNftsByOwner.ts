@@ -1,13 +1,11 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metaplex } from '@/Metaplex';
-import { TokenProgram } from '../tokenModule';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { findNftsByMintListOperation } from './findNftsByMintList';
-import { Nft } from './Nft';
 import { DisposableScope } from '@/utils';
-import { Metadata } from './Metadata';
-import { Sft } from './Sft';
-import type { NftClient } from './NftClient';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import { TokenProgram } from '../../tokenModule';
+import { Metadata, Nft, Sft } from '../models';
+import type { NftClient } from '../NftClient';
+import { findNftsByMintListOperation } from './findNftsByMintList';
 
 // -----------------
 // Clients

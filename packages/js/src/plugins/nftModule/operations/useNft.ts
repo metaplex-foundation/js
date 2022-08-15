@@ -1,3 +1,4 @@
+import { ExpectedSignerError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -10,17 +11,16 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { ExpectedSignerError } from '@/errors';
-import { HasMintAddress, toMintAddress } from './helpers';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { HasMintAddress, toMintAddress } from '../helpers';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
 import {
   findMetadataPda,
   findProgramAsBurnerPda,
   findUseAuthorityRecordPda,
-} from './pdas';
+} from '../pdas';
 
 // -----------------
 // Clients

@@ -2,23 +2,15 @@ import type { Metaplex } from '@/Metaplex';
 import {
   createCandyMachineBuilder,
   CreateCandyMachineBuilderParams,
-} from './createCandyMachine';
-import {
   deleteCandyMachineBuilder,
   DeleteCandyMachineBuilderParams,
-} from './deleteCandyMachine';
-import {
   insertItemsToCandyMachineBuilder,
   InsertItemsToCandyMachineBuilderParams,
-} from './insertItemsToCandyMachine';
-import {
   mintCandyMachineBuilder,
   MintCandyMachineBuilderParams,
-} from './mintCandyMachine';
-import {
   updateCandyMachineBuilder,
   UpdateCandyMachineBuilderParams,
-} from './updateCandyMachine';
+} from './operations';
 
 export class CandyMachinesBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}

@@ -1,16 +1,16 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { UnreachableCaseError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
-import { CandyMachine, toCandyMachine } from './CandyMachine';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope, zipMap } from '@/utils';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   parseCandyMachineAccount,
   parseCandyMachineCollectionAccount,
-} from './accounts';
-import { CandyMachineProgram } from './program';
-import { UnreachableCaseError } from '@/errors';
-import { CandyMachineGpaBuilder } from './gpaBuilders';
-import { findCandyMachineCollectionPda } from './pdas';
-import { DisposableScope, zipMap } from '@/utils';
+} from '../accounts';
+import { CandyMachineGpaBuilder } from '../gpaBuilders';
+import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
+import { findCandyMachineCollectionPda } from '../pdas';
+import { CandyMachineProgram } from '../program';
 
 // -----------------
 // Operation

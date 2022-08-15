@@ -3,11 +3,11 @@ import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { HasMintAddress, toMintAddress } from './helpers';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from './pdas';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { HasMintAddress, toMintAddress } from '../helpers';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
+import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 
 // -----------------
 // Clients

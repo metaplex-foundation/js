@@ -15,11 +15,10 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { Nft, NftWithToken } from './Nft';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
-import { Sft, SftWithToken } from './Sft';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
 
 // -----------------
 // Clients

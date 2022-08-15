@@ -1,55 +1,41 @@
-import type { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
-import { NftWithToken } from '../nftModule';
-import { Task } from '@/utils';
 import { toPublicKey } from '@/types';
-import { CandyMachine } from './CandyMachine';
+import { Task } from '@/utils';
+import type { PublicKey } from '@solana/web3.js';
+import { NftWithToken } from '../nftModule';
+import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
+import { CandyMachineBotTaxError } from './errors';
+import {
+  CandyMachine,
+  CandyMachineJsonConfigs,
+  toCandyMachineConfigsFromJson,
+} from './models';
 import {
   CreateCandyMachineInput,
   CreateCandyMachineInputWithoutConfigs,
   createCandyMachineOperation,
   CreateCandyMachineOutput,
-} from './createCandyMachine';
-import {
-  CandyMachineJsonConfigs,
-  toCandyMachineConfigsFromJson,
-} from './CandyMachineJsonConfigs';
-import {
-  findCandyMachineByAddressOperation,
+  DeleteCandyMachineInput,
+  deleteCandyMachineOperation,
+  DeleteCandyMachineOutput,
   FindCandyMachineByAddressInput,
-} from './findCandyMachineByAddress';
-import {
+  findCandyMachineByAddressOperation,
   FindCandyMachinesByPublicKeyFieldInput,
   findCandyMachinesByPublicKeyFieldOperation,
-} from './findCandyMachinesByPublicKeyField';
-import {
   FindMintedNftsByCandyMachineInput,
   findMintedNftsByCandyMachineOperation,
   FindMintedNftsByCandyMachineOutput,
-} from './findMintedNftsByCandyMachine';
-import {
   InsertItemsToCandyMachineInput,
   insertItemsToCandyMachineOperation,
   InsertItemsToCandyMachineOutput,
-} from './insertItemsToCandyMachine';
-import {
+  MintCandyMachineInput,
+  mintCandyMachineOperation,
+  MintCandyMachineOutput,
   UpdateCandyMachineInput,
   UpdateCandyMachineInputWithoutConfigs,
   updateCandyMachineOperation,
   UpdateCandyMachineOutput,
-} from './updateCandyMachine';
-import {
-  MintCandyMachineInput,
-  mintCandyMachineOperation,
-  MintCandyMachineOutput,
-} from './mintCandyMachine';
-import { CandyMachineBotTaxError } from './errors';
-import {
-  DeleteCandyMachineInput,
-  deleteCandyMachineOperation,
-  DeleteCandyMachineOutput,
-} from './deleteCandyMachine';
+} from './operations';
 
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}

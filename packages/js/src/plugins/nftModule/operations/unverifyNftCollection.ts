@@ -6,18 +6,18 @@ import {
   createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { toMetadataAccount } from './accounts';
-import { ParentCollectionMissingError } from './errors';
-import { HasMintAddress, toMintAddress } from './helpers';
-import { toMetadata } from './Metadata';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { toMetadataAccount } from '../accounts';
+import { ParentCollectionMissingError } from '../errors';
+import { HasMintAddress, toMintAddress } from '../helpers';
+import { toMetadata } from '../models';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-} from './pdas';
+} from '../pdas';
 
 // -----------------
 // Clients

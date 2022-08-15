@@ -16,21 +16,21 @@ import {
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { Option, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyMachine,
   CandyMachineConfigs,
   toCandyMachineConfigs,
   toCandyMachineInstructionData,
-} from './CandyMachine';
+} from '../models/CandyMachine';
 import { NoInstructionsToSendError } from '@/errors';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
   TokenMetadataProgram,
-} from '../nftModule';
-import { findCandyMachineCollectionPda } from './pdas';
+} from '../../nftModule';
+import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
 // Operation

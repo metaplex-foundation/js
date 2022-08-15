@@ -1,10 +1,10 @@
-import cloneDeep from 'lodash.clonedeep';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope, Task, walk } from '@/utils';
-import { JsonMetadata } from './JsonMetadata';
-import { isMetaplexFile, MetaplexFile } from '../storageModule';
-import type { NftClient } from './NftClient';
+import cloneDeep from 'lodash.clonedeep';
+import { isMetaplexFile, MetaplexFile } from '../../storageModule';
+import { JsonMetadata } from '../models';
+import type { NftClient } from '../NftClient';
 
 // -----------------
 // Clients

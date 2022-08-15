@@ -1,11 +1,11 @@
-import type { ConfirmOptions } from '@solana/web3.js';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { CandyMachine, CandyMachineConfigs } from './CandyMachine';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import { findCandyMachineCollectionPda } from './pdas';
+import type { ConfirmOptions } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyMachine, CandyMachineConfigs } from '../models/CandyMachine';
+import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
 // Operation

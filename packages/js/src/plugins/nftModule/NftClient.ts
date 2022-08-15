@@ -5,34 +5,37 @@ import {
   RevokeTokenDelegateAuthorityInput,
   SendTokensInput,
 } from '../tokenModule';
-import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuthority';
-import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
-import { _createNftClient } from './createNft';
-import { _createSftClient } from './createSft';
-import { _deleteNftClient } from './deleteNft';
-import { _findNftByMetadataClient } from './findNftByMetadata';
-import { _findNftByMintClient, _refreshNftClient } from './findNftByMint';
-import { _findNftByTokenClient } from './findNftByToken';
-import { _findNftsByCreatorsClient } from './findNftsByCreator';
-import { _findNftsByMintListClient } from './findNftsByMintList';
-import { _findNftsByOwnerClient } from './findNftsByOwner';
-import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
-import { _freezeDelegatedNftClient } from './freezeDelegatedNft';
 import { HasMintAddress, toMintAddress } from './helpers';
-import { _loadMetadataClient } from './loadMetadata';
-import { _migrateToSizedCollectionNftClient } from './migrateToSizedCollectionNft';
 import { NftBuildersClient } from './NftBuildersClient';
-import { _printNewEditionClient } from './printNewEdition';
-import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
-import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
-import { _thawDelegatedNftClient } from './thawDelegatedNft';
-import { _unverifyNftCollectionClient } from './unverifyNftCollection';
-import { _unverifyNftCreatorClient } from './unverifyNftCreator';
-import { _updateNftClient } from './updateNft';
-import { _uploadMetadataClient } from './uploadMetadata';
-import { _useNftClient } from './useNft';
-import { _verifyNftCollectionClient } from './verifyNftCollection';
-import { _verifyNftCreatorClient } from './verifyNftCreator';
+import { _approveNftCollectionAuthorityClient } from './operations/approveNftCollectionAuthority';
+import { _approveNftUseAuthorityClient } from './operations/approveNftUseAuthority';
+import { _createNftClient } from './operations/createNft';
+import { _createSftClient } from './operations/createSft';
+import { _deleteNftClient } from './operations/deleteNft';
+import { _findNftByMetadataClient } from './operations/findNftByMetadata';
+import {
+  _findNftByMintClient,
+  _refreshNftClient,
+} from './operations/findNftByMint';
+import { _findNftByTokenClient } from './operations/findNftByToken';
+import { _findNftsByCreatorsClient } from './operations/findNftsByCreator';
+import { _findNftsByMintListClient } from './operations/findNftsByMintList';
+import { _findNftsByOwnerClient } from './operations/findNftsByOwner';
+import { _findNftsByUpdateAuthorityClient } from './operations/findNftsByUpdateAuthority';
+import { _freezeDelegatedNftClient } from './operations/freezeDelegatedNft';
+import { _loadMetadataClient } from './operations/loadMetadata';
+import { _migrateToSizedCollectionNftClient } from './operations/migrateToSizedCollectionNft';
+import { _printNewEditionClient } from './operations/printNewEdition';
+import { _revokeNftCollectionAuthorityClient } from './operations/revokeNftCollectionAuthority';
+import { _revokeNftUseAuthorityClient } from './operations/revokeNftUseAuthority';
+import { _thawDelegatedNftClient } from './operations/thawDelegatedNft';
+import { _unverifyNftCollectionClient } from './operations/unverifyNftCollection';
+import { _unverifyNftCreatorClient } from './operations/unverifyNftCreator';
+import { _updateNftClient } from './operations/updateNft';
+import { _uploadMetadataClient } from './operations/uploadMetadata';
+import { _useNftClient } from './operations/useNft';
+import { _verifyNftCollectionClient } from './operations/verifyNftCollection';
+import { _verifyNftCreatorClient } from './operations/verifyNftCreator';
 
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}

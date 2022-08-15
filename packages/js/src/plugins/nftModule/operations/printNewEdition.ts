@@ -18,20 +18,24 @@ import {
   createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { toOriginalEditionAccount } from './accounts';
-import { HasMintAddress, toMintAddress } from './helpers';
-import { assertNftWithToken, NftWithToken } from './Nft';
-import type { NftBuildersClient } from './NftBuildersClient';
-import type { NftClient } from './NftClient';
-import { NftOriginalEdition, toNftOriginalEdition } from './NftEdition';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { toOriginalEditionAccount } from '../accounts';
+import { HasMintAddress, toMintAddress } from '../helpers';
+import {
+  assertNftWithToken,
+  NftOriginalEdition,
+  NftWithToken,
+  toNftOriginalEdition,
+} from '../models';
+import type { NftBuildersClient } from '../NftBuildersClient';
+import type { NftClient } from '../NftClient';
 import {
   findEditionMarkerPda,
   findEditionPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-} from './pdas';
+} from '../pdas';
 
 // -----------------
 // Clients
