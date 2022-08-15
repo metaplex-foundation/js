@@ -1,21 +1,22 @@
-import isEqual from 'lodash.isequal';
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { NoInstructionsToSendError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Option, TransactionBuilder } from '@/utils';
 import {
+  CandyMachineData,
   createRemoveCollectionInstruction,
   createSetCollectionInstruction,
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
+import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import isEqual from 'lodash.isequal';
 import {
-  assertSameCurrencies,
-  Operation,
-  OperationHandler,
-  Signer,
-  SOL,
-  useOperation,
-} from '@/types';
-import { Metaplex } from '@/Metaplex';
-import { Option, TransactionBuilder } from '@/utils';
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+  TokenMetadataProgram,
+} from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyMachine,
@@ -23,13 +24,6 @@ import {
   toCandyMachineConfigs,
   toCandyMachineInstructionData,
 } from '../models/CandyMachine';
-import { NoInstructionsToSendError } from '@/errors';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  TokenMetadataProgram,
-} from '../../nftModule';
 import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
@@ -46,8 +40,11 @@ export type UpdateCandyMachineOperation = Operation<
 >;
 
 export type UpdateCandyMachineInputWithoutConfigs = {
-  // Models and accounts.
+  /**
+   * The candy machine to update.
+   */
   candyMachine: CandyMachine;
+
   authority?: Signer; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
   newAuthority?: PublicKey;
@@ -74,13 +71,48 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       operation: UpdateCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
-      const builder = updateCandyMachineBuilder(metaplex, operation.input);
+      const {
+        candyMachine,
+        authority = metaplex.identity(),
+        payer = metaplex.identity(),
+        newAuthority,
+        newCollection,
+        confirmOptions,
+        ...updatableFields
+      } = operation.input;
+
+      const currentConfigs = toCandyMachineConfigs(candyMachine);
+      const instructionDataWithoutChanges = toCandyMachineInstructionData(
+        candyMachine.address,
+        currentConfigs
+      );
+      const instructionData = toCandyMachineInstructionData(
+        candyMachine.address,
+        {
+          ...currentConfigs,
+          ...updatableFields,
+        }
+      );
+      const { data, wallet, tokenMint } = instructionData;
+      const shouldUpdateData = !isEqual(
+        instructionData,
+        instructionDataWithoutChanges
+      );
+
+      const builder = updateCandyMachineBuilder(metaplex, {
+        candyMachine,
+        authority,
+        payer,
+        newData: shouldUpdateData ? { ...data, wallet, tokenMint } : undefined,
+        newCollection,
+        newAuthority,
+      });
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      return builder.sendAndConfirm(metaplex, confirmOptions);
     },
   };
 
@@ -88,10 +120,53 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
 // Builder
 // -----------------
 
-export type UpdateCandyMachineBuilderParams = Omit<
-  UpdateCandyMachineInput,
-  'confirmOptions'
-> & {
+export type UpdateCandyMachineBuilderParams = {
+  /**
+   * The Candy Machine to update.
+   */
+  candyMachine: Pick<
+    CandyMachine,
+    'address' | 'walletAddress' | 'collectionMintAddress'
+  >;
+
+  /**
+   * The Signer that is authorized to update the candy machine.
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /**
+   * The Signer that should pay for any required account storage.
+   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The new Candy Machine data.
+   * This includes the wallet and token mint addresses
+   * which can both be updated.
+   * @defaultValue Defaults to not being updated.
+   */
+  newData?: CandyMachineData & {
+    wallet: PublicKey;
+    tokenMint: Option<PublicKey>;
+  };
+
+  /**
+   * The new Candy Machine authority.
+   * @defaultValue Defaults to not being updated.
+   */
+  newAuthority?: PublicKey;
+
+  /**
+   * The mint address of the new Candy Machine collection.
+   * When `null` is provided, the collection is removed.
+   * @defaultValue Defaults to not being updated.
+   */
+  newCollection?: Option<PublicKey>;
+
+  // Instruction keys.
   updateInstructionKey?: string;
   updateAuthorityInstructionKey?: string;
   setCollectionInstructionKey?: string;
@@ -106,86 +181,56 @@ export const updateCandyMachineBuilder = (
     candyMachine,
     authority = metaplex.identity(),
     payer = metaplex.identity(),
+    newData,
     newAuthority,
     newCollection,
-    ...updatableFields
   } = params;
-  const currentConfigs = toCandyMachineConfigs(candyMachine);
-  const instructionDataWithoutChanges = toCandyMachineInstructionData(
-    candyMachine.address,
-    currentConfigs
-  );
-  const instructionData = toCandyMachineInstructionData(candyMachine.address, {
-    ...currentConfigs,
-    ...updatableFields,
-  });
-  const { data, wallet, tokenMint } = instructionData;
-  const shouldSendUpdateInstruction = !isEqual(
-    instructionData,
-    instructionDataWithoutChanges
-  );
-  const shouldSendUpdateAuthorityInstruction =
+  const shouldUpdateAuthority =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
-
   const sameCollection =
     newCollection &&
     candyMachine.collectionMintAddress &&
     candyMachine.collectionMintAddress.equals(newCollection);
-  const shouldSendSetCollectionInstruction = !!newCollection && !sameCollection;
-  const shouldSendRemoveCollectionInstruction =
-    !shouldSendSetCollectionInstruction &&
+  const shouldUpdateCollection = !!newCollection && !sameCollection;
+  const shouldRemoveCollection =
+    !shouldUpdateCollection &&
     newCollection === null &&
     candyMachine.collectionMintAddress !== null;
-
-  const updateInstruction = createUpdateCandyMachineInstruction(
-    {
-      candyMachine: candyMachine.address,
-      authority: authority.publicKey,
-      wallet,
-    },
-    { data }
-  );
-
-  if (tokenMint) {
-    updateInstruction.keys.push({
-      pubkey: tokenMint,
-      isWritable: false,
-      isSigner: false,
-    });
-  } else if (params.price) {
-    assertSameCurrencies(params.price, SOL);
-  }
 
   return (
     TransactionBuilder.make()
 
       // Update data.
-      .when(shouldSendUpdateInstruction, (builder) =>
-        builder.add({
+      .when(!!newData, (builder) => {
+        const data = newData as CandyMachineData;
+        const wallet = newData?.wallet as PublicKey;
+        const tokenMint = newData?.tokenMint as Option<PublicKey>;
+        const updateInstruction = createUpdateCandyMachineInstruction(
+          {
+            candyMachine: candyMachine.address,
+            authority: authority.publicKey,
+            wallet,
+          },
+          { data }
+        );
+
+        if (tokenMint) {
+          updateInstruction.keys.push({
+            pubkey: tokenMint,
+            isWritable: false,
+            isSigner: false,
+          });
+        }
+
+        return builder.add({
           instruction: updateInstruction,
           signers: [authority],
           key: params.updateInstructionKey ?? 'update',
-        })
-      )
-
-      // Update authority.
-      .when(shouldSendUpdateAuthorityInstruction, (builder) =>
-        builder.add({
-          instruction: createUpdateAuthorityInstruction(
-            {
-              candyMachine: candyMachine.address,
-              authority: authority.publicKey,
-              wallet: candyMachine.walletAddress,
-            },
-            { newAuthority: newAuthority as PublicKey }
-          ),
-          signers: [authority],
-          key: params.updateAuthorityInstructionKey ?? 'updateAuthority',
-        })
-      )
+        });
+      })
 
       // Set or update collection.
-      .when(shouldSendSetCollectionInstruction, (builder) => {
+      .when(shouldUpdateCollection, (builder) => {
         const collectionMint = newCollection as PublicKey;
         const metadata = findMetadataPda(collectionMint);
         const edition = findMasterEditionV2Pda(collectionMint);
@@ -215,7 +260,7 @@ export const updateCandyMachineBuilder = (
       })
 
       // Remove collection.
-      .when(shouldSendRemoveCollectionInstruction, (builder) => {
+      .when(shouldRemoveCollection, (builder) => {
         const collectionMint = candyMachine.collectionMintAddress as PublicKey;
         const metadata = findMetadataPda(collectionMint);
         const collectionPda = findCandyMachineCollectionPda(
@@ -240,5 +285,21 @@ export const updateCandyMachineBuilder = (
           key: params.removeCollectionInstructionKey ?? 'removeCollection',
         });
       })
+
+      // Update authority.
+      .when(shouldUpdateAuthority, (builder) =>
+        builder.add({
+          instruction: createUpdateAuthorityInstruction(
+            {
+              candyMachine: candyMachine.address,
+              authority: authority.publicKey,
+              wallet: newData?.wallet ?? candyMachine.walletAddress,
+            },
+            { newAuthority: newAuthority as PublicKey }
+          ),
+          signers: [authority],
+          key: params.updateAuthorityInstructionKey ?? 'updateAuthority',
+        })
+      )
   );
 };
