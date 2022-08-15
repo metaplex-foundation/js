@@ -22,7 +22,7 @@ export type DeleteCandyMachineOperation = Operation<
 
 export type DeleteCandyMachineInputWithoutConfigs = {
   // Models and accounts.
-  candyMachine: CandyMachine;
+  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
   authority?: Signer; // Defaults to mx.identity().
 
   // Transaction Options.
@@ -95,7 +95,7 @@ export const deleteCandyMachineBuilder = (
       .add({
         instruction: deleteInstruction,
         signers: [authority],
-        key: params.instructionKey ?? 'widrawFunds',
+        key: params.instructionKey ?? 'withdrawFunds',
       })
   );
 };

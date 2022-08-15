@@ -52,7 +52,19 @@ export type MintCandyMachineOperation = Operation<
 
 export type MintCandyMachineInput = {
   // Models and Accounts.
-  candyMachine: CandyMachine;
+  candyMachine: Pick<
+    CandyMachine,
+    | 'address'
+    | 'walletAddress'
+    | 'authorityAddress'
+    | 'tokenMintAddress'
+    | 'itemsRemaining'
+    | 'itemsAvailable'
+    | 'itemsMinted'
+    | 'whitelistMintSettings'
+    | 'goLiveDate'
+    | 'endSettings'
+  >;
   payer?: Signer; // Defaults to mx.identity().
   newMint?: Signer; // Defaults to Keypair.generate().
   newOwner?: PublicKey; // Defaults to mx.identity().

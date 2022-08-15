@@ -32,7 +32,10 @@ export type InsertItemsToCandyMachineOperation = Operation<
 
 export type InsertItemsToCandyMachineInput = {
   // Models and Accounts.
-  candyMachine: CandyMachine;
+  candyMachine: Pick<
+    CandyMachine,
+    'itemsAvailable' | 'itemsLoaded' | 'address'
+  >;
   authority: Signer;
 
   // Data.

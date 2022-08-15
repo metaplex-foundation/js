@@ -49,20 +49,25 @@ export const assertCreators = (creators: Creator[]) => {
   );
 };
 
-export const assertNotFull = (candyMachine: CandyMachine, index: BigNumber) => {
-  if (candyMachine.isFullyLoaded) {
+export const assertNotFull = (
+  candyMachine: Pick<CandyMachine, 'itemsAvailable' | 'itemsLoaded'>,
+  index: BigNumber
+) => {
+  if (candyMachine.itemsAvailable.lte(candyMachine.itemsLoaded)) {
     throw new CandyMachineIsFullError(index, candyMachine.itemsAvailable);
   }
 };
 
-export const assertNotEmpty = (candyMachine: CandyMachine) => {
+export const assertNotEmpty = (
+  candyMachine: Pick<CandyMachine, 'itemsRemaining' | 'itemsAvailable'>
+) => {
   if (candyMachine.itemsRemaining.isZero()) {
     throw new CandyMachineIsEmptyError(candyMachine.itemsAvailable);
   }
 };
 
 export const assertCanAdd = (
-  candyMachine: CandyMachine,
+  candyMachine: Pick<CandyMachine, 'itemsAvailable'>,
   index: BigNumber,
   amount: number
 ) => {
@@ -90,7 +95,9 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
   }
 };
 
-export const assertCandyMachineIsLive = (candyMachine: CandyMachine) => {
+export const assertCandyMachineIsLive = (
+  candyMachine: Pick<CandyMachine, 'whitelistMintSettings' | 'goLiveDate'>
+) => {
   const hasWhitelistPresale =
     candyMachine.whitelistMintSettings?.presale ?? false;
 
@@ -105,7 +112,9 @@ export const assertCandyMachineIsLive = (candyMachine: CandyMachine) => {
   }
 };
 
-export const assertCandyMachineHasNotEnded = (candyMachine: CandyMachine) => {
+export const assertCandyMachineHasNotEnded = (
+  candyMachine: Pick<CandyMachine, 'endSettings' | 'itemsMinted'>
+) => {
   const endSettings = candyMachine.endSettings;
 
   if (!endSettings) {
@@ -125,7 +134,16 @@ export const assertCandyMachineHasNotEnded = (candyMachine: CandyMachine) => {
 };
 
 export const assertCanMintCandyMachine = (
-  candyMachine: CandyMachine,
+  candyMachine: Pick<
+    CandyMachine,
+    | 'authorityAddress'
+    | 'itemsRemaining'
+    | 'itemsAvailable'
+    | 'itemsMinted'
+    | 'whitelistMintSettings'
+    | 'goLiveDate'
+    | 'endSettings'
+  >,
   payer: Signer
 ) => {
   assertNotEmpty(candyMachine);
