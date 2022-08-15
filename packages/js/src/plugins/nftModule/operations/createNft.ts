@@ -1,4 +1,5 @@
 import { Metaplex } from '@/Metaplex';
+import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
 import {
   BigNumber,
   CreatorInput,
@@ -6,6 +7,7 @@ import {
   OperationHandler,
   Signer,
   token,
+  toPublicKey,
   useOperation,
 } from '@/types';
 import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
@@ -116,9 +118,30 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     metaplex: Metaplex,
     scope: DisposableScope
   ) => {
-    const builder = await createNftBuilder(metaplex, operation.input);
+    const {
+      useNewMint = Keypair.generate(),
+      useExistingMint,
+      tokenOwner = metaplex.identity().publicKey,
+      tokenAddress: tokenSigner,
+      confirmOptions,
+    } = operation.input;
+
+    const mintAddress = useExistingMint ?? useNewMint.publicKey;
+    const tokenAddress = tokenSigner
+      ? toPublicKey(tokenSigner)
+      : findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+    const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
+    const tokenExists = tokenAccount.exists;
+
+    const builder = await createNftBuilder(metaplex, {
+      ...operation.input,
+      useNewMint,
+      tokenOwner,
+      tokenExists,
+    });
     scope.throwIfCanceled();
-    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+    return builder.sendAndConfirm(metaplex, confirmOptions);
   },
 };
 
@@ -127,6 +150,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
 // -----------------
 
 export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
+  tokenExists?: boolean;
   createMintAccountInstructionKey?: string;
   initializeMintInstructionKey?: string;
   createAssociatedTokenAccountInstructionKey?: string;

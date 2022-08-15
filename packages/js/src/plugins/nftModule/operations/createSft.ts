@@ -122,9 +122,38 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
     metaplex: Metaplex,
     scope: DisposableScope
   ) => {
-    const builder = await createSftBuilder(metaplex, operation.input);
+    const {
+      useNewMint = Keypair.generate(),
+      useExistingMint,
+      tokenOwner,
+      tokenAddress: tokenSigner,
+      confirmOptions,
+    } = operation.input;
+
+    const mintAddress = useExistingMint ?? useNewMint.publicKey;
+    const associatedTokenAddress = tokenOwner
+      ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+      : null;
+    const tokenAddress = tokenSigner
+      ? toPublicKey(tokenSigner)
+      : associatedTokenAddress;
+
+    let tokenExists: boolean;
+    if (!!useExistingMint && !!tokenAddress) {
+      const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
+      tokenExists = tokenAccount.exists;
+    } else {
+      tokenExists = false;
+    }
+
+    const builder = await createSftBuilder(metaplex, {
+      ...operation.input,
+      useNewMint,
+      tokenExists,
+    });
     scope.throwIfCanceled();
-    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+    return builder.sendAndConfirm(metaplex, confirmOptions);
   },
 };
 
@@ -133,6 +162,7 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
 // -----------------
 
 export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
+  tokenExists?: boolean;
   createMintAccountInstructionKey?: string;
   initializeMintInstructionKey?: string;
   createAssociatedTokenAccountInstructionKey?: string;
@@ -277,6 +307,7 @@ const createMintAndTokenForSftBuilder = async (
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     freezeAuthority = metaplex.identity().publicKey,
+    tokenExists = false,
   } = params;
 
   const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
@@ -286,14 +317,6 @@ const createMintAndTokenForSftBuilder = async (
   const tokenAddress = params.tokenAddress
     ? toPublicKey(params.tokenAddress)
     : associatedTokenAddress;
-
-  let tokenExists: boolean;
-  if (!!params.useExistingMint && !!tokenAddress) {
-    const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
-    tokenExists = tokenAccount.exists;
-  } else {
-    tokenExists = false;
-  }
 
   const builder = TransactionBuilder.make<{
     mintAddress: PublicKey;
@@ -351,6 +374,7 @@ const createMintAndTokenForSftBuilder = async (
       await metaplex.tokens().builders().mint({
         mintAddress,
         toToken: tokenAddress,
+        toTokenExists: true,
         amount: params.tokenAmount,
         mintAuthority,
         tokenProgram: params.tokenProgram,
