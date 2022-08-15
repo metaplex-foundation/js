@@ -99,11 +99,9 @@ export class GmaBuilder {
   ): Promise<UnparsedMaybeAccount[]> {
     const chunks = chunk(publicKeys, this.chunkSize);
     const chunkPromises = chunks.map((chunk) => this.getChunk(chunk));
-    const resolvedChunks = await Promise.allSettled(chunkPromises);
+    const resolvedChunks = await Promise.all(chunkPromises);
 
-    return resolvedChunks.flatMap((result) =>
-      result.status === 'fulfilled' ? result.value : []
-    );
+    return resolvedChunks.flat();
   }
 
   protected async getChunk(
@@ -115,11 +113,8 @@ export class GmaBuilder {
         .rpc()
         .getMultipleAccounts(publicKeys, this.commitment);
     } catch (error) {
-      // TODO(loris): Throw error instead?
-      return publicKeys.map((publicKey) => ({
-        publicKey: publicKey,
-        exists: false,
-      }));
+      // TODO(loris): Custom error instead.
+      throw error;
     }
   }
 
