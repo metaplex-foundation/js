@@ -9,7 +9,7 @@ import {
 } from '../../helpers';
 import spok, { Specifications } from 'spok';
 import { Nft, toBigNumber } from '@/index';
-import { assertNftOriginalEdition } from '@/plugins/nftModule/NftEdition';
+import { assertNftOriginalEdition } from '@/plugins';
 
 killStuckProcess();
 

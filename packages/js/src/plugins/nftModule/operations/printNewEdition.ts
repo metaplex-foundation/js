@@ -7,16 +7,8 @@ import {
   token,
   useOperation,
 } from '@/types';
-import {
-  DisposableScope,
-  InstructionWithSigners,
-  Task,
-  TransactionBuilder,
-} from '@/utils';
-import {
-  createMintNewEditionFromMasterEditionViaTokenInstruction,
-  createMintNewEditionFromMasterEditionViaVaultProxyInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { DisposableScope, Task, TransactionBuilder } from '@/utils';
+import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
@@ -45,8 +37,7 @@ import {
 export function _printNewEditionClient(
   this: NftClient,
   originalNft: HasMintAddress,
-  input: Omit<PrintNewEditionSharedInput, 'originalMint'> &
-    PrintNewEditionViaInput = {}
+  input: Omit<PrintNewEditionInput, 'originalMint'> = {}
 ): Task<PrintNewEditionOutput & { nft: NftWithToken }> {
   return new Task(async (scope) => {
     const originalMint = toMintAddress(originalNft);
@@ -82,11 +73,10 @@ export type PrintNewEditionOperation = Operation<
   PrintNewEditionOutput
 >;
 
-export type PrintNewEditionInput = PrintNewEditionSharedInput &
-  PrintNewEditionViaInput;
-
-export type PrintNewEditionSharedInput = {
+export type PrintNewEditionInput = {
   originalMint: PublicKey;
+  originalTokenAccountOwner?: Signer; // Defaults to mx.identity().
+  originalTokenAccount?: PublicKey; // Defaults to associated token address.
   newMint?: Signer; // Defaults to Keypair.generate().
   newMintAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
@@ -98,21 +88,6 @@ export type PrintNewEditionSharedInput = {
   associatedTokenProgram?: PublicKey;
   confirmOptions?: ConfirmOptions;
 };
-
-export type PrintNewEditionViaInput =
-  | {
-      via?: 'token';
-      originalTokenAccountOwner?: Signer; // Defaults to mx.identity().
-      originalTokenAccount?: PublicKey; // Defaults to associated token address.
-    }
-  | {
-      via: 'vault';
-      vaultAuthority: Signer;
-      safetyDepositStore: PublicKey;
-      safetyDepositBox: PublicKey;
-      vault: PublicKey;
-      tokenVaultProgram?: PublicKey;
-    };
 
 export type PrintNewEditionOutput = {
   response: SendAndConfirmTransactionResponse;
@@ -144,16 +119,18 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
 // Builder
 // -----------------
 
-export type PrintNewEditionBuilderParams = PrintNewEditionViaInput &
-  Omit<PrintNewEditionSharedInput, 'confirmOptions'> & {
-    createMintAccountInstructionKey?: string;
-    initializeMintInstructionKey?: string;
-    createAssociatedTokenAccountInstructionKey?: string;
-    createTokenAccountInstructionKey?: string;
-    initializeTokenInstructionKey?: string;
-    mintTokensInstructionKey?: string;
-    printNewEditionInstructionKey?: string;
-  };
+export type PrintNewEditionBuilderParams = Omit<
+  PrintNewEditionInput,
+  'confirmOptions'
+> & {
+  createMintAccountInstructionKey?: string;
+  initializeMintInstructionKey?: string;
+  createAssociatedTokenAccountInstructionKey?: string;
+  createTokenAccountInstructionKey?: string;
+  initializeTokenInstructionKey?: string;
+  mintTokensInstructionKey?: string;
+  printNewEditionInstructionKey?: string;
+};
 
 export type PrintNewEditionBuilderContext = Omit<
   PrintNewEditionOutput,
@@ -228,50 +205,14 @@ export const printNewEditionBuilder = async (
     });
 
   const { tokenAddress } = tokenWithMintBuilder.getContext();
-
-  let printNewEditionInstructionWithSigners: InstructionWithSigners;
-  if (params.via === 'vault') {
-    printNewEditionInstructionWithSigners = {
-      instruction:
-        createMintNewEditionFromMasterEditionViaVaultProxyInstruction(
-          {
-            ...sharedAccounts,
-            vaultAuthority: params.vaultAuthority.publicKey,
-            safetyDepositStore: params.safetyDepositStore,
-            safetyDepositBox: params.safetyDepositBox,
-            vault: params.vault,
-            tokenVaultProgram:
-              params.tokenVaultProgram ??
-              new PublicKey('vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn'),
-          },
-          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
-        ),
-      signers: [newMint, newMintAuthority, payer, params.vaultAuthority],
-      key: printNewEditionInstructionKey,
-    };
-  } else {
-    const originalTokenAccountOwner =
-      params.originalTokenAccountOwner ?? metaplex.identity();
-    const originalTokenAccount =
-      params.originalTokenAccount ??
-      findAssociatedTokenAccountPda(
-        originalMint,
-        originalTokenAccountOwner.publicKey
-      );
-
-    printNewEditionInstructionWithSigners = {
-      instruction: createMintNewEditionFromMasterEditionViaTokenInstruction(
-        {
-          ...sharedAccounts,
-          tokenAccountOwner: originalTokenAccountOwner.publicKey,
-          tokenAccount: originalTokenAccount,
-        },
-        { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
-      ),
-      signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
-      key: printNewEditionInstructionKey,
-    };
-  }
+  const originalTokenAccountOwner =
+    params.originalTokenAccountOwner ?? metaplex.identity();
+  const originalTokenAccount =
+    params.originalTokenAccount ??
+    findAssociatedTokenAccountPda(
+      originalMint,
+      originalTokenAccountOwner.publicKey
+    );
 
   return (
     TransactionBuilder.make<PrintNewEditionBuilderContext>()
@@ -288,6 +229,17 @@ export const printNewEditionBuilder = async (
       .add(tokenWithMintBuilder)
 
       // Mint new edition.
-      .add(printNewEditionInstructionWithSigners)
+      .add({
+        instruction: createMintNewEditionFromMasterEditionViaTokenInstruction(
+          {
+            ...sharedAccounts,
+            tokenAccountOwner: originalTokenAccountOwner.publicKey,
+            tokenAccount: originalTokenAccount,
+          },
+          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+        ),
+        signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
+        key: printNewEditionInstructionKey,
+      })
   );
 };
