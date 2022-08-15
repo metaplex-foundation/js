@@ -27,16 +27,16 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
   TokenMetadataProgram,
-} from '../nftModule';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+} from '../../nftModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyMachineConfigs,
   toCandyMachineInstructionData,
-} from './CandyMachine';
+} from '../models/CandyMachine';
 import { ExpectedSignerError } from '@/errors';
-import { getCandyMachineAccountSizeFromData } from './helpers';
-import { findCandyMachineCollectionPda } from './pdas';
-import { CandyMachineProgram } from './program';
+import { getCandyMachineAccountSizeFromData } from '../helpers';
+import { findCandyMachineCollectionPda } from '../pdas';
+import { CandyMachineProgram } from '../program';
 
 // -----------------
 // Operation
