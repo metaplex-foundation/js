@@ -1,9 +1,9 @@
 import type { PublicKey } from '@solana/web3.js';
 import { amount, Pda, SplTokenAmount, token } from '@/types';
 import { assert, Option } from '@/utils';
-import { TokenAccount } from './accounts';
+import { TokenAccount } from '../accounts';
 import { Mint } from './Mint';
-import { findAssociatedTokenAccountPda } from './pdas';
+import { findAssociatedTokenAccountPda } from '../pdas';
 import { AccountState } from '@solana/spl-token';
 
 /** @group Models */

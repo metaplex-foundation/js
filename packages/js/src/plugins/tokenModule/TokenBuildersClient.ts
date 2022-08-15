@@ -2,26 +2,25 @@ import type { Metaplex } from '@/Metaplex';
 import {
   approveTokenDelegateAuthorityBuilder,
   ApproveTokenDelegateAuthorityBuilderParams,
-} from './approveTokenDelegateAuthority';
-import { createMintBuilder, CreateMintBuilderParams } from './createMint';
-import {
+  createMintBuilder,
+  CreateMintBuilderParams,
   createTokenBuilder,
   CreateTokenBuilderParams,
   createTokenIfMissingBuilder,
   CreateTokenIfMissingBuilderParams,
-} from './createToken';
-import {
   createTokenWithMintBuilder,
   CreateTokenWithMintBuilderParams,
-} from './createTokenWithMint';
-import { freezeTokensBuilder, FreezeTokensBuilderParams } from './freezeTokens';
-import { mintTokensBuilder, MintTokensBuilderParams } from './mintTokens';
-import {
+  freezeTokensBuilder,
+  FreezeTokensBuilderParams,
+  mintTokensBuilder,
+  MintTokensBuilderParams,
   revokeTokenDelegateAuthorityBuilder,
   RevokeTokenDelegateAuthorityBuilderParams,
-} from './revokeTokenDelegateAuthority';
-import { sendTokensBuilder, SendTokensBuilderParams } from './sendTokens';
-import { thawTokensBuilder, ThawTokensBuilderParams } from './thawTokens';
+  sendTokensBuilder,
+  SendTokensBuilderParams,
+  thawTokensBuilder,
+  ThawTokensBuilderParams,
+} from './operations';
 
 /**
  * This client allows you to access the underlying Transaction Builders

@@ -4,43 +4,31 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   approveTokenDelegateAuthorityOperation,
   approveTokenDelegateAuthorityOperationHandler,
-} from './approveTokenDelegateAuthority';
-import { createMintOperation, createMintOperationHandler } from './createMint';
-import {
+  createMintOperation,
+  createMintOperationHandler,
   createTokenOperation,
   createTokenOperationHandler,
-} from './createToken';
-import {
   createTokenWithMintOperation,
   createTokenWithMintOperationHandler,
-} from './createTokenWithMint';
-import {
   findMintByAddressOperation,
   findMintByAddressOperationHandler,
-} from './findMintByAddress';
-import {
   findTokenByAddressOperation,
   findTokenByAddressOperationHandler,
-} from './findTokenByAddress';
-import {
   findTokenWithMintByAddressOperation,
   findTokenWithMintByAddressOperationHandler,
-} from './findTokenWithMintByAddress';
-import {
   findTokenWithMintByMintOperation,
   findTokenWithMintByMintOperationHandler,
-} from './findTokenWithMintByMint';
-import {
   freezeTokensOperation,
   freezeTokensOperationHandler,
-} from './freezeTokens';
-import { mintTokensOperation, mintTokensOperationHandler } from './mintTokens';
-import {
+  mintTokensOperation,
+  mintTokensOperationHandler,
   revokeTokenDelegateAuthorityOperation,
   revokeTokenDelegateAuthorityOperationHandler,
-} from './revokeTokenDelegateAuthority';
-import { sendTokensOperation, sendTokensOperationHandler } from './sendTokens';
-import { thawTokensOperation, thawTokensOperationHandler } from './thawTokens';
+  sendTokensOperation,
+  sendTokensOperationHandler,
+  thawTokensOperation,
+  thawTokensOperationHandler,
+} from './operations';
 import { TokenClient } from './TokenClient';
 /**
  * @group Plugins

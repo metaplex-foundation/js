@@ -10,9 +10,9 @@ import {
 } from '@/types';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { MintAuthorityMustBeSignerToMintInitialSupplyError } from './errors';
-import { TokenWithMint } from './Token';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
+import { TokenWithMint } from '../models/Token';
 
 // -----------------
 // Operation

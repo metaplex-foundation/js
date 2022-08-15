@@ -16,10 +16,10 @@ import {
   createInitializeAccountInstruction,
 } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import { Token } from './Token';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { Token } from '../models/Token';
 
 // -----------------
 // Operation

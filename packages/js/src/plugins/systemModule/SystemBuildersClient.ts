@@ -2,8 +2,9 @@ import type { Metaplex } from '@/Metaplex';
 import {
   createAccountBuilder,
   CreateAccountBuilderParams,
-} from './createAccount';
-import { transferSolBuilder, TransferSolBuilderParams } from './transferSol';
+  transferSolBuilder,
+  TransferSolBuilderParams,
+} from './operations';
 
 /**
  * This client allows you to access the underlying Transaction Builders

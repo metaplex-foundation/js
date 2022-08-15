@@ -10,47 +10,45 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { createTransferInstruction } from '@solana/spl-token';
+import { createMintToInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'SendTokensOperation' as const;
+const Key = 'MintTokensOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const sendTokensOperation = useOperation<SendTokensOperation>(Key);
+export const mintTokensOperation = useOperation<MintTokensOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type SendTokensOperation = Operation<
+export type MintTokensOperation = Operation<
   typeof Key,
-  SendTokensInput,
-  SendTokensOutput
+  MintTokensInput,
+  MintTokensOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type SendTokensInput = {
+export type MintTokensInput = {
   mintAddress: PublicKey;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
-  toToken?: PublicKey | Signer; // If provided and token does not exist, it will create that account for you, hence the need for a Signer. Defaults to associated account.
-  fromOwner?: PublicKey | Signer; // Defaults to mx.identity().
-  fromToken?: PublicKey; // Defaults to associated account.
-  fromMultiSigners?: KeypairSigner[]; // Defaults to [].
-  delegateAuthority?: Signer; // Defaults to not using a delegate authority.
+  toToken?: PublicKey | Signer; // Defaults to associated account.
+  mintAuthority?: PublicKey | Signer; // Defaults to mx.identity().
+  multiSigners?: KeypairSigner[]; // Defaults to [].
   payer?: Signer; // Only used to create missing token accounts. Defaults to mx.identity().
   tokenProgram?: PublicKey; // Defaults to Token Program.
   associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
@@ -61,7 +59,7 @@ export type SendTokensInput = {
  * @group Operations
  * @category Outputs
  */
-export type SendTokensOutput = {
+export type MintTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -69,13 +67,13 @@ export type SendTokensOutput = {
  * @group Operations
  * @category Handlers
  */
-export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
+export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
   {
     async handle(
-      operation: SendTokensOperation,
+      operation: MintTokensOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<SendTokensOutput> {
+    ): Promise<MintTokensOutput> {
       const {
         mintAddress,
         toOwner = metaplex.identity().publicKey,
@@ -90,7 +88,7 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
         .accountExists(destinationAddress);
       scope.throwIfCanceled();
 
-      const builder = await sendTokensBuilder(metaplex, {
+      const builder = await mintTokensBuilder(metaplex, {
         ...operation.input,
         toTokenExists: destinationAccountExists,
       });
@@ -108,24 +106,29 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
  * @group Transaction Builders
  * @category Inputs
  */
-export type SendTokensBuilderParams = Omit<
-  SendTokensInput,
+export type MintTokensBuilderParams = Omit<
+  MintTokensInput,
   'confirmOptions'
 > & {
-  toTokenExists?: boolean; // Defaults to true.
+  /**
+   * Whether or not the provided token account already exists.
+   * If `false`, we'll add another instruction to create it.
+   * @defaultValue `true`
+   */
+  toTokenExists?: boolean;
   createAssociatedTokenAccountInstructionKey?: string;
   createAccountInstructionKey?: string;
   initializeTokenInstructionKey?: string;
-  transferTokensInstructionKey?: string;
+  mintTokensInstructionKey?: string;
 };
 
 /**
  * @group Transaction Builders
  * @category Constructors
  */
-export const sendTokensBuilder = async (
+export const mintTokensBuilder = async (
   metaplex: Metaplex,
-  params: SendTokensBuilderParams
+  params: MintTokensBuilderParams
 ): Promise<TransactionBuilder> => {
   const {
     mintAddress,
@@ -133,20 +136,16 @@ export const sendTokensBuilder = async (
     toOwner = metaplex.identity().publicKey,
     toToken,
     toTokenExists = true,
-    fromOwner = metaplex.identity(),
-    fromToken,
-    fromMultiSigners = [],
-    delegateAuthority,
+    mintAuthority = metaplex.identity(),
+    multiSigners = [],
     payer = metaplex.identity(),
     tokenProgram = TokenProgram.publicKey,
   } = params;
 
-  const [fromOwnerPublicKey, signers] = isSigner(fromOwner)
-    ? [fromOwner.publicKey, [fromOwner]]
-    : [fromOwner, [delegateAuthority, ...fromMultiSigners].filter(isSigner)];
+  const [mintAuthorityPublicKey, signers] = isSigner(mintAuthority)
+    ? [mintAuthority.publicKey, [mintAuthority]]
+    : [mintAuthority, multiSigners];
 
-  const source =
-    fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
@@ -169,18 +168,18 @@ export const sendTokensBuilder = async (
           })
       )
 
-      // Transfer tokens.
+      // Mint tokens.
       .add({
-        instruction: createTransferInstruction(
-          source,
+        instruction: createMintToInstruction(
+          mintAddress,
           toPublicKey(destination),
-          delegateAuthority ? delegateAuthority.publicKey : fromOwnerPublicKey,
+          mintAuthorityPublicKey,
           amount.basisPoints.toNumber(),
-          fromMultiSigners,
+          multiSigners,
           tokenProgram
         ),
         signers,
-        key: params.transferTokensInstructionKey ?? 'transferTokens',
+        key: params.mintTokensInstructionKey ?? 'mintTokens',
       })
   );
 };

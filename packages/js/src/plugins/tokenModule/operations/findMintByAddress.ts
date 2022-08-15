@@ -1,8 +1,8 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import { toMintAccount } from './accounts';
-import { Mint, toMint } from './Mint';
+import { toMintAccount } from '../accounts';
+import { Mint, toMint } from '../models/Mint';
 
 // -----------------
 // Operation

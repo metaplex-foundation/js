@@ -1,7 +1,11 @@
 import type { Metaplex } from '@/Metaplex';
-import { CreateAccountInput, createAccountOperation } from './createAccount';
+import {
+  CreateAccountInput,
+  createAccountOperation,
+  TransferSolInput,
+  transferSolOperation,
+} from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
-import { TransferSolInput, transferSolOperation } from './transferSol';
 
 /**
  * This is a client for the System module.

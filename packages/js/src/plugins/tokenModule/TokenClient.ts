@@ -2,37 +2,31 @@ import type { Metaplex } from '@/Metaplex';
 import {
   ApproveTokenDelegateAuthorityInput,
   approveTokenDelegateAuthorityOperation,
-} from './approveTokenDelegateAuthority';
-import { CreateMintInput, createMintOperation } from './createMint';
-import { CreateTokenInput, createTokenOperation } from './createToken';
-import {
+  CreateMintInput,
+  createMintOperation,
+  CreateTokenInput,
+  createTokenOperation,
   CreateTokenWithMintInput,
   createTokenWithMintOperation,
-} from './createTokenWithMint';
-import {
   FindMintByAddressInput,
   findMintByAddressOperation,
-} from './findMintByAddress';
-import {
   FindTokenByAddressInput,
   findTokenByAddressOperation,
-} from './findTokenByAddress';
-import {
   FindTokenWithMintByAddressInput,
   findTokenWithMintByAddressOperation,
-} from './findTokenWithMintByAddress';
-import {
   FindTokenWithMintByMintInput,
   findTokenWithMintByMintOperation,
-} from './findTokenWithMintByMint';
-import { FreezeTokensInput, freezeTokensOperation } from './freezeTokens';
-import { MintTokensInput, mintTokensOperation } from './mintTokens';
-import {
+  FreezeTokensInput,
+  freezeTokensOperation,
+  MintTokensInput,
+  mintTokensOperation,
   RevokeTokenDelegateAuthorityInput,
   revokeTokenDelegateAuthorityOperation,
-} from './revokeTokenDelegateAuthority';
-import { SendTokensInput, sendTokensOperation } from './sendTokens';
-import { ThawTokensInput, thawTokensOperation } from './thawTokens';
+  SendTokensInput,
+  sendTokensOperation,
+  ThawTokensInput,
+  thawTokensOperation,
+} from './operations';
 import { TokenBuildersClient } from './TokenBuildersClient';
 
 /**

@@ -10,9 +10,9 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createThawAccountInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation

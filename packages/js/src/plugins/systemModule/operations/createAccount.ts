@@ -14,7 +14,7 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation
