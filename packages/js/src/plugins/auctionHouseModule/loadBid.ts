@@ -40,7 +40,8 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
     if (lazyBid.tokenAddress) {
       const asset = await metaplex
         .nfts()
-        .findByToken(lazyBid.tokenAddress, {
+        .findByToken({
+          token: lazyBid.tokenAddress,
           commitment,
           loadJsonMetadata,
         })
@@ -62,7 +63,8 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
     } else {
       const asset = await metaplex
         .nfts()
-        .findByMetadata(lazyBid.metadataAddress, {
+        .findByMetadata({
+          metadata: lazyBid.metadataAddress,
           commitment,
           loadJsonMetadata,
         })
