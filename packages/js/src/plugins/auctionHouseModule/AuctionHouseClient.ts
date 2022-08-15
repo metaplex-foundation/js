@@ -20,9 +20,13 @@ import {
   CreateBidOutput,
 } from './createBid';
 import {
-  FindBidByAddressInput,
-  findBidByAddressOperation,
-} from './findBidByAddress';
+  findBidByReceiptOperation,
+  FindBidByReceiptInput,
+} from './findBidByReceipt';
+import {
+  FindBidByTradeStateInput,
+  findBidByTradeStateOperation,
+} from './findBidByTradeState';
 import { Bid, LazyBid } from './Bid';
 import { LoadBidInput, loadBidOperation } from './loadBid';
 import {
@@ -208,13 +212,9 @@ export class AuctionHouseClient {
         .execute(createBidOperation(this.addAH(input)), scope);
       scope.throwIfCanceled();
 
-      try {
-        const bid = await this.findBidByAddress(output.buyerTradeState).run(
-          scope
-        );
+      if (output.receipt) {
+        const bid = await this.findBidByReceipt(output.receipt).run(scope);
         return { bid, ...output };
-      } catch (error) {
-        // Fallback to manually creating a bid from inputs and outputs.
       }
 
       scope.throwIfCanceled();
@@ -243,13 +243,29 @@ export class AuctionHouseClient {
     });
   }
 
-  findBidByAddress(
-    address: PublicKey,
-    options: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'> = {}
+  findBidByReceipt(
+    receiptAddress: PublicKey,
+    options: Omit<FindBidByReceiptInput, 'receiptAddress' | 'auctionHouse'> = {}
   ) {
     return this.metaplex.operations().getTask(
-      findBidByAddressOperation({
-        address,
+      findBidByReceiptOperation({
+        receiptAddress,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  findBidByTradeState(
+    tradeStateAddress: PublicKey,
+    options: Omit<
+      FindBidByTradeStateInput,
+      'tradeStateAddress' | 'auctionHouse'
+    > = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findBidByTradeStateOperation({
+        tradeStateAddress,
         auctionHouse: this.auctionHouse,
         ...options,
       })

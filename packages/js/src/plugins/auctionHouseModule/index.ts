@@ -7,7 +7,7 @@ export * from './cancelListing';
 export * from './createAuctionHouse';
 export * from './errors';
 export * from './findAuctionHouseByAddress';
-export * from './findBidByAddress';
+export * from './findBidByTradeState';
 export * from './findListingByAddress';
 export * from './findPurchaseByAddress';
 export * from './Listing';
