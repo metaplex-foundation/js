@@ -1,5 +1,3 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { createMintToInstruction } from '@solana/spl-token';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -11,45 +9,41 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { isMint, Mint } from './Mint';
-import { TokenProgram } from './program';
-import { findAssociatedTokenAccountPda } from './pdas';
-import type { TokenClient } from './TokenClient';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _mintTokensClient(this: TokenClient, input: MintTokensInput) {
-  return this.metaplex.operations().getTask(mintTokensOperation(input));
-}
-
-/** @internal */
-export function _mintTokensBuildersClient(
-  this: TokenBuildersClient,
-  input: MintTokensBuilderParams
-) {
-  return mintTokensBuilder(this.metaplex, input);
-}
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createMintToInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'MintTokensOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const mintTokensOperation = useOperation<MintTokensOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type MintTokensOperation = Operation<
   typeof Key,
   MintTokensInput,
   MintTokensOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type MintTokensInput = {
-  mint: PublicKey | Mint;
+  mintAddress: PublicKey;
   amount: SplTokenAmount;
   toOwner?: PublicKey; // Defaults to mx.identity().
   toToken?: PublicKey | Signer; // Defaults to associated account.
@@ -61,21 +55,45 @@ export type MintTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type MintTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
   {
     async handle(
       operation: MintTokensOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: DisposableScope
     ): Promise<MintTokensOutput> {
-      const builder = await mintTokensBuilder(metaplex, operation.input);
+      const {
+        mintAddress,
+        toOwner = metaplex.identity().publicKey,
+        toToken,
+      } = operation.input;
+
+      const destination =
+        toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+      const destinationAddress = toPublicKey(destination);
+      const destinationAccountExists = await metaplex
+        .rpc()
+        .accountExists(destinationAddress);
+      scope.throwIfCanceled();
+
+      const builder = await mintTokensBuilder(metaplex, {
+        ...operation.input,
+        toTokenExists: destinationAccountExists,
+      });
+      scope.throwIfCanceled();
+
       return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
@@ -84,26 +102,40 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type MintTokensBuilderParams = Omit<
   MintTokensInput,
   'confirmOptions'
 > & {
-  toTokenExists?: boolean; // Defaults to false.
+  /**
+   * Whether or not the provided token account already exists.
+   * If `false`, we'll add another instruction to create it.
+   * @defaultValue `true`
+   */
+  toTokenExists?: boolean;
   createAssociatedTokenAccountInstructionKey?: string;
   createAccountInstructionKey?: string;
   initializeTokenInstructionKey?: string;
   mintTokensInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const mintTokensBuilder = async (
   metaplex: Metaplex,
   params: MintTokensBuilderParams
 ): Promise<TransactionBuilder> => {
   const {
-    mint,
+    mintAddress,
     amount,
     toOwner = metaplex.identity().publicKey,
     toToken,
+    toTokenExists = true,
     mintAuthority = metaplex.identity(),
     multiSigners = [],
     payer = metaplex.identity(),
@@ -114,7 +146,6 @@ export const mintTokensBuilder = async (
     ? [mintAuthority.publicKey, [mintAuthority]]
     : [mintAuthority, multiSigners];
 
-  const mintAddress = isMint(mint) ? mint.address : mint;
   const destination =
     toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
 
@@ -123,19 +154,18 @@ export const mintTokensBuilder = async (
 
       // Create token account if missing.
       .add(
-        !(params.toTokenExists ?? false)
-          ? await metaplex
-              .tokens()
-              .builders()
-              .createTokenIfMissing({
-                ...params,
-                mint: mintAddress,
-                owner: toOwner,
-                token: toToken,
-                payer,
-                tokenVariable: 'toToken',
-              })
-          : TransactionBuilder.make()
+        await metaplex
+          .tokens()
+          .builders()
+          .createTokenIfMissing({
+            ...params,
+            mint: mintAddress,
+            owner: toOwner,
+            token: toToken,
+            tokenExists: toTokenExists,
+            payer,
+            tokenVariable: 'toToken',
+          })
       )
 
       // Mint tokens.

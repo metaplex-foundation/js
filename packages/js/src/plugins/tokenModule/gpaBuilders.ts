@@ -4,6 +4,7 @@ import { Metaplex } from '@/Metaplex';
 import { GpaBuilder } from '@/utils';
 import { BigNumber } from '@/types';
 
+/** @internal */
 export class MintGpaBuilder extends GpaBuilder {
   constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId ?? TOKEN_PROGRAM_ID);
@@ -30,6 +31,7 @@ export class MintGpaBuilder extends GpaBuilder {
   // https://github.com/solana-labs/solana-program-library/blob/master/token/js/src/state/mint.ts#L43
 }
 
+/** @internal */
 export class TokenGpaBuilder extends GpaBuilder {
   constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId ?? TOKEN_PROGRAM_ID);

@@ -6,14 +6,13 @@ import type { NftEdition } from './NftEdition';
 import { assert } from '@/utils';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
-export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
-  Readonly<{
-    model: 'nft';
-    address: PublicKey;
-    metadataAddress: Pda;
-    mint: Mint;
-    edition: NftEdition;
-  }>;
+export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
+  readonly model: 'nft';
+  readonly address: PublicKey;
+  readonly metadataAddress: Pda;
+  readonly mint: Mint;
+  readonly edition: NftEdition;
+};
 
 export const isNft = (value: any): value is Nft =>
   typeof value === 'object' && value.model === 'nft';

@@ -10,41 +10,36 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createThawAccountInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _thawTokensClient(this: TokenClient, input: ThawTokensInput) {
-  return this.metaplex.operations().getTask(thawTokensOperation(input));
-}
-
-/** @internal */
-export function _thawTokensBuildersClient(
-  this: TokenBuildersClient,
-  input: ThawTokensBuilderParams
-) {
-  return thawTokensBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'ThawTokensOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const thawTokensOperation = useOperation<ThawTokensOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ThawTokensOperation = Operation<
   typeof Key,
   ThawTokensInput,
   ThawTokensOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type ThawTokensInput = {
   mintAddress: PublicKey;
   freezeAuthority: PublicKey | Signer;
@@ -55,14 +50,18 @@ export type ThawTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type ThawTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const thawTokensOperationHandler: OperationHandler<ThawTokensOperation> =
   {
     async handle(
@@ -80,6 +79,10 @@ export const thawTokensOperationHandler: OperationHandler<ThawTokensOperation> =
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ThawTokensBuilderParams = Omit<
   ThawTokensInput,
   'confirmOptions'
@@ -87,6 +90,10 @@ export type ThawTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const thawTokensBuilder = (
   metaplex: Metaplex,
   params: ThawTokensBuilderParams

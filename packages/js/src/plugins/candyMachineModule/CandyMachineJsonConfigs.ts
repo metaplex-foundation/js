@@ -18,29 +18,28 @@ import { CandyMachineConfigs } from './CandyMachine';
  * Configuration for the Candy Machine.
  * For more info {@see https://docs.metaplex.com/candy-machine-v2/configuration}
  *
- * @property price - The amount in SOL or SPL token for a mint.
- * @property number - The number of items in the Candy Machine
- * @property sellerFeeBasisPoints - Royalty basis points that goes to creators
+ * @param number - The number of items in the Candy Machine
+ * @param sellerFeeBasisPoints - Royalty basis points that goes to creators
  * in secondary sales (0-10000)
- * @property solTreasuryAccount - Wallet to receive proceedings SOL payments
- * @property goLiveDate - Timestamp when minting is allowed – the Candy Machine
+ * @param solTreasuryAccount - Wallet to receive proceedings SOL payments
+ * @param goLiveDate - Timestamp when minting is allowed – the Candy Machine
  * authority and whitelists can bypass this constraint
- * @property noRetainAuthority - Indicates whether the candy machine authority
+ * @param noRetainAuthority - Indicates whether the candy machine authority
  * has the update authority for each mint or if it is transferred to the
  * minter. This should be set to `false` for the vast majority of cases.
- * @property noMutable - Indicates whether the NFTs' metadata are mutable or not
+ * @param noMutable - Indicates whether the NFTs' metadata are mutable or not
  * after having been minted.
- * @property maxEditionSupply - If greater than zero, the minted NFTs will be printable
+ * @param maxEditionSupply - If greater than zero, the minted NFTs will be printable
  *  Master Editions. The number provided determines the maximum number of editions
  * that can be printed from the minted NFT. Defaults to zero.
- * @property symbol - Optional Symbol for the NFts of the Candy Machine which
+ * @param symbol - Optional Symbol for the NFts of the Candy Machine which
  * can be up to 10 bytes.
- * @property splTokenAccount - SPL token wallet to receive proceedings from SPL token payments
- * @property splToken - Mint address of the token accepted as payment
- * @property gatekeeper - {@link GatekeeperSettingsConfig}
- * @property endSettings - {@link EndSettingsConfig}
- * @property whitelistMintSettings - {@link WhitelistMintSettingsConfig}
- * @property hiddenSettings - {@link HiddenSettingsConfig}
+ * @param splTokenAccount - SPL token wallet to receive proceedings from SPL token payments
+ * @param splToken - Mint address of the token accepted as payment
+ * @param gatekeeper - {@link GatekeeperSettingsConfig}
+ * @param endSettings - {@link EndSettingsConfig}
+ * @param whitelistMintSettings - {@link WhitelistMintSettingsConfig}
+ * @param hiddenSettings - {@link HiddenSettingsConfig}
  *
  * ## Minimum Config Example
  *
@@ -62,22 +61,25 @@ import { CandyMachineConfigs } from './CandyMachine';
  * ```
  */
 export type CandyMachineJsonConfigs = {
-  price: number;
-  number: number;
-  sellerFeeBasisPoints: number;
-  solTreasuryAccount: PublicKeyString;
-  goLiveDate: DateTimeString;
-  noRetainAuthority: boolean;
-  noMutable: boolean;
-  maxEditionSupply?: number;
-  creators?: CreatorConfig[];
-  symbol?: string;
-  splTokenAccount?: PublicKeyString;
-  splToken?: PublicKeyString;
-  gatekeeper?: GatekeeperSettingsConfig;
-  endSettings?: EndSettingsConfig;
-  whitelistMintSettings?: WhitelistMintSettingsConfig;
-  hiddenSettings?: HiddenSettingsConfig;
+  /**
+   * The amount in SOL or SPL token for a mint.
+   */
+  readonly price: number;
+  readonly number: number;
+  readonly sellerFeeBasisPoints: number;
+  readonly solTreasuryAccount: PublicKeyString;
+  readonly goLiveDate: DateTimeString;
+  readonly noRetainAuthority: boolean;
+  readonly noMutable: boolean;
+  readonly maxEditionSupply?: number;
+  readonly creators?: CreatorConfig[];
+  readonly symbol?: string;
+  readonly splTokenAccount?: PublicKeyString;
+  readonly splToken?: PublicKeyString;
+  readonly gatekeeper?: GatekeeperSettingsConfig;
+  readonly endSettings?: EndSettingsConfig;
+  readonly whitelistMintSettings?: WhitelistMintSettingsConfig;
+  readonly hiddenSettings?: HiddenSettingsConfig;
 };
 
 /**
@@ -86,8 +88,8 @@ export type CandyMachineJsonConfigs = {
  * make sure that only humans can mint from your project, gatekeeper settings
  * can be enabled.
  *
- * @property gatekeeperNetwork - Gateway provider address
- * @property expireOnUse - Requires a new gateway challenge after a use
+ * @param gatekeeperNetwork - Gateway provider address
+ * @param expireOnUse - Requires a new gateway challenge after a use
  */
 type GatekeeperSettingsConfig = {
   gatekeeperNetwork: PublicKeyString;
@@ -112,9 +114,9 @@ type GatekeeperSettingsConfig = {
  * update the metadata for each item. This is important otherwise all items
  * will have the same metadata.
  *
- * @property name - Name of the mint. The number of the mint will be appended to the name.
- * @property uri - Single URI for all mints.
- * @property hash - 32 character hash. In most cases this is the hash of the cache file with
+ * @param name - Name of the mint. The number of the mint will be appended to the name.
+ * @param uri - Single URI for all mints.
+ * @param hash - 32 character hash. In most cases this is the hash of the cache file with
  * the mapping between mint number and metadata so that the order can be verified when the mint
  * is complete
  */
@@ -128,9 +130,9 @@ type HiddenSettingsConfig = {
  * End Settings provides a mechanism to stop the mint if a certain condition is
  * met without interaction.
  *
- * @property endSettingType - {@link EndSettingMode} (date or amount) which identifies
+ * @param endSettingType - {@link EndSettingMode} (date or amount) which identifies
  * what {@link EndSettingsConfig.value} means
- * @property value - to test the end condition. This will be either a date
+ * @param value - to test the end condition. This will be either a date
  * string (end DateTime) or an integer amount (items minted)
  * */
 
@@ -159,10 +161,10 @@ type WhitelistMode = 'burnEveryTime' | 'neverBurn';
  * around the idea of using custom SPL tokens to offer special rights to token
  * holders - how said SPL token is distributed is up to you. 
  *
- * @property mode - {@link WhitelistMode} (burnEveryTime or neverBurn)
- * @property mint - Mint address of the whitelist token
- * @property presale - Indicates whether whitelist token holders can mint before goLiveDate
- * @property discountPrice - Price for whitelist token holders
+ * @param mode - {@link WhitelistMode} (burnEveryTime or neverBurn)
+ * @param mint - Mint address of the whitelist token
+ * @param presale - Indicates whether whitelist token holders can mint before goLiveDate
+ * @param discountPrice - Price for whitelist token holders
  */
 type WhitelistMintSettingsConfig = {
   mode: WhitelistMode;

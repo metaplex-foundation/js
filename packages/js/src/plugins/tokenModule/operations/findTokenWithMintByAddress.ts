@@ -1,48 +1,46 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import { toMintAccount, toTokenAccount } from './accounts';
-import { toMint } from './Mint';
-import { TokenWithMint, toTokenWithMint } from './Token';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findTokenWithMintByAddressClient(
-  this: TokenClient,
-  address: PublicKey,
-  options?: Omit<FindTokenWithMintByAddressInput, 'address'>
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findTokenWithMintByAddressOperation({ address, ...options }));
-}
+import { toMintAccount, toTokenAccount } from '../accounts';
+import { toMint } from '../models/Mint';
+import { TokenWithMint, toTokenWithMint } from '../models/Token';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'FindTokenWithMintByAddressOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findTokenWithMintByAddressOperation =
   useOperation<FindTokenWithMintByAddressOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindTokenWithMintByAddressOperation = Operation<
   typeof Key,
   FindTokenWithMintByAddressInput,
   TokenWithMint
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindTokenWithMintByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findTokenWithMintByAddressOperationHandler: OperationHandler<FindTokenWithMintByAddressOperation> =
   {
     handle: async (

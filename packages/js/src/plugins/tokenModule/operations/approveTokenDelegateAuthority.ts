@@ -12,48 +12,38 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createApproveInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import { TokenBuildersClient } from './TokenBuildersClient';
-import { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _approveTokenDelegateAuthorityClient(
-  this: TokenClient,
-  input: ApproveTokenDelegateAuthorityInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(approveTokenDelegateAuthorityOperation(input));
-}
-
-/** @internal */
-export function _approveTokenDelegateAuthorityBuildersClient(
-  this: TokenBuildersClient,
-  input: ApproveTokenDelegateAuthorityBuilderParams
-) {
-  return approveTokenDelegateAuthorityBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const approveTokenDelegateAuthorityOperation =
   useOperation<ApproveTokenDelegateAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ApproveTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   ApproveTokenDelegateAuthorityInput,
   ApproveTokenDelegateAuthorityOutput
 >;
 
-export interface ApproveTokenDelegateAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ * */
+export type ApproveTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   delegateAuthority: PublicKey;
   amount?: SplTokenAmount;
@@ -62,16 +52,20 @@ export interface ApproveTokenDelegateAuthorityInput {
   multiSigners?: KeypairSigner[]; // Defaults to [].
   tokenProgram?: PublicKey; // Defaults to Token Program.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface ApproveTokenDelegateAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type ApproveTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<ApproveTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -89,6 +83,10 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   ApproveTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -96,6 +94,10 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const approveTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: ApproveTokenDelegateAuthorityBuilderParams

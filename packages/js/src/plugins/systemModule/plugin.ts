@@ -1,16 +1,17 @@
-import { SystemProgram } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import type { MetaplexPlugin } from '@/types';
-import { SystemClient } from './SystemClient';
+import { SystemProgram } from '@solana/web3.js';
 import {
   createAccountOperation,
   createAccountOperationHandler,
-} from './createAccount';
-import {
   transferSolOperation,
   transferSolOperationHandler,
-} from './transferSol';
+} from './operations';
+import { SystemClient } from './SystemClient';
 
+/**
+ * @group Plugins
+ */
 export const systemModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Program.

@@ -10,64 +10,58 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createRevokeInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import { TokenBuildersClient } from './TokenBuildersClient';
-import { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _revokeTokenDelegateAuthorityClient(
-  this: TokenClient,
-  input: RevokeTokenDelegateAuthorityInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(revokeTokenDelegateAuthorityOperation(input));
-}
-
-/** @internal */
-export function _revokeTokenDelegateAuthorityBuildersClient(
-  this: TokenBuildersClient,
-  input: RevokeTokenDelegateAuthorityBuilderParams
-) {
-  return revokeTokenDelegateAuthorityBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'RevokeTokenDelegateAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const revokeTokenDelegateAuthorityOperation =
   useOperation<RevokeTokenDelegateAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type RevokeTokenDelegateAuthorityOperation = Operation<
   typeof Key,
   RevokeTokenDelegateAuthorityInput,
   RevokeTokenDelegateAuthorityOutput
 >;
 
-export interface RevokeTokenDelegateAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type RevokeTokenDelegateAuthorityInput = {
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
   tokenAddress?: PublicKey; // Defaults to associated account.
   multiSigners?: KeypairSigner[]; // Defaults to [].
   tokenProgram?: PublicKey; // Defaults to Token Program.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface RevokeTokenDelegateAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type RevokeTokenDelegateAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<RevokeTokenDelegateAuthorityOperation> =
   {
     handle: async (
@@ -85,6 +79,10 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   RevokeTokenDelegateAuthorityInput,
   'confirmOptions'
@@ -92,6 +90,10 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const revokeTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeTokenDelegateAuthorityBuilderParams

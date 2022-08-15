@@ -1,14 +1,14 @@
 import { PublicKey } from '@solana/web3.js';
 import { Signer } from './Signer';
 
-export type Creator = Readonly<{
-  address: PublicKey;
-  verified: boolean;
-  share: number;
-}>;
+export type Creator = {
+  readonly address: PublicKey;
+  readonly verified: boolean;
+  readonly share: number;
+};
 
-export type CreatorInput = Readonly<{
-  address: PublicKey;
-  share: number;
-  authority?: Signer;
-}>;
+export type CreatorInput = {
+  readonly address: PublicKey;
+  readonly share: number;
+  readonly authority?: Signer;
+};

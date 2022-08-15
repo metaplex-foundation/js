@@ -23,13 +23,13 @@ export const toNftEdition = (
     ? toNftOriginalEdition(account)
     : toNftPrintEdition(account as PrintEditionAccount);
 
-export type NftOriginalEdition = Readonly<{
-  model: 'nftEdition';
-  isOriginal: true;
-  address: PublicKey;
-  supply: BigNumber;
-  maxSupply: Option<BigNumber>;
-}>;
+export type NftOriginalEdition = {
+  readonly model: 'nftEdition';
+  readonly isOriginal: true;
+  readonly address: PublicKey;
+  readonly supply: BigNumber;
+  readonly maxSupply: Option<BigNumber>;
+};
 
 export const isNftOriginalEdition = (value: any): value is NftOriginalEdition =>
   isNftEdition(value) && value.isOriginal;
@@ -50,13 +50,13 @@ export const toNftOriginalEdition = (
   maxSupply: toOptionBigNumber(account.data.maxSupply),
 });
 
-export type NftPrintEdition = Readonly<{
-  model: 'nftEdition';
-  isOriginal: false;
-  address: PublicKey;
-  parent: PublicKey;
-  number: BigNumber;
-}>;
+export type NftPrintEdition = {
+  readonly model: 'nftEdition';
+  readonly isOriginal: false;
+  readonly address: PublicKey;
+  readonly parent: PublicKey;
+  readonly number: BigNumber;
+};
 
 export const isNftPrintEdition = (value: any): value is NftPrintEdition =>
   isNftEdition(value) && !value.isOriginal;

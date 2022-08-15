@@ -2,15 +2,15 @@ import { Buffer } from 'buffer';
 import { getContentType, getExtension, randomStr } from '@/utils';
 import { InvalidJsonVariableError } from '@/errors';
 
-export type MetaplexFile = Readonly<{
-  buffer: Buffer;
-  fileName: string;
-  displayName: string;
-  uniqueName: string;
-  contentType: string | null;
-  extension: string | null;
-  tags: MetaplexFileTag[];
-}>;
+export type MetaplexFile = {
+  readonly buffer: Buffer;
+  readonly fileName: string;
+  readonly displayName: string;
+  readonly uniqueName: string;
+  readonly contentType: string | null;
+  readonly extension: string | null;
+  readonly tags: MetaplexFileTag[];
+};
 
 export type MetaplexFileContent = string | Buffer | Uint8Array | ArrayBuffer;
 

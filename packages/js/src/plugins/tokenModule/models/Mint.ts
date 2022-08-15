@@ -1,26 +1,31 @@
 import type { PublicKey } from '@solana/web3.js';
 import { amount, SplTokenCurrency, SplTokenAmount } from '@/types';
 import { assert, Option } from '@/utils';
-import { MintAccount } from './accounts';
-import { WRAPPED_SOL_MINT } from './constants';
+import { MintAccount } from '../accounts';
+import { WRAPPED_SOL_MINT } from '../constants';
 
-export type Mint = Readonly<{
-  model: 'mint';
-  address: PublicKey;
-  mintAuthorityAddress: Option<PublicKey>;
-  freezeAuthorityAddress: Option<PublicKey>;
-  decimals: number;
-  supply: SplTokenAmount;
-  isWrappedSol: boolean;
-  currency: SplTokenCurrency;
-}>;
+/** @group Models */
+export type Mint = {
+  readonly model: 'mint';
+  readonly address: PublicKey;
+  readonly mintAuthorityAddress: Option<PublicKey>;
+  readonly freezeAuthorityAddress: Option<PublicKey>;
+  readonly decimals: number;
+  readonly supply: SplTokenAmount;
+  readonly isWrappedSol: boolean;
+  readonly currency: SplTokenCurrency;
+};
 
+/** @group Model Helpers */
 export const isMint = (value: any): value is Mint =>
   typeof value === 'object' && value.model === 'mint';
 
+/** @group Model Helpers */
 export function assertMint(value: any): asserts value is Mint {
   assert(isMint(value), `Expected Mint model`);
 }
+
+/** @group Model Helpers */
 export const toMint = (account: MintAccount): Mint => {
   const isWrappedSol = account.publicKey.equals(WRAPPED_SOL_MINT);
   const currency: SplTokenCurrency = {

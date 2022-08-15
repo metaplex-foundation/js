@@ -8,7 +8,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -16,59 +16,40 @@ import {
   createInitializeAccountInstruction,
 } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import { Token } from './Token';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createTokenClient(
-  this: TokenClient,
-  input: CreateTokenInput
-): Task<CreateTokenOutput & { token: Token }> {
-  return new Task(async (scope) => {
-    const operation = createTokenOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const token = await this.findTokenByAddress(output.tokenAddress).run(scope);
-    return { ...output, token };
-  });
-}
-
-/** @internal */
-export function _createTokenBuildersClient(
-  this: TokenBuildersClient,
-  input: CreateTokenBuilderParams
-) {
-  return createTokenBuilder(this.metaplex, input);
-}
-
-/** @internal */
-export function _createTokenIfMissingBuildersClient(
-  this: TokenBuildersClient,
-  input: CreateTokenIfMissingBuilderParams
-) {
-  return createTokenIfMissingBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { Token } from '../models/Token';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'CreateTokenOperation' as const;
+
+/**
+ * Create a new Token account from the provided input
+ * and returns the newly created `Token` model.
+ *
+ * @group Operations
+ * @category Constructors
+ */
 export const createTokenOperation = useOperation<CreateTokenOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateTokenOperation = Operation<
   typeof Key,
   CreateTokenInput,
   CreateTokenOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateTokenInput = {
   mint: PublicKey;
   owner?: PublicKey; // Defaults to mx.identity().
@@ -79,15 +60,19 @@ export type CreateTokenInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateTokenOutput = {
   response: SendAndConfirmTransactionResponse;
-  tokenAddress: PublicKey;
+  token: Token;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createTokenOperationHandler: OperationHandler<CreateTokenOperation> =
   {
     async handle(
@@ -97,7 +82,19 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
     ): Promise<CreateTokenOutput> {
       const builder = await createTokenBuilder(metaplex, operation.input);
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const token = await metaplex
+        .tokens()
+        .findTokenByAddress({ address: output.tokenAddress })
+        .run(scope);
+
+      return { ...output, token };
     },
   };
 
@@ -105,6 +102,10 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateTokenBuilderParams = Omit<
   CreateTokenInput,
   'confirmOptions'
@@ -114,8 +115,18 @@ export type CreateTokenBuilderParams = Omit<
   initializeTokenInstructionKey?: string;
 };
 
-export type CreateTokenBuilderContext = Omit<CreateTokenOutput, 'response'>;
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
+export type CreateTokenBuilderContext = {
+  tokenAddress: PublicKey;
+};
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createTokenBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenBuilderParams
@@ -197,14 +208,23 @@ export const createTokenBuilder = async (
   );
 };
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateTokenIfMissingBuilderParams = Omit<
   CreateTokenBuilderParams,
   'token'
 > & {
   token?: PublicKey | Signer;
+  tokenExists?: boolean; // Defaults to true.
   tokenVariable?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createTokenIfMissingBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenIfMissingBuilderParams
@@ -213,21 +233,18 @@ export const createTokenIfMissingBuilder = async (
     mint,
     owner = metaplex.identity().publicKey,
     token,
+    tokenExists = true,
     payer = metaplex.identity(),
     tokenVariable = 'token',
   } = params;
 
   const destination = token ?? findAssociatedTokenAccountPda(mint, owner);
   const destinationAddress = toPublicKey(destination);
-  const destinationAccount = await metaplex
-    .rpc()
-    .getAccount(destinationAddress);
-
   const builder = TransactionBuilder.make<CreateTokenBuilderContext>()
     .setFeePayer(payer)
     .setContext({ tokenAddress: destinationAddress });
 
-  if (destinationAccount.exists) {
+  if (tokenExists) {
     return builder;
   }
 

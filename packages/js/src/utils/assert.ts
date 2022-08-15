@@ -1,5 +1,6 @@
 /**
  * Error indicating that an assertion failed.
+ * @group Errors
  */
 export class AssertionError extends Error {
   constructor(message: string) {
@@ -13,6 +14,7 @@ export class AssertionError extends Error {
 
 /**
  * Assserts that the provided condition is true.
+ * @internal
  */
 export default function assert(
   condition: boolean,
@@ -25,6 +27,7 @@ export default function assert(
 
 /**
  * Asserts that both values are strictly equal.
+ * @internal
  */
 assert.equal = function assertEqual<T>(
   actual: unknown,

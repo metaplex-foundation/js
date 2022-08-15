@@ -362,7 +362,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
   await mx
     .tokens()
     .mint({
-      mint: treasuryToken.mint.address,
+      mintAddress: treasuryToken.mint.address,
       amount: token(2),
       toOwner: buyer.publicKey,
     })
@@ -407,7 +407,10 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
     buyer.publicKey
   );
 
-  const buyerToken = await mx.tokens().findTokenByAddress(paymentAccount).run();
+  const buyerToken = await mx
+    .tokens()
+    .findTokenByAddress({ address: paymentAccount })
+    .run();
 
   t.equal(buyerToken.amount.basisPoints.toNumber(), 0);
 });

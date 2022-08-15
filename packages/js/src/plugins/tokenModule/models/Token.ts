@@ -1,30 +1,35 @@
 import type { PublicKey } from '@solana/web3.js';
 import { amount, Pda, SplTokenAmount, token } from '@/types';
 import { assert, Option } from '@/utils';
-import { TokenAccount } from './accounts';
+import { TokenAccount } from '../accounts';
 import { Mint } from './Mint';
-import { findAssociatedTokenAccountPda } from './pdas';
+import { findAssociatedTokenAccountPda } from '../pdas';
 import { AccountState } from '@solana/spl-token';
 
-export type Token = Readonly<{
-  model: 'token';
-  address: PublicKey | Pda;
-  isAssociatedToken: boolean;
-  mintAddress: PublicKey;
-  ownerAddress: PublicKey;
-  amount: SplTokenAmount;
-  closeAuthorityAddress: Option<PublicKey>;
-  delegateAddress: Option<PublicKey>;
-  delegateAmount: SplTokenAmount;
-  state: AccountState;
-}>;
+/** @group Models */
+export type Token = {
+  readonly model: 'token';
+  readonly address: PublicKey | Pda;
+  readonly isAssociatedToken: boolean;
+  readonly mintAddress: PublicKey;
+  readonly ownerAddress: PublicKey;
+  readonly amount: SplTokenAmount;
+  readonly closeAuthorityAddress: Option<PublicKey>;
+  readonly delegateAddress: Option<PublicKey>;
+  readonly delegateAmount: SplTokenAmount;
+  readonly state: AccountState;
+};
 
+/** @group Model Helpers */
 export const isToken = (value: any): value is Token =>
   typeof value === 'object' && value.model === 'token';
 
+/** @group Model Helpers */
 export function assertToken(value: any): asserts value is Token {
   assert(isToken(value), `Expected Token model`);
 }
+
+/** @group Model Helpers */
 export const toToken = (account: TokenAccount): Token => {
   const associatedTokenAddress = findAssociatedTokenAccountPda(
     account.data.mint,
@@ -48,21 +53,25 @@ export const toToken = (account: TokenAccount): Token => {
   };
 };
 
+/** @group Models */
 export type TokenWithMint = Omit<Token, 'model' | 'mintAddress'> &
   Readonly<{
     model: 'tokenWithMint';
     mint: Mint;
   }>;
 
+/** @group Model Helpers */
 export const isTokenWithMint = (value: any): value is TokenWithMint =>
   typeof value === 'object' && value.model === 'tokenWithMint';
 
+/** @group Model Helpers */
 export function assertTokenWithMint(
   value: any
 ): asserts value is TokenWithMint {
   assert(isTokenWithMint(value), `Expected TokenWithMint model`);
 }
 
+/** @group Model Helpers */
 export const toTokenWithMint = (
   tokenAccount: TokenAccount,
   mintModel: Mint

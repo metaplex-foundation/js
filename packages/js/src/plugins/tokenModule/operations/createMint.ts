@@ -1,54 +1,38 @@
 import type { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { Mint } from './Mint';
-import { TokenProgram } from './program';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createMintClient(
-  this: TokenClient,
-  input: CreateMintInput = {}
-): Task<CreateMintOutput & { mint: Mint }> {
-  return new Task(async (scope) => {
-    const operation = createMintOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const mint = await this.findMintByAddress(output.mintSigner.publicKey).run(
-      scope
-    );
-    return { ...output, mint };
-  });
-}
-
-/** @internal */
-export function _createMintBuildersClient(
-  this: TokenBuildersClient,
-  input: CreateMintBuilderParams
-) {
-  return createMintBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Mint } from '../models/Mint';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'CreateMintOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createMintOperation = useOperation<CreateMintOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateMintOperation = Operation<
   typeof Key,
   CreateMintInput,
   CreateMintOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateMintInput = {
   decimals?: number; // Defaults to 0 decimals.
   mint?: Signer; // Defaults to new generated Keypair.
@@ -59,11 +43,23 @@ export type CreateMintInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * Create a new Mint account from the provided input
+ * and returns the newly created `Mint` model.
+ *
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateMintOutput = {
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
+  mint: Mint;
 };
 
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
   {
     async handle(
@@ -73,7 +69,19 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
     ): Promise<CreateMintOutput> {
       const builder = await createMintBuilder(metaplex, operation.input);
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const mint = await metaplex
+        .tokens()
+        .findMintByAddress({ address: output.mintSigner.publicKey })
+        .run(scope);
+
+      return { ...output, mint };
     },
   };
 
@@ -81,6 +89,10 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateMintBuilderParams = Omit<
   CreateMintInput,
   'confirmOptions'
@@ -89,8 +101,19 @@ export type CreateMintBuilderParams = Omit<
   initializeMintInstructionKey?: string;
 };
 
-export type CreateMintBuilderContext = Omit<CreateMintOutput, 'response'>;
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
+export type CreateMintBuilderContext = Omit<
+  CreateMintOutput,
+  'response' | 'mint'
+>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createMintBuilder = async (
   metaplex: Metaplex,
   params: CreateMintBuilderParams

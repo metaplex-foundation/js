@@ -10,44 +10,36 @@ import {
 import { TransactionBuilder } from '@/utils';
 import { createFreezeAccountInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenProgram } from './program';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _freezeTokensClient(
-  this: TokenClient,
-  input: FreezeTokensInput
-) {
-  return this.metaplex.operations().getTask(freezeTokensOperation(input));
-}
-
-/** @internal */
-export function _freezeTokensBuildersClient(
-  this: TokenBuildersClient,
-  input: FreezeTokensBuilderParams
-) {
-  return freezeTokensBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'FreezeTokensOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const freezeTokensOperation = useOperation<FreezeTokensOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FreezeTokensOperation = Operation<
   typeof Key,
   FreezeTokensInput,
   FreezeTokensOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FreezeTokensInput = {
   mintAddress: PublicKey;
   freezeAuthority: PublicKey | Signer;
@@ -58,14 +50,18 @@ export type FreezeTokensInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FreezeTokensOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperation> =
   {
     async handle(
@@ -83,6 +79,10 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type FreezeTokensBuilderParams = Omit<
   FreezeTokensInput,
   'confirmOptions'
@@ -90,6 +90,10 @@ export type FreezeTokensBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const freezeTokensBuilder = (
   metaplex: Metaplex,
   params: FreezeTokensBuilderParams

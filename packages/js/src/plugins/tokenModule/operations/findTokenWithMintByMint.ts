@@ -1,40 +1,39 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import { toMintAccount, toTokenAccount } from './accounts';
-import { TokenAndMintDoNotMatchError } from './errors';
-import { toMint } from './Mint';
-import { findAssociatedTokenAccountPda } from './pdas';
-import { TokenWithMint, toTokenWithMint } from './Token';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _findTokenWithMintByMintClient(
-  this: TokenClient,
-  input: FindTokenWithMintByMintInput
-) {
-  return this.metaplex
-    .operations()
-    .getTask(findTokenWithMintByMintOperation(input));
-}
+import { toMintAccount, toTokenAccount } from '../accounts';
+import { TokenAndMintDoNotMatchError } from '../errors';
+import { toMint } from '../models/Mint';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenWithMint, toTokenWithMint } from '../models/Token';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'FindTokenWithMintByMintOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findTokenWithMintByMintOperation =
   useOperation<FindTokenWithMintByMintOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindTokenWithMintByMintOperation = Operation<
   typeof Key,
   FindTokenWithMintByMintInput,
   TokenWithMint
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindTokenWithMintByMintInput = {
   mint: PublicKey;
   address: PublicKey;
@@ -42,10 +41,10 @@ export type FindTokenWithMintByMintInput = {
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findTokenWithMintByMintOperationHandler: OperationHandler<FindTokenWithMintByMintOperation> =
   {
     handle: async (

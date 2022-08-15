@@ -8,57 +8,39 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, Task, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { MintAuthorityMustBeSignerToMintInitialSupplyError } from './errors';
-import { TokenWithMint } from './Token';
-import type { TokenBuildersClient } from './TokenBuildersClient';
-import type { TokenClient } from './TokenClient';
-
-// -----------------
-// Clients
-// -----------------
-
-/** @internal */
-export function _createTokenWithMintClient(
-  this: TokenClient,
-  input: CreateTokenWithMintInput = {}
-): Task<CreateTokenWithMintOutput & { token: TokenWithMint }> {
-  return new Task(async (scope) => {
-    const operation = createTokenWithMintOperation(input);
-    const output = await this.metaplex.operations().execute(operation, scope);
-    scope.throwIfCanceled();
-    const token = await this.findTokenWithMintByMint({
-      mint: output.mintSigner.publicKey,
-      address: output.tokenAddress,
-      addressType: 'token',
-    }).run(scope);
-    return { ...output, token };
-  });
-}
-
-/** @internal */
-export function _createTokenWithMintBuildersClient(
-  this: TokenBuildersClient,
-  input: CreateTokenWithMintBuilderParams
-) {
-  return createTokenWithMintBuilder(this.metaplex, input);
-}
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
+import { TokenWithMint } from '../models/Token';
 
 // -----------------
 // Operation
 // -----------------
 
 const Key = 'CreateTokenWithMintOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createTokenWithMintOperation =
   useOperation<CreateTokenWithMintOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateTokenWithMintOperation = Operation<
   typeof Key,
   CreateTokenWithMintInput,
   CreateTokenWithMintOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateTokenWithMintInput = {
   decimals?: number; // Defaults to 0 decimals.
   initialSupply?: SplTokenAmount; // Defaults to 0 tokens.
@@ -73,16 +55,20 @@ export type CreateTokenWithMintInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateTokenWithMintOutput = {
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
-  tokenAddress: PublicKey;
+  token: TokenWithMint;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWithMintOperation> =
   {
     async handle(
@@ -95,7 +81,23 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
         operation.input
       );
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      const token = await metaplex
+        .tokens()
+        .findTokenWithMintByMint({
+          mint: output.mintSigner.publicKey,
+          address: output.tokenAddress,
+          addressType: 'token',
+        })
+        .run(scope);
+
+      return { ...output, token };
     },
   };
 
@@ -103,6 +105,10 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateTokenWithMintBuilderParams = Omit<
   CreateTokenWithMintInput,
   'confirmOptions'
@@ -115,11 +121,19 @@ export type CreateTokenWithMintBuilderParams = Omit<
   mintTokensInstructionKey?: string;
 };
 
-export type CreateTokenWithMintBuilderContext = Omit<
-  CreateTokenWithMintOutput,
-  'response'
->;
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
+export type CreateTokenWithMintBuilderContext = {
+  mintSigner: Signer;
+  tokenAddress: PublicKey;
+};
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,
   params: CreateTokenWithMintBuilderParams
@@ -195,9 +209,8 @@ export const createTokenWithMintBuilder = async (
         .tokens()
         .builders()
         .mint({
-          mint: mint.publicKey,
+          mintAddress: mint.publicKey,
           toToken: tokenAddress,
-          toTokenExists: true,
           amount: initialSupply,
           mintAuthority,
           tokenProgram,

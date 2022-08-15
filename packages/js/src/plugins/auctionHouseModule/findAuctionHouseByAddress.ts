@@ -53,7 +53,8 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
       const mintModel = await metaplex
         .tokens()
-        .findMintByAddress(auctionHouseAccount.data.treasuryMint, {
+        .findMintByAddress({
+          address: auctionHouseAccount.data.treasuryMint,
           commitment,
         })
         .run(scope);
