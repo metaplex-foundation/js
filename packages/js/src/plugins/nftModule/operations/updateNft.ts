@@ -19,6 +19,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
 import type { NftBuildersClient } from '../NftBuildersClient';
 import type { NftClient } from '../NftClient';
+import { findMetadataPda } from '../pdas';
 
 // -----------------
 // Clients
@@ -57,7 +58,17 @@ export type UpdateNftOperation = Operation<
 
 export interface UpdateNftInput {
   // Accounts and models.
-  nftOrSft: Nft | Sft;
+  nftOrSft: Pick<
+    Sft,
+    | 'address'
+    | 'collection'
+    | 'creators'
+    | 'name'
+    | 'symbol'
+    | 'uri'
+    | 'sellerFeeBasisPoints'
+    | 'uses'
+  >;
   updateAuthority?: Signer; // Defaults to mx.identity().
   newUpdateAuthority?: PublicKey;
 
@@ -175,7 +186,7 @@ export const updateNftBuilder = (
         builder.add({
           instruction: createUpdateMetadataAccountV2Instruction(
             {
-              metadata: nftOrSft.metadataAddress,
+              metadata: findMetadataPda(nftOrSft.address),
               updateAuthority: updateAuthority.publicKey,
             },
             {
@@ -209,7 +220,17 @@ export const updateNftBuilder = (
 };
 
 const toInstructionData = (
-  nftOrSft: Nft | Sft,
+  nftOrSft: Pick<
+    Sft,
+    | 'address'
+    | 'collection'
+    | 'creators'
+    | 'name'
+    | 'symbol'
+    | 'uri'
+    | 'sellerFeeBasisPoints'
+    | 'uses'
+  >,
   input: Partial<UpdateNftInput> = {}
 ): UpdateMetadataAccountArgsV2 => {
   const creators =
@@ -233,11 +254,9 @@ const toInstructionData = (
     : null;
 
   return {
-    updateAuthority:
-      input.newUpdateAuthority ?? nftOrSft.updateAuthorityAddress,
-    primarySaleHappened:
-      input.primarySaleHappened ?? nftOrSft.primarySaleHappened,
-    isMutable: input.isMutable ?? nftOrSft.isMutable,
+    updateAuthority: input.newUpdateAuthority ?? null,
+    primarySaleHappened: input.primarySaleHappened ?? null,
+    isMutable: input.isMutable ?? null,
     data: {
       name: input.name ?? nftOrSft.name,
       symbol: input.symbol ?? nftOrSft.symbol,
