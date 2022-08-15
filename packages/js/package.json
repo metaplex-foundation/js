@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
