@@ -47,13 +47,27 @@ import {
 // -----------------
 
 const Key = 'ExecuteSaleOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const executeSaleOperation = useOperation<ExecuteSaleOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ExecuteSaleOperation = Operation<
   typeof Key,
   ExecuteSaleInput,
   ExecuteSaleOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type ExecuteSaleInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
@@ -66,6 +80,10 @@ export type ExecuteSaleInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type ExecuteSaleOutput = {
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: PublicKey;
@@ -79,10 +97,10 @@ export type ExecuteSaleOutput = {
   tokens: SplTokenAmount;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
   {
     handle: async (operation: ExecuteSaleOperation, metaplex: Metaplex) =>
@@ -96,6 +114,10 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ExecuteSaleBuilderParams = Omit<
   ExecuteSaleInput,
   'confirmOptions'
@@ -103,8 +125,16 @@ export type ExecuteSaleBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type ExecuteSaleBuilderContext = Omit<ExecuteSaleOutput, 'response'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const executeSaleBuilder = (
   metaplex: Metaplex,
   params: ExecuteSaleBuilderParams

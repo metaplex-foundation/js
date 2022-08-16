@@ -3,10 +3,10 @@ import { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
 import { chunk } from './common';
 
-export interface GmaBuilderOptions {
+export type GmaBuilderOptions = {
   chunkSize?: number;
   commitment?: Commitment;
-}
+};
 
 export class GmaBuilder {
   protected readonly metaplex: Metaplex;

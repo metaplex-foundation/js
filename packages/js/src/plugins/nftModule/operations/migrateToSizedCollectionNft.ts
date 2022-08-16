@@ -17,15 +17,29 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'MigrateToSizedCollectionNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const migrateToSizedCollectionNftOperation =
   useOperation<MigrateToSizedCollectionNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type MigrateToSizedCollectionNftOperation = Operation<
   typeof Key,
   MigrateToSizedCollectionNftInput,
   MigrateToSizedCollectionNftOutput
 >;
 
-export interface MigrateToSizedCollectionNftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type MigrateToSizedCollectionNftInput = {
   // Accounts.
   mintAddress: PublicKey;
   collectionAuthority?: Signer; // Defaults to mx.identity().
@@ -36,16 +50,20 @@ export interface MigrateToSizedCollectionNftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface MigrateToSizedCollectionNftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type MigrateToSizedCollectionNftOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const migrateToSizedCollectionNftOperationHandler: OperationHandler<MigrateToSizedCollectionNftOperation> =
   {
     handle: async (
@@ -63,6 +81,10 @@ export const migrateToSizedCollectionNftOperationHandler: OperationHandler<Migra
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type MigrateToSizedCollectionNftBuilderParams = Omit<
   MigrateToSizedCollectionNftInput,
   'confirmOptions'
@@ -70,6 +92,10 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const migrateToSizedCollectionNftBuilder = (
   metaplex: Metaplex,
   params: MigrateToSizedCollectionNftBuilderParams

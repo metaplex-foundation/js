@@ -11,25 +11,43 @@ import { findNftsByMintListOperation } from './findNftsByMintList';
 // -----------------
 
 const Key = 'FindNftsByOwnerOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findNftsByOwnerOperation =
   useOperation<FindNftsByOwnerOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindNftsByOwnerOperation = Operation<
   typeof Key,
   FindNftsByOwnerInput,
   FindNftsByOwnerOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindNftsByOwnerInput = {
   owner: PublicKey;
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FindNftsByOwnerOutput = (Metadata | Nft | Sft)[];
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOperation> =
   {
     handle: async (

@@ -12,24 +12,38 @@ import { AuctioneerAuthorityRequiredError } from './errors';
 // -----------------
 
 const Key = 'FindAuctionHouseByAddressOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findAuctionHouseByAddressOperation =
   useOperation<FindAuctionHouseByAddressOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindAuctionHouseByAddressOperation = Operation<
   typeof Key,
   FindAuctionHouseByAddressInput,
   AuctionHouse
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindAuctionHouseByAddressInput = {
   address: PublicKey;
   auctioneerAuthority?: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuctionHouseByAddressOperation> =
   {
     handle: async (

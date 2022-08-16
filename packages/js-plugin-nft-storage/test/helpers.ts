@@ -10,11 +10,11 @@ import {
   sol,
 } from '@metaplex-foundation/js';
 
-export interface MetaplexTestOptions {
+export type MetaplexTestOptions = {
   rpcEndpoint?: string;
   commitment?: Commitment;
   solsToAirdrop?: number;
-}
+};
 
 export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
   const connection = new Connection(options.rpcEndpoint ?? LOCALHOST, {

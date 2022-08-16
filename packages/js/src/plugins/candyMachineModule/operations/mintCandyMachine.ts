@@ -44,14 +44,28 @@ import { CandyMachineProgram } from '../program';
 // -----------------
 
 const Key = 'MintCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const mintCandyMachineOperation =
   useOperation<MintCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type MintCandyMachineOperation = Operation<
   typeof Key,
   MintCandyMachineInput,
   MintCandyMachineOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type MintCandyMachineInput = {
   // Models and Accounts.
   candyMachine: Pick<
@@ -84,6 +98,10 @@ export type MintCandyMachineInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type MintCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
   nft: NftWithToken;
@@ -91,10 +109,10 @@ export type MintCandyMachineOutput = {
   tokenAddress: PublicKey;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachineOperation> =
   {
     async handle(
@@ -140,6 +158,10 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type MintCandyMachineBuilderParams = Omit<
   MintCandyMachineInput,
   'confirmOptions'
@@ -154,11 +176,19 @@ export type MintCandyMachineBuilderParams = Omit<
   setCollectionInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type MintCandyMachineBuilderContext = Omit<
   MintCandyMachineOutput,
   'response' | 'nft'
 >;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const mintCandyMachineBuilder = async (
   metaplex: Metaplex,
   params: MintCandyMachineBuilderParams

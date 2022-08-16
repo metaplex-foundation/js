@@ -27,14 +27,28 @@ import { findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'CreateSftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createSftOperation = useOperation<CreateSftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateSftOperation = Operation<
   typeof Key,
   CreateSftInput,
   CreateSftOutput
 >;
 
-export interface CreateSftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type CreateSftInput = {
   // Accounts.
   payer?: Signer; // Defaults to mx.identity().
   updateAuthority?: Signer; // Defaults to mx.identity().
@@ -72,20 +86,24 @@ export interface CreateSftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface CreateSftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type CreateSftOutput = {
   response: SendAndConfirmTransactionResponse;
   sft: Sft | SftWithToken;
   mintAddress: PublicKey;
   metadataAddress: PublicKey;
   tokenAddress: PublicKey | null;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
   handle: async (
     operation: CreateSftOperation,
@@ -144,6 +162,10 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   tokenExists?: boolean;
   createMintAccountInstructionKey?: string;
@@ -155,8 +177,16 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   createMetadataInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createSftBuilder = async (
   metaplex: Metaplex,
   params: CreateSftBuilderParams

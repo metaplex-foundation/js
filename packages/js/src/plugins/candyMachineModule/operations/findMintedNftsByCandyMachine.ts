@@ -10,26 +10,44 @@ import { findCandyMachineCreatorPda } from '../pdas';
 // -----------------
 
 const Key = 'FindMintedNftsByCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findMintedNftsByCandyMachineOperation =
   useOperation<FindMintedNftsByCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindMintedNftsByCandyMachineOperation = Operation<
   typeof Key,
   FindMintedNftsByCandyMachineInput,
   FindMintedNftsByCandyMachineOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindMintedNftsByCandyMachineInput = {
   candyMachine: PublicKey;
   version?: 1 | 2;
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FindMintedNftsByCandyMachineOutput = (Metadata | Nft)[];
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findMintedNftsByCandyMachineOperationHandler: OperationHandler<FindMintedNftsByCandyMachineOperation> =
   {
     handle: async (

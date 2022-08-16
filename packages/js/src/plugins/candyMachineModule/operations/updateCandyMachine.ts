@@ -31,14 +31,28 @@ import { findCandyMachineCollectionPda } from '../pdas';
 // -----------------
 
 const Key = 'UpdateCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const updateCandyMachineOperation =
   useOperation<UpdateCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UpdateCandyMachineOperation = Operation<
   typeof Key,
   UpdateCandyMachineInput,
   UpdateCandyMachineOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
   /**
    * The candy machine to update.
@@ -54,14 +68,18 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type UpdateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
   {
     async handle(
@@ -117,6 +135,10 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UpdateCandyMachineBuilderParams = {
   /**
    * The Candy Machine to update.
@@ -170,6 +192,10 @@ export type UpdateCandyMachineBuilderParams = {
   removeCollectionInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const updateCandyMachineBuilder = (
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams

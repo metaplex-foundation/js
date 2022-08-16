@@ -12,14 +12,28 @@ import { toBidReceiptAccount } from './accounts';
 // -----------------
 
 const Key = 'FindBidByTradeStateOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findBidByTradeStateOperation =
   useOperation<FindBidByTradeStateOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindBidByTradeStateOperation = Operation<
   typeof Key,
   FindBidByTradeStateInput,
   Bid
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindBidByTradeStateInput = {
   tradeStateAddress: PublicKey;
   auctionHouse: AuctionHouse;
@@ -27,10 +41,10 @@ export type FindBidByTradeStateInput = {
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTradeStateOperation> =
   {
     handle: async (

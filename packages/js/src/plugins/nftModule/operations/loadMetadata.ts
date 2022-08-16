@@ -9,13 +9,27 @@ import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
 // -----------------
 
 const Key = 'LoadMetadataOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const loadMetadataOperation = useOperation<LoadMetadataOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type LoadMetadataOperation = Operation<
   typeof Key,
   LoadMetadataInput,
   LoadMetadataOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type LoadMetadataInput = {
   metadata: Metadata;
   tokenAddress?: PublicKey;
@@ -24,12 +38,16 @@ export type LoadMetadataInput = {
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type LoadMetadataOutput = Nft | Sft | NftWithToken | SftWithToken;
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperation> =
   {
     handle: async (

@@ -10,26 +10,44 @@ import { NftWithToken, SftWithToken } from '../models';
 // -----------------
 
 const Key = 'FindNftByTokenOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findNftByTokenOperation =
   useOperation<FindNftByTokenOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindNftByTokenOperation = Operation<
   typeof Key,
   FindNftByTokenInput,
   FindNftByTokenOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindNftByTokenInput = {
   token: PublicKey;
   loadJsonMetadata?: boolean;
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FindNftByTokenOutput = NftWithToken | SftWithToken;
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOperation> =
   {
     handle: async (

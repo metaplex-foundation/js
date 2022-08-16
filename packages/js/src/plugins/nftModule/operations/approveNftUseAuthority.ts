@@ -16,15 +16,29 @@ import {
 // -----------------
 
 const Key = 'ApproveNftUseAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const approveNftUseAuthorityOperation =
   useOperation<ApproveNftUseAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ApproveNftUseAuthorityOperation = Operation<
   typeof Key,
   ApproveNftUseAuthorityInput,
   ApproveNftUseAuthorityOutput
 >;
 
-export interface ApproveNftUseAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type ApproveNftUseAuthorityInput = {
   // Accounts.
   mintAddress: PublicKey;
   user: PublicKey;
@@ -41,16 +55,20 @@ export interface ApproveNftUseAuthorityInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface ApproveNftUseAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type ApproveNftUseAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const approveNftUseAuthorityOperationHandler: OperationHandler<ApproveNftUseAuthorityOperation> =
   {
     handle: async (
@@ -68,6 +86,10 @@ export const approveNftUseAuthorityOperationHandler: OperationHandler<ApproveNft
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ApproveNftUseAuthorityBuilderParams = Omit<
   ApproveNftUseAuthorityInput,
   'confirmOptions'
@@ -75,6 +97,10 @@ export type ApproveNftUseAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const approveNftUseAuthorityBuilder = (
   metaplex: Metaplex,
   params: ApproveNftUseAuthorityBuilderParams

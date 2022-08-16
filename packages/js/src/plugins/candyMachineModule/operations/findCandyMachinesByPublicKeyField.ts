@@ -17,24 +17,38 @@ import { CandyMachineProgram } from '../program';
 // -----------------
 
 const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findCandyMachinesByPublicKeyFieldOperation =
   useOperation<FindCandyMachinesByPublicKeyFieldOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindCandyMachinesByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindCandyMachinesByPublicKeyFieldInput,
   CandyMachine[]
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindCandyMachinesByPublicKeyFieldInput = {
   type: 'authority' | 'wallet';
   publicKey: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
   {
     handle: async (

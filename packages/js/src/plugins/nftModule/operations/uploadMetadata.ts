@@ -10,26 +10,44 @@ import { JsonMetadata } from '../models';
 // -----------------
 
 const Key = 'UploadMetadataOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const uploadMetadataOperation =
   useOperation<UploadMetadataOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UploadMetadataOperation = Operation<
   typeof Key,
   UploadMetadataInput,
   UploadMetadataOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type UploadMetadataInput = JsonMetadata<MetaplexFile | string>;
 
-export interface UploadMetadataOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type UploadMetadataOutput = {
   metadata: JsonMetadata;
   assetUris: string[];
   uri: string;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOperation> =
   {
     handle: async (

@@ -12,14 +12,28 @@ import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'DeleteNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const deleteNftOperation = useOperation<DeleteNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type DeleteNftOperation = Operation<
   typeof Key,
   DeleteNftInput,
   DeleteNftOutput
 >;
 
-export interface DeleteNftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type DeleteNftInput = {
   // Accounts and models.
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
@@ -31,16 +45,20 @@ export interface DeleteNftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface DeleteNftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type DeleteNftOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
   handle: async (
     operation: DeleteNftOperation,
@@ -57,10 +75,18 @@ export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const deleteNftBuilder = (
   metaplex: Metaplex,
   params: DeleteNftBuilderParams

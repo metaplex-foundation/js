@@ -12,8 +12,18 @@ import { findCandyMachineCollectionPda } from '../pdas';
 // -----------------
 
 const Key = 'DeleteCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const deleteCandyMachineOperation =
   useOperation<DeleteCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type DeleteCandyMachineOperation = Operation<
   typeof Key,
   DeleteCandyMachineInput,
@@ -29,17 +39,25 @@ export type DeleteCandyMachineInputWithoutConfigs = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type DeleteCandyMachineInput = DeleteCandyMachineInputWithoutConfigs &
   Partial<CandyMachineConfigs>;
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type DeleteCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMachineOperation> =
   {
     async handle(
@@ -57,6 +75,10 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type DeleteCandyMachineBuilderParams = Omit<
   DeleteCandyMachineInput,
   'confirmOptions'
@@ -64,6 +86,10 @@ export type DeleteCandyMachineBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const deleteCandyMachineBuilder = (
   metaplex: Metaplex,
   params: DeleteCandyMachineBuilderParams

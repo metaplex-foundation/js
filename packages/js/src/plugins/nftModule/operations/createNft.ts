@@ -25,14 +25,28 @@ import { findMasterEditionV2Pda } from '../pdas';
 // -----------------
 
 const Key = 'CreateNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createNftOperation = useOperation<CreateNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateNftOperation = Operation<
   typeof Key,
   CreateNftInput,
   CreateNftOutput
 >;
 
-export interface CreateNftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type CreateNftInput = {
   // Accounts.
   payer?: Signer; // Defaults to mx.identity().
   updateAuthority?: Signer; // Defaults to mx.identity().
@@ -67,21 +81,25 @@ export interface CreateNftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface CreateNftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type CreateNftOutput = {
   response: SendAndConfirmTransactionResponse;
   nft: NftWithToken;
   mintAddress: PublicKey;
   metadataAddress: PublicKey;
   masterEditionAddress: PublicKey;
   tokenAddress: PublicKey;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (
     operation: CreateNftOperation,
@@ -132,6 +150,10 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
   tokenExists?: boolean;
   createMintAccountInstructionKey?: string;
@@ -144,8 +166,16 @@ export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
   createMasterEditionInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createNftBuilder = async (
   metaplex: Metaplex,
   params: CreateNftBuilderParams

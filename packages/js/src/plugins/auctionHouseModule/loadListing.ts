@@ -10,23 +10,37 @@ import { assertNftOrSftWithToken } from '../nftModule';
 // -----------------
 
 const Key = 'LoadListingOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const loadListingOperation = useOperation<LoadListingOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type LoadListingOperation = Operation<
   typeof Key,
   LoadListingInput,
   Listing
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type LoadListingInput = {
   lazyListing: LazyListing;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
   {
     handle: async (

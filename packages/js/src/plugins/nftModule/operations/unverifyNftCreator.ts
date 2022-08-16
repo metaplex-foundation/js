@@ -11,31 +11,49 @@ import { findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'UnverifyNftCreatorOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const unverifyNftCreatorOperation =
   useOperation<UnverifyNftCreatorOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UnverifyNftCreatorOperation = Operation<
   typeof Key,
   UnverifyNftCreatorInput,
   UnverifyNftCreatorOutput
 >;
 
-export interface UnverifyNftCreatorInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type UnverifyNftCreatorInput = {
   // Accounts.
   mintAddress: PublicKey;
   creator?: Signer; // Defaults to mx.identity().
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface UnverifyNftCreatorOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type UnverifyNftCreatorOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const unverifyNftCreatorOperationHandler: OperationHandler<UnverifyNftCreatorOperation> =
   {
     handle: async (
@@ -53,6 +71,10 @@ export const unverifyNftCreatorOperationHandler: OperationHandler<UnverifyNftCre
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UnverifyNftCreatorBuilderParams = Omit<
   UnverifyNftCreatorInput,
   'confirmOptions'
@@ -60,6 +82,10 @@ export type UnverifyNftCreatorBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const unverifyNftCreatorBuilder = (
   metaplex: Metaplex,
   params: UnverifyNftCreatorBuilderParams
