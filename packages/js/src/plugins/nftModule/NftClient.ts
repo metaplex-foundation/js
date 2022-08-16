@@ -62,6 +62,9 @@ import {
   verifyNftCreatorOperation,
 } from './operations';
 
+/**
+ * @group Modules
+ */
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

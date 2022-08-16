@@ -10,6 +10,9 @@ import {
 } from '@/types';
 import { IdentityDriver } from './IdentityDriver';
 
+/**
+ * @group Modules
+ */
 export class IdentityClient
   implements HasDriver<IdentityDriver>, IdentitySigner
 {

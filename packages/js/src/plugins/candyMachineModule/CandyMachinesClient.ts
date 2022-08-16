@@ -23,6 +23,9 @@ import {
   updateCandyMachineOperation,
 } from './operations';
 
+/**
+ * @group Modules
+ */
 export class CandyMachinesClient {
   constructor(readonly metaplex: Metaplex) {}
 

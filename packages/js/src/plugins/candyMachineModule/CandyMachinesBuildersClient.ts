@@ -12,6 +12,9 @@ import {
   UpdateCandyMachineBuilderParams,
 } from './operations';
 
+/**
+ * @group Module Builders
+ */
 export class CandyMachinesBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

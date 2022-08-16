@@ -13,6 +13,9 @@ import { UninitializedDerivedIdentityError } from './errors';
 import { Task } from '@/utils';
 import { TransferSolOutput } from '../systemModule';
 
+/**
+ * @group Modules
+ */
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   protected readonly metaplex: Metaplex;
   protected originalSigner: Signer | null = null;
