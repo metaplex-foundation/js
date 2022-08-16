@@ -20,6 +20,7 @@ import {
   updateCandyMachineOperationHandler,
 } from './operations';
 
+/** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const op = metaplex.operations();

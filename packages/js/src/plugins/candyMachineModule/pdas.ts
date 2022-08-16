@@ -3,6 +3,7 @@ import { Buffer } from 'buffer';
 import { Pda } from '@/types';
 import { CandyMachineProgram } from './program';
 
+/** @group Pdas */
 export const findCandyMachineCreatorPda = (
   candyMachine: PublicKey,
   programId: PublicKey = CandyMachineProgram.publicKey
@@ -13,6 +14,7 @@ export const findCandyMachineCreatorPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findCandyMachineCollectionPda = (
   candyMachine: PublicKey,
   programId: PublicKey = CandyMachineProgram.publicKey

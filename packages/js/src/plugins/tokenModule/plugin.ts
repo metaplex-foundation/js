@@ -33,6 +33,7 @@ import { TokenClient } from './TokenClient';
 /**
  * @group Plugins
  */
+/** @group Plugins */
 export const tokenModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Program.
