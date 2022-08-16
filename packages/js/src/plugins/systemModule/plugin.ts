@@ -12,6 +12,7 @@ import { SystemClient } from './SystemClient';
 /**
  * @group Plugins
  */
+/** @group Plugins */
 export const systemModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Program.

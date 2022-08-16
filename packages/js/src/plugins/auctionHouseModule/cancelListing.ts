@@ -27,13 +27,27 @@ import { AUCTIONEER_PRICE } from './constants';
 // -----------------
 
 const Key = 'CancelListingOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const cancelListingOperation = useOperation<CancelListingOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CancelListingOperation = Operation<
   typeof Key,
   CancelListingInput,
   CancelListingOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CancelListingInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
@@ -43,14 +57,18 @@ export type CancelListingInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CancelListingOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
   {
     handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
@@ -64,6 +82,10 @@ export const cancelListingOperationHandler: OperationHandler<CancelListingOperat
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CancelListingBuilderParams = Omit<
   CancelListingInput,
   'confirmOptions'
@@ -71,8 +93,16 @@ export type CancelListingBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const cancelListingBuilder = (
   params: CancelListingBuilderParams
 ): TransactionBuilder<CancelListingBuilderContext> => {

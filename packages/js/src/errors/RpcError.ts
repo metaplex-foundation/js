@@ -6,6 +6,7 @@ import {
   MetaplexErrorOptions,
 } from './MetaplexError';
 
+/** @group Errors */
 export class RpcError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -16,6 +17,7 @@ export class RpcError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class FailedToSendTransactionError extends RpcError {
   constructor(
     cause: Error,
@@ -47,6 +49,7 @@ export class FailedToSendTransactionError extends RpcError {
   }
 }
 
+/** @group Errors */
 export class FailedToConfirmTransactionError extends RpcError {
   constructor(cause: Error, options?: Omit<MetaplexErrorOptions, 'cause'>) {
     super({
@@ -59,6 +62,7 @@ export class FailedToConfirmTransactionError extends RpcError {
   }
 }
 
+/** @group Errors */
 export class FailedToConfirmTransactionWithResponseError extends FailedToConfirmTransactionError {
   public readonly response: ConfirmTransactionResponse;
 

@@ -4,6 +4,7 @@ import type { PublicKey } from '@solana/web3.js';
 import type { Mint, Token } from '../../tokenModule';
 import type { Metadata } from './Metadata';
 
+/** @group Models */
 export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
     model: 'sft';
@@ -12,13 +13,16 @@ export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
     mint: Mint;
   }>;
 
+/** @group Model Helpers */
 export const isSft = (value: any): value is Sft =>
   typeof value === 'object' && value.model === 'sft';
 
+/** @group Model Helpers */
 export function assertSft(value: any): asserts value is Sft {
   assert(isSft(value), `Expected Sft model`);
 }
 
+/** @group Model Helpers */
 export const toSft = (metadata: Metadata, mint: Mint): Sft => {
   const { address, mintAddress, ...shared } = metadata;
   assert(
@@ -44,15 +48,19 @@ export const toSft = (metadata: Metadata, mint: Mint): Sft => {
   };
 };
 
+/** @group Models */
 export type SftWithToken = Sft & { token: Token };
 
+/** @group Model Helpers */
 export const isSftWithToken = (value: any): value is SftWithToken =>
   isSft(value) && 'token' in value;
 
+/** @group Model Helpers */
 export function assertSftWithToken(value: any): asserts value is SftWithToken {
   assert(isSftWithToken(value), `Expected Sft model with token`);
 }
 
+/** @group Model Helpers */
 export const toSftWithToken = (
   metadata: Metadata,
   mint: Mint,

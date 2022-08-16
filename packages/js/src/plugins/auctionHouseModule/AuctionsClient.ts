@@ -21,6 +21,9 @@ import {
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { Signer } from '@/types';
 
+/**
+ * @group Modules
+ */
 export class AuctionsClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

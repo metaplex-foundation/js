@@ -28,13 +28,27 @@ import { findAuctioneerPda } from './pdas';
 // -----------------
 
 const Key = 'CancelBidOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CancelBidOperation = Operation<
   typeof Key,
   CancelBidInput,
   CancelBidOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CancelBidInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
@@ -44,14 +58,18 @@ export type CancelBidInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CancelBidOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
   handle: async (operation: CancelBidOperation, metaplex: Metaplex) =>
     cancelBidBuilder(operation.input).sendAndConfirm(
@@ -64,12 +82,24 @@ export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CancelBidBuilderParams = Omit<CancelBidInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const cancelBidBuilder = (
   params: CancelBidBuilderParams
 ): TransactionBuilder<CancelBidBuilderContext> => {

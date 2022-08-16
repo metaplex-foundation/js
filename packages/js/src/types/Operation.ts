@@ -42,6 +42,10 @@ export type OperationHandler<
   ) => O | Promise<O>;
 };
 
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const useOperation = <
   T extends Operation<K, I, O>,
   K extends string = KeyOfOperation<T>,

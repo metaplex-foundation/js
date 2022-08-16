@@ -21,6 +21,7 @@ export type SplTokenCurrency = {
 };
 export type SplTokenAmount = Amount<SplTokenCurrency>;
 
+/** @group Constants */
 export const SOL = {
   symbol: 'SOL',
   decimals: 9,
@@ -28,6 +29,7 @@ export const SOL = {
 export type SolCurrency = typeof SOL;
 export type SolAmount = Amount<SolCurrency>;
 
+/** @group Constants */
 export const USD = {
   symbol: 'USD',
   decimals: 2,

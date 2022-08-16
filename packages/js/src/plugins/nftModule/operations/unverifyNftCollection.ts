@@ -18,15 +18,29 @@ import {
 // -----------------
 
 const Key = 'UnverifyNftCollectionOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const unverifyNftCollectionOperation =
   useOperation<UnverifyNftCollectionOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UnverifyNftCollectionOperation = Operation<
   typeof Key,
   UnverifyNftCollectionInput,
   UnverifyNftCollectionOutput
 >;
 
-export interface UnverifyNftCollectionInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type UnverifyNftCollectionInput = {
   // Accounts and models.
   mintAddress: PublicKey;
   collectionMintAddress: PublicKey;
@@ -39,16 +53,20 @@ export interface UnverifyNftCollectionInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface UnverifyNftCollectionOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type UnverifyNftCollectionOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const unverifyNftCollectionOperationHandler: OperationHandler<UnverifyNftCollectionOperation> =
   {
     handle: async (
@@ -66,6 +84,10 @@ export const unverifyNftCollectionOperationHandler: OperationHandler<UnverifyNft
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UnverifyNftCollectionBuilderParams = Omit<
   UnverifyNftCollectionInput,
   'confirmOptions'
@@ -73,6 +95,10 @@ export type UnverifyNftCollectionBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const unverifyNftCollectionBuilder = (
   metaplex: Metaplex,
   params: UnverifyNftCollectionBuilderParams

@@ -44,8 +44,18 @@ import { CandyMachineProgram } from '../program';
 // -----------------
 
 const Key = 'CreateCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createCandyMachineOperation =
   useOperation<CreateCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateCandyMachineOperation = Operation<
   typeof Key,
   CreateCandyMachineInput,
@@ -63,12 +73,20 @@ export type CreateCandyMachineInputWithoutConfigs = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
   RequiredKeys<
     Partial<CandyMachineConfigs>,
     'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'
   >;
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
   candyMachine: CandyMachine;
@@ -79,10 +97,10 @@ export type CreateCandyMachineOutput = {
   creators: Creator[];
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
   {
     async handle(
@@ -115,6 +133,10 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateCandyMachineBuilderParams = Omit<
   CreateCandyMachineInput,
   'confirmOptions'
@@ -124,11 +146,19 @@ export type CreateCandyMachineBuilderParams = Omit<
   setCollectionInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateCandyMachineBuilderContext = Omit<
   CreateCandyMachineOutput,
   'response' | 'candyMachine'
 >;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createCandyMachineBuilder = async (
   metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams

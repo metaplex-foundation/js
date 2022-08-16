@@ -40,6 +40,9 @@ export type SendAndConfirmTransactionResponse = {
   confirmResponse: ConfirmTransactionResponse;
 };
 
+/**
+ * @group Modules
+ */
 export class RpcClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

@@ -8,14 +8,19 @@ import {
   PrintEditionAccount,
 } from '../accounts';
 
+/** @group Models */
 export type NftEdition = NftOriginalEdition | NftPrintEdition;
 
+/** @group Model Helpers */
 export const isNftEdition = (value: any): value is NftEdition =>
   typeof value === 'object' && value.model === 'nftEdition';
 
+/** @group Model Helpers */
 export function assertNftEdition(value: any): asserts value is NftEdition {
   assert(isNftEdition(value), `Expected NftEdition model`);
 }
+
+/** @group Model Helpers */
 export const toNftEdition = (
   account: OriginalOrPrintEditionAccount
 ): NftEdition =>
@@ -23,6 +28,7 @@ export const toNftEdition = (
     ? toNftOriginalEdition(account)
     : toNftPrintEdition(account as PrintEditionAccount);
 
+/** @group Models */
 export type NftOriginalEdition = {
   readonly model: 'nftEdition';
   readonly isOriginal: true;
@@ -31,15 +37,18 @@ export type NftOriginalEdition = {
   readonly maxSupply: Option<BigNumber>;
 };
 
+/** @group Model Helpers */
 export const isNftOriginalEdition = (value: any): value is NftOriginalEdition =>
   isNftEdition(value) && value.isOriginal;
 
+/** @group Model Helpers */
 export function assertNftOriginalEdition(
   value: any
 ): asserts value is NftOriginalEdition {
   assert(isNftOriginalEdition(value), `Expected NftOriginalEdition model`);
 }
 
+/** @group Model Helpers */
 export const toNftOriginalEdition = (
   account: OriginalEditionAccount
 ): NftOriginalEdition => ({
@@ -50,6 +59,7 @@ export const toNftOriginalEdition = (
   maxSupply: toOptionBigNumber(account.data.maxSupply),
 });
 
+/** @group Models */
 export type NftPrintEdition = {
   readonly model: 'nftEdition';
   readonly isOriginal: false;
@@ -58,15 +68,18 @@ export type NftPrintEdition = {
   readonly number: BigNumber;
 };
 
+/** @group Model Helpers */
 export const isNftPrintEdition = (value: any): value is NftPrintEdition =>
   isNftEdition(value) && !value.isOriginal;
 
+/** @group Model Helpers */
 export function assertNftPrintEdition(
   value: any
 ): asserts value is NftPrintEdition {
   assert(isNftPrintEdition(value), `Expected NftPrintEdition model`);
 }
 
+/** @group Model Helpers */
 export const toNftPrintEdition = (
   account: PrintEditionAccount
 ): NftPrintEdition => ({

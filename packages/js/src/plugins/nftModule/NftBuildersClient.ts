@@ -36,6 +36,9 @@ import {
   VerifyNftCreatorBuilderParams,
 } from './operations';
 
+/**
+ * @group Module Builders
+ */
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

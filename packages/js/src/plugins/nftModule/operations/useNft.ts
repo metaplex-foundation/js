@@ -24,10 +24,24 @@ import {
 // -----------------
 
 const Key = 'UseNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const useNftOperation = useOperation<UseNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UseNftOperation = Operation<typeof Key, UseNftInput, UseNftOutput>;
 
-export interface UseNftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type UseNftInput = {
   // Accounts and models.
   mintAddress: PublicKey;
   numberOfUses?: number; // Defaults to 1.
@@ -37,16 +51,20 @@ export interface UseNftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface UseNftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type UseNftOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
   handle: async (
     operation: UseNftOperation,
@@ -63,10 +81,18 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const useNftBuilder = (
   metaplex: Metaplex,
   params: UseNftBuilderParams

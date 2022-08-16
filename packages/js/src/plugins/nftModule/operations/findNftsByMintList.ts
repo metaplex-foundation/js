@@ -11,25 +11,43 @@ import { findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'FindNftsByMintListOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findNftsByMintListOperation =
   useOperation<FindNftsByMintListOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindNftsByMintListOperation = Operation<
   typeof Key,
   FindNftsByMintListInput,
   FindNftsByMintListOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindNftsByMintListInput = {
   mints: PublicKey[];
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FindNftsByMintListOutput = (Metadata | Nft | Sft | null)[];
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMintListOperation> =
   {
     handle: async (

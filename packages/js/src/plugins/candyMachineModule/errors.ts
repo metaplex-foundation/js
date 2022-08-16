@@ -8,6 +8,7 @@ import { BigNumber, DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
+/** @group Errors */
 export class CandyMachineError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -20,6 +21,7 @@ export class CandyMachineError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineIsFullError extends CandyMachineError {
   constructor(
     assetIndex: BigNumber,
@@ -39,6 +41,7 @@ export class CandyMachineIsFullError extends CandyMachineError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineIsEmptyError extends CandyMachineError {
   constructor(itemsAvailable: BigNumber, options?: MetaplexErrorOptions) {
     super({
@@ -53,6 +56,7 @@ export class CandyMachineIsEmptyError extends CandyMachineError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineCannotAddAmountError extends CandyMachineError {
   constructor(
     index: BigNumber,
@@ -71,6 +75,7 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
   constructor(
     index: BigNumber,
@@ -87,6 +92,7 @@ export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineErr
   }
 }
 
+/** @group Errors */
 export class CandyMachineNotLiveError extends CandyMachineError {
   constructor(goLiveDate: Option<DateTime>, options?: MetaplexErrorOptions) {
     super({
@@ -106,6 +112,7 @@ export class CandyMachineNotLiveError extends CandyMachineError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineEndedError extends CandyMachineError {
   constructor(
     endSetting: CandyMachineEndSettings,
@@ -129,6 +136,7 @@ export class CandyMachineEndedError extends CandyMachineError {
   }
 }
 
+/** @group Errors */
 export class CandyMachineBotTaxError extends CandyMachineError {
   constructor(
     explorerLink: string,

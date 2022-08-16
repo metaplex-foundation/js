@@ -59,6 +59,7 @@ import {
 } from './operations';
 import { TokenMetadataProgram } from './program';
 
+/** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Token Metadata Program.

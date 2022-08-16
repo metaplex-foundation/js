@@ -22,14 +22,28 @@ import { AUCTIONEER_ALL_SCOPES } from './constants';
 // -----------------
 
 const Key = 'UpdateAuctionHouseOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const updateAuctionHouseOperation =
   useOperation<UpdateAuctionHouseOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UpdateAuctionHouseOperation = Operation<
   typeof Key,
   UpdateAuctionHouseInput,
   UpdateAuctionHouseOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type UpdateAuctionHouseInput = {
   // Main Accounts.
   auctionHouse: AuctionHouse;
@@ -50,14 +64,18 @@ export type UpdateAuctionHouseInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type UpdateAuctionHouseOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
   {
     handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
@@ -75,6 +93,10 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UpdateAuctionHouseBuilderParams = Omit<
   UpdateAuctionHouseInput,
   'confirmOptions'
@@ -84,6 +106,10 @@ export type UpdateAuctionHouseBuilderParams = Omit<
   updateAuctioneerInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams

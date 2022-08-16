@@ -30,11 +30,11 @@ export const isIdentitySigner = (input: any): input is IdentitySigner => {
   return isSigner(input) && !isKeypairSigner(input);
 };
 
-export interface SignerHistogram {
+export type SignerHistogram = {
   all: Signer[];
   keypairs: KeypairSigner[];
   identities: IdentitySigner[];
-}
+};
 
 export const getSignerHistogram = (signers: Signer[]) =>
   signers.reduce(

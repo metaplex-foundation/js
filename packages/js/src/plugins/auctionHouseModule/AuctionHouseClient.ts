@@ -53,6 +53,9 @@ import {
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
+/**
+ * @group Modules
+ */
 export class AuctionHouseClient {
   constructor(
     protected readonly metaplex: Metaplex,

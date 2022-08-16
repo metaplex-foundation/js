@@ -33,13 +33,27 @@ import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'FindNftByMintOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findNftByMintOperation = useOperation<FindNftByMintOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindNftByMintOperation = Operation<
   typeof Key,
   FindNftByMintInput,
   FindNftByMintOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindNftByMintInput = {
   mintAddress: PublicKey;
   tokenAddress?: PublicKey;
@@ -48,12 +62,16 @@ export type FindNftByMintInput = {
   commitment?: Commitment;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FindNftByMintOutput = Nft | Sft | NftWithToken | SftWithToken;
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperation> =
   {
     handle: async (

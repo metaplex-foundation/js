@@ -24,14 +24,28 @@ import { findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'UpdateNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const updateNftOperation = useOperation<UpdateNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type UpdateNftOperation = Operation<
   typeof Key,
   UpdateNftInput,
   UpdateNftOutput
 >;
 
-export interface UpdateNftInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type UpdateNftInput = {
   // Accounts and models.
   nftOrSft: Pick<
     Sft,
@@ -64,16 +78,20 @@ export interface UpdateNftInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface UpdateNftOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type UpdateNftOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
   handle: async (
     operation: UpdateNftOperation,
@@ -93,10 +111,18 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
   updateMetadataInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const updateNftBuilder = (
   metaplex: Metaplex,
   params: UpdateNftBuilderParams

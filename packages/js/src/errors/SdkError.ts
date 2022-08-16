@@ -6,6 +6,7 @@ import {
   MetaplexErrorOptions,
 } from './MetaplexError';
 
+/** @group Errors */
 export class SdkError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -16,6 +17,7 @@ export class SdkError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class OperationHandlerMissingError extends SdkError {
   constructor(operationKey: string, options?: MetaplexErrorOptions) {
     super({
@@ -30,6 +32,7 @@ export class OperationHandlerMissingError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class DriverNotProvidedError extends SdkError {
   constructor(driver: string, options?: MetaplexErrorOptions) {
     super({
@@ -43,6 +46,7 @@ export class DriverNotProvidedError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class UnexpectedCurrencyError extends SdkError {
   actual: Currency;
   expected: Currency;
@@ -64,6 +68,7 @@ export class UnexpectedCurrencyError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class CurrencyMismatchError extends SdkError {
   left: Currency;
   right: Currency;
@@ -91,6 +96,7 @@ export class CurrencyMismatchError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class InvalidJsonVariableError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -104,6 +110,7 @@ export class InvalidJsonVariableError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class InvalidJsonStringError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -116,6 +123,7 @@ export class InvalidJsonStringError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class OperationUnauthorizedForGuestsError extends SdkError {
   constructor(operation: string, options?: MetaplexErrorOptions) {
     super({
@@ -131,6 +139,7 @@ export class OperationUnauthorizedForGuestsError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class UninitializedWalletAdapterError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -145,6 +154,7 @@ export class UninitializedWalletAdapterError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class OperationNotSupportedByWalletAdapterError extends SdkError {
   constructor(operation: string, options?: MetaplexErrorOptions) {
     super({
@@ -158,6 +168,7 @@ export class OperationNotSupportedByWalletAdapterError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class TaskIsAlreadyRunningError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -171,6 +182,7 @@ export class TaskIsAlreadyRunningError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class AssetNotFoundError extends SdkError {
   constructor(location: string, options?: MetaplexErrorOptions) {
     super({
@@ -183,6 +195,7 @@ export class AssetNotFoundError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class AccountNotFoundError extends SdkError {
   constructor(
     address: PublicKey,
@@ -204,6 +217,7 @@ export class AccountNotFoundError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class UnexpectedAccountError extends SdkError {
   constructor(
     address: PublicKey,
@@ -222,6 +236,7 @@ export class UnexpectedAccountError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class UnexpectedTypeError extends SdkError {
   constructor(
     variable: string,
@@ -239,6 +254,7 @@ export class UnexpectedTypeError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class ExpectedSignerError extends SdkError {
   constructor(
     variable: string,
@@ -257,6 +273,7 @@ export class ExpectedSignerError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class ProgramNotRecognizedError extends SdkError {
   nameOrAddress: string | PublicKey;
   cluster: Cluster;
@@ -283,6 +300,7 @@ export class ProgramNotRecognizedError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class MissingGpaBuilderError extends SdkError {
   program: Program;
   constructor(program: Program, options?: MetaplexErrorOptions) {
@@ -299,6 +317,7 @@ export class MissingGpaBuilderError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class NoInstructionsToSendError extends SdkError {
   constructor(
     operation: string,
@@ -321,6 +340,7 @@ export class NoInstructionsToSendError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class NotYetImplementedError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -333,6 +353,7 @@ export class NotYetImplementedError extends SdkError {
   }
 }
 
+/** @group Errors */
 export class UnreachableCaseError extends SdkError {
   constructor(value: never, options?: MetaplexErrorOptions) {
     super({

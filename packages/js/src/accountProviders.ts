@@ -13,6 +13,7 @@ import {
   UseAuthorityRecord,
 } from '@metaplex-foundation/mpl-token-metadata';
 
+/** @internal */
 export const accountProviders = {
   CandyMachine,
   CollectionPDA,

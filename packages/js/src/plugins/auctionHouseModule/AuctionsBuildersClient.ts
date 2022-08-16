@@ -14,6 +14,9 @@ import {
   UpdateAuctionHouseBuilderParams,
 } from './updateAuctionHouse';
 
+/**
+ * @group Module Builders
+ */
 export class AuctionsBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

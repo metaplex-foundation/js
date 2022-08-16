@@ -55,6 +55,7 @@ import {
   loadPurchaseOperationHandler,
 } from './loadPurchase';
 
+/** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Auction House Program.

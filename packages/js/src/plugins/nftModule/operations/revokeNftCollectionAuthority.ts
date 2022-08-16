@@ -11,15 +11,29 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'RevokeNftCollectionAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const revokeNftCollectionAuthorityOperation =
   useOperation<RevokeNftCollectionAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type RevokeNftCollectionAuthorityOperation = Operation<
   typeof Key,
   RevokeNftCollectionAuthorityInput,
   RevokeNftCollectionAuthorityOutput
 >;
 
-export interface RevokeNftCollectionAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type RevokeNftCollectionAuthorityInput = {
   // Accounts.
   mintAddress: PublicKey;
   collectionAuthority: PublicKey;
@@ -27,16 +41,20 @@ export interface RevokeNftCollectionAuthorityInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface RevokeNftCollectionAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type RevokeNftCollectionAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const revokeNftCollectionAuthorityOperationHandler: OperationHandler<RevokeNftCollectionAuthorityOperation> =
   {
     handle: async (
@@ -54,6 +72,10 @@ export const revokeNftCollectionAuthorityOperationHandler: OperationHandler<Revo
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type RevokeNftCollectionAuthorityBuilderParams = Omit<
   RevokeNftCollectionAuthorityInput,
   'confirmOptions'
@@ -61,6 +83,10 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const revokeNftCollectionAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeNftCollectionAuthorityBuilderParams

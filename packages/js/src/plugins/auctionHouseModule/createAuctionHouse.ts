@@ -32,14 +32,28 @@ import { ExpectedSignerError } from '@/errors';
 // -----------------
 
 const Key = 'CreateAuctionHouseOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createAuctionHouseOperation =
   useOperation<CreateAuctionHouseOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateAuctionHouseOperation = Operation<
   typeof Key,
   CreateAuctionHouseInput,
   CreateAuctionHouseOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateAuctionHouseInput = {
   // Data.
   sellerFeeBasisPoints: number;
@@ -59,6 +73,10 @@ export type CreateAuctionHouseInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateAuctionHouseOutput = {
   response: SendAndConfirmTransactionResponse;
   auctionHouseAddress: Pda;
@@ -67,10 +85,10 @@ export type CreateAuctionHouseOutput = {
   treasuryWithdrawalDestinationAddress: PublicKey;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionHouseOperation> =
   {
     handle: async (
@@ -88,6 +106,10 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateAuctionHouseBuilderParams = Omit<
   CreateAuctionHouseInput,
   'confirmOptions'
@@ -96,11 +118,19 @@ export type CreateAuctionHouseBuilderParams = Omit<
   delegateAuctioneerInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateAuctionHouseBuilderContext = Omit<
   CreateAuctionHouseOutput,
   'response'
 >;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams

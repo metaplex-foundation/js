@@ -12,14 +12,28 @@ import { findMasterEditionV2Pda } from '../pdas';
 // -----------------
 
 const Key = 'FreezeDelegatedNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const freezeDelegatedNftOperation =
   useOperation<FreezeDelegatedNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FreezeDelegatedNftOperation = Operation<
   typeof Key,
   FreezeDelegatedNftInput,
   FreezeDelegatedNftOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FreezeDelegatedNftInput = {
   mintAddress: PublicKey;
   delegateAuthority: Signer;
@@ -29,14 +43,18 @@ export type FreezeDelegatedNftInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type FreezeDelegatedNftOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const freezeDelegatedNftOperationHandler: OperationHandler<FreezeDelegatedNftOperation> =
   {
     async handle(
@@ -54,6 +72,10 @@ export const freezeDelegatedNftOperationHandler: OperationHandler<FreezeDelegate
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type FreezeDelegatedNftBuilderParams = Omit<
   FreezeDelegatedNftInput,
   'confirmOptions'
@@ -61,6 +83,10 @@ export type FreezeDelegatedNftBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const freezeDelegatedNftBuilder = (
   metaplex: Metaplex,
   params: FreezeDelegatedNftBuilderParams

@@ -31,14 +31,28 @@ import {
 // -----------------
 
 const Key = 'PrintNewEditionOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const printNewEditionOperation =
   useOperation<PrintNewEditionOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type PrintNewEditionOperation = Operation<
   typeof Key,
   PrintNewEditionInput,
   PrintNewEditionOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type PrintNewEditionInput = {
   originalMint: PublicKey;
   originalTokenAccountOwner?: Signer; // Defaults to mx.identity().
@@ -53,6 +67,10 @@ export type PrintNewEditionInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type PrintNewEditionOutput = {
   response: SendAndConfirmTransactionResponse;
   nft: NftWithToken;
@@ -63,10 +81,10 @@ export type PrintNewEditionOutput = {
   updatedSupply: BigNumber;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOperation> =
   {
     handle: async (
@@ -112,6 +130,10 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type PrintNewEditionBuilderParams = Omit<
   PrintNewEditionInput,
   'confirmOptions'
@@ -126,11 +148,19 @@ export type PrintNewEditionBuilderParams = Omit<
   printNewEditionInstructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type PrintNewEditionBuilderContext = Omit<
   PrintNewEditionOutput,
   'response' | 'nft'
 >;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const printNewEditionBuilder = async (
   metaplex: Metaplex,
   params: PrintNewEditionBuilderParams

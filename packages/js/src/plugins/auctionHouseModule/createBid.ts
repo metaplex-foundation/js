@@ -44,13 +44,27 @@ import { AuctioneerAuthorityRequiredError } from './errors';
 // -----------------
 
 const Key = 'CreateBidOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const createBidOperation = useOperation<CreateBidOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type CreateBidOperation = Operation<
   typeof Key,
   CreateBidInput,
   CreateBidOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type CreateBidInput = {
   auctionHouse: AuctionHouse;
   buyer?: PublicKey | Signer; // Default: identity
@@ -68,6 +82,10 @@ export type CreateBidInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
@@ -80,10 +98,10 @@ export type CreateBidOutput = {
   tokens: SplTokenAmount;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   handle: async (
     operation: CreateBidOperation,
@@ -100,12 +118,24 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type CreateBidBuilderParams = Omit<CreateBidInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Contexts
+ */
 export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response'>;
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const createBidBuilder = async (
   metaplex: Metaplex,
   params: CreateBidBuilderParams

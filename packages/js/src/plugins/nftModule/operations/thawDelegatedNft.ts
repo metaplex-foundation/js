@@ -12,14 +12,28 @@ import { findMasterEditionV2Pda } from '../pdas';
 // -----------------
 
 const Key = 'ThawDelegatedNftOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const thawDelegatedNftOperation =
   useOperation<ThawDelegatedNftOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ThawDelegatedNftOperation = Operation<
   typeof Key,
   ThawDelegatedNftInput,
   ThawDelegatedNftOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type ThawDelegatedNftInput = {
   mintAddress: PublicKey;
   delegateAuthority: Signer;
@@ -29,14 +43,18 @@ export type ThawDelegatedNftInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type ThawDelegatedNftOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNftOperation> =
   {
     async handle(
@@ -54,6 +72,10 @@ export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNft
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ThawDelegatedNftBuilderParams = Omit<
   ThawDelegatedNftInput,
   'confirmOptions'
@@ -61,6 +83,10 @@ export type ThawDelegatedNftBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const thawDelegatedNftBuilder = (
   metaplex: Metaplex,
   params: ThawDelegatedNftBuilderParams

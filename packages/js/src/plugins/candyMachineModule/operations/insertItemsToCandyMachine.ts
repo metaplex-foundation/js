@@ -22,14 +22,28 @@ import { CandyMachine, CandyMachineItem } from '../models/CandyMachine';
 // -----------------
 
 const Key = 'InsertItemsToCandyMachineOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const insertItemsToCandyMachineOperation =
   useOperation<InsertItemsToCandyMachineOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type InsertItemsToCandyMachineOperation = Operation<
   typeof Key,
   InsertItemsToCandyMachineInput,
   InsertItemsToCandyMachineOutput
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type InsertItemsToCandyMachineInput = {
   // Models and Accounts.
   candyMachine: Pick<
@@ -46,14 +60,18 @@ export type InsertItemsToCandyMachineInput = {
   confirmOptions?: ConfirmOptions;
 };
 
+/**
+ * @group Operations
+ * @category Outputs
+ */
 export type InsertItemsToCandyMachineOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertItemsToCandyMachineOperation> =
   {
     async handle(
@@ -71,6 +89,10 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type InsertItemsToCandyMachineBuilderParams = Omit<
   InsertItemsToCandyMachineInput,
   'confirmOptions'
@@ -78,6 +100,10 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const insertItemsToCandyMachineBuilder = (
   params: InsertItemsToCandyMachineBuilderParams
 ): TransactionBuilder => {

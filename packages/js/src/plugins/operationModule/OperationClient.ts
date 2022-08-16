@@ -10,6 +10,9 @@ import {
 import { Task, TaskOptions } from '@/utils';
 import { OperationHandlerMissingError } from '@/errors';
 
+/**
+ * @group Modules
+ */
 export class OperationClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

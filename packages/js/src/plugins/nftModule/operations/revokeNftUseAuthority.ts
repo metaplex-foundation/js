@@ -12,15 +12,29 @@ import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
 // -----------------
 
 const Key = 'RevokeNftUseAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const revokeNftUseAuthorityOperation =
   useOperation<RevokeNftUseAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type RevokeNftUseAuthorityOperation = Operation<
   typeof Key,
   RevokeNftUseAuthorityInput,
   RevokeNftUseAuthorityOutput
 >;
 
-export interface RevokeNftUseAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type RevokeNftUseAuthorityInput = {
   // Accounts.
   mintAddress: PublicKey;
   user: PublicKey;
@@ -33,16 +47,20 @@ export interface RevokeNftUseAuthorityInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface RevokeNftUseAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type RevokeNftUseAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const revokeNftUseAuthorityOperationHandler: OperationHandler<RevokeNftUseAuthorityOperation> =
   {
     handle: async (
@@ -60,6 +78,10 @@ export const revokeNftUseAuthorityOperationHandler: OperationHandler<RevokeNftUs
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type RevokeNftUseAuthorityBuilderParams = Omit<
   RevokeNftUseAuthorityInput,
   'confirmOptions'
@@ -67,6 +89,10 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const revokeNftUseAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeNftUseAuthorityBuilderParams

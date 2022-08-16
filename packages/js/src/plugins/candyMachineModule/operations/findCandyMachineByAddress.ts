@@ -18,23 +18,37 @@ import { findCandyMachineCollectionPda } from '../pdas';
 // -----------------
 
 const Key = 'FindCandyMachineByAddressOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findCandyMachineByAddressOperation =
   useOperation<FindCandyMachineByAddressOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindCandyMachineByAddressOperation = Operation<
   typeof Key,
   FindCandyMachineByAddressInput,
   CandyMachine
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindCandyMachineByAddressInput = {
   address: PublicKey;
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
   {
     handle: async (

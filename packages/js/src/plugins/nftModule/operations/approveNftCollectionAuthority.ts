@@ -11,15 +11,29 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 // -----------------
 
 const Key = 'ApproveNftCollectionAuthorityOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const approveNftCollectionAuthorityOperation =
   useOperation<ApproveNftCollectionAuthorityOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type ApproveNftCollectionAuthorityOperation = Operation<
   typeof Key,
   ApproveNftCollectionAuthorityInput,
   ApproveNftCollectionAuthorityOutput
 >;
 
-export interface ApproveNftCollectionAuthorityInput {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type ApproveNftCollectionAuthorityInput = {
   // Accounts.
   mintAddress: PublicKey;
   collectionAuthority: PublicKey;
@@ -31,16 +45,20 @@ export interface ApproveNftCollectionAuthorityInput {
 
   // Options.
   confirmOptions?: ConfirmOptions;
-}
+};
 
-export interface ApproveNftCollectionAuthorityOutput {
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type ApproveNftCollectionAuthorityOutput = {
   response: SendAndConfirmTransactionResponse;
-}
+};
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const approveNftCollectionAuthorityOperationHandler: OperationHandler<ApproveNftCollectionAuthorityOperation> =
   {
     handle: async (
@@ -58,6 +76,10 @@ export const approveNftCollectionAuthorityOperationHandler: OperationHandler<App
 // Builder
 // -----------------
 
+/**
+ * @group Transaction Builders
+ * @category Inputs
+ */
 export type ApproveNftCollectionAuthorityBuilderParams = Omit<
   ApproveNftCollectionAuthorityInput,
   'confirmOptions'
@@ -65,6 +87,10 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
   instructionKey?: string;
 };
 
+/**
+ * @group Transaction Builders
+ * @category Constructors
+ */
 export const approveNftCollectionAuthorityBuilder = (
   metaplex: Metaplex,
   params: ApproveNftCollectionAuthorityBuilderParams
