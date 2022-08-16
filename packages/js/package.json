@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -38,7 +38,7 @@
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js && yarn test:exports",
     "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "preversion": "yarn build && yarn test",
+    "preversion": "yarn build",
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
