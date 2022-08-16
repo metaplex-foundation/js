@@ -1,4 +1,4 @@
-/** @group Model */
+/** @group Models */
 export type JsonMetadata<Uri = string> = {
   name?: string;
   symbol?: string;

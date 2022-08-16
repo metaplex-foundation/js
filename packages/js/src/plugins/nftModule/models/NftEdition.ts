@@ -8,7 +8,7 @@ import {
   PrintEditionAccount,
 } from '../accounts';
 
-/** @group Model */
+/** @group Models */
 export type NftEdition = NftOriginalEdition | NftPrintEdition;
 
 /** @group Model Helpers */
@@ -28,7 +28,7 @@ export const toNftEdition = (
     ? toNftOriginalEdition(account)
     : toNftPrintEdition(account as PrintEditionAccount);
 
-/** @group Model */
+/** @group Models */
 export type NftOriginalEdition = {
   readonly model: 'nftEdition';
   readonly isOriginal: true;
@@ -59,7 +59,7 @@ export const toNftOriginalEdition = (
   maxSupply: toOptionBigNumber(account.data.maxSupply),
 });
 
-/** @group Model */
+/** @group Models */
 export type NftPrintEdition = {
   readonly model: 'nftEdition';
   readonly isOriginal: false;

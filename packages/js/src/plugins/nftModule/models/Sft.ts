@@ -4,7 +4,7 @@ import type { PublicKey } from '@solana/web3.js';
 import type { Mint, Token } from '../../tokenModule';
 import type { Metadata } from './Metadata';
 
-/** @group Model */
+/** @group Models */
 export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
     model: 'sft';
@@ -48,7 +48,7 @@ export const toSft = (metadata: Metadata, mint: Mint): Sft => {
   };
 };
 
-/** @group Model */
+/** @group Models */
 export type SftWithToken = Sft & { token: Token };
 
 /** @group Model Helpers */

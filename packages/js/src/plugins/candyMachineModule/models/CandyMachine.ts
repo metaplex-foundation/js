@@ -31,7 +31,7 @@ import { CandyMachineProgram } from '../program';
 // Model
 // -----------------
 
-/** @group Model */
+/** @group Models */
 export type CandyMachine = {
   readonly model: 'candyMachine';
   readonly address: PublicKey;
@@ -62,13 +62,13 @@ export type CandyMachine = {
   readonly creators: Creator[];
 };
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineItem = {
   readonly name: string;
   readonly uri: string;
 };
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineEndSettings =
   | {
       readonly endSettingType: EndSettingType.Amount;
@@ -79,14 +79,14 @@ export type CandyMachineEndSettings =
       readonly date: DateTime;
     };
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineHiddenSettings = {
   readonly name: string;
   readonly uri: string;
   readonly hash: number[];
 };
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineWhitelistMintSettings = {
   readonly mode: WhitelistMintMode;
   readonly mint: PublicKey;
@@ -94,7 +94,7 @@ export type CandyMachineWhitelistMintSettings = {
   readonly discountPrice: Option<Amount>;
 };
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineGatekeeper = {
   readonly network: PublicKey;
   readonly expireOnUse: boolean;
@@ -193,7 +193,7 @@ export const toCandyMachine = (
 // Model to Configs
 // -----------------
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineConfigs = {
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;
@@ -227,7 +227,7 @@ export const toCandyMachineConfigs = (
 // Configs to Program
 // -----------------
 
-/** @group Model */
+/** @group Models */
 export type CandyMachineInstructionData = {
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;

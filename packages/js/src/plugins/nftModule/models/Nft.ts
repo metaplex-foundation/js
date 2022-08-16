@@ -6,7 +6,7 @@ import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
-/** @group Model */
+/** @group Models */
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
   readonly model: 'nft';
   readonly address: PublicKey;
@@ -35,7 +35,7 @@ export const toNft = (
   edition,
 });
 
-/** @group Model */
+/** @group Models */
 export type NftWithToken = Nft & { token: Token };
 
 /** @group Model Helpers */

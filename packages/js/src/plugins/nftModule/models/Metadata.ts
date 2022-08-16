@@ -9,7 +9,7 @@ import { MetadataAccount } from '../accounts';
 import { findMetadataPda } from '../pdas';
 import { JsonMetadata } from './JsonMetadata';
 
-/** @group Model */
+/** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
   readonly model: 'metadata';
 
