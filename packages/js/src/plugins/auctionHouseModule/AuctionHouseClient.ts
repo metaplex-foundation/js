@@ -41,11 +41,6 @@ import {
   cancelBidOperation,
   CancelBidOutput,
 } from './cancelBid';
-// import {
-//   CancelListingInput,
-//   cancelListingOperation,
-//   CancelListingOutput,
-// } from './cancelListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -61,14 +56,6 @@ export class AuctionHouseClient {
       .operations()
       .getTask(cancelBidOperation(this.addAH(input)));
   }
-
-  // cancelListing(
-  //   input: WithoutAH<CancelListingInput>
-  // ): Task<CancelListingOutput> {
-  //   return this.metaplex
-  //     .operations()
-  //     .getTask(cancelListingOperation(this.addAH(input)));
-  // }
 
   executeSale(
     input: WithoutAH<ExecuteSaleInput>

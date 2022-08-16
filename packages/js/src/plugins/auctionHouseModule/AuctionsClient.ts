@@ -20,15 +20,10 @@ import {
 } from './updateAuctionHouse';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { Signer } from '@/types';
-import {
-  CancelListingInput,
-  cancelListingOperation,
-  CancelListingOutput,
-} from './cancelListing';
+import { CancelListingInput, cancelListingOperation, CancelListingOutput } from './cancelListing';
 
 export class AuctionsClient {
-  constructor(
-    protected readonly metaplex: Metaplex,
+  constructor(protected readonly metaplex: Metaplex,
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer) { }
 
@@ -45,7 +40,6 @@ export class AuctionsClient {
   }
 
   cancelListing(
-    // this: AuctionsClient,
     input: CancelListingInput
   ): Task<CancelListingOutput> {
     return this.metaplex
@@ -55,7 +49,7 @@ export class AuctionsClient {
 
   createAuctionHouse(
     input: CreateAuctionHouseInput
-  ): Task<CreateAuctionHouseOutput> {
+  ): Task<CreateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
