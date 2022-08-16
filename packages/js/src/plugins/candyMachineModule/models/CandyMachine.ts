@@ -31,6 +31,7 @@ import { CandyMachineProgram } from '../program';
 // Model
 // -----------------
 
+/** @group Model */
 export type CandyMachine = {
   readonly model: 'candyMachine';
   readonly address: PublicKey;
@@ -61,11 +62,13 @@ export type CandyMachine = {
   readonly creators: Creator[];
 };
 
+/** @group Model */
 export type CandyMachineItem = {
   readonly name: string;
   readonly uri: string;
 };
 
+/** @group Model */
 export type CandyMachineEndSettings =
   | {
       readonly endSettingType: EndSettingType.Amount;
@@ -76,12 +79,14 @@ export type CandyMachineEndSettings =
       readonly date: DateTime;
     };
 
+/** @group Model */
 export type CandyMachineHiddenSettings = {
   readonly name: string;
   readonly uri: string;
   readonly hash: number[];
 };
 
+/** @group Model */
 export type CandyMachineWhitelistMintSettings = {
   readonly mode: WhitelistMintMode;
   readonly mint: PublicKey;
@@ -89,6 +94,7 @@ export type CandyMachineWhitelistMintSettings = {
   readonly discountPrice: Option<Amount>;
 };
 
+/** @group Model */
 export type CandyMachineGatekeeper = {
   readonly network: PublicKey;
   readonly expireOnUse: boolean;
@@ -98,12 +104,16 @@ export type CandyMachineGatekeeper = {
 // Program to Model
 // -----------------
 
+/** @group Model Helpers */
 export const isCandyMachine = (value: any): value is CandyMachine =>
   typeof value === 'object' && value.model === 'candyMachine';
 
+/** @group Model Helpers */
 export function assertCandyMachine(value: any): asserts value is CandyMachine {
   assert(isCandyMachine(value), 'Expected CandyMachine type');
 }
+
+/** @group Model Helpers */
 export const toCandyMachine = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount,
@@ -183,6 +193,7 @@ export const toCandyMachine = (
 // Model to Configs
 // -----------------
 
+/** @group Model */
 export type CandyMachineConfigs = {
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;
@@ -201,6 +212,7 @@ export type CandyMachineConfigs = {
   creators: Creator[];
 };
 
+/** @group Model Helpers */
 export const toCandyMachineConfigs = (
   candyMachine: CandyMachine
 ): CandyMachineConfigs => {
@@ -215,12 +227,14 @@ export const toCandyMachineConfigs = (
 // Configs to Program
 // -----------------
 
+/** @group Model */
 export type CandyMachineInstructionData = {
   wallet: PublicKey;
   tokenMint: Option<PublicKey>;
   data: CandyMachineData;
 };
 
+/** @group Model Helpers */
 export const toCandyMachineInstructionData = (
   address: PublicKey,
   configs: CandyMachineConfigs

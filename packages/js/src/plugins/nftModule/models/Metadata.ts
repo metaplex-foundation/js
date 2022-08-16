@@ -9,6 +9,7 @@ import { MetadataAccount } from '../accounts';
 import { findMetadataPda } from '../pdas';
 import { JsonMetadata } from './JsonMetadata';
 
+/** @group Model */
 export type Metadata<Json extends object = JsonMetadata> = {
   readonly model: 'metadata';
 
@@ -90,33 +91,62 @@ export type Metadata<Json extends object = JsonMetadata> = {
    */
   readonly tokenStandard: Option<TokenStandard>;
 
-  readonly collection: Option<MetadataParentCollection>;
-  readonly collectionDetails: Option<MetadataCollectionDetails>;
-  readonly uses: Option<MetadataUses>;
+  /**
+   * The parent collection the asset belongs to.
+   */
+  readonly collection: Option<{
+    /** The mint address of the collection asset. */
+    address: PublicKey;
+
+    /**
+     * Whether a collection authority signed this asset to
+     * ensure it is part of the collection.
+     * If `verified` is `false`, you should not trust
+     * the asset as being part of the collection.
+     */
+    verified: boolean;
+  }>;
+
+  /**
+   * When this field is not `null`, it indicates that
+   * the asset is a collection. Everytime an asset is
+   * verified/unverified as part of this collection,
+   * the `size` field inside this object will be updated accordingly.
+   */
+  readonly collectionDetails: Option<{
+    /** The collection details version. For now, there's only one version. */
+    version: 'V1';
+
+    /** The size of the collection, automatically kept up-to-date by the program. */
+    size: BigNumber;
+  }>;
+
+  /**
+   * When this field is not `null`, it indicates that the asset
+   * can be "used" by its owner or any approved "use authorities".
+   */
+  readonly uses: Option<{
+    /** An enum selecting a strategy for using the asset. */
+    useMethod: UseMethod;
+
+    /** The amount of remaining uses. */
+    remaining: BigNumber;
+
+    /** The total amount of uses that was initially allowed. */
+    total: BigNumber;
+  }>;
 };
 
-type MetadataUses = {
-  useMethod: UseMethod;
-  remaining: BigNumber;
-  total: BigNumber;
-};
-
-type MetadataParentCollection = {
-  address: PublicKey;
-  verified: boolean;
-};
-
-type MetadataCollectionDetails = {
-  version: 'V1';
-  size: BigNumber;
-};
-
+/** @group Model Helpers */
 export const isMetadata = (value: any): value is Metadata =>
   typeof value === 'object' && value.model === 'metadata';
 
+/** @group Model Helpers */
 export function assertMetadata(value: any): asserts value is Metadata {
   assert(isMetadata(value), `Expected Metadata model`);
 }
+
+/** @group Model Helpers */
 export const toMetadata = (
   account: MetadataAccount,
   json?: Option<JsonMetadata>
