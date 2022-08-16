@@ -42,7 +42,8 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
 
       const asset = await metaplex
         .nfts()
-        .findByMetadata(lazyListing.metadataAddress, {
+        .findByMetadata({
+          metadata: lazyListing.metadataAddress,
           tokenOwner: lazyListing.sellerAddress,
           commitment,
           loadJsonMetadata,

@@ -3,7 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
-import { CandyMachineItem, CandyMachineEndSettings } from './CandyMachine';
+import { CandyMachineItem, CandyMachineEndSettings } from './models';
 import { BigNumber, DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';

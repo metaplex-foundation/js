@@ -75,7 +75,10 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
   spok(t, sft, { $topic: 'SFT', ...expectedSft });
 
   // And we get the same data when fetching a fresh instance of that SFT.
-  const retrievedSft = await mx.nfts().findByMint(sft.address).run();
+  const retrievedSft = await mx
+    .nfts()
+    .findByMint({ mintAddress: sft.address })
+    .run();
   spok(t, retrievedSft, { $topic: 'Retrieved SFT', ...expectedSft });
 });
 

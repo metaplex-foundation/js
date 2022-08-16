@@ -21,7 +21,7 @@ test('[candyMachineModule] find all candy machines by wallet', async (t) => {
   // When I find all candy machines from wallet A.
   const candyMachines = await mx
     .candyMachines()
-    .findAllByWallet(walletA.publicKey)
+    .findAllBy({ type: 'wallet', publicKey: walletA.publicKey })
     .run();
 
   // Then we got two candy machines.
@@ -52,7 +52,7 @@ test('[candyMachineModule] find all candy machines by authority', async (t) => {
   // When I find all candy machines from authority A.
   const candyMachines = await mx
     .candyMachines()
-    .findAllByAuthority(authorityA.publicKey)
+    .findAllBy({ type: 'authority', publicKey: authorityA.publicKey })
     .run();
 
   // Then we got two candy machines.

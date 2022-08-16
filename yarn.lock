@@ -3024,7 +3024,7 @@
     bs58 "^5.0.0"
     debug "^4.3.4"
 
-"@metaplex-foundation/beet@>=0.1.0", "@metaplex-foundation/beet@^0.2.0":
+"@metaplex-foundation/beet@>=0.1.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.2.0.tgz#e543e17fd1c4dc1251e9aea481a7429bc73f70b8"
   integrity sha512-H570hkJxmx/FxET1OggPPLkPL7psYQa71rNI9NJjYRM8WXdrEvmI/IRIEUW2KR6RqwWWN3FvlRHnKoQUV/lQtA==
@@ -3067,10 +3067,10 @@
     "@solana/web3.js" "^1.35.1"
     bn.js "^5.2.0"
 
-"@metaplex-foundation/mpl-candy-machine@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.3.0.tgz#168e0de04548b0ba62abb78ddc90aafd07de804d"
-  integrity sha512-Vgx0Ly+JGosXFFz/mz5eWKovZgAQBLSFAwuat/c+yGmT7FGlnCEqV3lsBsg+P8iiuG39DxCvNfBQEH8fsiuOlQ==
+"@metaplex-foundation/mpl-candy-machine@^4.4.1":
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.4.1.tgz#71762ce5afb49f4a9719d6fe7e83581b21ea5938"
+  integrity sha512-cHJoRx4jYghtV7zrJbwKbxhxn8H01CpelZRRep0DdRCUQPlsNU5nkGVYNZzzotJ8d0hUiD4Qv5wi/WFY5FmEoA==
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
