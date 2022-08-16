@@ -17,7 +17,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   const mx = await metaplex();
 
   const nft = await createNft(mx);
-  const { client } = await createAuctionHouse(mx);
+  const { client, auctionHouse } = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await client
@@ -31,7 +31,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await client.cancelListing({ auctionHouse, listing }).run();
 
   // Then the delegate's authority is revoked and receipt has canceledAt date.
   const canceledListing = await client
@@ -51,7 +51,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
 
   const nft = await createNft(mx);
   const auctioneerAuthority = Keypair.generate();
-  const { client } = await createAuctionHouse(mx, auctioneerAuthority);
+  const { client, auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we list that NFT.
   const { listing } = await client
@@ -61,7 +61,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
     .run();
 
   // When we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await client.cancelListing({ auctionHouse, listing }).run();
 
   // Then the trade state account no longer exists.
   const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
@@ -74,7 +74,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { client } = await createAuctionHouse(mx);
+  const { client, auctionHouse } = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await client
@@ -94,7 +94,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
     .run();
 
   // And we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await client.cancelListing({ auctionHouse, listing }).run();
 
   // When we execute a sale with given canceled listing and bid.
   const canceledListing = await client
@@ -131,8 +131,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // When we cancel the listing but without providing Auctioneer Authority.
   const promise = mx
     .auctions()
-    .for(auctionHouse)
-    .cancelListing({ listing })
+    .cancelListing({ auctionHouse, listing })
     .run();
 
   // Then we expect an error.

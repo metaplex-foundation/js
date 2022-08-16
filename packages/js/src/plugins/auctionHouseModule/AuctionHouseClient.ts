@@ -41,11 +41,11 @@ import {
   cancelBidOperation,
   CancelBidOutput,
 } from './cancelBid';
-import {
-  CancelListingInput,
-  cancelListingOperation,
-  CancelListingOutput,
-} from './cancelListing';
+// import {
+//   CancelListingInput,
+//   cancelListingOperation,
+//   CancelListingOutput,
+// } from './cancelListing';
 
 type WithoutAH<T> = Omit<T, 'auctionHouse' | 'auctioneerAuthority'>;
 
@@ -54,7 +54,7 @@ export class AuctionHouseClient {
     protected readonly metaplex: Metaplex,
     protected readonly auctionHouse: AuctionHouse,
     protected readonly auctioneerAuthority?: Signer
-  ) {}
+  ) { }
 
   cancelBid(input: WithoutAH<CancelBidInput>): Task<CancelBidOutput> {
     return this.metaplex
@@ -62,13 +62,13 @@ export class AuctionHouseClient {
       .getTask(cancelBidOperation(this.addAH(input)));
   }
 
-  cancelListing(
-    input: WithoutAH<CancelListingInput>
-  ): Task<CancelListingOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(cancelListingOperation(this.addAH(input)));
-  }
+  // cancelListing(
+  //   input: WithoutAH<CancelListingInput>
+  // ): Task<CancelListingOutput> {
+  //   return this.metaplex
+  //     .operations()
+  //     .getTask(cancelListingOperation(this.addAH(input)));
+  // }
 
   executeSale(
     input: WithoutAH<ExecuteSaleInput>
