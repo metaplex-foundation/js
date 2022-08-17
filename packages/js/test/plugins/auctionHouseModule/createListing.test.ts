@@ -27,7 +27,8 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   const { auctionHouse } = await createAuctionHouse(mx);
 
   // When we list that NFT for 6.5 SOL.
-  const { listing, sellerTradeState } = await mx.auctions()
+  const { listing, sellerTradeState } = await mx
+    .auctions()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -61,7 +62,8 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   } as unknown as Specifications<Listing>);
 
   // And we get the same result when we fetch the Listing by address.
-  const retrieveListing = await mx.auctions()
+  const retrieveListing = await mx
+    .auctions()
     .findListingByAddress(sellerTradeState, auctionHouse)
     .run();
   spok(t, retrieveListing, {
@@ -77,7 +79,8 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   const { auctionHouse } = await createAuctionHouse(mx);
 
   // When we list that NFT without printing a receipt.
-  const { listing, sellerTradeState } = await mx.auctions()
+  const { listing, sellerTradeState } = await mx
+    .auctions()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -94,7 +97,10 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
 
   // But we cannot retrieve it later with the default operation handler.
   try {
-    await mx.auctions().findListingByAddress(sellerTradeState, auctionHouse).run();
+    await mx
+      .auctions()
+      .findListingByAddress(sellerTradeState, auctionHouse)
+      .run();
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {
     const hasNotFoundMessage =
@@ -117,7 +123,8 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we list that NFT.
-  const { listing, sellerTradeState } = await mx.auctions()
+  const { listing, sellerTradeState } = await mx
+    .auctions()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -175,7 +182,8 @@ test('[auctionHouseModule] it throws an error if Sell is not included in Auction
   });
 
   // When we list that NFT.
-  const promise = mx.auctions()
+  const promise = mx
+    .auctions()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -199,13 +207,9 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House to only allow Buy.
-  const { auctionHouse } = await createAuctionHouse(
-    mx,
-    auctioneerAuthority,
-    {
-      auctioneerScopes: [AuthorityScope.Buy],
-    }
-  );
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+    auctioneerScopes: [AuthorityScope.Buy],
+  });
 
   // When we update scope to allow Listing.
   await mx
@@ -217,7 +221,8 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
     .run();
 
   // When we list that NFT.
-  const { listing, sellerTradeState } = await mx.auctions()
+  const { listing, sellerTradeState } = await mx
+    .auctions()
     .list({
       auctionHouse,
       auctioneerAuthority,

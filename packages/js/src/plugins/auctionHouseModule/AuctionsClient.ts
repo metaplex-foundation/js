@@ -19,31 +19,59 @@ import {
   UpdateAuctionHouseOutput,
 } from './updateAuctionHouse';
 import { now } from '@/types';
-import { CancelListingInput, cancelListingOperation, CancelListingOutput } from './cancelListing';
-import { CancelBidInput, cancelBidOperation, CancelBidOutput } from './cancelBid';
+import {
+  CancelListingInput,
+  cancelListingOperation,
+  CancelListingOutput,
+} from './cancelListing';
+import {
+  CancelBidInput,
+  cancelBidOperation,
+  CancelBidOutput,
+} from './cancelBid';
 import { LazyPurchase, Purchase } from './Purchase';
 import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
 import { LazyListing, Listing } from './Listing';
 import { LoadListingInput, loadListingOperation } from './loadListing';
 import { Bid, LazyBid } from './Bid';
 import { LoadBidInput, loadBidOperation } from './loadBid';
-import { CreateListingInput, createListingOperation, CreateListingOutput } from './createListing';
-import { FindListingByAddressInput, findListingByAddressOperation } from './findListingByAddress';
-import { CreateBidInput, createBidOperation, CreateBidOutput } from './createBid';
+import {
+  CreateListingInput,
+  createListingOperation,
+  CreateListingOutput,
+} from './createListing';
+import {
+  FindListingByAddressInput,
+  findListingByAddressOperation,
+} from './findListingByAddress';
+import {
+  CreateBidInput,
+  createBidOperation,
+  CreateBidOutput,
+} from './createBid';
 import {
   findBidByReceiptOperation,
   FindBidByReceiptInput,
 } from './findBidByReceipt';
-import { FindPurchaseByAddressInput, findPurchaseByAddressOperation } from './findPurchaseByAddress';
-import { ExecuteSaleInput, executeSaleOperation, ExecuteSaleOutput } from './executeSale';
-import { FindBidByTradeStateInput, findBidByTradeStateOperation } from './findBidByTradeState';
+import {
+  FindPurchaseByAddressInput,
+  findPurchaseByAddressOperation,
+} from './findPurchaseByAddress';
+import {
+  ExecuteSaleInput,
+  executeSaleOperation,
+  ExecuteSaleOutput,
+} from './executeSale';
+import {
+  FindBidByTradeStateInput,
+  findBidByTradeStateOperation,
+} from './findBidByTradeState';
 
 /**
  * @group Modules
  */
 export class AuctionsClient {
-  constructor(
-    protected readonly metaplex: Metaplex) { }
+  constructor(protected readonly metaplex: Metaplex) {}
 
   builders() {
     return new AuctionsBuildersClient(this.metaplex);
@@ -62,7 +90,7 @@ export class AuctionsClient {
         const purchase = await this.findPurchaseByAddress(
           output.sellerTradeState,
           output.buyerTradeState,
-          input.auctionHouse,
+          input.auctionHouse
         ).run(scope);
         return { purchase, ...output };
       } catch (error) {
@@ -90,20 +118,12 @@ export class AuctionsClient {
     });
   }
 
-  cancelBid(
-    input: CancelBidInput
-  ): Task<CancelBidOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(cancelBidOperation(input));
+  cancelBid(input: CancelBidInput): Task<CancelBidOutput> {
+    return this.metaplex.operations().getTask(cancelBidOperation(input));
   }
 
-  cancelListing(
-    input: CancelListingInput
-  ): Task<CancelListingOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(cancelListingOperation(input));
+  cancelListing(input: CancelListingInput): Task<CancelListingOutput> {
+    return this.metaplex.operations().getTask(cancelListingOperation(input));
   }
 
   findPurchaseByAddress(
@@ -227,9 +247,7 @@ export class AuctionsClient {
     );
   }
 
-  bid(
-    input: CreateBidInput
-  ): Task<CreateBidOutput & { bid: Bid }> {
+  bid(input: CreateBidInput): Task<CreateBidOutput & { bid: Bid }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
@@ -237,7 +255,10 @@ export class AuctionsClient {
       scope.throwIfCanceled();
 
       if (output.receipt) {
-        const bid = await this.findBidByReceipt(input.auctionHouse, output.receipt).run(scope);
+        const bid = await this.findBidByReceipt(
+          input.auctionHouse,
+          output.receipt
+        ).run(scope);
         return { bid, ...output };
       }
 
