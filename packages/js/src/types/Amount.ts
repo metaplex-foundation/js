@@ -33,7 +33,7 @@ export type SolAmount = Amount<SolCurrency>;
 export const USD = {
   symbol: 'USD',
   decimals: 2,
-};
+} as const;
 export type UsdCurrency = typeof USD;
 export type UsdAmount = Amount<UsdCurrency>;
 
