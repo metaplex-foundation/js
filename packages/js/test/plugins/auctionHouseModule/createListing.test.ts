@@ -16,6 +16,7 @@ import {
   findAssociatedTokenAccountPda,
   Listing,
   AccountNotFoundError,
+  Pda,
 } from '@/index';
 
 killStuckProcess();
@@ -61,7 +62,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
 
   // And we get the same result when we fetch the Listing by address.
   const retrieveListing = await client
-    .findListingByAddress(sellerTradeState)
+    .findListingByReceipt(listing.receiptAddress as Pda)
     .run();
   spok(t, retrieveListing, {
     $topic: 'Retrieved Listing',
@@ -92,7 +93,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
 
   // But we cannot retrieve it later with the default operation handler.
   try {
-    await client.findListingByAddress(sellerTradeState).run();
+    await client.findListingByTradeState(sellerTradeState).run();
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {
     const hasNotFoundMessage =

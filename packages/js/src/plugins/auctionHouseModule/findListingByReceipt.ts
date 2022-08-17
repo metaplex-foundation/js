@@ -5,28 +5,27 @@ import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { Listing, toLazyListing } from './Listing';
 import { DisposableScope } from '@/utils';
-import { findListingReceiptPda } from './pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindListingByAddressOperation' as const;
+const Key = 'FindListingByReceiptOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const findListingByAddressOperation =
-  useOperation<FindListingByAddressOperation>(Key);
+export const findListingByReceiptOperation =
+  useOperation<FindListingByReceiptOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindListingByAddressOperation = Operation<
+export type FindListingByReceiptOperation = Operation<
   typeof Key,
-  FindListingByAddressInput,
+  FindListingByReceiptInput,
   Listing
 >;
 
@@ -34,8 +33,8 @@ export type FindListingByAddressOperation = Operation<
  * @group Operations
  * @category Inputs
  */
-export type FindListingByAddressInput = {
-  address: PublicKey;
+export type FindListingByReceiptInput = {
+  receiptAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
@@ -45,21 +44,20 @@ export type FindListingByAddressInput = {
  * @group Operations
  * @category Handlers
  */
-export const findListingByAddressOperationHandler: OperationHandler<FindListingByAddressOperation> =
+export const findListingByReceiptOperationHandler: OperationHandler<FindListingByReceiptOperation> =
   {
     handle: async (
-      operation: FindListingByAddressOperation,
+      operation: FindListingByReceiptOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const {
-        address,
+        receiptAddress,
         auctionHouse,
         commitment,
         loadJsonMetadata = true,
       } = operation.input;
 
-      const receiptAddress = findListingReceiptPda(address);
       const account = toListingReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
