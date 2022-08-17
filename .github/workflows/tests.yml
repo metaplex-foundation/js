@@ -15,16 +15,28 @@ jobs:
         solana: ["1.9.15"]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/install-solana
+    - name: Git checkout
+      uses: actions/checkout@v3
+
+    - name: Install Solana
+      uses: ./.github/actions/install-solana
       with: 
         solana_version: ${{ matrix.solana }}
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v2
+
+    - name: Setup Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
         cache: 'npm'
-    - run: yarn install --frozen-lockfile
-    - run: yarn build
-    - run: yarn amman:start
-    - run: yarn test
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build
+      run: yarn build
+
+    - name: Start local validator using Amman
+      run: yarn amman:start
+
+    - name: Run tests
+      run: yarn test
