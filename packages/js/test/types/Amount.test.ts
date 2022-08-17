@@ -80,6 +80,7 @@ test('[Amount] it can add and subtract amounts together', (t: Test) => {
 
 test('[Amount] it fail to operate on amounts of different currencies', (t: Test) => {
   try {
+    // @ts-ignore because we want to test the error.
     addAmounts(sol(1), usd(1));
     t.fail();
   } catch (error) {
