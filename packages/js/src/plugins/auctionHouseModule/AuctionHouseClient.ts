@@ -9,9 +9,13 @@ import {
   CreateListingOutput,
 } from './createListing';
 import {
-  FindListingByAddressInput,
-  findListingByAddressOperation,
-} from './findListingByAddress';
+  FindListingByReceiptInput,
+  findListingByReceiptOperation,
+} from './findListingByReceipt';
+import {
+  FindListingByTradeStateInput,
+  findListingByTradeStateOperation,
+} from './findListingByTradeState';
 import { LazyListing, Listing } from './Listing';
 import { LoadListingInput, loadListingOperation } from './loadListing';
 import {
@@ -153,13 +157,11 @@ export class AuctionHouseClient {
         .execute(createListingOperation(this.addAH(input)), scope);
       scope.throwIfCanceled();
 
-      try {
-        const listing = await this.findListingByAddress(
-          output.sellerTradeState
+      if (output.receipt) {
+        const listing = await this.findListingByReceipt(
+          output.receipt
         ).run(scope);
         return { listing, ...output };
-      } catch (error) {
-        // Fallback to manually creating a listing from inputs and outputs.
       }
 
       scope.throwIfCanceled();
@@ -186,13 +188,26 @@ export class AuctionHouseClient {
     });
   }
 
-  findListingByAddress(
-    address: PublicKey,
-    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
+  findListingByTradeState(
+    tradeStateAddress: PublicKey,
+    options: Omit<FindListingByTradeStateInput, 'tradeStateAddress' | 'auctionHouse'> = {}
   ) {
     return this.metaplex.operations().getTask(
-      findListingByAddressOperation({
-        address,
+      findListingByTradeStateOperation({
+        tradeStateAddress,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  findListingByReceipt(
+    receiptAddress: PublicKey,
+    options: Omit<FindListingByReceiptInput, 'receiptAddress' | 'auctionHouse'> = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findListingByReceiptOperation({
+        receiptAddress,
         auctionHouse: this.auctionHouse,
         ...options,
       })
