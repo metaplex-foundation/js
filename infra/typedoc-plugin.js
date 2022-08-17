@@ -13,7 +13,7 @@ exports.load = function (app) {
 /**
  * The reflection types affected by this plugin.
  */
-const TYPES_TO_EXPAND = ['mapped', 'intersection'];
+const TYPES_TO_EXPAND = ['mapped', 'intersection', 'reference'];
 
 /**
  * @param {td.Context} context
