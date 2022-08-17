@@ -158,9 +158,9 @@ export class AuctionHouseClient {
       scope.throwIfCanceled();
 
       if (output.receipt) {
-        const listing = await this.findListingByReceipt(
-          output.receipt
-        ).run(scope);
+        const listing = await this.findListingByReceipt(output.receipt).run(
+          scope
+        );
         return { listing, ...output };
       }
 
@@ -190,7 +190,10 @@ export class AuctionHouseClient {
 
   findListingByTradeState(
     tradeStateAddress: PublicKey,
-    options: Omit<FindListingByTradeStateInput, 'tradeStateAddress' | 'auctionHouse'> = {}
+    options: Omit<
+      FindListingByTradeStateInput,
+      'tradeStateAddress' | 'auctionHouse'
+    > = {}
   ) {
     return this.metaplex.operations().getTask(
       findListingByTradeStateOperation({
@@ -203,7 +206,10 @@ export class AuctionHouseClient {
 
   findListingByReceipt(
     receiptAddress: PublicKey,
-    options: Omit<FindListingByReceiptInput, 'receiptAddress' | 'auctionHouse'> = {}
+    options: Omit<
+      FindListingByReceiptInput,
+      'receiptAddress' | 'auctionHouse'
+    > = {}
   ) {
     return this.metaplex.operations().getTask(
       findListingByReceiptOperation({
