@@ -18,25 +18,77 @@ import {
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './updateAuctionHouse';
-import { AuctionHouseClient } from './AuctionHouseClient';
-import { Signer } from '@/types';
+import { now } from '@/types';
 import { CancelListingInput, cancelListingOperation, CancelListingOutput } from './cancelListing';
+import { CancelBidInput, cancelBidOperation, CancelBidOutput } from './cancelBid';
+import { LazyPurchase, Purchase } from './Purchase';
+import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
+import { LazyListing, Listing } from './Listing';
+import { LoadListingInput, loadListingOperation } from './loadListing';
+import { Bid, LazyBid } from './Bid';
+import { LoadBidInput, loadBidOperation } from './loadBid';
+import { CreateListingInput, createListingOperation, CreateListingOutput } from './createListing';
+import { FindListingByAddressInput, findListingByAddressOperation } from './findListingByAddress';
+import { CreateBidInput, createBidOperation, CreateBidOutput } from './createBid';
+import { FindBidByAddressInput, findBidByAddressOperation } from './findBidByAddress';
+import { FindPurchaseByAddressInput, findPurchaseByAddressOperation } from './findPurchaseByAddress';
+import { ExecuteSaleInput, executeSaleOperation, ExecuteSaleOutput } from './executeSale';
 
 export class AuctionsClient {
-  constructor(protected readonly metaplex: Metaplex,
-    protected readonly auctionHouse: AuctionHouse,
-    protected readonly auctioneerAuthority?: Signer) { }
+  constructor(
+    protected readonly metaplex: Metaplex) { }
 
   builders() {
     return new AuctionsBuildersClient(this.metaplex);
   }
 
-  for(auctionHouse: AuctionHouse, auctioneerAuthority?: Signer) {
-    return new AuctionHouseClient(
-      this.metaplex,
-      auctionHouse,
-      auctioneerAuthority
-    );
+  executeSale(
+    input: ExecuteSaleInput
+  ): Task<ExecuteSaleOutput & { purchase: Purchase }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(executeSaleOperation(input));
+      scope.throwIfCanceled();
+
+      try {
+        const purchase = await this.findPurchaseByAddress(
+          output.sellerTradeState,
+          output.buyerTradeState,
+          input.auctionHouse,
+        ).run(scope);
+        return { purchase, ...output };
+      } catch (error) {
+        // Fallback to manually creating a purchase from inputs and outputs.
+      }
+
+      const lazyPurchase: LazyPurchase = {
+        model: 'purchase',
+        lazy: true,
+        auctionHouse: input.auctionHouse,
+        buyerAddress: output.buyer,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        bookkeeperAddress: output.bookkeeper,
+        receiptAddress: output.receipt,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+      };
+
+      return {
+        purchase: await this.loadPurchase(lazyPurchase).run(scope),
+        ...output,
+      };
+    });
+  }
+
+  cancelBid(
+    input: CancelBidInput
+  ): Task<CancelBidOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(cancelBidOperation(input));
   }
 
   cancelListing(
@@ -45,6 +97,171 @@ export class AuctionsClient {
     return this.metaplex
       .operations()
       .getTask(cancelListingOperation(input));
+  }
+
+  findPurchaseByAddress(
+    sellerTradeState: PublicKey,
+    buyerTradeState: PublicKey,
+    auctionHouse: AuctionHouse,
+    options: Omit<
+      FindPurchaseByAddressInput,
+      'sellerTradeState' | 'buyerTradeState' | 'auctionHouse'
+    > = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findPurchaseByAddressOperation({
+        sellerTradeState,
+        buyerTradeState,
+        auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  loadPurchase(
+    lazyPurchase: LazyPurchase,
+    options: Omit<LoadPurchaseInput, 'lazyPurchase'> = {}
+  ): Task<Purchase> {
+    return this.metaplex
+      .operations()
+      .getTask(loadPurchaseOperation({ lazyPurchase, ...options }));
+  }
+
+  loadListing(
+    lazyListing: LazyListing,
+    options: Omit<LoadListingInput, 'lazyListing'> = {}
+  ): Task<Listing> {
+    return this.metaplex
+      .operations()
+      .getTask(loadListingOperation({ lazyListing, ...options }));
+  }
+
+  loadBid(
+    lazyBid: LazyBid,
+    options: Omit<LoadBidInput, 'lazyBid'> = {}
+  ): Task<Bid> {
+    return this.metaplex
+      .operations()
+      .getTask(loadBidOperation({ lazyBid, ...options }));
+  }
+
+  list(
+    input: CreateListingInput
+  ): Task<CreateListingOutput & { listing: Listing }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(createListingOperation(input), scope);
+      scope.throwIfCanceled();
+
+      try {
+        const listing = await this.findListingByAddress(
+          output.sellerTradeState,
+          input.auctionHouse
+        ).run(scope);
+        return { listing, ...output };
+      } catch (error) {
+        // Fallback to manually creating a listing from inputs and outputs.
+      }
+
+      scope.throwIfCanceled();
+      const lazyListing: LazyListing = {
+        model: 'listing',
+        lazy: true,
+        auctionHouse: input.auctionHouse,
+        tradeStateAddress: output.sellerTradeState,
+        bookkeeperAddress: output.bookkeeper,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        receiptAddress: output.receipt,
+        purchaseReceiptAddress: null,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+        canceledAt: null,
+      };
+
+      return {
+        listing: await this.loadListing(lazyListing).run(scope),
+        ...output,
+      };
+    });
+  }
+
+  findListingByAddress(
+    this: AuctionsClient,
+    address: PublicKey,
+    auctionHouse: AuctionHouse,
+    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findListingByAddressOperation({
+        address,
+        auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  bid(
+    input: CreateBidInput
+  ): Task<CreateBidOutput & { bid: Bid }> {
+    return new Task(async (scope) => {
+      const output = await this.metaplex
+        .operations()
+        .execute(createBidOperation(input), scope);
+      scope.throwIfCanceled();
+
+      try {
+        const bid = await this.findBidByAddress(
+          output.buyerTradeState,
+          input.auctionHouse
+        ).run(
+          scope
+        );
+        return { bid, ...output };
+      } catch (error) {
+        // Fallback to manually creating a bid from inputs and outputs.
+      }
+
+      scope.throwIfCanceled();
+      const lazyBid: LazyBid = {
+        model: 'bid',
+        lazy: true,
+        auctionHouse: input.auctionHouse,
+        tradeStateAddress: output.buyerTradeState,
+        bookkeeperAddress: output.bookkeeper,
+        tokenAddress: output.tokenAccount,
+        buyerAddress: output.buyer,
+        metadataAddress: output.metadata,
+        receiptAddress: output.receipt,
+        purchaseReceiptAddress: null,
+        isPublic: Boolean(output.tokenAccount),
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+        canceledAt: null,
+      };
+
+      return {
+        bid: await this.loadBid(lazyBid).run(scope),
+        ...output,
+      };
+    });
+  }
+
+  findBidByAddress(
+    address: PublicKey,
+    auctionHouse: AuctionHouse,
+    options: Omit<FindBidByAddressInput, 'address' | 'auctionHouse'> = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findBidByAddressOperation({
+        address,
+        auctionHouse,
+        ...options,
+      })
+    );
   }
 
   createAuctionHouse(

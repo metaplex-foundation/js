@@ -32,30 +32,29 @@ export type FindBidByAddressInput = {
 // -----------------
 
 export const findBidByAddressOperationHandler: OperationHandler<FindBidByAddressOperation> =
-  {
-    handle: async (
-      operation: FindBidByAddressOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        address,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+{
+  handle: async (
+    operation: FindBidByAddressOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const {
+      address,
+      auctionHouse,
+      commitment,
+      loadJsonMetadata = true,
+    } = operation.input;
 
-      const receiptAddress = findBidReceiptPda(address);
-      const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
+    const receiptAddress = findBidReceiptPda(address);
+    const account = toBidReceiptAccount(
+      await metaplex.rpc().getAccount(receiptAddress, commitment)
+    );
+    scope.throwIfCanceled();
 
-      const lazyBid = toLazyBid(account, auctionHouse);
-      return metaplex
-        .auctions()
-        .for(auctionHouse)
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
-        .run(scope);
-    },
-  };
+    const lazyBid = toLazyBid(account, auctionHouse);
+    return metaplex
+      .auctions()
+      .loadBid(lazyBid, { loadJsonMetadata, commitment })
+      .run(scope);
+  },
+};
