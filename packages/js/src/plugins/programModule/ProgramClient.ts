@@ -4,6 +4,9 @@ import { MissingGpaBuilderError, ProgramNotRecognizedError } from '@/errors';
 import { Program, Cluster } from '@/types';
 import { GpaBuilder } from '@/utils';
 
+/**
+ * @group Modules
+ */
 export class ProgramClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

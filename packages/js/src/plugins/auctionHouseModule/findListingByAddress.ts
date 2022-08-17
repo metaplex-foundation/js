@@ -12,14 +12,28 @@ import { findListingReceiptPda } from './pdas';
 // -----------------
 
 const Key = 'FindListingByAddressOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findListingByAddressOperation =
   useOperation<FindListingByAddressOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindListingByAddressOperation = Operation<
   typeof Key,
   FindListingByAddressInput,
   Listing
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindListingByAddressInput = {
   address: PublicKey;
   auctionHouse: AuctionHouse;
@@ -27,10 +41,10 @@ export type FindListingByAddressInput = {
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findListingByAddressOperationHandler: OperationHandler<FindListingByAddressOperation> =
 {
   handle: async (

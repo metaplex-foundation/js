@@ -18,14 +18,18 @@ test('[nftModule] a delegated authority can freeze its NFT', async (t: Test) => 
   const delegateAuthority = Keypair.generate();
   const nft = await createNft(mx);
   await mx
-    .nfts()
-    .approveDelegateAuthority(nft, {
+    .tokens()
+    .approveDelegateAuthority({
+      mintAddress: nft.address,
       delegateAuthority: delegateAuthority.publicKey,
     })
     .run();
 
   // When the delegated authority freezes the NFT.
-  await mx.nfts().freezeDelegatedNft(nft, { delegateAuthority }).run();
+  await mx
+    .nfts()
+    .freezeDelegatedNft({ mintAddress: nft.address, delegateAuthority })
+    .run();
 
   // Then the token account for that NFT is frozen.
   const frozenNft = await mx.nfts().refresh(nft).run();
@@ -47,7 +51,8 @@ test('[nftModule] the owner of the NFT cannot freeze its own NFT without a deleg
   // When the owner tries to freeze the NFT.
   const promise = mx
     .nfts()
-    .freezeDelegatedNft(nft, {
+    .freezeDelegatedNft({
+      mintAddress: nft.address,
       delegateAuthority: owner,
       tokenOwner: owner.publicKey,
     })

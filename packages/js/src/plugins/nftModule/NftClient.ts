@@ -1,39 +1,70 @@
 import type { Metaplex } from '@/Metaplex';
 import { token } from '@/types';
-import {
-  ApproveTokenDelegateAuthorityInput,
-  RevokeTokenDelegateAuthorityInput,
-  SendTokensInput,
-} from '../tokenModule';
-import { _approveNftCollectionAuthorityClient } from './approveNftCollectionAuthority';
-import { _approveNftUseAuthorityClient } from './approveNftUseAuthority';
-import { _createNftClient } from './createNft';
-import { _createSftClient } from './createSft';
-import { _deleteNftClient } from './deleteNft';
-import { _findNftByMetadataClient } from './findNftByMetadata';
-import { _findNftByMintClient, _refreshNftClient } from './findNftByMint';
-import { _findNftByTokenClient } from './findNftByToken';
-import { _findNftsByCreatorsClient } from './findNftsByCreator';
-import { _findNftsByMintListClient } from './findNftsByMintList';
-import { _findNftsByOwnerClient } from './findNftsByOwner';
-import { _findNftsByUpdateAuthorityClient } from './findNftsByUpdateAuthority';
-import { _freezeDelegatedNftClient } from './freezeDelegatedNft';
-import { HasMintAddress, toMintAddress } from './helpers';
-import { _loadMetadataClient } from './loadMetadata';
-import { _migrateToSizedCollectionNftClient } from './migrateToSizedCollectionNft';
+import { PartialKeys, Task } from '@/utils';
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey } from '@solana/web3.js';
+import { SendTokensInput } from '../tokenModule';
+import { toMintAddress } from './helpers';
+import { Nft, NftWithToken, Sft, SftWithToken } from './models';
 import { NftBuildersClient } from './NftBuildersClient';
-import { _printNewEditionClient } from './printNewEdition';
-import { _revokeNftCollectionAuthorityClient } from './revokeNftCollectionAuthority';
-import { _revokeNftUseAuthorityClient } from './revokeNftUseAuthority';
-import { _thawDelegatedNftClient } from './thawDelegatedNft';
-import { _unverifyNftCollectionClient } from './unverifyNftCollection';
-import { _unverifyNftCreatorClient } from './unverifyNftCreator';
-import { _updateNftClient } from './updateNft';
-import { _uploadMetadataClient } from './uploadMetadata';
-import { _useNftClient } from './useNft';
-import { _verifyNftCollectionClient } from './verifyNftCollection';
-import { _verifyNftCreatorClient } from './verifyNftCreator';
+import {
+  ApproveNftCollectionAuthorityInput,
+  approveNftCollectionAuthorityOperation,
+  ApproveNftUseAuthorityInput,
+  approveNftUseAuthorityOperation,
+  CreateNftInput,
+  createNftOperation,
+  CreateSftInput,
+  createSftOperation,
+  DeleteNftInput,
+  deleteNftOperation,
+  FindNftByMetadataInput,
+  findNftByMetadataOperation,
+  FindNftByMintInput,
+  findNftByMintOperation,
+  FindNftByTokenInput,
+  findNftByTokenOperation,
+  FindNftsByCreatorInput,
+  findNftsByCreatorOperation,
+  FindNftsByMintListInput,
+  findNftsByMintListOperation,
+  FindNftsByOwnerInput,
+  findNftsByOwnerOperation,
+  FindNftsByUpdateAuthorityInput,
+  findNftsByUpdateAuthorityOperation,
+  FreezeDelegatedNftInput,
+  freezeDelegatedNftOperation,
+  LoadMetadataInput,
+  loadMetadataOperation,
+  MigrateToSizedCollectionNftInput,
+  migrateToSizedCollectionNftOperation,
+  PrintNewEditionInput,
+  printNewEditionOperation,
+  RevokeNftCollectionAuthorityInput,
+  revokeNftCollectionAuthorityOperation,
+  RevokeNftUseAuthorityInput,
+  revokeNftUseAuthorityOperation,
+  ThawDelegatedNftInput,
+  thawDelegatedNftOperation,
+  UnverifyNftCollectionInput,
+  unverifyNftCollectionOperation,
+  UnverifyNftCreatorInput,
+  unverifyNftCreatorOperation,
+  UpdateNftInput,
+  updateNftOperation,
+  UploadMetadataInput,
+  uploadMetadataOperation,
+  UseNftInput,
+  useNftOperation,
+  VerifyNftCollectionInput,
+  verifyNftCollectionOperation,
+  VerifyNftCreatorInput,
+  verifyNftCreatorOperation,
+} from './operations';
 
+/**
+ * @group Modules
+ */
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
@@ -41,71 +72,211 @@ export class NftClient {
     return new NftBuildersClient(this.metaplex);
   }
 
-  // Queries.
-  findByMint = _findNftByMintClient;
-  findByMetadata = _findNftByMetadataClient;
-  findByToken = _findNftByTokenClient;
-  findAllByCreator = _findNftsByCreatorsClient;
-  findAllByMintList = _findNftsByMintListClient;
-  findAllByOwner = _findNftsByOwnerClient;
-  findAllByUpdateAuthority = _findNftsByUpdateAuthorityClient;
-  refresh = _refreshNftClient;
-  load = _loadMetadataClient;
+  // -----------------
+  // Queries
+  // -----------------
 
-  // Create, Update and Delete.
-  create = _createNftClient;
-  createSft = _createSftClient;
-  printNewEdition = _printNewEditionClient;
-  uploadMetadata = _uploadMetadataClient;
-  update = _updateNftClient;
-  delete = _deleteNftClient;
+  /** {@inheritDoc findNftByMintOperation} */
+  findByMint(input: FindNftByMintInput) {
+    return this.metaplex.operations().getTask(findNftByMintOperation(input));
+  }
 
-  // Use.
-  use = _useNftClient;
-  approveUseAuthority = _approveNftUseAuthorityClient;
-  revokeUseAuthority = _revokeNftUseAuthorityClient;
+  /** {@inheritDoc findNftByMetadataOperation} */
+  findByMetadata(input: FindNftByMetadataInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftByMetadataOperation(input));
+  }
 
-  // Creators.
-  verifyCreator = _verifyNftCreatorClient;
-  unverifyCreator = _unverifyNftCreatorClient;
+  /** {@inheritDoc findNftByTokenOperation} */
+  findByToken(input: FindNftByTokenInput) {
+    return this.metaplex.operations().getTask(findNftByTokenOperation(input));
+  }
 
-  // Collections.
-  verifyCollection = _verifyNftCollectionClient;
-  unverifyCollection = _unverifyNftCollectionClient;
-  approveCollectionAuthority = _approveNftCollectionAuthorityClient;
-  revokeCollectionAuthority = _revokeNftCollectionAuthorityClient;
-  migrateToSizedCollection = _migrateToSizedCollectionNftClient;
+  /** {@inheritDoc findNftsByCreatorOperation} */
+  findAllByCreator(input: FindNftsByCreatorInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByCreatorOperation(input));
+  }
 
-  // Token.
-  freezeDelegatedNft = _freezeDelegatedNftClient;
-  thawDelegatedNft = _thawDelegatedNftClient;
+  /** {@inheritDoc findNftsByMintListOperation} */
+  findAllByMintList(input: FindNftsByMintListInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByMintListOperation(input));
+  }
 
-  // Syntactic sugar.
-  send(nftOrSft: HasMintAddress, options?: Omit<SendTokensInput, 'mint'>) {
+  /** {@inheritDoc findNftsByOwnerOperation} */
+  findAllByOwner(input: FindNftsByOwnerInput) {
+    return this.metaplex.operations().getTask(findNftsByOwnerOperation(input));
+  }
+
+  /** {@inheritDoc findNftsByUpdateAuthorityOperation} */
+  findAllByUpdateAuthority(input: FindNftsByUpdateAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findNftsByUpdateAuthorityOperation(input));
+  }
+
+  /** {@inheritDoc loadMetadataOperation} */
+  load(input: LoadMetadataInput) {
+    return this.metaplex.operations().getTask(loadMetadataOperation(input));
+  }
+
+  /**
+   * Helper method that refetches a given model
+   * and returns an instance of the same type.
+   */
+  refresh<
+    T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey
+  >(
+    model: T,
+    input?: Omit<
+      FindNftByMintInput,
+      'mintAddress' | 'tokenAddres' | 'tokenOwner'
+    >
+  ): Task<T extends Metadata | PublicKey ? Nft | Sft : T> {
+    return this.findByMint({
+      mintAddress: toMintAddress(model),
+      tokenAddress: 'token' in model ? model.token.address : undefined,
+      ...input,
+    }) as Task<T extends Metadata | PublicKey ? Nft | Sft : T>;
+  }
+
+  // -----------------
+  // Create, Update and Delete
+  // -----------------
+
+  /** {@inheritDoc createNftOperation} */
+  create(input: CreateNftInput) {
+    return this.metaplex.operations().getTask(createNftOperation(input));
+  }
+
+  /** {@inheritDoc createSftOperation} */
+  createSft(input: CreateSftInput) {
+    return this.metaplex.operations().getTask(createSftOperation(input));
+  }
+
+  /** {@inheritDoc printNewEditionOperation} */
+  printNewEdition(input: PrintNewEditionInput) {
+    return this.metaplex.operations().getTask(printNewEditionOperation(input));
+  }
+
+  /** {@inheritDoc uploadMetadataOperation} */
+  uploadMetadata(input: UploadMetadataInput) {
+    return this.metaplex.operations().getTask(uploadMetadataOperation(input));
+  }
+
+  /** {@inheritDoc updateNftOperation} */
+  update(input: UpdateNftInput) {
+    return this.metaplex.operations().getTask(updateNftOperation(input));
+  }
+
+  /** {@inheritDoc deleteNftOperation} */
+  delete(input: DeleteNftInput) {
+    return this.metaplex.operations().getTask(deleteNftOperation(input));
+  }
+
+  // -----------------
+  // Use
+  // -----------------
+
+  /** {@inheritDoc useNftOperation} */
+  use(input: UseNftInput) {
+    return this.metaplex.operations().getTask(useNftOperation(input));
+  }
+
+  /** {@inheritDoc approveNftUseAuthorityOperation} */
+  approveUseAuthority(input: ApproveNftUseAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(approveNftUseAuthorityOperation(input));
+  }
+
+  /** {@inheritDoc revokeNftUseAuthorityOperation} */
+  revokeUseAuthority(input: RevokeNftUseAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(revokeNftUseAuthorityOperation(input));
+  }
+
+  // -----------------
+  // Creators
+  // -----------------
+
+  /** {@inheritDoc verifyNftCreatorOperation} */
+  verifyCreator(input: VerifyNftCreatorInput) {
+    return this.metaplex.operations().getTask(verifyNftCreatorOperation(input));
+  }
+
+  /** {@inheritDoc unverifyNftCreatorOperation} */
+  unverifyCreator(input: UnverifyNftCreatorInput) {
+    return this.metaplex
+      .operations()
+      .getTask(unverifyNftCreatorOperation(input));
+  }
+
+  // -----------------
+  // Collections
+  // -----------------
+
+  /** {@inheritDoc verifyNftCollectionOperation} */
+  verifyCollection(input: VerifyNftCollectionInput) {
+    return this.metaplex
+      .operations()
+      .getTask(verifyNftCollectionOperation(input));
+  }
+
+  /** {@inheritDoc unverifyNftCollectionOperation} */
+  unverifyCollection(input: UnverifyNftCollectionInput) {
+    return this.metaplex
+      .operations()
+      .getTask(unverifyNftCollectionOperation(input));
+  }
+
+  /** {@inheritDoc approveNftCollectionAuthorityOperation} */
+  approveCollectionAuthority(input: ApproveNftCollectionAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(approveNftCollectionAuthorityOperation(input));
+  }
+
+  /** {@inheritDoc revokeNftCollectionAuthorityOperation} */
+  revokeCollectionAuthority(input: RevokeNftCollectionAuthorityInput) {
+    return this.metaplex
+      .operations()
+      .getTask(revokeNftCollectionAuthorityOperation(input));
+  }
+
+  /** {@inheritDoc migrateToSizedCollectionNftOperation} */
+  migrateToSizedCollection(input: MigrateToSizedCollectionNftInput) {
+    return this.metaplex
+      .operations()
+      .getTask(migrateToSizedCollectionNftOperation(input));
+  }
+
+  // -----------------
+  // Tokens
+  // -----------------
+
+  /** {@inheritDoc freezeDelegatedNftOperation} */
+  freezeDelegatedNft(input: FreezeDelegatedNftInput) {
+    return this.metaplex
+      .operations()
+      .getTask(freezeDelegatedNftOperation(input));
+  }
+
+  /** {@inheritDoc thawDelegatedNftOperation} */
+  thawDelegatedNft(input: ThawDelegatedNftInput) {
+    return this.metaplex.operations().getTask(thawDelegatedNftOperation(input));
+  }
+
+  /** {@inheritDoc sendTokensOperation} */
+  send(input: PartialKeys<SendTokensInput, 'amount'>) {
     return this.metaplex.tokens().send({
-      mint: toMintAddress(nftOrSft),
+      ...input,
       amount: token(1),
-      ...options,
-    });
-  }
-
-  approveDelegateAuthority(
-    nftOrSft: HasMintAddress,
-    options: Omit<ApproveTokenDelegateAuthorityInput, 'mintAddress'>
-  ) {
-    return this.metaplex.tokens().approveDelegateAuthority({
-      mintAddress: toMintAddress(nftOrSft),
-      ...options,
-    });
-  }
-
-  revokeDelegateAuthority(
-    nftOrSft: HasMintAddress,
-    options?: Omit<RevokeTokenDelegateAuthorityInput, 'mintAddress'>
-  ) {
-    return this.metaplex.tokens().revokeDelegateAuthority({
-      mintAddress: toMintAddress(nftOrSft),
-      ...options,
     });
   }
 }

@@ -97,9 +97,10 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
     await mx.auctions().findListingByAddress(sellerTradeState, auctionHouse).run();
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {
-    const hasNotFoundMessage = error.message.includes(
-      'The account of type [ListingReceipt] was not found'
-    );
+    const hasNotFoundMessage =
+      /The account of type \[ListingReceipt.*\] was not found/.test(
+        error.message
+      );
     t.ok(error instanceof AccountNotFoundError, 'throws AccountNotFoundError');
     t.ok(hasNotFoundMessage, 'has ListingReceipt Not Found message');
   }

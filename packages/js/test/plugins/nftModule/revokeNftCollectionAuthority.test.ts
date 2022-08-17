@@ -34,27 +34,29 @@ test('[nftModule] it can revoke a collection authority for a given NFT', async (
   const delegatedCollectionAuthority = Keypair.generate();
   await mx
     .nfts()
-    .approveCollectionAuthority(
-      collection,
-      delegatedCollectionAuthority.publicKey,
-      { updateAuthority: collectionAuthority }
-    )
+    .approveCollectionAuthority({
+      mintAddress: collection.address,
+      collectionAuthority: delegatedCollectionAuthority.publicKey,
+      updateAuthority: collectionAuthority,
+    })
     .run();
 
   // When we revoke that authority.
   await mx
     .nfts()
-    .revokeCollectionAuthority(
-      collection,
-      delegatedCollectionAuthority.publicKey,
-      { revokeAuthority: collectionAuthority }
-    )
+    .revokeCollectionAuthority({
+      mintAddress: collection.address,
+      collectionAuthority: delegatedCollectionAuthority.publicKey,
+      revokeAuthority: collectionAuthority,
+    })
     .run();
 
   // Then we expect an error when we try to verify the NFT using that delegated authority.
   const promise = mx
     .nfts()
-    .verifyCollection(nft, {
+    .verifyCollection({
+      mintAddress: nft.address,
+      collectionMintAddress: nft.collection!.address,
       collectionAuthority: delegatedCollectionAuthority,
       isDelegated: true,
     })

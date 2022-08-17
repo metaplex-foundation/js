@@ -23,13 +23,29 @@ test('[nftModule] it can revoke a Use authority for a given Nft', async (t: Test
 
   // And a use authority has been approved.
   const currentUser = Keypair.generate();
-  await mx.nfts().approveUseAuthority(nft, currentUser.publicKey).run();
+  await mx
+    .nfts()
+    .approveUseAuthority({
+      mintAddress: nft.address,
+      user: currentUser.publicKey,
+    })
+    .run();
 
   // When we revoke that use authority.
-  await mx.nfts().revokeUseAuthority(nft, currentUser.publicKey).run();
+  await mx
+    .nfts()
+    .revokeUseAuthority({
+      mintAddress: nft.address,
+      user: currentUser.publicKey,
+    })
+    .run();
 
   // Then it can no longer use that NFT.
-  const promise = mx.nfts().use(nft, { useAuthority: currentUser }).run();
+  const promise = mx
+    .nfts()
+    .use({ mintAddress: nft.address, useAuthority: currentUser })
+    .run();
+
   await assertThrows(
     t,
     promise,

@@ -40,6 +40,9 @@ export type SendAndConfirmTransactionResponse = {
   confirmResponse: ConfirmTransactionResponse;
 };
 
+/**
+ * @group Modules
+ */
 export class RpcClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
@@ -131,6 +134,15 @@ export class RpcClient {
     );
 
     return this.getUnparsedMaybeAccount(publicKey, accountInfo);
+  }
+
+  async accountExists(publicKey: PublicKey, commitment?: Commitment) {
+    const balance = await this.metaplex.connection.getBalance(
+      publicKey,
+      commitment
+    );
+
+    return balance > 0;
   }
 
   async getMultipleAccounts(publicKeys: PublicKey[], commitment?: Commitment) {

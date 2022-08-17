@@ -1,5 +1,6 @@
 import { MetaplexErrorOptions, SdkError } from '@/errors';
 
+/** @group Errors */
 export class UninitializedDerivedIdentityError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({

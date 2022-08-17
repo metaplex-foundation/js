@@ -4,36 +4,23 @@ import { CandyMachinesClient } from './CandyMachinesClient';
 import {
   createCandyMachineOperation,
   createCandyMachineOperationHandler,
-} from './createCandyMachine';
-import {
   deleteCandyMachineOperation,
   deleteCandyMachineOperationHandler,
-} from './deleteCandyMachine';
-import {
   findCandyMachineByAddressOperation,
   findCandyMachineByAddressOperationHandler,
-} from './findCandyMachineByAddress';
-import {
   findCandyMachinesByPublicKeyFieldOperation,
   findCandyMachinesByPublicKeyFieldOperationHandler,
-} from './findCandyMachinesByPublicKeyField';
-import {
   findMintedNftsByCandyMachineOperation,
   findMintedNftsByCandyMachineOperationHandler,
-} from './findMintedNftsByCandyMachine';
-import {
   insertItemsToCandyMachineOperation,
   InsertItemsToCandyMachineOperationHandler,
-} from './insertItemsToCandyMachine';
-import {
   mintCandyMachineOperation,
   mintCandyMachineOperationHandler,
-} from './mintCandyMachine';
-import {
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
-} from './updateCandyMachine';
+} from './operations';
 
+/** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     const op = metaplex.operations();

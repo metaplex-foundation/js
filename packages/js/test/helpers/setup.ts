@@ -12,11 +12,11 @@ import {
 } from '@/index';
 import { amman } from './amman';
 
-export interface MetaplexTestOptions {
+export type MetaplexTestOptions = {
   rpcEndpoint?: string;
   commitment?: Commitment;
   solsToAirdrop?: number;
-}
+};
 
 export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
   const connection = new Connection(options.rpcEndpoint ?? LOCALHOST, {

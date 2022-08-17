@@ -5,6 +5,7 @@ import {
   MetaplexErrorOptions,
 } from '@/errors';
 
+/** @group Errors */
 export class TokenError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -17,6 +18,7 @@ export class TokenError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class MintAuthorityMustBeSignerToMintInitialSupplyError extends TokenError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -34,6 +36,7 @@ export class MintAuthorityMustBeSignerToMintInitialSupplyError extends TokenErro
   }
 }
 
+/** @group Errors */
 export class TokenAndMintDoNotMatchError extends TokenError {
   constructor(
     token: PublicKey,

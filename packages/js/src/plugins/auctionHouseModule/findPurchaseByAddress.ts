@@ -12,14 +12,28 @@ import { findPurchaseReceiptPda } from './pdas';
 // -----------------
 
 const Key = 'FindPurchaseByAddressOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const findPurchaseByAddressOperation =
   useOperation<FindPurchaseByAddressOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type FindPurchaseByAddressOperation = Operation<
   typeof Key,
   FindPurchaseByAddressInput,
   Purchase
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type FindPurchaseByAddressInput = {
   sellerTradeState: PublicKey;
   buyerTradeState: PublicKey;
@@ -28,10 +42,10 @@ export type FindPurchaseByAddressInput = {
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const findPurchaseByAddressOperationHandler: OperationHandler<FindPurchaseByAddressOperation> =
 {
   handle: async (

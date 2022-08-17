@@ -46,18 +46,18 @@ Once properly configured, that `Metaplex` instance can be used to access modules
 Every method that you call on the SDK will return an instance of type `Task<T>` where `T` is the return value you can expect when running the task. For instance, say you want to fetch an NFT via its mint address, you can access the `Task<Nft>` and run it like so:
 
 ```ts
-const task = metaplex.nfts().findByMint(mintAddress);
+const task = metaplex.nfts().findByMint({ mintAddress });
 const nft = await task.run();
 
 // Or for short:
-const nft = await metaplex.nfts().findByMint(mintAddress).run();
+const nft = await metaplex.nfts().findByMint({ mintAddress }).run();
 ```
 
 There are several advantages in consistently wrapping these operations into tasks. For instance, you can use the `task` instance to keep track of its progress _and_ you can cancel the task using an `AbortSignal` (similarly to how you cancel an HTTP request).
 
 ```ts
 // Access the task that fetches the NFT.
-const task = metaplex.nfts().findByMint(mintAddress);
+const task = metaplex.nfts().findByMint({ mintAddress });
 
 // Listen to status changes an log them in the console.
 task.onStatusChange((status: TaskStatus) => console.log(status));
@@ -77,16 +77,16 @@ Now, let’s look into the NFT module in a bit more detail before moving on to t
 ## NFTs
 The NFT module can be accessed via `metaplex.nfts()` and provides the following methods.
 
-- [`findByMint(mint, options)`](#findByMint)
-- [`findAllByMintList(mints, options)`](#findAllByMintList)
-- [`load(metadata, options)`](#load)
-- [`findAllByOwner(owner, options)`](#findAllByOwner)
-- [`findAllByCreator(creator, options)`](#findAllByCreator)
-- [`uploadMetadata(metadata)`](#uploadMetadata)
-- [`create(input)`](#create)
-- [`update(nft, input)`](#update)
-- [`printNewEdition(originalMint, input)`](#printNewEdition)
-- [`use(nft, input)`](#useNft)
+- [`findByMint`](#findByMint)
+- [`findAllByMintList`](#findAllByMintList)
+- [`load`](#load)
+- [`findAllByOwner`](#findAllByOwner)
+- [`findAllByCreator`](#findAllByCreator)
+- [`uploadMetadata`](#uploadMetadata)
+- [`create`](#create)
+- [`update`](#update)
+- [`printNewEdition`](#printNewEdition)
+- [`use`](#useNft)
 
 And the following model, either returned or used by the above methods.
 
@@ -94,12 +94,12 @@ And the following model, either returned or used by the above methods.
 
 ### findByMint
 
-The `findByMint` method accepts a `mint` public key and returns [an `Nft` object](#the-nft-model).
+The `findByMint` method accepts a `mintAddress` public key and returns [an `Nft` object](#the-nft-model).
 
 ```ts
-const mint = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
+const mintAddress = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findByMint(mint).run();
+const nft = await metaplex.nfts().findByMint({ mintAddress }).run();
 ```
 
 The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
@@ -133,7 +133,7 @@ Note that this is much more efficient than calling `findByMint` for each mint in
 ```ts
 const [nftA, nftB] = await metaplex
     .nfts()
-    .findAllByMintList([mintA, mintB])
+    .findAllByMintList({ mints: [mintA, mintB] })
     .run();
 ```
 
@@ -150,7 +150,7 @@ Thus, if you want to load the `json` and/or `edition` properties of an NFT, you 
 For performance reasons, when fetching NFTs in bulk, you may received `Metadata`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `Metadata` into an `Nft`, you may use the `load` operation like so.
 
 ```ts
-const nft = await metaplex.nfts().load(metadata).run();
+const nft = await metaplex.nfts().load({ metadata }).run();
 ```
 
 This will give you access to the `json` and `edition` properties of the NFT as explained in [the NFT model documentation](#the-nft-model).
@@ -162,7 +162,7 @@ The `findAllByOwner` method accepts a public key and returns all NFTs owned by t
 ```ts
 const myNfts = await metaplex
     .nfts()
-    .findAllByOwner(metaplex.identity().publicKey)
+    .findAllByOwner({ owner: metaplex.identity().publicKey })
     .run();
 ```
 
@@ -173,9 +173,9 @@ Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
 The `findAllByCreator` method accepts a public key and returns all NFTs that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
 
 ```ts
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey).run();
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position: 1 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCreator(creatorPublicKey, { position: 2 }).run(); // Now matching the second creator field.
+const nfts = await metaplex.nfts().findAllByCreator({ creator }).run();
+const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 1 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 2 }).run(); // Now matching the second creator field.
 ```
 
 Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
@@ -265,7 +265,10 @@ For instance, here is how you would change the on-chain name of an NFT.
 ```ts
 const { nft: updatedNft } = await metaplex
     .nfts()
-    .update(nft, { name: "My Updated Name" })
+    .update({ 
+        nftOrSft: nft,
+        name: "My Updated Name"
+    })
     .run();
 ```
 
@@ -285,7 +288,10 @@ const { uri: newUri } = await metaplex
 
 const { nft: updatedNft } = await metaplex
     .nfts()
-    .update(nft, { uri: newUri })
+    .update({ 
+        nftOrSft: nft,
+        uri: newUri
+    })
     .run();
 ```
 
@@ -298,28 +304,30 @@ This is how you would print a new edition of the `originalNft` NFT.
 ```ts
 const { nft: printedNft } = await metaplex
     .nfts()
-    .printNewEdition(originalNft.mint)
+    .printNewEdition({ originalMint: originalNft.mint })
     .run();
 ```
 
 By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
 
 ```ts
-metaplex.nfts().printNewEdition(originalMint, {
-  newMint,                   // Defaults to a brand-new Keypair.
-  newUpdateAuthority,        // Defaults to the current identity.
-  newOwner,                  // Defaults to the current identity.
-  payer,                     // Defaults to the current identity.
-  originalTokenAccountOwner, // Defaults to the current identity.
-  originalTokenAccount,      // Defaults to the associated token account of the current identity.
+metaplex.nfts().printNewEdition({
+    originalMint,
+    newMint,                   // Defaults to a brand-new Keypair.
+    newUpdateAuthority,        // Defaults to the current identity.
+    newOwner,                  // Defaults to the current identity.
+    payer,                     // Defaults to the current identity.
+    originalTokenAccountOwner, // Defaults to the current identity.
+    originalTokenAccount,      // Defaults to the associated token account of the current identity.
 });
 ```
 
 Notice that, by default, update authority will be transfered to the metaplex identity. If you want the printed edition to retain the update authority of the original edition, you might want to provide it explicitly like so.
 
 ```ts
-metaplex.nfts().printNewEdition(originalMint, {
-  newUpdateAuthority: originalNft.updateAuthorityAddress,
+metaplex.nfts().printNewEdition({
+    originalMint,
+    newUpdateAuthority: originalNft.updateAuthorityAddress,
 });
 ```
 
@@ -328,8 +336,8 @@ metaplex.nfts().printNewEdition(originalMint, {
 The `use` method requires [a usable NFT](https://docs.metaplex.com/programs/token-metadata/using-nfts) and will decrease the amount of uses by one. You may also provide the `numberOfUses` parameter, if you'd like to use it more than once in the same instruction.
 
 ```ts
-const { nft: usedNft } = await mx.nfts().use(nft).run(); // Use once.
-const { nft: usedNft } = await mx.nfts().use(nft, { numberOfUses: 3 }).run(); // Use three times.
+await mx.nfts().use({ mintAddress: nft.address }).run(); // Use once.
+await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 }).run(); // Use three times.
 ```
 
 ### The `Nft` model
@@ -416,9 +424,9 @@ The `findMintedNfts` method accepts the public key of a Candy Machine and return
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine).run();
-const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine, { version: 2 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.candyMachines().findMintedNfts(candyMachine, { version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine }).run();
+const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine, version: 2 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine, version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
 ```
 
 Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.

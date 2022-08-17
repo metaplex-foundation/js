@@ -1,99 +1,65 @@
 import type { Metaplex } from '@/Metaplex';
 import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { cusper } from '@metaplex-foundation/mpl-token-metadata';
+import { TokenMetadataGpaBuilder } from './gpaBuilders';
+import { NftClient } from './NftClient';
 import {
   approveNftCollectionAuthorityOperation,
   approveNftCollectionAuthorityOperationHandler,
-} from './approveNftCollectionAuthority';
-import {
   approveNftUseAuthorityOperation,
   approveNftUseAuthorityOperationHandler,
-} from './approveNftUseAuthority';
-import { createNftOperation, createNftOperationHandler } from './createNft';
-import { createSftOperation, createSftOperationHandler } from './createSft';
-import { deleteNftOperation, deleteNftOperationHandler } from './deleteNft';
-import {
+  createNftOperation,
+  createNftOperationHandler,
+  createSftOperation,
+  createSftOperationHandler,
+  deleteNftOperation,
+  deleteNftOperationHandler,
   findNftByMetadataOperation,
   findNftByMetadataOperationHandler,
-} from './findNftByMetadata';
-import {
   findNftByMintOperation,
   findNftByMintOperationHandler,
-} from './findNftByMint';
-import {
   findNftByTokenOperation,
   findNftByTokenOperationHandler,
-} from './findNftByToken';
-import {
   findNftsByCreatorOperation,
   findNftsByCreatorOperationHandler,
-} from './findNftsByCreator';
-import {
   findNftsByMintListOperation,
   findNftsByMintListOperationHandler,
-} from './findNftsByMintList';
-import {
   findNftsByOwnerOperation,
   findNftsByOwnerOperationHandler,
-} from './findNftsByOwner';
-import {
   findNftsByUpdateAuthorityOperation,
   findNftsByUpdateAuthorityOperationHandler,
-} from './findNftsByUpdateAuthority';
-import {
   freezeDelegatedNftOperation,
   freezeDelegatedNftOperationHandler,
-} from './freezeDelegatedNft';
-import { TokenMetadataGpaBuilder } from './gpaBuilders';
-import {
   loadMetadataOperation,
   loadMetadataOperationHandler,
-} from './loadMetadata';
-import {
   migrateToSizedCollectionNftOperation,
   migrateToSizedCollectionNftOperationHandler,
-} from './migrateToSizedCollectionNft';
-import { NftClient } from './NftClient';
-import {
   printNewEditionOperation,
   printNewEditionOperationHandler,
-} from './printNewEdition';
-import { TokenMetadataProgram } from './program';
-import {
   revokeNftCollectionAuthorityOperation,
   revokeNftCollectionAuthorityOperationHandler,
-} from './revokeNftCollectionAuthority';
-import {
   revokeNftUseAuthorityOperation,
   revokeNftUseAuthorityOperationHandler,
-} from './revokeNftUseAuthority';
-import {
   thawDelegatedNftOperation,
   thawDelegatedNftOperationHandler,
-} from './thawDelegatedNft';
-import {
   unverifyNftCollectionOperation,
   unverifyNftCollectionOperationHandler,
-} from './unverifyNftCollection';
-import {
   unverifyNftCreatorOperation,
   unverifyNftCreatorOperationHandler,
-} from './unverifyNftCreator';
-import { updateNftOperation, updateNftOperationHandler } from './updateNft';
-import {
+  updateNftOperation,
+  updateNftOperationHandler,
   uploadMetadataOperation,
   uploadMetadataOperationHandler,
-} from './uploadMetadata';
-import { useNftOperation, useNftOperationHandler } from './useNft';
-import {
+  useNftOperation,
+  useNftOperationHandler,
   verifyNftCollectionOperation,
   verifyNftCollectionOperationHandler,
-} from './verifyNftCollection';
-import {
   verifyNftCreatorOperation,
   verifyNftCreatorOperationHandler,
-} from './verifyNftCreator';
+} from './operations';
+import { TokenMetadataProgram } from './program';
 
+/** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Token Metadata Program.

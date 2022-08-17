@@ -4,6 +4,7 @@ import {
   MetaplexErrorOptions,
 } from './MetaplexError';
 
+/** @group Errors */
 export class BundlrError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -16,6 +17,7 @@ export class BundlrError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class FailedToInitializeBundlrError extends BundlrError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -30,6 +32,7 @@ export class FailedToInitializeBundlrError extends BundlrError {
   }
 }
 
+/** @group Errors */
 export class FailedToConnectToBundlrAddressError extends BundlrError {
   constructor(address: string, options?: MetaplexErrorOptions) {
     super({
@@ -44,6 +47,7 @@ export class FailedToConnectToBundlrAddressError extends BundlrError {
   }
 }
 
+/** @group Errors */
 export class AssetUploadFailedError extends BundlrError {
   constructor(status: number, options?: MetaplexErrorOptions) {
     super({
@@ -60,6 +64,7 @@ export class AssetUploadFailedError extends BundlrError {
   }
 }
 
+/** @group Errors */
 export class BundlrWithdrawError extends BundlrError {
   constructor(status: number, options?: MetaplexErrorOptions) {
     super({

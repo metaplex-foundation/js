@@ -2,6 +2,7 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { MintGpaBuilder, TokenGpaBuilder } from './gpaBuilders';
 import { Metaplex } from '@/Metaplex';
 
+/** @group Programs */
 export const TokenProgram = {
   publicKey: TOKEN_PROGRAM_ID,
 

@@ -10,23 +10,37 @@ import { assertNftOrSftWithToken } from '../nftModule';
 // -----------------
 
 const Key = 'LoadPurchaseOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const loadPurchaseOperation = useOperation<LoadPurchaseOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type LoadPurchaseOperation = Operation<
   typeof Key,
   LoadPurchaseInput,
   Purchase
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type LoadPurchaseInput = {
   lazyPurchase: LazyPurchase;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperation> =
   {
     handle: async (
@@ -42,7 +56,8 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
 
       const asset = await metaplex
         .nfts()
-        .findByMetadata(lazyPurchase.metadataAddress, {
+        .findByMetadata({
+          metadata: lazyPurchase.metadataAddress,
           tokenOwner: lazyPurchase.buyerAddress,
           commitment,
           loadJsonMetadata,

@@ -8,6 +8,9 @@ import {
 } from './MetaplexFile';
 import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
 
+/**
+ * @group Modules
+ */
 export class StorageClient implements HasDriver<StorageDriver> {
   private _driver: StorageDriver | null = null;
 

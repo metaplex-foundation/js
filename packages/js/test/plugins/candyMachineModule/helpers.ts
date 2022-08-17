@@ -26,7 +26,8 @@ export async function createCandyMachine(
   if (input.items) {
     await mx
       .candyMachines()
-      .insertItems(candyMachine, {
+      .insertItems({
+        candyMachine,
         authority: mx.identity(),
         items: input.items,
       })

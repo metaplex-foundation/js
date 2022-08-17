@@ -5,6 +5,7 @@ import {
 } from '@/errors';
 import { PublicKey } from '@solana/web3.js';
 
+/** @group Errors */
 export class NftError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -17,6 +18,7 @@ export class NftError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class ParentCollectionMissingError extends NftError {
   constructor(
     mint: PublicKey,

@@ -2,14 +2,14 @@ import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
 
-export type Account<T> = Readonly<{
-  publicKey: PublicKey;
-  executable: boolean;
-  owner: PublicKey;
-  lamports: number;
-  data: T;
-  rentEpoch?: number;
-}>;
+export type Account<T> = {
+  readonly publicKey: PublicKey;
+  readonly executable: boolean;
+  readonly owner: PublicKey;
+  readonly lamports: number;
+  readonly data: T;
+  readonly rentEpoch?: number;
+};
 
 export type MaybeAccount<T> =
   | (Account<T> & { readonly exists: true })

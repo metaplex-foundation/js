@@ -7,6 +7,7 @@ import {
 
 type UnderlyingProgramError = Error & { code?: number; logs?: string[] };
 
+/** @group Errors */
 export class ProgramError extends MetaplexError {
   public program: Program;
 
@@ -22,6 +23,7 @@ export class ProgramError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class ParsedProgramError extends ProgramError {
   constructor(
     program: Program,
@@ -47,6 +49,7 @@ export class ParsedProgramError extends ProgramError {
   }
 }
 
+/** @group Errors */
 export class UnknownProgramError extends ProgramError {
   constructor(
     program: Program,

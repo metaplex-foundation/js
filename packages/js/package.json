@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -38,15 +38,15 @@
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/test/plugins/auctionHouseModule/*.test.js && yarn test:exports",
     "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "preversion": "yarn build && yarn test",
+    "preversion": "yarn build",
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.2.0",
-    "@metaplex-foundation/beet-solana": "^0.1.1",
+    "@metaplex-foundation/beet": "^0.4.0",
+    "@metaplex-foundation/beet-solana": "^0.3.0",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
-    "@metaplex-foundation/mpl-candy-machine": "^4.3.0",
+    "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
     "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
     "@solana/spl-token": "^0.2.0",
     "@solana/web3.js": "^1.47.3",

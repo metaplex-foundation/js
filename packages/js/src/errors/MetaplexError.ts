@@ -31,6 +31,7 @@ export type MetaplexErrorOptions = {
   logs?: string[];
 };
 
+/** @group Errors */
 export class MetaplexError extends Error {
   readonly name: 'MetaplexError' = 'MetaplexError';
   readonly key: string;

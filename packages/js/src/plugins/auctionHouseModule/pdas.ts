@@ -4,6 +4,7 @@ import { BigNumber, Pda } from '@/types';
 import { Option } from '@/utils';
 import { AuctionHouseProgram } from './program';
 
+/** @group Pdas */
 export const findAuctionHousePda = (
   creator: PublicKey,
   treasuryMint: PublicKey,
@@ -16,6 +17,7 @@ export const findAuctionHousePda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctioneerPda = (
   auctionHouse: PublicKey,
   auctioneerAuthority: PublicKey,
@@ -28,6 +30,7 @@ export const findAuctioneerPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctionHouseProgramAsSignerPda = (
   programId: PublicKey = AuctionHouseProgram.publicKey
 ): Pda => {
@@ -37,6 +40,7 @@ export const findAuctionHouseProgramAsSignerPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctionHouseFeePda = (
   auctionHouse: PublicKey,
   programId: PublicKey = AuctionHouseProgram.publicKey
@@ -48,6 +52,7 @@ export const findAuctionHouseFeePda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctionHouseTreasuryPda = (
   auctionHouse: PublicKey,
   programId: PublicKey = AuctionHouseProgram.publicKey
@@ -59,6 +64,7 @@ export const findAuctionHouseTreasuryPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctionHouseBuyerEscrowPda = (
   auctionHouse: PublicKey,
   buyer: PublicKey,
@@ -71,6 +77,7 @@ export const findAuctionHouseBuyerEscrowPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findAuctionHouseTradeStatePda = (
   auctionHouse: PublicKey,
   wallet: PublicKey,
@@ -93,6 +100,7 @@ export const findAuctionHouseTradeStatePda = (
   ]);
 };
 
+/** @group Pdas */
 export const findListingReceiptPda = (
   tradeState: PublicKey,
   programId: PublicKey = AuctionHouseProgram.publicKey
@@ -103,6 +111,7 @@ export const findListingReceiptPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findBidReceiptPda = (
   tradeState: PublicKey,
   programId: PublicKey = AuctionHouseProgram.publicKey
@@ -113,6 +122,7 @@ export const findBidReceiptPda = (
   ]);
 };
 
+/** @group Pdas */
 export const findPurchaseReceiptPda = (
   sellerTradeState: PublicKey,
   buyerTradeState: PublicKey,

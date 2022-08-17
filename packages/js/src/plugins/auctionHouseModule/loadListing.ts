@@ -10,23 +10,37 @@ import { assertNftOrSftWithToken } from '../nftModule';
 // -----------------
 
 const Key = 'LoadListingOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
 export const loadListingOperation = useOperation<LoadListingOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
 export type LoadListingOperation = Operation<
   typeof Key,
   LoadListingInput,
   Listing
 >;
 
+/**
+ * @group Operations
+ * @category Inputs
+ */
 export type LoadListingInput = {
   lazyListing: LazyListing;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
 };
 
-// -----------------
-// Handler
-// -----------------
-
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
   {
     handle: async (
@@ -42,7 +56,8 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
 
       const asset = await metaplex
         .nfts()
-        .findByMetadata(lazyListing.metadataAddress, {
+        .findByMetadata({
+          metadata: lazyListing.metadataAddress,
           tokenOwner: lazyListing.sellerAddress,
           commitment,
           loadJsonMetadata,

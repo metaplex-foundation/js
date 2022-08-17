@@ -4,6 +4,7 @@ import {
   MetaplexErrorOptions,
 } from '@/errors';
 
+/** @group Errors */
 export class AuctionHouseError extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
@@ -16,6 +17,7 @@ export class AuctionHouseError extends MetaplexError {
   }
 }
 
+/** @group Errors */
 export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -35,6 +37,7 @@ export class TreasuryDestinationOwnerRequiredError extends AuctionHouseError {
   }
 }
 
+/** @group Errors */
 export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -52,6 +55,7 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
   }
 }
 
+/** @group Errors */
 export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -67,6 +71,7 @@ export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseEr
   }
 }
 
+/** @group Errors */
 export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -82,6 +87,7 @@ export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
   }
 }
 
+/** @group Errors */
 export class CanceledBidIsNotAllowedError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -95,6 +101,7 @@ export class CanceledBidIsNotAllowedError extends AuctionHouseError {
   }
 }
 
+/** @group Errors */
 export class CanceledListingIsNotAllowedError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({

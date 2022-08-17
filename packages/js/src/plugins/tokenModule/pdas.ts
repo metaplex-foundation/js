@@ -3,6 +3,7 @@ import { Pda } from '@/types';
 import { TokenProgram } from './program';
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
+/** @group Pdas */
 export const findAssociatedTokenAccountPda = (
   mint: PublicKey,
   owner: PublicKey,

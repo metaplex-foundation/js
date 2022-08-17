@@ -19,7 +19,7 @@ test('[nftModule] the owner of an NFT can delete it', async (t: Test) => {
   const nft = await createNft(mx, { tokenOwner: owner.publicKey });
 
   // When the owner deletes the NFT.
-  await mx.nfts().delete(nft, { owner }).run();
+  await mx.nfts().delete({ mintAddress: nft.address, owner }).run();
 
   // Then the NFT accounts no longer exist.
   const accounts = await mx
@@ -51,7 +51,11 @@ test('[nftModule] it decreases the collection size when deleting the NFT', async
   // When the owner deletes the NFT and provides the collection address.
   await mx
     .nfts()
-    .delete(nft, { owner, collection: collectionNft.address })
+    .delete({
+      mintAddress: nft.address,
+      owner,
+      collection: collectionNft.address,
+    })
     .run();
 
   // Then the collection size has decreased.
@@ -85,7 +89,8 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
   // When the update authority tries to delete the NFT.
   const promise = mx
     .nfts()
-    .delete(nft, {
+    .delete({
+      mintAddress: nft.address,
       owner: updateAuthority,
       ownerTokenAccount: findAssociatedTokenAccountPda(
         nft.mint.address,

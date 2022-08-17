@@ -34,6 +34,9 @@ import { FindBidByAddressInput, findBidByAddressOperation } from './findBidByAdd
 import { FindPurchaseByAddressInput, findPurchaseByAddressOperation } from './findPurchaseByAddress';
 import { ExecuteSaleInput, executeSaleOperation, ExecuteSaleOutput } from './executeSale';
 
+/**
+ * @group Modules
+ */
 export class AuctionsClient {
   constructor(
     protected readonly metaplex: Metaplex) { }
