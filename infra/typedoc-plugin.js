@@ -63,6 +63,15 @@ function expandObjectLikeTypes(context, reflection) {
 
     if (resolvedReflection) {
       element.comment = resolvedReflection.comment;
+      element.flags = resolvedReflection.flags;
+      element.sources = resolvedReflection.sources;
+      element.url = resolvedReflection.url;
+      element.anchor = resolvedReflection.anchor;
+      element.cssClasses = resolvedReflection.cssClasses;
+
+      if (resolvedReflection instanceof td.DeclarationReflection) {
+        element.defaultValue = resolvedReflection.defaultValue;
+      }
     }
 
     element.type = typeContext.converter.convertType(typeContext, propertyType);
