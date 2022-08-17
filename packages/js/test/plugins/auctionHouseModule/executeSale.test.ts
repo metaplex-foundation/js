@@ -30,7 +30,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -40,7 +40,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
 
   // And we created a private bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -52,7 +52,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -81,7 +81,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
 
   // And we get the same result when we fetch the Purchase by address.
   const retrievePurchase = await mx
-    .auctions()
+    .auctionHouse()
     .findPurchaseByAddress(
       listing.tradeStateAddress,
       bid.tradeStateAddress,
@@ -108,7 +108,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with separate au
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -118,7 +118,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with separate au
 
   // And we created a private bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -130,7 +130,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with separate au
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -148,7 +148,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -158,7 +158,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // And we created a private receipt-less bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -171,7 +171,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // When we execute a sale with given listing and receipt-less bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -182,7 +182,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   // But we cannot retrieve it later with the default operation handler.
   try {
     await mx
-      .auctions()
+      .auctionHouse()
       .findPurchaseByAddress(
         listing.tradeStateAddress,
         bid.tradeStateAddress,
@@ -209,7 +209,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // And we listed that NFT for 1 SOL without receipt.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -220,7 +220,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // And we created a private bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -232,7 +232,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // When we execute a sale with given bid and receipt-less listing.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -251,7 +251,7 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -261,7 +261,7 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
 
   // And we created a public bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -272,7 +272,7 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -292,7 +292,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
 
   // And we listed that NFT.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -302,7 +302,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
 
   // And we created a public bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       auctioneerAuthority,
@@ -314,7 +314,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
 
   // When we execute an auctioneer sale with given listing and bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({
       auctionHouse,
       auctioneerAuthority,
@@ -345,7 +345,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -355,7 +355,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // And we created a public bid on that NFT for 1 SOL but with different AH.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse: buyerAuctionHouse,
       mintAccount: nft.address,
@@ -365,7 +365,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // When we execute a sale with given listing and bid.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -387,7 +387,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // And we listed that First NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: firstNft.address,
@@ -397,7 +397,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // And we created a public bid on that Second NFT.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: secondNft.address,
@@ -407,7 +407,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   // When we execute a sale with given listing and bid.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing, bid })
     .run();
 
@@ -449,7 +449,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
 
   // And we listed that NFT for 2 Tokens.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -459,7 +459,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
 
   // And we created a private bid on that NFT for 2 Tokens.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -471,7 +471,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
-    .auctions()
+    .auctionHouse()
     .executeSale({
       auctionHouse,
       listing,

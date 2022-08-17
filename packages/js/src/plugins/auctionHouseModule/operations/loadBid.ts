@@ -2,8 +2,8 @@ import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { assert, DisposableScope } from '@/utils';
-import { Bid, LazyBid } from './Bid';
-import { assertNftOrSftWithToken } from '../nftModule';
+import { Bid, LazyBid } from '../models/Bid';
+import { assertNftOrSftWithToken } from '../../nftModule';
 
 // -----------------
 // Operation

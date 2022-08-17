@@ -28,7 +28,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
 
   // When we list that NFT for 6.5 SOL.
   const { listing, sellerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -63,7 +63,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
 
   // And we get the same result when we fetch the Listing by address.
   const retrieveListing = await mx
-    .auctions()
+    .auctionHouse()
     .findListingByAddress(sellerTradeState, auctionHouse)
     .run();
   spok(t, retrieveListing, {
@@ -80,7 +80,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
 
   // When we list that NFT without printing a receipt.
   const { listing, sellerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -98,7 +98,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   // But we cannot retrieve it later with the default operation handler.
   try {
     await mx
-      .auctions()
+      .auctionHouse()
       .findListingByAddress(sellerTradeState, auctionHouse)
       .run();
     t.fail('expected to throw AccountNotFoundError');
@@ -124,7 +124,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
 
   // When we list that NFT.
   const { listing, sellerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -148,13 +148,13 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   const { auctionHouse } = await createAuctionHouse(mx);
   // Delegate Auctioneer on update.
   await mx
-    .auctions()
+    .auctionHouse()
     .updateAuctionHouse(auctionHouse, {
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
   // Get a client for updated Auction House.
-  const client = mx.auctions();
+  const client = mx.auctionHouse();
 
   // When we list that NFT.
   const { listing, sellerTradeState } = await client
@@ -183,7 +183,7 @@ test('[auctionHouseModule] it throws an error if Sell is not included in Auction
 
   // When we list that NFT.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -213,7 +213,7 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
 
   // When we update scope to allow Listing.
   await mx
-    .auctions()
+    .auctionHouse()
     .updateAuctionHouse(auctionHouse, {
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
@@ -222,7 +222,7 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
 
   // When we list that NFT.
   const { listing, sellerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -243,14 +243,14 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
 
   // Create Auctioneer Auction House.
   const { auctionHouse } = await mx
-    .auctions()
+    .auctionHouse()
     .createAuctionHouse({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
   // Create a client for Auction House, but don't provide auctioneerAuthority.
-  const client = mx.auctions();
+  const client = mx.auctionHouse();
 
   // When we list that NFT.
   const promise = client

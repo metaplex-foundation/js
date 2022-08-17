@@ -10,12 +10,12 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { assertAuctioneerAuctionHouse, AuctionHouse } from './AuctionHouse';
-import { TreasuryDestinationOwnerRequiredError } from './errors';
-import { findAuctioneerPda } from './pdas';
-import { AUCTIONEER_ALL_SCOPES } from './constants';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertAuctioneerAuctionHouse, AuctionHouse } from '../AuctionHouse';
+import { TreasuryDestinationOwnerRequiredError } from '../errors';
+import { findAuctioneerPda } from '../pdas';
+import { AUCTIONEER_ALL_SCOPES } from '../constants';
 
 // -----------------
 // Operation
@@ -77,17 +77,17 @@ export type UpdateAuctionHouseOutput = {
  * @category Handlers
  */
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
-  {
-    handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
-      const builder = updateAuctionHouseBuilder(metaplex, operation.input);
+{
+  handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
+    const builder = updateAuctionHouseBuilder(metaplex, operation.input);
 
-      if (builder.isEmpty()) {
-        throw new NoInstructionsToSendError(Key);
-      }
+    if (builder.isEmpty()) {
+      throw new NoInstructionsToSendError(Key);
+    }
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
-    },
-  };
+    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+  },
+};
 
 // -----------------
 // Builder

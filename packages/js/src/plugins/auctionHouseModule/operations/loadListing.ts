@@ -1,9 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { LazyListing, Listing } from './Listing';
+import { LazyListing, Listing } from '../models/Listing';
 import { DisposableScope } from '@/utils';
-import { assertNftOrSftWithToken } from '../nftModule';
+import { assertNftOrSftWithToken } from '../../nftModule';
 
 // -----------------
 // Operation
@@ -42,35 +42,35 @@ export type LoadListingInput = {
  * @category Handlers
  */
 export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
-  {
-    handle: async (
-      operation: LoadListingOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        lazyListing,
-        loadJsonMetadata = true,
+{
+  handle: async (
+    operation: LoadListingOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const {
+      lazyListing,
+      loadJsonMetadata = true,
+      commitment,
+    } = operation.input;
+
+    const asset = await metaplex
+      .nfts()
+      .findByMetadata({
+        metadata: lazyListing.metadataAddress,
+        tokenOwner: lazyListing.sellerAddress,
         commitment,
-      } = operation.input;
+        loadJsonMetadata,
+      })
+      .run(scope);
+    assertNftOrSftWithToken(asset);
 
-      const asset = await metaplex
-        .nfts()
-        .findByMetadata({
-          metadata: lazyListing.metadataAddress,
-          tokenOwner: lazyListing.sellerAddress,
-          commitment,
-          loadJsonMetadata,
-        })
-        .run(scope);
-      assertNftOrSftWithToken(asset);
-
-      return {
-        ...lazyListing,
-        model: 'listing',
-        lazy: false,
-        asset,
-        tokens: amount(lazyListing.tokens, asset.mint.currency),
-      };
-    },
-  };
+    return {
+      ...lazyListing,
+      model: 'listing',
+      lazy: false,
+      asset,
+      tokens: amount(lazyListing.tokens, asset.mint.currency),
+    };
+  },
+};

@@ -1,11 +1,11 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouse } from '../AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { findBidReceiptPda } from './pdas';
-import { Bid, toLazyBid } from './Bid';
-import { toBidReceiptAccount } from './accounts';
+import { findBidReceiptPda } from '../pdas';
+import { Bid, toLazyBid } from '../models/Bid';
+import { toBidReceiptAccount } from '../accounts';
 
 // -----------------
 // Operation
@@ -46,29 +46,29 @@ export type FindBidByTradeStateInput = {
  * @category Handlers
  */
 export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTradeStateOperation> =
-  {
-    handle: async (
-      operation: FindBidByTradeStateOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        tradeStateAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+{
+  handle: async (
+    operation: FindBidByTradeStateOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const {
+      tradeStateAddress,
+      auctionHouse,
+      commitment,
+      loadJsonMetadata = true,
+    } = operation.input;
 
-      const receiptAddress = findBidReceiptPda(tradeStateAddress);
-      const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
+    const receiptAddress = findBidReceiptPda(tradeStateAddress);
+    const account = toBidReceiptAccount(
+      await metaplex.rpc().getAccount(receiptAddress, commitment)
+    );
+    scope.throwIfCanceled();
 
-      const lazyBid = toLazyBid(account, auctionHouse);
-      return metaplex
-        .auctions()
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
-        .run(scope);
-    },
-  };
+    const lazyBid = toLazyBid(account, auctionHouse);
+    return metaplex
+      .auctionHouse()
+      .loadBid(lazyBid, { loadJsonMetadata, commitment })
+      .run(scope);
+  },
+};

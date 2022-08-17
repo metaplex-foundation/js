@@ -21,7 +21,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -33,11 +33,11 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
-  await mx.auctions().cancelListing({ auctionHouse, listing }).run();
+  await mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
 
   // Then the delegate's authority is revoked and receipt has canceledAt date.
   const canceledListing = await mx
-    .auctions()
+    .auctionHouse()
     .findListingByAddress(listing.tradeStateAddress, auctionHouse)
     .run();
   t.false(canceledListing.asset.token.delegateAddress);
@@ -58,7 +58,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
 
   // And we list that NFT.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -68,7 +68,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
 
   // When we cancel the given listing.
   await mx
-    .auctions()
+    .auctionHouse()
     .cancelListing({ auctionHouse, auctioneerAuthority, listing })
     .run();
 
@@ -87,7 +87,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
@@ -97,7 +97,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
 
   // And we put a public bid on that NFT for 1 SOL.
   const { bid } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       buyer,
@@ -107,15 +107,15 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
     .run();
 
   // And we cancel the given listing.
-  await mx.auctions().cancelListing({ auctionHouse, listing }).run();
+  await mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
 
   // When we execute a sale with given canceled listing and bid.
   const canceledListing = await mx
-    .auctions()
+    .auctionHouse()
     .findListingByAddress(listing.tradeStateAddress, auctionHouse)
     .run();
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .executeSale({ auctionHouse, listing: canceledListing, bid })
     .run();
 
@@ -137,7 +137,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
 
   // And we listed that NFT.
   const { listing } = await mx
-    .auctions()
+    .auctionHouse()
     .list({
       auctionHouse,
       auctioneerAuthority,
@@ -146,7 +146,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
     .run();
 
   // When we cancel the listing but without providing Auctioneer Authority.
-  const promise = mx.auctions().cancelListing({ auctionHouse, listing }).run();
+  const promise = mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
 
   // Then we expect an error.
   await assertThrows(

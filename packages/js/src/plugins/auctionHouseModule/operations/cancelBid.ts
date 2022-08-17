@@ -3,7 +3,7 @@ import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import {
   CancelInstructionAccounts,
-  createCancelListingReceiptInstruction,
+  createCancelBidReceiptInstruction,
   createCancelInstruction,
   createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
@@ -13,45 +13,46 @@ import {
   OperationHandler,
   Signer,
   isSigner,
+  toPublicKey,
   Pda,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { AuctionHouse } from './AuctionHouse';
-import { Listing } from './Listing';
-import { AuctioneerAuthorityRequiredError } from './errors';
-import { findAuctioneerPda } from './pdas';
-import { AUCTIONEER_PRICE } from './constants';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse } from '../AuctionHouse';
+import { Bid } from '../models/Bid';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findAuctioneerPda } from '../pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CancelListingOperation' as const;
+const Key = 'CancelBidOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const cancelListingOperation = useOperation<CancelListingOperation>(Key);
+export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CancelListingOperation = Operation<
+export type CancelBidOperation = Operation<
   typeof Key,
-  CancelListingInput,
-  CancelListingOutput
+  CancelBidInput,
+  CancelBidOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CancelListingInput = {
+export type CancelBidInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  listing: Listing;
+  bid: Bid;
 
   // Options.
   confirmOptions?: ConfirmOptions;
@@ -61,7 +62,7 @@ export type CancelListingInput = {
  * @group Operations
  * @category Outputs
  */
-export type CancelListingOutput = {
+export type CancelBidOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -69,14 +70,13 @@ export type CancelListingOutput = {
  * @group Operations
  * @category Handlers
  */
-export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
-  {
-    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
-      cancelListingBuilder(operation.input).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      ),
-  };
+export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
+  handle: async (operation: CancelBidOperation, metaplex: Metaplex) =>
+    cancelBidBuilder(operation.input).sendAndConfirm(
+      metaplex,
+      operation.input.confirmOptions
+    ),
+};
 
 // -----------------
 // Builder
@@ -86,10 +86,7 @@ export const cancelListingOperationHandler: OperationHandler<CancelListingOperat
  * @group Transaction Builders
  * @category Inputs
  */
-export type CancelListingBuilderParams = Omit<
-  CancelListingInput,
-  'confirmOptions'
-> & {
+export type CancelBidBuilderParams = Omit<CancelBidInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
@@ -97,30 +94,35 @@ export type CancelListingBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
+export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
 
 /**
  * @group Transaction Builders
  * @category Constructors
  */
-export const cancelListingBuilder = (
-  params: CancelListingBuilderParams
-): TransactionBuilder<CancelListingBuilderContext> => {
-  const { auctionHouse, auctioneerAuthority, listing } = params;
+export const cancelBidBuilder = (
+  params: CancelBidBuilderParams
+): TransactionBuilder<CancelBidBuilderContext> => {
+  const { auctionHouse, auctioneerAuthority, bid } = params;
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Data.
-  const { asset, tradeStateAddress, price, tokens } = listing;
-  const buyerPrice = auctionHouse.hasAuctioneer
-    ? AUCTIONEER_PRICE
-    : price.basisPoints;
+  const { asset, tradeStateAddress, price, tokens, isPublic } = bid;
+
+  // Accounts.
+  const tokenAccount = isPublic
+    ? findAssociatedTokenAccountPda(
+      asset.mint.address,
+      toPublicKey(bid.buyerAddress)
+    )
+    : bid.asset.token.address;
 
   const accounts: CancelInstructionAccounts = {
-    wallet: listing.sellerAddress,
-    tokenAccount: asset.token.address,
+    wallet: bid.buyerAddress,
+    tokenAccount,
     tokenMint: asset.address,
     authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
@@ -130,14 +132,14 @@ export const cancelListingBuilder = (
 
   // Args.
   const args = {
-    buyerPrice,
+    buyerPrice: price.basisPoints,
     tokenSize: tokens.basisPoints,
   };
 
-  // Cancel Listing Instruction.
-  let cancelListingInstruction = createCancelInstruction(accounts, args);
+  // Cancel Bid Instruction.
+  let cancelBidInstruction = createCancelInstruction(accounts, args);
   if (auctioneerAuthority) {
-    cancelListingInstruction = createAuctioneerCancelInstruction(
+    cancelBidInstruction = createAuctioneerCancelInstruction(
       {
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
@@ -156,22 +158,22 @@ export const cancelListingBuilder = (
   return (
     TransactionBuilder.make()
 
-      // Cancel Listing.
+      // Cancel Bid.
       .add({
-        instruction: cancelListingInstruction,
+        instruction: cancelBidInstruction,
         signers: cancelSigners,
-        key: params.instructionKey ?? 'cancelListing',
+        key: params.instructionKey ?? 'cancelBid',
       })
 
-      // Cancel Listing Receipt.
-      .when(Boolean(listing.receiptAddress), (builder) =>
+      // Cancel Bid Receipt.
+      .when(Boolean(bid.receiptAddress), (builder) =>
         builder.add({
-          instruction: createCancelListingReceiptInstruction({
-            receipt: listing.receiptAddress as Pda,
+          instruction: createCancelBidReceiptInstruction({
+            receipt: bid.receiptAddress as Pda,
             instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
           }),
           signers: [],
-          key: 'cancelListingReceipt',
+          key: 'cancelBidReceipt',
         })
       )
   );

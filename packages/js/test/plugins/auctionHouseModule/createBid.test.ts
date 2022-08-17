@@ -27,7 +27,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
 
   // When we create a public bid on that NFT for 6.5 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: nft.address,
@@ -58,7 +58,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
 
   // And we get the same result when we fetch the Bid by address.
   const retrieveBid = await mx
-    .auctions()
+    .auctionHouse()
     .findBidByReceipt(auctionHouse, bid.receiptAddress as Pda)
     .run();
   spok(t, retrieveBid, {
@@ -82,7 +82,7 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: nft.address,
@@ -124,7 +124,7 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: nft.address,
@@ -166,7 +166,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: nft.address,
@@ -185,7 +185,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
 
   // But we cannot retrieve it later with the default operation handler.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .findBidByTradeState(bid.tradeStateAddress, auctionHouse)
     .run();
   await assertThrows(
@@ -205,7 +205,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
 
   // When we create a public bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       mintAccount: nft.address,
@@ -222,7 +222,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
 
   // But we cannot retrieve it later with the default operation handler.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .findBidByTradeState(bid.tradeStateAddress, auctionHouse)
     .run();
   await assertThrows(
@@ -244,7 +244,7 @@ test('[auctionHouseModule] create private receipt-less Auctioneer bid', async (t
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       auctioneerAuthority,
@@ -274,7 +274,7 @@ test('[auctionHouseModule] create public receipt-less Auctioneer bid', async (t:
 
   // When we create a public bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       auctioneerAuthority,
@@ -305,7 +305,7 @@ test('[auctionHouseModule] it throws an error if Buy is not included in Auctione
 
   // When we create a private bid on that NFT for 1 SOL.
   const promise = mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       auctioneerAuthority,
@@ -338,7 +338,7 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
 
   // But was later on updated to also allow the Buy scope.
   await mx
-    .auctions()
+    .auctionHouse()
     .updateAuctionHouse(auctionHouse, {
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
@@ -347,7 +347,7 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
-    .auctions()
+    .auctionHouse()
     .bid({
       auctionHouse,
       auctioneerAuthority,
@@ -370,7 +370,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // And an Auctioneer Auction House.
   const auctioneerAuthority = Keypair.generate();
   const { auctionHouse } = await mx
-    .auctions()
+    .auctionHouse()
     .createAuctionHouse({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
@@ -378,7 +378,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
     .run();
 
   // When we create a client for that Auction House without providing the auctioneerAuthority.
-  const client = mx.auctions();
+  const client = mx.auctionHouse();
 
   // And we create a private bid on that NFT for 1 SOL.
   const promise = client

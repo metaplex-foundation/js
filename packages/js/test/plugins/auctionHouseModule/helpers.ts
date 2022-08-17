@@ -8,7 +8,7 @@ export const createAuctionHouse = async (
   input: Partial<CreateAuctionHouseInput> = {}
 ) => {
   const { auctionHouse } = await mx
-    .auctions()
+    .auctionHouse()
     .createAuctionHouse({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority?.publicKey,

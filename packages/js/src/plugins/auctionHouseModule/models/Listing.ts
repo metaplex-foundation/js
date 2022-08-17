@@ -11,10 +11,10 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { ListingReceiptAccount } from './accounts';
-import { NftWithToken, SftWithToken } from '../nftModule';
+import { ListingReceiptAccount } from '../accounts';
+import { NftWithToken, SftWithToken } from '../../nftModule';
 import { assert, Option } from '@/utils';
-import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouse } from '../AuctionHouse';
 
 export type Listing = Readonly<{
   model: 'listing';

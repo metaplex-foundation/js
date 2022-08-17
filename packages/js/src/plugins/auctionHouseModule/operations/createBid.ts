@@ -27,17 +27,17 @@ import {
   SplTokenAmount,
   Pda,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { findMetadataPda } from '../nftModule';
-import { AuctionHouse } from './AuctionHouse';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findMetadataPda } from '../../nftModule';
+import { AuctionHouse } from '../AuctionHouse';
 import {
   findAuctioneerPda,
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseTradeStatePda,
   findBidReceiptPda,
-} from './pdas';
-import { AuctioneerAuthorityRequiredError } from './errors';
+} from '../pdas';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -159,9 +159,9 @@ export const createBidBuilder = async (
   const paymentAccount = auctionHouse.isNative
     ? toPublicKey(buyer)
     : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        toPublicKey(buyer)
-      );
+      auctionHouse.treasuryMint.address,
+      toPublicKey(buyer)
+    );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     toPublicKey(buyer)
@@ -223,23 +223,23 @@ export const createBidBuilder = async (
 
     buyInstruction = tokenAccount
       ? createAuctioneerBuyInstruction(
-          { ...accountsWithAuctioneer, tokenAccount },
-          args
-        )
+        { ...accountsWithAuctioneer, tokenAccount },
+        args
+      )
       : createAuctioneerPublicBuyInstruction(
-          {
-            ...accountsWithAuctioneer,
-            tokenAccount: buyerTokenAccount,
-          },
-          args
-        );
+        {
+          ...accountsWithAuctioneer,
+          tokenAccount: buyerTokenAccount,
+        },
+        args
+      );
   } else {
     buyInstruction = tokenAccount
       ? createBuyInstruction({ ...accounts, tokenAccount }, args)
       : createPublicBuyInstruction(
-          { ...accounts, tokenAccount: buyerTokenAccount },
-          args
-        );
+        { ...accounts, tokenAccount: buyerTokenAccount },
+        args
+      );
   }
 
   // Signers.

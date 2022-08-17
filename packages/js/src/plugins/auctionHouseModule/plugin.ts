@@ -1,59 +1,59 @@
 import { cusper } from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
 import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
-import { AuctionsClient } from './AuctionsClient';
+import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
-import { cancelBidOperation, cancelBidOperationHandler } from './cancelBid';
+import { cancelBidOperation, cancelBidOperationHandler } from './operations/cancelBid';
 import {
   cancelListingOperation,
   cancelListingOperationHandler,
-} from './cancelListing';
+} from './operations/cancelListing';
 import {
   createAuctionHouseOperation,
   createAuctionHouseOperationHandler,
-} from './createAuctionHouse';
-import { createBidOperation, createBidOperationHandler } from './createBid';
+} from './operations/createAuctionHouse';
+import { createBidOperation, createBidOperationHandler } from './operations/createBid';
 import {
   createListingOperation,
   createListingOperationHandler,
-} from './createListing';
+} from './operations/createListing';
 import {
   executeSaleOperation,
   executeSaleOperationHandler,
-} from './executeSale';
+} from './operations/executeSale';
 import {
   findAuctionHouseByAddressOperation,
   findAuctionHouseByAddressOperationHandler,
-} from './findAuctionHouseByAddress';
+} from './operations/findAuctionHouseByAddress';
 import {
   findBidByReceiptOperation,
   findBidByReceiptOperationHandler,
-} from './findBidByReceipt';
+} from './operations/findBidByReceipt';
 import {
   findBidByTradeStateOperation,
   findBidByTradeStateOperationHandler,
-} from './findBidByTradeState';
+} from './operations/findBidByTradeState';
 import {
   findListingByAddressOperation,
   findListingByAddressOperationHandler,
-} from './findListingByAddress';
+} from './operations/findListingByAddress';
 import {
   findPurchaseByAddressOperation,
   findPurchaseByAddressOperationHandler,
-} from './findPurchaseByAddress';
+} from './operations/findPurchaseByAddress';
 import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
-} from './updateAuctionHouse';
-import { loadBidOperation, loadBidOperationHandler } from './loadBid';
+} from './operations/updateAuctionHouse';
+import { loadBidOperation, loadBidOperationHandler } from './operations/loadBid';
 import {
   loadListingOperation,
   loadListingOperationHandler,
-} from './loadListing';
+} from './operations/loadListing';
 import {
   loadPurchaseOperation,
   loadPurchaseOperationHandler,
-} from './loadPurchase';
+} from './operations/loadPurchase';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
@@ -101,14 +101,14 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       updateAuctionHouseOperationHandler
     );
 
-    metaplex.auctions = function () {
-      return new AuctionsClient(this);
+    metaplex.auctionHouse = function () {
+      return new AuctionHouseClient(this);
     };
   },
 });
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    auctions(): AuctionsClient;
+    auctionHouse(): AuctionHouseClient;
   }
 }

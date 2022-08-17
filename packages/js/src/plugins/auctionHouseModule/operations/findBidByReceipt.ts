@@ -1,10 +1,10 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouse } from '../AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { Bid, toLazyBid } from './Bid';
-import { toBidReceiptAccount } from './accounts';
+import { Bid, toLazyBid } from '../models/Bid';
+import { toBidReceiptAccount } from '../accounts';
 
 // -----------------
 // Operation
@@ -45,28 +45,28 @@ export type FindBidByReceiptInput = {
  * @category Handlers
  */
 export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceiptOperation> =
-  {
-    handle: async (
-      operation: FindBidByReceiptOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+{
+  handle: async (
+    operation: FindBidByReceiptOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const {
+      receiptAddress,
+      auctionHouse,
+      commitment,
+      loadJsonMetadata = true,
+    } = operation.input;
 
-      const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
+    const account = toBidReceiptAccount(
+      await metaplex.rpc().getAccount(receiptAddress, commitment)
+    );
+    scope.throwIfCanceled();
 
-      const lazyBid = toLazyBid(account, auctionHouse);
-      return metaplex
-        .auctions()
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
-        .run(scope);
-    },
-  };
+    const lazyBid = toLazyBid(account, auctionHouse);
+    return metaplex
+      .auctionHouse()
+      .loadBid(lazyBid, { loadJsonMetadata, commitment })
+      .run(scope);
+  },
+};

@@ -11,10 +11,10 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { BidReceiptAccount } from './accounts';
+import { BidReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
-import { AuctionHouse } from './AuctionHouse';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../nftModule';
+import { AuctionHouse } from '../AuctionHouse';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 export type Bid = Readonly<
   {
@@ -38,13 +38,13 @@ export type Bid = Readonly<
     canceledAt: Option<DateTime>;
   } & (
     | {
-        isPublic: false;
-        asset: SftWithToken | NftWithToken;
-      }
+      isPublic: false;
+      asset: SftWithToken | NftWithToken;
+    }
     | {
-        isPublic: true;
-        asset: Sft | Nft;
-      }
+      isPublic: true;
+      asset: Sft | Nft;
+    }
   )
 >;
 
@@ -68,15 +68,15 @@ export const toBid = (
     lazy: false,
     ...('token' in asset
       ? {
-          asset,
-          tokens: amount(lazyBid.tokens, asset.mint.currency),
-          isPublic: false,
-        }
+        asset,
+        tokens: amount(lazyBid.tokens, asset.mint.currency),
+        isPublic: false,
+      }
       : {
-          asset,
-          tokens: amount(lazyBid.tokens, asset.mint.currency),
-          isPublic: true,
-        }),
+        asset,
+        tokens: amount(lazyBid.tokens, asset.mint.currency),
+        isPublic: true,
+      }),
   };
 };
 
