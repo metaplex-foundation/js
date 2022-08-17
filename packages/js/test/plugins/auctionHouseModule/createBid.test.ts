@@ -56,8 +56,8 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
   } as unknown as Specifications<Bid>);
 
   // And we get the same result when we fetch the Bid by address.
-  const retrieveBid = await client
-    .findBidByReceipt(bid.receiptAddress as Pda)
+  const retrieveBid = await mx.auctions()
+    .findBidByReceipt(auctionHouse, bid.receiptAddress as Pda)
     .run();
   spok(t, retrieveBid, {
     $topic: 'Retrieved Bid',
@@ -179,7 +179,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   t.false(bid.receiptAddress);
 
   // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByTradeState(bid.tradeStateAddress).run();
+  const promise = mx.auctions().findBidByTradeState(bid.tradeStateAddress, auctionHouse,).run();
   await assertThrows(
     t,
     promise,
@@ -212,7 +212,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   t.ok(bid.isPublic);
 
   // But we cannot retrieve it later with the default operation handler.
-  const promise = client.findBidByTradeState(bid.tradeStateAddress).run();
+  const promise = mx.auctions().findBidByTradeState(bid.tradeStateAddress, auctionHouse).run();
   await assertThrows(
     t,
     promise,

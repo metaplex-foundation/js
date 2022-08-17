@@ -46,30 +46,29 @@ export type FindBidByTradeStateInput = {
  * @category Handlers
  */
 export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTradeStateOperation> =
-  {
-    handle: async (
-      operation: FindBidByTradeStateOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ) => {
-      const {
-        tradeStateAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+{
+  handle: async (
+    operation: FindBidByTradeStateOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const {
+      tradeStateAddress,
+      auctionHouse,
+      commitment,
+      loadJsonMetadata = true,
+    } = operation.input;
 
-      const receiptAddress = findBidReceiptPda(tradeStateAddress);
-      const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
+    const receiptAddress = findBidReceiptPda(tradeStateAddress);
+    const account = toBidReceiptAccount(
+      await metaplex.rpc().getAccount(receiptAddress, commitment)
+    );
+    scope.throwIfCanceled();
 
-      const lazyBid = toLazyBid(account, auctionHouse);
-      return metaplex
-        .auctions()
-        .for(auctionHouse)
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
-        .run(scope);
-    },
-  };
+    const lazyBid = toLazyBid(account, auctionHouse);
+    return metaplex
+      .auctions()
+      .loadBid(lazyBid, { loadJsonMetadata, commitment })
+      .run(scope);
+  },
+};
