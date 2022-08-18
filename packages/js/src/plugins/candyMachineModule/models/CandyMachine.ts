@@ -207,9 +207,24 @@ export type CandyMachine = {
   readonly creators: Creator[];
 };
 
-/** @group Models */
+/**
+ * Represent an item inside a Candy Machine that has been or
+ * will eventually be minted into an NFT.
+ *
+ * It only contains the name and the URI of the NFT to be as
+ * the rest of the day will be shared by all NFTs and lives
+ * in the Candy Machine configurations (e.g. `symbol`, `creators`, etc).
+ *
+ * @group Models
+ */
 export type CandyMachineItem = {
+  /** The name of the NFT to be. */
   readonly name: string;
+
+  /**
+   * The URI of the NFT to be,
+   * pointing to some off-chain JSON Metadata.
+   */
   readonly uri: string;
 };
 
@@ -450,7 +465,12 @@ export const toCandyMachine = (
 // Model to Configs
 // -----------------
 
-/** @group Models */
+/**
+ * This object provides a common interface for the configurations required
+ * to create or update Candy Machines.
+ *
+ * @group Models
+ */
 export type CandyMachineConfigs = {
   /**
    * The address of the wallet receiving the payments for minting NFTs.
