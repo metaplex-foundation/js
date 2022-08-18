@@ -33,11 +33,8 @@
     "stripInternal": true
   },
   "typedocOptions": {
-    "entryPoints": [
-      "packages/js/src/index.ts",
-      "packages/js-plugin-aws/src/index.ts",
-      "packages/js-plugin-nft-storage/src/index.ts"
-    ],
+    "entryPoints": ".",
+    "entryPointStrategy": "packages",
     "plugin": ["./infra/typedoc-plugin.js"],
     "out": "docs",
     "readme": "README.md",
