@@ -72,7 +72,11 @@ import {
  * @group Modules
  */
 export class AuctionHouseClient {
-  constructor(protected readonly metaplex: Metaplex) { }
+  constructor(protected readonly metaplex: Metaplex) {}
+
+  builders() {
+    return new AuctionHouseBuildersClient(this.metaplex);
+  }
 
   bid(input: CreateBidInput): Task<CreateBidOutput & { bid: Bid }> {
     return new Task(async (scope) => {
@@ -113,10 +117,6 @@ export class AuctionHouseClient {
         ...output,
       };
     });
-  }
-
-  builders() {
-    return new AuctionHouseBuildersClient(this.metaplex);
   }
 
   createAuctionHouse(

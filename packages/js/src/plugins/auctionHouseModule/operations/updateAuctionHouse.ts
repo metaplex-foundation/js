@@ -77,17 +77,17 @@ export type UpdateAuctionHouseOutput = {
  * @category Handlers
  */
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
-{
-  handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
-    const builder = updateAuctionHouseBuilder(metaplex, operation.input);
+  {
+    handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
+      const builder = updateAuctionHouseBuilder(metaplex, operation.input);
 
-    if (builder.isEmpty()) {
-      throw new NoInstructionsToSendError(Key);
-    }
+      if (builder.isEmpty()) {
+        throw new NoInstructionsToSendError(Key);
+      }
 
-    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
-  },
-};
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+    },
+  };
 
 // -----------------
 // Builder

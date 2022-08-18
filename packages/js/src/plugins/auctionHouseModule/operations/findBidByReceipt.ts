@@ -45,28 +45,28 @@ export type FindBidByReceiptInput = {
  * @category Handlers
  */
 export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceiptOperation> =
-{
-  handle: async (
-    operation: FindBidByReceiptOperation,
-    metaplex: Metaplex,
-    scope: DisposableScope
-  ) => {
-    const {
-      receiptAddress,
-      auctionHouse,
-      commitment,
-      loadJsonMetadata = true,
-    } = operation.input;
+  {
+    handle: async (
+      operation: FindBidByReceiptOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const {
+        receiptAddress,
+        auctionHouse,
+        commitment,
+        loadJsonMetadata = true,
+      } = operation.input;
 
-    const account = toBidReceiptAccount(
-      await metaplex.rpc().getAccount(receiptAddress, commitment)
-    );
-    scope.throwIfCanceled();
+      const account = toBidReceiptAccount(
+        await metaplex.rpc().getAccount(receiptAddress, commitment)
+      );
+      scope.throwIfCanceled();
 
-    const lazyBid = toLazyBid(account, auctionHouse);
-    return metaplex
-      .auctionHouse()
-      .loadBid(lazyBid, { loadJsonMetadata, commitment })
-      .run(scope);
-  },
-};
+      const lazyBid = toLazyBid(account, auctionHouse);
+      return metaplex
+        .auctionHouse()
+        .loadBid(lazyBid, { loadJsonMetadata, commitment })
+        .run(scope);
+    },
+  };

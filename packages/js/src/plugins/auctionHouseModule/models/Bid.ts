@@ -38,13 +38,13 @@ export type Bid = Readonly<
     canceledAt: Option<DateTime>;
   } & (
     | {
-      isPublic: false;
-      asset: SftWithToken | NftWithToken;
-    }
+        isPublic: false;
+        asset: SftWithToken | NftWithToken;
+      }
     | {
-      isPublic: true;
-      asset: Sft | Nft;
-    }
+        isPublic: true;
+        asset: Sft | Nft;
+      }
   )
 >;
 
@@ -68,14 +68,14 @@ export const toBid = (
     lazy: false,
     ...('token' in asset
       ? {
-        asset,
-        tokens: amount(lazyBid.tokens, asset.mint.currency),
-        isPublic: false,
-      }
+          asset,
+          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          isPublic: false,
+        }
       : {
-        asset,
-        tokens: amount(lazyBid.tokens, asset.mint.currency),
-        isPublic: true,
+          asset,
+          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          isPublic: true,
       }),
   };
 };
@@ -95,31 +95,31 @@ export function assertLazyBid(value: any): asserts value is LazyBid {
   assert(isLazyBid(value), `Expected LazyBid type`);
 }
 export const toLazyBid = (
-  account: BidReceiptAccount,
-  auctionHouse: AuctionHouse
-): LazyBid => {
-  return {
-    model: 'bid',
-    lazy: true,
-    auctionHouse,
-    tradeStateAddress: new Pda(
-      account.data.tradeState,
-      account.data.tradeStateBump
-    ),
-    bookkeeperAddress: account.data.bookkeeper,
-    buyerAddress: account.data.buyer,
-    metadataAddress: account.data.metadata,
-    tokenAddress: account.data.tokenAccount,
-    receiptAddress: new Pda(account.publicKey, account.data.bump),
-    purchaseReceiptAddress: account.data.purchaseReceipt,
-    isPublic: Boolean(account.data.tokenAccount),
+    account: BidReceiptAccount,
+    auctionHouse: AuctionHouse
+  ): LazyBid => {
+    return {
+      model: 'bid',
+      lazy: true,
+      auctionHouse,
+      tradeStateAddress: new Pda(
+        account.data.tradeState,
+        account.data.tradeStateBump
+      ),
+      bookkeeperAddress: account.data.bookkeeper,
+      buyerAddress: account.data.buyer,
+      metadataAddress: account.data.metadata,
+      tokenAddress: account.data.tokenAccount,
+      receiptAddress: new Pda(account.publicKey, account.data.bump),
+      purchaseReceiptAddress: account.data.purchaseReceipt,
+      isPublic: Boolean(account.data.tokenAccount),
 
-    // Data.
-    price: auctionHouse.isNative
-      ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouse.treasuryMint.currency),
-    tokens: toBigNumber(account.data.tokenSize),
-    createdAt: toDateTime(account.data.createdAt),
-    canceledAt: toOptionDateTime(account.data.canceledAt),
+      // Data.
+      price: auctionHouse.isNative
+        ? lamports(account.data.price)
+        : amount(account.data.price, auctionHouse.treasuryMint.currency),
+      tokens: toBigNumber(account.data.tokenSize),
+      createdAt: toDateTime(account.data.createdAt),
+      canceledAt: toOptionDateTime(account.data.canceledAt),
+    };
   };
-};

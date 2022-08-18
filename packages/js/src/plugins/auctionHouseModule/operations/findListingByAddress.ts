@@ -46,29 +46,29 @@ export type FindListingByAddressInput = {
  * @category Handlers
  */
 export const findListingByAddressOperationHandler: OperationHandler<FindListingByAddressOperation> =
-{
-  handle: async (
-    operation: FindListingByAddressOperation,
-    metaplex: Metaplex,
-    scope: DisposableScope
-  ) => {
-    const {
-      address,
-      auctionHouse,
-      commitment,
-      loadJsonMetadata = true,
-    } = operation.input;
+  {
+    handle: async (
+      operation: FindListingByAddressOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const {
+        address,
+        auctionHouse,
+        commitment,
+        loadJsonMetadata = true,
+      } = operation.input;
 
-    const receiptAddress = findListingReceiptPda(address);
-    const account = toListingReceiptAccount(
-      await metaplex.rpc().getAccount(receiptAddress, commitment)
-    );
-    scope.throwIfCanceled();
+      const receiptAddress = findListingReceiptPda(address);
+      const account = toListingReceiptAccount(
+        await metaplex.rpc().getAccount(receiptAddress, commitment)
+      );
+      scope.throwIfCanceled();
 
-    const lazyListing = toLazyListing(account, auctionHouse);
-    return metaplex
-      .auctionHouse()
-      .loadListing(lazyListing, { loadJsonMetadata, commitment })
-      .run(scope);
-  },
-};
+      const lazyListing = toLazyListing(account, auctionHouse);
+      return metaplex
+        .auctionHouse()
+        .loadListing(lazyListing, { loadJsonMetadata, commitment })
+        .run(scope);
+    },
+  };

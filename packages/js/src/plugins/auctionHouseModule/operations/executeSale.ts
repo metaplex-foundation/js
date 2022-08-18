@@ -102,13 +102,13 @@ export type ExecuteSaleOutput = {
  * @category Handlers
  */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
-{
-  handle: async (operation: ExecuteSaleOperation, metaplex: Metaplex) =>
-    executeSaleBuilder(metaplex, operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    ),
-};
+  {
+    handle: async (operation: ExecuteSaleOperation, metaplex: Metaplex) =>
+      executeSaleBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      ),
+  };
 
 // -----------------
 // Builder
@@ -168,9 +168,9 @@ export const executeSaleBuilder = (
   const sellerPaymentReceiptAccount = auctionHouse.isNative
     ? sellerAddress
     : findAssociatedTokenAccountPda(
-      auctionHouse.treasuryMint.address,
-      sellerAddress
-    );
+        auctionHouse.treasuryMint.address,
+        sellerAddress
+      );
   const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
     asset.address,
     buyerAddress

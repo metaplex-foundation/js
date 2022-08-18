@@ -45,44 +45,44 @@ export type FindAuctionHouseByAddressInput = {
  * @category Handlers
  */
 export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuctionHouseByAddressOperation> =
-{
-  handle: async (
-    operation: FindAuctionHouseByAddressOperation,
-    metaplex: Metaplex,
-    scope: DisposableScope
-  ) => {
-    const { address, auctioneerAuthority, commitment } = operation.input;
-    const auctioneerPda = auctioneerAuthority
-      ? findAuctioneerPda(address, auctioneerAuthority)
-      : undefined;
-    const accountsToFetch = [address, auctioneerPda].filter(
-      (account): account is PublicKey => !!account
-    );
+  {
+    handle: async (
+      operation: FindAuctionHouseByAddressOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const { address, auctioneerAuthority, commitment } = operation.input;
+      const auctioneerPda = auctioneerAuthority
+        ? findAuctioneerPda(address, auctioneerAuthority)
+        : undefined;
+      const accountsToFetch = [address, auctioneerPda].filter(
+        (account): account is PublicKey => !!account
+      );
 
-    const accounts = await metaplex
-      .rpc()
-      .getMultipleAccounts(accountsToFetch, commitment);
-    scope.throwIfCanceled();
+      const accounts = await metaplex
+        .rpc()
+        .getMultipleAccounts(accountsToFetch, commitment);
+      scope.throwIfCanceled();
 
-    const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
-    const mintModel = await metaplex
-      .tokens()
-      .findMintByAddress({
-        address: auctionHouseAccount.data.treasuryMint,
-        commitment,
-      })
-      .run(scope);
-    scope.throwIfCanceled();
+      const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
+      const mintModel = await metaplex
+        .tokens()
+        .findMintByAddress({
+          address: auctionHouseAccount.data.treasuryMint,
+          commitment,
+        })
+        .run(scope);
+      scope.throwIfCanceled();
 
-    if (!auctionHouseAccount.data.hasAuctioneer) {
-      return toAuctionHouse(auctionHouseAccount, mintModel);
-    }
+      if (!auctionHouseAccount.data.hasAuctioneer) {
+        return toAuctionHouse(auctionHouseAccount, mintModel);
+      }
 
-    if (!accounts[1] || !accounts[1].exists) {
-      throw new AuctioneerAuthorityRequiredError();
-    }
+      if (!accounts[1] || !accounts[1].exists) {
+        throw new AuctioneerAuthorityRequiredError();
+      }
 
-    const auctioneerAccount = toAuctioneerAccount(accounts[1]);
-    return toAuctionHouse(auctionHouseAccount, mintModel, auctioneerAccount);
-  },
-};
+      const auctioneerAccount = toAuctioneerAccount(accounts[1]);
+      return toAuctionHouse(auctionHouseAccount, mintModel, auctioneerAccount);
+    },
+  };

@@ -42,35 +42,35 @@ export type LoadPurchaseInput = {
  * @category Handlers
  */
 export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperation> =
-{
-  handle: async (
-    operation: LoadPurchaseOperation,
-    metaplex: Metaplex,
-    scope: DisposableScope
-  ) => {
-    const {
-      lazyPurchase,
-      loadJsonMetadata = true,
-      commitment,
-    } = operation.input;
-
-    const asset = await metaplex
-      .nfts()
-      .findByMetadata({
-        metadata: lazyPurchase.metadataAddress,
-        tokenOwner: lazyPurchase.buyerAddress,
+  {
+    handle: async (
+      operation: LoadPurchaseOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const {
+        lazyPurchase,
+        loadJsonMetadata = true,
         commitment,
-        loadJsonMetadata,
-      })
-      .run(scope);
-    assertNftOrSftWithToken(asset);
+      } = operation.input;
 
-    return {
-      ...lazyPurchase,
-      lazy: false,
-      isPublic: false,
-      asset,
-      tokens: amount(lazyPurchase.tokens, asset.mint.currency),
-    };
-  },
-};
+      const asset = await metaplex
+        .nfts()
+        .findByMetadata({
+          metadata: lazyPurchase.metadataAddress,
+          tokenOwner: lazyPurchase.buyerAddress,
+          commitment,
+          loadJsonMetadata,
+        })
+        .run(scope);
+      assertNftOrSftWithToken(asset);
+
+      return {
+        ...lazyPurchase,
+        lazy: false,
+        isPublic: false,
+        asset,
+        tokens: amount(lazyPurchase.tokens, asset.mint.currency),
+      };
+    },
+  };

@@ -115,8 +115,8 @@ export const cancelBidBuilder = (
   // Accounts.
   const tokenAccount = isPublic
     ? findAssociatedTokenAccountPda(
-      asset.mint.address,
-      toPublicKey(bid.buyerAddress)
+        asset.mint.address,
+        toPublicKey(bid.buyerAddress)
     )
     : bid.asset.token.address;
 

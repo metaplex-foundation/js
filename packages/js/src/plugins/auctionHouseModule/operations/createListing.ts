@@ -101,14 +101,14 @@ export type CreateListingOutput = {
  * @category Handlers
  */
 export const createListingOperationHandler: OperationHandler<CreateListingOperation> =
-{
-  handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
-    return createListingBuilder(metaplex, operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    );
-  },
-};
+  {
+    handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
+      return createListingBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+    },
+  };
 
 // -----------------
 // Builder

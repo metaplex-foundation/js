@@ -70,13 +70,13 @@ export type CancelListingOutput = {
  * @category Handlers
  */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
-{
-  handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
-    cancelListingBuilder(operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    ),
-};
+  {
+    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
+      cancelListingBuilder(operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      ),
+  };
 
 // -----------------
 // Builder

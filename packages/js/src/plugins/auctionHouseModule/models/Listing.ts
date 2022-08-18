@@ -73,29 +73,29 @@ export function assertLazyListing(value: any): asserts value is LazyListing {
   assert(isLazyListing(value), `Expected LazyListing type`);
 }
 export const toLazyListing = (
-  account: ListingReceiptAccount,
-  auctionHouse: AuctionHouse
-): LazyListing => {
-  return {
-    model: 'listing',
-    lazy: true,
-    auctionHouse: auctionHouse,
-    tradeStateAddress: new Pda(
-      account.data.tradeState,
-      account.data.tradeStateBump
-    ),
-    bookkeeperAddress: account.data.bookkeeper,
-    sellerAddress: account.data.seller,
-    metadataAddress: account.data.metadata,
-    receiptAddress: new Pda(account.publicKey, account.data.bump),
-    purchaseReceiptAddress: account.data.purchaseReceipt,
+    account: ListingReceiptAccount,
+    auctionHouse: AuctionHouse
+  ): LazyListing => {
+    return {
+      model: 'listing',
+      lazy: true,
+      auctionHouse: auctionHouse,
+      tradeStateAddress: new Pda(
+        account.data.tradeState,
+        account.data.tradeStateBump
+      ),
+      bookkeeperAddress: account.data.bookkeeper,
+      sellerAddress: account.data.seller,
+      metadataAddress: account.data.metadata,
+      receiptAddress: new Pda(account.publicKey, account.data.bump),
+      purchaseReceiptAddress: account.data.purchaseReceipt,
 
-    // Data.
-    price: auctionHouse.isNative
-      ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouse.treasuryMint.currency),
-    tokens: toBigNumber(account.data.tokenSize),
-    createdAt: toDateTime(account.data.createdAt),
-    canceledAt: toOptionDateTime(account.data.canceledAt),
+      // Data.
+      price: auctionHouse.isNative
+        ? lamports(account.data.price)
+        : amount(account.data.price, auctionHouse.treasuryMint.currency),
+      tokens: toBigNumber(account.data.tokenSize),
+      createdAt: toDateTime(account.data.createdAt),
+      canceledAt: toOptionDateTime(account.data.canceledAt),
+    };
   };
-};

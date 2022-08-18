@@ -18,7 +18,7 @@ import {
  * @group Module Builders
  */
 export class AuctionHouseBuildersClient {
-  constructor(protected readonly metaplex: Metaplex) { }
+  constructor(protected readonly metaplex: Metaplex) {}
 
   bid(input: CreateBidBuilderParams) {
     return createBidBuilder(this.metaplex, input);

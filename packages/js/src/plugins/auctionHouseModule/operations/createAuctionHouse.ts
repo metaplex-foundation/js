@@ -90,17 +90,17 @@ export type CreateAuctionHouseOutput = {
  * @category Handlers
  */
 export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionHouseOperation> =
-{
-  handle: async (
-    operation: CreateAuctionHouseOperation,
-    metaplex: Metaplex
-  ) => {
-    return createAuctionHouseBuilder(
-      metaplex,
-      operation.input
-    ).sendAndConfirm(metaplex, operation.input.confirmOptions);
-  },
-};
+  {
+    handle: async (
+      operation: CreateAuctionHouseOperation,
+      metaplex: Metaplex
+    ) => {
+      return createAuctionHouseBuilder(
+        metaplex,
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+    },
+  };
 
 // -----------------
 // Builder
@@ -168,9 +168,9 @@ export const createAuctionHouseBuilder = (
   const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
     ? treasuryWithdrawalDestinationOwner
     : findAssociatedTokenAccountPda(
-      treasuryMint,
-      treasuryWithdrawalDestinationOwner
-    );
+        treasuryMint,
+        treasuryWithdrawalDestinationOwner
+      );
 
   return (
     TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
