@@ -11,7 +11,7 @@ export * from './findBidByReceipt';
 export * from './findBidByTradeState';
 export * from './findListingByReceipt';
 export * from './findListingByTradeState';
-export * from './findPurchaseByAddress';
+export * from './findPurchaseByTradeState';
 export * from './Listing';
 export * from './loadBid';
 export * from './loadPurchase';

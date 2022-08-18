@@ -39,9 +39,13 @@ import {
   ExecuteSaleOutput,
 } from './executeSale';
 import {
-  FindPurchaseByAddressInput,
-  findPurchaseByAddressOperation,
-} from './findPurchaseByAddress';
+  FindPurchaseByTradeStateInput,
+  findPurchaseByTradeStateOperation,
+} from './findPurchaseByTradeState';
+import {
+  FindPurchaseByReceiptInput,
+  findPurchaseByReceiptOperation,
+} from './findPurchaseByReceipt';
 import { LazyPurchase, Purchase } from './Purchase';
 import { LoadPurchaseInput, loadPurchaseOperation } from './loadPurchase';
 import {
@@ -90,14 +94,11 @@ export class AuctionHouseClient {
         .execute(executeSaleOperation(this.addAH(input)));
       scope.throwIfCanceled();
 
-      try {
-        const purchase = await this.findPurchaseByAddress(
-          output.sellerTradeState,
-          output.buyerTradeState
-        ).run(scope);
+      if (output.receipt) {
+        const purchase = await this.findPurchaseByReceipt(output.receipt).run(
+          scope
+        );
         return { purchase, ...output };
-      } catch (error) {
-        // Fallback to manually creating a purchase from inputs and outputs.
       }
 
       const lazyPurchase: LazyPurchase = {
@@ -121,18 +122,34 @@ export class AuctionHouseClient {
     });
   }
 
-  findPurchaseByAddress(
+  findPurchaseByTradeState(
     sellerTradeState: PublicKey,
     buyerTradeState: PublicKey,
     options: Omit<
-      FindPurchaseByAddressInput,
+      FindPurchaseByTradeStateInput,
       'sellerTradeState' | 'buyerTradeState' | 'auctionHouse'
     > = {}
   ) {
     return this.metaplex.operations().getTask(
-      findPurchaseByAddressOperation({
+      findPurchaseByTradeStateOperation({
         sellerTradeState,
         buyerTradeState,
+        auctionHouse: this.auctionHouse,
+        ...options,
+      })
+    );
+  }
+
+  findPurchaseByReceipt(
+    receiptAddress: PublicKey,
+    options: Omit<
+      FindPurchaseByReceiptInput,
+      'receiptAddress' | 'auctionHouse'
+    > = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findPurchaseByReceiptOperation({
+        receiptAddress,
         auctionHouse: this.auctionHouse,
         ...options,
       })

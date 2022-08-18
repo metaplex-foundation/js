@@ -42,9 +42,13 @@ import {
   findListingByTradeStateOperationHandler,
 } from './findListingByTradeState';
 import {
-  findPurchaseByAddressOperation,
-  findPurchaseByAddressOperationHandler,
-} from './findPurchaseByAddress';
+  findPurchaseByReceiptOperation,
+  findPurchaseByReceiptOperationHandler,
+} from './findPurchaseByReceipt';
+import {
+  findPurchaseByTradeStateOperation,
+  findPurchaseByTradeStateOperationHandler,
+} from './findPurchaseByTradeState';
 import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
@@ -98,8 +102,12 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findListingByTradeStateOperationHandler
     );
     op.register(
-      findPurchaseByAddressOperation,
-      findPurchaseByAddressOperationHandler
+      findPurchaseByReceiptOperation,
+      findPurchaseByReceiptOperationHandler
+    );
+    op.register(
+      findPurchaseByTradeStateOperation,
+      findPurchaseByTradeStateOperationHandler
     );
     op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);
