@@ -591,7 +591,7 @@ export type CandyMachineConfigs = {
 
   /**
    * {@inheritDoc Creator}
-   * @defaultValue `null`
+   * @defaultValue
    * ```ts
    * [{
    *   address: metaplex.identity().publicKey,
