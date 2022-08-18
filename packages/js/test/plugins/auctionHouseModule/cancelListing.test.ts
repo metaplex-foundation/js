@@ -38,7 +38,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   // Then the delegate's authority is revoked and receipt has canceledAt date.
   const canceledListing = await mx
     .auctionHouse()
-    .findListingByAddress(listing.tradeStateAddress, auctionHouse)
+    .findListingByTradeState(listing.tradeStateAddress, auctionHouse)
     .run();
   t.false(canceledListing.asset.token.delegateAddress);
   t.ok(canceledListing.canceledAt);
@@ -112,7 +112,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   // When we execute a sale with given canceled listing and bid.
   const canceledListing = await mx
     .auctionHouse()
-    .findListingByAddress(listing.tradeStateAddress, auctionHouse)
+    .findListingByTradeState(listing.tradeStateAddress, auctionHouse)
     .run();
   const promise = mx
     .auctionHouse()

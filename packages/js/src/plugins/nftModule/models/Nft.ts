@@ -6,12 +6,30 @@ import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 
-/** @group Models */
+/**
+ * This model captures all the relevant information about an NFT
+ * in the Solana blockchain. That includes the NFT's metadata account,
+ * its mint account, its edition account and its off-chain JSON metadata.
+ *
+ * @group Models
+ */
 export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
+  /** A model identifier to distinguish models in the SDK. */
   readonly model: 'nft';
+
+  /** The mint address of the NFT. */
   readonly address: PublicKey;
+
+  /** The metadata address of the NFT. */
   readonly metadataAddress: Pda;
+
+  /** The mint account of the NFT. */
   readonly mint: Mint;
+
+  /**
+   * Defines whether the NFT is an original edition or a
+   * printed edition and provides additional information accordingly.
+   */
   readonly edition: NftEdition;
 };
 
