@@ -3,7 +3,10 @@ import type { Metaplex } from '@/Metaplex';
 import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
-import { cancelBidOperation, cancelBidOperationHandler } from './operations/cancelBid';
+import {
+  cancelBidOperation,
+  cancelBidOperationHandler,
+} from './operations/cancelBid';
 import {
   cancelListingOperation,
   cancelListingOperationHandler,
@@ -12,7 +15,10 @@ import {
   createAuctionHouseOperation,
   createAuctionHouseOperationHandler,
 } from './operations/createAuctionHouse';
-import { createBidOperation, createBidOperationHandler } from './operations/createBid';
+import {
+  createBidOperation,
+  createBidOperationHandler,
+} from './operations/createBid';
 import {
   createListingOperation,
   createListingOperationHandler,
@@ -49,7 +55,10 @@ import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
 } from './operations/updateAuctionHouse';
-import { loadBidOperation, loadBidOperationHandler } from './operations/loadBid';
+import {
+  loadBidOperation,
+  loadBidOperationHandler,
+} from './operations/loadBid';
 import {
   loadListingOperation,
   loadListingOperationHandler,

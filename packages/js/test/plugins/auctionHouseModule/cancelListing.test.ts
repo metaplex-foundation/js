@@ -146,7 +146,10 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
     .run();
 
   // When we cancel the listing but without providing Auctioneer Authority.
-  const promise = mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
+  const promise = mx
+    .auctionHouse()
+    .cancelListing({ auctionHouse, listing })
+    .run();
 
   // Then we expect an error.
   await assertThrows(

@@ -60,8 +60,14 @@ import {
   findPurchaseByAddressOperation,
 } from './operations/findPurchaseByAddress';
 import { LoadBidInput, loadBidOperation } from './operations/loadBid';
-import { LoadPurchaseInput, loadPurchaseOperation } from './operations/loadPurchase';
-import { LoadListingInput, loadListingOperation } from './operations/loadListing';
+import {
+  LoadPurchaseInput,
+  loadPurchaseOperation,
+} from './operations/loadPurchase';
+import {
+  LoadListingInput,
+  loadListingOperation,
+} from './operations/loadListing';
 import { LazyPurchase, Purchase } from './models/Purchase';
 import { LazyListing, Listing } from './models/Listing';
 import { now } from '@/types';
@@ -70,7 +76,6 @@ import {
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './operations/updateAuctionHouse';
-
 
 /**
  * @group Modules
@@ -288,7 +293,7 @@ export class AuctionHouseClient {
       })
     );
   }
-   findListingByReceipt(
+  findListingByReceipt(
     receiptAddress: PublicKey,
     auctionHouse: AuctionHouse,
     options: Omit<
@@ -313,10 +318,11 @@ export class AuctionHouseClient {
         .operations()
         .execute(createListingOperation(input), scope);
       scope.throwIfCanceled();
-        if (output.receipt) {
-          const listing = await this.findListingByReceipt(output.receipt, input.auctionHouse).run(
-            scope
-          );
+      if (output.receipt) {
+        const listing = await this.findListingByReceipt(
+          output.receipt,
+          input.auctionHouse
+        ).run(scope);
         return { listing, ...output };
       }
 
@@ -391,5 +397,4 @@ export class AuctionHouseClient {
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
   }
-
 }

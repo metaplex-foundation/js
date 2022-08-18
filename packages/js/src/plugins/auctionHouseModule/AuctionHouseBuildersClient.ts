@@ -3,12 +3,18 @@ import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
 } from './operations/createAuctionHouse';
-import { createBidBuilder, CreateBidBuilderParams } from './operations/createBid';
+import {
+  createBidBuilder,
+  CreateBidBuilderParams,
+} from './operations/createBid';
 import {
   createListingBuilder,
   CreateListingBuilderParams,
 } from './operations/createListing';
-import { executeSaleBuilder, ExecuteSaleBuilderParams } from './operations/executeSale';
+import {
+  executeSaleBuilder,
+  ExecuteSaleBuilderParams,
+} from './operations/executeSale';
 import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,

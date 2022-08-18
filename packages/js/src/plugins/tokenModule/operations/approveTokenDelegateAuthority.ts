@@ -99,36 +99,36 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveTokenDelegateAuthorityBuilder = (
-    metaplex: Metaplex,
-    params: ApproveTokenDelegateAuthorityBuilderParams
-  ): TransactionBuilder => {
-    const {
-      mintAddress,
+  metaplex: Metaplex,
+  params: ApproveTokenDelegateAuthorityBuilderParams
+): TransactionBuilder => {
+  const {
+    mintAddress,
+    delegateAuthority,
+    amount = token(1),
+    owner = metaplex.identity(),
+    tokenAddress,
+    multiSigners = [],
+    tokenProgram = TokenProgram.publicKey,
+  } = params;
+
+  const [ownerPublicKey, signers] = isSigner(owner)
+    ? [owner.publicKey, [owner]]
+    : [owner, multiSigners];
+
+  const tokenAddressOrAta =
+    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
+
+  return TransactionBuilder.make().add({
+    instruction: createApproveInstruction(
+      tokenAddressOrAta,
       delegateAuthority,
-      amount = token(1),
-      owner = metaplex.identity(),
-      tokenAddress,
-      multiSigners = [],
-      tokenProgram = TokenProgram.publicKey,
-    } = params;
-
-    const [ownerPublicKey, signers] = isSigner(owner)
-      ? [owner.publicKey, [owner]]
-      : [owner, multiSigners];
-
-    const tokenAddressOrAta =
-      tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
-
-    return TransactionBuilder.make().add({
-      instruction: createApproveInstruction(
-        tokenAddressOrAta,
-        delegateAuthority,
-        ownerPublicKey,
-        amount.basisPoints.toNumber(),
-        multiSigners,
-        tokenProgram
-      ),
-      signers,
-      key: params.instructionKey ?? 'approveDelegateAuthority',
-    });
-  };
+      ownerPublicKey,
+      amount.basisPoints.toNumber(),
+      multiSigners,
+      tokenProgram
+    ),
+    signers,
+    key: params.instructionKey ?? 'approveDelegateAuthority',
+  });
+};
