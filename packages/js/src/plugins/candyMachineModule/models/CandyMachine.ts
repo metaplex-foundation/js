@@ -452,20 +452,154 @@ export const toCandyMachine = (
 
 /** @group Models */
 export type CandyMachineConfigs = {
+  /**
+   * The address of the wallet receiving the payments for minting NFTs.
+   * If the Candy Machine accepts payments in SOL, this is the SOL treasury account.
+   * Otherwise, this is the token account associated with the treasury Mint.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
   wallet: PublicKey;
+
+  /**
+   * The address of the Mint account of the SPL Token that should be used
+   * to accept payments for minting NFTs. When `null`, it means the
+   * Candy Machine account accepts payments in SOL.
+   */
   tokenMint: Option<PublicKey>;
+
+  /**
+   * The price of minting an NFT.
+   *
+   * If the Candy Machine uses no treasury mint (i.e. the `tokenMintAddress`
+   * is `null`), this amount will be in SOL. Otherwise, its currency will
+   * match the currency of the treasury mint.
+   *
+   * @example
+   * ```ts
+   * { price: sol(1.5) } // For 1.5 SOL.
+   * { price: token(320, 2, MYTOKEN) } // For 3.2 MYTOKEN which is a 2-decimal token.
+   * ```
+   */
   price: Amount;
+
+  /**
+   * The royalties that should be set on minted NFTs in basis points
+   *
+   * @example
+   * ```ts
+   * { sellerFeeBasisPoints: 250 } // For 2.5% royalties.
+   * ```
+   */
   sellerFeeBasisPoints: number;
+
+  /**
+   * The total number of items availble in the Candy Machine, minted or not.
+   *
+   * @example
+   * ```ts
+   * { itemsAvailable: toBigNumber(1000) } // For 1000 items.
+   * ```
+   */
   itemsAvailable: BigNumber;
+
+  /**
+   * The symbol to use when minting NFTs (e.g. "MYPROJECT")
+   *
+   * This can be any string up to 10 bytes and can be made optional
+   * by providing an empty string.
+   *
+   * @defaultValue `""`
+   */
   symbol: string;
+
+  /**
+   * The maximum number of editions that can be printed from the
+   * minted NFTs.
+   *
+   * For most use cases, you'd want to set this to `0` to prevent
+   * minted NFTs to be printed multiple times.
+   *
+   * Note that you cannot set this to `null` which means unlimited editions
+   * are not supported by the Candy Machine program.
+   *
+   * @defaultValue `toBigNumber(0)`
+   */
   maxEditionSupply: BigNumber;
+
+  /**
+   * Whether the minted NFTs should be mutable or not.
+   *
+   * We recommend setting this to `true` unless you have a specific reason.
+   * You can always make NFTs immutable in the future but you cannot make
+   * immutable NFTs mutable ever again.
+   *
+   * @defaultValue `true`
+   */
   isMutable: boolean;
+
+  /**
+   * Wheter the minted NFTs should use the Candy Machine authority
+   * as their update authority.
+   *
+   * We strongly recommend setting this to `true` unless you have a
+   * specific reason. When set to `false`, the update authority will
+   * be given to the address that minted the NFT and you will no longer
+   * be able to update the minted NFTs in the future.
+   *
+   * @defaultValue `true`
+   */
   retainAuthority: boolean;
+
+  /**
+   * The timestamp of when the Candy Machine will be live.
+   *
+   * If this is `null` or if the timestamp refers to a time in the
+   * future, no one will be able to mint NFTs from the Candy Machine
+   * (except its authority that can bypass this live date).
+   *
+   * @defaultValue `null`
+   */
   goLiveDate: Option<DateTime>;
+
+  /**
+   * An optional constraint defining when the Candy Machine will end.
+   * If this is `null`, the Candy Machine will end when there are
+   * no more items to mint from (i.e. `itemsRemaining` is `0`).
+   *
+   * @defaultValue `null`
+   */
   endSettings: Option<CandyMachineEndSettings>;
+
+  /**
+   * {@inheritDoc CandyMachineHiddenSettings}
+   * @defaultValue `null`
+   */
   hiddenSettings: Option<CandyMachineHiddenSettings>;
+
+  /**
+   * {@inheritDoc CandyMachineWhitelistMintSettings}
+   * @defaultValue `null`
+   */
   whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
+
+  /**
+   * {@inheritDoc CandyMachineGatekeeper}
+   * @defaultValue `null`
+   */
   gatekeeper: Option<CandyMachineGatekeeper>;
+
+  /**
+   * {@inheritDoc Creator}
+   * @defaultValue `null`
+   * ```ts
+   * [{
+   *   address: metaplex.identity().publicKey,
+   *   share: 100,
+   *   verified: false,
+   * }]
+   * ```
+   */
   creators: Creator[];
 };
 
