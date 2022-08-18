@@ -48,9 +48,13 @@ import {
   findBidByTradeStateOperation,
 } from './operations/findBidByTradeState';
 import {
-  FindListingByAddressInput,
-  findListingByAddressOperation,
-} from './operations/findListingByAddress';
+  FindListingByReceiptInput,
+  findListingByReceiptOperation,
+} from './operations/findListingByReceipt';
+import {
+  FindListingByTradeStateInput,
+  findListingByTradeStateOperation,
+} from './operations/findListingByTradeState';
 import {
   FindPurchaseByAddressInput,
   findPurchaseByAddressOperation,
@@ -268,15 +272,33 @@ export class AuctionHouseClient {
     );
   }
 
-  findListingByAddress(
-    this: AuctionHouseClient,
-    address: PublicKey,
+  findListingByTradeState(
+    tradeStateAddress: PublicKey,
     auctionHouse: AuctionHouse,
-    options: Omit<FindListingByAddressInput, 'address' | 'auctionHouse'> = {}
+    options: Omit<
+      FindListingByTradeStateInput,
+      'tradeStateAddress' | 'auctionHouse'
+    > = {}
   ) {
     return this.metaplex.operations().getTask(
-      findListingByAddressOperation({
-        address,
+      findListingByTradeStateOperation({
+        tradeStateAddress,
+        auctionHouse,
+        ...options,
+      })
+    );
+  }
+   findListingByReceipt(
+    receiptAddress: PublicKey,
+    auctionHouse: AuctionHouse,
+    options: Omit<
+      FindListingByReceiptInput,
+      'receiptAddress' | 'auctionHouse'
+    > = {}
+  ) {
+    return this.metaplex.operations().getTask(
+      findListingByReceiptOperation({
+        receiptAddress,
         auctionHouse,
         ...options,
       })
@@ -291,15 +313,11 @@ export class AuctionHouseClient {
         .operations()
         .execute(createListingOperation(input), scope);
       scope.throwIfCanceled();
-
-      try {
-        const listing = await this.findListingByAddress(
-          output.sellerTradeState,
-          input.auctionHouse
-        ).run(scope);
+        if (output.receipt) {
+          const listing = await this.findListingByReceipt(output.receipt, input.auctionHouse).run(
+            scope
+          );
         return { listing, ...output };
-      } catch (error) {
-        // Fallback to manually creating a listing from inputs and outputs.
       }
 
       scope.throwIfCanceled();
