@@ -18,6 +18,18 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 const Key = 'TransferSolOperation' as const;
 
 /**
+ * Transfers some SOL from one account to another.
+ *
+ * ```ts
+ * await metaplex
+ *   .system()
+ *   .transferSol({
+ *     to: new PublicKey("..."),
+ *     amount: sol(1.5),
+ *   })
+ *   .run();
+ * ````
+ *
  * @group Operations
  * @category Constructors
  */
@@ -38,12 +50,37 @@ export type TransferSolOperation = Operation<
  * @category Inputs
  */
 export type TransferSolInput = {
-  from?: Signer; // Defaults to mx.identity().
+  /**
+   * The account that sends the SOLs as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  from?: Signer;
+
+  /** The address of the account that receives the SOLs. */
   to: PublicKey;
+
+  /** The amount of SOLs to send. */
   amount: SolAmount;
+
+  /**
+   * Base public key to use to derive the funding account address.
+   *
+   * @defaultValue Defaults to not being used.
+   */
   basePubkey?: PublicKey;
+
+  /**
+   * Seed to use to derive the funding account address.
+   *
+   * @defaultValue Defaults to not being used.
+   */
   seed?: string;
+
+  /** The address of the SPL System program to override if necessary. */
   program?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -84,10 +121,23 @@ export type TransferSolBuilderParams = Omit<
   TransferSolInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that transfers some SOL. */
   instructionKey?: string;
 };
 
 /**
+ * Transfers some SOL from one account to another.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .system()
+ *   .builders()
+ *   .transferSol({
+ *     to: new PublicKey("..."),
+ *     amount: sol(1.5),
+ *   });
+ * ````
+ *
  * @group Transaction Builders
  * @category Constructors
  */
