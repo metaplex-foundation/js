@@ -24,6 +24,8 @@ import { CandyMachine, CandyMachineItem } from '../models/CandyMachine';
 const Key = 'InsertItemsToCandyMachineOperation' as const;
 
 /**
+ * Insert items into an existing Candy Machine.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -126,6 +128,8 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
 };
 
 /**
+ * Insert items into an existing Candy Machine.
+ *
  * @group Transaction Builders
  * @category Constructors
  */

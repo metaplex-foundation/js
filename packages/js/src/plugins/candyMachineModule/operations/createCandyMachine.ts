@@ -46,6 +46,8 @@ import { CandyMachineProgram } from '../program';
 const Key = 'CreateCandyMachineOperation' as const;
 
 /**
+ * Creates a brand new Candy Machine.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -205,6 +207,8 @@ export type CreateCandyMachineBuilderContext = Omit<
 >;
 
 /**
+ * Creates a brand new Candy Machine.
+ *
  * @group Transaction Builders
  * @category Constructors
  */

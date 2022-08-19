@@ -14,6 +14,8 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'DeleteCandyMachineOperation' as const;
 
 /**
+ * Deletes an existing Candy Machine.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -100,6 +102,8 @@ export type DeleteCandyMachineBuilderParams = Omit<
 };
 
 /**
+ * Deletes an existing Candy Machine.
+ *
  * @group Transaction Builders
  * @category Constructors
  */

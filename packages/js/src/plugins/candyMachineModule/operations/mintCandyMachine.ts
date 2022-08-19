@@ -46,6 +46,8 @@ import { CandyMachineProgram } from '../program';
 const Key = 'MintCandyMachineOperation' as const;
 
 /**
+ * Mint an NFT from an existing Candy Machine.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -273,6 +275,8 @@ export type MintCandyMachineBuilderContext = Omit<
 >;
 
 /**
+ * Mint an NFT from an existing Candy Machine.
+ *
  * @group Transaction Builders
  * @category Constructors
  */

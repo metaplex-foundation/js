@@ -13,6 +13,10 @@ import {
 } from './operations';
 
 /**
+ * This client allows you to access the underlying Transaction Builders
+ * for the write operations of the Candy Machine module.
+ *
+ * @see {@link CandyMachinesClient}
  * @group Module Builders
  */
 export class CandyMachinesBuildersClient {

@@ -68,6 +68,10 @@ import {
 export class NftClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  /**
+   * You may use the `builders()` client to access the
+   * underlying Transaction Builders of this module.
+   */
   builders() {
     return new NftBuildersClient(this.metaplex);
   }

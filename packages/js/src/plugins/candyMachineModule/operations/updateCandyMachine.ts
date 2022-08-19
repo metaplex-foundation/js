@@ -33,6 +33,8 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'UpdateCandyMachineOperation' as const;
 
 /**
+ * Updates an existing Candy Machine.
+ *
  * @group Operations
  * @category Constructors
  */
@@ -240,6 +242,8 @@ export type UpdateCandyMachineBuilderParams = {
 };
 
 /**
+ * Updates an existing Candy Machine.
+ *
  * @group Transaction Builders
  * @category Constructors
  */
