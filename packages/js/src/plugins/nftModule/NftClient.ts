@@ -71,6 +71,10 @@ export class NftClient {
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.nfts().builders();
+   * ```
    */
   builders() {
     return new NftBuildersClient(this.metaplex);

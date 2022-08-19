@@ -30,6 +30,10 @@ export class AuctionsClient {
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.auctions().builders();
+   * ```
    */
   builders() {
     return new AuctionsBuildersClient(this.metaplex);

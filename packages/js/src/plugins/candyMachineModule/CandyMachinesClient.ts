@@ -60,6 +60,10 @@ export class CandyMachinesClient {
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.candyMachines().builders();
+   * ```
    */
   builders() {
     return new CandyMachinesBuildersClient(this.metaplex);

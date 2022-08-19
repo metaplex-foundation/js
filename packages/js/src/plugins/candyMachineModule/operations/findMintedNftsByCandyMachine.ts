@@ -15,7 +15,7 @@ const Key = 'FindMintedNftsByCandyMachineOperation' as const;
  * Find all minted NFTs from a given Candy Machine address.
  *
  * ```ts
- * const candyMachine = await metaplex
+ * const nfts = await metaplex
  *   .candyMachines()
  *   .findMintedNfts({ candyMachine })
  *   .run();
