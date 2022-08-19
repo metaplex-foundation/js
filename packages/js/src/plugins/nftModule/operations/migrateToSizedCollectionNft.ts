@@ -48,7 +48,7 @@ export type MigrateToSizedCollectionNftInput = {
   size: BigNumber;
   isDelegated?: boolean; // Defaults to false.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

@@ -84,7 +84,7 @@ export type CreateSftInput = {
   tokenProgram?: PublicKey;
   associatedTokenProgram?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

@@ -60,7 +60,7 @@ export type UpdateAuctionHouseInput = {
   auctioneerAuthority?: PublicKey;
   auctioneerScopes?: AuthorityScope[];
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

@@ -43,7 +43,7 @@ export type ApproveNftCollectionAuthorityInput = {
   // Programs.
   systemProgram?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

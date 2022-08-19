@@ -39,7 +39,7 @@ export type RevokeNftCollectionAuthorityInput = {
   collectionAuthority: PublicKey;
   revokeAuthority?: Signer; // Can be the update authority of the delegated collection authority. Defaults to mx.identity().
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

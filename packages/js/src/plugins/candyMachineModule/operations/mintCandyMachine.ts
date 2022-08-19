@@ -94,7 +94,7 @@ export type MintCandyMachineInput = {
   tokenMetadataProgram?: PublicKey;
   candyMachineProgram?: PublicKey;
 
-  // Transaction Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

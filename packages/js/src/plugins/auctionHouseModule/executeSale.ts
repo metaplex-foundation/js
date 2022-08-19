@@ -76,7 +76,7 @@ export type ExecuteSaleInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

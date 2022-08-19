@@ -63,13 +63,44 @@ export type CreateCandyMachineOperation = Operation<
 >;
 
 export type CreateCandyMachineInputWithoutConfigs = {
-  // Accounts and Models.
-  candyMachine?: Signer; // Defaults to Keypair.generate().
-  payer?: Signer; // Defaults to mx.identity().
-  authority?: Signer | PublicKey; // Defaults to mx.identity().
-  collection?: Option<PublicKey>; // Defaults to no collection.
+  /**
+   * The Candy Machine to create as a Signer.
+   * This expects a brand new Keypair with no associated account.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  candyMachine?: Signer;
 
-  // Transaction Options.
+  /**
+   * The Signer that should pay for the creation of the Candy Machine.
+   * This includes both storage fees and the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The authority that will be allowed to update the Candy Machine.
+   * Upon creation, passing the authority's public key is enough to set it.
+   * However, when also passing a `collection` to this operation,
+   * this authority will need to be passed as a Signer so the relevant
+   * instruction can be signed.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer | PublicKey; // Defaults to mx.identity().
+
+  /**
+   * The mint address of the Collection NFT that all NFTs minted from
+   * this Candy Machine should be part of.
+   * When provided, the `authority` parameter will need to be passed as a `Signer`.
+   * When `null`, minted NFTs won't be part of a collection.
+   *
+   * @defaultValue `null`
+   */
+  collection?: Option<PublicKey>;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -141,8 +172,13 @@ export type CreateCandyMachineBuilderParams = Omit<
   CreateCandyMachineInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the account. */
   createAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the Candy Machine. */
   initializeCandyMachineInstructionKey?: string;
+
+  /** A key to distinguish the instruction that sets the collection. */
   setCollectionInstructionKey?: string;
 };
 

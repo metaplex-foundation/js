@@ -56,7 +56,7 @@ export type InsertItemsToCandyMachineInput = {
   items: CandyMachineItem[];
   index?: BigNumber;
 
-  // Transaction Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

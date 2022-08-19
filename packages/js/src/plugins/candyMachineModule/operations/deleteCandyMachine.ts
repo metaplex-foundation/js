@@ -35,7 +35,7 @@ export type DeleteCandyMachineInputWithoutConfigs = {
   candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
   authority?: Signer; // Defaults to mx.identity().
 
-  // Transaction Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

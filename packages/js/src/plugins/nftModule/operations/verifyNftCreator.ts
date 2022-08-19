@@ -38,7 +38,7 @@ export type VerifyNftCreatorInput = {
   mintAddress: PublicKey;
   creator?: Signer; // Defaults to mx.identity().
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

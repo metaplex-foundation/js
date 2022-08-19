@@ -51,7 +51,7 @@ export type UnverifyNftCollectionInput = {
   isSizedCollection?: boolean; // Defaults to true.
   isDelegated?: boolean; // Defaults to false.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

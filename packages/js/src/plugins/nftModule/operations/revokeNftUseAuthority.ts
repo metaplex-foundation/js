@@ -45,7 +45,7 @@ export type RevokeNftUseAuthorityInput = {
   tokenProgram?: PublicKey;
   systemProgram?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

@@ -53,7 +53,7 @@ export type CancelListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   listing: Listing;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

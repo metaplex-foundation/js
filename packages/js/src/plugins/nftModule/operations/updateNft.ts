@@ -76,7 +76,7 @@ export type UpdateNftInput = {
   collectionIsSized?: boolean; // Defaults to true.
   oldCollectionIsSized?: boolean; // Defaults to true.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

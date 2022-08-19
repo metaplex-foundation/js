@@ -49,7 +49,7 @@ export type UseNftInput = {
   ownerTokenAccount?: PublicKey; // Defaults to associated token account.
   useAuthority?: Signer; // Defaults to not being used.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

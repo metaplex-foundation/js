@@ -69,7 +69,7 @@ export type CreateAuctionHouseInput = {
   treasuryWithdrawalDestinationOwner?: PublicKey;
   auctioneerAuthority?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

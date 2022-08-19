@@ -43,7 +43,7 @@ export type DeleteNftInput = {
   // Programs.
   tokenProgram?: PublicKey; // Defaults to Token Program.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
