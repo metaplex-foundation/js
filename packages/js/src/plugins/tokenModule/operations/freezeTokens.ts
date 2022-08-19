@@ -55,6 +55,7 @@ export type FreezeTokensInput = {
  * @category Outputs
  */
 export type FreezeTokensOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

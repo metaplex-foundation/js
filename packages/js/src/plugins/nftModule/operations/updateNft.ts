@@ -85,6 +85,7 @@ export type UpdateNftInput = {
  * @category Outputs
  */
 export type UpdateNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

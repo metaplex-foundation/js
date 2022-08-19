@@ -85,6 +85,7 @@ export type ExecuteSaleInput = {
  * @category Outputs
  */
 export type ExecuteSaleOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: PublicKey;
   buyerTradeState: PublicKey;

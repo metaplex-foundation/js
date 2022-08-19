@@ -60,6 +60,7 @@ export type UnverifyNftCollectionInput = {
  * @category Outputs
  */
 export type UnverifyNftCollectionOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

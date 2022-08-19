@@ -69,6 +69,7 @@ export type UpdateAuctionHouseInput = {
  * @category Outputs
  */
 export type UpdateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

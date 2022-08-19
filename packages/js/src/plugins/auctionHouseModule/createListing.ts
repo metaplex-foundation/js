@@ -84,6 +84,7 @@ export type CreateListingInput = {
  * @category Outputs
  */
 export type CreateListingOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: Pda;
   freeSellerTradeState: Pda;

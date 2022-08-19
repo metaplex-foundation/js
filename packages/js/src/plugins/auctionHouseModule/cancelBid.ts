@@ -63,6 +63,7 @@ export type CancelBidInput = {
  * @category Outputs
  */
 export type CancelBidOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

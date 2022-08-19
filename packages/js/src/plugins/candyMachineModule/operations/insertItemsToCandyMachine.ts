@@ -89,6 +89,7 @@ export type InsertItemsToCandyMachineInput = {
  * @category Outputs
  */
 export type InsertItemsToCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

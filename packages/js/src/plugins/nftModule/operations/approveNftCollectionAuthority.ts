@@ -52,6 +52,7 @@ export type ApproveNftCollectionAuthorityInput = {
  * @category Outputs
  */
 export type ApproveNftCollectionAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

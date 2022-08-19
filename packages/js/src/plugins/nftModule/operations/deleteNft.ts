@@ -52,6 +52,7 @@ export type DeleteNftInput = {
  * @category Outputs
  */
 export type DeleteNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

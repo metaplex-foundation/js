@@ -48,6 +48,7 @@ export type RevokeNftCollectionAuthorityInput = {
  * @category Outputs
  */
 export type RevokeNftCollectionAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

@@ -47,6 +47,7 @@ export type VerifyNftCreatorInput = {
  * @category Outputs
  */
 export type VerifyNftCreatorOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

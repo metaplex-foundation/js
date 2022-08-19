@@ -55,6 +55,7 @@ export type RevokeTokenDelegateAuthorityInput = {
  * @category Outputs
  */
 export type RevokeTokenDelegateAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

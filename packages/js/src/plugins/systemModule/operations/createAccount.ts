@@ -85,6 +85,7 @@ export type CreateAccountInput = {
  */
 export type CreateAccountOutput = {
   /** The response from sending and confirming the sent transaction. */
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
   /** The new account created as a Signer. */

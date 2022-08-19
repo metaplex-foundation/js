@@ -119,6 +119,7 @@ export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
  * @category Outputs
  */
 export type CreateCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   candyMachine: CandyMachine;
   candyMachineSigner: Signer;

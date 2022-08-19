@@ -93,6 +93,7 @@ export type CreateSftInput = {
  * @category Outputs
  */
 export type CreateSftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sft: Sft | SftWithToken;
   mintAddress: PublicKey;

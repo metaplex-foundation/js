@@ -60,6 +60,7 @@ export type MintTokensInput = {
  * @category Outputs
  */
 export type MintTokensOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

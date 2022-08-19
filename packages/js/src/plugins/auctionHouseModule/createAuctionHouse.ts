@@ -78,6 +78,7 @@ export type CreateAuctionHouseInput = {
  * @category Outputs
  */
 export type CreateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   auctionHouseAddress: Pda;
   auctionHouseFeeAccountAddress: Pda;

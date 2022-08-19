@@ -88,6 +88,7 @@ export type CreateNftInput = {
  * @category Outputs
  */
 export type CreateNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   nft: NftWithToken;
   mintAddress: PublicKey;

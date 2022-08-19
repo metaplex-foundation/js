@@ -48,6 +48,7 @@ export type FreezeDelegatedNftInput = {
  * @category Outputs
  */
 export type FreezeDelegatedNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

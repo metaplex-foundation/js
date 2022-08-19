@@ -62,6 +62,7 @@ export type DeleteCandyMachineInput = {
  * @category Outputs
  */
 export type DeleteCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

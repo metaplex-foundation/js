@@ -54,6 +54,7 @@ export type RevokeNftUseAuthorityInput = {
  * @category Outputs
  */
 export type RevokeNftUseAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

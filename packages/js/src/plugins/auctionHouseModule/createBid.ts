@@ -87,6 +87,7 @@ export type CreateBidInput = {
  * @category Outputs
  */
 export type CreateBidOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
   tokenAccount: Option<PublicKey>;

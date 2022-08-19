@@ -65,6 +65,7 @@ export type CreateTokenInput = {
  * @category Outputs
  */
 export type CreateTokenOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   token: Token;
 };

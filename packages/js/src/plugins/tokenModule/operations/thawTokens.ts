@@ -55,6 +55,7 @@ export type ThawTokensInput = {
  * @category Outputs
  */
 export type ThawTokensOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

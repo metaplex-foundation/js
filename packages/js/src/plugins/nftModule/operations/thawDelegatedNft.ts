@@ -48,6 +48,7 @@ export type ThawDelegatedNftInput = {
  * @category Outputs
  */
 export type ThawDelegatedNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

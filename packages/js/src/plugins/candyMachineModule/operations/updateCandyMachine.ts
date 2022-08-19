@@ -106,6 +106,7 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
  * @category Outputs
  */
 export type UpdateCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

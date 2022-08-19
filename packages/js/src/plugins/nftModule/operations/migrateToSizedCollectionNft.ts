@@ -57,6 +57,7 @@ export type MigrateToSizedCollectionNftInput = {
  * @category Outputs
  */
 export type MigrateToSizedCollectionNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

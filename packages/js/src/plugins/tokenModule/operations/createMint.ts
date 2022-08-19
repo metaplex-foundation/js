@@ -51,6 +51,7 @@ export type CreateMintInput = {
  * @category Outputs
  */
 export type CreateMintOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   mintSigner: Signer;
   mint: Mint;

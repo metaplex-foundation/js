@@ -59,6 +59,7 @@ export type ApproveTokenDelegateAuthorityInput = {
  * @category Outputs
  */
 export type ApproveTokenDelegateAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
