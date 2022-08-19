@@ -108,6 +108,15 @@ export type DeleteCandyMachineBuilderParams = Omit<
 /**
  * Deletes an existing Candy Machine.
  *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .delete({
+ *     candyMachine: { address, collectionMintAddress },
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -220,6 +220,17 @@ export type CreateCandyMachineBuilderContext = Omit<
 /**
  * Creates a brand new Candy Machine.
  *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *     price: sol(1.3), // 1.3 SOL
+ *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

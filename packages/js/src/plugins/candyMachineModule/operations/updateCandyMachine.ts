@@ -36,7 +36,7 @@ const Key = 'UpdateCandyMachineOperation' as const;
  * Updates an existing Candy Machine.
  *
  * ```ts
- * const candyMachine = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .update({
  *     candyMachine,
@@ -253,6 +253,16 @@ export type UpdateCandyMachineBuilderParams = {
 
 /**
  * Updates an existing Candy Machine.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .update({
+ *     candyMachine: { address, walletAddress, collectionMintAddress },
+ *     newData: {...}, // Updates the provided data.
+ *   });
+ * ```
  *
  * @group Transaction Builders
  * @category Constructors

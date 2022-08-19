@@ -27,7 +27,7 @@ const Key = 'InsertItemsToCandyMachineOperation' as const;
  * Insert items into an existing Candy Machine.
  *
  * ```ts
- * const candyMachine = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .insertItems({
  *     candyMachine,
@@ -143,6 +143,13 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
 
 /**
  * Insert items into an existing Candy Machine.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .insertItems({ candyMachine, items });
+ * ```
  *
  * @group Transaction Builders
  * @category Constructors
