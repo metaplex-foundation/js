@@ -1,25 +1,59 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>js-plugin-nft-storage | @metaplex-foundation/js</title><meta name="description" content="Documentation for @metaplex-foundation/js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>js-plugin-nft-storage | Documentation</title><meta name="description" content="Documentation for Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@metaplex-foundation/js</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">Documentation</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
 <div class="col-8 col-content">
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
-<li><a href="../modules.html">@metaplex-foundation/js</a></li>
+<li><a href="../modules.html">Documentation</a></li>
 <li><a href="js_plugin_nft_storage.html">js-plugin-nft-storage</a></li></ul>
-<h1>Module js-plugin-nft-storage</h1></div>
-<section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>This JS SDK plugin allows you to use NFT Storage as a Storage Driver.</p>
-</div></section><aside class="tsd-sources">
+<h1>Module js-plugin-nft-storage</h1></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/e655801/packages/js-plugin-nft-storage/src/index.ts#L7">packages/js-plugin-nft-storage/src/index.ts:7</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/b3375c3/packages/js-plugin-nft-storage/src/index.ts#L1">packages/js-plugin-nft-storage/src/index.ts:1</a></li></ul></aside>
 <section class="tsd-panel-group">
-<section class="tsd-panel tsd-typography"></section></section>
+<section class="tsd-panel tsd-typography">
+<a href="#nftstorage-plugin-for-the-metaplex-javascript-sdk" id="nftstorage-plugin-for-the-metaplex-javascript-sdk" style="color: inherit; text-decoration: none;">
+  <h1>NFT.Storage Plugin for the Metaplex JavaScript SDK</h1>
+</a>
+<p>This plugin provides a storage driver for the Metaplex JavaScript SDK that uses NFT.Storage to upload assets.</p>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code class="language-sh"><span class="hl-0">npm install @metaplex-foundation/js-plugin-nft-storage</span>
+</code></pre>
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+<p>Once installed, you can use NFT.Storage as a Storage driver for the Metaplex JavaScript SDK like so:</p>
+<pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">nftStorage</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;@metaplex-foundation/js-plugin-nft-storage&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">metaplex</span><span class="hl-0">.</span><span class="hl-6">use</span><span class="hl-0">(</span><span class="hl-6">nftStorage</span><span class="hl-0">());</span>
+</code></pre>
+<p>This will default to using a derived authentication token from the current identity of the SDK.</p>
+<p>If you have an explicit authentication token you wish to use, you can pass it in like this:</p>
+<pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">nftStorage</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;@metaplex-foundation/js-plugin-nft-storage&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">metaplex</span><span class="hl-0">.</span><span class="hl-6">use</span><span class="hl-0">(</span><span class="hl-6">nftStorage</span><span class="hl-0">({ </span><span class="hl-2">token:</span><span class="hl-0"> </span><span class="hl-3">&quot;my-nft-storage-token&quot;</span><span class="hl-0"> }));</span>
+</code></pre>
+<p>Additionally, the <code>nftStorage</code> plugins accepts the following options.</p>
+<ul>
+<li><code>identity</code>: The identity to use for authentication when no explicit <code>token</code> is provided. Defaults to the current identity of the SDK (i.e. <code>metaplex.identity()</code>).</li>
+<li><code>endpoint</code>: The endpoint to use for contacting NFT.Storage. Defaults to <code>https://api.nft.storage</code>.</li>
+<li><code>gatewayHost</code>: The hostname of the NFT.Storage gateway to use. This enables us to use <code>https://</code> references instead of the traditional <code>ipfs://</code> protocol. Defaults to <code>https://nftstorage.link/</code>.</li>
+<li><code>useGatewayUrls</code>: Whether to use the gateway hostname for asset URLs. Defaults to <code>true</code>.</li>
+<li><code>batchSize</code>: The number of assets to upload in a single batch. If the number of assets goes above this number, multiple calls to NFT.Storage will be executed sequentially. Defaults to <code>50</code>.</li>
+</ul>
+
+<a href="#upload-listener" id="upload-listener" style="color: inherit; text-decoration: none;">
+  <h2>Upload listener</h2>
+</a>
+<p>NFT.Storage also allows us to listen to upload progress by accepting an optional event listener that will be called whenever a chunk of data is uploaded. These chunks weight around 10MB each. Here&#39;s an example of how to listener to this event using the JS SDK.</p>
+<pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">toMetaplexFileFromBrowser</span><span class="hl-0">, </span><span class="hl-2">getBytesFromMetaplexFiles</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;@metaplex-foundation/js&quot;</span><span class="hl-0">;</span><br/><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">nftStorage</span><span class="hl-0">, </span><span class="hl-2">NftStorageDriver</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;@metaplex-foundation/js-plugin-nft-storage&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">metaplex</span><span class="hl-0">.</span><span class="hl-6">use</span><span class="hl-0">(</span><span class="hl-6">nftStorage</span><span class="hl-0">());</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">file</span><span class="hl-0"> = </span><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-6">toMetaplexFileFromBrowser</span><span class="hl-0">(</span><span class="hl-2">browserFile</span><span class="hl-0">);</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">fileBytes</span><span class="hl-0"> = </span><span class="hl-6">getBytesFromMetaplexFiles</span><span class="hl-0">(</span><span class="hl-2">file</span><span class="hl-0">);</span><br/><span class="hl-4">let</span><span class="hl-0"> </span><span class="hl-2">bytesUploaded</span><span class="hl-0"> = </span><span class="hl-9">0</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">driver</span><span class="hl-0"> = </span><span class="hl-2">metaplex</span><span class="hl-0">.</span><span class="hl-6">storage</span><span class="hl-0">().</span><span class="hl-6">driver</span><span class="hl-0">() </span><span class="hl-1">as</span><span class="hl-0"> </span><span class="hl-8">NftStorageDriver</span><span class="hl-0">;</span><br/><span class="hl-2">driver</span><span class="hl-0">.</span><span class="hl-6">onProgress</span><span class="hl-0">((</span><span class="hl-2">size</span><span class="hl-0">: </span><span class="hl-8">number</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-2">bytesUploaded</span><span class="hl-0"> += </span><span class="hl-2">size</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-6">log</span><span class="hl-0">(</span><span class="hl-3">`Uploaded </span><span class="hl-4">${</span><span class="hl-2">bytesUploaded</span><span class="hl-4">}</span><span class="hl-3"> bytes out of </span><span class="hl-4">${</span><span class="hl-2">fileBytes</span><span class="hl-4">}</span><span class="hl-3"> bytes`</span><span class="hl-0">);</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-2">metaplex</span><span class="hl-0">.</span><span class="hl-6">storage</span><span class="hl-0">().</span><span class="hl-6">upload</span><span class="hl-0">(</span><span class="hl-2">file</span><span class="hl-0">);</span>
+</code></pre>
+</section></section>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <h3 class="tsd-index-heading uppercase">Index</h3>
@@ -66,7 +100,7 @@
 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li class="current"><a href="../modules.html">@metaplex-<wbr/>foundation/js</a>
+<li class="current"><a href="../modules.html">Documentation</a>
 <ul>
 <li class="tsd-kind-module"><a href="js_plugin_aws.html">js-<wbr/>plugin-<wbr/>aws</a></li>
 <li class="current selected tsd-kind-module"><a href="js_plugin_nft_storage.html">js-<wbr/>plugin-<wbr/>nft-<wbr/>storage</a></li>
