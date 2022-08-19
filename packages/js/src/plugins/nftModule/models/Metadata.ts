@@ -11,6 +11,7 @@ import { JsonMetadata } from './JsonMetadata';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
+  /** A model identifier to distinguish models in the SDK. */
   readonly model: 'metadata';
 
   /** The address of the Metadata account. */

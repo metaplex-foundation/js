@@ -30,6 +30,7 @@ export const toNftEdition = (
 
 /** @group Models */
 export type NftOriginalEdition = {
+  /** A model identifier to distinguish models in the SDK. */
   readonly model: 'nftEdition';
   readonly isOriginal: true;
   readonly address: PublicKey;
@@ -61,6 +62,7 @@ export const toNftOriginalEdition = (
 
 /** @group Models */
 export type NftPrintEdition = {
+  /** A model identifier to distinguish models in the SDK. */
   readonly model: 'nftEdition';
   readonly isOriginal: false;
   readonly address: PublicKey;
