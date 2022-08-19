@@ -19,27 +19,57 @@
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="../classes/js.Pda.html" class="tsd-signature-type" data-tsd-kind="Class">Pda</a></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="../classes/js.Pda.html" class="tsd-signature-type" data-tsd-kind="Class">Pda</a></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> amount<span class="tsd-signature-symbol">: </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> amount<span class="tsd-signature-symbol">: </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5>
+<div class="tsd-comment tsd-typography"><p>The amount of tokens held in this account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> is<wbr/>Associated<wbr/>Token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> is<wbr/>Associated<wbr/>Token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether or not this is an associated token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> owner<wbr/>Address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> owner<wbr/>Address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the owner of this token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> close<wbr/>Authority<wbr/>Address<span class="tsd-signature-symbol">: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> close<wbr/>Authority<wbr/>Address<span class="tsd-signature-symbol">: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the authority that can close the account.
+This field is optional and may be <code>null</code>.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> delegate<wbr/>Address<span class="tsd-signature-symbol">: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> delegate<wbr/>Address<span class="tsd-signature-symbol">: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the authority that can act on behalf of the owner
+of the account. This field is optional and may be <code>null</code>.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> delegate<wbr/>Amount<span class="tsd-signature-symbol">: </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> delegate<wbr/>Amount<span class="tsd-signature-symbol">: </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5>
+<div class="tsd-comment tsd-typography"><p>The amount of tokens that were delegated to the delegate authority.
+This means the delegate authority cannot transfer more tokens
+than this amount even if the token account has more tokens available.</p>
+<p>This field is only relevant if the account has a delegate authority.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AccountState</span></h5></li>
+<h5><code class="tsd-tag ts-flagReadonly">Readonly</code> state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AccountState</span></h5>
+<div class="tsd-comment tsd-typography"><p>The state of the token account.
+It is mostly used to determine whether or not the account is frozen.</p>
+<p>It can be one of the following:</p>
+<ul>
+<li><code>AccountState.Uninitialized</code>: The account has not been initialized.
+This should never happen in this model since the SDK would fail to
+parse this model if it were uninitialized.</li>
+<li><code>AccountState.Initialized</code>: The account has been initialized and is not frozen.</li>
+<li><code>AccountState.Frozen</code>: The account has been initialized and is frozen.</li>
+</ul>
+</div></li>
 <li class="tsd-parameter">
 <h5>model<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;tokenWithMint&quot;</span></h5></li>
 <li class="tsd-parameter">
 <h5>mint<span class="tsd-signature-symbol">: </span><a href="js.Mint.html" class="tsd-signature-type" data-tsd-kind="Type alias">Mint</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/a4cb6c7/packages/js/src/plugins/tokenModule/models/Token.ts#L57">packages/js/src/plugins/tokenModule/models/Token.ts:57</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/d2ea0c6/packages/js/src/plugins/tokenModule/models/Token.ts#L102">packages/js/src/plugins/tokenModule/models/Token.ts:102</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
