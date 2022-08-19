@@ -33,7 +33,14 @@ export type FindMintedNftsByCandyMachineOperation = Operation<
  * @category Inputs
  */
 export type FindMintedNftsByCandyMachineInput = {
+  /** The Candy Machine address. */
   candyMachine: PublicKey;
+
+  /**
+   * The Candy Machine version
+   *
+   * @defaultValue `2`
+   */
   version?: 1 | 2;
 
   /** The level of commitment desired when querying the blockchain. */

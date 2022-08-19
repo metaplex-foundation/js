@@ -45,15 +45,39 @@ export type InsertItemsToCandyMachineOperation = Operation<
  * @category Inputs
  */
 export type InsertItemsToCandyMachineInput = {
-  // Models and Accounts.
+  /**
+   * The Candy Machine to insert items into.
+   *
+   * We only need a subset of the `CandyMachine` model.
+   * We need its address and the number of items loaded and to be loaded
+   * so we can check if the operation is valid.
+   */
   candyMachine: Pick<
     CandyMachine,
     'itemsAvailable' | 'itemsLoaded' | 'address'
   >;
+
+  /**
+   * The Signer authorized to update the candy machine.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
   authority: Signer;
 
-  // Data.
+  /**
+   * The items to insert into the candy machine.
+   */
   items: CandyMachineItem[];
+
+  /**
+   * The index we should use to insert the new items. This refers to the
+   * index of the first item to insert and the others will follow after it.
+   *
+   * By defaults, this uses the `itemsLoaded` property so items are simply
+   * appended to the current items.
+   *
+   * @defaultValue `candyMachine.itemsLoaded`
+   */
   index?: BigNumber;
 
   /** A set of options to configure how the transaction is sent and confirmed. */

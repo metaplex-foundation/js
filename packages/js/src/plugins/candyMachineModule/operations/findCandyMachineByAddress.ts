@@ -45,8 +45,6 @@ export type FindCandyMachineByAddressInput = {
   address: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
-
-  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

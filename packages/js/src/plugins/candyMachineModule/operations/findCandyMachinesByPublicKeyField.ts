@@ -40,7 +40,10 @@ export type FindCandyMachinesByPublicKeyFieldOperation = Operation<
  * @category Inputs
  */
 export type FindCandyMachinesByPublicKeyFieldInput = {
+  /** Defines which type of account the `publicKey` field refers to.  */
   type: 'authority' | 'wallet';
+
+  /** The publicKey to filter Candy Machine by. */
   publicKey: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */

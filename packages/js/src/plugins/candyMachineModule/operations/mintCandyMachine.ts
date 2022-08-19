@@ -67,7 +67,15 @@ export type MintCandyMachineOperation = Operation<
  * @category Inputs
  */
 export type MintCandyMachineInput = {
-  // Models and Accounts.
+  /**
+   * The Candy Machine to mint from.
+   * We only need a subset of the `CandyMachine` model but we
+   * need enough information regarding its settings to know how
+   * to mint from it.
+   *
+   * This includes, its wallet address, its item statistics, it live date,
+   * its whitelist settings, etc.
+   */
   candyMachine: Pick<
     CandyMachine,
     | 'address'
@@ -81,10 +89,42 @@ export type MintCandyMachineInput = {
     | 'goLiveDate'
     | 'endSettings'
   >;
-  payer?: Signer; // Defaults to mx.identity().
-  newMint?: Signer; // Defaults to Keypair.generate().
-  newOwner?: PublicKey; // Defaults to mx.identity().
-  newToken?: Signer; // Defaults to associated token.
+
+  /**
+   * The account that should pay for the minted NFT
+   * and for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The mint account to create as a Signer.
+   * This expects a brand new Keypair with no associated account.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  newMint?: Signer;
+
+  /**
+   * The owner of the minted NFT.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  newOwner?: PublicKey;
+
+  /**
+   * The new token account to create as a Signer.
+   *
+   * This property would typically be ignored as, by default, it will create a
+   * associated token account from the `newOwner` and `newMint` properties.
+   *
+   * When provided, the `newOwner` property will be ignored.
+   *
+   * @defaultValue associated token address of `newOwner` and `newMint`.
+   */
+  newToken?: Signer;
+
   payerToken?: PublicKey; // Defaults to associated token.
   whitelistToken?: PublicKey; // Defaults to associated token.
 
@@ -166,13 +206,28 @@ export type MintCandyMachineBuilderParams = Omit<
   MintCandyMachineInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the mint account of the NFT. */
   createMintAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account of the NFT. */
   initializeMintInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the associated token account of the NFT. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account of the NFT. */
   createTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account of the NFT. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints the one token. */
   mintTokensInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints the NFT. */
   mintNftInstructionKey?: string;
+
+  /** A key to distinguish the instruction that sets the collection on the minted NFT. */
   setCollectionInstructionKey?: string;
 };
 
