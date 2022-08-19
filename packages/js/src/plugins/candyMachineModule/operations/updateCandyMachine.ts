@@ -35,6 +35,16 @@ const Key = 'UpdateCandyMachineOperation' as const;
 /**
  * Updates an existing Candy Machine.
  *
+ * ```ts
+ * const candyMachine = await metaplex
+ *   .candyMachines()
+ *   .update({
+ *     candyMachine,
+ *     price: sol(2), // Updates the price only.
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

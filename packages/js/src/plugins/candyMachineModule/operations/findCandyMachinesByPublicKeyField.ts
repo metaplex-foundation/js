@@ -19,6 +19,28 @@ import { CandyMachineProgram } from '../program';
 const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
 
 /**
+ * Find all Candy Machines matching by a given `publicKey` or a given `type`.
+ *
+ * The following two types are supported.
+ *
+ * `authority`: Find Candy Machines whose authority is the given `publicKey`.
+ * ```ts
+ * const someAuthority = new PublicKey('...');
+ * const candyMachines = await metaplex
+ *   .candyMachines()
+ *   .findAllBy({ type: 'authority', someAuthority });
+ *   .run();
+ * ```
+ *
+ * `wallet`: Find Candy Machines whose wallet address is the given `publicKey`.
+ * ```ts
+ * const someWallet = new PublicKey('...');
+ * const candyMachines = await metaplex
+ *   .candyMachines()
+ *   .findAllBy({ type: 'wallet', someWallet });
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

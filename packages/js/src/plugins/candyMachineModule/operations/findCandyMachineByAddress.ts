@@ -20,6 +20,12 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'FindCandyMachineByAddressOperation' as const;
 
 /**
+ * Find an existing Candy Machine by its address.
+ *
+ * ```ts
+ * const candyMachine = await metaplex.candyMachines().findbyAddress({ address }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

@@ -41,11 +41,14 @@ import {
  * the authority of the Candy Machine.
  *
  * ```ts
- * const { candyMachine } = await metaplex.candyMachines().create({
- *   sellerFeeBasisPoints: 500, // 5% royalties
- *   price: sol(1.3), // 1.3 SOL
- *   itemsAvailable: toBigNumber(1000), // 1000 items available
- * });
+ * const { candyMachine } = await metaplex
+ *   .candyMachines()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *     price: sol(1.3), // 1.3 SOL
+ *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *   })
+ *   .run();
  * ```
  *
  * @see {@link CandyMachine} The `CandyMachine` model
@@ -111,6 +114,10 @@ export class CandyMachinesClient {
 
   /**
    * Helper method that refetches a given Candy Machine.
+   *
+   * ```ts
+   * const candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
+   * ```
    */
   refresh(
     candyMachine: CandyMachine | PublicKey,

@@ -16,6 +16,10 @@ const Key = 'DeleteCandyMachineOperation' as const;
 /**
  * Deletes an existing Candy Machine.
  *
+ * ```ts
+ * await metaplex.candyMachines().delete({ candyMachine }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

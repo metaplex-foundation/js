@@ -26,6 +26,20 @@ const Key = 'InsertItemsToCandyMachineOperation' as const;
 /**
  * Insert items into an existing Candy Machine.
  *
+ * ```ts
+ * const candyMachine = await metaplex
+ *   .candyMachines()
+ *   .insertItems({
+ *     candyMachine,
+ *     items: [
+ *       { name: 'My NFT #1', uri: 'https://example.com/nft1' },
+ *       { name: 'My NFT #2', uri: 'https://example.com/nft2' },
+ *       { name: 'My NFT #3', uri: 'https://example.com/nft3' },
+ *     ],
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -64,7 +78,7 @@ export type InsertItemsToCandyMachineInput = {
    *
    * @defaultValue `metaplex.identity()`
    */
-  authority: Signer;
+  authority?: Signer;
 
   /**
    * The items to insert into the candy machine.
@@ -105,10 +119,10 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
       operation: InsertItemsToCandyMachineOperation,
       metaplex: Metaplex
     ): Promise<InsertItemsToCandyMachineOutput> {
-      return insertItemsToCandyMachineBuilder(operation.input).sendAndConfirm(
+      return insertItemsToCandyMachineBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -134,8 +148,10 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
  * @category Constructors
  */
 export const insertItemsToCandyMachineBuilder = (
+  metaplex: Metaplex,
   params: InsertItemsToCandyMachineBuilderParams
 ): TransactionBuilder => {
+  const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const items = params.items;
   assertNotFull(params.candyMachine, index);
@@ -146,11 +162,11 @@ export const insertItemsToCandyMachineBuilder = (
     instruction: createAddConfigLinesInstruction(
       {
         candyMachine: params.candyMachine.address,
-        authority: params.authority.publicKey,
+        authority: authority.publicKey,
       },
       { index: index.toNumber(), configLines: items }
     ),
-    signers: [params.authority],
+    signers: [authority],
     key: params.instructionKey ?? 'insertItems',
   });
 };

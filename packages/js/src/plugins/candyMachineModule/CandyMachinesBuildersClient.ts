@@ -34,7 +34,7 @@ export class CandyMachinesBuildersClient {
 
   /** {@inheritDoc insertItemsToCandyMachineBuilder} */
   insertItems(input: InsertItemsToCandyMachineBuilderParams) {
-    return insertItemsToCandyMachineBuilder(input);
+    return insertItemsToCandyMachineBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc mintCandyMachineBuilder} */
