@@ -170,8 +170,14 @@ export type MintCandyMachineInput = {
 export type MintCandyMachineOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The minted NFT. */
   nft: NftWithToken;
+
+  /** The mint account of the minted NFT as a Signer. */
   mintSigner: Signer;
+
+  /** The token account's address of the minted NFT. */
   tokenAddress: PublicKey;
 };
 
