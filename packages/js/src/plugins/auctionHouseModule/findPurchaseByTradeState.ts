@@ -3,38 +3,39 @@ import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { findBidReceiptPda } from './pdas';
-import { Bid } from './Bid';
+import { Purchase } from './Purchase';
+import { findPurchaseReceiptPda } from './pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindBidByTradeStateOperation' as const;
+const Key = 'FindPurchaseByTradeStateOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const findBidByTradeStateOperation =
-  useOperation<FindBidByTradeStateOperation>(Key);
+export const findPurchaseByTradeStateOperation =
+  useOperation<FindPurchaseByTradeStateOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindBidByTradeStateOperation = Operation<
+export type FindPurchaseByTradeStateOperation = Operation<
   typeof Key,
-  FindBidByTradeStateInput,
-  Bid
+  FindPurchaseByTradeStateInput,
+  Purchase
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindBidByTradeStateInput = {
-  tradeStateAddress: PublicKey;
+export type FindPurchaseByTradeStateInput = {
+  sellerTradeState: PublicKey;
+  buyerTradeState: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
@@ -44,26 +45,30 @@ export type FindBidByTradeStateInput = {
  * @group Operations
  * @category Handlers
  */
-export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTradeStateOperation> =
+export const findPurchaseByTradeStateOperationHandler: OperationHandler<FindPurchaseByTradeStateOperation> =
   {
     handle: async (
-      operation: FindBidByTradeStateOperation,
+      operation: FindPurchaseByTradeStateOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const {
-        tradeStateAddress,
+        sellerTradeState,
+        buyerTradeState,
         auctionHouse,
         commitment,
         loadJsonMetadata = true,
       } = operation.input;
 
-      const receiptAddress = findBidReceiptPda(tradeStateAddress);
+      const receiptAddress = findPurchaseReceiptPda(
+        sellerTradeState,
+        buyerTradeState
+      );
 
       return metaplex
         .auctions()
         .for(auctionHouse)
-        .findBidByReceipt(receiptAddress, { loadJsonMetadata, commitment })
+        .findPurchaseByReceipt(receiptAddress, { loadJsonMetadata, commitment })
         .run(scope);
     },
   };

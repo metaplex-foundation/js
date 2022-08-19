@@ -14,6 +14,7 @@ import { createAuctionHouse } from './helpers';
 import {
   AccountNotFoundError,
   findAssociatedTokenAccountPda,
+  Pda,
   Purchase,
 } from '@/index';
 import { Keypair } from '@solana/web3.js';
@@ -74,7 +75,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
 
   // And we get the same result when we fetch the Purchase by address.
   const retrievePurchase = await client
-    .findPurchaseByAddress(listing.tradeStateAddress, bid.tradeStateAddress)
+    .findPurchaseByReceipt(purchase.receiptAddress as Pda)
     .run();
   spok(t, retrievePurchase, {
     $topic: 'Retrieved Purchase',
@@ -156,7 +157,10 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   // But we cannot retrieve it later with the default operation handler.
   try {
     await client
-      .findPurchaseByAddress(listing.tradeStateAddress, bid.tradeStateAddress)
+      .findPurchaseByTradeState(
+        listing.tradeStateAddress,
+        bid.tradeStateAddress
+      )
       .run();
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {

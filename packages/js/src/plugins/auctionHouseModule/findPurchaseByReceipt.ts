@@ -5,28 +5,27 @@ import { toPurchaseReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
 import { Purchase, toLazyPurchase } from './Purchase';
-import { findPurchaseReceiptPda } from './pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindPurchaseByAddressOperation' as const;
+const Key = 'FindPurchaseByReceiptOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const findPurchaseByAddressOperation =
-  useOperation<FindPurchaseByAddressOperation>(Key);
+export const findPurchaseByReceiptOperation =
+  useOperation<FindPurchaseByReceiptOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindPurchaseByAddressOperation = Operation<
+export type FindPurchaseByReceiptOperation = Operation<
   typeof Key,
-  FindPurchaseByAddressInput,
+  FindPurchaseByReceiptInput,
   Purchase
 >;
 
@@ -34,9 +33,8 @@ export type FindPurchaseByAddressOperation = Operation<
  * @group Operations
  * @category Inputs
  */
-export type FindPurchaseByAddressInput = {
-  sellerTradeState: PublicKey;
-  buyerTradeState: PublicKey;
+export type FindPurchaseByReceiptInput = {
+  receiptAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
   commitment?: Commitment;
@@ -46,25 +44,20 @@ export type FindPurchaseByAddressInput = {
  * @group Operations
  * @category Handlers
  */
-export const findPurchaseByAddressOperationHandler: OperationHandler<FindPurchaseByAddressOperation> =
+export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchaseByReceiptOperation> =
   {
     handle: async (
-      operation: FindPurchaseByAddressOperation,
+      operation: FindPurchaseByReceiptOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const {
-        sellerTradeState,
-        buyerTradeState,
+        receiptAddress,
         auctionHouse,
         commitment,
         loadJsonMetadata = true,
       } = operation.input;
 
-      const receiptAddress = findPurchaseReceiptPda(
-        sellerTradeState,
-        buyerTradeState
-      );
       const account = toPurchaseReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
