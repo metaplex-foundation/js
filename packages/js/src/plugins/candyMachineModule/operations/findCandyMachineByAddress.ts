@@ -41,7 +41,10 @@ export type FindCandyMachineByAddressOperation = Operation<
  * @category Inputs
  */
 export type FindCandyMachineByAddressInput = {
+  /** The Candy Machine address. */
   address: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

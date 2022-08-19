@@ -39,7 +39,7 @@
     "out": "docs",
     "readme": "README.md",
     "excludeNotDocumented": false,
-    "sort": ["static-first", "source-order"],
+    "sort": ["static-first", "required-first", "source-order"],
     "categoryOrder": [
       "Constructors",
       "Types",

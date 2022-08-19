@@ -67,9 +67,34 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
    */
   candyMachine: CandyMachine;
 
-  authority?: Signer; // Defaults to mx.identity().
-  payer?: Signer; // Defaults to mx.identity().
+  /**
+   * The Signer authorized to update the candy machine.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /**
+   * The Signer that should pay for any required account storage.
+   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The new Candy Machine authority.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
   newAuthority?: PublicKey;
+
+  /**
+   * The mint address of the new Candy Machine collection.
+   * When `null` is provided, the collection is removed.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
   newCollection?: Option<PublicKey>;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
