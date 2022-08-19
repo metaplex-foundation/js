@@ -35,6 +35,8 @@ export type FindNftsByOwnerOperation = Operation<
  */
 export type FindNftsByOwnerInput = {
   owner: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

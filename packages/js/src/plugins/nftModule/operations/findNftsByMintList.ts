@@ -35,6 +35,8 @@ export type FindNftsByMintListOperation = Operation<
  */
 export type FindNftsByMintListInput = {
   mints: PublicKey[];
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

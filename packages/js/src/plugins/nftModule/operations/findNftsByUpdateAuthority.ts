@@ -35,6 +35,8 @@ export type FindNftsByUpdateAuthorityOperation = Operation<
  */
 export type FindNftsByUpdateAuthorityInput = {
   updateAuthority: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

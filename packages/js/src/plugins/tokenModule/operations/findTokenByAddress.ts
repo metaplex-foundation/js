@@ -33,6 +33,8 @@ export type FindTokenByAddressOperation = Operation<
  */
 export type FindTokenByAddressInput = {
   address: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

@@ -33,6 +33,8 @@ export type FindMintByAddressOperation = Operation<
  */
 export type FindMintByAddressInput = {
   address: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

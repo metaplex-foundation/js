@@ -36,6 +36,8 @@ export type FindNftsByCreatorOperation = Operation<
 export type FindNftsByCreatorInput = {
   creator: PublicKey;
   position?: number;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

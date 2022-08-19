@@ -35,6 +35,8 @@ export type FindNftByTokenOperation = Operation<
 export type FindNftByTokenInput = {
   token: PublicKey;
   loadJsonMetadata?: boolean;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

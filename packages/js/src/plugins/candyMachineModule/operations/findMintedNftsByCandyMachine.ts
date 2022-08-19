@@ -35,6 +35,8 @@ export type FindMintedNftsByCandyMachineOperation = Operation<
 export type FindMintedNftsByCandyMachineInput = {
   candyMachine: PublicKey;
   version?: 1 | 2;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

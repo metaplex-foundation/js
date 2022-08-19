@@ -42,6 +42,8 @@ export type FindCandyMachinesByPublicKeyFieldOperation = Operation<
 export type FindCandyMachinesByPublicKeyFieldInput = {
   type: 'authority' | 'wallet';
   publicKey: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

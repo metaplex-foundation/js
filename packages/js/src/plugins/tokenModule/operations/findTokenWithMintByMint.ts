@@ -38,6 +38,8 @@ export type FindTokenWithMintByMintInput = {
   mint: PublicKey;
   address: PublicKey;
   addressType: 'owner' | 'token';
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

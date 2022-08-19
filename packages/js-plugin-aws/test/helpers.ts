@@ -12,6 +12,8 @@ import {
 
 export type MetaplexTestOptions = {
   rpcEndpoint?: string;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
   solsToAirdrop?: number;
 };
