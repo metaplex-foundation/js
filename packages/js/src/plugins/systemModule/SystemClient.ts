@@ -24,7 +24,7 @@ import { SystemBuildersClient } from './SystemBuildersClient';
  * using the code below.
  *
  * ```ts
- * const { newAccount } = await metaplex.system().createAccount({ space: 42 });
+ * const { newAccount } = await metaplex.system().createAccount({ space: 42 }).run();
  * ```
  *
  * @group Modules

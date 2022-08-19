@@ -47,7 +47,7 @@ import { TokenBuildersClient } from './TokenBuildersClient';
  * of the metaplex instance.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint();
+ * const { token } = await metaplex.tokens().createTokenWithMint().run();
  * ```
  *
  * @group Modules
