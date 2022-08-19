@@ -125,13 +125,38 @@ export type MintCandyMachineInput = {
    */
   newToken?: Signer;
 
-  payerToken?: PublicKey; // Defaults to associated token.
+  /**
+   * The token account that should pay for the minted NFT.
+   *
+   * This is only relevant when the Candy Machine uses a mint treasury
+   * (i.e. payments are made using SPL tokens and not SOL).
+   *
+   * @defaultValue associated token address of `payer` and
+   * `candyMachine.tokenMintAddress`.
+   */
+  payerToken?: PublicKey;
+
+  /**
+   * The token account that contains whitelist tokens.
+   *
+   * This is only relevant when the Candy Machine uses
+   * whitelist settings.
+   *
+   * @defaultValue associated token address of `payer` and
+   * `candyMachine.whitelistMintSettings.mint`.
+   */
   whitelistToken?: PublicKey; // Defaults to associated token.
 
-  // Programs.
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL Associated Token program to override if necessary. */
   associatedTokenProgram?: PublicKey;
+
+  /** The address of the Token Metadata program to override if necessary. */
   tokenMetadataProgram?: PublicKey;
+
+  /** The address of the Candy Machine program to override if necessary. */
   candyMachineProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -143,6 +168,7 @@ export type MintCandyMachineInput = {
  * @category Outputs
  */
 export type MintCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   nft: NftWithToken;
   mintSigner: Signer;
