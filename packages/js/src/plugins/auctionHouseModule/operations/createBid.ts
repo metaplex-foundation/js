@@ -26,6 +26,7 @@ import {
   SolAmount,
   SplTokenAmount,
   Pda,
+  now,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
@@ -38,6 +39,7 @@ import {
   findBidReceiptPda,
 } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
+import { Bid, LazyBid } from '../models/Bid';
 
 // -----------------
 // Operation
@@ -96,6 +98,7 @@ export type CreateBidOutput = {
   bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
+  bid: Bid;
 };
 
 /**
@@ -103,14 +106,49 @@ export type CreateBidOutput = {
  * @category Handlers
  */
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
-  handle: async (
+  async handle(
     operation: CreateBidOperation,
     metaplex: Metaplex,
     scope: DisposableScope
-  ) => {
+  ): Promise<CreateBidOutput> {
     const builder = await createBidBuilder(metaplex, operation.input);
+    const output = await builder.sendAndConfirm(
+      metaplex,
+      operation.input.confirmOptions
+    );
     scope.throwIfCanceled();
-    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+    if (output.receipt) {
+      const bid = await metaplex
+        .auctionHouse()
+        .findBidByReceipt(operation.input.auctionHouse, output.receipt)
+        .run(scope);
+      return { bid, ...output };
+    }
+
+    scope.throwIfCanceled();
+    const lazyBid: LazyBid = {
+      model: 'bid',
+      lazy: true,
+      auctionHouse: operation.input.auctionHouse,
+      tradeStateAddress: output.buyerTradeState,
+      bookkeeperAddress: output.bookkeeper,
+      tokenAddress: output.tokenAccount,
+      buyerAddress: output.buyer,
+      metadataAddress: output.metadata,
+      receiptAddress: output.receipt,
+      purchaseReceiptAddress: null,
+      isPublic: Boolean(output.tokenAccount),
+      price: output.price,
+      tokens: output.tokens.basisPoints,
+      createdAt: now(),
+      canceledAt: null,
+    };
+
+    return {
+      bid: await metaplex.auctionHouse().loadBid(lazyBid).run(scope),
+      ...output,
+    };
   },
 };
 
@@ -130,7 +168,7 @@ export type CreateBidBuilderParams = Omit<CreateBidInput, 'confirmOptions'> & {
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response'>;
+export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response' | 'bid'>;
 
 /**
  * @group Transaction Builders

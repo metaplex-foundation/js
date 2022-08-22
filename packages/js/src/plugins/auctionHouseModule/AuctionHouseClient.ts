@@ -70,7 +70,6 @@ import {
 } from './operations/loadListing';
 import { LazyPurchase, Purchase } from './models/Purchase';
 import { LazyListing, Listing } from './models/Listing';
-import { now } from '@/types';
 import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
@@ -88,61 +87,15 @@ export class AuctionHouseClient {
   }
 
   bid(input: CreateBidInput): Task<CreateBidOutput & { bid: Bid }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(createBidOperation(input), scope);
-      scope.throwIfCanceled();
-
-      if (output.receipt) {
-        const bid = await this.findBidByReceipt(
-          input.auctionHouse,
-          output.receipt
-        ).run(scope);
-        return { bid, ...output };
-      }
-
-      scope.throwIfCanceled();
-      const lazyBid: LazyBid = {
-        model: 'bid',
-        lazy: true,
-        auctionHouse: input.auctionHouse,
-        tradeStateAddress: output.buyerTradeState,
-        bookkeeperAddress: output.bookkeeper,
-        tokenAddress: output.tokenAccount,
-        buyerAddress: output.buyer,
-        metadataAddress: output.metadata,
-        receiptAddress: output.receipt,
-        purchaseReceiptAddress: null,
-        isPublic: Boolean(output.tokenAccount),
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-        canceledAt: null,
-      };
-
-      return {
-        bid: await this.loadBid(lazyBid).run(scope),
-        ...output,
-      };
-    });
+    return this.metaplex.operations().getTask(createBidOperation(input));
   }
 
   createAuctionHouse(
     input: CreateAuctionHouseInput
   ): Task<CreateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .getTask(createAuctionHouseOperation(input))
-        .run(scope);
-      scope.throwIfCanceled();
-      const auctionHouse = await this.findAuctionHouseByAddress(
-        output.auctionHouseAddress,
-        input.auctioneerAuthority
-      ).run(scope);
-      return { ...output, auctionHouse };
-    });
+    return this.metaplex
+      .operations()
+      .getTask(createAuctionHouseOperation(input));
   }
 
   cancelBid(input: CancelBidInput): Task<CancelBidOutput> {
@@ -156,42 +109,7 @@ export class AuctionHouseClient {
   executeSale(
     input: ExecuteSaleInput
   ): Task<ExecuteSaleOutput & { purchase: Purchase }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(executeSaleOperation(input));
-      scope.throwIfCanceled();
-
-      try {
-        const purchase = await this.findPurchaseByAddress(
-          output.sellerTradeState,
-          output.buyerTradeState,
-          input.auctionHouse
-        ).run(scope);
-        return { purchase, ...output };
-      } catch (error) {
-        // Fallback to manually creating a purchase from inputs and outputs.
-      }
-
-      const lazyPurchase: LazyPurchase = {
-        model: 'purchase',
-        lazy: true,
-        auctionHouse: input.auctionHouse,
-        buyerAddress: output.buyer,
-        sellerAddress: output.seller,
-        metadataAddress: output.metadata,
-        bookkeeperAddress: output.bookkeeper,
-        receiptAddress: output.receipt,
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-      };
-
-      return {
-        purchase: await this.loadPurchase(lazyPurchase).run(scope),
-        ...output,
-      };
-    });
+    return this.metaplex.operations().getTask(executeSaleOperation(input));
   }
 
   findAuctionHouseByAddress(
@@ -293,6 +211,7 @@ export class AuctionHouseClient {
       })
     );
   }
+
   findListingByReceipt(
     receiptAddress: PublicKey,
     auctionHouse: AuctionHouse,
@@ -313,41 +232,7 @@ export class AuctionHouseClient {
   list(
     input: CreateListingInput
   ): Task<CreateListingOutput & { listing: Listing }> {
-    return new Task(async (scope) => {
-      const output = await this.metaplex
-        .operations()
-        .execute(createListingOperation(input), scope);
-      scope.throwIfCanceled();
-      if (output.receipt) {
-        const listing = await this.findListingByReceipt(
-          output.receipt,
-          input.auctionHouse
-        ).run(scope);
-        return { listing, ...output };
-      }
-
-      scope.throwIfCanceled();
-      const lazyListing: LazyListing = {
-        model: 'listing',
-        lazy: true,
-        auctionHouse: input.auctionHouse,
-        tradeStateAddress: output.sellerTradeState,
-        bookkeeperAddress: output.bookkeeper,
-        sellerAddress: output.seller,
-        metadataAddress: output.metadata,
-        receiptAddress: output.receipt,
-        purchaseReceiptAddress: null,
-        price: output.price,
-        tokens: output.tokens.basisPoints,
-        createdAt: now(),
-        canceledAt: null,
-      };
-
-      return {
-        listing: await this.loadListing(lazyListing).run(scope),
-        ...output,
-      };
-    });
+    return this.metaplex.operations().getTask(createListingOperation(input));
   }
 
   loadBid(

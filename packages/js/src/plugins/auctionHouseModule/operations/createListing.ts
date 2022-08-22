@@ -23,8 +23,9 @@ import {
   amount,
   SolAmount,
   SplTokenAmount,
+  now,
 } from '@/types';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
@@ -36,6 +37,7 @@ import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMetadataPda } from '../../nftModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
+import { LazyListing, Listing } from '../models';
 
 // -----------------
 // Operation
@@ -94,6 +96,7 @@ export type CreateListingOutput = {
   bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
+  listing: Listing;
 };
 
 /**
@@ -102,11 +105,49 @@ export type CreateListingOutput = {
  */
 export const createListingOperationHandler: OperationHandler<CreateListingOperation> =
   {
-    handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
-      return createListingBuilder(metaplex, operation.input).sendAndConfirm(
+    async handle(
+      operation: CreateListingOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<CreateListingOutput> {
+      const output = await createListingBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      scope.throwIfCanceled();
+
+      if (output.receipt) {
+        const listing = await metaplex
+          .auctionHouse()
+          .findListingByReceipt(output.receipt, operation.input.auctionHouse)
+          .run(scope);
+        return { listing, ...output };
+      }
+
+      scope.throwIfCanceled();
+      const lazyListing: LazyListing = {
+        model: 'listing',
+        lazy: true,
+        auctionHouse: operation.input.auctionHouse,
+        tradeStateAddress: output.sellerTradeState,
+        bookkeeperAddress: output.bookkeeper,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        receiptAddress: output.receipt,
+        purchaseReceiptAddress: null,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+        canceledAt: null,
+      };
+
+      return {
+        listing: await metaplex
+          .auctionHouse()
+          .loadListing(lazyListing)
+          .run(scope),
+        ...output,
+      };
     },
   };
 
@@ -129,7 +170,10 @@ export type CreateListingBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateListingBuilderContext = Omit<CreateListingOutput, 'response'>;
+export type CreateListingBuilderContext = Omit<
+  CreateListingOutput,
+  'response' | 'listing'
+>;
 
 /**
  * @group Transaction Builders

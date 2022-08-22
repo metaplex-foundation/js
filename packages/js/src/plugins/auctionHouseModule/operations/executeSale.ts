@@ -4,7 +4,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   createAuctioneerExecuteSaleInstruction,
   createExecuteSaleInstruction,
@@ -21,6 +21,7 @@ import {
   SplTokenAmount,
   amount,
   isSigner,
+  now,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
@@ -41,6 +42,7 @@ import {
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
 } from '../errors';
+import { LazyPurchase, Purchase } from '../models/Purchase';
 
 // -----------------
 // Operation
@@ -95,6 +97,7 @@ export type ExecuteSaleOutput = {
   receipt: Option<Pda>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
+  purchase: Purchase;
 };
 
 /**
@@ -103,11 +106,53 @@ export type ExecuteSaleOutput = {
  */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
   {
-    handle: async (operation: ExecuteSaleOperation, metaplex: Metaplex) =>
-      executeSaleBuilder(metaplex, operation.input).sendAndConfirm(
+    async handle(
+      operation: ExecuteSaleOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<ExecuteSaleOutput> {
+      const output = await executeSaleBuilder(
         metaplex,
-        operation.input.confirmOptions
-      ),
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      scope.throwIfCanceled();
+
+      try {
+        const purchase = await metaplex
+          .auctionHouse()
+          .findPurchaseByAddress(
+            output.sellerTradeState,
+            output.buyerTradeState,
+            operation.input.auctionHouse
+          )
+          .run(scope);
+        return { purchase, ...output };
+      } catch (error) {
+        // Fallback to manually creating a purchase from inputs and outputs.
+      }
+
+      const lazyPurchase: LazyPurchase = {
+        model: 'purchase',
+        lazy: true,
+        auctionHouse: operation.input.auctionHouse,
+        buyerAddress: output.buyer,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        bookkeeperAddress: output.bookkeeper,
+        receiptAddress: output.receipt,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+      };
+
+      return {
+        purchase: await metaplex
+          .auctionHouse()
+          .loadPurchase(lazyPurchase)
+          .run(scope),
+        ...output,
+      };
+    },
   };
 
 // -----------------
@@ -129,7 +174,10 @@ export type ExecuteSaleBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type ExecuteSaleBuilderContext = Omit<ExecuteSaleOutput, 'response'>;
+export type ExecuteSaleBuilderContext = Omit<
+  ExecuteSaleOutput,
+  'response' | 'purchase'
+>;
 
 /**
  * @group Transaction Builders

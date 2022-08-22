@@ -14,7 +14,7 @@ import {
   isSigner,
   toPublicKey,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import {
   findAuctioneerPda,
@@ -26,6 +26,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { ExpectedSignerError } from '@/errors';
+import { AuctionHouse } from '../AuctionHouse';
 
 // -----------------
 // Operation
@@ -83,6 +84,7 @@ export type CreateAuctionHouseOutput = {
   auctionHouseFeeAccountAddress: Pda;
   auctionHouseTreasuryAddress: Pda;
   treasuryWithdrawalDestinationAddress: PublicKey;
+  auctionHouse: AuctionHouse;
 };
 
 /**
@@ -91,14 +93,24 @@ export type CreateAuctionHouseOutput = {
  */
 export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionHouseOperation> =
   {
-    handle: async (
+    async handle(
       operation: CreateAuctionHouseOperation,
-      metaplex: Metaplex
-    ) => {
-      return createAuctionHouseBuilder(
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<CreateAuctionHouseOutput> {
+      const output = await createAuctionHouseBuilder(
         metaplex,
         operation.input
       ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      scope.throwIfCanceled();
+      const auctionHouse = await metaplex
+        .auctionHouse()
+        .findAuctionHouseByAddress(
+          output.auctionHouseAddress,
+          operation.input.auctioneerAuthority
+        )
+        .run(scope);
+      return { ...output, auctionHouse };
     },
   };
 
@@ -124,7 +136,7 @@ export type CreateAuctionHouseBuilderParams = Omit<
  */
 export type CreateAuctionHouseBuilderContext = Omit<
   CreateAuctionHouseOutput,
-  'response'
+  'response' | 'auctionHouse'
 >;
 
 /**
