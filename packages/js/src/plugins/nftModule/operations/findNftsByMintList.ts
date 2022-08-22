@@ -13,6 +13,15 @@ import { findMetadataPda } from '../pdas';
 const Key = 'FindNftsByMintListOperation' as const;
 
 /**
+ * Finds multiple NFTs and SFTs by a given list of mint addresses.
+ *
+ * ```ts
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByMintList({ mints: [...] })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

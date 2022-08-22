@@ -27,6 +27,19 @@ import { findMasterEditionV2Pda } from '../pdas';
 const Key = 'CreateNftOperation' as const;
 
 /**
+ * Creates a new NFT.
+ *
+ * ```ts
+ * const { nft } = await metaplex
+ *   .nfts()
+ *   .create({
+ *     name: 'My NFT',
+ *     uri: 'https://example.com/my-nft',
+ *     sellerFeeBasisPoints: 250, // 2.5%
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -198,6 +211,19 @@ export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
 export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
 
 /**
+ * Creates a new NFT.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .nfts()
+ *   .builders()
+ *   .create({
+ *     name: 'My NFT',
+ *     uri: 'https://example.com/my-nft',
+ *     sellerFeeBasisPoints: 250, // 2.5%
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -14,6 +14,15 @@ import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
 const Key = 'RevokeNftUseAuthorityOperation' as const;
 
 /**
+ * Revokes an existing use authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .revokeUseAuthority({ mintAddress, user })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -94,6 +103,15 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
 };
 
 /**
+ * Revokes an existing use authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .revokeUseAuthority({ mintAddress, user });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

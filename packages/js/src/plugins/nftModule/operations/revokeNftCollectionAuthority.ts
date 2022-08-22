@@ -13,6 +13,15 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'RevokeNftCollectionAuthorityOperation' as const;
 
 /**
+ * Revokes an existing collection authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .revokeCollectionAuthority({ mintAddress, collectionAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -86,6 +95,15 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
 };
 
 /**
+ * Revokes an existing collection authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .revokeCollectionAuthority({ mintAddress, collectionAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

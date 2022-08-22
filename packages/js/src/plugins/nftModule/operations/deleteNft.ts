@@ -14,6 +14,15 @@ import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 const Key = 'DeleteNftOperation' as const;
 
 /**
+ * Deletes an existing NFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .delete({ mintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -86,6 +95,15 @@ export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
 };
 
 /**
+ * Deletes an existing NFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .delete({ mintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

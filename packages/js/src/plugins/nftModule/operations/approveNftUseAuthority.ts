@@ -18,6 +18,15 @@ import {
 const Key = 'ApproveNftUseAuthorityOperation' as const;
 
 /**
+ * Approves a new use authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .approveUseAuthority({ mintAddress, user })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -102,6 +111,15 @@ export type ApproveNftUseAuthorityBuilderParams = Omit<
 };
 
 /**
+ * Approves a new use authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .approveUseAuthority({ mintAddress, user });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

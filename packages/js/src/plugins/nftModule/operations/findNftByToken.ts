@@ -12,6 +12,15 @@ import { NftWithToken, SftWithToken } from '../models';
 const Key = 'FindNftByTokenOperation' as const;
 
 /**
+ * Finds an NFT or an SFT by its token address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .nfts()
+ *   .findByToken({ token })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

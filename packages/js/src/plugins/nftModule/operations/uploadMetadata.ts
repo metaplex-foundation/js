@@ -12,6 +12,19 @@ import { JsonMetadata } from '../models';
 const Key = 'UploadMetadataOperation' as const;
 
 /**
+ * Uploads a JSON Metadata object to the current storage provider.
+ *
+ * ```ts
+ * const { uri } = await metaplex
+ *   .nfts()
+ *   .uploadMetadata({
+ *     name: "My NFT",
+ *     description: "My description",
+ *     image: "https://arweave.net/123",
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

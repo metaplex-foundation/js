@@ -26,6 +26,15 @@ import { findMetadataPda } from '../pdas';
 const Key = 'UpdateNftOperation' as const;
 
 /**
+ * Updates an existing NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .update({ nftOrSft, name: "My new NFT name" })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -122,6 +131,15 @@ export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
 };
 
 /**
+ * Updates an existing NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .update({ nftOrSft, name: "My new NFT name" });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

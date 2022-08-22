@@ -19,6 +19,17 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'MigrateToSizedCollectionNftOperation' as const;
 
 /**
+ * Migrates a legacy Collection NFT to a sized Collection NFT.
+ * Both can act as a Collection for NFTs but only the latter
+ * keeps track of the size of the collection on chain.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -95,6 +106,17 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
 };
 
 /**
+ * Migrates a legacy Collection NFT to a sized Collection NFT.
+ * Both can act as a Collection for NFTs but only the latter
+ * keeps track of the size of the collection on chain.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -20,6 +20,15 @@ import {
 const Key = 'UnverifyNftCollectionOperation' as const;
 
 /**
+ * Unverifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .unverifyCollection({ mintAddress, collectionMintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -98,6 +107,15 @@ export type UnverifyNftCollectionBuilderParams = Omit<
 };
 
 /**
+ * Unverifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .unverifyCollection({ mintAddress, collectionMintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

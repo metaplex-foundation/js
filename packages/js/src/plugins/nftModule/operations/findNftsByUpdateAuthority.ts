@@ -13,6 +13,15 @@ import { findNftsByMintListOperation } from './findNftsByMintList';
 const Key = 'FindNftsByUpdateAuthorityOperation' as const;
 
 /**
+ * Finds multiple NFTs and SFTs by a given update authority.
+ *
+ * ```ts
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByUpdateAuthority({ updateAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

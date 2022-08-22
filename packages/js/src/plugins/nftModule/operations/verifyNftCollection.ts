@@ -20,6 +20,15 @@ import {
 const Key = 'VerifyNftCollectionOperation' as const;
 
 /**
+ * Verifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .verifyCollection({ mintAddress, collectionMintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -98,6 +107,15 @@ export type VerifyNftCollectionBuilderParams = Omit<
 };
 
 /**
+ * Verifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .verifyCollection({ mintAddress, collectionMintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

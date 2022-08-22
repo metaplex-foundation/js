@@ -29,6 +29,19 @@ import { findMetadataPda } from '../pdas';
 const Key = 'CreateSftOperation' as const;
 
 /**
+ * Creates a new SFT.
+ *
+ * ```ts
+ * const { sft } = await metaplex
+ *   .nfts()
+ *   .createSft({
+ *     name: 'My SFT',
+ *     uri: 'https://example.com/my-sft',
+ *     sellerFeeBasisPoints: 250, // 2.5%
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -207,6 +220,19 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
 export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
 
 /**
+ * Creates a new SFT.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .nfts()
+ *   .builders()
+ *   .createSft({
+ *     name: 'My SFT',
+ *     uri: 'https://example.com/my-sft',
+ *     sellerFeeBasisPoints: 250, // 2.5%
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

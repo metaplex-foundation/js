@@ -13,6 +13,15 @@ import { findMetadataPda } from '../pdas';
 const Key = 'VerifyNftCreatorOperation' as const;
 
 /**
+ * Verifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .verifyCreator({ mintAddress, creator })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -85,6 +94,15 @@ export type VerifyNftCreatorBuilderParams = Omit<
 };
 
 /**
+ * Verifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .verifyCreator({ mintAddress, creator });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

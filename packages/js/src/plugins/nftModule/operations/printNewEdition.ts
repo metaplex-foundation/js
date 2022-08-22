@@ -33,6 +33,15 @@ import {
 const Key = 'PrintNewEditionOperation' as const;
 
 /**
+ * Prints a new edition from an original NFT.
+ *
+ * ```ts
+ * const { nft } = await metaplex
+ *   .nfts()
+ *   .printNewEdition({ originalMint })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -180,6 +189,15 @@ export type PrintNewEditionBuilderContext = Omit<
 >;
 
 /**
+ * Prints a new edition from an original NFT.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .nfts()
+ *   .builders()
+ *   .printNewEdition({ originalMint });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

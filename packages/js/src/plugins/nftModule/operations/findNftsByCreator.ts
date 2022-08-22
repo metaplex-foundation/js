@@ -13,6 +13,22 @@ import { findNftsByMintListOperation } from './findNftsByMintList';
 const Key = 'FindNftsByCreatorOperation' as const;
 
 /**
+ * Finds multiple NFTs and SFTs by their creator at a given position.
+ *
+ * ```ts
+ * // Find all by first creator.
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByCreator({ creator })
+ *   .run();
+ *
+ * // Find all by second creator.
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByCreator({ creator, position: 2 })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

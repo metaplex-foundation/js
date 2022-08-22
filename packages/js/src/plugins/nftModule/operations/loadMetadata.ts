@@ -11,6 +11,15 @@ import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
 const Key = 'LoadMetadataOperation' as const;
 
 /**
+ * Transforms a `Metadata` model into a `Nft` or `Sft` model.
+ *
+ * ```ts
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .load({ metadata })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

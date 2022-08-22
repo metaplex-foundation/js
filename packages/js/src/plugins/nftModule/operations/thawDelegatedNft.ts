@@ -14,6 +14,15 @@ import { findMasterEditionV2Pda } from '../pdas';
 const Key = 'ThawDelegatedNftOperation' as const;
 
 /**
+ * Thaws a NFT via its delegate authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -90,6 +99,15 @@ export type ThawDelegatedNftBuilderParams = Omit<
 };
 
 /**
+ * Thaws a NFT via its delegate authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

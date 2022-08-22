@@ -13,6 +13,15 @@ import { findMetadataPda } from '../pdas';
 const Key = 'UnverifyNftCreatorOperation' as const;
 
 /**
+ * Unverifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .unverifyCreator({ mintAddress, creator })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -85,6 +94,15 @@ export type UnverifyNftCreatorBuilderParams = Omit<
 };
 
 /**
+ * Unverifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .unverifyCreator({ mintAddress, creator });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

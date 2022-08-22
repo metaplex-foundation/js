@@ -14,6 +14,15 @@ import { findMasterEditionV2Pda } from '../pdas';
 const Key = 'FreezeDelegatedNftOperation' as const;
 
 /**
+ * Freezes a NFT via its delegate authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .freezeDelegatedNft({ mintAddress, delegateAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -90,6 +99,15 @@ export type FreezeDelegatedNftBuilderParams = Omit<
 };
 
 /**
+ * Freezes a NFT via its delegate authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .freezeDelegatedNft({ mintAddress, delegateAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -35,6 +35,15 @@ import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 const Key = 'FindNftByMintOperation' as const;
 
 /**
+ * Finds an NFT or an SFT by its mint address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .nfts()
+ *   .findByMint({ mintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */

@@ -135,6 +135,12 @@ export class NftClient {
   /**
    * Helper method that refetches a given model
    * and returns an instance of the same type.
+   *
+   * ```ts
+   * nft = await metaplex.nfts().refresh(nft).run();
+   * sft = await metaplex.nfts().refresh(sft).run();
+   * nftWithToken = await metaplex.nfts().refresh(nftWithToken).run();
+   * ```
    */
   refresh<
     T extends Nft | Sft | NftWithToken | SftWithToken | Metadata | PublicKey

@@ -26,6 +26,13 @@ import {
 const Key = 'UseNftOperation' as const;
 
 /**
+ * Utilizes a usable NFT.
+ *
+ * ```ts
+ * await metaplex.nfts().use({ mintAddress }).run();
+ * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -92,6 +99,15 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
 };
 
 /**
+ * Utilizes a usable NFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .use({ mintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
