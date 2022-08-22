@@ -1,9 +1,8 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { toListingReceiptAccount } from './accounts';
 import { AuctionHouse } from './AuctionHouse';
-import { Listing, toLazyListing } from './Listing';
+import { Listing } from './Listing';
 import { DisposableScope } from '@/utils';
 import { findListingReceiptPda } from './pdas';
 
@@ -62,16 +61,11 @@ export const findListingByTradeStateOperationHandler: OperationHandler<FindListi
       } = operation.input;
 
       const receiptAddress = findListingReceiptPda(tradeStateAddress);
-      const account = toListingReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
 
-      const lazyListing = toLazyListing(account, auctionHouse);
       return metaplex
         .auctions()
         .for(auctionHouse)
-        .loadListing(lazyListing, { loadJsonMetadata, commitment })
+        .findListingByReceipt(receiptAddress, { loadJsonMetadata, commitment })
         .run(scope);
     },
   };
