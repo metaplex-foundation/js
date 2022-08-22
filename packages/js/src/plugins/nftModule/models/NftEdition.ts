@@ -32,9 +32,25 @@ export const toNftEdition = (
 export type NftOriginalEdition = {
   /** A model identifier to distinguish models in the SDK. */
   readonly model: 'nftEdition';
+
+  /**
+   * Whether or not this is an original edition.
+   * This field helps distinguish between the `NftOriginalEdition`
+   * and the `NftPrintEdition` models.
+   */
   readonly isOriginal: true;
+
+  /** The address of the edition account. */
   readonly address: PublicKey;
+
+  /** The current supply of printed editions. */
   readonly supply: BigNumber;
+
+  /**
+   * The maximum supply of printed editions.
+   * When this is `null`, an unlimited amount of editions
+   * can be printed from the original edition.
+   */
   readonly maxSupply: Option<BigNumber>;
 };
 
@@ -64,9 +80,28 @@ export const toNftOriginalEdition = (
 export type NftPrintEdition = {
   /** A model identifier to distinguish models in the SDK. */
   readonly model: 'nftEdition';
+
+  /**
+   * Whether or not this is an original edition.
+   * This field helps distinguish between the `NftOriginalEdition`
+   * and the `NftPrintEdition` models.
+   */
   readonly isOriginal: false;
+
+  /** The address of the edition account. */
   readonly address: PublicKey;
+
+  /** The address of the original edition account this was printed from. */
   readonly parent: PublicKey;
+
+  /**
+   * The number of this printed edition.
+   *
+   * For instance, `1` means this was the very first edition printed
+   * from the original edition. This is a key difference between
+   * printed editions and SFTs as SFTs do not keep track of any
+   * ordering.
+   */
   readonly number: BigNumber;
 };
 
