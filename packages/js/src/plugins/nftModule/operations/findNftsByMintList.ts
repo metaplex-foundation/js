@@ -43,6 +43,7 @@ export type FindNftsByMintListOperation = Operation<
  * @category Inputs
  */
 export type FindNftsByMintListInput = {
+  /** The addresses of all mint accounts we want to fetch. */
   mints: PublicKey[];
 
   /** The level of commitment desired when querying the blockchain. */

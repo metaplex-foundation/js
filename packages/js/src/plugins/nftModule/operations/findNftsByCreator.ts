@@ -50,7 +50,16 @@ export type FindNftsByCreatorOperation = Operation<
  * @category Inputs
  */
 export type FindNftsByCreatorInput = {
+  /** The address of the creator. */
   creator: PublicKey;
+
+  /**
+   * The position in which the provided creator should be located at.
+   * E.g. `1` for searching the first creator, `2` for searching the
+   * second creator, etc.
+   *
+   * @defaultValue `1`
+   */
   position?: number;
 
   /** The level of commitment desired when querying the blockchain. */

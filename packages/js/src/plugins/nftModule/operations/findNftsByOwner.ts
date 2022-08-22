@@ -43,6 +43,7 @@ export type FindNftsByOwnerOperation = Operation<
  * @category Inputs
  */
 export type FindNftsByOwnerInput = {
+  /** The address of the owner. */
   owner: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */

@@ -42,7 +42,14 @@ export type FindNftByTokenOperation = Operation<
  * @category Inputs
  */
 export type FindNftByTokenInput = {
+  /** The address of the token account. */
   token: PublicKey;
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
   loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */

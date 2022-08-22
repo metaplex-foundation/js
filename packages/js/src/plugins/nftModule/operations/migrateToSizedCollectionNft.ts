@@ -53,11 +53,32 @@ export type MigrateToSizedCollectionNftOperation = Operation<
 export type MigrateToSizedCollectionNftInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
-  collectionAuthority?: Signer; // Defaults to mx.identity().
 
-  // Data.
+  /**
+   * An authority that can update the Collection NFT at the
+   * given mint address. This can either be the update authority
+   * for that Collection NFT or an approved delegate authority.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  collectionAuthority?: Signer;
+
+  /**
+   * The current size of all **verified** NFTs and/or SFTs within
+   * the Collection.
+   *
+   * **Warning, once set, this size can no longer be updated.**
+   */
   size: BigNumber;
-  isDelegated?: boolean; // Defaults to false.
+
+  /**
+   * Whether or not the provided `collectionAuthority` is a delegated
+   * collection authority, i.e. it was approved by the update authority
+   * using `metaplex.nfts().approveCollectionAuthority()`.
+   *
+   * @defaultValue `false`
+   */
+  isDelegated?: boolean;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

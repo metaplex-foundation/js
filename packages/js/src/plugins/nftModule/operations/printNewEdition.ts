@@ -63,14 +63,66 @@ export type PrintNewEditionOperation = Operation<
  * @category Inputs
  */
 export type PrintNewEditionInput = {
+  /** The address of the original NFT. */
   originalMint: PublicKey;
-  originalTokenAccountOwner?: Signer; // Defaults to mx.identity().
-  originalTokenAccount?: PublicKey; // Defaults to associated token address.
-  newMint?: Signer; // Defaults to Keypair.generate().
-  newUpdateAuthority?: PublicKey; // Defaults to mx.identity().
-  newOwner?: PublicKey; // Defaults to mx.identity().
-  newTokenAccount?: Signer; // Defaults to creating an associated token account.
-  payer?: Signer; // Defaults to mx.identity().
+
+  /**
+   * The owner of the original NFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  originalTokenAccountOwner?: Signer;
+
+  /**
+   * The address of the original NFT's token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `originalMint` and `originalTokenAccountOwner` parameters.
+   */
+  originalTokenAccount?: PublicKey;
+
+  /**
+   * The address of the new mint account as a Signer.
+   * This is useful if you already have a generated Keypair
+   * for the mint account of the Print NFT to create.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  newMint?: Signer;
+
+  /**
+   * The update authority of the new printed NFT.
+   *
+   * Depending on your use-case, you might want to change that to
+   * the `updateAuthority` of the original NFT.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  newUpdateAuthority?: PublicKey;
+
+  /**
+   * The owner of the new printed NFT.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  newOwner?: PublicKey;
+
+  /**
+   * The address of the new printed NFT's token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `originalMint` and `newOwner` parameters.
+   */
+  newTokenAccount?: Signer;
+
+  /**
+   * The Signer paying for the creation of all accounts
+   * required to create a new printed NFT.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
 
   /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
@@ -89,11 +141,23 @@ export type PrintNewEditionInput = {
 export type PrintNewEditionOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The newly created NFT and its associated token. */
   nft: NftWithToken;
+
+  /** The created mint account as a Signer. */
   mintSigner: Signer;
+
+  /** The address of the metadata account. */
   metadataAddress: PublicKey;
+
+  /** The address of the edition account. */
   editionAddress: PublicKey;
+
+  /** The address of the token account. */
   tokenAddress: PublicKey;
+
+  /** The new supply of the original NFT. */
   updatedSupply: BigNumber;
 };
 
