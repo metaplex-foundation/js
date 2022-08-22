@@ -64,6 +64,7 @@ export type FindNftByMintOperation = Operation<
  * @category Inputs
  */
 export type FindNftByMintInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   tokenAddress?: PublicKey;
   tokenOwner?: PublicKey;

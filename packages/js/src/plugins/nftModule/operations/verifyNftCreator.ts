@@ -43,7 +43,7 @@ export type VerifyNftCreatorOperation = Operation<
  * @category Inputs
  */
 export type VerifyNftCreatorInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   creator?: Signer; // Defaults to mx.identity().
 

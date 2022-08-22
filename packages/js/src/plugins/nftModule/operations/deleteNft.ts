@@ -43,7 +43,7 @@ export type DeleteNftOperation = Operation<
  * @category Inputs
  */
 export type DeleteNftInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   owner?: Signer; // Defaults to mx.identity().
   ownerTokenAccount?: PublicKey; // Defaults to associated token account.

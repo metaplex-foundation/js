@@ -48,15 +48,44 @@ export type ApproveNftUseAuthorityOperation = Operation<
  * @category Inputs
  */
 export type ApproveNftUseAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  user: PublicKey;
-  owner?: Signer; // Defaults to mx.identity().
-  ownerTokenAddress?: PublicKey; // Defaults to associated token address.
-  payer?: Signer; // Defaults to mx.identity().
 
-  // Data.
-  numberOfUses?: number; // Defaults to 1.
+  /** The address of the use authority to approve. */
+  user: PublicKey;
+
+  /**
+   * The owner of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: Signer;
+
+  /**
+   * The address of the token account linking the mint account
+   * with the owner account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAddress?: PublicKey;
+
+  /**
+   * The Signer paying for the creation of the PDA account
+   * that keeps track of the new use authority.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The number of usages this new use authority
+   * is allowed to perform.
+   *
+   * @defaultValue `1`
+   */
+  numberOfUses?: number;
 
   /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;

@@ -50,7 +50,7 @@ export type UnverifyNftCollectionOperation = Operation<
  * @category Inputs
  */
 export type UnverifyNftCollectionInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   collectionMintAddress: PublicKey;
   collectionAuthority?: Signer; // Defaults to mx.identity().

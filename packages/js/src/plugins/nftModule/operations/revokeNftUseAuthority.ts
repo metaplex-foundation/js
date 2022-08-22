@@ -44,7 +44,7 @@ export type RevokeNftUseAuthorityOperation = Operation<
  * @category Inputs
  */
 export type RevokeNftUseAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   user: PublicKey;
   owner?: Signer; // Defaults to mx.identity().

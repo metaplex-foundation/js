@@ -44,6 +44,7 @@ export type FreezeDelegatedNftOperation = Operation<
  * @category Inputs
  */
 export type FreezeDelegatedNftInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   delegateAuthority: Signer;
   tokenOwner?: PublicKey; // Defaults to mx.identity().

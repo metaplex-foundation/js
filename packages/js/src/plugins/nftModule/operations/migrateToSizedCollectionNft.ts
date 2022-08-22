@@ -51,7 +51,7 @@ export type MigrateToSizedCollectionNftOperation = Operation<
  * @category Inputs
  */
 export type MigrateToSizedCollectionNftInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   collectionAuthority?: Signer; // Defaults to mx.identity().
 

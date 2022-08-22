@@ -44,6 +44,7 @@ export type ThawDelegatedNftOperation = Operation<
  * @category Inputs
  */
 export type ThawDelegatedNftInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   delegateAuthority: Signer;
   tokenOwner?: PublicKey; // Defaults to mx.identity().

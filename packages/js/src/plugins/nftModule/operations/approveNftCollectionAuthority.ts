@@ -46,11 +46,27 @@ export type ApproveNftCollectionAuthorityOperation = Operation<
  * @category Inputs
  */
 export type ApproveNftCollectionAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /** The address of the collection authority to approve. */
   collectionAuthority: PublicKey;
-  updateAuthority?: Signer; // Defaults to mx.identity().
-  payer?: Signer; // Defaults to mx.identity().
+
+  /**
+   * The update authority of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  updateAuthority?: Signer;
+
+  /**
+   * The Signer paying for the creation of the PDA account
+   * that keeps track of the new collection authority.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
 
   /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;

@@ -49,7 +49,7 @@ export type UseNftOperation = Operation<typeof Key, UseNftInput, UseNftOutput>;
  * @category Inputs
  */
 export type UseNftInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
   numberOfUses?: number; // Defaults to 1.
   owner?: PublicKey | Signer; // Defaults to mx.identity().
