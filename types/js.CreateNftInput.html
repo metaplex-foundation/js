@@ -19,55 +19,172 @@
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
+<h5>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The URI that points to the JSON metadata of the asset.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
+<h5>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The on-chain name of the asset, e.g. &quot;My NFT #123&quot;.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5>seller<wbr/>Fee<wbr/>Basis<wbr/>Points<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li>
+<h5>seller<wbr/>Fee<wbr/>Basis<wbr/>Points<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>The royalties in percent basis point (i.e. 250 is 2.5%) that
+should be paid to the creators on each secondary sale.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The Signer paying for the creation of all accounts
+required to create a new NFT.
+This account will also pay for the transaction fee.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> update<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> update<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The authority that will be able to make changes
+to the created NFT.</p>
+<p>This is required as a Signer because creating the master
+edition account requires the update authority to sign
+the transaction.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The authority that is currently allowed to mint new tokens
+for the provided mint account.</p>
+<p>Note that this is only relevant if the <code>useExistingMint</code> parameter
+if provided.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> use<wbr/>New<wbr/>Mint<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> use<wbr/>New<wbr/>Mint<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the new mint account as a Signer.
+This is useful if you already have a generated Keypair
+for the mint account of the NFT to create.</p>
+
+<h3>Default Value</h3><p><code>Keypair.generate()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> use<wbr/>Existing<wbr/>Mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> use<wbr/>Existing<wbr/>Mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the existing mint account that should be converted
+into an NFT. The account at this address should have the right
+requirements to become an NFT, e.g. its supply should contains
+exactly 1 token.</p>
+
+<h3>Default Value</h3><p>Defaults to creating a new mint account with the
+right requirements.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The owner of the NFT to create.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity().publicKey</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Address<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Address<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The token account linking the mint account and the token owner
+together. By default, the associated token account will be used.</p>
+<p>If the provided token account does not exist, it must be passed as
+a Signer as we will need to create it before creating the NFT.</p>
+
+<h3>Default Value</h3><p>Defaults to creating a new associated token account
+using the <code>mintAddress</code> and <code>tokenOwner</code> parameters.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> symbol<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> symbol<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The on-chain symbol of the asset, stored in the Metadata account.
+E.g. &quot;MYNFT&quot;.</p>
+
+<h3>Default Value</h3><p><code>&quot;&quot;</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> creators<span class="tsd-signature-symbol">?: </span><a href="js.CreatorInput.html" class="tsd-signature-type" data-tsd-kind="Type alias">CreatorInput</a><span class="tsd-signature-symbol">[]</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> creators<span class="tsd-signature-symbol">?: </span><a href="js.CreatorInput.html" class="tsd-signature-type" data-tsd-kind="Type alias">CreatorInput</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>This object provides a way of providing creator information when needed,
+e.g. when creating or updating NFTs, candy machines, etc.</p>
+<p>It allows us to optionally provide an authority as a Signer so we can
+both set and verify the creator within the same operation.</p>
+
+<h3>Default Value</h3><p>Defaults to using the provided <code>updateAuthority</code> as the only verified creator.</p>
+<pre><code class="language-ts"><span class="hl-0">[{</span><br/><span class="hl-0">  </span><span class="hl-2">address:</span><span class="hl-0"> </span><span class="hl-2">updateAuthority</span><span class="hl-0">.</span><span class="hl-2">publicKey</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">authority:</span><span class="hl-0"> </span><span class="hl-2">updateAuthority</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">share:</span><span class="hl-0"> </span><span class="hl-9">100</span><span class="hl-0">,</span><br/><span class="hl-0">}]</span>
+</code></pre>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Mutable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Mutable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether or not the NFT&#39;s metadata is mutable.
+When set to <code>false</code> no one can update the Metadata account,
+not even the update authority.</p>
+
+<h3>Default Value</h3><p><code>true</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> max<wbr/>Supply<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><a href="js.BigNumber.html" class="tsd-signature-type" data-tsd-kind="Type alias">BigNumber</a><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> max<wbr/>Supply<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><a href="js.BigNumber.html" class="tsd-signature-type" data-tsd-kind="Type alias">BigNumber</a><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The maximum supply of printed editions.
+When this is <code>null</code>, an unlimited amount of editions
+can be printed from the original edition.</p>
+
+<h3>Default Value</h3><p><code>toBigNumber(0)</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> uses<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Uses</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> uses<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Uses</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>When this field is not <code>null</code>, it indicates that the NFT
+can be &quot;used&quot; by its owner or any approved &quot;use authorities&quot;.</p>
+
+<h3>Default Value</h3><p><code>null</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Collection<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Collection<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether the created NFT is a Collection NFT.
+When set to <code>true</code>, the NFT will be created as a
+Sized Collection NFT with an initial size of 0.</p>
+
+<h3>Default Value</h3><p><code>false</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Collection NFT that this new NFT belongs to.
+When <code>null</code>, the created NFT will not be part of a collection.</p>
+
+<h3>Default Value</h3><p><code>null</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The collection authority that should sign the created NFT
+to prove that it is part of the provided collection.
+When <code>null</code>, the provided <code>collection</code> will not be verified.</p>
+
+<h3>Default Value</h3><p><code>null</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<wbr/>Is<wbr/>Delegated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<wbr/>Is<wbr/>Delegated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether or not the provided <code>collectionAuthority</code> is a delegated
+collection authority, i.e. it was approved by the update authority
+using <code>metaplex.nfts().approveCollectionAuthority()</code>.</p>
+
+<h3>Default Value</h3><p><code>false</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Is<wbr/>Sized<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Is<wbr/>Sized<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether or not the provided <code>collection</code> is a sized collection
+and not a legacy collection.</p>
+
+<h3>Default Value</h3><p><code>true</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the SPL Token program to override if necessary.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> associated<wbr/>Token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> associated<wbr/>Token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the SPL Associated Token program to override if necessary.</p>
+</div></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> confirm<wbr/>Options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ConfirmOptions</span></h5>
 <div class="tsd-comment tsd-typography"><p>A set of options to configure how the transaction is sent and confirmed.</p>
 </div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/f0a32ad4/packages/js/src/plugins/nftModule/operations/createNft.ts#L49">packages/js/src/plugins/nftModule/operations/createNft.ts:49</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/ffa953bf/packages/js/src/plugins/nftModule/operations/createNft.ts#L62">packages/js/src/plugins/nftModule/operations/createNft.ts:62</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -372,6 +489,7 @@
 <li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.KeypairIdentityDriver.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Keypair<wbr/>Identity<wbr/>Driver</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.keypairIdentity.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>keypair<wbr/>Identity</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.mockStorage.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>mock<wbr/>Storage</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.NftBuildersClient.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Nft<wbr/>Builders<wbr/>Client</a></li>
 <li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.NftClient.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Nft<wbr/>Client</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.MetadataAccount.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Metadata<wbr/>Account</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.parseMetadataAccount.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>parse<wbr/>Metadata<wbr/>Account</a></li>
@@ -697,7 +815,6 @@
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenBuilderContext.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>Builder<wbr/>Context</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenBuilder.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>Builder</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenIfMissingBuilderParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>If<wbr/>Missing<wbr/>Builder<wbr/>Params</a></li>
-<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenIfMissingBuilder.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>If<wbr/>Missing<wbr/>Builder</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenWithMintOperation.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Operation</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenWithMintOperation-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Operation</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenWithMintInput.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Input</a></li>

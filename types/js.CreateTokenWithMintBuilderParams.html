@@ -14,44 +14,100 @@
 <li><a href="../modules/js.html">js</a></li>
 <li><a href="js.CreateTokenWithMintBuilderParams.html">CreateTokenWithMintBuilderParams</a></li></ul>
 <h1>Type alias CreateTokenWithMintBuilderParams</h1></div>
-<div class="tsd-signature">Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Builder<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>tokenProgram<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>associatedTokenProgram<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>mintAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>freezeAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>decimals<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>token<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>initialSupply<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a><span class="tsd-signature-symbol">; </span>createMintAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>initializeMintInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>createAssociatedTokenAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>createTokenAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>initializeTokenInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>mintTokensInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+<div class="tsd-signature">Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Builder<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>tokenProgram<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>associatedTokenProgram<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>mintAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>freezeAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>decimals<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>token<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>initialSupply<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a><span class="tsd-signature-symbol">; </span>createMintAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>initializeMintInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>createAssociatedTokenAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>createTokenAccountInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>initializeTokenInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>mintTokensInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The Signer paying for the new mint and token accounts
+and for the transaction fee.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the new mint account as a Signer.</p>
+
+<h3>Default Value</h3><p><code>Keypair.generate()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the SPL Token program to override if necessary.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> associated<wbr/>Token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> associated<wbr/>Token<wbr/>Program<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the SPL Associated Token program to override if necessary.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the authority that is allowed
+to mint new tokens to token accounts.</p>
+<p>It may be required as a Signer in order to
+mint the initial supply.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> freeze<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the authority that is allowed
+to freeze token accounts.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity().publicKey</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> freeze<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Option.html" class="tsd-signature-type" data-tsd-kind="Type alias">Option</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">&gt;</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> decimals<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>The number of decimal points used to define token amounts.</p>
+
+<h3>Default Value</h3><p><code>0</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> decimals<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the owner of the new token account.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity().publicKey</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> token<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The token account as a Signer if we want to create
+a new token account with a specific address instead of
+creating a new associated token account.</p>
+
+<h3>Default Value</h3><p>Defaults to creating a new associated token account
+using the <code>mint</code> and <code>owner</code> parameters.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> initial<wbr/>Supply<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> initial<wbr/>Supply<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.SplTokenAmount.html" class="tsd-signature-type" data-tsd-kind="Type alias">SplTokenAmount</a></h5>
+<div class="tsd-comment tsd-typography"><p>The initial amount of tokens to mint to the new token account.</p>
+
+<h3>Default Value</h3><p><code>0</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Mint<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Mint<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that creates the mint account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> initialize<wbr/>Mint<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> initialize<wbr/>Mint<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that initializes the mint account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Associated<wbr/>Token<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Associated<wbr/>Token<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that creates the associates token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Token<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> create<wbr/>Token<wbr/>Account<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that creates the token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> initialize<wbr/>Token<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> initialize<wbr/>Token<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that initializes the token account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Tokens<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li></ul></div><aside class="tsd-sources">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> mint<wbr/>Tokens<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>A key to distinguish the instruction that mints tokens to the token account.</p>
+</div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/f0a32ad4/packages/js/src/plugins/tokenModule/operations/createTokenWithMint.ts#L113">packages/js/src/plugins/tokenModule/operations/createTokenWithMint.ts:113</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/ffa953bf/packages/js/src/plugins/tokenModule/operations/createTokenWithMint.ts#L189">packages/js/src/plugins/tokenModule/operations/createTokenWithMint.ts:189</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

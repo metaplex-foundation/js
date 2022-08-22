@@ -19,19 +19,37 @@
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5>mint<wbr/>Address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5>mint<wbr/>Address<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address of the mint account.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5>size<span class="tsd-signature-symbol">: </span><a href="js.BigNumber.html" class="tsd-signature-type" data-tsd-kind="Type alias">BigNumber</a></h5></li>
+<h5>size<span class="tsd-signature-symbol">: </span><a href="js.BigNumber.html" class="tsd-signature-type" data-tsd-kind="Type alias">BigNumber</a></h5>
+<div class="tsd-comment tsd-typography"><p>The current size of all <strong>verified</strong> NFTs and/or SFTs within
+the Collection.</p>
+<p><strong>Warning, once set, this size can no longer be updated.</strong></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> collection<wbr/>Authority<span class="tsd-signature-symbol">?: </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>An authority that can update the Collection NFT at the
+given mint address. This can either be the update authority
+for that Collection NFT or an approved delegate authority.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Delegated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> is<wbr/>Delegated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether or not the provided <code>collectionAuthority</code> is a delegated
+collection authority, i.e. it was approved by the update authority
+using <code>metaplex.nfts().approveCollectionAuthority()</code>.</p>
+
+<h3>Default Value</h3><p><code>false</code></p>
+</div></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> confirm<wbr/>Options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ConfirmOptions</span></h5>
 <div class="tsd-comment tsd-typography"><p>A set of options to configure how the transaction is sent and confirmed.</p>
 </div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/f0a32ad4/packages/js/src/plugins/nftModule/operations/migrateToSizedCollectionNft.ts#L42">packages/js/src/plugins/nftModule/operations/migrateToSizedCollectionNft.ts:42</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/ffa953bf/packages/js/src/plugins/nftModule/operations/migrateToSizedCollectionNft.ts#L53">packages/js/src/plugins/nftModule/operations/migrateToSizedCollectionNft.ts:53</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -336,6 +354,7 @@
 <li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.KeypairIdentityDriver.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Keypair<wbr/>Identity<wbr/>Driver</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.keypairIdentity.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>keypair<wbr/>Identity</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.mockStorage.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>mock<wbr/>Storage</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.NftBuildersClient.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Nft<wbr/>Builders<wbr/>Client</a></li>
 <li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/js.NftClient.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Nft<wbr/>Client</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.MetadataAccount.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Metadata<wbr/>Account</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.parseMetadataAccount.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>parse<wbr/>Metadata<wbr/>Account</a></li>
@@ -661,7 +680,6 @@
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenBuilderContext.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>Builder<wbr/>Context</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenBuilder.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>Builder</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenIfMissingBuilderParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>If<wbr/>Missing<wbr/>Builder<wbr/>Params</a></li>
-<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenIfMissingBuilder.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>If<wbr/>Missing<wbr/>Builder</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/js.createTokenWithMintOperation.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Operation</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenWithMintOperation-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Operation</a></li>
 <li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="js.CreateTokenWithMintInput.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Create<wbr/>Token<wbr/>With<wbr/>Mint<wbr/>Input</a></li>
