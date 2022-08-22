@@ -52,8 +52,16 @@ export type UploadMetadataInput = JsonMetadata<MetaplexFile | string>;
  * @category Outputs
  */
 export type UploadMetadataOutput = {
+  /** The uploaded JSON metadata. */
   metadata: JsonMetadata;
+
+  /**
+   * The URIs of all assets that were uploaded
+   * within the provided metadata.
+   */
   assetUris: string[];
+
+  /** The URI of the uploaded JSON metadata. */
   uri: string;
 };
 

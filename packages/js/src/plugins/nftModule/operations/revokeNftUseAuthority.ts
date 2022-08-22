@@ -46,9 +46,25 @@ export type RevokeNftUseAuthorityOperation = Operation<
 export type RevokeNftUseAuthorityInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /** The address of the use authority to revoke. */
   user: PublicKey;
-  owner?: Signer; // Defaults to mx.identity().
-  ownerTokenAddress?: PublicKey; // Defaults to associated token address.
+
+  /**
+   * The owner of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: Signer;
+
+  /**
+   * The address of the token account linking the mint account
+   * with the owner account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAddress?: PublicKey;
 
   /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;

@@ -51,10 +51,39 @@ export type UseNftOperation = Operation<typeof Key, UseNftInput, UseNftOutput>;
 export type UseNftInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /**
+   * The number of uses to utilize.
+   *
+   * @defaultValue `1`
+   */
   numberOfUses?: number; // Defaults to 1.
-  owner?: PublicKey | Signer; // Defaults to mx.identity().
-  ownerTokenAccount?: PublicKey; // Defaults to associated token account.
-  useAuthority?: Signer; // Defaults to not being used.
+
+  /**
+   * The owner of the NFT or SFT.
+   *
+   * This must be a Signer unless a `useAuthority` is provided.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: PublicKey | Signer;
+
+  /**
+   * The address of the token account linking the mint account
+   * with the owner account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAccount?: PublicKey;
+
+  /**
+   * The delegated use authority that should authorize this operation.
+   *
+   * @defaultValue Defaults to not using a delegated use authority
+   * and using the `owner` parameter as a Signer instead.
+   */
+  useAuthority?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

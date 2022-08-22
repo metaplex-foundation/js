@@ -45,7 +45,13 @@ export type UnverifyNftCreatorOperation = Operation<
 export type UnverifyNftCreatorInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
-  creator?: Signer; // Defaults to mx.identity().
+
+  /**
+   * The creator of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  creator?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

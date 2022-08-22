@@ -45,8 +45,17 @@ export type RevokeNftCollectionAuthorityOperation = Operation<
 export type RevokeNftCollectionAuthorityInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /** The address of the collection authority to revoke. */
   collectionAuthority: PublicKey;
-  revokeAuthority?: Signer; // Can be the update authority of the delegated collection authority. Defaults to mx.identity().
+
+  /**
+   * An authority that can revoke this collection authority.
+   *
+   * This can either be the collection's update authority or the delegated
+   * collection authority itself (i.e. revoking its own rights).
+   */
+  revokeAuthority?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
