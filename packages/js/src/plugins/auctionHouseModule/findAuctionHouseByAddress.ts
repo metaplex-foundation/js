@@ -37,6 +37,8 @@ export type FindAuctionHouseByAddressOperation = Operation<
 export type FindAuctionHouseByAddressInput = {
   address: PublicKey;
   auctioneerAuthority?: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

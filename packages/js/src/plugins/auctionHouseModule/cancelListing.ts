@@ -53,7 +53,7 @@ export type CancelListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   listing: Listing;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -62,6 +62,7 @@ export type CancelListingInput = {
  * @category Outputs
  */
 export type CancelListingOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

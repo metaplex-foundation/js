@@ -75,7 +75,7 @@ export type CreateListingInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -84,6 +84,7 @@ export type CreateListingInput = {
  * @category Outputs
  */
 export type CreateListingOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: Pda;
   freeSellerTradeState: Pda;

@@ -20,6 +20,12 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'FindCandyMachineByAddressOperation' as const;
 
 /**
+ * Find an existing Candy Machine by its address.
+ *
+ * ```ts
+ * const candyMachine = await metaplex.candyMachines().findbyAddress({ address }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -41,7 +47,10 @@ export type FindCandyMachineByAddressOperation = Operation<
  * @category Inputs
  */
 export type FindCandyMachineByAddressInput = {
+  /** The Candy Machine address. */
   address: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

@@ -76,7 +76,7 @@ export type ExecuteSaleInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -85,6 +85,7 @@ export type ExecuteSaleInput = {
  * @category Outputs
  */
 export type ExecuteSaleOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: PublicKey;
   buyerTradeState: PublicKey;

@@ -20,6 +20,15 @@ import {
 const Key = 'VerifyNftCollectionOperation' as const;
 
 /**
+ * Verifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .verifyCollection({ mintAddress, collectionMintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -41,17 +50,45 @@ export type VerifyNftCollectionOperation = Operation<
  * @category Inputs
  */
 export type VerifyNftCollectionInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /** The mint address of the collection NFT. */
   collectionMintAddress: PublicKey;
-  collectionAuthority?: Signer; // Defaults to mx.identity().
-  payer?: Signer; // Defaults to mx.identity().
 
-  // Data.
-  isSizedCollection?: boolean; // Defaults to true.
-  isDelegated?: boolean; // Defaults to false.
+  /**
+   * An authority that can verify and unverify collection items
+   * from the provided `collectionMintAddress`.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  collectionAuthority?: Signer;
 
-  // Options.
+  /**
+   * The Signer paying for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * Whether or not the provided `collectionMintAddress` is a
+   * sized collection (as opposed to a legacy collection).
+   *
+   * @defaultValue `true`
+   */
+  isSizedCollection?: boolean;
+
+  /**
+   * Whether or not the provided `collectionAuthority` is a delegated
+   * collection authority, i.e. it was approved by the update authority
+   * using `metaplex.nfts().approveCollectionAuthority()`.
+   *
+   * @defaultValue `false`
+   */
+  isDelegated?: boolean;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -60,6 +97,7 @@ export type VerifyNftCollectionInput = {
  * @category Outputs
  */
 export type VerifyNftCollectionOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -92,10 +130,20 @@ export type VerifyNftCollectionBuilderParams = Omit<
   VerifyNftCollectionInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that verifies the collection. */
   instructionKey?: string;
 };
 
 /**
+ * Verifies the collection of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .verifyCollection({ mintAddress, collectionMintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

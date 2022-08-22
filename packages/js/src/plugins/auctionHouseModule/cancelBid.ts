@@ -54,7 +54,7 @@ export type CancelBidInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   bid: Bid;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -63,6 +63,7 @@ export type CancelBidInput = {
  * @category Outputs
  */
 export type CancelBidOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

@@ -23,6 +23,15 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 const Key = 'CreateAccountOperation' as const;
 
 /**
+ * Creates a new uninitialized Solana account.
+ *
+ * ```ts
+ * const { newAccount } = await metaplex
+ *   .system()
+ *   .createAccount({ space: 100 }) // 100 bytes
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -48,6 +57,7 @@ export type CreateAccountInput = {
 
   /**
    * The initial balance of the account.
+   *
    * @defaultValue By default, this will be the minumum amount of lamports
    * required for the account to be rent-exempt.
    * i.e. it will be equal to `await metaplex.rpc().getRent(space)`.
@@ -56,26 +66,26 @@ export type CreateAccountInput = {
 
   /**
    * The Signer to use to pay for the new account and the transaction fee.
-   * @defaultValue Defaults to the current identity, i.e. `metaplex.identity()`.
+   *
+   * @defaultValue Defaults to the current identity, i.e. `metaplex.identity()`
    */
   payer?: Signer;
 
   /**
    * The new account as a Signer since it will be mutated on-chain.
-   * @defaultValue Defaults to a new generated Keypair, i.e. `Keypair.generate()`.
+   *
+   * @defaultValue Defaults to a new generated Keypair, i.e. `Keypair.generate()`
    */
   newAccount?: Signer;
 
   /**
    * The address of the program that should own the new account.
+   *
    * @defaultValue Defaults to the System Program.
    */
   program?: PublicKey;
 
-  /**
-   * The options to use when confirming the transaction.
-   * @defaultValue Defaults to `{}`.
-   */
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -84,7 +94,7 @@ export type CreateAccountInput = {
  * @category Outputs
  */
 export type CreateAccountOutput = {
-  /** The response from sending and confirming the sent transaction. */
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
   /** The new account created as a Signer. */
@@ -123,6 +133,7 @@ export type CreateAccountBuilderParams = Omit<
   CreateAccountInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the account. */
   instructionKey?: string;
 };
 
@@ -133,6 +144,15 @@ export type CreateAccountBuilderParams = Omit<
 export type CreateAccountBuilderContext = Omit<CreateAccountOutput, 'response'>;
 
 /**
+ * Creates a new uninitialized Solana account.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .system()
+ *   .builders()
+ *   .createAccount({ space: 100 }); // 100 bytes
+ * ```
+ *
  * Note that accessing this transaction builder is asynchronous
  * because we may need to contact the cluster to get the
  * rent-exemption for the provided space.

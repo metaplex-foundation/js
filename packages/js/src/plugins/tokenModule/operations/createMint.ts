@@ -14,6 +14,12 @@ import { TokenProgram } from '../program';
 const Key = 'CreateMintOperation' as const;
 
 /**
+ * Creates a new mint account.
+ *
+ * ```ts
+ * const { mint } = await metaplex.tokens().createMint().run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,12 +40,49 @@ export type CreateMintOperation = Operation<
  * @category Inputs
  */
 export type CreateMintInput = {
-  decimals?: number; // Defaults to 0 decimals.
-  mint?: Signer; // Defaults to new generated Keypair.
-  payer?: Signer; // Defaults to mx.identity().
-  mintAuthority?: PublicKey; // Defaults to mx.identity().
-  freezeAuthority?: Option<PublicKey>; // Defaults to mintAuthority.
-  tokenProgram?: PublicKey; // Defaults to System Program.
+  /**
+   * The number of decimal points used to define token amounts.
+   *
+   * @defaultValue `0`
+   */
+  decimals?: number;
+
+  /**
+   * The address of the new mint account as a Signer.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  mint?: Signer;
+
+  /**
+   * The Signer paying for the new mint account and
+   * for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The address of the authority that is allowed
+   * to mint new tokens to token accounts.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  mintAuthority?: PublicKey;
+
+  /**
+   * The address of the authority that is allowed
+   * to freeze token accounts.
+   *
+   * @defaultValue Defaults to using the same value as the
+   * `mintAuthority` parameter.
+   */
+  freezeAuthority?: Option<PublicKey>;
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -51,8 +94,13 @@ export type CreateMintInput = {
  * @category Outputs
  */
 export type CreateMintOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The mint account as a Signer. */
   mintSigner: Signer;
+
+  /** The created mint account. */
   mint: Mint;
 };
 
@@ -97,7 +145,10 @@ export type CreateMintBuilderParams = Omit<
   CreateMintInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the account. */
   createAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
 };
 
@@ -111,6 +162,12 @@ export type CreateMintBuilderContext = Omit<
 >;
 
 /**
+ * Creates a new mint account.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex.tokens().builders().createMint();
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

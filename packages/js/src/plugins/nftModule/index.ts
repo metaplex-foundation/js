@@ -3,6 +3,7 @@ export * from './errors';
 export * from './gpaBuilders';
 export * from './helpers';
 export * from './models';
+export * from './NftBuildersClient';
 export * from './NftClient';
 export * from './operations';
 export * from './pdas';

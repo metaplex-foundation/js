@@ -60,7 +60,7 @@ export type UpdateAuctionHouseInput = {
   auctioneerAuthority?: PublicKey;
   auctioneerScopes?: AuthorityScope[];
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -69,6 +69,7 @@ export type UpdateAuctionHouseInput = {
  * @category Outputs
  */
 export type UpdateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

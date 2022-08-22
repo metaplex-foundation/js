@@ -14,6 +14,15 @@ import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
 const Key = 'RevokeNftUseAuthorityOperation' as const;
 
 /**
+ * Revokes an existing use authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .revokeUseAuthority({ mintAddress, user })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -35,17 +44,35 @@ export type RevokeNftUseAuthorityOperation = Operation<
  * @category Inputs
  */
 export type RevokeNftUseAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  user: PublicKey;
-  owner?: Signer; // Defaults to mx.identity().
-  ownerTokenAddress?: PublicKey; // Defaults to associated token address.
 
-  // Programs.
+  /** The address of the use authority to revoke. */
+  user: PublicKey;
+
+  /**
+   * The owner of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: Signer;
+
+  /**
+   * The address of the token account linking the mint account
+   * with the owner account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAddress?: PublicKey;
+
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -54,6 +81,7 @@ export type RevokeNftUseAuthorityInput = {
  * @category Outputs
  */
 export type RevokeNftUseAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -86,10 +114,20 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
   RevokeNftUseAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that revokes the use authority. */
   instructionKey?: string;
 };
 
 /**
+ * Revokes an existing use authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .revokeUseAuthority({ mintAddress, user });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

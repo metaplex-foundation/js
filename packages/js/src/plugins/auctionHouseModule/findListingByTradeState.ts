@@ -37,6 +37,8 @@ export type FindListingByTradeStateInput = {
   tradeStateAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

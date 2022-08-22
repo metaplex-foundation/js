@@ -1,4 +1,5 @@
 export * from './accounts';
+export * from './CandyMachinesBuildersClient';
 export * from './CandyMachinesClient';
 export * from './errors';
 export * from './gpaBuilders';

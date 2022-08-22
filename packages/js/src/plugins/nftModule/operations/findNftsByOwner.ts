@@ -13,6 +13,15 @@ import { findNftsByMintListOperation } from './findNftsByMintList';
 const Key = 'FindNftsByOwnerOperation' as const;
 
 /**
+ * Finds multiple NFTs and SFTs by a given owner.
+ *
+ * ```ts
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByOwner({ owner })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,7 +43,10 @@ export type FindNftsByOwnerOperation = Operation<
  * @category Inputs
  */
 export type FindNftsByOwnerInput = {
+  /** The address of the owner. */
   owner: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

@@ -19,6 +19,17 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'MigrateToSizedCollectionNftOperation' as const;
 
 /**
+ * Migrates a legacy Collection NFT to a sized Collection NFT.
+ * Both can act as a Collection for NFTs but only the latter
+ * keeps track of the size of the collection on chain.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -40,15 +51,36 @@ export type MigrateToSizedCollectionNftOperation = Operation<
  * @category Inputs
  */
 export type MigrateToSizedCollectionNftInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  collectionAuthority?: Signer; // Defaults to mx.identity().
 
-  // Data.
+  /**
+   * An authority that can update the Collection NFT at the
+   * given mint address. This can either be the update authority
+   * for that Collection NFT or an approved delegate authority.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  collectionAuthority?: Signer;
+
+  /**
+   * The current size of all **verified** NFTs and/or SFTs within
+   * the Collection.
+   *
+   * **Warning, once set, this size can no longer be updated.**
+   */
   size: BigNumber;
-  isDelegated?: boolean; // Defaults to false.
 
-  // Options.
+  /**
+   * Whether or not the provided `collectionAuthority` is a delegated
+   * collection authority, i.e. it was approved by the update authority
+   * using `metaplex.nfts().approveCollectionAuthority()`.
+   *
+   * @defaultValue `false`
+   */
+  isDelegated?: boolean;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -57,6 +89,7 @@ export type MigrateToSizedCollectionNftInput = {
  * @category Outputs
  */
 export type MigrateToSizedCollectionNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -89,10 +122,22 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
   MigrateToSizedCollectionNftInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that sets the collection size. */
   instructionKey?: string;
 };
 
 /**
+ * Migrates a legacy Collection NFT to a sized Collection NFT.
+ * Both can act as a Collection for NFTs but only the latter
+ * keeps track of the size of the collection on chain.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

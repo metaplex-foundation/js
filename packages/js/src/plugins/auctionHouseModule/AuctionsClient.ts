@@ -27,6 +27,14 @@ import { Signer } from '@/types';
 export class AuctionsClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  /**
+   * You may use the `builders()` client to access the
+   * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.auctions().builders();
+   * ```
+   */
   builders() {
     return new AuctionsBuildersClient(this.metaplex);
   }

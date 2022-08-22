@@ -1,15 +1,15 @@
-import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
-import { Keypair } from '@solana/web3.js';
+import { Sft, SftWithToken, token, toMetaplexFile } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
-import { toMetaplexFile, toBigNumber, Sft, token, SftWithToken } from '@/index';
+import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
-  metaplex,
-  spokSamePubkey,
-  spokSameBignum,
-  killStuckProcess,
   createWallet,
+  killStuckProcess,
+  metaplex,
   spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
 } from '../../helpers';
 
 killStuckProcess();
@@ -106,7 +106,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       decimals: 2,
       sellerFeeBasisPoints: 456,
       isMutable: false,
-      maxSupply: toBigNumber(123),
       useNewMint: mint,
       tokenOwner: owner.publicKey,
       tokenAmount: token(4200),

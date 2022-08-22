@@ -69,7 +69,7 @@ export type CreateAuctionHouseInput = {
   treasuryWithdrawalDestinationOwner?: PublicKey;
   auctioneerAuthority?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -78,6 +78,7 @@ export type CreateAuctionHouseInput = {
  * @category Outputs
  */
 export type CreateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   auctionHouseAddress: Pda;
   auctionHouseFeeAccountAddress: Pda;

@@ -13,6 +13,18 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'ApproveNftCollectionAuthorityOperation' as const;
 
 /**
+ * Approves a new collection authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .approveCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,16 +46,32 @@ export type ApproveNftCollectionAuthorityOperation = Operation<
  * @category Inputs
  */
 export type ApproveNftCollectionAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  collectionAuthority: PublicKey;
-  updateAuthority?: Signer; // Defaults to mx.identity().
-  payer?: Signer; // Defaults to mx.identity().
 
-  // Programs.
+  /** The address of the collection authority to approve. */
+  collectionAuthority: PublicKey;
+
+  /**
+   * The update authority of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  updateAuthority?: Signer;
+
+  /**
+   * The Signer paying for the creation of the PDA account
+   * that keeps track of the new collection authority.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -52,6 +80,7 @@ export type ApproveNftCollectionAuthorityInput = {
  * @category Outputs
  */
 export type ApproveNftCollectionAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -84,10 +113,23 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
   ApproveNftCollectionAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that approves the collection authority. */
   instructionKey?: string;
 };
 
 /**
+ * Approves a new collection authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .approveCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

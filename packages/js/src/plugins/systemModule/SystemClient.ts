@@ -24,7 +24,7 @@ import { SystemBuildersClient } from './SystemBuildersClient';
  * using the code below.
  *
  * ```ts
- * const { newAccount } = await metaplex.system().createAccount({ space: 42 });
+ * const { newAccount } = await metaplex.system().createAccount({ space: 42 }).run();
  * ```
  *
  * @group Modules
@@ -35,6 +35,10 @@ export class SystemClient {
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.system().builders();
+   * ```
    */
   builders() {
     return new SystemBuildersClient(this.metaplex);

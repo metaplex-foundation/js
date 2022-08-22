@@ -78,7 +78,7 @@ export type CreateBidInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -87,6 +87,7 @@ export type CreateBidInput = {
  * @category Outputs
  */
 export type CreateBidOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
   tokenAccount: Option<PublicKey>;

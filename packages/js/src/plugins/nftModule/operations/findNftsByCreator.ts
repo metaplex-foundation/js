@@ -13,6 +13,22 @@ import { findNftsByMintListOperation } from './findNftsByMintList';
 const Key = 'FindNftsByCreatorOperation' as const;
 
 /**
+ * Finds multiple NFTs and SFTs by their creator at a given position.
+ *
+ * ```ts
+ * // Find all by first creator.
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByCreator({ creator })
+ *   .run();
+ *
+ * // Find all by second creator.
+ * const nfts = await metaplex
+ *   .nfts()
+ *   .findAllByCreator({ creator, position: 2 })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,8 +50,19 @@ export type FindNftsByCreatorOperation = Operation<
  * @category Inputs
  */
 export type FindNftsByCreatorInput = {
+  /** The address of the creator. */
   creator: PublicKey;
+
+  /**
+   * The position in which the provided creator should be located at.
+   * E.g. `1` for searching the first creator, `2` for searching the
+   * second creator, etc.
+   *
+   * @defaultValue `1`
+   */
   position?: number;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

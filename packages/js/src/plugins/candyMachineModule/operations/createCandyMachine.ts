@@ -46,6 +46,19 @@ import { CandyMachineProgram } from '../program';
 const Key = 'CreateCandyMachineOperation' as const;
 
 /**
+ * Creates a brand new Candy Machine.
+ *
+ * ```ts
+ * const { candyMachine } = await metaplex
+ *   .candyMachines()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *     price: sol(1.3), // 1.3 SOL
+ *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -63,13 +76,44 @@ export type CreateCandyMachineOperation = Operation<
 >;
 
 export type CreateCandyMachineInputWithoutConfigs = {
-  // Accounts and Models.
-  candyMachine?: Signer; // Defaults to Keypair.generate().
-  payer?: Signer; // Defaults to mx.identity().
-  authority?: Signer | PublicKey; // Defaults to mx.identity().
-  collection?: Option<PublicKey>; // Defaults to no collection.
+  /**
+   * The Candy Machine to create as a Signer.
+   * This expects a brand new Keypair with no associated account.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  candyMachine?: Signer;
 
-  // Transaction Options.
+  /**
+   * The Signer that should pay for the creation of the Candy Machine.
+   * This includes both storage fees and the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The authority that will be allowed to update the Candy Machine.
+   * Upon creation, passing the authority's public key is enough to set it.
+   * However, when also passing a `collection` to this operation,
+   * this authority will need to be passed as a Signer so the relevant
+   * instruction can be signed.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer | PublicKey; // Defaults to mx.identity().
+
+  /**
+   * The mint address of the Collection NFT that all NFTs minted from
+   * this Candy Machine should be part of.
+   * When provided, the `authority` parameter will need to be passed as a `Signer`.
+   * When `null`, minted NFTs won't be part of a collection.
+   *
+   * @defaultValue `null`
+   */
+  collection?: Option<PublicKey>;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -88,12 +132,25 @@ export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
  * @category Outputs
  */
 export type CreateCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The created Candy Machine. */
   candyMachine: CandyMachine;
+
+  /** The create Candy Machine's account as a Signer. */
   candyMachineSigner: Signer;
+
+  /** The account that ended up paying for the Candy Machine as a Signer. */
   payer: Signer;
+
+  /** The created Candy Machine's wallet. */
   wallet: PublicKey;
+
+  /** The created Candy Machine's authority. */
   authority: PublicKey;
+
+  /** The created Candy Machine's creators. */
   creators: Creator[];
 };
 
@@ -141,8 +198,13 @@ export type CreateCandyMachineBuilderParams = Omit<
   CreateCandyMachineInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the account. */
   createAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the Candy Machine. */
   initializeCandyMachineInstructionKey?: string;
+
+  /** A key to distinguish the instruction that sets the collection. */
   setCollectionInstructionKey?: string;
 };
 
@@ -156,6 +218,19 @@ export type CreateCandyMachineBuilderContext = Omit<
 >;
 
 /**
+ * Creates a brand new Candy Machine.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *     price: sol(1.3), // 1.3 SOL
+ *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
