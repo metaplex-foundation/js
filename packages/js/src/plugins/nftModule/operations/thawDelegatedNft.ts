@@ -81,6 +81,7 @@ export type ThawDelegatedNftBuilderParams = Omit<
   ThawDelegatedNftInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that thaws the NFT. */
   instructionKey?: string;
 };
 

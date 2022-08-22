@@ -81,6 +81,7 @@ export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
  * @category Inputs
  */
 export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that burns the NFT. */
   instructionKey?: string;
 };
 

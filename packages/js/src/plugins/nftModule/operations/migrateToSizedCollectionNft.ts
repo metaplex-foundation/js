@@ -90,6 +90,7 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
   MigrateToSizedCollectionNftInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that sets the collection size. */
   instructionKey?: string;
 };
 

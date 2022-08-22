@@ -87,6 +87,7 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
  * @category Inputs
  */
 export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that uses the NFT. */
   instructionKey?: string;
 };
 

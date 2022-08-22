@@ -156,14 +156,36 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
  * @category Inputs
  */
 export type CreateNftBuilderParams = Omit<CreateNftInput, 'confirmOptions'> & {
+  /**
+   * Whether or not the provided token account already exists.
+   * If `false`, we'll add another instruction to create it.
+   *
+   * @defaultValue `true`
+   */
   tokenExists?: boolean;
+
+  /** A key to distinguish the instruction that creates the mint account. */
   createMintAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the associated token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints tokens. */
   mintTokensInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the metadata account. */
   createMetadataInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the master edition account. */
   createMasterEditionInstructionKey?: string;
 };
 

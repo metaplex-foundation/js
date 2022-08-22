@@ -81,6 +81,7 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
   RevokeNftCollectionAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that revokes the collection authority. */
   instructionKey?: string;
 };
 

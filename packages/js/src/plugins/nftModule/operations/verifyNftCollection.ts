@@ -93,6 +93,7 @@ export type VerifyNftCollectionBuilderParams = Omit<
   VerifyNftCollectionInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that verifies the collection. */
   instructionKey?: string;
 };
 

@@ -139,13 +139,28 @@ export type PrintNewEditionBuilderParams = Omit<
   PrintNewEditionInput,
   'confirmOptions'
 > & {
+  /** The current supply of the original edition. */
   originalSupply: BigNumber;
+
+  /** A key to distinguish the instruction that creates the mint account. */
   createMintAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the associated token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints tokens. */
   mintTokensInstructionKey?: string;
+
+  /** A key to distinguish the instruction that prints the new edition. */
   printNewEditionInstructionKey?: string;
 };
 

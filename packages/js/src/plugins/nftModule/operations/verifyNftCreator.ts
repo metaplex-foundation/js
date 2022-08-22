@@ -80,6 +80,7 @@ export type VerifyNftCreatorBuilderParams = Omit<
   VerifyNftCreatorInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that verifies the creator. */
   instructionKey?: string;
 };
 

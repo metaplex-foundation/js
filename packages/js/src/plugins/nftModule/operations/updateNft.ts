@@ -117,6 +117,7 @@ export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
  * @category Inputs
  */
 export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that updates the metadata account. */
   updateMetadataInstructionKey?: string;
 };
 

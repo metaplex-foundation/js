@@ -87,6 +87,7 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
   RevokeNftUseAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that revokes the use authority. */
   instructionKey?: string;
 };
 

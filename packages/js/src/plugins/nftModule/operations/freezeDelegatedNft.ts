@@ -81,6 +81,7 @@ export type FreezeDelegatedNftBuilderParams = Omit<
   FreezeDelegatedNftInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that freezes the NFT. */
   instructionKey?: string;
 };
 

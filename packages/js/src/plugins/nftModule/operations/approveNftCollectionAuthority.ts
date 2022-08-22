@@ -85,6 +85,7 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
   ApproveNftCollectionAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that approves the collection authority. */
   instructionKey?: string;
 };
 

@@ -93,6 +93,7 @@ export type UnverifyNftCollectionBuilderParams = Omit<
   UnverifyNftCollectionInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that unverifies the collection. */
   instructionKey?: string;
 };
 

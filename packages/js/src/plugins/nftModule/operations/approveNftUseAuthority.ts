@@ -95,6 +95,7 @@ export type ApproveNftUseAuthorityBuilderParams = Omit<
   ApproveNftUseAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that approves the use authority. */
   instructionKey?: string;
 };
 
