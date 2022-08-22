@@ -28,8 +28,11 @@ import { Token } from '../models/Token';
 const Key = 'CreateTokenOperation' as const;
 
 /**
- * Create a new Token account from the provided input
- * and returns the newly created `Token` model.
+ * Creates a new token account.
+ *
+ * ```ts
+ * const { token } = await metaplex.tokens().createToken({ mint }).run();
+ * ```
  *
  * @group Operations
  * @category Constructors
@@ -51,12 +54,44 @@ export type CreateTokenOperation = Operation<
  * @category Inputs
  */
 export type CreateTokenInput = {
+  /**
+   * The address of the mint account associated
+   * with the new token account.
+   */
   mint: PublicKey;
-  owner?: PublicKey; // Defaults to mx.identity().
-  token?: Signer; // Defaults to creating an associated token address instead.
-  payer?: Signer; // Defaults to mx.identity().
-  tokenProgram?: PublicKey; // Defaults to System Program.
-  associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
+
+  /**
+   * The address of the owner of the new token account.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  owner?: PublicKey;
+
+  /**
+   * The token account as a Signer if we want to create
+   * a new token account with a specific address instead of
+   * creating a new associated token account.
+   *
+   * @defaultValue Defaults to creating a new associated token account
+   * using the `mint` and `owner` parameters.
+   */
+  token?: Signer;
+
+  /**
+   * The Signer paying for the new token account and
+   * for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** The address of the SPL Associated Token program to override if necessary. */
+  associatedTokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -67,6 +102,8 @@ export type CreateTokenInput = {
 export type CreateTokenOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The newly created token account. */
   token: Token;
 };
 
@@ -126,10 +163,17 @@ export type CreateTokenBuilderParams = Omit<
  * @category Contexts
  */
 export type CreateTokenBuilderContext = {
+  /** The computed address of the token account to create. */
   tokenAddress: PublicKey;
 };
 
 /**
+ * Creates a new token account.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex.tokens().builders().createToken({ mint });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
@@ -222,8 +266,26 @@ export type CreateTokenIfMissingBuilderParams = Omit<
   CreateTokenBuilderParams,
   'token'
 > & {
+  /**
+   * The token account to create if it does not exist.
+   * Here, it may be passed as a PublicKey if and only
+   * if it already exists.
+   */
   token?: PublicKey | Signer;
-  tokenExists?: boolean; // Defaults to true.
+
+  /**
+   * Whether or not the token account exists.
+   *
+   * @defaultValue `true`
+   */
+  tokenExists?: boolean;
+
+  /**
+   * The name of the token variable on the operation that uses
+   * this helper token builder.
+   *
+   * @defaultValue `"token"`
+   */
   tokenVariable?: string;
 };
 

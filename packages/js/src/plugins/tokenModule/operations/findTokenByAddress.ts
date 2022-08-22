@@ -11,6 +11,12 @@ import { Token, toToken } from '../models/Token';
 const Key = 'FindTokenByAddressOperation' as const;
 
 /**
+ * Finds a token account by its address.
+ *
+ * ```ts
+ * const token = await metaplex.tokens().findTokenByAddress({ address }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -32,6 +38,7 @@ export type FindTokenByAddressOperation = Operation<
  * @category Inputs
  */
 export type FindTokenByAddressInput = {
+  /** The address of the token account. */
   address: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */

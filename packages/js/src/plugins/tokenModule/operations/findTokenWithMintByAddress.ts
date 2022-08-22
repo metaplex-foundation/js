@@ -12,6 +12,13 @@ import { TokenWithMint, toTokenWithMint } from '../models/Token';
 const Key = 'FindTokenWithMintByAddressOperation' as const;
 
 /**
+ * Finds a token account and its associated mint account
+ * by providing the token address.
+ *
+ * ```ts
+ * const tokenWithMint = await metaplex.tokens().findTokenWithMintByAddress({ address }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,6 +40,7 @@ export type FindTokenWithMintByAddressOperation = Operation<
  * @category Inputs
  */
 export type FindTokenWithMintByAddressInput = {
+  /** The address of the token account. */
   address: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */

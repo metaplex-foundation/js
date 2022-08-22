@@ -23,6 +23,19 @@ import { TokenProgram } from '../program';
 const Key = 'SendTokensOperation' as const;
 
 /**
+ * Send tokens from one account to another.
+ *
+ * ```ts
+ * await metaplex
+ *   .tokens()
+ *   .send({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(100),
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -135,6 +148,19 @@ export type SendTokensBuilderParams = Omit<
 };
 
 /**
+ * Send tokens from one account to another.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .tokens()
+ *   .builders()
+ *   .send({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(100),
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

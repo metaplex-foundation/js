@@ -21,6 +21,15 @@ import { TokenProgram } from '../program';
 const Key = 'RevokeTokenDelegateAuthorityOperation' as const;
 
 /**
+ * Revokes the current delegate authority for a token account.
+ *
+ * ```ts
+ * await metaplex
+ *   .tokens()
+ *   .revokeDelegateAuthority({ mintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -93,6 +102,15 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
 };
 
 /**
+ * Revokes the current delegate authority for a token account.
+ *
+ * ```ts
+ * await metaplex
+ *   .tokens()
+ *   .builders()
+ *   .revokeDelegateAuthority({ mintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

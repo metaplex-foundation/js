@@ -23,6 +23,19 @@ import { TokenProgram } from '../program';
 const Key = 'MintTokensOperation' as const;
 
 /**
+ * Mint tokens to an account.
+ *
+ * ```ts
+ * await metaplex
+ *   .tokens()
+ *   .mint({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(100),
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -133,6 +146,19 @@ export type MintTokensBuilderParams = Omit<
 };
 
 /**
+ * Mint tokens to an account.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex
+ *   .tokens()
+ *   .builders()
+ *   .mint({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(100),
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
