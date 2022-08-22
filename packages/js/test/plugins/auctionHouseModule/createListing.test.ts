@@ -65,7 +65,10 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   // And we get the same result when we fetch the Listing by address.
   const retrieveListing = await mx
     .auctionHouse()
-    .findListingByReceipt(listing.receiptAddress as Pda, auctionHouse)
+    .findListingByReceipt({
+      receiptAddress: listing.receiptAddress as Pda,
+      auctionHouse
+    })
     .run();
   spok(t, retrieveListing, {
     $topic: 'Retrieved Listing',
@@ -100,7 +103,10 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   try {
     await mx
       .auctionHouse()
-      .findListingByTradeState(sellerTradeState, auctionHouse)
+      .findListingByTradeState({
+        tradeStateAddress :sellerTradeState,
+        auctionHouse
+      })
       .run();
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {

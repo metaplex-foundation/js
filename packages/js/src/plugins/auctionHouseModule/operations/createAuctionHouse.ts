@@ -105,10 +105,10 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
       scope.throwIfCanceled();
       const auctionHouse = await metaplex
         .auctionHouse()
-        .findAuctionHouseByAddress(
-          output.auctionHouseAddress,
-          operation.input.auctioneerAuthority
-        )
+        .findAuctionHouseByAddress({
+          address: output.auctionHouseAddress,
+          auctioneerAuthority: operation.input.auctioneerAuthority
+        })
         .run(scope);
       return { ...output, auctionHouse };
     },

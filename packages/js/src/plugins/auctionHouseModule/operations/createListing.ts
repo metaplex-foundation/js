@@ -119,7 +119,10 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       if (output.receipt) {
         const listing = await metaplex
           .auctionHouse()
-          .findListingByReceipt(output.receipt, operation.input.auctionHouse)
+          .findListingByReceipt({
+            receiptAddress: output.receipt,
+            auctionHouse: operation.input.auctionHouse
+          })
           .run(scope);
         return { listing, ...output };
       }

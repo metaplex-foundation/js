@@ -113,119 +113,60 @@ export class AuctionHouseClient {
   }
 
   findAuctionHouseByAddress(
-    address: PublicKey,
-    auctioneerAuthority?: PublicKey,
-    options?: Omit<
-      FindAuctionHouseByAddressInput,
-      'address' | 'auctioneerAuthority'
-    >
+    options: FindAuctionHouseByAddressInput
   ): Task<AuctionHouse> {
     return this.metaplex.operations().getTask(
-      findAuctionHouseByAddressOperation({
-        address,
-        auctioneerAuthority,
-        ...options,
-      })
+      findAuctionHouseByAddressOperation(options)
     );
   }
 
   findAuctionHouseByCreatorAndMint(
-    creator: PublicKey,
-    treasuryMint: PublicKey,
-    auctioneerAuthority?: PublicKey,
-    options?: Omit<
-      FindAuctionHouseByAddressInput,
-      'address' | 'auctioneerAuthority'
-    >
-  ): Task<AuctionHouse> {
-    return this.findAuctionHouseByAddress(
-      findAuctionHousePda(creator, treasuryMint),
-      auctioneerAuthority,
-      options
-    );
-  }
+    options: FindAuctionHouseByAddressInput & { creator: PublicKey,
+      treasuryMint: PublicKey}
+  ): Task<AuctionHouse>{
+    return this.findAuctionHouseByAddress({
+      ...options, 
+      address: findAuctionHousePda(options.creator, options.treasuryMint),
+      })
+    };
 
   findPurchaseByAddress(
-    sellerTradeState: PublicKey,
-    buyerTradeState: PublicKey,
-    auctionHouse: AuctionHouse,
-    options: Omit<
-      FindPurchaseByAddressInput,
-      'sellerTradeState' | 'buyerTradeState' | 'auctionHouse'
-    > = {}
+    options: FindPurchaseByAddressInput
   ) {
     return this.metaplex.operations().getTask(
-      findPurchaseByAddressOperation({
-        sellerTradeState,
-        buyerTradeState,
-        auctionHouse,
-        ...options,
-      })
+      findPurchaseByAddressOperation(options)
     );
   }
 
   findBidByReceipt(
-    auctionHouse: AuctionHouse,
-    receiptAddress: PublicKey,
-    options: Omit<FindBidByReceiptInput, 'receiptAddress' | 'auctionHouse'> = {}
+    options: FindBidByReceiptInput
   ) {
     return this.metaplex.operations().getTask(
-      findBidByReceiptOperation({
-        receiptAddress,
-        auctionHouse,
-        ...options,
-      })
+      findBidByReceiptOperation(options)
     );
   }
 
   findBidByTradeState(
-    tradeStateAddress: PublicKey,
-    auctionHouse: AuctionHouse,
-    options: Omit<
-      FindBidByTradeStateInput,
-      'tradeStateAddress' | 'auctionHouse'
-    > = {}
+    options: FindBidByTradeStateInput
   ) {
     return this.metaplex.operations().getTask(
-      findBidByTradeStateOperation({
-        tradeStateAddress,
-        auctionHouse,
-        ...options,
-      })
+      findBidByTradeStateOperation(options)
     );
   }
 
   findListingByTradeState(
-    tradeStateAddress: PublicKey,
-    auctionHouse: AuctionHouse,
-    options: Omit<
-      FindListingByTradeStateInput,
-      'tradeStateAddress' | 'auctionHouse'
-    > = {}
+    options: FindListingByTradeStateInput
   ) {
     return this.metaplex.operations().getTask(
-      findListingByTradeStateOperation({
-        tradeStateAddress,
-        auctionHouse,
-        ...options,
-      })
+      findListingByTradeStateOperation(options)
     );
   }
 
   findListingByReceipt(
-    receiptAddress: PublicKey,
-    auctionHouse: AuctionHouse,
-    options: Omit<
-      FindListingByReceiptInput,
-      'receiptAddress' | 'auctionHouse'
-    > = {}
+    options: FindListingByReceiptInput
   ) {
     return this.metaplex.operations().getTask(
-      findListingByReceiptOperation({
-        receiptAddress,
-        auctionHouse,
-        ...options,
-      })
+      findListingByReceiptOperation(options)
     );
   }
 
@@ -275,10 +216,10 @@ export class AuctionHouseClient {
       const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
         ? auctionHouse.auctioneer.authority
         : undefined;
-      const updatedAuctionHouse = await this.findAuctionHouseByAddress(
-        auctionHouse.address,
-        input.auctioneerAuthority ?? currentAuctioneerAuthority
-      ).run(scope);
+      const updatedAuctionHouse = await this.findAuctionHouseByAddress({
+        address: auctionHouse.address,
+        auctioneerAuthority: input.auctioneerAuthority ?? currentAuctioneerAuthority
+    }).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
   }

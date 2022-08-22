@@ -120,11 +120,11 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
       try {
         const purchase = await metaplex
           .auctionHouse()
-          .findPurchaseByAddress(
-            output.sellerTradeState,
-            output.buyerTradeState,
-            operation.input.auctionHouse
-          )
+          .findPurchaseByAddress({
+            sellerTradeState: output.sellerTradeState,
+            buyerTradeState: output.buyerTradeState,
+            auctionHouse: operation.input.auctionHouse
+          })
           .run(scope);
         return { purchase, ...output };
       } catch (error) {

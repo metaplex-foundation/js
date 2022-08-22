@@ -38,7 +38,10 @@ test('[auctionHouseModule] cancel a Private Bid on an Auction House', async (t: 
   // Then bid receipt has canceled at date.
   const canceledBid = await mx
     .auctionHouse()
-    .findBidByTradeState(bid.tradeStateAddress, auctionHouse)
+    .findBidByTradeState({
+      tradeStateAddress: bid.tradeStateAddress,
+      auctionHouse
+    })
     .run();
   t.ok(canceledBid.canceledAt);
 
@@ -168,7 +171,9 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   // When we execute a sale with given listing and canceled bid.
   const canceledBid = await mx
     .auctionHouse()
-    .findBidByTradeState(bid.tradeStateAddress, auctionHouse)
+    .findBidByTradeState({
+      tradeStateAddress: bid.tradeStateAddress,
+      auctionHouse})
     .run();
   const promise = mx
     .auctionHouse()
