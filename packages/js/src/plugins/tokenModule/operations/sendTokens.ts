@@ -113,10 +113,24 @@ export type SendTokensBuilderParams = Omit<
   SendTokensInput,
   'confirmOptions'
 > & {
-  toTokenExists?: boolean; // Defaults to true.
+  /**
+   * Whether or not the receiving token account already exists.
+   * If `false`, we'll add another instruction to create it.
+   *
+   * @defaultValue `true`
+   */
+  toTokenExists?: boolean;
+
+  /** A key to distinguish the instruction that creates the associated token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account. */
   createAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that transfers the tokens. */
   transferTokensInstructionKey?: string;
 };
 

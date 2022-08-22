@@ -88,6 +88,7 @@ export type ThawTokensBuilderParams = Omit<
   ThawTokensInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that thaws the token account. */
   instructionKey?: string;
 };
 

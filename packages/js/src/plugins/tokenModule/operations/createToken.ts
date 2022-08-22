@@ -111,8 +111,13 @@ export type CreateTokenBuilderParams = Omit<
   CreateTokenInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the associated token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the account. */
   createAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
 };
 
@@ -225,6 +230,7 @@ export type CreateTokenIfMissingBuilderParams = Omit<
 /**
  * @group Transaction Builders
  * @category Constructors
+ * @internal
  */
 export const createTokenIfMissingBuilder = async (
   metaplex: Metaplex,

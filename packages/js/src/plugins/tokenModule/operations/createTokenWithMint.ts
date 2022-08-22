@@ -114,11 +114,22 @@ export type CreateTokenWithMintBuilderParams = Omit<
   CreateTokenWithMintInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the mint account. */
   createMintAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the associates token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints tokens to the token account. */
   mintTokensInstructionKey?: string;
 };
 

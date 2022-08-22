@@ -23,6 +23,18 @@ import { TokenProgram } from '../program';
 const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
 
 /**
+ * Approves a delegate authority for a token account.
+ *
+ * ```ts
+ * await metaplex
+ *   .tokens()
+ *   .approveDelegateAuthority({
+ *     delegateAuthority,
+ *     mintAddress,
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -92,10 +104,23 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
   ApproveTokenDelegateAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that approves the delegate authority. */
   instructionKey?: string;
 };
 
 /**
+ * Approves a delegate authority for a token account.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .tokens()
+ *   .builders()
+ *   .approveDelegateAuthority({
+ *     delegateAuthority,
+ *     mintAddress,
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

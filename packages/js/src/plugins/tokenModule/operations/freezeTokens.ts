@@ -88,6 +88,7 @@ export type FreezeTokensBuilderParams = Omit<
   FreezeTokensInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that freezes the token account. */
   instructionKey?: string;
 };
 

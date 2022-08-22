@@ -88,6 +88,7 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
   RevokeTokenDelegateAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that revokes the delegated authority. */
   instructionKey?: string;
 };
 

@@ -129,7 +129,7 @@ export type TransferSolBuilderParams = Omit<
  * Transfers some SOL from one account to another.
  *
  * ```ts
- * const transactionBuilder = await metaplex
+ * const transactionBuilder = metaplex
  *   .system()
  *   .builders()
  *   .transferSol({
