@@ -38,6 +38,8 @@
     "plugin": ["./infra/typedoc-plugin.js"],
     "out": "docs",
     "readme": "README.md",
+    "name": "API References",
+    "includeVersion": true,
     "excludeNotDocumented": false,
     "sort": ["static-first", "required-first", "source-order"],
     "categoryOrder": [
