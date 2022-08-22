@@ -75,8 +75,10 @@ export type CreateNftInput = {
   collectionAuthorityIsDelegated?: boolean; // Defaults to false.
   collectionIsSized?: boolean; // Defaults to true.
 
-  // Programs.
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL Associated Token program to override if necessary. */
   associatedTokenProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */

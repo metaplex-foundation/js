@@ -40,7 +40,7 @@ export type DeleteNftInput = {
   ownerTokenAccount?: PublicKey; // Defaults to associated token account.
   collection?: PublicKey; // Defaults to undefined. I.e. assuming no collection is assigned to the NFT.
 
-  // Programs.
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey; // Defaults to Token Program.
 
   /** A set of options to configure how the transaction is sent and confirmed. */

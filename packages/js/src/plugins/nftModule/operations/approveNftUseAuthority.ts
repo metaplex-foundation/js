@@ -49,8 +49,10 @@ export type ApproveNftUseAuthorityInput = {
   // Data.
   numberOfUses?: number; // Defaults to 1.
 
-  // Programs.
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */

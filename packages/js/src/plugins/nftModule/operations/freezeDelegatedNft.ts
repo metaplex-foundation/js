@@ -39,7 +39,11 @@ export type FreezeDelegatedNftInput = {
   delegateAuthority: Signer;
   tokenOwner?: PublicKey; // Defaults to mx.identity().
   tokenAddress?: PublicKey; // Defaults to associated account.
-  tokenProgram?: PublicKey; // Defaults to Token Program.
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 

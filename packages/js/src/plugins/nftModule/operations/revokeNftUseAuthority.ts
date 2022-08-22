@@ -41,8 +41,10 @@ export type RevokeNftUseAuthorityInput = {
   owner?: Signer; // Defaults to mx.identity().
   ownerTokenAddress?: PublicKey; // Defaults to associated token address.
 
-  // Programs.
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */

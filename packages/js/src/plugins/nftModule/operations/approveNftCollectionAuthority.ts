@@ -13,6 +13,18 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'ApproveNftCollectionAuthorityOperation' as const;
 
 /**
+ * Approves a new collection authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .approveCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -40,7 +52,7 @@ export type ApproveNftCollectionAuthorityInput = {
   updateAuthority?: Signer; // Defaults to mx.identity().
   payer?: Signer; // Defaults to mx.identity().
 
-  // Programs.
+  /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -90,6 +102,18 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
 };
 
 /**
+ * Approves a new collection authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .approveCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

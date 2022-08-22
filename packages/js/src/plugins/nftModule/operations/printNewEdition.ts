@@ -62,8 +62,14 @@ export type PrintNewEditionInput = {
   newOwner?: PublicKey; // Defaults to mx.identity().
   newTokenAccount?: Signer; // Defaults to creating an associated token account.
   payer?: Signer; // Defaults to mx.identity().
+
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
+
+  /** The address of the SPL Associated Token program to override if necessary. */
   associatedTokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
