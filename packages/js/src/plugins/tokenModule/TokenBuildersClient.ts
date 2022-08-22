@@ -46,7 +46,7 @@ export class TokenBuildersClient {
     return createTokenBuilder(this.metaplex, input);
   }
 
-  /** {@inheritDoc createTokenIfMissingBuilder} */
+  /** {@inheritDoc createTokenIfMissingBuilder} @internal */
   createTokenIfMissing(input: CreateTokenIfMissingBuilderParams) {
     return createTokenIfMissingBuilder(this.metaplex, input);
   }
