@@ -56,13 +56,49 @@ export type ApproveTokenDelegateAuthorityOperation = Operation<
  * @category Inputs
  * */
 export type ApproveTokenDelegateAuthorityInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /** The address of the new delegate authority. */
   delegateAuthority: PublicKey;
+
+  /**
+   * The maximum amount of tokens that can be manipulated
+   * by the new delegate authority.
+   *
+   * @defaultValue `token(1)`
+   */
   amount?: SplTokenAmount;
-  owner?: Signer; // Defaults to mx.identity().
-  tokenAddress?: PublicKey; // Defaults to associated account.
-  multiSigners?: KeypairSigner[]; // Defaults to [].
-  tokenProgram?: PublicKey; // Defaults to Token Program.
+
+  /**
+   * The owner of the token account as a Signer.
+   *
+   * This may be provided as a PublicKey if and only if
+   * the `multiSigners` parameter is provided.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: Signer | PublicKey;
+
+  /**
+   * The address of the token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  tokenAddress?: PublicKey;
+
+  /**
+   * The signing accounts to use if the token owner is a multisig.
+   *
+   * @defaultValue `[]`
+   */
+  multiSigners?: KeypairSigner[];
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
