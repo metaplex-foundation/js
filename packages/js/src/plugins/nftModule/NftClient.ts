@@ -63,6 +63,42 @@ import {
 } from './operations';
 
 /**
+ * This is a client for the NFT module.
+ *
+ * It enables us to interact with the Token Metadata program in order to
+ * manage NFTs and SFTs.
+ *
+ * You may access this client via the `nfts()` method of your `Metaplex` instance.
+ *
+ * ```ts
+ * const nftClient = metaplex.nfts();
+ * ```
+ *
+ * @example
+ * You can upload some custom JSON metadata and use its URI to create
+ * a new NFT like so. The owner and update authority of this NFT will,
+ * by default, be the current identity of the metaplex instance.
+ *
+ * ```ts
+ * const { uri } = await metaplex
+ *   .nfts()
+ *   .uploadMetadata({
+ *     name: "My off-chain name",
+ *     description: "My off-chain description",
+ *     image: "https://arweave.net/123",
+ *   })
+ *   .run();
+ *
+ * const { nft } = await metaplex
+ *   .nfts()
+ *   .create({
+ *     uri,
+ *     name: 'My on-chain NFT',
+ *     sellerFeeBasisPoints: 250, // 2.5%
+ *   })
+ *   .run();
+ * ```
+ *
  * @group Modules
  */
 export class NftClient {
