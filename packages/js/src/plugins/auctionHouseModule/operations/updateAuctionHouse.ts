@@ -12,7 +12,7 @@ import { TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertAuctioneerAuctionHouse, AuctionHouse } from '../AuctionHouse';
+import { assertAuctioneerAuctionHouse, AuctionHouse } from '../models/AuctionHouse';
 import { TreasuryDestinationOwnerRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
@@ -60,7 +60,7 @@ export type UpdateAuctionHouseInput = {
   auctioneerAuthority?: PublicKey;
   auctioneerScopes?: AuthorityScope[];
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -69,6 +69,7 @@ export type UpdateAuctionHouseInput = {
  * @category Outputs
  */
 export type UpdateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

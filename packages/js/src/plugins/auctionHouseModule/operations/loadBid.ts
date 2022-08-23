@@ -30,6 +30,8 @@ export type LoadBidOperation = Operation<typeof Key, LoadBidInput, Bid>;
 export type LoadBidInput = {
   lazyBid: LazyBid;
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

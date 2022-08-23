@@ -13,6 +13,15 @@ import { findMetadataPda } from '../pdas';
 const Key = 'VerifyNftCreatorOperation' as const;
 
 /**
+ * Verifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .verifyCreator({ mintAddress, creator })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,11 +43,17 @@ export type VerifyNftCreatorOperation = Operation<
  * @category Inputs
  */
 export type VerifyNftCreatorInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  creator?: Signer; // Defaults to mx.identity().
 
-  // Options.
+  /**
+   * The creator of the NFT or SFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  creator?: Signer;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -47,6 +62,7 @@ export type VerifyNftCreatorInput = {
  * @category Outputs
  */
 export type VerifyNftCreatorOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -79,10 +95,20 @@ export type VerifyNftCreatorBuilderParams = Omit<
   VerifyNftCreatorInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that verifies the creator. */
   instructionKey?: string;
 };
 
 /**
+ * Verifies the creator of an NFT or SFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .verifyCreator({ mintAddress, creator });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -21,6 +21,13 @@ import { TokenWithMint } from '../models/Token';
 const Key = 'CreateTokenWithMintOperation' as const;
 
 /**
+ * Creates both mint and token accounts in the same transaction.
+ *
+ * ```ts
+ * const { token } = await metaplex.tokens().createTokenWithMint().run();
+ * const mint = token.mint;
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -42,16 +49,78 @@ export type CreateTokenWithMintOperation = Operation<
  * @category Inputs
  */
 export type CreateTokenWithMintInput = {
-  decimals?: number; // Defaults to 0 decimals.
-  initialSupply?: SplTokenAmount; // Defaults to 0 tokens.
-  mint?: Signer; // Defaults to new generated Keypair.
-  mintAuthority?: Signer | PublicKey; // Defaults to mx.identity().
-  freezeAuthority?: Option<PublicKey>; // Defaults to mx.identity().
-  owner?: PublicKey; // Defaults to mx.identity().
-  token?: Signer; // Defaults to creating an associated token address instead.
-  payer?: Signer; // Defaults to mx.identity().
-  tokenProgram?: PublicKey; // Defaults to System Program.
-  associatedTokenProgram?: PublicKey; // Defaults to Associated Token Program.
+  /**
+   * The number of decimal points used to define token amounts.
+   *
+   * @defaultValue `0`
+   */
+  decimals?: number;
+
+  /**
+   * The initial amount of tokens to mint to the new token account.
+   *
+   * @defaultValue `0`
+   */
+  initialSupply?: SplTokenAmount;
+
+  /**
+   * The address of the new mint account as a Signer.
+   *
+   * @defaultValue `Keypair.generate()`
+   */
+  mint?: Signer;
+
+  /**
+   * The address of the authority that is allowed
+   * to mint new tokens to token accounts.
+   *
+   * It may be required as a Signer in order to
+   * mint the initial supply.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  mintAuthority?: Signer | PublicKey;
+
+  /**
+   * The address of the authority that is allowed
+   * to freeze token accounts.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  freezeAuthority?: Option<PublicKey>;
+
+  /**
+   * The address of the owner of the new token account.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  owner?: PublicKey;
+
+  /**
+   * The token account as a Signer if we want to create
+   * a new token account with a specific address instead of
+   * creating a new associated token account.
+   *
+   * @defaultValue Defaults to creating a new associated token account
+   * using the `mint` and `owner` parameters.
+   */
+  token?: Signer;
+
+  /**
+   * The Signer paying for the new mint and token accounts
+   * and for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** The address of the SPL Associated Token program to override if necessary. */
+  associatedTokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -60,8 +129,16 @@ export type CreateTokenWithMintInput = {
  * @category Outputs
  */
 export type CreateTokenWithMintOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The new mint account as a Signer. */
   mintSigner: Signer;
+
+  /**
+   * A model representing the newly created token
+   * account and its associated mint account.
+   */
   token: TokenWithMint;
 };
 
@@ -113,11 +190,22 @@ export type CreateTokenWithMintBuilderParams = Omit<
   CreateTokenWithMintInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that creates the mint account. */
   createMintAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the associates token account. */
   createAssociatedTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the token account. */
   initializeTokenInstructionKey?: string;
+
+  /** A key to distinguish the instruction that mints tokens to the token account. */
   mintTokensInstructionKey?: string;
 };
 
@@ -126,11 +214,20 @@ export type CreateTokenWithMintBuilderParams = Omit<
  * @category Contexts
  */
 export type CreateTokenWithMintBuilderContext = {
+  /** The mint account to create as a Signer. */
   mintSigner: Signer;
+
+  /** The computed address of the token account to create. */
   tokenAddress: PublicKey;
 };
 
 /**
+ * Creates both mint and token accounts in the same transaction.
+ *
+ * ```ts
+ * const transactionBuilder = await metaplex.tokens().builders().createTokenWithMint();
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

@@ -13,6 +13,15 @@ import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 const Key = 'RevokeNftCollectionAuthorityOperation' as const;
 
 /**
+ * Revokes an existing collection authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .revokeCollectionAuthority({ mintAddress, collectionAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,12 +43,21 @@ export type RevokeNftCollectionAuthorityOperation = Operation<
  * @category Inputs
  */
 export type RevokeNftCollectionAuthorityInput = {
-  // Accounts.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  collectionAuthority: PublicKey;
-  revokeAuthority?: Signer; // Can be the update authority of the delegated collection authority. Defaults to mx.identity().
 
-  // Options.
+  /** The address of the collection authority to revoke. */
+  collectionAuthority: PublicKey;
+
+  /**
+   * An authority that can revoke this collection authority.
+   *
+   * This can either be the collection's update authority or the delegated
+   * collection authority itself (i.e. revoking its own rights).
+   */
+  revokeAuthority?: Signer;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -48,6 +66,7 @@ export type RevokeNftCollectionAuthorityInput = {
  * @category Outputs
  */
 export type RevokeNftCollectionAuthorityOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -80,10 +99,20 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
   RevokeNftCollectionAuthorityInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that revokes the collection authority. */
   instructionKey?: string;
 };
 
 /**
+ * Revokes an existing collection authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .revokeCollectionAuthority({ mintAddress, collectionAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

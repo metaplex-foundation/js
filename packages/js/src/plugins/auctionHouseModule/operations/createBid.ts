@@ -31,7 +31,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMetadataPda } from '../../nftModule';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse, Bid, LazyBid } from '../models';
 import {
   findAuctioneerPda,
   findAuctionHouseBuyerEscrowPda,
@@ -39,7 +39,6 @@ import {
   findBidReceiptPda,
 } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { Bid, LazyBid } from '../models/Bid';
 
 // -----------------
 // Operation
@@ -80,7 +79,7 @@ export type CreateBidInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -89,6 +88,7 @@ export type CreateBidInput = {
  * @category Outputs
  */
 export type CreateBidOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   buyerTradeState: Pda;
   tokenAccount: Option<PublicKey>;
@@ -121,7 +121,7 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     if (output.receipt) {
       const bid = await metaplex
         .auctionHouse()
-        .findBidByReceipt({ 
+        .findBidByReceipt({
           auctionHouse: operation.input.auctionHouse,
           receiptAddress: output.receipt
         })

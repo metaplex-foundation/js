@@ -13,7 +13,7 @@ import {
 } from '@/types';
 import { BidReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse } from './AuctionHouse';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 export type Bid = Readonly<

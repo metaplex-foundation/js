@@ -26,7 +26,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { ExpectedSignerError } from '@/errors';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse } from '../models/AuctionHouse';
 
 // -----------------
 // Operation
@@ -70,7 +70,7 @@ export type CreateAuctionHouseInput = {
   treasuryWithdrawalDestinationOwner?: PublicKey;
   auctioneerAuthority?: PublicKey;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -79,6 +79,7 @@ export type CreateAuctionHouseInput = {
  * @category Outputs
  */
 export type CreateAuctionHouseOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   auctionHouseAddress: Pda;
   auctionHouseFeeAccountAddress: Pda;

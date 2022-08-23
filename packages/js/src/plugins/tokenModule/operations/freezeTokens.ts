@@ -21,6 +21,12 @@ import { TokenProgram } from '../program';
 const Key = 'FreezeTokensOperation' as const;
 
 /**
+ * Freezes a token account.
+ *
+ * ```ts
+ * await metaplex.tokens().freeze({ mintAddress, freezeAuthority }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -41,12 +47,43 @@ export type FreezeTokensOperation = Operation<
  * @category Inputs
  */
 export type FreezeTokensInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /**
+   * The freeze authority as a Signer.
+   *
+   * This may be provided as a PublicKey if and only if
+   * the `multiSigners` parameter is provided.
+   */
   freezeAuthority: PublicKey | Signer;
-  tokenOwner?: PublicKey; // Defaults to mx.identity().
-  tokenAddress?: PublicKey; // Defaults to associated account.
-  multiSigners?: KeypairSigner[]; // Defaults to [].
-  tokenProgram?: PublicKey; // Defaults to Token Program.
+
+  /**
+   * The owner of the token account.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  tokenOwner?: PublicKey;
+
+  /**
+   * The address of the token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `tokenOwner` parameters.
+   */
+  tokenAddress?: PublicKey;
+
+  /**
+   * The signing accounts to use if the freeze authority is a multisig.
+   *
+   * @defaultValue `[]`
+   */
+  multiSigners?: KeypairSigner[];
+
+  /** The address of the SPL Token program to override if necessary. */
+  tokenProgram?: PublicKey;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -55,6 +92,7 @@ export type FreezeTokensInput = {
  * @category Outputs
  */
 export type FreezeTokensOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -87,10 +125,17 @@ export type FreezeTokensBuilderParams = Omit<
   FreezeTokensInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that freezes the token account. */
   instructionKey?: string;
 };
 
 /**
+ * Freezes a token account.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex.tokens().builders().freeze({ mintAddress, freezeAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

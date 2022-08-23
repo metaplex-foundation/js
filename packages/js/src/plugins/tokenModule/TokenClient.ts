@@ -47,7 +47,7 @@ import { TokenBuildersClient } from './TokenBuildersClient';
  * of the metaplex instance.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint();
+ * const { token } = await metaplex.tokens().createTokenWithMint().run();
  * ```
  *
  * @group Modules
@@ -58,6 +58,10 @@ export class TokenClient {
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.tokens().builders();
+   * ```
    */
   builders() {
     return new TokenBuildersClient(this.metaplex);

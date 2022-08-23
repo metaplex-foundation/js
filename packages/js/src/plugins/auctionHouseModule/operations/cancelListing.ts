@@ -16,8 +16,7 @@ import {
   Pda,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse } from '../AuctionHouse';
-import { Listing } from '../models/Listing';
+import { AuctionHouse, Listing } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_PRICE } from '../constants';
@@ -53,7 +52,7 @@ export type CancelListingInput = {
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
   listing: Listing;
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -62,6 +61,7 @@ export type CancelListingInput = {
  * @category Outputs
  */
 export type CancelListingOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 

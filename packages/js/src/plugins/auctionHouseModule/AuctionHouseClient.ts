@@ -1,9 +1,8 @@
 import type { Metaplex } from '@/Metaplex';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { AuctionHouse } from './AuctionHouse';
+import { AuctionHouse, Bid, Listing, Purchase } from './models';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
-import { Bid, LazyBid } from './models/Bid';
 import {
   CreateAuctionHouseInput,
   createAuctionHouseOperation,
@@ -56,10 +55,13 @@ import {
   findListingByTradeStateOperation,
 } from './operations/findListingByTradeState';
 import {
-  FindPurchaseByAddressInput,
-  findPurchaseByAddressOperation,
-} from './operations/findPurchaseByAddress';
-import { LoadBidInput, loadBidOperation } from './operations/loadBid';
+  FindPurchaseByTradeStateInput,
+  findPurchaseByTradeStateOperation,
+} from './operations/findPurchaseByTradeState';
+import {
+  FindPurchaseByReceiptInput,
+  findPurchaseByReceiptOperation,
+} from './operations/findPurchaseByReceipt';
 import {
   LoadPurchaseInput,
   loadPurchaseOperation,
@@ -68,13 +70,12 @@ import {
   LoadListingInput,
   loadListingOperation,
 } from './operations/loadListing';
-import { LazyPurchase, Purchase } from './models/Purchase';
-import { LazyListing, Listing } from './models/Listing';
 import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './operations/updateAuctionHouse';
+import { LoadBidInput, loadBidOperation } from './operations/loadBid';
 
 /**
  * @group Modules
@@ -82,6 +83,14 @@ import {
 export class AuctionHouseClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  /**
+   * You may use the `builders()` client to access the
+   * underlying Transaction Builders of this module.
+   *
+   * ```ts
+   * const buildersClient = metaplex.auctions().builders();
+   * ```
+   */
   builders() {
     return new AuctionHouseBuildersClient(this.metaplex);
   }
@@ -125,18 +134,10 @@ export class AuctionHouseClient {
       treasuryMint: PublicKey}
   ): Task<AuctionHouse>{
     return this.findAuctionHouseByAddress({
-      ...options, 
+      ...options,
       address: findAuctionHousePda(options.creator, options.treasuryMint),
       })
     };
-
-  findPurchaseByAddress(
-    options: FindPurchaseByAddressInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findPurchaseByAddressOperation(options)
-    );
-  }
 
   findBidByReceipt(
     options: FindBidByReceiptInput
@@ -170,54 +171,64 @@ export class AuctionHouseClient {
     );
   }
 
+  findPurchaseByTradeState(
+    options: FindPurchaseByTradeStateInput
+  ) {
+    return this.metaplex.operations().getTask(
+      findPurchaseByTradeStateOperation(options)
+    );
+  }
+
+  findPurchaseByReceipt(
+     options: FindPurchaseByReceiptInput,
+  ) {
+    return this.metaplex.operations().getTask(
+      findPurchaseByReceiptOperation(options)
+    );
+  }
+
   list(
     input: CreateListingInput
   ): Task<CreateListingOutput & { listing: Listing }> {
     return this.metaplex.operations().getTask(createListingOperation(input));
   }
 
-  loadBid(
-    lazyBid: LazyBid,
-    options: Omit<LoadBidInput, 'lazyBid'> = {}
-  ): Task<Bid> {
+  loadBid(options: LoadBidInput): Task<Bid> {
     return this.metaplex
       .operations()
-      .getTask(loadBidOperation({ lazyBid, ...options }));
+      .getTask(loadBidOperation(options));
   }
 
   loadListing(
-    lazyListing: LazyListing,
-    options: Omit<LoadListingInput, 'lazyListing'> = {}
+    options: LoadListingInput
   ): Task<Listing> {
     return this.metaplex
       .operations()
-      .getTask(loadListingOperation({ lazyListing, ...options }));
+      .getTask(loadListingOperation(options));
   }
 
   loadPurchase(
-    lazyPurchase: LazyPurchase,
-    options: Omit<LoadPurchaseInput, 'lazyPurchase'> = {}
+    options: LoadPurchaseInput
   ): Task<Purchase> {
     return this.metaplex
       .operations()
-      .getTask(loadPurchaseOperation({ lazyPurchase, ...options }));
+      .getTask(loadPurchaseOperation(options));
   }
 
   updateAuctionHouse(
-    auctionHouse: AuctionHouse,
-    input: Omit<UpdateAuctionHouseInput, 'auctionHouse'>
+    input: UpdateAuctionHouseInput
   ): Task<UpdateAuctionHouseOutput & { auctionHouse: AuctionHouse }> {
     return new Task(async (scope) => {
       const output = await this.metaplex
         .operations()
-        .getTask(updateAuctionHouseOperation({ auctionHouse, ...input }))
+        .getTask(updateAuctionHouseOperation(input))
         .run(scope);
       scope.throwIfCanceled();
-      const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
-        ? auctionHouse.auctioneer.authority
+      const currentAuctioneerAuthority = input.auctionHouse.hasAuctioneer
+        ? input.auctionHouse.auctioneer.authority
         : undefined;
       const updatedAuctionHouse = await this.findAuctionHouseByAddress({
-        address: auctionHouse.address,
+        address: input.auctionHouse.address,
         auctioneerAuthority: input.auctioneerAuthority ?? currentAuctioneerAuthority
     }).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };

@@ -37,8 +37,12 @@ import {
 } from './operations';
 
 /**
+ * This client allows you to access the underlying Transaction Builders
+ * for the write operations of the NFT module.
+ *
+ * @see {@link NftClient}
  * @group Module Builders
- */
+ * */
 export class NftBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

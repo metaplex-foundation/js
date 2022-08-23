@@ -32,12 +32,11 @@ import {
   findAuctionHouseTradeStatePda,
   findListingReceiptPda,
 } from '../pdas';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse, LazyListing, Listing } from '../models';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMetadataPda } from '../../nftModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { LazyListing, Listing } from '../models';
 
 // -----------------
 // Operation
@@ -77,7 +76,7 @@ export type CreateListingInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -86,6 +85,7 @@ export type CreateListingInput = {
  * @category Outputs
  */
 export type CreateListingOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: Pda;
   freeSellerTradeState: Pda;

@@ -34,6 +34,8 @@ export type LoadPurchaseOperation = Operation<
 export type LoadPurchaseInput = {
   lazyPurchase: LazyPurchase;
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

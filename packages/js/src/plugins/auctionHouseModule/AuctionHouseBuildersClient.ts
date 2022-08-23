@@ -21,8 +21,12 @@ import {
 } from './operations/updateAuctionHouse';
 
 /**
+ * This client allows you to access the underlying Transaction Builders
+ * for the write operations of the Auction House module.
+ *
+ * @see {@link AuctionsClient}
  * @group Module Builders
- */
+ * */
 export class AuctionHouseBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 

@@ -1,32 +1,31 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { toPurchaseReceiptAccount } from '../accounts';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse } from './models/AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { Purchase, toLazyPurchase } from '../models/Purchase';
-import { findPurchaseReceiptPda } from '../pdas';
+import { Purchase } from './Purchase';
+import { findPurchaseReceiptPda } from './pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindPurchaseByAddressOperation' as const;
+const Key = 'FindPurchaseByTradeStateOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const findPurchaseByAddressOperation =
-  useOperation<FindPurchaseByAddressOperation>(Key);
+export const findPurchaseByTradeStateOperation =
+  useOperation<FindPurchaseByTradeStateOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindPurchaseByAddressOperation = Operation<
+export type FindPurchaseByTradeStateOperation = Operation<
   typeof Key,
-  FindPurchaseByAddressInput,
+  FindPurchaseByTradeStateInput,
   Purchase
 >;
 
@@ -34,7 +33,7 @@ export type FindPurchaseByAddressOperation = Operation<
  * @group Operations
  * @category Inputs
  */
-export type FindPurchaseByAddressInput = {
+export type FindPurchaseByTradeStateInput = {
   sellerTradeState: PublicKey;
   buyerTradeState: PublicKey;
   auctionHouse: AuctionHouse;
@@ -46,10 +45,10 @@ export type FindPurchaseByAddressInput = {
  * @group Operations
  * @category Handlers
  */
-export const findPurchaseByAddressOperationHandler: OperationHandler<FindPurchaseByAddressOperation> =
+export const findPurchaseByTradeStateOperationHandler: OperationHandler<FindPurchaseByTradeStateOperation> =
   {
     handle: async (
-      operation: FindPurchaseByAddressOperation,
+      operation: FindPurchaseByTradeStateOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
@@ -65,15 +64,11 @@ export const findPurchaseByAddressOperationHandler: OperationHandler<FindPurchas
         sellerTradeState,
         buyerTradeState
       );
-      const account = toPurchaseReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
-      );
-      scope.throwIfCanceled();
 
-      const lazyPurchase = toLazyPurchase(account, auctionHouse);
       return metaplex
-        .auctionHouse()
-        .loadPurchase(lazyPurchase, { loadJsonMetadata, commitment })
+        .auctions()
+        .for(auctionHouse)
+        .findPurchaseByReceipt(receiptAddress, { loadJsonMetadata, commitment })
         .run(scope);
     },
   };

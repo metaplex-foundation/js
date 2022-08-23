@@ -14,6 +14,7 @@ import { createAuctionHouse } from './helpers';
 import {
   AccountNotFoundError,
   findAssociatedTokenAccountPda,
+  Pda,
   Purchase,
 } from '@/index';
 import { Keypair } from '@solana/web3.js';
@@ -82,9 +83,8 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   // And we get the same result when we fetch the Purchase by address.
   const retrievePurchase = await mx
     .auctionHouse()
-    .findPurchaseByAddress({
-      sellerTradeState: listing.tradeStateAddress,
-      buyerTradeState: bid.tradeStateAddress,
+    .findPurchaseByReceipt({
+      receiptAddress: purchase.receiptAddress as Pda,
       auctionHouse
     })
     .run();
@@ -183,10 +183,10 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   try {
     await mx
       .auctionHouse()
-      .findPurchaseByAddress({
+      .findPurchaseByTradeState({
+        auctionHouse,
         sellerTradeState: listing.tradeStateAddress,
         buyerTradeState: bid.tradeStateAddress,
-        auctionHouse
       })
       .run();
     t.fail('expected to throw AccountNotFoundError');

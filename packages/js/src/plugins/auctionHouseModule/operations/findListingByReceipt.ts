@@ -2,8 +2,7 @@ import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { toListingReceiptAccount } from '../accounts';
-import { AuctionHouse } from '../AuctionHouse';
-import { Listing, toLazyListing } from '../models/Listing';
+import { AuctionHouse, Listing, toLazyListing } from '../models';
 import { DisposableScope } from '@/utils';
 
 // -----------------
@@ -37,6 +36,8 @@ export type FindListingByReceiptInput = {
   receiptAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

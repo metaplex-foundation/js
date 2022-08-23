@@ -34,6 +34,8 @@ export type LoadListingOperation = Operation<
 export type LoadListingInput = {
   lazyListing: LazyListing;
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

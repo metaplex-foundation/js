@@ -5,6 +5,8 @@ import { chunk } from './common';
 
 export type GmaBuilderOptions = {
   chunkSize?: number;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

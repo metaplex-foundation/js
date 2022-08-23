@@ -14,6 +14,23 @@ import { TokenWithMint, toTokenWithMint } from '../models/Token';
 const Key = 'FindTokenWithMintByMintOperation' as const;
 
 /**
+ * Finds a token account and its associated mint account
+ * by providing the mint address and either:
+ * - the token address or
+ * - the address of the token's owner.
+ *
+ * ```ts
+ * const tokenWithMint = await metaplex
+ *   .tokens()
+ *   .findTokenWithMintByMint({ mint, address: tokenAddress, type: "token" })
+ *   .run();
+ *
+ * const tokenWithMint = await metaplex
+ *   .tokens()
+ *   .findTokenWithMintByMint({ mint, address: ownerAddress, type: "owner" })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -35,9 +52,22 @@ export type FindTokenWithMintByMintOperation = Operation<
  * @category Inputs
  */
 export type FindTokenWithMintByMintInput = {
+  /** The address of the mint account. */
   mint: PublicKey;
+
+  /**
+   * The address of the token account or its owner,
+   * distinguished by the `addressType`` parameter.
+   */
   address: PublicKey;
+
+  /**
+   * Determines whether the `address` parameter is the token address
+   * or the address of its owner.
+   */
   addressType: 'owner' | 'token';
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

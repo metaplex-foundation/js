@@ -12,6 +12,15 @@ import { NftWithToken, SftWithToken } from '../models';
 const Key = 'FindNftByTokenOperation' as const;
 
 /**
+ * Finds an NFT or an SFT by its token address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .nfts()
+ *   .findByToken({ token })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,8 +42,17 @@ export type FindNftByTokenOperation = Operation<
  * @category Inputs
  */
 export type FindNftByTokenInput = {
+  /** The address of the token account. */
   token: PublicKey;
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
   loadJsonMetadata?: boolean;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

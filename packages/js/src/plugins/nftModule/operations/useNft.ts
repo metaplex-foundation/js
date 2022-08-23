@@ -26,6 +26,13 @@ import {
 const Key = 'UseNftOperation' as const;
 
 /**
+ * Utilizes a usable NFT.
+ *
+ * ```ts
+ * await metaplex.nfts().use({ mintAddress }).run();
+ * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -42,14 +49,43 @@ export type UseNftOperation = Operation<typeof Key, UseNftInput, UseNftOutput>;
  * @category Inputs
  */
 export type UseNftInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  numberOfUses?: number; // Defaults to 1.
-  owner?: PublicKey | Signer; // Defaults to mx.identity().
-  ownerTokenAccount?: PublicKey; // Defaults to associated token account.
-  useAuthority?: Signer; // Defaults to not being used.
 
-  // Options.
+  /**
+   * The number of uses to utilize.
+   *
+   * @defaultValue `1`
+   */
+  numberOfUses?: number; // Defaults to 1.
+
+  /**
+   * The owner of the NFT or SFT.
+   *
+   * This must be a Signer unless a `useAuthority` is provided.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: PublicKey | Signer;
+
+  /**
+   * The address of the token account linking the mint account
+   * with the owner account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAccount?: PublicKey;
+
+  /**
+   * The delegated use authority that should authorize this operation.
+   *
+   * @defaultValue Defaults to not using a delegated use authority
+   * and using the `owner` parameter as a Signer instead.
+   */
+  useAuthority?: Signer;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -58,6 +94,7 @@ export type UseNftInput = {
  * @category Outputs
  */
 export type UseNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -86,10 +123,20 @@ export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
  * @category Inputs
  */
 export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that uses the NFT. */
   instructionKey?: string;
 };
 
 /**
+ * Utilizes a usable NFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .use({ mintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

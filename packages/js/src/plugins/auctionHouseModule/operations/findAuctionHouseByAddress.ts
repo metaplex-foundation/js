@@ -1,11 +1,11 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
-import { AuctionHouse, toAuctionHouse } from '../AuctionHouse';
 import { DisposableScope } from '@/utils';
+import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
 import { findAuctioneerPda } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
 
 // -----------------
 // Operation
@@ -37,6 +37,8 @@ export type FindAuctionHouseByAddressOperation = Operation<
 export type FindAuctionHouseByAddressInput = {
   address: PublicKey;
   auctioneerAuthority?: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 

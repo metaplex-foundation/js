@@ -14,6 +14,15 @@ import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 const Key = 'DeleteNftOperation' as const;
 
 /**
+ * Deletes an existing NFT.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .delete({ mintAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -34,16 +43,39 @@ export type DeleteNftOperation = Operation<
  * @category Inputs
  */
 export type DeleteNftInput = {
-  // Accounts and models.
+  /** The address of the mint account. */
   mintAddress: PublicKey;
-  owner?: Signer; // Defaults to mx.identity().
-  ownerTokenAccount?: PublicKey; // Defaults to associated token account.
-  collection?: PublicKey; // Defaults to undefined. I.e. assuming no collection is assigned to the NFT.
 
-  // Programs.
+  /**
+   * The owner of the NFT as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  owner?: Signer;
+
+  /**
+   * The explicit token account linking the provided mint and owner
+   * accounts, if that account is not their associated token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `owner` parameters.
+   */
+  ownerTokenAccount?: PublicKey;
+
+  /**
+   * The address of the Sized Collection NFT associated with the
+   * NFT to delete, if any. This is required as the collection NFT
+   * will need to decrement its size.
+   *
+   * @defaultValue Defaults to assuming the NFT is not associated with a
+   * Size Collection NFT.
+   */
+  collection?: PublicKey;
+
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey; // Defaults to Token Program.
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -52,6 +84,7 @@ export type DeleteNftInput = {
  * @category Outputs
  */
 export type DeleteNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -80,10 +113,20 @@ export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
  * @category Inputs
  */
 export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that burns the NFT. */
   instructionKey?: string;
 };
 
 /**
+ * Deletes an existing NFT.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .delete({ mintAddress });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

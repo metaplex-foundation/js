@@ -25,7 +25,7 @@ import {
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse } from '../AuctionHouse';
+import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
 import {
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseProgramAsSignerPda,
@@ -33,8 +33,6 @@ import {
   findPurchaseReceiptPda,
   findAuctioneerPda,
 } from '../pdas';
-import { Bid } from '../models/Bid';
-import { Listing } from '../models/Listing';
 import {
   AuctioneerAuthorityRequiredError,
   BidAndListingHaveDifferentAuctionHousesError,
@@ -42,7 +40,6 @@ import {
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
 } from '../errors';
-import { LazyPurchase, Purchase } from '../models/Purchase';
 
 // -----------------
 // Operation
@@ -78,7 +75,7 @@ export type ExecuteSaleInput = {
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
-  // Options.
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -87,6 +84,7 @@ export type ExecuteSaleInput = {
  * @category Outputs
  */
 export type ExecuteSaleOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
   sellerTradeState: PublicKey;
   buyerTradeState: PublicKey;

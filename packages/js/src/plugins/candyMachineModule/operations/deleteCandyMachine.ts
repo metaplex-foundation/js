@@ -4,7 +4,7 @@ import { TransactionBuilder } from '@/utils';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachine, CandyMachineConfigs } from '../models/CandyMachine';
+import { CandyMachine } from '../models/CandyMachine';
 import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
@@ -14,6 +14,12 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'DeleteCandyMachineOperation' as const;
 
 /**
+ * Deletes an existing Candy Machine.
+ *
+ * ```ts
+ * await metaplex.candyMachines().delete({ candyMachine }).run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -30,27 +36,39 @@ export type DeleteCandyMachineOperation = Operation<
   DeleteCandyMachineOutput
 >;
 
-export type DeleteCandyMachineInputWithoutConfigs = {
-  // Models and accounts.
-  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
-  authority?: Signer; // Defaults to mx.identity().
-
-  // Transaction Options.
-  confirmOptions?: ConfirmOptions;
-};
-
 /**
  * @group Operations
  * @category Inputs
  */
-export type DeleteCandyMachineInput = DeleteCandyMachineInputWithoutConfigs &
-  Partial<CandyMachineConfigs>;
+export type DeleteCandyMachineInput = {
+  /**
+   * The Candy Machine to delete.
+   * We need the address of the Candy Machine as well as the address
+   * of the potential collection since we will need to delete the PDA account
+   * that links the Candy Machine to the collection.
+   *
+   * If the Candy Machine does not have a collection, simply set
+   * `collectionMintAddress` to `null`.
+   */
+  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
+
+  /**
+   * The Signer authorized to update the candy machine.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
+  confirmOptions?: ConfirmOptions;
+};
 
 /**
  * @group Operations
  * @category Outputs
  */
 export type DeleteCandyMachineOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -83,10 +101,22 @@ export type DeleteCandyMachineBuilderParams = Omit<
   DeleteCandyMachineInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that deletes the Candy Machine. */
   instructionKey?: string;
 };
 
 /**
+ * Deletes an existing Candy Machine.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .candyMachines()
+ *   .builders()
+ *   .delete({
+ *     candyMachine: { address, collectionMintAddress },
+ *   });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

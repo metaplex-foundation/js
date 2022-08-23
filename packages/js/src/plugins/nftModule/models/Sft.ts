@@ -8,8 +8,14 @@ import type { Metadata } from './Metadata';
 export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
   Readonly<{
     model: 'sft';
+
+    /** The mint address of the SFT. */
     address: PublicKey;
+
+    /** The metadata address of the SFT. */
     metadataAddress: Pda;
+
+    /** The mint account of the SFT. */
     mint: Mint;
   }>;
 

@@ -14,6 +14,15 @@ import { findMasterEditionV2Pda } from '../pdas';
 const Key = 'ThawDelegatedNftOperation' as const;
 
 /**
+ * Thaws a NFT via its delegate authority.
+ *
+ * ```ts
+ * await metaplex
+ *   .nfts()
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -35,11 +44,36 @@ export type ThawDelegatedNftOperation = Operation<
  * @category Inputs
  */
 export type ThawDelegatedNftInput = {
+  /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /**
+   * The SPL Token delegate authority.
+   *
+   * This authority should have been approved using
+   * `metaplex.tokens().approveDelegateAuthority()` beforehand.
+   */
   delegateAuthority: Signer;
-  tokenOwner?: PublicKey; // Defaults to mx.identity().
-  tokenAddress?: PublicKey; // Defaults to associated account.
+
+  /**
+   * The owner of the token account.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  tokenOwner?: PublicKey;
+
+  /**
+   * The address of the token account.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `tokenOwner` parameters.
+   */
+  tokenAddress?: PublicKey;
+
+  /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey; // Defaults to Token Program.
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
 
@@ -48,6 +82,7 @@ export type ThawDelegatedNftInput = {
  * @category Outputs
  */
 export type ThawDelegatedNftOutput = {
+  /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
 
@@ -80,10 +115,20 @@ export type ThawDelegatedNftBuilderParams = Omit<
   ThawDelegatedNftInput,
   'confirmOptions'
 > & {
+  /** A key to distinguish the instruction that thaws the NFT. */
   instructionKey?: string;
 };
 
 /**
+ * Thaws a NFT via its delegate authority.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .nfts()
+ *   .builders()
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

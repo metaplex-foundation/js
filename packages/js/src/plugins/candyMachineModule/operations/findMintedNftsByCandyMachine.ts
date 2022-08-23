@@ -12,6 +12,15 @@ import { findCandyMachineCreatorPda } from '../pdas';
 const Key = 'FindMintedNftsByCandyMachineOperation' as const;
 
 /**
+ * Find all minted NFTs from a given Candy Machine address.
+ *
+ * ```ts
+ * const nfts = await metaplex
+ *   .candyMachines()
+ *   .findMintedNfts({ candyMachine })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,8 +42,17 @@ export type FindMintedNftsByCandyMachineOperation = Operation<
  * @category Inputs
  */
 export type FindMintedNftsByCandyMachineInput = {
+  /** The Candy Machine address. */
   candyMachine: PublicKey;
+
+  /**
+   * The Candy Machine version
+   *
+   * @defaultValue `2`
+   */
   version?: 1 | 2;
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 
