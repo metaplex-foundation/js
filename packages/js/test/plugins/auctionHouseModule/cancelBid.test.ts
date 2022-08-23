@@ -40,7 +40,7 @@ test('[auctionHouseModule] cancel a Private Bid on an Auction House', async (t: 
     .auctionHouse()
     .findBidByTradeState({
       tradeStateAddress: bid.tradeStateAddress,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   t.ok(canceledBid.canceledAt);
@@ -173,7 +173,8 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
     .auctionHouse()
     .findBidByTradeState({
       tradeStateAddress: bid.tradeStateAddress,
-      auctionHouse})
+      auctionHouse,
+    })
     .run();
   const promise = mx
     .auctionHouse()

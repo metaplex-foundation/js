@@ -52,12 +52,7 @@ export const findListingByReceiptOperationHandler: OperationHandler<FindListingB
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { receiptAddress, auctionHouse, commitment } = operation.input;
 
       const account = toListingReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
@@ -67,7 +62,7 @@ export const findListingByReceiptOperationHandler: OperationHandler<FindListingB
       const lazyListing = toLazyListing(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadListing(lazyListing, { loadJsonMetadata, commitment })
+        .loadListing({ lazyListing, ...operation.input })
         .run(scope);
     },
   };

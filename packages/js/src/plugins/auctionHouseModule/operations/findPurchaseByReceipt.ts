@@ -52,11 +52,7 @@ export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchas
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-      } = operation.input;
+      const { receiptAddress, auctionHouse, commitment } = operation.input;
 
       const account = toPurchaseReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)

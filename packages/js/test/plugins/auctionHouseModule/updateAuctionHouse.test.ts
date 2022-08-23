@@ -70,7 +70,8 @@ test('[auctionHouseModule] it updates all fields of an Auction House', async (t:
   const newTreasuryOwner = Keypair.generate().publicKey;
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(originalAuctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse: originalAuctionHouse,
       sellerFeeBasisPoints: 300,
       requiresSignOff: true,
       canChangeSalePrice: true,
@@ -115,7 +116,7 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
     .run();
 
   // When we send an update without providing any changes.
-  const promise = mx.auctionHouse().updateAuctionHouse(auctionHouse, {}).run();
+  const promise = mx.auctionHouse().updateAuctionHouse({ auctionHouse }).run();
 
   // Then we expect an error.
   await assertThrows(t, promise, /No Instructions To Send/);
@@ -131,7 +132,8 @@ test('[auctionHouseModule] it can assign an Auctioneer authority on an Auction H
   const auctioneerAuthority = Keypair.generate();
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
@@ -162,7 +164,8 @@ test('[auctionHouseModule] it can assign an Auctioneer authority with an explici
   const auctioneerAuthority = Keypair.generate();
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       authority,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy].sort(),
@@ -196,7 +199,8 @@ test('[auctionHouseModule] it keeps the original scope when updating the Auction
   const newAuctioneerAuthority = Keypair.generate();
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: newAuctioneerAuthority.publicKey,
     })
     .run();
@@ -227,7 +231,8 @@ test('[auctionHouseModule] it can update Auctioneer Scope', async (t) => {
   // When update its Auctioneer scopes.
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Buy],
     })
@@ -260,7 +265,8 @@ test('[auctionHouseModule] it can update both the Auctioneer authority and scope
   const newAuctioneerAuthority = Keypair.generate();
   const { auctionHouse: updatedAuctionHouse } = await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: newAuctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Buy],
     })
@@ -292,7 +298,8 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
   // When we send an update without providing any changes.
   const promise = mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell],
     })

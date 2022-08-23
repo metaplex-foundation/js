@@ -124,67 +124,57 @@ export class AuctionHouseClient {
   findAuctionHouseByAddress(
     options: FindAuctionHouseByAddressInput
   ): Task<AuctionHouse> {
-    return this.metaplex.operations().getTask(
-      findAuctionHouseByAddressOperation(options)
-    );
+    return this.metaplex
+      .operations()
+      .getTask(findAuctionHouseByAddressOperation(options));
   }
 
   findAuctionHouseByCreatorAndMint(
-    options: FindAuctionHouseByAddressInput & { creator: PublicKey,
-      treasuryMint: PublicKey}
-  ): Task<AuctionHouse>{
+    options: FindAuctionHouseByAddressInput & {
+      creator: PublicKey;
+      treasuryMint: PublicKey;
+    }
+  ): Task<AuctionHouse> {
     return this.findAuctionHouseByAddress({
       ...options,
       address: findAuctionHousePda(options.creator, options.treasuryMint),
-      })
-    };
-
-  findBidByReceipt(
-    options: FindBidByReceiptInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findBidByReceiptOperation(options)
-    );
+    });
   }
 
-  findBidByTradeState(
-    options: FindBidByTradeStateInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findBidByTradeStateOperation(options)
-    );
+  findBidByReceipt(options: FindBidByReceiptInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findBidByReceiptOperation(options));
   }
 
-  findListingByTradeState(
-    options: FindListingByTradeStateInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findListingByTradeStateOperation(options)
-    );
+  findBidByTradeState(options: FindBidByTradeStateInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findBidByTradeStateOperation(options));
   }
 
-  findListingByReceipt(
-    options: FindListingByReceiptInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findListingByReceiptOperation(options)
-    );
+  findListingByTradeState(options: FindListingByTradeStateInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findListingByTradeStateOperation(options));
   }
 
-  findPurchaseByTradeState(
-    options: FindPurchaseByTradeStateInput
-  ) {
-    return this.metaplex.operations().getTask(
-      findPurchaseByTradeStateOperation(options)
-    );
+  findListingByReceipt(options: FindListingByReceiptInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findListingByReceiptOperation(options));
   }
 
-  findPurchaseByReceipt(
-     options: FindPurchaseByReceiptInput,
-  ) {
-    return this.metaplex.operations().getTask(
-      findPurchaseByReceiptOperation(options)
-    );
+  findPurchaseByTradeState(options: FindPurchaseByTradeStateInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findPurchaseByTradeStateOperation(options));
+  }
+
+  findPurchaseByReceipt(options: FindPurchaseByReceiptInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findPurchaseByReceiptOperation(options));
   }
 
   list(
@@ -194,25 +184,15 @@ export class AuctionHouseClient {
   }
 
   loadBid(options: LoadBidInput): Task<Bid> {
-    return this.metaplex
-      .operations()
-      .getTask(loadBidOperation(options));
+    return this.metaplex.operations().getTask(loadBidOperation(options));
   }
 
-  loadListing(
-    options: LoadListingInput
-  ): Task<Listing> {
-    return this.metaplex
-      .operations()
-      .getTask(loadListingOperation(options));
+  loadListing(options: LoadListingInput): Task<Listing> {
+    return this.metaplex.operations().getTask(loadListingOperation(options));
   }
 
-  loadPurchase(
-    options: LoadPurchaseInput
-  ): Task<Purchase> {
-    return this.metaplex
-      .operations()
-      .getTask(loadPurchaseOperation(options));
+  loadPurchase(options: LoadPurchaseInput): Task<Purchase> {
+    return this.metaplex.operations().getTask(loadPurchaseOperation(options));
   }
 
   updateAuctionHouse(
@@ -229,8 +209,9 @@ export class AuctionHouseClient {
         : undefined;
       const updatedAuctionHouse = await this.findAuctionHouseByAddress({
         address: input.auctionHouse.address,
-        auctioneerAuthority: input.auctioneerAuthority ?? currentAuctioneerAuthority
-    }).run(scope);
+        auctioneerAuthority:
+          input.auctioneerAuthority ?? currentAuctioneerAuthority,
+      }).run(scope);
       return { ...output, auctionHouse: updatedAuctionHouse };
     });
   }

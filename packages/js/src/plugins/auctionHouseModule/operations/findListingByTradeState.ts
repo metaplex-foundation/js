@@ -52,9 +52,7 @@ export const findListingByTradeStateOperationHandler: OperationHandler<FindListi
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        tradeStateAddress,
-      } = operation.input;
+      const { tradeStateAddress } = operation.input;
 
       const receiptAddress = findListingReceiptPda(tradeStateAddress);
 

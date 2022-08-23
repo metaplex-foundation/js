@@ -12,7 +12,10 @@ import { TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertAuctioneerAuctionHouse, AuctionHouse } from '../models/AuctionHouse';
+import {
+  assertAuctioneerAuctionHouse,
+  AuctionHouse,
+} from '../models/AuctionHouse';
 import { TreasuryDestinationOwnerRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';

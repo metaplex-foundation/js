@@ -52,9 +52,7 @@ export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTrad
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        tradeStateAddress,
-      } = operation.input;
+      const { tradeStateAddress } = operation.input;
 
       const receiptAddress = findBidReceiptPda(tradeStateAddress);
 

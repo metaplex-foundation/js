@@ -52,12 +52,7 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { receiptAddress, auctionHouse, commitment } = operation.input;
 
       const account = toBidReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
@@ -67,7 +62,7 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
       const lazyBid = toLazyBid(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
+        .loadBid({ lazyBid, ...operation.input })
         .run(scope);
     },
   };

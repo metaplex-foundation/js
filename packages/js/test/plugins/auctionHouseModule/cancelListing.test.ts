@@ -40,7 +40,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
     .auctionHouse()
     .findListingByTradeState({
       tradeStateAddress: listing.tradeStateAddress,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   t.false(canceledListing.asset.token.delegateAddress);
@@ -116,8 +116,8 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   const canceledListing = await mx
     .auctionHouse()
     .findListingByTradeState({
-      tradeStateAddress:listing.tradeStateAddress,
-      auctionHouse
+      tradeStateAddress: listing.tradeStateAddress,
+      auctionHouse,
     })
     .run();
   const promise = mx

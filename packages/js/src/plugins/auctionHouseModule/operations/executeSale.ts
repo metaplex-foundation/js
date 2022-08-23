@@ -109,24 +109,24 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<ExecuteSaleOutput> {
+      const { auctionHouse } = operation.input;
+
       const output = await executeSaleBuilder(
         metaplex,
         operation.input
       ).sendAndConfirm(metaplex, operation.input.confirmOptions);
       scope.throwIfCanceled();
 
-      try {
+      if (output.receipt) {
         const purchase = await metaplex
           .auctionHouse()
-          .findPurchaseByAddress({
-            sellerTradeState: output.sellerTradeState,
-            buyerTradeState: output.buyerTradeState,
-            auctionHouse: operation.input.auctionHouse
+          .findPurchaseByReceipt({
+            auctionHouse,
+            receiptAddress: output.receipt,
           })
           .run(scope);
+
         return { purchase, ...output };
-      } catch (error) {
-        // Fallback to manually creating a purchase from inputs and outputs.
       }
 
       const lazyPurchase: LazyPurchase = {
@@ -146,7 +146,7 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
       return {
         purchase: await metaplex
           .auctionHouse()
-          .loadPurchase(lazyPurchase)
+          .loadPurchase({ lazyPurchase })
           .run(scope),
         ...output,
       };

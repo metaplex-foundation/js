@@ -57,7 +57,7 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   // And we get the same result when we fetch the Auction House by address.
   const retrievedAuctionHouse = await mx
     .auctionHouse()
-    .findAuctionHouseByAddress({address: auctionHouse.address})
+    .findAuctionHouseByAddress({ address: auctionHouse.address })
     .run();
 
   spok(t, retrievedAuctionHouse, {

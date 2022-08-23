@@ -67,7 +67,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     .auctionHouse()
     .findListingByReceipt({
       receiptAddress: listing.receiptAddress as Pda,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   spok(t, retrieveListing, {
@@ -104,8 +104,8 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
     await mx
       .auctionHouse()
       .findListingByTradeState({
-        tradeStateAddress :sellerTradeState,
-        auctionHouse
+        tradeStateAddress: sellerTradeState,
+        auctionHouse,
       })
       .run();
     t.fail('expected to throw AccountNotFoundError');
@@ -156,7 +156,8 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   // Delegate Auctioneer on update.
   await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
     .run();
@@ -221,7 +222,8 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
   // When we update scope to allow Listing.
   await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
     })

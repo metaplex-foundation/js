@@ -85,7 +85,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     .auctionHouse()
     .findPurchaseByReceipt({
       receiptAddress: purchase.receiptAddress as Pda,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   spok(t, retrievePurchase, {

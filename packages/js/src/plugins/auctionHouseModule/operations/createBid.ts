@@ -111,21 +111,21 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     metaplex: Metaplex,
     scope: DisposableScope
   ): Promise<CreateBidOutput> {
+    const { auctionHouse, confirmOptions } = operation.input;
+
     const builder = await createBidBuilder(metaplex, operation.input);
-    const output = await builder.sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    );
+    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
     if (output.receipt) {
       const bid = await metaplex
         .auctionHouse()
         .findBidByReceipt({
-          auctionHouse: operation.input.auctionHouse,
-          receiptAddress: output.receipt
+          auctionHouse,
+          receiptAddress: output.receipt,
         })
         .run(scope);
+
       return { bid, ...output };
     }
 
@@ -133,7 +133,7 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     const lazyBid: LazyBid = {
       model: 'bid',
       lazy: true,
-      auctionHouse: operation.input.auctionHouse,
+      auctionHouse,
       tradeStateAddress: output.buyerTradeState,
       bookkeeperAddress: output.bookkeeper,
       tokenAddress: output.tokenAccount,
@@ -149,7 +149,7 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     };
 
     return {
-      bid: await metaplex.auctionHouse().loadBid(lazyBid).run(scope),
+      bid: await metaplex.auctionHouse().loadBid({ lazyBid }).run(scope),
       ...output,
     };
   },

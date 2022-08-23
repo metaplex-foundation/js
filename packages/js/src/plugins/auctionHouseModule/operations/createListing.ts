@@ -110,10 +110,12 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateListingOutput> {
+      const { auctionHouse, confirmOptions } = operation.input;
+
       const output = await createListingBuilder(
         metaplex,
         operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      ).sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       if (output.receipt) {
@@ -121,9 +123,10 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
           .auctionHouse()
           .findListingByReceipt({
             receiptAddress: output.receipt,
-            auctionHouse: operation.input.auctionHouse
+            auctionHouse,
           })
           .run(scope);
+
         return { listing, ...output };
       }
 
@@ -131,7 +134,7 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       const lazyListing: LazyListing = {
         model: 'listing',
         lazy: true,
-        auctionHouse: operation.input.auctionHouse,
+        auctionHouse,
         tradeStateAddress: output.sellerTradeState,
         bookkeeperAddress: output.bookkeeper,
         sellerAddress: output.seller,
@@ -147,7 +150,7 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       return {
         listing: await metaplex
           .auctionHouse()
-          .loadListing(lazyListing)
+          .loadListing({ lazyListing })
           .run(scope),
         ...output,
       };

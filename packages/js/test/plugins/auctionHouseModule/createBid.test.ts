@@ -61,7 +61,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
     .auctionHouse()
     .findBidByReceipt({
       auctionHouse,
-      receiptAddress: bid.receiptAddress as Pda
+      receiptAddress: bid.receiptAddress as Pda,
     })
     .run();
   spok(t, retrieveBid, {
@@ -191,7 +191,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
     .auctionHouse()
     .findBidByTradeState({
       tradeStateAddress: bid.tradeStateAddress,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   await assertThrows(
@@ -231,7 +231,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
     .auctionHouse()
     .findBidByTradeState({
       tradeStateAddress: bid.tradeStateAddress,
-      auctionHouse
+      auctionHouse,
     })
     .run();
   await assertThrows(
@@ -348,7 +348,8 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
   // But was later on updated to also allow the Buy scope.
   await mx
     .auctionHouse()
-    .updateAuctionHouse(auctionHouse, {
+    .updateAuctionHouse({
+      auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
     })

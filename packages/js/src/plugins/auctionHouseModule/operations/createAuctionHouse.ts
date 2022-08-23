@@ -108,7 +108,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
         .auctionHouse()
         .findAuctionHouseByAddress({
           address: output.auctionHouseAddress,
-          auctioneerAuthority: operation.input.auctioneerAuthority
+          auctioneerAuthority: operation.input.auctioneerAuthority,
         })
         .run(scope);
       return { ...output, auctionHouse };
