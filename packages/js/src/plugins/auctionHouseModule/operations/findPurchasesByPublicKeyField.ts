@@ -1,0 +1,95 @@
+import { UnreachableCaseError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope } from '@/utils';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
+import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
+import { AuctionHouseProgram } from '../program';
+import { toPurchaseReceiptAccount } from '../accounts';
+
+// -----------------
+// Operation
+// -----------------
+
+const Key = 'FindPurchasesByPublicKeyOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
+export const findPurchasesByPublicKeyFieldOperation =
+  useOperation<FindPurchasesByPublicKeyFieldOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
+export type FindPurchasesByPublicKeyFieldOperation = Operation<
+  typeof Key,
+  FindPurchasesByPublicKeyFieldInput,
+  Purchase[]
+>;
+
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type FindPurchasesByPublicKeyFieldInput = {
+  type: 'buyer' | 'seller' | 'metadata';
+  auctionHouse: AuctionHouse;
+  publicKey: PublicKey;
+  commitment?: Commitment;
+};
+
+/**
+ * @group Operations
+ * @category Handlers
+ */
+export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<FindPurchasesByPublicKeyFieldOperation> =
+  {
+    handle: async (
+      operation: FindPurchasesByPublicKeyFieldOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<Purchase[]> => {
+      const { auctionHouse, type, publicKey, commitment } = operation.input;
+      const accounts = AuctionHouseProgram.purchaseAccounts(
+        metaplex
+      ).mergeConfig({
+        commitment,
+      });
+
+      let purchaseQuery: PurchaseReceiptGpaBuilder = accounts.whereAuctionHouse(
+        auctionHouse.address
+      );
+      switch (type) {
+        case 'buyer':
+          purchaseQuery = purchaseQuery.whereBuyer(publicKey);
+          break;
+        case 'seller':
+          purchaseQuery = purchaseQuery.whereSeller(publicKey);
+          break;
+        case 'metadata':
+          purchaseQuery = purchaseQuery.whereMetadata(publicKey);
+          break;
+        default:
+          throw new UnreachableCaseError(type);
+      }
+      scope.throwIfCanceled();
+
+      return Promise.all(
+        await purchaseQuery.getAndMap((account) =>
+          metaplex
+            .auctionHouse()
+            .loadPurchase({
+              lazyPurchase: toLazyPurchase(
+                toPurchaseReceiptAccount(account),
+                auctionHouse
+              ),
+            })
+            .run(scope)
+        )
+      );
+    },
+  };
