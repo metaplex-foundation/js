@@ -1,10 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { AuctionHouse } from './AuctionHouse';
 import { DisposableScope } from '@/utils';
-import { findBidReceiptPda } from './pdas';
-import { Bid } from './Bid';
+import { findBidReceiptPda } from '../pdas';
+import { AuctionHouse, Bid } from '../models';
 
 // -----------------
 // Operation
@@ -53,19 +52,13 @@ export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTrad
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        tradeStateAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { tradeStateAddress } = operation.input;
 
       const receiptAddress = findBidReceiptPda(tradeStateAddress);
 
       return metaplex
-        .auctions()
-        .for(auctionHouse)
-        .findBidByReceipt(receiptAddress, { loadJsonMetadata, commitment })
+        .auctionHouse()
+        .findBidByReceipt({ receiptAddress, ...operation.input })
         .run(scope);
     },
   };

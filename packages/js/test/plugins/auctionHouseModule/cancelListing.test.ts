@@ -17,11 +17,13 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   const mx = await metaplex();
 
   const nft = await createNft(mx);
-  const { client } = await createAuctionHouse(mx);
+  const { auctionHouse } = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await client
+  const { listing } = await mx
+    .auctionHouse()
     .list({
+      auctionHouse,
       mintAccount: nft.address,
       price: sol(1),
     })
@@ -31,11 +33,15 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
 
   // Then the delegate's authority is revoked and receipt has canceledAt date.
-  const canceledListing = await client
-    .findListingByTradeState(listing.tradeStateAddress)
+  const canceledListing = await mx
+    .auctionHouse()
+    .findListingByTradeState({
+      tradeStateAddress: listing.tradeStateAddress,
+      auctionHouse,
+    })
     .run();
   t.false(canceledListing.asset.token.delegateAddress);
   t.ok(canceledListing.canceledAt);
@@ -51,17 +57,23 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
 
   const nft = await createNft(mx);
   const auctioneerAuthority = Keypair.generate();
-  const { client } = await createAuctionHouse(mx, auctioneerAuthority);
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we list that NFT.
-  const { listing } = await client
+  const { listing } = await mx
+    .auctionHouse()
     .list({
+      auctionHouse,
+      auctioneerAuthority,
       mintAccount: nft.address,
     })
     .run();
 
   // When we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await mx
+    .auctionHouse()
+    .cancelListing({ auctionHouse, auctioneerAuthority, listing })
+    .run();
 
   // Then the trade state account no longer exists.
   const listingAccount = await mx.rpc().getAccount(listing.tradeStateAddress);
@@ -74,19 +86,23 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { client } = await createAuctionHouse(mx);
+  const { auctionHouse } = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await client
+  const { listing } = await mx
+    .auctionHouse()
     .list({
+      auctionHouse,
       mintAccount: nft.address,
       price: sol(1),
     })
     .run();
 
   // And we put a public bid on that NFT for 1 SOL.
-  const { bid } = await client
+  const { bid } = await mx
+    .auctionHouse()
     .bid({
+      auctionHouse,
       buyer,
       mintAccount: nft.address,
       price: sol(1),
@@ -94,13 +110,20 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
     .run();
 
   // And we cancel the given listing.
-  await client.cancelListing({ listing }).run();
+  await mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
 
   // When we execute a sale with given canceled listing and bid.
-  const canceledListing = await client
-    .findListingByTradeState(listing.tradeStateAddress)
+  const canceledListing = await mx
+    .auctionHouse()
+    .findListingByTradeState({
+      tradeStateAddress: listing.tradeStateAddress,
+      auctionHouse,
+    })
     .run();
-  const promise = client.executeSale({ listing: canceledListing, bid }).run();
+  const promise = mx
+    .auctionHouse()
+    .executeSale({ auctionHouse, listing: canceledListing, bid })
+    .run();
 
   // Then we expect an error.
   await assertThrows(
@@ -116,23 +139,22 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse, client } = await createAuctionHouse(
-    mx,
-    auctioneerAuthority
-  );
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we listed that NFT.
-  const { listing } = await client
+  const { listing } = await mx
+    .auctionHouse()
     .list({
+      auctionHouse,
+      auctioneerAuthority,
       mintAccount: nft.address,
     })
     .run();
 
   // When we cancel the listing but without providing Auctioneer Authority.
   const promise = mx
-    .auctions()
-    .for(auctionHouse)
-    .cancelListing({ listing })
+    .auctionHouse()
+    .cancelListing({ auctionHouse, listing })
     .run();
 
   // Then we expect an error.

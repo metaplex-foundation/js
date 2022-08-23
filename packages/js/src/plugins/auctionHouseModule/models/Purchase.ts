@@ -9,10 +9,10 @@ import {
   toBigNumber,
   toDateTime,
 } from '@/types';
-import { PurchaseReceiptAccount } from './accounts';
+import { PurchaseReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
-import { NftWithToken, SftWithToken } from '../nftModule';
+import { NftWithToken, SftWithToken } from '../../nftModule';
 
 export type Purchase = Readonly<{
   model: 'purchase';

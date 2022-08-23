@@ -25,8 +25,8 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
 
   // When we create a new Auction House with minimum configuration.
   const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({ sellerFeeBasisPoints: 200 })
+    .auctionHouse()
+    .create({ sellerFeeBasisPoints: 200 })
     .run();
 
   // Then we created and returned the new Auction House and it has appropriate defaults.
@@ -56,8 +56,8 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
 
   // And we get the same result when we fetch the Auction House by address.
   const retrievedAuctionHouse = await mx
-    .auctions()
-    .findAuctionHouseByAddress(auctionHouse.address)
+    .auctionHouse()
+    .findByAddress({ address: auctionHouse.address })
     .run();
 
   spok(t, retrievedAuctionHouse, {
@@ -76,8 +76,8 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const feeWithdrawalDestination = Keypair.generate();
   const treasuryWithdrawalDestinationOwner = Keypair.generate();
   const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
+    .auctionHouse()
+    .create({
       sellerFeeBasisPoints: 200,
       requiresSignOff: true,
       canChangeSalePrice: true,
@@ -134,8 +134,8 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
 
   // When we create a new Auction House using that treasury.
   const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
+    .auctionHouse()
+    .create({
       sellerFeeBasisPoints: 200,
       treasuryMint: token.mint.address,
       treasuryWithdrawalDestinationOwner: treasuryOwner,
@@ -161,8 +161,8 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
 
   // When we create a new Auctioneer Auction House.
   const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
+    .auctionHouse()
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
@@ -196,8 +196,8 @@ test('[auctionHouseModule] create new Auctioneer Auction House with separate aut
 
   // When we create a new Auctioneer Auction House with a separate authority.
   const { auctionHouse } = await mx
-    .auctions()
-    .createAuctionHouse({
+    .auctionHouse()
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       authority,
@@ -223,8 +223,8 @@ test('[auctionHouseModule] it throws when creating Auctioneer Auction House with
 
   // When we create a new Auctioneer Auction House with an separate authority provided as PublicKey.
   const promise = mx
-    .auctions()
-    .createAuctionHouse({
+    .auctionHouse()
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       authority: authority.publicKey, // Provide PublicKey instead of Signer to catch an error

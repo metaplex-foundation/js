@@ -1,39 +1,38 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { AuctionHouse } from './AuctionHouse';
+import { toListingReceiptAccount } from '../accounts';
+import { AuctionHouse, Listing, toLazyListing } from '../models';
 import { DisposableScope } from '@/utils';
-import { Bid, toLazyBid } from './Bid';
-import { toBidReceiptAccount } from './accounts';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindBidByReceiptOperation' as const;
+const Key = 'FindListingByReceiptOperation' as const;
 
 /**
  * @group Operations
  * @category Constructors
  */
-export const findBidByReceiptOperation =
-  useOperation<FindBidByReceiptOperation>(Key);
+export const findListingByReceiptOperation =
+  useOperation<FindListingByReceiptOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindBidByReceiptOperation = Operation<
+export type FindListingByReceiptOperation = Operation<
   typeof Key,
-  FindBidByReceiptInput,
-  Bid
+  FindListingByReceiptInput,
+  Listing
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindBidByReceiptInput = {
+export type FindListingByReceiptInput = {
   receiptAddress: PublicKey;
   auctionHouse: AuctionHouse;
   loadJsonMetadata?: boolean; // Default: true
@@ -46,30 +45,24 @@ export type FindBidByReceiptInput = {
  * @group Operations
  * @category Handlers
  */
-export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceiptOperation> =
+export const findListingByReceiptOperationHandler: OperationHandler<FindListingByReceiptOperation> =
   {
     handle: async (
-      operation: FindBidByReceiptOperation,
+      operation: FindListingByReceiptOperation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { receiptAddress, auctionHouse, commitment } = operation.input;
 
-      const account = toBidReceiptAccount(
+      const account = toListingReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
       );
       scope.throwIfCanceled();
 
-      const lazyBid = toLazyBid(account, auctionHouse);
+      const lazyListing = toLazyListing(account, auctionHouse);
       return metaplex
-        .auctions()
-        .for(auctionHouse)
-        .loadBid(lazyBid, { loadJsonMetadata, commitment })
+        .auctionHouse()
+        .loadListing({ lazyListing, ...operation.input })
         .run(scope);
     },
   };

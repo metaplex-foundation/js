@@ -9,7 +9,7 @@ import {
   createSellInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import type { Metaplex } from '@/Metaplex';
-import type { SendAndConfirmTransactionResponse } from '../rpcModule';
+import type { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   useOperation,
   Operation,
@@ -23,19 +23,20 @@ import {
   amount,
   SolAmount,
   SplTokenAmount,
+  now,
 } from '@/types';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
   findAuctionHouseTradeStatePda,
   findListingReceiptPda,
-} from './pdas';
-import { AuctionHouse } from './AuctionHouse';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { findMetadataPda } from '../nftModule';
-import { AUCTIONEER_PRICE } from './constants';
-import { AuctioneerAuthorityRequiredError } from './errors';
+} from '../pdas';
+import { AuctionHouse, LazyListing, Listing } from '../models';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findMetadataPda } from '../../nftModule';
+import { AUCTIONEER_PRICE } from '../constants';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -95,6 +96,7 @@ export type CreateListingOutput = {
   bookkeeper: Option<PublicKey>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
+  listing: Listing;
 };
 
 /**
@@ -103,11 +105,55 @@ export type CreateListingOutput = {
  */
 export const createListingOperationHandler: OperationHandler<CreateListingOperation> =
   {
-    handle: async (operation: CreateListingOperation, metaplex: Metaplex) => {
-      return createListingBuilder(metaplex, operation.input).sendAndConfirm(
+    async handle(
+      operation: CreateListingOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<CreateListingOutput> {
+      const { auctionHouse, confirmOptions } = operation.input;
+
+      const output = await createListingBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input
+      ).sendAndConfirm(metaplex, confirmOptions);
+      scope.throwIfCanceled();
+
+      if (output.receipt) {
+        const listing = await metaplex
+          .auctionHouse()
+          .findListingByReceipt({
+            receiptAddress: output.receipt,
+            auctionHouse,
+          })
+          .run(scope);
+
+        return { listing, ...output };
+      }
+
+      scope.throwIfCanceled();
+      const lazyListing: LazyListing = {
+        model: 'listing',
+        lazy: true,
+        auctionHouse,
+        tradeStateAddress: output.sellerTradeState,
+        bookkeeperAddress: output.bookkeeper,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        receiptAddress: output.receipt,
+        purchaseReceiptAddress: null,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+        canceledAt: null,
+      };
+
+      return {
+        listing: await metaplex
+          .auctionHouse()
+          .loadListing({ lazyListing })
+          .run(scope),
+        ...output,
+      };
     },
   };
 
@@ -130,7 +176,10 @@ export type CreateListingBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateListingBuilderContext = Omit<CreateListingOutput, 'response'>;
+export type CreateListingBuilderContext = Omit<
+  CreateListingOutput,
+  'response' | 'listing'
+>;
 
 /**
  * @group Transaction Builders

@@ -2,17 +2,23 @@ import type { Metaplex } from '@/Metaplex';
 import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
-} from './createAuctionHouse';
-import { createBidBuilder, CreateBidBuilderParams } from './createBid';
+} from './operations/createAuctionHouse';
+import {
+  createBidBuilder,
+  CreateBidBuilderParams,
+} from './operations/createBid';
 import {
   createListingBuilder,
   CreateListingBuilderParams,
-} from './createListing';
-import { executeSaleBuilder, ExecuteSaleBuilderParams } from './executeSale';
+} from './operations/createListing';
+import {
+  executeSaleBuilder,
+  ExecuteSaleBuilderParams,
+} from './operations/executeSale';
 import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
-} from './updateAuctionHouse';
+} from './operations/updateAuctionHouse';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -21,7 +27,7 @@ import {
  * @see {@link AuctionsClient}
  * @group Module Builders
  * */
-export class AuctionsBuildersClient {
+export class AuctionHouseBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   bid(input: CreateBidBuilderParams) {

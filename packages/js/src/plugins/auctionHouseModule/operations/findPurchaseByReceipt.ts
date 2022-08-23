@@ -1,10 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import { toPurchaseReceiptAccount } from './accounts';
-import { AuctionHouse } from './AuctionHouse';
+import { toPurchaseReceiptAccount } from '../accounts';
 import { DisposableScope } from '@/utils';
-import { Purchase, toLazyPurchase } from './Purchase';
+import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
 
 // -----------------
 // Operation
@@ -53,12 +52,7 @@ export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchas
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {
-      const {
-        receiptAddress,
-        auctionHouse,
-        commitment,
-        loadJsonMetadata = true,
-      } = operation.input;
+      const { receiptAddress, auctionHouse, commitment } = operation.input;
 
       const account = toPurchaseReceiptAccount(
         await metaplex.rpc().getAccount(receiptAddress, commitment)
@@ -67,9 +61,8 @@ export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchas
 
       const lazyPurchase = toLazyPurchase(account, auctionHouse);
       return metaplex
-        .auctions()
-        .for(auctionHouse)
-        .loadPurchase(lazyPurchase, { loadJsonMetadata, commitment })
+        .auctionHouse()
+        .loadPurchase({ lazyPurchase, ...operation.input })
         .run(scope);
     },
   };

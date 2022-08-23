@@ -8,14 +8,17 @@ import {
 import isEqual from 'lodash.isequal';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import { NoInstructionsToSendError } from '@/errors';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { assertAuctioneerAuctionHouse, AuctionHouse } from './AuctionHouse';
-import { TreasuryDestinationOwnerRequiredError } from './errors';
-import { findAuctioneerPda } from './pdas';
-import { AUCTIONEER_ALL_SCOPES } from './constants';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import {
+  assertAuctioneerAuctionHouse,
+  AuctionHouse,
+} from '../models/AuctionHouse';
+import { TreasuryDestinationOwnerRequiredError } from '../errors';
+import { findAuctioneerPda } from '../pdas';
+import { AUCTIONEER_ALL_SCOPES } from '../constants';
 
 // -----------------
 // Operation
@@ -71,6 +74,7 @@ export type UpdateAuctionHouseInput = {
 export type UpdateAuctionHouseOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+  auctionHouse: AuctionHouse;
 };
 
 /**
@@ -79,14 +83,35 @@ export type UpdateAuctionHouseOutput = {
  */
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
   {
-    handle: (operation: UpdateAuctionHouseOperation, metaplex: Metaplex) => {
+    async handle(
+      operation: UpdateAuctionHouseOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) {
+      const { auctionHouse, auctioneerAuthority, confirmOptions } =
+        operation.input;
+
       const builder = updateAuctionHouseBuilder(metaplex, operation.input);
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+
+      const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
+        ? auctionHouse.auctioneer.authority
+        : undefined;
+      const updatedAuctionHouse = await metaplex
+        .auctionHouse()
+        .findByAddress({
+          address: auctionHouse.address,
+          auctioneerAuthority:
+            auctioneerAuthority ?? currentAuctioneerAuthority,
+        })
+        .run(scope);
+
+      return { ...output, auctionHouse: updatedAuctionHouse };
     },
   };
 

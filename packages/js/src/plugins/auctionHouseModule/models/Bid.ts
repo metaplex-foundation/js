@@ -11,10 +11,10 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { BidReceiptAccount } from './accounts';
+import { BidReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../nftModule';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 export type Bid = Readonly<
   {

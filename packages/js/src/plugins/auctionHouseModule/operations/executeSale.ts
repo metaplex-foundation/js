@@ -4,7 +4,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option } from '@/utils';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   createAuctioneerExecuteSaleInstruction,
   createExecuteSaleInstruction,
@@ -21,26 +21,25 @@ import {
   SplTokenAmount,
   amount,
   isSigner,
+  now,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../rpcModule';
-import { findAssociatedTokenAccountPda } from '../tokenModule';
-import { AuctionHouse } from './AuctionHouse';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
 import {
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseProgramAsSignerPda,
   findAuctionHouseTradeStatePda,
   findPurchaseReceiptPda,
   findAuctioneerPda,
-} from './pdas';
-import { Bid } from './Bid';
-import { Listing } from './Listing';
+} from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
   BidAndListingHaveDifferentAuctionHousesError,
   BidAndListingHaveDifferentMintsError,
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
-} from './errors';
+} from '../errors';
 
 // -----------------
 // Operation
@@ -96,6 +95,7 @@ export type ExecuteSaleOutput = {
   receipt: Option<Pda>;
   price: SolAmount | SplTokenAmount;
   tokens: SplTokenAmount;
+  purchase: Purchase;
 };
 
 /**
@@ -104,11 +104,53 @@ export type ExecuteSaleOutput = {
  */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
   {
-    handle: async (operation: ExecuteSaleOperation, metaplex: Metaplex) =>
-      executeSaleBuilder(metaplex, operation.input).sendAndConfirm(
+    async handle(
+      operation: ExecuteSaleOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<ExecuteSaleOutput> {
+      const { auctionHouse } = operation.input;
+
+      const output = await executeSaleBuilder(
         metaplex,
-        operation.input.confirmOptions
-      ),
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+      scope.throwIfCanceled();
+
+      if (output.receipt) {
+        const purchase = await metaplex
+          .auctionHouse()
+          .findPurchaseByReceipt({
+            auctionHouse,
+            receiptAddress: output.receipt,
+          })
+          .run(scope);
+
+        return { purchase, ...output };
+      }
+
+      const lazyPurchase: LazyPurchase = {
+        model: 'purchase',
+        lazy: true,
+        auctionHouse: operation.input.auctionHouse,
+        buyerAddress: output.buyer,
+        sellerAddress: output.seller,
+        metadataAddress: output.metadata,
+        bookkeeperAddress: output.bookkeeper,
+        receiptAddress: output.receipt,
+        price: output.price,
+        tokens: output.tokens.basisPoints,
+        createdAt: now(),
+      };
+
+      return {
+        purchase: await metaplex
+          .auctionHouse()
+          .loadPurchase({ lazyPurchase })
+          .run(scope),
+        ...output,
+      };
+    },
   };
 
 // -----------------
@@ -130,7 +172,10 @@ export type ExecuteSaleBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type ExecuteSaleBuilderContext = Omit<ExecuteSaleOutput, 'response'>;
+export type ExecuteSaleBuilderContext = Omit<
+  ExecuteSaleOutput,
+  'response' | 'purchase'
+>;
 
 /**
  * @group Transaction Builders
