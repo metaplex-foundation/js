@@ -5,6 +5,7 @@ export * from './createBid';
 export * from './createListing';
 export * from './executeSale';
 export * from './findAuctionHouseByAddress';
+export * from './findAuctionHouseByCreatorAndMint';
 export * from './findBidByReceipt';
 export * from './findBidByTradeState';
 export * from './findListingByReceipt';
