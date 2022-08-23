@@ -244,7 +244,9 @@ export const formatAmount = (value: Amount): string => {
   };
 
   const { div, mod } = basisPoints.divmod(power);
-  const units = `${div.toString()}.${mod.abs().toString()}`;
+  const units = `${div.toString()}.${mod
+    .abs()
+    .toString(10, value.currency.decimals)}`;
 
   return `${value.currency.symbol} ${units}`;
 };

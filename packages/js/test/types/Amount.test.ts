@@ -39,10 +39,15 @@ test('[Amount] it can be formatted', (t: Test) => {
   const usdAmount = amount(1536, { symbol: 'USD', decimals: 2 });
   const gbpAmount = amount(4210, { symbol: 'GBP', decimals: 2 });
   const solAmount = amount(2_500_000_000, { symbol: 'SOL', decimals: 9 });
+  const solAmountLeadingZeroDecimal = amount(2_005_000_000, {
+    symbol: 'SOL',
+    decimals: 9,
+  });
 
   t.equal(formatAmount(usdAmount), 'USD 15.36');
   t.equal(formatAmount(gbpAmount), 'GBP 42.10');
   t.equal(formatAmount(solAmount), 'SOL 2.500000000');
+  t.equal(formatAmount(solAmountLeadingZeroDecimal), 'SOL 2.005000000');
   t.end();
 });
 
