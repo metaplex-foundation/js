@@ -348,7 +348,7 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
   // But was later on updated to also allow the Buy scope.
   await mx
     .auctionHouse()
-    .updateAuctionHouse({
+    .update({
       auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
@@ -381,7 +381,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const auctioneerAuthority = Keypair.generate();
   const { auctionHouse } = await mx
     .auctionHouse()
-    .createAuctionHouse({
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })

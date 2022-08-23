@@ -156,7 +156,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   // Delegate Auctioneer on update.
   await mx
     .auctionHouse()
-    .updateAuctionHouse({
+    .update({
       auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })
@@ -222,7 +222,7 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
   // When we update scope to allow Listing.
   await mx
     .auctionHouse()
-    .updateAuctionHouse({
+    .update({
       auctionHouse,
       auctioneerAuthority: auctioneerAuthority.publicKey,
       auctioneerScopes: [AuthorityScope.Sell, AuthorityScope.Buy],
@@ -253,7 +253,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // Create Auctioneer Auction House.
   const { auctionHouse } = await mx
     .auctionHouse()
-    .createAuctionHouse({
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority.publicKey,
     })

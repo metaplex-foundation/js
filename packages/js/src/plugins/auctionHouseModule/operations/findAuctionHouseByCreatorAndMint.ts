@@ -54,7 +54,7 @@ export const findAuctionHouseByCreatorAndMintOperationHandler: OperationHandler<
 
       return metaplex
         .auctionHouse()
-        .findAuctionHouseByAddress({
+        .findByAddress({
           address: findAuctionHousePda(creator, treasuryMint),
           ...operation.input,
         })

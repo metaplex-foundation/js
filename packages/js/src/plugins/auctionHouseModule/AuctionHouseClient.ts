@@ -3,81 +3,50 @@ import { Task } from '@/utils';
 import { AuctionHouse, Bid, Listing, Purchase } from './models';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
-  CreateAuctionHouseInput,
-  createAuctionHouseOperation,
-  CreateAuctionHouseOutput,
-} from './operations/createAuctionHouse';
-import {
-  CreateBidInput,
-  createBidOperation,
-  CreateBidOutput,
-} from './operations/createBid';
-import {
   CancelBidInput,
   cancelBidOperation,
   CancelBidOutput,
-} from './operations/cancelBid';
-import {
-  CreateListingInput,
-  createListingOperation,
-  CreateListingOutput,
-} from './operations/createListing';
-import {
   CancelListingInput,
   cancelListingOperation,
   CancelListingOutput,
-} from './operations/cancelListing';
-import {
+  CreateAuctionHouseInput,
+  createAuctionHouseOperation,
+  CreateAuctionHouseOutput,
+  CreateBidInput,
+  createBidOperation,
+  CreateBidOutput,
+  CreateListingInput,
+  createListingOperation,
+  CreateListingOutput,
   ExecuteSaleInput,
   executeSaleOperation,
   ExecuteSaleOutput,
-} from './operations/executeSale';
-import {
   FindAuctionHouseByAddressInput,
   findAuctionHouseByAddressOperation,
-} from './operations/findAuctionHouseByAddress';
-import {
   FindAuctionHouseByCreatorAndMintInput,
   findAuctionHouseByCreatorAndMintOperation,
-} from './operations/findAuctionHouseByCreatorAndMint';
-import {
-  findBidByReceiptOperation,
   FindBidByReceiptInput,
-} from './operations/findBidByReceipt';
-import {
+  findBidByReceiptOperation,
   FindBidByTradeStateInput,
   findBidByTradeStateOperation,
-} from './operations/findBidByTradeState';
-import {
   FindListingByReceiptInput,
   findListingByReceiptOperation,
-} from './operations/findListingByReceipt';
-import {
   FindListingByTradeStateInput,
   findListingByTradeStateOperation,
-} from './operations/findListingByTradeState';
-import {
-  FindPurchaseByTradeStateInput,
-  findPurchaseByTradeStateOperation,
-} from './operations/findPurchaseByTradeState';
-import {
   FindPurchaseByReceiptInput,
   findPurchaseByReceiptOperation,
-} from './operations/findPurchaseByReceipt';
-import {
-  LoadPurchaseInput,
-  loadPurchaseOperation,
-} from './operations/loadPurchase';
-import {
+  FindPurchaseByTradeStateInput,
+  findPurchaseByTradeStateOperation,
+  LoadBidInput,
+  loadBidOperation,
   LoadListingInput,
   loadListingOperation,
-} from './operations/loadListing';
-import {
+  LoadPurchaseInput,
+  loadPurchaseOperation,
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
-} from './operations/updateAuctionHouse';
-import { LoadBidInput, loadBidOperation } from './operations/loadBid';
+} from './operations';
 
 /**
  * @group Modules
@@ -103,9 +72,7 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc createAuctionHouseOperation} */
-  createAuctionHouse(
-    input: CreateAuctionHouseInput
-  ): Task<CreateAuctionHouseOutput> {
+  create(input: CreateAuctionHouseInput): Task<CreateAuctionHouseOutput> {
     return this.metaplex
       .operations()
       .getTask(createAuctionHouseOperation(input));
@@ -127,16 +94,14 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc findAuctionHouseByAddressOperation} */
-  findAuctionHouseByAddress(
-    options: FindAuctionHouseByAddressInput
-  ): Task<AuctionHouse> {
+  findByAddress(options: FindAuctionHouseByAddressInput): Task<AuctionHouse> {
     return this.metaplex
       .operations()
       .getTask(findAuctionHouseByAddressOperation(options));
   }
 
   /** {@inheritDoc findAuctionHouseByCreatorAndMintOperation} */
-  findAuctionHouseByCreatorAndMint(
+  findByCreatorAndMint(
     options: FindAuctionHouseByCreatorAndMintInput
   ): Task<AuctionHouse> {
     return this.metaplex
@@ -207,9 +172,7 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc updateAuctionHouseOperation} */
-  updateAuctionHouse(
-    options: UpdateAuctionHouseInput
-  ): Task<UpdateAuctionHouseOutput> {
+  update(options: UpdateAuctionHouseInput): Task<UpdateAuctionHouseOutput> {
     return this.metaplex
       .operations()
       .getTask(updateAuctionHouseOperation(options));

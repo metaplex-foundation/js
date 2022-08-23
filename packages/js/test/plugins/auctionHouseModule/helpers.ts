@@ -9,7 +9,7 @@ export const createAuctionHouse = async (
 ) => {
   const { auctionHouse } = await mx
     .auctionHouse()
-    .createAuctionHouse({
+    .create({
       sellerFeeBasisPoints: 200,
       auctioneerAuthority: auctioneerAuthority?.publicKey,
       ...input,

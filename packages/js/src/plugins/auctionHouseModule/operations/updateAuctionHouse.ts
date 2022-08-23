@@ -104,7 +104,7 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
         : undefined;
       const updatedAuctionHouse = await metaplex
         .auctionHouse()
-        .findAuctionHouseByAddress({
+        .findByAddress({
           address: auctionHouse.address,
           auctioneerAuthority:
             auctioneerAuthority ?? currentAuctioneerAuthority,

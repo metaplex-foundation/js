@@ -6,75 +6,41 @@ import { AuctionHouseProgram } from './program';
 import {
   cancelBidOperation,
   cancelBidOperationHandler,
-} from './operations/cancelBid';
-import {
   cancelListingOperation,
   cancelListingOperationHandler,
-} from './operations/cancelListing';
-import {
   createAuctionHouseOperation,
   createAuctionHouseOperationHandler,
-} from './operations/createAuctionHouse';
-import {
   createBidOperation,
   createBidOperationHandler,
-} from './operations/createBid';
-import {
   createListingOperation,
   createListingOperationHandler,
-} from './operations/createListing';
-import {
   executeSaleOperation,
   executeSaleOperationHandler,
-} from './operations/executeSale';
-import {
   findAuctionHouseByAddressOperation,
   findAuctionHouseByAddressOperationHandler,
-} from './operations/findAuctionHouseByAddress';
-import {
   findAuctionHouseByCreatorAndMintOperation,
   findAuctionHouseByCreatorAndMintOperationHandler,
-} from './operations/findAuctionHouseByCreatorAndMint';
-import {
   findBidByReceiptOperation,
   findBidByReceiptOperationHandler,
-} from './operations/findBidByReceipt';
-import {
   findBidByTradeStateOperation,
   findBidByTradeStateOperationHandler,
-} from './operations/findBidByTradeState';
-import {
   findListingByReceiptOperation,
   findListingByReceiptOperationHandler,
-} from './operations/findListingByReceipt';
-import {
   findListingByTradeStateOperation,
   findListingByTradeStateOperationHandler,
-} from './operations/findListingByTradeState';
-import {
   findPurchaseByReceiptOperation,
   findPurchaseByReceiptOperationHandler,
-} from './operations/findPurchaseByReceipt';
-import {
   findPurchaseByTradeStateOperation,
   findPurchaseByTradeStateOperationHandler,
-} from './operations/findPurchaseByTradeState';
-import {
-  updateAuctionHouseOperation,
-  updateAuctionHouseOperationHandler,
-} from './operations/updateAuctionHouse';
-import {
   loadBidOperation,
   loadBidOperationHandler,
-} from './operations/loadBid';
-import {
   loadListingOperation,
   loadListingOperationHandler,
-} from './operations/loadListing';
-import {
   loadPurchaseOperation,
   loadPurchaseOperationHandler,
-} from './operations/loadPurchase';
+  updateAuctionHouseOperation,
+  updateAuctionHouseOperationHandler,
+} from './operations';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
