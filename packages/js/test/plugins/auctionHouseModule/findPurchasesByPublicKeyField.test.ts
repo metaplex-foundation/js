@@ -333,9 +333,6 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
 
   // And it is from given metadata.
   purchases.forEach((purchase) => {
-    t.ok(
-      purchase.asset.address.equals(firstNft.address),
-      'mint matches'
-    );
+    t.ok(purchase.asset.address.equals(firstNft.address), 'mint matches');
   });
 });

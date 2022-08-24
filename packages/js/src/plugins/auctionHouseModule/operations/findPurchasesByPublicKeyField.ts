@@ -75,7 +75,9 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
           purchaseQuery = purchaseQuery.whereMetadata(publicKey);
           break;
         case 'mint':
-          purchaseQuery = purchaseQuery.whereMetadata(findMetadataPda(publicKey));
+          purchaseQuery = purchaseQuery.whereMetadata(
+            findMetadataPda(publicKey)
+          );
           break;
         default:
           throw new UnreachableCaseError(type);

@@ -151,9 +151,6 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
 
   // And they both are from given mint.
   bids.forEach((bid) => {
-    t.ok(
-      bid.asset.address.equals(nft.address),
-      'mint matches'
-    );
+    t.ok(bid.asset.address.equals(nft.address), 'mint matches');
   });
 });

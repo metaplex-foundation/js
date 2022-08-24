@@ -149,9 +149,6 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
 
   // And it is for given mint.
   listings.forEach((listing) => {
-    t.ok(
-      listing.asset.address.equals(firstNft.address),
-      'mint matches'
-    );
+    t.ok(listing.asset.address.equals(firstNft.address), 'mint matches');
   });
 });
