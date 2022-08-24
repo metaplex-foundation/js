@@ -87,7 +87,7 @@ test('[auctionHouseModule] find all purchases by buyer', async (t) => {
 
   // And they both are from buyer.
   purchases.forEach((purchase) => {
-    t.ok(purchase.buyerAddress.equals(buyer.publicKey), 'wallet matches');
+    t.ok(purchase.buyerAddress.equals(buyer.publicKey), 'buyer matches');
   });
 });
 
@@ -169,7 +169,7 @@ test('[auctionHouseModule] find all purchases by seller', async (t) => {
   purchases.forEach((purchase) => {
     t.ok(
       purchase.sellerAddress.equals(mx.identity().publicKey),
-      'wallet matches'
+      'seller matches'
     );
   });
 });
@@ -252,7 +252,90 @@ test('[auctionHouseModule] find all purchases by metadata', async (t) => {
   purchases.forEach((purchase) => {
     t.ok(
       purchase.asset.metadataAddress.equals(firstNft.metadataAddress),
-      'wallet matches'
+      'metadata matches'
+    );
+  });
+});
+
+test('[auctionHouseModule] find all purchases by mint', async (t) => {
+  // Given we have an Auction House and 2 NFTs.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+  const firstNft = await createNft(mx);
+  const secondNft = await createNft(mx);
+
+  const { auctionHouse } = await createAuctionHouse(mx);
+
+  // And given we execute sale on first NFT for 1 SOL.
+  const { listing: firstListing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: firstNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  const { bid: firstBid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: firstNft.address,
+      seller: mx.identity().publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await mx
+    .auctionHouse()
+    .executeSale({ auctionHouse, listing: firstListing, bid: firstBid })
+    .run();
+
+  // And given we execute sale on second NFT for 1 SOL.
+  const { listing: secondListing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: secondNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  const { bid: secondBid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: secondNft.address,
+      seller: mx.identity().publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await mx
+    .auctionHouse()
+    .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
+    .run();
+
+  // When I find all purchases by mint.
+  const purchases = await mx
+    .auctionHouse()
+    .findPurchasesBy({
+      type: 'mint',
+      auctionHouse,
+      publicKey: firstNft.address,
+    })
+    .run();
+
+  // Then we got one purchase for given nft.
+  t.equal(purchases.length, 1, 'returns one account');
+
+  // And it is from given metadata.
+  purchases.forEach((purchase) => {
+    t.ok(
+      purchase.asset.address.equals(firstNft.address),
+      'mint matches'
     );
   });
 });

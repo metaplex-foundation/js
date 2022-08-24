@@ -27,7 +27,7 @@ test('[auctionHouseModule] find all listings by seller', async (t) => {
   // And given we create a listing on second NFT for 1 SOL.
   await mx
     .auctionHouse()
-    .bid({
+    .list({
       auctionHouse,
       mintAccount: secondNft.address,
       price: sol(1),
@@ -77,7 +77,7 @@ test('[auctionHouseModule] find all listings by metadata', async (t) => {
   // And given we create a listing on second NFT for 1 SOL.
   await mx
     .auctionHouse()
-    .bid({
+    .list({
       auctionHouse,
       mintAccount: secondNft.address,
       price: sol(1),
@@ -98,10 +98,60 @@ test('[auctionHouseModule] find all listings by metadata', async (t) => {
   t.equal(listings.length, 1, 'returns one account');
 
   // And it is for given metadata.
-  listings.forEach((bid) => {
+  listings.forEach((listing) => {
     t.ok(
-      bid.asset.metadataAddress.equals(firstNft.metadataAddress),
+      listing.asset.metadataAddress.equals(firstNft.metadataAddress),
       'metadata matches'
+    );
+  });
+});
+
+test('[auctionHouseModule] find all listings by mint', async (t) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const firstNft = await createNft(mx);
+  const secondNft = await createNft(mx);
+
+  const { auctionHouse } = await createAuctionHouse(mx);
+
+  // And given we create a listing on first NFT for 1 SOL.
+  await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: firstNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // And given we create a listing on second NFT for 1 SOL.
+  await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: secondNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // When I find all listings by mint.
+  const listings = await mx
+    .auctionHouse()
+    .findListingsBy({
+      type: 'mint',
+      auctionHouse,
+      publicKey: firstNft.address,
+    })
+    .run();
+
+  // Then we got one listing.
+  t.equal(listings.length, 1, 'returns one account');
+
+  // And it is for given mint.
+  listings.forEach((listing) => {
+    t.ok(
+      listing.asset.address.equals(firstNft.address),
+      'mint matches'
     );
   });
 });

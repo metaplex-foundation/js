@@ -3,6 +3,7 @@ import { UnreachableCaseError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
+import { findMetadataPda } from '../../nftModule';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, Bid, toLazyBid } from '../models';
 import { AuctionHouseProgram } from '../program';
@@ -36,7 +37,7 @@ export type FindBidsByPublicKeyFieldOperation = Operation<
  * @category Inputs
  */
 export type FindBidsByPublicKeyFieldInput = {
-  type: 'buyer' | 'metadata';
+  type: 'buyer' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
   commitment?: Commitment;
@@ -67,6 +68,9 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
           break;
         case 'metadata':
           bidQuery = bidQuery.whereMetadata(publicKey);
+          break;
+        case 'mint':
+          bidQuery = bidQuery.whereMetadata(findMetadataPda(publicKey));
           break;
         default:
           throw new UnreachableCaseError(type);

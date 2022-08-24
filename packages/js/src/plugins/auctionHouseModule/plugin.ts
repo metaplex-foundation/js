@@ -38,6 +38,8 @@ import {
   findPurchaseByReceiptOperationHandler,
   findPurchaseByTradeStateOperation,
   findPurchaseByTradeStateOperationHandler,
+  findPurchasesByPublicKeyFieldOperation,
+  findPurchasesByPublicKeyFieldOperationHandler,
   getBuyerBalanceOperation,
   getBuyerBalanceOperationHandler,
   loadBidOperation,
@@ -111,6 +113,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     op.register(
       findPurchaseByTradeStateOperation,
       findPurchaseByTradeStateOperationHandler
+    );
+    op.register(
+      findPurchasesByPublicKeyFieldOperation,
+      findPurchasesByPublicKeyFieldOperationHandler
     );
     op.register(getBuyerBalanceOperation, getBuyerBalanceOperationHandler);
     op.register(loadBidOperation, loadBidOperationHandler);

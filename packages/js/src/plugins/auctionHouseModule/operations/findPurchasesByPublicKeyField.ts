@@ -1,8 +1,9 @@
+import { Commitment, PublicKey } from '@solana/web3.js';
 import { UnreachableCaseError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { findMetadataPda } from '../../nftModule';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
 import { AuctionHouseProgram } from '../program';
@@ -36,7 +37,7 @@ export type FindPurchasesByPublicKeyFieldOperation = Operation<
  * @category Inputs
  */
 export type FindPurchasesByPublicKeyFieldInput = {
-  type: 'buyer' | 'seller' | 'metadata';
+  type: 'buyer' | 'seller' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
   commitment?: Commitment;
@@ -72,6 +73,9 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
           break;
         case 'metadata':
           purchaseQuery = purchaseQuery.whereMetadata(publicKey);
+          break;
+        case 'mint':
+          purchaseQuery = purchaseQuery.whereMetadata(findMetadataPda(publicKey));
           break;
         default:
           throw new UnreachableCaseError(type);
