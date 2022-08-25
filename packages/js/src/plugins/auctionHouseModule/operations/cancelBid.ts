@@ -128,8 +128,12 @@ export const cancelBidBuilder = (
     tokens,
     isPublic,
   } = bid;
-  const { authorityAddress, address, feeAccountAddress, hasAuctioneer } =
-    auctionHouse;
+  const {
+    authorityAddress,
+    address: auctionHouseAddress,
+    feeAccountAddress,
+    hasAuctioneer,
+  } = auctionHouse;
 
   if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -148,7 +152,7 @@ export const cancelBidBuilder = (
     tokenAccount,
     tokenMint: asset.address,
     authority: authorityAddress,
-    auctionHouse: address,
+    auctionHouse: auctionHouseAddress,
     auctionHouseFeeAccount: feeAccountAddress,
     tradeState: tradeStateAddress,
   };
@@ -167,7 +171,7 @@ export const cancelBidBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },

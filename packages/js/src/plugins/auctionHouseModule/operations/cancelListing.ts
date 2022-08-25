@@ -128,8 +128,12 @@ export const cancelListingBuilder = (
     price,
     tokens,
   } = listing;
-  const { address, authorityAddress, feeAccountAddress, hasAuctioneer } =
-    auctionHouse;
+  const {
+    address: auctionHouseAddress,
+    authorityAddress,
+    feeAccountAddress,
+    hasAuctioneer,
+  } = auctionHouse;
 
   if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -142,7 +146,7 @@ export const cancelListingBuilder = (
     tokenAccount: asset.token.address,
     tokenMint: asset.address,
     authority: authorityAddress,
-    auctionHouse: address,
+    auctionHouse: auctionHouseAddress,
     auctionHouseFeeAccount: feeAccountAddress,
     tradeState: tradeStateAddress,
   };
@@ -161,7 +165,7 @@ export const cancelListingBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },

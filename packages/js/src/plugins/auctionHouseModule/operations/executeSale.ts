@@ -245,7 +245,10 @@ export const executeSaleBuilder = (
     asset.address,
     buyerAddress
   );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(auctionHouseAddress, buyerAddress);
+  const escrowPayment = findAuctionHouseBuyerEscrowPda(
+    auctionHouseAddress,
+    buyerAddress
+  );
   const freeTradeState = findAuctionHouseTradeStatePda(
     auctionHouseAddress,
     sellerAddress,
