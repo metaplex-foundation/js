@@ -55,7 +55,6 @@ export type CancelBidInput = {
     AuctionHouse,
     'authorityAddress' | 'address' | 'feeAccountAddress' | 'hasAuctioneer'
   >;
-
   bid: Pick<
     Bid,
     | 'asset'

@@ -79,7 +79,6 @@ export type ExecuteSaleInput = {
     | 'tokens'
     | 'tradeStateAddress'
   >;
-
   listing: Pick<
     Listing,
     | 'asset'
@@ -212,7 +211,7 @@ export const executeSaleBuilder = (
     hasAuctioneer,
     isNative,
     treasuryMint,
-    address,
+    address: auctionHouseAddress,
     authorityAddress,
     treasuryAccountAddress,
   } = auctionHouse;
@@ -246,9 +245,9 @@ export const executeSaleBuilder = (
     asset.address,
     buyerAddress
   );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(address, buyerAddress);
+  const escrowPayment = findAuctionHouseBuyerEscrowPda(auctionHouseAddress, buyerAddress);
   const freeTradeState = findAuctionHouseTradeStatePda(
-    address,
+    auctionHouseAddress,
     sellerAddress,
     treasuryMint.address,
     asset.address,
@@ -269,7 +268,7 @@ export const executeSaleBuilder = (
     sellerPaymentReceiptAccount,
     buyerReceiptTokenAccount,
     authority: authorityAddress,
-    auctionHouse: address,
+    auctionHouse: auctionHouseAddress,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
     auctionHouseTreasury: treasuryAccountAddress,
     buyerTradeState: bid.tradeStateAddress,
@@ -295,7 +294,7 @@ export const executeSaleBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },
@@ -312,7 +311,7 @@ export const executeSaleBuilder = (
     });
 
     // Provide ATA to receive SPL token royalty if is not native SOL sale.
-    if (!auctionHouse.isNative) {
+    if (!isNative) {
       executeSaleInstruction.keys.push({
         pubkey: findAssociatedTokenAccountPda(treasuryMint.address, address),
         isWritable: true,
@@ -345,7 +344,7 @@ export const executeSaleBuilder = (
         bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
         receipt: shouldPrintReceipt ? purchaseReceipt : null,
         price,
-        tokens: tokens,
+        tokens,
       })
 
       // Execute Sale.
