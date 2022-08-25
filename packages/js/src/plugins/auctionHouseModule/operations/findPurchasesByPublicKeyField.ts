@@ -34,7 +34,7 @@ export const findPurchasesByPublicKeyFieldOperation =
 export type FindPurchasesByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindPurchasesByPublicKeyFieldInput,
-  (LazyPurchase | Purchase)[]
+  FindPurchasesByPublicKeyFieldOutput
 >;
 
 /**
@@ -51,6 +51,12 @@ export type FindPurchasesByPublicKeyFieldInput = {
 
 /**
  * @group Operations
+ * @category Outputs
+ */
+export type FindPurchasesByPublicKeyFieldOutput = (LazyPurchase | Purchase)[];
+
+/**
+ * @group Operations
  * @category Handlers
  */
 export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<FindPurchasesByPublicKeyFieldOperation> =
@@ -59,7 +65,7 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
       operation: FindPurchasesByPublicKeyFieldOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<(LazyPurchase | Purchase)[]> => {
+    ): Promise<FindPurchasesByPublicKeyFieldOutput> => {
       const {
         auctionHouse,
         type,
