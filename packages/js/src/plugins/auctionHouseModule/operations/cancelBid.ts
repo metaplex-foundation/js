@@ -21,6 +21,7 @@ import { AuctionHouse, Bid } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findAuctioneerPda } from '../pdas';
+import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
 
 // -----------------
 // Operation
@@ -51,7 +52,18 @@ export type CancelBidOperation = Operation<
 export type CancelBidInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  bid: Bid;
+  // bid: Bid;
+
+    bid: Pick<
+  Bid,
+  | 'asset'
+  | 'buyerAddress'
+  | 'isPublic'
+  | 'price'
+  | 'receiptAddress'
+  | 'tokens'
+  | 'tradeStateAddress'
+>
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -109,31 +121,28 @@ export const cancelBidBuilder = (
     throw new AuctioneerAuthorityRequiredError();
   }
 
-  // Data.
-  const { asset, tradeStateAddress, price, tokens, isPublic } = bid;
-
   // Accounts.
-  const tokenAccount = isPublic
+  const tokenAccount = bid.isPublic
     ? findAssociatedTokenAccountPda(
-        asset.mint.address,
+        bid.asset.mint.address,
         toPublicKey(bid.buyerAddress)
       )
-    : bid.asset.token.address;
+    : (bid.asset as SftWithToken | NftWithToken).token.address;
 
   const accounts: CancelInstructionAccounts = {
     wallet: bid.buyerAddress,
     tokenAccount,
-    tokenMint: asset.address,
+    tokenMint: bid.asset.address,
     authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    tradeState: tradeStateAddress,
+    tradeState: bid.tradeStateAddress,
   };
 
   // Args.
   const args = {
-    buyerPrice: price.basisPoints,
-    tokenSize: tokens.basisPoints,
+    buyerPrice: bid.price.basisPoints,
+    tokenSize: bid.tokens.basisPoints,
   };
 
   // Cancel Bid Instruction.

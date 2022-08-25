@@ -50,7 +50,16 @@ export type CancelListingOperation = Operation<
 export type CancelListingInput = {
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  listing: Listing;
+
+  listing: Pick<
+  Listing,
+  | 'asset'
+  | 'price'
+  | 'receiptAddress'
+  | 'sellerAddress'
+  | 'tokens'
+  | 'tradeStateAddress'
+>
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -113,25 +122,25 @@ export const cancelListingBuilder = (
   }
 
   // Data.
-  const { asset, tradeStateAddress, price, tokens } = listing;
+  // const { asset, tradeStateAddress, price, tokens } = listing;
   const buyerPrice = auctionHouse.hasAuctioneer
     ? AUCTIONEER_PRICE
-    : price.basisPoints;
+    : listing.price.basisPoints;
 
   const accounts: CancelInstructionAccounts = {
     wallet: listing.sellerAddress,
-    tokenAccount: asset.token.address,
-    tokenMint: asset.address,
+    tokenAccount: listing.asset.token.address,
+    tokenMint: listing.asset.address,
     authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    tradeState: tradeStateAddress,
+    tradeState: listing.tradeStateAddress,
   };
 
   // Args.
   const args = {
     buyerPrice,
-    tokenSize: tokens.basisPoints,
+    tokenSize: listing.tokens.basisPoints,
   };
 
   // Cancel Listing Instruction.
