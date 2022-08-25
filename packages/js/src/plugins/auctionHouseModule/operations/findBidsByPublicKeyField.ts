@@ -5,7 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, Bid, toLazyBid } from '../models';
+import { AuctionHouse, Bid, LazyBid, toLazyBid } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toBidReceiptAccount } from '../accounts';
 
@@ -29,7 +29,7 @@ export const findBidsByPublicKeyFieldOperation =
 export type FindBidsByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindBidsByPublicKeyFieldInput,
-  Bid[]
+  (LazyBid | Bid)[]
 >;
 
 /**
@@ -40,6 +40,7 @@ export type FindBidsByPublicKeyFieldInput = {
   type: 'buyer' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
+  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -53,8 +54,14 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
       operation: FindBidsByPublicKeyFieldOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Bid[]> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
+    ): Promise<(LazyBid | Bid)[]> => {
+      const {
+        auctionHouse,
+        type,
+        publicKey,
+        commitment,
+        lazy = true,
+      } = operation.input;
       const accounts = AuctionHouseProgram.bidAccounts(metaplex).mergeConfig({
         commitment,
       });
@@ -76,6 +83,12 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
           throw new UnreachableCaseError(type);
       }
       scope.throwIfCanceled();
+
+      if (lazy) {
+        return bidQuery.getAndMap((account) =>
+          toLazyBid(toBidReceiptAccount(account), auctionHouse)
+        );
+      }
 
       return await Promise.all(
         await bidQuery.getAndMap((account) =>

@@ -5,7 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { ListingReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, Listing, toLazyListing } from '../models';
+import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toListingReceiptAccount } from '../accounts';
 
@@ -29,7 +29,7 @@ export const findListingsByPublicKeyFieldOperation =
 export type FindListingsByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindListingsByPublicKeyFieldInput,
-  Listing[]
+  (LazyListing | Listing)[]
 >;
 
 /**
@@ -40,6 +40,7 @@ export type FindListingsByPublicKeyFieldInput = {
   type: 'seller' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
+  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -53,8 +54,14 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
       operation: FindListingsByPublicKeyFieldOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Listing[]> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
+    ): Promise<(LazyListing | Listing)[]> => {
+      const {
+        auctionHouse,
+        type,
+        publicKey,
+        commitment,
+        lazy = true,
+      } = operation.input;
       const accounts = AuctionHouseProgram.listingAccounts(
         metaplex
       ).mergeConfig({
@@ -78,6 +85,12 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
           throw new UnreachableCaseError(type);
       }
       scope.throwIfCanceled();
+
+      if (lazy) {
+        return listingQuery.getAndMap((account) =>
+          toLazyListing(toListingReceiptAccount(account), auctionHouse)
+        );
+      }
 
       return Promise.all(
         await listingQuery.getAndMap((account) =>

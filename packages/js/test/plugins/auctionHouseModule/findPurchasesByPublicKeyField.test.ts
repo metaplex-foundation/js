@@ -8,10 +8,11 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { LazyPurchase, Purchase } from '@/plugins';
 
 killStuckProcess();
 
-test('[auctionHouseModule] find all purchases by buyer', async (t) => {
+test('[auctionHouseModule] find all lazy purchases by buyer', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -72,7 +73,7 @@ test('[auctionHouseModule] find all purchases by buyer', async (t) => {
     .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
     .run();
 
-  // When I find all purchases by buyer.
+  // When I find all lazy purchases by buyer.
   const purchases = await mx
     .auctionHouse()
     .findPurchasesBy({
@@ -82,7 +83,7 @@ test('[auctionHouseModule] find all purchases by buyer', async (t) => {
     })
     .run();
 
-  // Then we got two purchases for given buyer.
+  // Then we got two lazy purchases for given buyer.
   t.equal(purchases.length, 2, 'returns two accounts');
 
   // And they both are from buyer.
@@ -91,7 +92,7 @@ test('[auctionHouseModule] find all purchases by buyer', async (t) => {
   });
 });
 
-test('[auctionHouseModule] find all purchases by seller', async (t) => {
+test('[auctionHouseModule] find all lazy purchases by seller', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -152,7 +153,7 @@ test('[auctionHouseModule] find all purchases by seller', async (t) => {
     .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
     .run();
 
-  // When I find all purchases by seller.
+  // When I find all lazy purchases by seller.
   const purchases = await mx
     .auctionHouse()
     .findPurchasesBy({
@@ -162,7 +163,7 @@ test('[auctionHouseModule] find all purchases by seller', async (t) => {
     })
     .run();
 
-  // Then we got two purchases for given seller.
+  // Then we got two lazy purchases for given seller.
   t.equal(purchases.length, 2, 'returns two accounts');
 
   // And they both are from seller.
@@ -174,7 +175,7 @@ test('[auctionHouseModule] find all purchases by seller', async (t) => {
   });
 });
 
-test('[auctionHouseModule] find all purchases by metadata', async (t) => {
+test('[auctionHouseModule] find all lazy purchases by metadata', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -235,7 +236,7 @@ test('[auctionHouseModule] find all purchases by metadata', async (t) => {
     .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
     .run();
 
-  // When I find all purchases by metadata.
+  // When I find all lazy purchases by metadata.
   const purchases = await mx
     .auctionHouse()
     .findPurchasesBy({
@@ -245,13 +246,15 @@ test('[auctionHouseModule] find all purchases by metadata', async (t) => {
     })
     .run();
 
-  // Then we got one purchase for given nft.
+  // Then we got one lazy purchase for given nft.
   t.equal(purchases.length, 1, 'returns one account');
 
   // And it is from given metadata.
   purchases.forEach((purchase) => {
     t.ok(
-      purchase.asset.metadataAddress.equals(firstNft.metadataAddress),
+      (purchase as LazyPurchase).metadataAddress.equals(
+        firstNft.metadataAddress
+      ),
       'metadata matches'
     );
   });
@@ -325,6 +328,7 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: firstNft.address,
+      lazy: false,
     })
     .run();
 
@@ -333,6 +337,9 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
 
   // And it is from given metadata.
   purchases.forEach((purchase) => {
-    t.ok(purchase.asset.address.equals(firstNft.address), 'mint matches');
+    t.ok(
+      (purchase as Purchase).asset.address.equals(firstNft.address),
+      'mint matches'
+    );
   });
 });

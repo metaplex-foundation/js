@@ -8,10 +8,11 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { Bid, LazyBid } from '@/plugins';
 
 killStuckProcess();
 
-test('[auctionHouseModule] find all bids by buyer', async (t) => {
+test('[auctionHouseModule] find all lazy bids by buyer', async (t) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
@@ -39,7 +40,7 @@ test('[auctionHouseModule] find all bids by buyer', async (t) => {
     })
     .run();
 
-  // When I find all bids by buyer.
+  // When I find all lazy bids by buyer.
   const bids = await mx
     .auctionHouse()
     .findBidsBy({
@@ -49,7 +50,7 @@ test('[auctionHouseModule] find all bids by buyer', async (t) => {
     })
     .run();
 
-  // Then we got two bids for given buyer.
+  // Then we got two lazy bids for given buyer.
   t.equal(bids.length, 2, 'returns two accounts');
 
   // And they both are from buyer.
@@ -58,7 +59,7 @@ test('[auctionHouseModule] find all bids by buyer', async (t) => {
   });
 });
 
-test('[auctionHouseModule] find all bids by metadata', async (t) => {
+test('[auctionHouseModule] find all lazy bids by metadata', async (t) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
@@ -86,7 +87,7 @@ test('[auctionHouseModule] find all bids by metadata', async (t) => {
     })
     .run();
 
-  // When I find all bids by metadata.
+  // When I find all lazy bids by metadata.
   const bids = await mx
     .auctionHouse()
     .findBidsBy({
@@ -96,13 +97,13 @@ test('[auctionHouseModule] find all bids by metadata', async (t) => {
     })
     .run();
 
-  // Then we got two bids.
+  // Then we got two lazy bids.
   t.equal(bids.length, 2, 'returns two accounts');
 
   // And they both are for given metadata.
   bids.forEach((bid) => {
     t.ok(
-      bid.asset.metadataAddress.equals(nft.metadataAddress),
+      (bid as LazyBid).metadataAddress.equals(nft.metadataAddress),
       'metadata matches'
     );
   });
@@ -143,6 +144,7 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: nft.address,
+      lazy: false,
     })
     .run();
 
@@ -151,6 +153,6 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
 
   // And they both are from given mint.
   bids.forEach((bid) => {
-    t.ok(bid.asset.address.equals(nft.address), 'mint matches');
+    t.ok((bid as Bid).asset.address.equals(nft.address), 'mint matches');
   });
 });

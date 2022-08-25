@@ -5,7 +5,12 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
+import {
+  AuctionHouse,
+  LazyPurchase,
+  Purchase,
+  toLazyPurchase,
+} from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toPurchaseReceiptAccount } from '../accounts';
 
@@ -29,7 +34,7 @@ export const findPurchasesByPublicKeyFieldOperation =
 export type FindPurchasesByPublicKeyFieldOperation = Operation<
   typeof Key,
   FindPurchasesByPublicKeyFieldInput,
-  Purchase[]
+  (LazyPurchase | Purchase)[]
 >;
 
 /**
@@ -40,6 +45,7 @@ export type FindPurchasesByPublicKeyFieldInput = {
   type: 'buyer' | 'seller' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
+  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -53,8 +59,14 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
       operation: FindPurchasesByPublicKeyFieldOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<Purchase[]> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
+    ): Promise<(LazyPurchase | Purchase)[]> => {
+      const {
+        auctionHouse,
+        type,
+        publicKey,
+        commitment,
+        lazy = true,
+      } = operation.input;
       const accounts = AuctionHouseProgram.purchaseAccounts(
         metaplex
       ).mergeConfig({
@@ -83,6 +95,12 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
           throw new UnreachableCaseError(type);
       }
       scope.throwIfCanceled();
+
+      if (lazy) {
+        return purchaseQuery.getAndMap((account) =>
+          toLazyPurchase(toPurchaseReceiptAccount(account), auctionHouse)
+        );
+      }
 
       return Promise.all(
         await purchaseQuery.getAndMap((account) =>

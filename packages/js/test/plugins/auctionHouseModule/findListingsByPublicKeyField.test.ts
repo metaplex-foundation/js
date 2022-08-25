@@ -3,10 +3,11 @@ import { sol } from '@/types';
 
 import { killStuckProcess, metaplex, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { LazyListing, Listing } from '@/plugins';
 
 killStuckProcess();
 
-test('[auctionHouseModule] find all listings by seller', async (t) => {
+test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
   const firstNft = await createNft(mx);
@@ -44,7 +45,7 @@ test('[auctionHouseModule] find all listings by seller', async (t) => {
     })
     .run();
 
-  // Then we got two listings for given seller.
+  // Then we got two lazy listings for given seller.
   t.equal(listings.length, 2, 'returns two accounts');
 
   // And they both are from seller.
@@ -56,7 +57,7 @@ test('[auctionHouseModule] find all listings by seller', async (t) => {
   });
 });
 
-test('[auctionHouseModule] find all listings by metadata', async (t) => {
+test('[auctionHouseModule] find all lazy listings by metadata', async (t) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const firstNft = await createNft(mx);
@@ -94,13 +95,13 @@ test('[auctionHouseModule] find all listings by metadata', async (t) => {
     })
     .run();
 
-  // Then we got one listing.
+  // Then we got one lazy listing.
   t.equal(listings.length, 1, 'returns one account');
 
   // And it is for given metadata.
   listings.forEach((listing) => {
     t.ok(
-      listing.asset.metadataAddress.equals(firstNft.metadataAddress),
+      (listing as LazyListing).metadataAddress.equals(firstNft.metadataAddress),
       'metadata matches'
     );
   });
@@ -141,6 +142,7 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: firstNft.address,
+      lazy: false,
     })
     .run();
 
@@ -149,6 +151,9 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
 
   // And it is for given mint.
   listings.forEach((listing) => {
-    t.ok(listing.asset.address.equals(firstNft.address), 'mint matches');
+    t.ok(
+      (listing as Listing).asset.address.equals(firstNft.address),
+      'mint matches'
+    );
   });
 });
