@@ -50,20 +50,22 @@ export type CancelBidOperation = Operation<
  * @category Inputs
  */
 export type CancelBidInput = {
-  auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  // bid: Bid;
+  auctionHouse: Pick<
+    AuctionHouse,
+    'authorityAddress' | 'address' | 'feeAccountAddress' | 'hasAuctioneer'
+  >;
 
-    bid: Pick<
-  Bid,
-  | 'asset'
-  | 'buyerAddress'
-  | 'isPublic'
-  | 'price'
-  | 'receiptAddress'
-  | 'tokens'
-  | 'tradeStateAddress'
->
+  bid: Pick<
+    Bid,
+    | 'asset'
+    | 'buyerAddress'
+    | 'isPublic'
+    | 'price'
+    | 'receiptAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -117,32 +119,45 @@ export const cancelBidBuilder = (
 ): TransactionBuilder<CancelBidBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, bid } = params;
 
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  // Data.
+  const {
+    asset,
+    buyerAddress,
+    tradeStateAddress,
+    price,
+    receiptAddress,
+    tokens,
+    isPublic,
+  } = bid;
+  const { authorityAddress, address, feeAccountAddress, hasAuctioneer } =
+    auctionHouse;
+
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Accounts.
-  const tokenAccount = bid.isPublic
+  const tokenAccount = isPublic
     ? findAssociatedTokenAccountPda(
-        bid.asset.mint.address,
-        toPublicKey(bid.buyerAddress)
+        asset.mint.address,
+        toPublicKey(buyerAddress)
       )
-    : (bid.asset as SftWithToken | NftWithToken).token.address;
+    : (asset as SftWithToken | NftWithToken).token.address;
 
   const accounts: CancelInstructionAccounts = {
-    wallet: bid.buyerAddress,
+    wallet: buyerAddress,
     tokenAccount,
-    tokenMint: bid.asset.address,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
-    auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    tradeState: bid.tradeStateAddress,
+    tokenMint: asset.address,
+    authority: authorityAddress,
+    auctionHouse: address,
+    auctionHouseFeeAccount: feeAccountAddress,
+    tradeState: tradeStateAddress,
   };
 
   // Args.
   const args = {
-    buyerPrice: bid.price.basisPoints,
-    tokenSize: bid.tokens.basisPoints,
+    buyerPrice: price.basisPoints,
+    tokenSize: tokens.basisPoints,
   };
 
   // Cancel Bid Instruction.
@@ -175,10 +190,10 @@ export const cancelBidBuilder = (
       })
 
       // Cancel Bid Receipt.
-      .when(Boolean(bid.receiptAddress), (builder) =>
+      .when(Boolean(receiptAddress), (builder) =>
         builder.add({
           instruction: createCancelBidReceiptInstruction({
-            receipt: bid.receiptAddress as Pda,
+            receipt: receiptAddress as Pda,
             instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
           }),
           signers: [],

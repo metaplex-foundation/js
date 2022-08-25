@@ -48,18 +48,20 @@ export type CancelListingOperation = Operation<
  * @category Inputs
  */
 export type CancelListingInput = {
-  auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-
+  auctionHouse: Pick<
+    AuctionHouse,
+    'address' | 'authorityAddress' | 'feeAccountAddress' | 'hasAuctioneer'
+  >;
   listing: Pick<
-  Listing,
-  | 'asset'
-  | 'price'
-  | 'receiptAddress'
-  | 'sellerAddress'
-  | 'tokens'
-  | 'tradeStateAddress'
->
+    Listing,
+    | 'asset'
+    | 'price'
+    | 'receiptAddress'
+    | 'sellerAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -117,30 +119,38 @@ export const cancelListingBuilder = (
 ): TransactionBuilder<CancelListingBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, listing } = params;
 
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  // Data.
+  const {
+    asset,
+    sellerAddress,
+    receiptAddress,
+    tradeStateAddress,
+    price,
+    tokens,
+  } = listing;
+  const { address, authorityAddress, feeAccountAddress, hasAuctioneer } =
+    auctionHouse;
+
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
-  // Data.
-  // const { asset, tradeStateAddress, price, tokens } = listing;
-  const buyerPrice = auctionHouse.hasAuctioneer
-    ? AUCTIONEER_PRICE
-    : listing.price.basisPoints;
+  const buyerPrice = hasAuctioneer ? AUCTIONEER_PRICE : price.basisPoints;
 
   const accounts: CancelInstructionAccounts = {
-    wallet: listing.sellerAddress,
-    tokenAccount: listing.asset.token.address,
-    tokenMint: listing.asset.address,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
-    auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    tradeState: listing.tradeStateAddress,
+    wallet: sellerAddress,
+    tokenAccount: asset.token.address,
+    tokenMint: asset.address,
+    authority: authorityAddress,
+    auctionHouse: address,
+    auctionHouseFeeAccount: feeAccountAddress,
+    tradeState: tradeStateAddress,
   };
 
   // Args.
   const args = {
     buyerPrice,
-    tokenSize: listing.tokens.basisPoints,
+    tokenSize: tokens.basisPoints,
   };
 
   // Cancel Listing Instruction.
@@ -151,7 +161,7 @@ export const cancelListingBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          address,
           auctioneerAuthority.publicKey
         ),
       },
@@ -173,10 +183,10 @@ export const cancelListingBuilder = (
       })
 
       // Cancel Listing Receipt.
-      .when(Boolean(listing.receiptAddress), (builder) =>
+      .when(Boolean(receiptAddress), (builder) =>
         builder.add({
           instruction: createCancelListingReceiptInstruction({
-            receipt: listing.receiptAddress as Pda,
+            receipt: receiptAddress as Pda,
             instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
           }),
           signers: [],

@@ -68,28 +68,27 @@ export type ExecuteSaleOperation = Operation<
  * @category Inputs
  */
 export type ExecuteSaleInput = {
+  bid: Pick<
+    Bid,
+    | 'asset'
+    | 'auctionHouse'
+    | 'buyerAddress'
+    | 'canceledAt'
+    | 'price'
+    | 'receiptAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
 
-bid: Pick<
-  Bid,
-  | 'asset'
-  | 'auctionHouse'
-  | 'buyerAddress'
-  | 'canceledAt'
-  | 'price'
-  | 'receiptAddress'
-  | 'tokens'
-  | 'tradeStateAddress'
->
-
-listing: Pick<
-  Listing,
-  | 'asset'
-  | 'auctionHouse'
-  | 'canceledAt'
-  | 'sellerAddress'
-  | 'tradeStateAddress'
-  | 'receiptAddress'
->
+  listing: Pick<
+    Listing,
+    | 'asset'
+    | 'auctionHouse'
+    | 'canceledAt'
+    | 'sellerAddress'
+    | 'tradeStateAddress'
+    | 'receiptAddress'
+  >;
 
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
@@ -207,6 +206,16 @@ export const executeSaleBuilder = (
   params: ExecuteSaleBuilderParams
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
+  const { sellerAddress, asset } = listing;
+  const { buyerAddress, tokens } = bid;
+  const {
+    hasAuctioneer,
+    isNative,
+    treasuryMint,
+    address,
+    authorityAddress,
+    treasuryAccountAddress,
+  } = auctionHouse;
 
   if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
     throw new BidAndListingHaveDifferentAuctionHousesError();
@@ -220,55 +229,49 @@ export const executeSaleBuilder = (
   if (listing.canceledAt) {
     throw new CanceledListingIsNotAllowedError();
   }
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Data.
-  const price = auctionHouse.isNative
+  const price = isNative
     ? lamports(bid.price.basisPoints)
-    : amount(bid.price.basisPoints, auctionHouse.treasuryMint.currency);
+    : amount(bid.price.basisPoints, treasuryMint.currency);
 
   // Accounts.
-  const sellerPaymentReceiptAccount = auctionHouse.isNative
-    ? listing.sellerAddress
-    : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        listing.sellerAddress
-      );
+  const sellerPaymentReceiptAccount = isNative
+    ? sellerAddress
+    : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
   const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
-    listing.asset.address,
-    bid.buyerAddress
+    asset.address,
+    buyerAddress
   );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    bid.buyerAddress
-  );
+  const escrowPayment = findAuctionHouseBuyerEscrowPda(address, buyerAddress);
   const freeTradeState = findAuctionHouseTradeStatePda(
-    auctionHouse.address,
-    listing.sellerAddress,
-    auctionHouse.treasuryMint.address,
-    listing.asset.address,
+    address,
+    sellerAddress,
+    treasuryMint.address,
+    asset.address,
     lamports(0).basisPoints,
-    bid.tokens.basisPoints,
-    listing.asset.token.address
+    tokens.basisPoints,
+    asset.token.address
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
 
   const accounts = {
-    buyer: bid.buyerAddress,
-    seller: listing.sellerAddress,
-    tokenAccount: listing.asset.token.address,
-    tokenMint: listing.asset.address,
-    metadata: listing.asset.metadataAddress,
-    treasuryMint: auctionHouse.treasuryMint.address,
+    buyer: buyerAddress,
+    seller: sellerAddress,
+    tokenAccount: asset.token.address,
+    tokenMint: asset.address,
+    metadata: asset.metadataAddress,
+    treasuryMint: treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
     sellerPaymentReceiptAccount,
     buyerReceiptTokenAccount,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
+    authority: authorityAddress,
+    auctionHouse: address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    auctionHouseTreasury: auctionHouse.treasuryAccountAddress,
+    auctionHouseTreasury: treasuryAccountAddress,
     buyerTradeState: bid.tradeStateAddress,
     sellerTradeState: listing.tradeStateAddress,
     freeTradeState,
@@ -281,7 +284,7 @@ export const executeSaleBuilder = (
     escrowPaymentBump: escrowPayment.bump,
     programAsSignerBump: programAsSigner.bump,
     buyerPrice: price.basisPoints,
-    tokenSize: bid.tokens.basisPoints,
+    tokenSize: tokens.basisPoints,
   };
 
   // Execute Sale Instruction
@@ -292,7 +295,7 @@ export const executeSaleBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          address,
           auctioneerAuthority.publicKey
         ),
       },
@@ -301,7 +304,7 @@ export const executeSaleBuilder = (
   }
 
   // Provide additional keys to pay royalties.
-  listing.asset.creators.forEach(({ address }) => {
+  asset.creators.forEach(({ address }) => {
     executeSaleInstruction.keys.push({
       pubkey: address,
       isWritable: true,
@@ -311,10 +314,7 @@ export const executeSaleBuilder = (
     // Provide ATA to receive SPL token royalty if is not native SOL sale.
     if (!auctionHouse.isNative) {
       executeSaleInstruction.keys.push({
-        pubkey: findAssociatedTokenAccountPda(
-          auctionHouse.treasuryMint.address,
-          address
-        ),
+        pubkey: findAssociatedTokenAccountPda(treasuryMint.address, address),
         isWritable: true,
         isSigner: false,
       });
@@ -339,13 +339,13 @@ export const executeSaleBuilder = (
       .setContext({
         sellerTradeState: listing.tradeStateAddress,
         buyerTradeState: bid.tradeStateAddress,
-        buyer: bid.buyerAddress,
-        seller: listing.sellerAddress,
-        metadata: listing.asset.metadataAddress,
+        buyer: buyerAddress,
+        seller: sellerAddress,
+        metadata: asset.metadataAddress,
         bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
         receipt: shouldPrintReceipt ? purchaseReceipt : null,
         price,
-        tokens: bid.tokens
+        tokens: tokens,
       })
 
       // Execute Sale.
