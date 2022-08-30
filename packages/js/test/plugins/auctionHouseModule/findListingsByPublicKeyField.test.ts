@@ -3,7 +3,7 @@ import { sol } from '@/types';
 
 import { killStuckProcess, metaplex, createNft } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { LazyListing, Listing } from '@/plugins';
+import { LazyListing } from '@/plugins';
 
 killStuckProcess();
 
@@ -142,18 +142,17 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: firstNft.address,
-      lazy: false,
     })
     .run();
 
   // Then we got one listing.
   t.equal(listings.length, 1, 'returns one account');
 
-  // And it is for given mint.
+  // And it is for given metadata.
   listings.forEach((listing) => {
     t.ok(
-      (listing as Listing).asset.address.equals(firstNft.address),
-      'mint matches'
+      (listing as LazyListing).metadataAddress.equals(firstNft.metadataAddress),
+      'metadata matches'
     );
   });
 });

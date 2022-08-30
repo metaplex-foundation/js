@@ -8,7 +8,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { LazyPurchase, Purchase } from '@/plugins';
+import { LazyPurchase } from '@/plugins';
 
 killStuckProcess();
 
@@ -328,7 +328,6 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: firstNft.address,
-      lazy: false,
     })
     .run();
 
@@ -338,8 +337,10 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
   // And it is from given metadata.
   purchases.forEach((purchase) => {
     t.ok(
-      (purchase as Purchase).asset.address.equals(firstNft.address),
-      'mint matches'
+      (purchase as LazyPurchase).metadataAddress.equals(
+        firstNft.metadataAddress
+      ),
+      'metadata matches'
     );
   });
 });

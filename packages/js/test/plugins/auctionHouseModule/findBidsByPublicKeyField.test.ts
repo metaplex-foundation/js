@@ -8,7 +8,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Bid, LazyBid } from '@/plugins';
+import { LazyBid } from '@/plugins';
 
 killStuckProcess();
 
@@ -144,15 +144,17 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
       type: 'mint',
       auctionHouse,
       publicKey: nft.address,
-      lazy: false,
     })
     .run();
 
   // Then we got two bids.
   t.equal(bids.length, 2, 'returns two accounts');
 
-  // And they both are from given mint.
+  // And they both are for given metadata.
   bids.forEach((bid) => {
-    t.ok((bid as Bid).asset.address.equals(nft.address), 'mint matches');
+    t.ok(
+      (bid as LazyBid).metadataAddress.equals(nft.metadataAddress),
+      'metadata matches'
+    );
   });
 });

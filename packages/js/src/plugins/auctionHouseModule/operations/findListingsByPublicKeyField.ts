@@ -5,7 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { ListingReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';
+import { AuctionHouse, LazyListing, toLazyListing } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toListingReceiptAccount } from '../accounts';
 
@@ -40,7 +40,6 @@ export type FindListingsByPublicKeyFieldInput = {
   type: 'seller' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
-  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -48,7 +47,7 @@ export type FindListingsByPublicKeyFieldInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindListingsByPublicKeyFieldOutput = (LazyListing | Listing)[];
+export type FindListingsByPublicKeyFieldOutput = LazyListing[];
 
 /**
  * @group Operations
@@ -61,13 +60,7 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindListingsByPublicKeyFieldOutput> => {
-      const {
-        auctionHouse,
-        type,
-        publicKey,
-        commitment,
-        lazy = true,
-      } = operation.input;
+      const { auctionHouse, type, publicKey, commitment } = operation.input;
       const accounts = AuctionHouseProgram.listingAccounts(
         metaplex
       ).mergeConfig({
@@ -92,24 +85,8 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
       }
       scope.throwIfCanceled();
 
-      if (lazy) {
-        return listingQuery.getAndMap((account) =>
-          toLazyListing(toListingReceiptAccount(account), auctionHouse)
-        );
-      }
-
-      return Promise.all(
-        await listingQuery.getAndMap((account) =>
-          metaplex
-            .auctionHouse()
-            .loadListing({
-              lazyListing: toLazyListing(
-                toListingReceiptAccount(account),
-                auctionHouse
-              ),
-            })
-            .run(scope)
-        )
+      return listingQuery.getAndMap((account) =>
+        toLazyListing(toListingReceiptAccount(account), auctionHouse)
       );
     },
   };

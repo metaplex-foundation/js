@@ -5,7 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, Bid, LazyBid, toLazyBid } from '../models';
+import { AuctionHouse, LazyBid, toLazyBid } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toBidReceiptAccount } from '../accounts';
 
@@ -40,7 +40,6 @@ export type FindBidsByPublicKeyFieldInput = {
   type: 'buyer' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
-  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -48,7 +47,7 @@ export type FindBidsByPublicKeyFieldInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindBidsByPublicKeyFieldOutput = (Bid | LazyBid)[];
+export type FindBidsByPublicKeyFieldOutput = LazyBid[];
 
 /**
  * @group Operations
@@ -61,13 +60,7 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindBidsByPublicKeyFieldOutput> => {
-      const {
-        auctionHouse,
-        type,
-        publicKey,
-        commitment,
-        lazy = true,
-      } = operation.input;
+      const { auctionHouse, type, publicKey, commitment } = operation.input;
       const accounts = AuctionHouseProgram.bidAccounts(metaplex).mergeConfig({
         commitment,
       });
@@ -90,21 +83,8 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
       }
       scope.throwIfCanceled();
 
-      if (lazy) {
-        return bidQuery.getAndMap((account) =>
-          toLazyBid(toBidReceiptAccount(account), auctionHouse)
-        );
-      }
-
-      return await Promise.all(
-        await bidQuery.getAndMap((account) =>
-          metaplex
-            .auctionHouse()
-            .loadBid({
-              lazyBid: toLazyBid(toBidReceiptAccount(account), auctionHouse),
-            })
-            .run(scope)
-        )
+      return bidQuery.getAndMap((account) =>
+        toLazyBid(toBidReceiptAccount(account), auctionHouse)
       );
     },
   };

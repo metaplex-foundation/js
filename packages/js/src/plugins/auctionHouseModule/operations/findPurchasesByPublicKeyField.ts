@@ -5,12 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
-import {
-  AuctionHouse,
-  LazyPurchase,
-  Purchase,
-  toLazyPurchase,
-} from '../models';
+import { AuctionHouse, LazyPurchase, toLazyPurchase } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toPurchaseReceiptAccount } from '../accounts';
 
@@ -45,7 +40,6 @@ export type FindPurchasesByPublicKeyFieldInput = {
   type: 'buyer' | 'seller' | 'metadata' | 'mint';
   auctionHouse: AuctionHouse;
   publicKey: PublicKey;
-  lazy?: boolean;
   commitment?: Commitment;
 };
 
@@ -53,7 +47,7 @@ export type FindPurchasesByPublicKeyFieldInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindPurchasesByPublicKeyFieldOutput = (LazyPurchase | Purchase)[];
+export type FindPurchasesByPublicKeyFieldOutput = LazyPurchase[];
 
 /**
  * @group Operations
@@ -71,7 +65,6 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
         type,
         publicKey,
         commitment,
-        lazy = true,
       } = operation.input;
       const accounts = AuctionHouseProgram.purchaseAccounts(
         metaplex
@@ -102,24 +95,8 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
       }
       scope.throwIfCanceled();
 
-      if (lazy) {
-        return purchaseQuery.getAndMap((account) =>
-          toLazyPurchase(toPurchaseReceiptAccount(account), auctionHouse)
-        );
-      }
-
-      return Promise.all(
-        await purchaseQuery.getAndMap((account) =>
-          metaplex
-            .auctionHouse()
-            .loadPurchase({
-              lazyPurchase: toLazyPurchase(
-                toPurchaseReceiptAccount(account),
-                auctionHouse
-              ),
-            })
-            .run(scope)
-        )
+      return purchaseQuery.getAndMap((account) =>
+        toLazyPurchase(toPurchaseReceiptAccount(account), auctionHouse)
       );
     },
   };
