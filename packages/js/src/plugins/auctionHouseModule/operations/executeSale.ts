@@ -68,10 +68,29 @@ export type ExecuteSaleOperation = Operation<
  * @category Inputs
  */
 export type ExecuteSaleInput = {
+  bid: Pick<
+    Bid,
+    | 'asset'
+    | 'auctionHouse'
+    | 'buyerAddress'
+    | 'canceledAt'
+    | 'price'
+    | 'receiptAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
+  listing: Pick<
+    Listing,
+    | 'asset'
+    | 'auctionHouse'
+    | 'canceledAt'
+    | 'sellerAddress'
+    | 'tradeStateAddress'
+    | 'receiptAddress'
+  >;
+
   auctionHouse: AuctionHouse;
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  listing: Listing;
-  bid: Bid;
   bookkeeper?: Signer; // Default: identity
   printReceipt?: boolean; // Default: true
 
@@ -188,6 +207,14 @@ export const executeSaleBuilder = (
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
   const { sellerAddress, asset } = listing;
   const { buyerAddress, tokens } = bid;
+  const {
+    hasAuctioneer,
+    isNative,
+    treasuryMint,
+    address: auctionHouseAddress,
+    authorityAddress,
+    treasuryAccountAddress,
+  } = auctionHouse;
 
   if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
     throw new BidAndListingHaveDifferentAuctionHousesError();
@@ -201,34 +228,31 @@ export const executeSaleBuilder = (
   if (listing.canceledAt) {
     throw new CanceledListingIsNotAllowedError();
   }
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Data.
-  const price = auctionHouse.isNative
+  const price = isNative
     ? lamports(bid.price.basisPoints)
-    : amount(bid.price.basisPoints, auctionHouse.treasuryMint.currency);
+    : amount(bid.price.basisPoints, treasuryMint.currency);
 
   // Accounts.
-  const sellerPaymentReceiptAccount = auctionHouse.isNative
+  const sellerPaymentReceiptAccount = isNative
     ? sellerAddress
-    : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        sellerAddress
-      );
+    : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
   const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
     asset.address,
     buyerAddress
   );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
+    auctionHouseAddress,
     buyerAddress
   );
   const freeTradeState = findAuctionHouseTradeStatePda(
-    auctionHouse.address,
+    auctionHouseAddress,
     sellerAddress,
-    auctionHouse.treasuryMint.address,
+    treasuryMint.address,
     asset.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
@@ -242,14 +266,14 @@ export const executeSaleBuilder = (
     tokenAccount: asset.token.address,
     tokenMint: asset.address,
     metadata: asset.metadataAddress,
-    treasuryMint: auctionHouse.treasuryMint.address,
+    treasuryMint: treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
     sellerPaymentReceiptAccount,
     buyerReceiptTokenAccount,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
+    authority: authorityAddress,
+    auctionHouse: auctionHouseAddress,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    auctionHouseTreasury: auctionHouse.treasuryAccountAddress,
+    auctionHouseTreasury: treasuryAccountAddress,
     buyerTradeState: bid.tradeStateAddress,
     sellerTradeState: listing.tradeStateAddress,
     freeTradeState,
@@ -273,7 +297,7 @@ export const executeSaleBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },
@@ -290,12 +314,9 @@ export const executeSaleBuilder = (
     });
 
     // Provide ATA to receive SPL token royalty if is not native SOL sale.
-    if (!auctionHouse.isNative) {
+    if (!isNative) {
       executeSaleInstruction.keys.push({
-        pubkey: findAssociatedTokenAccountPda(
-          auctionHouse.treasuryMint.address,
-          address
-        ),
+        pubkey: findAssociatedTokenAccountPda(treasuryMint.address, address),
         isWritable: true,
         isSigner: false,
       });
