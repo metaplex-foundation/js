@@ -60,12 +60,7 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindPurchasesByPublicKeyFieldOutput> => {
-      const {
-        auctionHouse,
-        type,
-        publicKey,
-        commitment,
-      } = operation.input;
+      const { auctionHouse, type, publicKey, commitment } = operation.input;
       const accounts = AuctionHouseProgram.purchaseAccounts(
         metaplex
       ).mergeConfig({
