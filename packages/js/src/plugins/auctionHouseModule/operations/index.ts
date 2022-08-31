@@ -3,6 +3,7 @@ export * from './cancelListing';
 export * from './createAuctionHouse';
 export * from './createBid';
 export * from './createListing';
+export * from './deposit';
 export * from './executeSale';
 export * from './findAuctionHouseByAddress';
 export * from './findAuctionHouseByCreatorAndMint';
