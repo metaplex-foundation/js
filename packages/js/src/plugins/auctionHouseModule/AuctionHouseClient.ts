@@ -45,7 +45,7 @@ import {
   loadPurchaseOperation,
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
-  UpdateAuctionHouseOutput,
+  UpdateAuctionHouseOutput, WithdrawInput, withdrawOperation, WithdrawOutput,
 } from './operations';
 
 /**
@@ -91,6 +91,11 @@ export class AuctionHouseClient {
   /** {@inheritDoc executeSaleOperation} */
   executeSale(input: ExecuteSaleInput): Task<ExecuteSaleOutput> {
     return this.metaplex.operations().getTask(executeSaleOperation(input));
+  }
+
+  /** {@inheritDoc depositOperation} */
+  withdraw(input: WithdrawInput): Task<WithdrawOutput> {
+    return this.metaplex.operations().getTask(withdrawOperation(input));
   }
 
   /** {@inheritDoc findAuctionHouseByAddressOperation} */
