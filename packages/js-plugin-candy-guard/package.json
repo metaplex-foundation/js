@@ -44,7 +44,9 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@metaplex-foundation/js": "*"
+    "@metaplex-foundation/js": "*",
+    "@metaplex-foundation/mpl-candy-guard": "https://github.com/febo/candy-guard",
+    "@metaplex-foundation/mpl-candy-machine-core": "https://github.com/febo/candy-core"
   },
   "engines": {
     "node": ">=16.0"

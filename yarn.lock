@@ -3067,6 +3067,26 @@
     "@solana/web3.js" "^1.35.1"
     bn.js "^5.2.0"
 
+"@metaplex-foundation/mpl-candy-guard@https://github.com/febo/candy-guard":
+  version "0.0.1"
+  resolved "https://github.com/febo/candy-guard#fb2667100f080ec6bfc737a01f4ef7d96560f9c8"
+  dependencies:
+    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet-solana" "^0.3.0"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@metaplex-foundation/mpl-core" "^0.6.1"
+    "@solana/spl-token" "^0.2.0"
+
+"@metaplex-foundation/mpl-candy-machine-core@https://github.com/febo/candy-core":
+  version "0.0.1"
+  resolved "https://github.com/febo/candy-core#9c13bfb865949b9e7f792470efa1c67439d5f86e"
+  dependencies:
+    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet-solana" "^0.3.0"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@metaplex-foundation/mpl-core" "^0.6.1"
+    "@solana/spl-token" "^0.2.0"
+
 "@metaplex-foundation/mpl-candy-machine@^4.4.1":
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.4.1.tgz#71762ce5afb49f4a9719d6fe7e83581b21ea5938"
