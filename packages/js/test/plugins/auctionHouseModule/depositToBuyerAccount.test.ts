@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { sol } from '@/types';
+import { addAmounts, sol } from '@/types';
 import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
@@ -22,14 +22,15 @@ test('[auctionHouseModule] deposit to buyer account on an Auction House', async 
     })
     .run();
 
-  // Then buyer's escrow account has SOL in it.
+  // Then buyer's escrow account has 1 SOL and rent exempt amount in it.
   const buyerEscrow = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     mx.identity().publicKey
   );
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.not(buyerEscrowBalance.basisPoints.toNumber(), 0);
+  t.same(buyerEscrowBalance.basisPoints.toNumber(), addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber());
 });
 
 test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction House', async (t: Test) => {
@@ -55,8 +56,9 @@ test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction Hou
     mx.identity().publicKey
   );
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.not(buyerEscrowBalance.basisPoints.toNumber(), 0);
+  t.same(buyerEscrowBalance.basisPoints.toNumber(), addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber());
 });
 
 test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Deposit', async (t: Test) => {
