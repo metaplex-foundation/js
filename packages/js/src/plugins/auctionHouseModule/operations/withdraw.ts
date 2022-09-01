@@ -16,6 +16,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
 import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -102,6 +103,10 @@ export const withdrawBuilder = (
   metaplex: Metaplex
 ): TransactionBuilder<WithdrawBuilderContext> => {
   const { auctionHouse, auctioneerAuthority,withdrawAmount } = params;
+
+  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
+  }
 
   // Data.
 
