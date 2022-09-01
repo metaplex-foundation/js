@@ -43,8 +43,6 @@
   },
   "dependencies": {
     "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.4.0",
-    "@metaplex-foundation/beet-solana": "^0.3.0",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
     "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
@@ -54,8 +52,6 @@
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
-    "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
     "debug": "^4.3.4",
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
