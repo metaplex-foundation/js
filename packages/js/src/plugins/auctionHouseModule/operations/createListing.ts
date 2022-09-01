@@ -251,7 +251,7 @@ export const createListingBuilder = (
   };
 
   // Sell Instruction.
-  let sellInstruction;
+  let sellInstruction = createSellInstruction(accounts, args);
   if (params.auctioneerAuthority) {
     sellInstruction = createAuctioneerSellInstruction(
       {
@@ -264,8 +264,6 @@ export const createListingBuilder = (
       },
       args
     );
-  } else {
-    sellInstruction = createSellInstruction(accounts, args);
   }
 
   // Signers.

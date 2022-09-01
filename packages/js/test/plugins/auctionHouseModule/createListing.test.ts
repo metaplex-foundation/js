@@ -251,18 +251,11 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House.
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-    })
-    .run();
-  // Create a client for Auction House, but don't provide auctioneerAuthority.
-  const client = mx.auctionHouse();
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
-  // When we list that NFT.
-  const promise = client
+  // When we list that NFT without providing auctioneer authority.
+  const promise = mx
+    .auctionHouse()
     .list({
       auctionHouse,
       mintAccount: nft.address,
