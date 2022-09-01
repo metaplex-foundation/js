@@ -41,6 +41,7 @@ import {
   FindPurchaseByTradeStateInput,
   findPurchaseByTradeStateOperation,
   GetBuyerBalanceInput,
+  GetBuyerBalanceOutput,
   getBuyerBalanceOperation,
   LoadBidInput,
   loadBidOperation,
@@ -166,7 +167,7 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc getBuyerBalanceOperation} */
-  getBuyerBalance(options: GetBuyerBalanceInput) {
+  getBuyerBalance(options: GetBuyerBalanceInput): Task<GetBuyerBalanceOutput> {
     return this.metaplex
       .operations()
       .getTask(getBuyerBalanceOperation(options));
