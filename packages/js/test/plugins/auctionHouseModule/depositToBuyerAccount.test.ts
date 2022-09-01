@@ -30,7 +30,10 @@ test('[auctionHouseModule] deposit to buyer account on an Auction House', async 
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
   const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.same(buyerEscrowBalance.basisPoints.toNumber(), addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber());
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
 });
 
 test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction House', async (t: Test) => {
@@ -58,7 +61,10 @@ test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction Hou
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
   const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.same(buyerEscrowBalance.basisPoints.toNumber(), addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber());
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
 });
 
 test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Deposit', async (t: Test) => {
