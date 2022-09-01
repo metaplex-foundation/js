@@ -267,9 +267,12 @@ export const createListingBuilder = (
   }
 
   // Signers.
-  const sellSigners = [seller, authority, params.auctioneerAuthority].filter(
+  const sellSigners = [authority, params.auctioneerAuthority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
+
+  // Fee payer.
+  const feePayer = isSigner(seller) ? seller : metaplex.identity();
 
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
@@ -281,6 +284,7 @@ export const createListingBuilder = (
 
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
+      .setFeePayer(feePayer)
       .setContext({
         sellerTradeState,
         freeSellerTradeState,

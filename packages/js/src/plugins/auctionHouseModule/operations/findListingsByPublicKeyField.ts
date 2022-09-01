@@ -5,7 +5,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { ListingReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, LazyListing, toLazyListing } from '../models';
+import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toListingReceiptAccount } from '../accounts';
 
@@ -47,7 +47,7 @@ export type FindListingsByPublicKeyFieldInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindListingsByPublicKeyFieldOutput = LazyListing[];
+export type FindListingsByPublicKeyFieldOutput = (Listing | LazyListing)[];
 
 /**
  * @group Operations

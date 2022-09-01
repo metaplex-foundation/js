@@ -1,7 +1,12 @@
 import test from 'tape';
 import { sol } from '@/types';
 
-import { killStuckProcess, metaplex, createNft } from '../../helpers';
+import {
+  killStuckProcess,
+  metaplex,
+  createNft,
+  createWallet,
+} from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { LazyListing } from '@/plugins';
 
@@ -10,8 +15,10 @@ killStuckProcess();
 test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
+  const secondSeller = await createWallet(mx);
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
+  const thirdNft = await createNft(mx, { tokenOwner: secondSeller.publicKey });
 
   const { auctionHouse } = await createAuctionHouse(mx);
 
@@ -31,6 +38,17 @@ test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
     .list({
       auctionHouse,
       mintAccount: secondNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // And given we create a listing on third NFT for 1 SOL from different wallet.
+  await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: thirdNft.address,
+      seller: secondSeller,
       price: sol(1),
     })
     .run();

@@ -5,7 +5,12 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { findMetadataPda } from '../../nftModule';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
-import { AuctionHouse, LazyPurchase, toLazyPurchase } from '../models';
+import {
+  AuctionHouse,
+  Purchase,
+  LazyPurchase,
+  toLazyPurchase,
+} from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toPurchaseReceiptAccount } from '../accounts';
 
@@ -47,7 +52,7 @@ export type FindPurchasesByPublicKeyFieldInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindPurchasesByPublicKeyFieldOutput = LazyPurchase[];
+export type FindPurchasesByPublicKeyFieldOutput = (Purchase | LazyPurchase)[];
 
 /**
  * @group Operations

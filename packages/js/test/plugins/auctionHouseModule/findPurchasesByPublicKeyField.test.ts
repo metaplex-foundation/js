@@ -16,8 +16,11 @@ test('[auctionHouseModule] find all lazy purchases by buyer', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
+  const secondBuyer = await createWallet(mx);
+
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
+  const thirdNft = await createNft(mx);
 
   const { auctionHouse } = await createAuctionHouse(mx);
 
@@ -73,7 +76,33 @@ test('[auctionHouseModule] find all lazy purchases by buyer', async (t) => {
     .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
     .run();
 
-  // When I find all lazy purchases by buyer.
+  // And given we execute sale on third NFT from second buyer for 1 SOL.
+  const { listing: thirdListing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: thirdNft.address,
+      price: sol(1),
+    })
+    .run();
+
+  const { bid: thirdBid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer: secondBuyer,
+      mintAccount: thirdNft.address,
+      seller: mx.identity().publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await mx
+    .auctionHouse()
+    .executeSale({ auctionHouse, listing: thirdListing, bid: thirdBid })
+    .run();
+
+  // When I find all lazy purchases by first buyer.
   const purchases = await mx
     .auctionHouse()
     .findPurchasesBy({
@@ -95,9 +124,12 @@ test('[auctionHouseModule] find all lazy purchases by buyer', async (t) => {
 test('[auctionHouseModule] find all lazy purchases by seller', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
+  const secondSeller = await createWallet(mx);
   const buyer = await createWallet(mx);
+
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
+  const thirdNft = await createNft(mx, { tokenOwner: secondSeller.publicKey });
 
   const { auctionHouse } = await createAuctionHouse(mx);
 
@@ -151,6 +183,33 @@ test('[auctionHouseModule] find all lazy purchases by seller', async (t) => {
   await mx
     .auctionHouse()
     .executeSale({ auctionHouse, listing: secondListing, bid: secondBid })
+    .run();
+
+  // And given we execute sale on third NFT from different seller for 1 SOL.
+  const { listing: thirdListing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: thirdNft.address,
+      seller: secondSeller,
+      price: sol(1),
+    })
+    .run();
+
+  const { bid: thirdBid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: thirdNft.address,
+      seller: secondSeller.publicKey,
+      price: sol(1),
+    })
+    .run();
+
+  await mx
+    .auctionHouse()
+    .executeSale({ auctionHouse, listing: thirdListing, bid: thirdBid })
     .run();
 
   // When I find all lazy purchases by seller.
