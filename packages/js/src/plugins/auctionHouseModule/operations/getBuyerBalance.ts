@@ -1,11 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  SolAmount,
-} from '@/types';
+import { useOperation, Operation, OperationHandler, SolAmount } from '@/types';
 import { findAuctionHouseBuyerEscrowPda } from '../pdas';
 import { AuctionHouse } from '../models';
 
@@ -19,7 +14,8 @@ const Key = 'GetBuyerBalanceOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const getBuyerBalanceOperation = useOperation<GetBuyerBalanceOperation>(Key);
+export const getBuyerBalanceOperation =
+  useOperation<GetBuyerBalanceOperation>(Key);
 
 /**
  * @group Operations
@@ -36,10 +32,7 @@ export type GetBuyerBalanceOperation = Operation<
  * @category Inputs
  */
 export type GetBuyerBalanceInput = {
-  auctionHouse: Pick<
-    AuctionHouse,
-    'address'
-  >;
+  auctionHouse: Pick<AuctionHouse, 'address'>;
   buyerAddress: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
@@ -67,5 +60,5 @@ export const getBuyerBalanceOperationHandler: OperationHandler<GetBuyerBalanceOp
       );
 
       return metaplex.rpc().getBalance(buyerEscrow, commitment);
-    }
+    },
   };
