@@ -3,7 +3,8 @@ import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import {
   WithdrawInstructionAccounts,
-  createWithdrawInstruction, createAuctioneerWithdrawInstruction,
+  createWithdrawInstruction,
+  createAuctioneerWithdrawInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
   useOperation,
@@ -11,7 +12,11 @@ import {
   OperationHandler,
   Signer,
   isSigner,
-  toPublicKey, SplTokenAmount, SolAmount, lamports, amount,
+  toPublicKey,
+  SplTokenAmount,
+  SolAmount,
+  lamports,
+  amount,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
@@ -70,7 +75,7 @@ export type WithdrawOutput = {
  */
 export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
   handle: async (operation: WithdrawOperation, metaplex: Metaplex) =>
-    withdrawBuilder(operation.input,metaplex).sendAndConfirm(
+    withdrawBuilder(operation.input, metaplex).sendAndConfirm(
       metaplex,
       operation.input.confirmOptions
     ),
@@ -102,7 +107,7 @@ export const withdrawBuilder = (
   params: WithdrawBuilderParams,
   metaplex: Metaplex
 ): TransactionBuilder<WithdrawBuilderContext> => {
-  const { auctionHouse, auctioneerAuthority,withdrawAmount } = params;
+  const { auctionHouse, auctioneerAuthority, withdrawAmount } = params;
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -121,7 +126,6 @@ export const withdrawBuilder = (
     toPublicKey(buyer)
   );
 
-
   //Accounts
   const accounts: WithdrawInstructionAccounts = {
     wallet: toPublicKey(buyer),
@@ -136,13 +140,13 @@ export const withdrawBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: depositAmount.basisPoints
+    amount: depositAmount.basisPoints,
   };
 
   // Withdraw Instruction.
   let withdrawInstruction = createWithdrawInstruction(accounts, args);
 
-  if(auctioneerAuthority) {
+  if (auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
       auctioneerAuthority.publicKey

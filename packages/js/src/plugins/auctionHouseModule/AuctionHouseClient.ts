@@ -48,7 +48,10 @@ import {
   loadPurchaseOperation,
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
-  UpdateAuctionHouseOutput, WithdrawInput, withdrawOperation, WithdrawOutput,
+  UpdateAuctionHouseOutput,
+  WithdrawInput,
+  withdrawOperation,
+  WithdrawOutput,
 } from './operations';
 
 /**

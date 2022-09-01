@@ -41,7 +41,9 @@ import {
   loadPurchaseOperation,
   loadPurchaseOperationHandler,
   updateAuctionHouseOperation,
-  updateAuctionHouseOperationHandler, withdrawOperation, withdrawOperationHandler,
+  updateAuctionHouseOperationHandler,
+  withdrawOperation,
+  withdrawOperationHandler,
 } from './operations';
 
 /** @group Plugins */
