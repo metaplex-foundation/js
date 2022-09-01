@@ -14,8 +14,8 @@ import {
   createBidOperationHandler,
   createListingOperation,
   createListingOperationHandler,
-  depositOperation,
-  depositOperationHandler,
+  depositToBuyerAccountOperation,
+  depositToBuyerAccountOperationHandler,
   executeSaleOperation,
   executeSaleOperationHandler,
   findAuctionHouseByAddressOperation,
@@ -64,7 +64,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     );
     op.register(createBidOperation, createBidOperationHandler);
     op.register(createListingOperation, createListingOperationHandler);
-    op.register(depositOperation, depositOperationHandler);
+    op.register(
+      depositToBuyerAccountOperation,
+      depositToBuyerAccountOperationHandler
+    );
     op.register(executeSaleOperation, executeSaleOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,

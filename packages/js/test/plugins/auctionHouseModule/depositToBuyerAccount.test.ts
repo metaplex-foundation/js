@@ -7,7 +7,7 @@ import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] deposit on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] deposit to buyer account on an Auction House', async (t: Test) => {
   // Given we have an Auction House.
   const mx = await metaplex();
 
@@ -16,7 +16,7 @@ test('[auctionHouseModule] deposit on an Auction House', async (t: Test) => {
   // And we deposit 1 SOL.
   await mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       amount: sol(1),
     })
@@ -32,7 +32,7 @@ test('[auctionHouseModule] deposit on an Auction House', async (t: Test) => {
   t.not(buyerEscrowBalance.basisPoints.toNumber(), 0);
 });
 
-test('[auctionHouseModule] deposit on an Auctioneer Auction House', async (t: Test) => {
+test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction House', async (t: Test) => {
   // Given we have an Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
@@ -42,7 +42,7 @@ test('[auctionHouseModule] deposit on an Auctioneer Auction House', async (t: Te
   // And we deposit 1 SOL.
   await mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       auctioneerAuthority,
       amount: sol(1),
@@ -69,7 +69,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // When we deposit without providing auctioneer authority.
   const promise = mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       amount: sol(1),
     })

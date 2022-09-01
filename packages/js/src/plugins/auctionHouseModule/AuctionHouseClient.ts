@@ -18,9 +18,9 @@ import {
   CreateListingInput,
   createListingOperation,
   CreateListingOutput,
-  DepositInput,
-  depositOperation,
-  DepositOutput,
+  depositToBuyerAccountOperation,
+  DepositToBuyerAccountInput,
+  DepositToBuyerAccountOutput,
   ExecuteSaleInput,
   executeSaleOperation,
   ExecuteSaleOutput,
@@ -74,9 +74,13 @@ export class AuctionHouseClient {
     return this.metaplex.operations().getTask(createBidOperation(input));
   }
 
-  /** {@inheritDoc depositOperation} */
-  deposit(input: DepositInput): Task<DepositOutput> {
-    return this.metaplex.operations().getTask(depositOperation(input));
+  /** {@inheritDoc depositToBuyerAccountOperation} */
+  depositToBuyerAccount(
+    input: DepositToBuyerAccountInput
+  ): Task<DepositToBuyerAccountOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(depositToBuyerAccountOperation(input));
   }
 
   /** {@inheritDoc createAuctionHouseOperation} */
