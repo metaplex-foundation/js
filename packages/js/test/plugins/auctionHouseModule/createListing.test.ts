@@ -96,7 +96,7 @@ test('[auctionHouseModule] create a new listing using external seller on an Auct
     .run();
 
   // Then listing has correct seller.
-  t.same(listing.sellerAddress, seller.publicKey);
+  t.same(listing.sellerAddress.toBase58(), seller.publicKey.toBase58());
 });
 
 test('[auctionHouseModule] create receipt-less listings but can fetch them afterwards by default', async (t: Test) => {
