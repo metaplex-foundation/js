@@ -13,6 +13,7 @@ export * from './findListingByReceipt';
 export * from './findListingByTradeState';
 export * from './findPurchaseByReceipt';
 export * from './findPurchaseByTradeState';
+export * from './getBuyerBalance';
 export * from './loadBid';
 export * from './loadListing';
 export * from './loadPurchase';

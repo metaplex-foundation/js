@@ -18,8 +18,8 @@ import {
   CreateListingInput,
   createListingOperation,
   CreateListingOutput,
-  depositToBuyerAccountOperation,
   DepositToBuyerAccountInput,
+  depositToBuyerAccountOperation,
   DepositToBuyerAccountOutput,
   ExecuteSaleInput,
   executeSaleOperation,
@@ -40,6 +40,8 @@ import {
   findPurchaseByReceiptOperation,
   FindPurchaseByTradeStateInput,
   findPurchaseByTradeStateOperation,
+  GetBuyerBalanceInput,
+  getBuyerBalanceOperation,
   LoadBidInput,
   loadBidOperation,
   LoadListingInput,
@@ -161,6 +163,13 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .getTask(findPurchaseByReceiptOperation(options));
+  }
+
+  /** {@inheritDoc getBuyerBalanceOperation} */
+  getBuyerBalance(options: GetBuyerBalanceInput) {
+    return this.metaplex
+      .operations()
+      .getTask(getBuyerBalanceOperation(options));
   }
 
   /** {@inheritDoc createListingOperation} */
