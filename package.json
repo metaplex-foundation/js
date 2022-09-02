@@ -21,9 +21,9 @@
     "clean": "lerna run clean",
     "build": "lerna run build",
     "test": "yarn workspaces run test --testPathIgnorePatterns=/integration_tests/",
-		"lint:test": "yarn workspaces run lint:test",
-		"lint:fix": "yarn workspaces  run lint:fix",
-		"format": "prettier --write packages/ apps/",
+    "lint:test": "yarn workspaces run lint:test",
+    "lint:fix": "yarn workspaces  run lint:fix",
+    "format": "prettier --write packages/ apps/",
     "docs": "typedoc",
     "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
     "publish": "lerna publish from-package",
@@ -31,7 +31,7 @@
     "amman:stop": "amman stop",
     "lint": "prettier -c ."
   },
-  "devDependencies": {	
+  "devDependencies": {
     "@babel/core": "^7.17.10",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.16.7",
@@ -74,5 +74,8 @@
     "tsc-alias": "^1.7.0",
     "typedoc": "^0.23.0",
     "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "eslint-plugin-prettier": "^4.2.1"
   }
 }
