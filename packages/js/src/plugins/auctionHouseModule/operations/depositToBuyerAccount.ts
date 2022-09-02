@@ -29,7 +29,7 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 const Key = 'DepositToBuyerAccountOperation' as const;
 
 /**
- * Adds funds to user's buyer escrow account for the auction house.
+ * Adds funds to the user's buyer escrow account for the given auction house.
  *
  * ```ts
  * await metaplex
