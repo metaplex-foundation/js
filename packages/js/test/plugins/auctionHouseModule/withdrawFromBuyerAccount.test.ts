@@ -3,11 +3,11 @@ import { sol } from '@/types';
 import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
-import { Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] withdraw on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] withdraw from buyer account on an Auction House', async (t: Test) => {
   // Given we have an Auction House.
   const mx = await metaplex();
 
@@ -16,7 +16,7 @@ test('[auctionHouseModule] withdraw on an Auction House', async (t: Test) => {
   // Deposit 1 SOL.
   await mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       amount: sol(1),
     })
@@ -36,8 +36,13 @@ test('[auctionHouseModule] withdraw on an Auction House', async (t: Test) => {
     mx.identity().publicKey
   );
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.assert(buyerEscrowBalance.basisPoints.toNumber() < LAMPORTS_PER_SOL);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    minimumRentExempt.basisPoints.toNumber()
+  );
 });
 
 test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Withdraw', async (t: Test) => {

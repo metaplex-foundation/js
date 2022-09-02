@@ -15,8 +15,6 @@ import {
   toPublicKey,
   SplTokenAmount,
   SolAmount,
-  lamports,
-  amount,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
@@ -27,7 +25,7 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 // Operation
 // -----------------
 
-const Key = 'WithdrawOperation' as const;
+const Key = 'WithdrawFromBuyerAccountOperation' as const;
 
 /**
  * @group Operations
@@ -116,9 +114,6 @@ export const withdrawBuilder = (
   // Data.
 
   const amountBasisPoint = withdrawAmount.basisPoints;
-  const depositAmount = auctionHouse.isNative
-    ? lamports(amountBasisPoint)
-    : amount(amountBasisPoint, auctionHouse.treasuryMint.currency);
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
@@ -140,7 +135,7 @@ export const withdrawBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: depositAmount.basisPoints,
+    amount: amountBasisPoint,
   };
 
   // Withdraw Instruction.
