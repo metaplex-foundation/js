@@ -12,9 +12,7 @@ import {
   OperationHandler,
   Signer,
   toPublicKey,
-  lamports,
   isSigner,
-  amount,
   SolAmount,
   SplTokenAmount,
 } from '@/types';
@@ -28,33 +26,77 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 // Operation
 // -----------------
 
-const Key = 'DepositOperation' as const;
+const Key = 'DepositToBuyerAccountOperation' as const;
 
 /**
+ * Adds funds to the user's buyer escrow account for the given auction house.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .depositToBuyerAccount({ auctionHouse, buyer, amount })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
-export const depositOperation = useOperation<DepositOperation>(Key);
+export const depositToBuyerAccountOperation =
+  useOperation<DepositToBuyerAccountOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type DepositOperation = Operation<
+export type DepositToBuyerAccountOperation = Operation<
   typeof Key,
-  DepositInput,
-  DepositOutput
+  DepositToBuyerAccountInput,
+  DepositToBuyerAccountOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type DepositInput = {
-  auctionHouse: AuctionHouse;
-  buyer?: PublicKey | Signer; // Default: identity
-  authority?: PublicKey | Signer; // Default: auctionHouse.authority
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
+export type DepositToBuyerAccountInput = {
+  /** The Auction House in which escrow buyer deposits funds. */
+  auctionHouse: Pick<
+    AuctionHouse,
+    | 'address'
+    | 'authorityAddress'
+    | 'hasAuctioneer'
+    | 'isNative'
+    | 'treasuryMint'
+    | 'feeAccountAddress'
+  >;
+  /**
+   * The buyer who deposits funds.
+   * TODO: Explain why public key or signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  buyer?: PublicKey | Signer;
+
+  /**
+   * The Auction House authority.
+   * TODO: Explain why public key or signer.
+   *
+   * @defaultValue `auctionHouse.authority`
+   */
+  authority?: PublicKey | Signer;
+
+  /**
+   * The Auctioneer authority.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue Defaults to not being used.
+   */
+  auctioneerAuthority?: Signer;
+
+  /**
+   * Amount of funds to deposit.
+   * This can either be in SOL or in the SPL token used by the Auction House as a currency.
+   */
   amount: SolAmount | SplTokenAmount;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -65,7 +107,7 @@ export type DepositInput = {
  * @group Operations
  * @category Outputs
  */
-export type DepositOutput = {
+export type DepositToBuyerAccountOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -74,13 +116,17 @@ export type DepositOutput = {
  * @group Operations
  * @category Handlers
  */
-export const depositOperationHandler: OperationHandler<DepositOperation> = {
-  handle: async (operation: DepositOperation, metaplex: Metaplex) =>
-    depositBuilder(metaplex, operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    ),
-};
+export const depositToBuyerAccountOperationHandler: OperationHandler<DepositToBuyerAccountOperation> =
+  {
+    handle: async (
+      operation: DepositToBuyerAccountOperation,
+      metaplex: Metaplex
+    ) =>
+      depositToBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      ),
+  };
 
 // -----------------
 // Builder
@@ -90,7 +136,10 @@ export const depositOperationHandler: OperationHandler<DepositOperation> = {
  * @group Transaction Builders
  * @category Inputs
  */
-export type DepositBuilderParams = Omit<DepositInput, 'confirmOptions'> & {
+export type DepositToBuyerAccountBuilderParams = Omit<
+  DepositToBuyerAccountInput,
+  'confirmOptions'
+> & {
   instructionKey?: string;
 };
 
@@ -98,22 +147,31 @@ export type DepositBuilderParams = Omit<DepositInput, 'confirmOptions'> & {
  * @group Transaction Builders
  * @category Contexts
  */
-export type DepositBuilderContext = Omit<DepositOutput, 'response'>;
+export type DepositToBuyerAccountBuilderContext = Omit<
+  DepositToBuyerAccountOutput,
+  'response'
+>;
 
 /**
+ * Adds funds to user's buyer escrow account for the auction house.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .depositToBuyerAccount({ auctionHouse, buyer, amount });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
-export const depositBuilder = (
+export const depositToBuyerAccountBuilder = (
   metaplex: Metaplex,
-  params: DepositBuilderParams
-): TransactionBuilder<DepositBuilderContext> => {
+  params: DepositToBuyerAccountBuilderParams
+): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
   // Data.
   const auctionHouse = params.auctionHouse;
   const amountBasisPoint = params.amount.basisPoints;
-  const depositAmount = auctionHouse.isNative
-    ? lamports(amountBasisPoint)
-    : amount(amountBasisPoint, auctionHouse.treasuryMint.currency);
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -147,7 +205,7 @@ export const depositBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: depositAmount.basisPoints,
+    amount: amountBasisPoint,
   };
 
   // Deposit Instruction.

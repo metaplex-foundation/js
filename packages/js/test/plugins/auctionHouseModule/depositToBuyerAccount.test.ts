@@ -1,13 +1,12 @@
 import test, { Test } from 'tape';
-import { sol } from '@/types';
+import { addAmounts, sol } from '@/types';
 import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] deposit on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] deposit to buyer account on an Auction House', async (t: Test) => {
   // Given we have an Auction House.
   const mx = await metaplex();
 
@@ -16,23 +15,26 @@ test('[auctionHouseModule] deposit on an Auction House', async (t: Test) => {
   // And we deposit 1 SOL.
   await mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       amount: sol(1),
     })
     .run();
 
-  // Then buyer's escrow account has SOL in it.
-  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    mx.identity().publicKey
-  );
-  const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  // Then buyer's escrow account has 1 SOL and rent exempt amount in it.
+  const buyerEscrowBalance = await mx
+    .auctionHouse()
+    .getBuyerBalance({ auctionHouse, buyerAddress: mx.identity().publicKey })
+    .run();
+  const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.not(buyerEscrowBalance.basisPoints.toNumber(), 0);
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
 });
 
-test('[auctionHouseModule] deposit on an Auctioneer Auction House', async (t: Test) => {
+test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction House', async (t: Test) => {
   // Given we have an Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
@@ -42,7 +44,7 @@ test('[auctionHouseModule] deposit on an Auctioneer Auction House', async (t: Te
   // And we deposit 1 SOL.
   await mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       auctioneerAuthority,
       amount: sol(1),
@@ -50,13 +52,16 @@ test('[auctionHouseModule] deposit on an Auctioneer Auction House', async (t: Te
     .run();
 
   // Then buyer's escrow account has SOL in it.
-  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    mx.identity().publicKey
-  );
-  const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const buyerEscrowBalance = await mx
+    .auctionHouse()
+    .getBuyerBalance({ auctionHouse, buyerAddress: mx.identity().publicKey })
+    .run();
+  const minimumRentExempt = await mx.rpc().getRent(0);
 
-  t.not(buyerEscrowBalance.basisPoints.toNumber(), 0);
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
 });
 
 test('[auctionHouseModule] it throws an error if Auctioneer Authority is not provided in Auctioneer Deposit', async (t: Test) => {
@@ -69,7 +74,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // When we deposit without providing auctioneer authority.
   const promise = mx
     .auctionHouse()
-    .deposit({
+    .depositToBuyerAccount({
       auctionHouse,
       amount: sol(1),
     })
