@@ -341,6 +341,34 @@ export class NoInstructionsToSendError extends SdkError {
 }
 
 /** @group Errors */
+export class FailedToSerializeDataError extends SdkError {
+  constructor(dataDescription: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'failed_to_serialize_data',
+      title: 'Failed To Serialize Data',
+      problem: `The received data could not be serialized as a [${dataDescription}].`,
+      solution:
+        'Ensure the data is of the expected type so it can be serialized.',
+    });
+  }
+}
+
+/** @group Errors */
+export class FailedToDeserializeDataError extends SdkError {
+  constructor(dataDescription: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'failed_to_deserialize_data',
+      title: 'Failed To Deserialize Data',
+      problem: `The received serialized data could not be deserialized to a [${dataDescription}].`,
+      solution:
+        'Ensure the serialized data is not corrupted and complies with the expected type.',
+    });
+  }
+}
+
+/** @group Errors */
 export class NotYetImplementedError extends SdkError {
   constructor(options?: MetaplexErrorOptions) {
     super({

@@ -29,8 +29,9 @@ export function assertCandyGuard(value: any): asserts value is CandyGuard {
 
 /** @group Model Helpers */
 export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
-  const toCandyGuard = getAccountParsingAndAssertingFunction(MplCandyGuard);
-  const parsedCandyGuard = toCandyGuard(account);
+  const toCandyGuardAccount =
+    getAccountParsingAndAssertingFunction(MplCandyGuard);
+  const parsedCandyGuard = toCandyGuardAccount(account);
 
   return {
     model: 'candyGuard',
