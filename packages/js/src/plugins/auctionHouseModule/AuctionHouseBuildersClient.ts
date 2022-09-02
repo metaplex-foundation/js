@@ -1,5 +1,8 @@
 import type { Metaplex } from '@/Metaplex';
-import { DepositToBuyerAccountBuilderParams, depositToBuyerAccountBuilder } from './operations';
+import {
+  DepositToBuyerAccountBuilderParams,
+  depositToBuyerAccountBuilder,
+} from './operations';
 import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
