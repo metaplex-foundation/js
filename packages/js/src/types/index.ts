@@ -7,6 +7,7 @@ export * from './DateTime';
 export * from './HasDriver';
 export * from './HasMetaplex';
 export * from './MetaplexPlugin';
+export * from './Model';
 export * from './Operation';
 export * from './Pda';
 export * from './Program';
