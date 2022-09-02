@@ -71,19 +71,32 @@ export type DepositToBuyerAccountInput = {
   >;
   /**
    * The buyer who deposits funds.
+   * TODO: Explain why public key or signer.
    *
    * @defaultValue `metaplex.identity()`
    */
   buyer?: PublicKey | Signer;
+  
   /**
    * The Auction House authority.
+   * TODO: Explain why public key or signer.
    *
    * @defaultValue `auctionHouse.authority`
    */
   authority?: PublicKey | Signer;
-  /** The Auctioneer authority. It is required when Auction House has Auctioneer enabled. */
+  
+  /** 
+   * The Auctioneer authority.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue Defaults to not being used.
+   */
   auctioneerAuthority?: Signer;
-  /** Amount of funds to deposit. Can be SOL or any SPL token. */
+  
+  /**
+   * Amount of funds to deposit. 
+   * This can either be in SOL or in the SPL token used by the Auction House as a currency.
+   */
   amount: SolAmount | SplTokenAmount;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
