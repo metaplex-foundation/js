@@ -42,7 +42,7 @@ export type GetBuyerBalanceOperation = Operation<
  */
 export type GetBuyerBalanceInput = {
   /** The Auction House in which to get buyer's escrow balance. */
-  auctionHouse: Pick<AuctionHouse, 'address'>;
+  auctionHouse: PublicKey;
   /** Buyer's address. */
   buyerAddress: PublicKey;
 
