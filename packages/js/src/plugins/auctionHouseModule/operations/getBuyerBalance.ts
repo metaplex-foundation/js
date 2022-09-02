@@ -11,6 +11,15 @@ import { AuctionHouse } from '../models';
 const Key = 'GetBuyerBalanceOperation' as const;
 
 /**
+ * Gets buyer's balance in Auction House escrow account.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .getBuyerBalance({ auctionHouse, buyerAddress })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -32,7 +41,9 @@ export type GetBuyerBalanceOperation = Operation<
  * @category Inputs
  */
 export type GetBuyerBalanceInput = {
+  /** The Auction House in which to get buyer's escrow balance. */
   auctionHouse: Pick<AuctionHouse, 'address'>;
+  /** Buyer's address. */
   buyerAddress: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
