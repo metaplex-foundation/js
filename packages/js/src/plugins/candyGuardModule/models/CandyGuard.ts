@@ -1,10 +1,12 @@
 import {
   assertModel,
+  BigNumber,
   deserializeAccountFromBeetClass,
   isModel,
   Model,
   Pda,
   PublicKey,
+  toBigNumber,
   UnparsedAccount,
 } from '@/types';
 import {
@@ -14,11 +16,17 @@ import {
 
 /** @group Models */
 export type CandyGuard = Model<'candyGuard'> & {
-  /** The PDA address of the candy guard account. */
+  /** The PDA address of the Candy Guard account. */
   readonly address: Pda;
 
-  /** The address used to derive the candy guard's PDA. */
+  /** The address used to derive the Candy Guard's PDA. */
   readonly baseAddress: PublicKey;
+
+  /** The address allowed to update the Candy Guard account */
+  readonly authorityAddress: PublicKey;
+
+  /** An array of boolean dictating which guards are activated. */
+  readonly features: boolean[];
 };
 
 /** @group Model Helpers */
@@ -42,5 +50,17 @@ export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
     model: 'candyGuard',
     address: new Pda(parsedCandyGuard.publicKey, parsedCandyGuard.data.bump),
     baseAddress: parsedCandyGuard.data.base,
+    authorityAddress: parsedCandyGuard.data.authority,
+    features: featuresAsBooleanArray(
+      toBigNumber(parsedCandyGuard.data.features)
+    ),
+
+    // TODO(loris): Parse the guard settings.
   };
 };
+
+const featuresAsBooleanArray = (features: BigNumber): boolean[] =>
+  features
+    .toString(2, features.byteLength() * 8)
+    .split('')
+    .map((x) => (x === '1' ? true : false));

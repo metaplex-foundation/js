@@ -1,1 +1,1 @@
-export * from './CandyMachine';
+export * from './CandyGuard';
