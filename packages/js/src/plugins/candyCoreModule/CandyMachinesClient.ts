@@ -24,7 +24,7 @@ import {
 } from './operations';
 
 /**
- * This is a client for the Candy Machine v3 module.
+ * This is a client for the Candy Machine module.
  *
  * It enables us to interact with the Candy Machine program in order to
  * create, update and delete Candy Machines as well as mint from them.

@@ -12,4 +12,5 @@ export * from './Operation';
 export * from './Pda';
 export * from './Program';
 export * from './PublicKey';
+export * from './Serializer';
 export * from './Signer';

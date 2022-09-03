@@ -5,9 +5,11 @@ import {
   isFixableBeet,
 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
+import { Account, UnparsedAccount } from './Account';
 import {
   FailedToDeserializeDataError,
   FailedToSerializeDataError,
+  UnexpectedAccountError,
 } from '../errors';
 
 export type Serializer<T> = {
@@ -16,12 +18,7 @@ export type Serializer<T> = {
   deserialize: (buffer: Buffer, offset?: number) => [T, number];
 };
 
-type BeetConstructor<T> = {
-  name: string;
-  deserialize: (data: Buffer, offset?: number) => [T, number];
-};
-
-export const createBeetSerializer = <T>(beet: Beet<T>): Serializer<T> => ({
+export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
   description: beet.description,
   serialize: (value: T) => {
     const fixedBeet = isFixableBeet(beet) ? beet.toFixedFromValue(value) : beet;
@@ -39,9 +36,24 @@ export const createBeetSerializer = <T>(beet: Beet<T>): Serializer<T> => ({
   },
 });
 
+type BeetClass<T> = {
+  name: string;
+  deserialize: (data: Buffer, offset?: number) => [T, number];
+};
+
+export const createDeserializerFromBeetClass = <T>(
+  beet: BeetClass<T>,
+  description?: string
+): Pick<Serializer<T>, 'description' | 'deserialize'> => ({
+  description: description ?? beet.name,
+  deserialize: (buffer: Buffer, offset?: number) => {
+    return beet.deserialize(buffer, offset);
+  },
+});
+
 export const serialize = <T>(
-  serializer: Pick<Serializer<T>, 'description' | 'serialize'>,
-  value: T
+  value: T,
+  serializer: Pick<Serializer<T>, 'description' | 'serialize'>
 ): Buffer => {
   try {
     return serializer.serialize(value);
@@ -53,8 +65,8 @@ export const serialize = <T>(
 };
 
 export const deserialize = <T>(
-  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>,
-  value: Buffer
+  value: Buffer,
+  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>
 ): [T, number] => {
   try {
     return serializer.deserialize(value);
@@ -63,4 +75,29 @@ export const deserialize = <T>(
       cause: error as Error,
     });
   }
+};
+
+export const deserializeAccount = <T>(
+  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>,
+  account: UnparsedAccount
+): Account<T> => {
+  try {
+    const data: T = serializer.deserialize(account.data)[0];
+    return { ...account, data };
+  } catch (error) {
+    throw new UnexpectedAccountError(
+      account.publicKey,
+      serializer.description,
+      { cause: error as Error }
+    );
+  }
+};
+
+export const deserializeAccountFromBeetClass = <T>(
+  account: UnparsedAccount,
+  beetClass: BeetClass<T>,
+  description?: string
+): Account<T> => {
+  const serializer = createDeserializerFromBeetClass(beetClass, description);
+  return deserializeAccount(serializer, account);
 };

@@ -1,13 +1,16 @@
 import {
+  assertModel,
+  deserializeAccountFromBeetClass,
+  isModel,
+  Model,
+  Pda,
   PublicKey,
   UnparsedAccount,
-  Model,
-  isModel,
-  assertModel,
-  Pda,
-  getAccountParsingAndAssertingFunction,
-} from '@metaplex-foundation/js';
-import { CandyGuard as MplCandyGuard } from '@metaplex-foundation/mpl-candy-guard';
+} from '@/types';
+import {
+  CandyGuard as MplCandyGuard,
+  candyGuardBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
 
 /** @group Models */
 export type CandyGuard = Model<'candyGuard'> & {
@@ -29,9 +32,11 @@ export function assertCandyGuard(value: any): asserts value is CandyGuard {
 
 /** @group Model Helpers */
 export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
-  const toCandyGuardAccount =
-    getAccountParsingAndAssertingFunction(MplCandyGuard);
-  const parsedCandyGuard = toCandyGuardAccount(account);
+  const parsedCandyGuard = deserializeAccountFromBeetClass(
+    account,
+    MplCandyGuard,
+    candyGuardBeet.description
+  );
 
   return {
     model: 'candyGuard',

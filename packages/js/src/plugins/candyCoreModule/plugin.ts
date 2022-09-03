@@ -54,14 +54,14 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       updateCandyMachineOperationHandler
     );
 
-    metaplex.candyMachinesV3 = function () {
+    metaplex.candyMachines = function () {
       return new CandyMachinesClient(this);
     };
   },
 });
 
-declare module '@metaplex-foundation/js/src/Metaplex' {
+declare module '../../Metaplex' {
   interface Metaplex {
-    candyMachinesV3(): CandyMachinesClient;
+    candyMachines(): CandyMachinesClient;
   }
 }
