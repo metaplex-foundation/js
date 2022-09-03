@@ -166,8 +166,9 @@ export class RpcClient {
     );
 
     return accounts.map(({ pubkey, account }) => ({
-      publicKey: pubkey,
       ...account,
+      publicKey: pubkey,
+      lamports: lamports(account.lamports),
     }));
   }
 
@@ -251,7 +252,12 @@ export class RpcClient {
       return { publicKey, exists: false };
     }
 
-    return { publicKey, exists: true, ...accountInfo };
+    return {
+      ...accountInfo,
+      publicKey,
+      exists: true,
+      lamports: lamports(accountInfo.lamports),
+    };
   }
 
   protected parseProgramError(

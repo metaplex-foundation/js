@@ -1,14 +1,18 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
+import { SolAmount } from './Amount';
 
-export type Account<T> = {
-  readonly publicKey: PublicKey;
+export type AccountInfo = {
   readonly executable: boolean;
   readonly owner: PublicKey;
-  readonly lamports: number;
-  readonly data: T;
+  readonly lamports: SolAmount;
   readonly rentEpoch?: number;
+};
+
+export type Account<T> = AccountInfo & {
+  readonly publicKey: PublicKey;
+  readonly data: T;
 };
 
 export type MaybeAccount<T> =
@@ -113,3 +117,8 @@ export function assertAccountExists<T>(
     throw new AccountNotFoundError(account.publicKey, name, { solution });
   }
 }
+
+export const toAccountInfo = (account: UnparsedAccount): AccountInfo => {
+  const { executable, owner, lamports, rentEpoch } = account;
+  return { executable, owner, lamports, rentEpoch };
+};

@@ -1,4 +1,5 @@
 import {
+  AccountInfo,
   assertModel,
   BigNumber,
   deserializeAccountFromBeetClass,
@@ -6,6 +7,7 @@ import {
   Model,
   Pda,
   PublicKey,
+  toAccountInfo,
   toBigNumber,
   UnparsedAccount,
 } from '@/types';
@@ -18,6 +20,9 @@ import {
 export type CandyGuard = Model<'candyGuard'> & {
   /** The PDA address of the Candy Guard account. */
   readonly address: Pda;
+
+  /** Blockchain data of the Candy Guard account. */
+  readonly accountInfo: AccountInfo;
 
   /** The address used to derive the Candy Guard's PDA. */
   readonly baseAddress: PublicKey;
@@ -49,6 +54,7 @@ export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
   return {
     model: 'candyGuard',
     address: new Pda(parsedCandyGuard.publicKey, parsedCandyGuard.data.bump),
+    accountInfo: toAccountInfo(account),
     baseAddress: parsedCandyGuard.data.base,
     authorityAddress: parsedCandyGuard.data.authority,
     features: featuresAsBooleanArray(
