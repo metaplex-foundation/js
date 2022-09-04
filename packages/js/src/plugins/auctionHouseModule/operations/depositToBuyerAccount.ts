@@ -99,7 +99,7 @@ export type DepositToBuyerAccountInput = {
    *
    * @defaultValue `metaplex.identity()`
    */
-   payer?: Signer;
+  payer?: Signer;
 
   /**
    * Amount of funds to deposit.

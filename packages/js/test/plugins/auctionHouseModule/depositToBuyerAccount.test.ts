@@ -24,7 +24,10 @@ test('[auctionHouseModule] deposit to buyer account on an Auction House', async 
   // Then buyer's escrow account has 1 SOL and rent exempt amount in it.
   const buyerEscrowBalance = await mx
     .auctionHouse()
-    .getBuyerBalance({ auctionHouse: auctionHouse.address, buyerAddress: mx.identity().publicKey })
+    .getBuyerBalance({
+      auctionHouse: auctionHouse.address,
+      buyerAddress: mx.identity().publicKey,
+    })
     .run();
   const minimumRentExempt = await mx.rpc().getRent(0);
 
@@ -54,7 +57,10 @@ test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction Hou
   // Then buyer's escrow account has SOL in it.
   const buyerEscrowBalance = await mx
     .auctionHouse()
-    .getBuyerBalance({ auctionHouse: auctionHouse.address, buyerAddress: mx.identity().publicKey })
+    .getBuyerBalance({
+      auctionHouse: auctionHouse.address,
+      buyerAddress: mx.identity().publicKey,
+    })
     .run();
   const minimumRentExempt = await mx.rpc().getRent(0);
 
