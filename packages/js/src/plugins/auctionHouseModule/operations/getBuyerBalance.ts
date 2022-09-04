@@ -2,7 +2,6 @@ import { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, SolAmount } from '@/types';
 import { findAuctionHouseBuyerEscrowPda } from '../pdas';
-import { AuctionHouse } from '../models';
 
 // -----------------
 // Operation
@@ -66,7 +65,7 @@ export const getBuyerBalanceOperationHandler: OperationHandler<GetBuyerBalanceOp
       const { auctionHouse, buyerAddress, commitment } = operation.input;
 
       const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-        auctionHouse.address,
+        auctionHouse,
         buyerAddress
       );
 

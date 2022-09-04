@@ -71,27 +71,35 @@ export type DepositToBuyerAccountInput = {
   >;
   /**
    * The buyer who deposits funds.
-   * TODO: Explain why public key or signer.
+   * This expects a Signer.
    *
    * @defaultValue `metaplex.identity()`
    */
-  buyer?: PublicKey | Signer;
+  buyer?: Signer;
 
   /**
    * The Auction House authority.
-   * TODO: Explain why public key or signer.
    *
    * @defaultValue `auctionHouse.authority`
    */
-  authority?: PublicKey | Signer;
+  authority?: PublicKey;
 
   /**
-   * The Auctioneer authority.
+   * The Auctioneer authority key.
    * It is required when Auction House has Auctioneer enabled.
    *
    * @defaultValue Defaults to not being used.
    */
   auctioneerAuthority?: Signer;
+
+  /**
+   * The Signer paying for the creation of all accounts
+   * required to deposit to the buyer's account.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+   payer?: Signer;
 
   /**
    * Amount of funds to deposit.
@@ -178,6 +186,7 @@ export const depositToBuyerAccountBuilder = (
   }
 
   // Accounts.
+  const payer = params.payer ?? (metaplex.identity() as Signer);
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const paymentAccount = auctionHouse.isNative
@@ -235,7 +244,7 @@ export const depositToBuyerAccountBuilder = (
 
   return (
     TransactionBuilder.make()
-
+      .setFeePayer(payer)
       // Deposit.
       .add({
         instruction: depositInstruction,
