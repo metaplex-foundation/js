@@ -7,7 +7,7 @@ import {
 } from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
-import { CandyGuard } from '../models';
+import { CandyGuard, toCandyGuard } from '../models';
 
 // -----------------
 // Operation
@@ -25,8 +25,9 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyGuardByAddressOperation =
-  useOperation<FindCandyGuardByAddressOperation>(Key);
+export const findCandyGuardByAddressOperation = <
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+>() => useOperation<FindCandyGuardByAddressOperation<GuardSettings>>(Key);
 
 /**
  * @group Operations
@@ -63,16 +64,9 @@ export const findCandyGuardByAddressOperationHandler: OperationHandler<FindCandy
       metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
-      const collectionPda = findCandyGuardCollectionPda(address);
-      const accounts = await metaplex
-        .rpc()
-        .getMultipleAccounts([address, collectionPda], commitment);
+      const account = await metaplex.rpc().getAccount(address, commitment);
+      assertAccountExists(account);
 
-      const unparsedAccount = accounts[0];
-      assertAccountExists(unparsedAccount);
-      const account = toCandyMachineAccount(unparsedAccount);
-      const collectionAccount = parseCandyMachineCollectionAccount(accounts[1]);
-
-      return toCandyMachine(account, unparsedAccount, collectionAccount);
+      return toCandyGuard(account, metaplex);
     },
   };

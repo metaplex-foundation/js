@@ -9,6 +9,7 @@ export type CandyGuardManifest<
   MintRemainingAccounts extends Array<unknown> = []
 > = {
   name: string;
+  settingsBytes: number; // Fixed.
   settingsSerializer: Serializer<Option<Settings>>;
   mintArgsSerializer?: Serializer<MintArgs>;
   mintRemainingAccountsSerializer?: Serializer<MintRemainingAccounts>;
@@ -23,8 +24,8 @@ export type CandyGuardsSettings = {
 
 /** TODO */
 export type CandyGuardsMintSettings = {
-  [name: string]: {
+  [name: string]: Option<{
     args?: Array<unknown>;
     remainingAccounts?: Array<unknown>;
-  };
+  }>;
 };

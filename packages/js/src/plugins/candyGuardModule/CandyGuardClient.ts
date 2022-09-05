@@ -20,6 +20,7 @@ import {
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
 } from './operations';
+import { findCandyGuardPda } from './pdas';
 
 /**
  * This is a client for the Candy Guard module.
@@ -102,7 +103,24 @@ export class CandyGuardClient {
   ): Task<CandyGuard<T>> {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardByAddressOperation(input));
+      .getTask(findCandyGuardByAddressOperation<T>()(input));
+  }
+
+  /**
+   * Helper method that fetches a Candy Guard via the base
+   * address used to derived its PDA.
+   *
+   * ```ts
+   * const candyGuard = await metaplex.candyGuards().findByBaseAddress(base).run();
+   * ```
+   */
+  findByBaseAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: FindCandyGuardByAddressInput
+  ): Task<CandyGuard<T>> {
+    return this.findByAddress({
+      ...input,
+      address: findCandyGuardPda(input.address),
+    });
   }
 
   /** {@inheritDoc mintFromCandyGuardOperation} */

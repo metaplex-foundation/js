@@ -30,7 +30,7 @@ export const candyGuardModule = (): MetaplexPlugin => ({
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
     op.register(deleteCandyGuardOperation, deleteCandyGuardOperationHandler);
     op.register(
-      findCandyGuardByAddressOperation,
+      findCandyGuardByAddressOperation(),
       findCandyGuardByAddressOperationHandler
     );
     op.register(
