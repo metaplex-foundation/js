@@ -2,7 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
+import { CandyMachinesBuildersClient } from './CandyGuardBuildersClient';
 import { CandyMachine } from './models';
 import {
   CreateCandyMachineInput,

@@ -23,7 +23,7 @@ import {
   CandyMachineConfigs,
   toCandyMachineConfigs,
   toCandyMachineInstructionData,
-} from '../models/CandyMachine';
+} from '../models/CandyGuard';
 import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------

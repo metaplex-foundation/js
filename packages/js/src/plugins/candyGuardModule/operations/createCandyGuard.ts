@@ -33,7 +33,7 @@ import {
   CandyMachine,
   CandyMachineConfigs,
   toCandyMachineInstructionData,
-} from '../models/CandyMachine';
+} from '../models/CandyGuard';
 import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineAccountSizeFromData } from '../helpers';
 import { findCandyMachineCollectionPda } from '../pdas';

@@ -1,6 +1,5 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
-import { CandyMachinesClient } from './CandyMachinesClient';
 import {
   createCandyMachineOperation,
   createCandyMachineOperationHandler,
@@ -54,14 +53,14 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       updateCandyMachineOperationHandler
     );
 
-    metaplex.candyMachines = function () {
-      return new CandyMachinesClient(this);
+    metaplex.candyGuards = function () {
+      return new CandyGuardClient(this);
     };
   },
 });
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    candyMachines(): CandyMachinesClient;
+    candyGuards(): CandyGuardClient;
   }
 }

@@ -1,12 +1,17 @@
-import { PROGRAM_ID } from '@metaplex-foundation/mpl-candy-machine';
-import { CandyMachineGpaBuilder } from './gpaBuilders';
-import { Metaplex } from '@/Metaplex';
+import { PROGRAM_ID } from '@metaplex-foundation/mpl-candy-guard';
 
 /** @group Programs */
-export const CandyMachineProgram = {
+export const DefaultCandyGuardProgram = {
   publicKey: PROGRAM_ID,
-
-  accounts(metaplex: Metaplex) {
-    return new CandyMachineGpaBuilder(metaplex, this.publicKey);
-  },
+  availableGuards: [
+    'bot_tax',
+    'live_date',
+    'lamports',
+    'spl_token',
+    'third_party_signer',
+    'whitelist',
+    'gatekeeper',
+    'end_settings',
+    'allow_list',
+  ],
 };

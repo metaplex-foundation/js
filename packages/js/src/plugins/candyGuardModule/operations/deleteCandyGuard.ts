@@ -4,7 +4,7 @@ import { TransactionBuilder } from '@/utils';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachine } from '../models/CandyMachine';
+import { CandyMachine } from '../models/CandyGuard';
 import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
