@@ -10,7 +10,7 @@ import { findAuctionHouseBuyerEscrowPda } from '../pdas';
 const Key = 'GetBuyerBalanceOperation' as const;
 
 /**
- * Gets buyer's balance in Auction House escrow account.
+ * Gets the balance of a buyer's escrow account for a given Auction House.
  *
  * ```ts
  * await metaplex
