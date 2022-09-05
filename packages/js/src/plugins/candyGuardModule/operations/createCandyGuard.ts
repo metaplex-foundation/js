@@ -13,7 +13,11 @@ import {
 } from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import {
+  CandyGuardsSettings,
+  DefaultCandyGuardSettings,
+  emptyDefaultCandyGuardSettings,
+} from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
 import { findCandyGuardPda } from '../pdas';
 import { CandyGuardProgram } from '../program';
@@ -218,18 +222,7 @@ export const createCandyGuardBuilder = (
     },
     {
       data: {
-        default: {
-          botTax: null,
-          liveDate: null,
-          lamports: null,
-          splToken: null,
-          thirdPartySigner: null,
-          whitelist: null,
-          gatekeeper: null,
-          endSettings: null,
-          allowList: null,
-          mintLimit: null,
-        },
+        default: emptyDefaultCandyGuardSettings,
         groups: null,
       },
     }

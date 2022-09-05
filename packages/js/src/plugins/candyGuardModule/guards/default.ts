@@ -23,3 +23,17 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   allowList: Option<AllowListGuardSettings>;
   mintLimit: Option<MintLimitGuardSettings>;
 };
+
+/** @internal */
+export const emptyDefaultCandyGuardSettings: DefaultCandyGuardSettings = {
+  botTax: null,
+  liveDate: null,
+  lamports: null,
+  splToken: null,
+  thirdPartySigner: null,
+  whitelist: null,
+  gatekeeper: null,
+  endSettings: null,
+  allowList: null,
+  mintLimit: null,
+};
