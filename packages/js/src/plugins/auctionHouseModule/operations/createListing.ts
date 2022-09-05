@@ -281,9 +281,7 @@ export const createListingBuilder = (
 
   // Signers.
   const signer = isSigner(seller) ? seller : (authority as Signer);
-  const sellSigners = [signer, auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
-  );
+  const sellSigners = [signer, auctioneerAuthority].filter(isSigner);
 
   // Update the account to be a signer since it's not covered properly by MPL due to its dynamic nature.
   const signerKeyIndex = sellInstruction.keys.findIndex((key) =>
