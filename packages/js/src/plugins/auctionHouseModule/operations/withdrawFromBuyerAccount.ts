@@ -28,6 +28,15 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 const Key = 'WithdrawFromBuyerAccountOperation' as const;
 
 /**
+ * Withdraws funds from the user's buyer escrow account for the given auction house.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .withdraw({ auctionHouse, buyer, withdrawAmount })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -48,10 +57,33 @@ export type WithdrawOperation = Operation<
  * @category Inputs
  */
 export type WithdrawInput = {
+  /** The Auction House from which escrow buyer withdraws funds. */
   auctionHouse: AuctionHouse;
-  buyer?: PublicKey | Signer; // Default: identity
-  authority?: PublicKey | Signer; // Default: auctionHouse.authority
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
+  /**
+   * The buyer who withdraws funds.
+   * This expects a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  buyer?: PublicKey | Signer;
+  /**
+   * The Authority key.
+   * It is required when Auction House has Auctioneer disabled.
+   *
+   * @defaultValue Defaults to not being used.
+   */
+  authority?: PublicKey | Signer;
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
+  auctioneerAuthority?: Signer;
+  /**
+   * Amount of funds to withdraw.
+   * This can either be in SOL or in the SPL token used by the Auction House as a currency.
+   */
   withdrawAmount: SolAmount | SplTokenAmount;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -73,7 +105,7 @@ export type WithdrawOutput = {
  */
 export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
   handle: async (operation: WithdrawOperation, metaplex: Metaplex) =>
-    withdrawBuilder(operation.input, metaplex).sendAndConfirm(
+    withdrawFromBuyerAccountBuilder(operation.input, metaplex).sendAndConfirm(
       metaplex,
       operation.input.confirmOptions
     ),
@@ -98,10 +130,19 @@ export type WithdrawBuilderParams = Omit<WithdrawInput, 'confirmOptions'> & {
 export type WithdrawBuilderContext = Omit<WithdrawOutput, 'response'>;
 
 /**
+ * Withdraws funds from the user's buyer escrow account to the given auction house.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .withdrawFromBuyerAccountBuilder({ auctionHouse, buyer, amount });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
-export const withdrawBuilder = (
+export const withdrawFromBuyerAccountBuilder = (
   params: WithdrawBuilderParams,
   metaplex: Metaplex
 ): TransactionBuilder<WithdrawBuilderContext> => {
@@ -171,7 +212,7 @@ export const withdrawBuilder = (
       .add({
         instruction: withdrawInstruction,
         signers: withdrawSigners,
-        key: params.instructionKey ?? 'withdraw',
+        key: params.instructionKey ?? 'withdrawFromBuyerAccount',
       })
   );
 };

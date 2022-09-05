@@ -25,7 +25,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
   // And withdraw 1 SOL.
   await mx
     .auctionHouse()
-    .withdraw({
+    .withdrawFromBuyerAccount({
       auctionHouse,
       withdrawAmount: sol(1),
     })
@@ -55,7 +55,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // When  without providing auctioneer authority.
   const promise = mx
     .auctionHouse()
-    .withdraw({
+    .withdrawFromBuyerAccount({
       auctionHouse,
       withdrawAmount: sol(1),
     })
