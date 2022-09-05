@@ -3,7 +3,7 @@ import {
   AccountInfo,
   assertModel,
   BigNumber,
-  createSerializerFromBeet,
+  createOptionNoneSerializer,
   createSerializerFromSolitaType,
   deserialize,
   deserializeAccount,
@@ -15,7 +15,6 @@ import {
   toBigNumber,
   UnparsedAccount,
 } from '@/types';
-import { coptionNone } from '@metaplex-foundation/beet';
 import {
   CandyGuard as MplCandyGuard,
   candyGuardBeet,
@@ -78,8 +77,7 @@ export const toCandyGuard = <T extends CandyGuardsSettings>(
     // }
 
     const serializer =
-      guard.settingsSerializer ??
-      createSerializerFromBeet(coptionNone<number>(guard.name));
+      guard.settingsSerializer ?? createOptionNoneSerializer(guard.name);
     const [settings, offset] = deserialize(buffer, serializer);
     buffer = buffer.slice(offset);
     acc[guard.name] = settings;

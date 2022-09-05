@@ -1,9 +1,17 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  createOptionNoneSerializer,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
 import { findCandyGuardPda } from '../pdas';
 import { CandyGuardProgram } from '../program';
@@ -36,22 +44,21 @@ export const createCandyGuardOperation =
  * @group Operations
  * @category Types
  */
-// TODO: Default type parameters
 export type CreateCandyGuardOperation<
-  GuardSettings = any,
-  Guards = any
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = Operation<
   typeof Key,
   CreateCandyGuardInput<GuardSettings>,
-  CreateCandyGuardOutput<Guards>
+  CreateCandyGuardOutput<GuardSettings>
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-// TODO: Default type parameters
-export type CreateCandyGuardInput<GuardSettings = any> = {
+export type CreateCandyGuardInput<
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /**
    * The "base" address of the Candy Guard to create as a Signer.
    *
@@ -78,7 +85,11 @@ export type CreateCandyGuardInput<GuardSettings = any> = {
    */
   authority?: PublicKey;
 
-  /** TODO */
+  /**
+   * The settings of all guards we wish to activate.
+   *
+   * To deactivate a guard, set its settings to `null`.
+   */
   guards: GuardSettings;
 
   /**
@@ -96,13 +107,14 @@ export type CreateCandyGuardInput<GuardSettings = any> = {
  * @group Operations
  * @category Outputs
  */
-// TODO: Default type parameters
-export type CreateCandyGuardOutput<Guards = any> = {
+export type CreateCandyGuardOutput<
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
   /** The created Candy Guard. */
-  candyGuard: CandyGuard<Guards>;
+  candyGuard: CandyGuard<GuardSettings>;
 
   /** The base address of the Candy Guard's account as a Signer. */
   base: Signer;
@@ -146,11 +158,9 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
  * @group Transaction Builders
  * @category Inputs
  */
-// TODO: Default type parameters
-export type CreateCandyGuardBuilderParams<GuardSettings = any> = Omit<
-  CreateCandyGuardInput<GuardSettings>,
-  'confirmOptions'
-> & {
+export type CreateCandyGuardBuilderParams<
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<CreateCandyGuardInput<GuardSettings>, 'confirmOptions'> & {
   /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
   createCandyGuardInstructionKey?: string;
 };
@@ -186,6 +196,7 @@ export const createCandyGuardBuilder = (
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;
+  const candyGuardSettings = params.guards;
   const candyGuardProgram = metaplex
     .programs()
     .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
@@ -193,12 +204,16 @@ export const createCandyGuardBuilder = (
     base.publicKey,
     candyGuardProgram.address
   );
+  const availableGuards = metaplex
+    .candyGuards()
+    .getAllGuardsForProgram(candyGuardProgram.address);
 
-  const availableGuards = candyGuardProgram.availableGuards;
-  const guardData = availableGuards.reduce((acc, guardName) => {
-    acc[guardName] = { foo: 32 };
-    return acc;
-  }, {} as { [key: string]: object | null });
+  const guardData = availableGuards.map((guard): Buffer => {
+    const serializer =
+      guard.settingsSerializer ?? createOptionNoneSerializer(guard.name);
+    const settings = candyGuardSettings[guard.name] ?? null;
+    return serializer.serialize(settings);
+  });
 
   const initializeInstruction = createInitializeInstruction(
     {

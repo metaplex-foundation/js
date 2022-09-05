@@ -2,6 +2,7 @@ import {
   Beet,
   BeetReader,
   BeetWriter,
+  coptionNone,
   isFixableBeet,
 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
@@ -40,6 +41,9 @@ export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
     return [value, reader.offset];
   },
 });
+
+export const createOptionNoneSerializer = (name: string): Serializer<null> =>
+  createSerializerFromBeet(coptionNone<any>(name));
 
 export type SolitaType<T> = {
   name: string;
