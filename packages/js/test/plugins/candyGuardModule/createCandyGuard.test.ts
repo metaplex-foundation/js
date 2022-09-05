@@ -32,7 +32,7 @@ test('[candyGuardModule] create with no guards', async (t) => {
   // When we create a new Candy Guard with no guards.
   const { candyGuard, base } = await mx
     .candyGuards()
-    .create({ guards: emptyDefaultCandyGuardSettings })
+    .create({ guards: {} })
     .run();
 
   // Then we expect the Candy Guard account to exists with the following data.
@@ -153,4 +153,30 @@ test('[candyGuardModule] create with all guards', async (t) => {
     },
     groups: [],
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
+});
+
+test.skip('[candyGuardModule] create with guard groups', async (t) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a new Candy Guard with no guards.
+  const { candyGuard, base } = await mx
+    .candyGuards()
+    .create({ guards: emptyDefaultCandyGuardSettings })
+    .run();
+
+  // Then we expect the Candy Guard account to exists with the following data.
+  spok(t, candyGuard, {
+    $topic: 'Candy Guard',
+    model: 'candyGuard',
+    address: spokSamePubkey(findCandyGuardPda(base.publicKey)),
+    baseAddress: spokSamePubkey(base.publicKey),
+    authorityAddress: spokSamePubkey(mx.identity().publicKey),
+    accountInfo: {
+      executable: false,
+      owner: spokSamePubkey(mx.programs().get('CandyGuardProgram').address),
+    },
+    guards: emptyDefaultCandyGuardSettings,
+    groups: [],
+  });
 });

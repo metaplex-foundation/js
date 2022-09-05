@@ -92,14 +92,14 @@ export type CreateCandyGuardInput<
    *
    * To deactivate a guard, set its settings to `null`.
    */
-  guards: T;
+  guards: Partial<T>;
 
   /**
    * TODO: explain
    *
    * @defaultValue `[]`
    */
-  groups?: T[];
+  groups?: Partial<T>[];
 
   /**
    * The Candy Guard program to use when creating the account.
@@ -198,9 +198,11 @@ export type CreateCandyGuardBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyGuardBuilder = (
+export const createCandyGuardBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams
+  params: CreateCandyGuardBuilderParams<T>
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
@@ -231,7 +233,11 @@ export const createCandyGuardBuilder = (
   const serializedSettings = metaplex
     .candyGuards()
     .guards()
-    .serializeSettings(params.guards, params.groups ?? [], candyGuardProgram);
+    .serializeSettings<T>(
+      params.guards,
+      params.groups ?? [],
+      candyGuardProgram
+    );
   const discriminator = serializeDiscriminator(
     initializeInstructionDiscriminator
   );

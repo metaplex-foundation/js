@@ -56,12 +56,12 @@ export class CandyGuardGuardsClient {
 
   /** TODO */
   serializeSettings<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    guards: T,
-    groups: T[] = [],
+    guards: Partial<T>,
+    groups: Partial<T>[] = [],
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): Buffer {
     const availableGuards = this.forProgram(program);
-    const serializeSet = (set: T): Buffer => {
+    const serializeSet = (set: Partial<T>): Buffer => {
       return availableGuards.reduce((acc, guard) => {
         const value = set[guard.name] ?? null;
         const optionPrefix = Buffer.from([value ? 1 : 0]);
