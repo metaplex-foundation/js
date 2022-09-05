@@ -35,6 +35,7 @@
     "@babel/core": "^7.17.10",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.16.7",
+    "@changesets/cli": "^2.24.3",
     "@metaplex-foundation/amman": "^0.10.0",
     "@metaplex-foundation/amman-client": "^0.1.0",
     "@nrwl/cli": "14.3.6",
