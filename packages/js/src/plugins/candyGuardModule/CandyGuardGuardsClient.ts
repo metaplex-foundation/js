@@ -60,12 +60,24 @@ export class CandyGuardGuardsClient {
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): Buffer {
     const availableGuards = this.forProgram(program);
-    const serializeSet = (set: T) =>
-      availableGuards.reduce((acc, guard): Buffer => {
-        const value = set[guard.name] ?? null;
-        const buffer = serialize(value, guard.settingsSerializer);
-        return Buffer.concat([acc, buffer]);
-      }, Buffer.from([]));
+    const serializeSet = (set: T): Buffer => {
+      const accumulator = availableGuards.reduce(
+        (acc, guard) => {
+          const value = set[guard.name] ?? null;
+          acc.features.push(!!value);
+          if (!!value) return acc;
+
+          const newBuffer = serialize(value, guard.settingsSerializer);
+          const paddedBuffer = Buffer.concat([newBuffer], guard.settingsBytes);
+          acc.buffer = Buffer.concat([acc.buffer, paddedBuffer]);
+          return acc;
+        },
+        { buffer: Buffer.from([]), features: [] as boolean[] }
+      );
+
+      const serializedFeatures = serializeFeatures(accumulator.features);
+      return Buffer.concat([serializedFeatures, accumulator.buffer]);
+    };
 
     let buffer = serializeSet(guards);
     groups.forEach((group) => {
@@ -83,8 +95,16 @@ export class CandyGuardGuardsClient {
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): { guards: T; groups: T[] } {
     const availableGuards = this.forProgram(program);
-    const deserializeSet = () =>
-      availableGuards.reduce((acc, guard) => {
+    const deserializeSet = () => {
+      const serializedFeatures = buffer.slice(0, 8);
+      const features: boolean[] = deserializeFeatures(serializedFeatures);
+      buffer = buffer.slice(8);
+
+      return availableGuards.reduce((acc, guard, index) => {
+        const isEnabled = features[index] ?? false;
+        acc[guard.name] = null;
+        if (!isEnabled) return acc;
+
         const [settings, offset] = deserialize(
           buffer,
           guard.settingsSerializer
@@ -93,6 +113,7 @@ export class CandyGuardGuardsClient {
         acc[guard.name] = settings;
         return acc;
       }, {} as CandyGuardsSettings) as T;
+    };
 
     const guards: T = deserializeSet();
     const groups: T[] = [];
@@ -114,3 +135,28 @@ export class CandyGuardGuardsClient {
     // TODO
   }
 }
+
+const serializeFeatures = (features: boolean[]): Buffer => {
+  const bytes: number[] = [];
+  let currentByte = 0;
+  for (let i = 0; i < features.length; i++) {
+    const byteIndex = i % 8;
+    currentByte |= Number(features[i]) << byteIndex;
+    if (byteIndex === 7) {
+      bytes.push(currentByte);
+      currentByte = 0;
+    }
+  }
+  return Buffer.from(bytes);
+};
+
+const deserializeFeatures = (buffer: Buffer): boolean[] => {
+  const booleans: boolean[] = [];
+  for (let byte of buffer) {
+    for (let i = 0; i < 8; i++) {
+      booleans.push(Boolean(byte & 1));
+      byte >>= 1;
+    }
+  }
+  return booleans;
+};
