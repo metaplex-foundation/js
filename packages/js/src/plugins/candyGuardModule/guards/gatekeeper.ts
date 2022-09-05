@@ -9,8 +9,9 @@ import { CandyGuardManifest } from './core';
 export type GatekeeperGuardSettings = Gatekeeper;
 
 /** @internal */
-export const gatekeeperGuardManifest: CandyGuardManifest<Gatekeeper> = {
-  name: 'gatekeeper',
-  settingsBytes: 33,
-  settingsSerializer: createSerializerFromBeet(gatekeeperBeet),
-};
+export const gatekeeperGuardManifest: CandyGuardManifest<GatekeeperGuardSettings> =
+  {
+    name: 'gatekeeper',
+    settingsBytes: 33,
+    settingsSerializer: createSerializerFromBeet(gatekeeperBeet),
+  };

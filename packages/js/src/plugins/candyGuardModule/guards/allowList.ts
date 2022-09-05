@@ -6,8 +6,9 @@ import { CandyGuardManifest } from './core';
 export type AllowListGuardSettings = AllowList;
 
 /** @internal */
-export const allowListGuardManifest: CandyGuardManifest<AllowList> = {
-  name: 'allowList',
-  settingsBytes: 32,
-  settingsSerializer: createSerializerFromBeet(allowListBeet),
-};
+export const allowListGuardManifest: CandyGuardManifest<AllowListGuardSettings> =
+  {
+    name: 'allowList',
+    settingsBytes: 32,
+    settingsSerializer: createSerializerFromBeet(allowListBeet),
+  };

@@ -1,9 +1,27 @@
-import { sol, toDateTime } from '@/index';
-import { findCandyGuardPda } from '@/plugins/candyGuardModule';
-import { emptyDefaultCandyGuardSettings } from '@/plugins/candyGuardModule/guards';
-import spok from 'spok';
+import {
+  CandyGuard,
+  DefaultCandyGuardSettings,
+  emptyDefaultCandyGuardSettings,
+  findCandyGuardPda,
+  sol,
+  toBigNumber,
+  toDateTime,
+  token,
+} from '@/index';
+import {
+  EndSettingType,
+  WhitelistTokenMode,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
 import test from 'tape';
-import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
+import {
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
+} from '../../helpers';
 
 killStuckProcess();
 
@@ -33,11 +51,16 @@ test('[candyGuardModule] create with no guards', async (t) => {
   });
 });
 
-test.only('[candyGuardModule] create with all guards', async (t) => {
+test('[candyGuardModule] create with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
-  // When we create a new Candy Guard with no guards.
+  // When we create a new Candy Guard with all guards.
+  const tokenMint = Keypair.generate().publicKey;
+  const thirdPartySigner = Keypair.generate().publicKey;
+  const whitelistMint = Keypair.generate().publicKey;
+  const gatekeeperNetwork = Keypair.generate().publicKey;
+  const merkleRoot = Array(32).fill(42);
   const { candyGuard } = await mx
     .candyGuards()
     .create({
@@ -52,13 +75,34 @@ test.only('[candyGuardModule] create with all guards', async (t) => {
         lamports: {
           amount: sol(1.5),
         },
-        splToken: null,
-        thirdPartySigner: null,
-        whitelist: null,
-        gatekeeper: null,
-        endSettings: null,
-        allowList: null,
-        mintLimit: null,
+        splToken: {
+          amount: token(5),
+          tokenMint,
+        },
+        thirdPartySigner: {
+          signerKey: thirdPartySigner,
+        },
+        whitelist: {
+          mint: whitelistMint,
+          presale: true,
+          discountPrice: sol(0.5),
+          mode: WhitelistTokenMode.BurnEveryTime,
+        },
+        gatekeeper: {
+          gatekeeperNetwork,
+          expireOnUse: true,
+        },
+        endSettings: {
+          endSettingType: EndSettingType.Amount,
+          number: toBigNumber(1000),
+        },
+        allowList: {
+          merkleRoot,
+        },
+        mintLimit: {
+          id: 1,
+          limit: 5,
+        },
       },
     })
     .run();
@@ -67,8 +111,46 @@ test.only('[candyGuardModule] create with all guards', async (t) => {
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',
-    // guards: emptyDefaultCandyGuardSettings,
+    guards: {
+      botTax: {
+        lamports: spokSameAmount(sol(0.01)),
+        lastInstruction: false,
+      },
+      liveDate: {
+        date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
+      },
+      lamports: {
+        amount: spokSameAmount(sol(1.5)),
+      },
+      splToken: {
+        amount: spokSameAmount(token(5)),
+        tokenMint: spokSamePubkey(tokenMint),
+      },
+      thirdPartySigner: {
+        signerKey: spokSamePubkey(thirdPartySigner),
+      },
+      whitelist: {
+        mint: spokSamePubkey(whitelistMint),
+        presale: true,
+        discountPrice: spokSameAmount(sol(0.5)),
+        mode: WhitelistTokenMode.BurnEveryTime,
+      },
+      gatekeeper: {
+        gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
+        expireOnUse: true,
+      },
+      endSettings: {
+        endSettingType: EndSettingType.Amount,
+        number: spokSameBignum(1000),
+      },
+      allowList: {
+        merkleRoot,
+      },
+      mintLimit: {
+        id: 1,
+        limit: 5,
+      },
+    },
     groups: [],
-  });
-  console.log(candyGuard);
+  } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });

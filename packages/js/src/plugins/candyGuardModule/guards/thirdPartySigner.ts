@@ -9,7 +9,7 @@ import { CandyGuardManifest } from './core';
 export type ThirdPartySignerGuardSettings = ThirdPartySigner;
 
 /** @internal */
-export const thirdPartySignerGuardManifest: CandyGuardManifest<ThirdPartySigner> =
+export const thirdPartySignerGuardManifest: CandyGuardManifest<ThirdPartySignerGuardSettings> =
   {
     name: 'thirdPartySigner',
     settingsBytes: 32,
