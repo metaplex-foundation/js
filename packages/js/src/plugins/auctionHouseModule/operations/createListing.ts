@@ -214,6 +214,9 @@ export const createListingBuilder = (
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
+  if (!isSigner(seller) && !isSigner(authority)) {
+    throw new CreateListingRequiresSignerError();
+  }
 
   // Accounts.
   const metadata = findMetadataPda(mintAccount);
@@ -277,20 +280,16 @@ export const createListingBuilder = (
   }
 
   // Signers.
-  const sellSigners = [auctioneerAuthority].filter(
+  const signer = isSigner(seller) ? seller : (authority as Signer);
+  const sellSigners = [signer, auctioneerAuthority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
 
-  if (isSigner(seller) || isSigner(authority)) {
-    const signer = isSigner(seller) ? seller : (authority as Signer);
-
-    const signerKeyIndex = sellInstruction.keys.findIndex((key) =>
-      key.pubkey.equals(signer.publicKey)
-    );
-    sellInstruction.keys[signerKeyIndex].isSigner = true;
-  } else {
-    throw new CreateListingRequiresSignerError();
-  }
+  // Update the account to be a signer since it's not covered properly by MPL due to its dynamic nature.
+  const signerKeyIndex = sellInstruction.keys.findIndex((key) =>
+    key.pubkey.equals(signer.publicKey)
+  );
+  sellInstruction.keys[signerKeyIndex].isSigner = true;
 
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
