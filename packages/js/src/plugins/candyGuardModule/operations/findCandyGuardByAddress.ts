@@ -6,18 +6,14 @@ import {
   useOperation,
 } from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import {
-  parseCandyMachineCollectionAccount,
-  toCandyMachineAccount,
-} from '../accounts';
-import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyGuard } from '../models';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindCandyMachineByAddressOperation' as const;
+const Key = 'FindCandyGuardByAddressOperation' as const;
 
 /**
  * Find an existing Candy Machine by its address.
@@ -29,24 +25,26 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyMachineByAddressOperation =
-  useOperation<FindCandyMachineByAddressOperation>(Key);
+export const findCandyGuardByAddressOperation =
+  useOperation<FindCandyGuardByAddressOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindCandyMachineByAddressOperation = Operation<
+export type FindCandyGuardByAddressOperation<
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
-  FindCandyMachineByAddressInput,
-  CandyMachine
+  FindCandyGuardByAddressInput,
+  CandyGuard<GuardSettings>
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindCandyMachineByAddressInput = {
+export type FindCandyGuardByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
 
@@ -58,14 +56,14 @@ export type FindCandyMachineByAddressInput = {
  * @group Operations
  * @category Handlers
  */
-export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
+export const findCandyGuardByAddressOperationHandler: OperationHandler<FindCandyGuardByAddressOperation> =
   {
     handle: async (
-      operation: FindCandyMachineByAddressOperation,
+      operation: FindCandyGuardByAddressOperation,
       metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
-      const collectionPda = findCandyMachineCollectionPda(address);
+      const collectionPda = findCandyGuardCollectionPda(address);
       const accounts = await metaplex
         .rpc()
         .getMultipleAccounts([address, collectionPda], commitment);

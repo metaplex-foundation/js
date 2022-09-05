@@ -1,59 +1,56 @@
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachine } from '../models/CandyGuard';
-import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'DeleteCandyMachineOperation' as const;
+const Key = 'DeleteCandyGuardOperation' as const;
 
 /**
- * Deletes an existing Candy Machine.
+ * Deletes an existing Candy Guard.
  *
  * ```ts
- * await metaplex.candyMachines().delete({ candyMachine }).run();
+ * await metaplex.candyGuards().delete({ candyGuard }).run();
  * ```
  *
  * @group Operations
  * @category Constructors
  */
-export const deleteCandyMachineOperation =
-  useOperation<DeleteCandyMachineOperation>(Key);
+export const deleteCandyGuardOperation =
+  useOperation<DeleteCandyGuardOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type DeleteCandyMachineOperation = Operation<
+export type DeleteCandyGuardOperation = Operation<
   typeof Key,
-  DeleteCandyMachineInput,
-  DeleteCandyMachineOutput
+  DeleteCandyGuardInput,
+  DeleteCandyGuardOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type DeleteCandyMachineInput = {
+export type DeleteCandyGuardInput = {
   /**
-   * The Candy Machine to delete.
-   * We need the address of the Candy Machine as well as the address
+   * The Candy Guard to delete.
+   * We need the address of the Candy Guard as well as the address
    * of the potential collection since we will need to delete the PDA account
-   * that links the Candy Machine to the collection.
+   * that links the Candy Guard to the collection.
    *
-   * If the Candy Machine does not have a collection, simply set
+   * If the Candy Guard does not have a collection, simply set
    * `collectionMintAddress` to `null`.
    */
-  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
+  candyGuard: Pick<CandyGuard, 'address' | 'collectionMintAddress'>;
 
   /**
-   * The Signer authorized to update the candy machine.
+   * The Signer authorized to update the candy Guard.
    *
    * @defaultValue `metaplex.identity()`
    */
@@ -67,7 +64,7 @@ export type DeleteCandyMachineInput = {
  * @group Operations
  * @category Outputs
  */
-export type DeleteCandyMachineOutput = {
+export type DeleteCandyGuardOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -76,16 +73,16 @@ export type DeleteCandyMachineOutput = {
  * @group Operations
  * @category Handlers
  */
-export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMachineOperation> =
+export const deleteCandyGuardOperationHandler: OperationHandler<DeleteCandyGuardOperation> =
   {
     async handle(
-      operation: DeleteCandyMachineOperation,
+      operation: DeleteCandyGuardOperation,
       metaplex: Metaplex
-    ): Promise<DeleteCandyMachineOutput> {
-      return deleteCandyMachineBuilder(
+    ): Promise<DeleteCandyGuardOutput> {
+      return deleteCandyGuardBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input.confirmOptions
+      );
     },
   };
 
@@ -97,43 +94,43 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type DeleteCandyMachineBuilderParams = Omit<
-  DeleteCandyMachineInput,
+export type DeleteCandyGuardBuilderParams = Omit<
+  DeleteCandyGuardInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that deletes the Candy Machine. */
+  /** A key to distinguish the instruction that deletes the Candy Guard. */
   instructionKey?: string;
 };
 
 /**
- * Deletes an existing Candy Machine.
+ * Deletes an existing Candy Guard.
  *
  * ```ts
  * const transactionBuilder = metaplex
- *   .candyMachines()
+ *   .candyGuards()
  *   .builders()
  *   .delete({
- *     candyMachine: { address, collectionMintAddress },
+ *     candyGuard: { address, collectionMintAddress },
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const deleteCandyMachineBuilder = (
+export const deleteCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineBuilderParams
+  params: DeleteCandyGuardBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
-  const candyMachine = params.candyMachine;
+  const candyGuard = params.candyGuard;
 
   const deleteInstruction = createWithdrawFundsInstruction({
-    candyMachine: candyMachine.address,
+    candyGuard: candyGuard.address,
     authority: authority.publicKey,
   });
 
-  if (candyMachine.collectionMintAddress) {
-    const collectionPda = findCandyMachineCollectionPda(candyMachine.address);
+  if (candyGuard.collectionMintAddress) {
+    const collectionPda = findCandyGuardCollectionPda(candyGuard.address);
     deleteInstruction.keys.push({
       pubkey: collectionPda,
       isWritable: true,

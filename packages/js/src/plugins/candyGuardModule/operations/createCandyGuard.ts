@@ -1,15 +1,17 @@
 import { Metaplex } from '@/Metaplex';
 import {
-  createOptionNoneSerializer,
   Operation,
   OperationHandler,
+  serializeDiscriminator,
   Signer,
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-guard';
+import {
+  createInitializeInstruction,
+  initializeInstructionDiscriminator,
+} from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { Buffer } from 'buffer';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
@@ -204,16 +206,6 @@ export const createCandyGuardBuilder = (
     base.publicKey,
     candyGuardProgram.address
   );
-  const availableGuards = metaplex
-    .candyGuards()
-    .getAllGuardsForProgram(candyGuardProgram.address);
-
-  const guardData = availableGuards.map((guard): Buffer => {
-    const serializer =
-      guard.settingsSerializer ?? createOptionNoneSerializer(guard.name);
-    const settings = candyGuardSettings[guard.name] ?? null;
-    return serializer.serialize(settings);
-  });
 
   const initializeInstruction = createInitializeInstruction(
     {
@@ -236,8 +228,17 @@ export const createCandyGuardBuilder = (
     }
   );
 
-  // TODO
-  initializeInstruction.data;
+  const serializedSettings = metaplex
+    .candyGuards()
+    .guards()
+    .serializeSettings(candyGuardSettings, candyGuardProgram);
+  const discriminator = serializeDiscriminator(
+    initializeInstructionDiscriminator
+  );
+  initializeInstruction.data = Buffer.concat([
+    discriminator,
+    serializedSettings,
+  ]);
 
   return (
     TransactionBuilder.make<CreateCandyGuardBuilderContext>()

@@ -29,21 +29,12 @@ import {
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { parseCandyMachineCollectionAccount } from '../accounts';
-import { assertCanMintCandyMachine } from '../asserts';
-import { CandyMachineBotTaxError } from '../errors';
-import { CandyMachine } from '../models/CandyMachine';
-import {
-  findCandyMachineCollectionPda,
-  findCandyMachineCreatorPda,
-} from '../pdas';
-import { CandyMachineProgram } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'MintCandyMachineOperation' as const;
+const Key = 'MintFromCandyGuardOperation' as const;
 
 /**
  * Mint an NFT from an existing Candy Machine.
@@ -58,24 +49,24 @@ const Key = 'MintCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const mintCandyMachineOperation =
-  useOperation<MintCandyMachineOperation>(Key);
+export const mintFromCandyGuardOperation =
+  useOperation<MintFromCandyGuardOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type MintCandyMachineOperation = Operation<
+export type MintFromCandyGuardOperation = Operation<
   typeof Key,
-  MintCandyMachineInput,
-  MintCandyMachineOutput
+  MintFromCandyGuardInput,
+  MintFromCandyGuardOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type MintCandyMachineInput = {
+export type MintFromCandyGuardInput = {
   /**
    * The Candy Machine to mint from.
    * We only need a subset of the `CandyMachine` model but we
@@ -176,7 +167,7 @@ export type MintCandyMachineInput = {
  * @group Operations
  * @category Outputs
  */
-export type MintCandyMachineOutput = {
+export type MintFromCandyGuardOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
@@ -194,19 +185,22 @@ export type MintCandyMachineOutput = {
  * @group Operations
  * @category Handlers
  */
-export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachineOperation> =
+export const mintFromCandyGuardOperationHandler: OperationHandler<MintFromCandyGuardOperation> =
   {
     async handle(
-      operation: MintCandyMachineOperation,
+      operation: MintFromCandyGuardOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<MintCandyMachineOutput> {
-      assertCanMintCandyMachine(
+    ): Promise<MintFromCandyGuardOutput> {
+      assertCanMintFromCandyGuard(
         operation.input.candyMachine,
         operation.input.payer ?? metaplex.identity()
       );
 
-      const builder = await mintCandyMachineBuilder(metaplex, operation.input);
+      const builder = await mintFromCandyGuardBuilder(
+        metaplex,
+        operation.input
+      );
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
@@ -243,8 +237,8 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
  * @group Transaction Builders
  * @category Inputs
  */
-export type MintCandyMachineBuilderParams = Omit<
-  MintCandyMachineInput,
+export type MintFromCandyGuardBuilderParams = Omit<
+  MintFromCandyGuardInput,
   'confirmOptions'
 > & {
   /** A key to distinguish the instruction that creates the mint account of the NFT. */
@@ -276,8 +270,8 @@ export type MintCandyMachineBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type MintCandyMachineBuilderContext = Omit<
-  MintCandyMachineOutput,
+export type MintFromCandyGuardBuilderContext = Omit<
+  MintFromCandyGuardOutput,
   'response' | 'nft'
 >;
 
@@ -294,10 +288,10 @@ export type MintCandyMachineBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const mintCandyMachineBuilder = async (
+export const mintFromCandyGuardBuilder = async (
   metaplex: Metaplex,
-  params: MintCandyMachineBuilderParams
-): Promise<TransactionBuilder<MintCandyMachineBuilderContext>> => {
+  params: MintFromCandyGuardBuilderParams
+): Promise<TransactionBuilder<MintFromCandyGuardBuilderContext>> => {
   const {
     candyMachine,
     payer = metaplex.identity(),
@@ -423,7 +417,7 @@ export const mintCandyMachineBuilder = async (
   }
 
   return (
-    TransactionBuilder.make<MintCandyMachineBuilderContext>()
+    TransactionBuilder.make<MintFromCandyGuardBuilderContext>()
       .setFeePayer(payer)
       .setContext({
         mintSigner: newMint,

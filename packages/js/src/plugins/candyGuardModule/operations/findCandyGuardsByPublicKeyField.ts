@@ -3,20 +3,14 @@ import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope, zipMap } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import {
-  parseCandyMachineAccount,
-  parseCandyMachineCollectionAccount,
-} from '../accounts';
-import { CandyMachineGpaBuilder } from '../gpaBuilders';
-import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
-import { findCandyMachineCollectionPda } from '../pdas';
-import { CandyMachineProgram } from '../program';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyGuard } from '../models';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
+const Key = 'FindCandyGuardsByPublicKeyOperation' as const;
 
 /**
  * Find all Candy Machines matching by a given `publicKey` or a given `type`.
@@ -26,8 +20,8 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * `authority`: Find Candy Machines whose authority is the given `publicKey`.
  * ```ts
  * const someAuthority = new PublicKey('...');
- * const candyMachines = await metaplex
- *   .candyMachines()
+ * const candyGuards = await metaplex
+ *   .candyGuards()
  *   .findAllBy({ type: 'authority', someAuthority });
  *   .run();
  * ```
@@ -35,8 +29,8 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * `wallet`: Find Candy Machines whose wallet address is the given `publicKey`.
  * ```ts
  * const someWallet = new PublicKey('...');
- * const candyMachines = await metaplex
- *   .candyMachines()
+ * const candyGuards = await metaplex
+ *   .candyGuards()
  *   .findAllBy({ type: 'wallet', someWallet });
  *   .run();
  * ```
@@ -44,24 +38,26 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyMachinesByPublicKeyFieldOperation =
-  useOperation<FindCandyMachinesByPublicKeyFieldOperation>(Key);
+export const findCandyGuardsByPublicKeyFieldOperation =
+  useOperation<FindCandyGuardsByPublicKeyFieldOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindCandyMachinesByPublicKeyFieldOperation = Operation<
+export type FindCandyGuardsByPublicKeyFieldOperation<
+  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
-  FindCandyMachinesByPublicKeyFieldInput,
-  CandyMachine[]
+  FindCandyGuardsByPublicKeyFieldInput,
+  CandyGuard<GuardSettings>[]
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindCandyMachinesByPublicKeyFieldInput = {
+export type FindCandyGuardsByPublicKeyFieldInput = {
   /** Defines which type of account the `publicKey` field refers to.  */
   type: 'authority' | 'wallet';
 
@@ -76,13 +72,13 @@ export type FindCandyMachinesByPublicKeyFieldInput = {
  * @group Operations
  * @category Handlers
  */
-export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
+export const findCandyGuardsByPublicKeyFieldOperationHandler: OperationHandler<FindCandyGuardsByPublicKeyFieldOperation> =
   {
     handle: async (
-      operation: FindCandyMachinesByPublicKeyFieldOperation,
+      operation: FindCandyGuardsByPublicKeyFieldOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CandyMachine[]> => {
+    ) => {
       const { type, publicKey, commitment } = operation.input;
       const accounts = CandyMachineProgram.accounts(metaplex).mergeConfig({
         commitment,

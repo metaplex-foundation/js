@@ -70,12 +70,6 @@ export const toCandyGuard = <T extends CandyGuardsSettings>(
 
   let buffer = account.data;
   const guards = availableGuards.reduce((acc, guard) => {
-    // if (!guard.settingsSerializer) {
-    // buffer = buffer.slice(4);
-    // acc[guard.name] = null;
-    // return acc;
-    // }
-
     const serializer =
       guard.settingsSerializer ?? createOptionNoneSerializer(guard.name);
     const [settings, offset] = deserialize(buffer, serializer);

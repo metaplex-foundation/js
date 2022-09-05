@@ -7,7 +7,7 @@ import {
   createRemoveCollectionInstruction,
   createSetCollectionInstruction,
   createUpdateAuthorityInstruction,
-  createUpdateCandyMachineInstruction,
+  createUpdateCandyGuardInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
@@ -18,19 +18,12 @@ import {
   TokenMetadataProgram,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  CandyMachine,
-  CandyMachineConfigs,
-  toCandyMachineConfigs,
-  toCandyMachineInstructionData,
-} from '../models/CandyGuard';
-import { findCandyMachineCollectionPda } from '../pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'UpdateCandyMachineOperation' as const;
+const Key = 'UpdateCandyGuardOperation' as const;
 
 /**
  * Updates an existing Candy Machine.
@@ -48,24 +41,24 @@ const Key = 'UpdateCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const updateCandyMachineOperation =
-  useOperation<UpdateCandyMachineOperation>(Key);
+export const updateCandyGuardOperation =
+  useOperation<UpdateCandyGuardOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type UpdateCandyMachineOperation = Operation<
+export type UpdateCandyGuardOperation = Operation<
   typeof Key,
-  UpdateCandyMachineInput,
-  UpdateCandyMachineOutput
+  UpdateCandyGuardInput,
+  UpdateCandyGuardOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
+export type UpdateCandyGuardInput = Partial<CandyMachineConfigs> & {
   /**
    * The Candy Machine to update.
    * We need the full model in order to compare the current data with
@@ -75,7 +68,7 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
    *
    * If you want more control over how this transaction is built,
    * you may use the associated transaction builder instead using
-   * `metaplex.candyMachines().builders().updateCandyMachine({...})`.
+   * `metaplex.candyMachines().builders().updateCandyGuard({...})`.
    */
   candyMachine: CandyMachine;
 
@@ -117,7 +110,7 @@ export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
  * @group Operations
  * @category Outputs
  */
-export type UpdateCandyMachineOutput = {
+export type UpdateCandyGuardOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -126,12 +119,12 @@ export type UpdateCandyMachineOutput = {
  * @group Operations
  * @category Handlers
  */
-export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
+export const updateCandyGuardOperationHandler: OperationHandler<UpdateCandyGuardOperation> =
   {
     async handle(
-      operation: UpdateCandyMachineOperation,
+      operation: UpdateCandyGuardOperation,
       metaplex: Metaplex
-    ): Promise<UpdateCandyMachineOutput> {
+    ): Promise<UpdateCandyGuardOutput> {
       const {
         candyMachine,
         authority = metaplex.identity(),
@@ -160,7 +153,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
         instructionDataWithoutChanges
       );
 
-      const builder = updateCandyMachineBuilder(metaplex, {
+      const builder = updateCandyGuardBuilder(metaplex, {
         candyMachine,
         authority,
         payer,
@@ -185,7 +178,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type UpdateCandyMachineBuilderParams = {
+export type UpdateCandyGuardBuilderParams = {
   /**
    * The Candy Machine to update.
    * We only need a subset of the `CandyMachine` model to figure out
@@ -267,9 +260,9 @@ export type UpdateCandyMachineBuilderParams = {
  * @group Transaction Builders
  * @category Constructors
  */
-export const updateCandyMachineBuilder = (
+export const updateCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: UpdateCandyMachineBuilderParams
+  params: UpdateCandyGuardBuilderParams
 ): TransactionBuilder => {
   const {
     candyMachine,
@@ -299,7 +292,7 @@ export const updateCandyMachineBuilder = (
         const data = newData as CandyMachineData;
         const wallet = newData?.wallet as PublicKey;
         const tokenMint = newData?.tokenMint as Option<PublicKey>;
-        const updateInstruction = createUpdateCandyMachineInstruction(
+        const updateInstruction = createUpdateCandyGuardInstruction(
           {
             candyMachine: candyMachine.address,
             authority: authority.publicKey,

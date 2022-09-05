@@ -3,8 +3,8 @@ import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
 import { CandyGuardBuildersClient } from './CandyGuardBuildersClient';
-import { UnregisteredCandyGuardError } from './errors';
-import { CandyGuardManifest } from './guards';
+import { CandyGuardGuardsClient } from './CandyGuardGuardsClient';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
 import { CandyGuard } from './models';
 import {
   CreateCandyGuardInput,
@@ -15,16 +15,11 @@ import {
   findCandyGuardByAddressOperation,
   FindCandyGuardsByPublicKeyFieldInput,
   findCandyGuardsByPublicKeyFieldOperation,
-  FindMintedNftsByCandyGuardInput,
-  findMintedNftsByCandyGuardOperation,
-  InsertItemsToCandyGuardInput,
-  insertItemsToCandyGuardOperation,
-  MintCandyGuardInput,
-  mintCandyGuardOperation,
+  MintFromCandyGuardInput,
+  mintFromCandyGuardOperation,
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
 } from './operations';
-import { CandyGuardProgram } from './program';
 
 /**
  * This is a client for the Candy Guard module.
@@ -58,40 +53,18 @@ import { CandyGuardProgram } from './program';
  * @group Modules
  */
 export class CandyGuardClient {
-  private guards: CandyGuardManifest[] = [];
-
   constructor(readonly metaplex: Metaplex) {}
 
-  /** TODO */
-  register(...guard: CandyGuardManifest[]) {
-    this.guards.push(...guard);
-  }
-
-  /** TODO */
-  getGuard(name: string): CandyGuardManifest {
-    const guard = this.guards.find((guard) => guard.name === name);
-
-    if (!guard) {
-      throw new UnregisteredCandyGuardError(name);
-    }
-
-    return guard;
-  }
-
-  /** TODO */
-  getAllGuards(): CandyGuardManifest[] {
-    return this.guards;
-  }
-
-  /** TODO */
-  getAllGuardsForProgram(
-    nameOrAddress: string | PublicKey = 'CandyGuardProgram'
-  ): CandyGuardManifest[] {
-    const candyGuardProgram = this.metaplex
-      .programs()
-      .get<CandyGuardProgram>(nameOrAddress);
-
-    return candyGuardProgram.availableGuards.map((name) => this.getGuard(name));
+  /**
+   * You may use the `guards()` client to access the default guards
+   * available as well as register your own guards.
+   *
+   * ```ts
+   * const guardsClient = metaplex.candyGuards().guards();
+   * ```
+   */
+  guards() {
+    return new CandyGuardGuardsClient(this.metaplex);
   }
 
   /**
@@ -124,29 +97,19 @@ export class CandyGuardClient {
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */
-  findByAddress(input: FindCandyGuardByAddressInput): Task<CandyGuard> {
+  findByAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: FindCandyGuardByAddressInput
+  ): Task<CandyGuard<T>> {
     return this.metaplex
       .operations()
       .getTask(findCandyGuardByAddressOperation(input));
   }
 
-  /** {@inheritDoc findMintedNftsByCandyGuardOperation} */
-  findMintedNfts(input: FindMintedNftsByCandyGuardInput) {
+  /** {@inheritDoc mintFromCandyGuardOperation} */
+  mint(input: MintFromCandyGuardInput) {
     return this.metaplex
       .operations()
-      .getTask(findMintedNftsByCandyGuardOperation(input));
-  }
-
-  /** {@inheritDoc insertItemsToCandyGuardOperation} */
-  insertItems(input: InsertItemsToCandyGuardInput) {
-    return this.metaplex
-      .operations()
-      .getTask(insertItemsToCandyGuardOperation(input));
-  }
-
-  /** {@inheritDoc mintCandyGuardOperation} */
-  mint(input: MintCandyGuardInput) {
-    return this.metaplex.operations().getTask(mintCandyGuardOperation(input));
+      .getTask(mintFromCandyGuardOperation(input));
   }
 
   /**
@@ -156,11 +119,14 @@ export class CandyGuardClient {
    * const candyGuard = await metaplex.candyGuards().refresh(candyGuard).run();
    * ```
    */
-  refresh(
-    candyGuard: CandyGuard | PublicKey,
+  refresh<T extends CandyGuardsSettings>(
+    candyGuard: CandyGuard<T> | PublicKey,
     input?: Omit<FindCandyGuardByAddressInput, 'address'>
-  ): Task<CandyGuard> {
-    return this.findByAddress({ address: toPublicKey(candyGuard), ...input });
+  ): Task<CandyGuard<T>> {
+    return this.findByAddress<T>({
+      address: toPublicKey(candyGuard),
+      ...input,
+    });
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */

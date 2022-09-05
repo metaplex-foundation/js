@@ -2,8 +2,9 @@ import {
   Beet,
   BeetReader,
   BeetWriter,
-  coptionNone,
   isFixableBeet,
+  u8,
+  uniformFixedSizeArray,
 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import {
@@ -41,9 +42,6 @@ export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
     return [value, reader.offset];
   },
 });
-
-export const createOptionNoneSerializer = (name: string): Serializer<null> =>
-  createSerializerFromBeet(coptionNone<any>(name));
 
 export type SolitaType<T> = {
   name: string;
@@ -119,3 +117,8 @@ export function deserializeAccount<T>(
     );
   }
 }
+
+export const serializeDiscriminator = (discriminator: number[]): Buffer => {
+  const serializer = createSerializerFromBeet(uniformFixedSizeArray(u8, 8));
+  return serialize(discriminator, serializer);
+};

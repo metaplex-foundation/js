@@ -4,15 +4,15 @@ import { Option } from '@/utils';
 
 /** TODO */
 export type CandyGuardManifest<
-  Settings extends object = any,
+  Settings extends object,
   MintArgs extends Array<unknown> = [],
   MintRemainingAccounts extends Array<unknown> = []
 > = {
   name: string;
-  settingsSerializer?: Serializer<Settings>;
+  settingsSerializer: Serializer<Option<Settings>>;
   mintArgsSerializer?: Serializer<MintArgs>;
   mintRemainingAccountsSerializer?: Serializer<MintRemainingAccounts>;
-  onBeforeMint?: () => Promise<void>;
+  onBeforeMint?: (setting: Option<Settings>) => Promise<void>;
   onAfterMint?: (nft: NftWithToken) => Promise<void>;
 };
 
