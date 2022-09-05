@@ -78,13 +78,6 @@ export type DepositToBuyerAccountInput = {
   buyer?: Signer;
 
   /**
-   * The Auction House authority.
-   *
-   * @defaultValue `auctionHouse.authority`
-   */
-  authority?: PublicKey;
-
-  /**
    * The Auctioneer authority key.
    * It is required when Auction House has Auctioneer enabled.
    *
@@ -178,17 +171,20 @@ export const depositToBuyerAccountBuilder = (
   params: DepositToBuyerAccountBuilderParams
 ): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
   // Data.
-  const auctionHouse = params.auctionHouse;
-  const amountBasisPoint = params.amount.basisPoints;
+  const {
+    auctionHouse,
+    auctioneerAuthority,
+    amount,
+    instructionKey,
+    buyer = metaplex.identity(),
+    payer = metaplex.identity(),
+  } = params;
 
-  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Accounts.
-  const payer = params.payer ?? (metaplex.identity() as Signer);
-  const buyer = params.buyer ?? (metaplex.identity() as Signer);
-  const authority = params.authority ?? auctionHouse.authorityAddress;
   const paymentAccount = auctionHouse.isNative
     ? toPublicKey(buyer)
     : findAssociatedTokenAccountPda(
@@ -206,7 +202,7 @@ export const depositToBuyerAccountBuilder = (
     transferAuthority: toPublicKey(buyer),
     escrowPaymentAccount: escrowPayment,
     treasuryMint: auctionHouse.treasuryMint.address,
-    authority: toPublicKey(authority),
+    authority: toPublicKey(auctionHouse.authorityAddress),
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
   };
@@ -214,20 +210,20 @@ export const depositToBuyerAccountBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: amountBasisPoint,
+    amount: amount.basisPoints,
   };
 
   // Deposit Instruction.
   let depositInstruction = createDepositInstruction(accounts, args);
-  if (params.auctioneerAuthority) {
+  if (auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
-      params.auctioneerAuthority.publicKey
+      auctioneerAuthority.publicKey
     );
 
     const accountsWithAuctioneer = {
       ...accounts,
-      auctioneerAuthority: params.auctioneerAuthority.publicKey,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
       ahAuctioneerPda,
     };
 
@@ -238,7 +234,7 @@ export const depositToBuyerAccountBuilder = (
   }
 
   // Signers.
-  const depositSigners = [buyer, params.auctioneerAuthority].filter(isSigner);
+  const depositSigners = [buyer, auctioneerAuthority].filter(isSigner);
 
   return (
     TransactionBuilder.make()
@@ -247,7 +243,7 @@ export const depositToBuyerAccountBuilder = (
       .add({
         instruction: depositInstruction,
         signers: depositSigners,
-        key: params.instructionKey ?? 'deposit',
+        key: instructionKey ?? 'depositToBuyerAccount',
       })
   );
 };
