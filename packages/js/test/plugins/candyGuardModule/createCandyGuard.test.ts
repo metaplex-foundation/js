@@ -155,28 +155,105 @@ test('[candyGuardModule] create with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test.skip('[candyGuardModule] create with guard groups', async (t) => {
+test.only('[candyGuardModule] create with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
   // When we create a new Candy Guard with no guards.
-  const { candyGuard, base } = await mx
+  const whitelistMint = Keypair.generate().publicKey;
+  const gatekeeperNetwork = Keypair.generate().publicKey;
+  const merkleRoot = Array(32).fill(42);
+  const { candyGuard } = await mx
     .candyGuards()
-    .create({ guards: emptyDefaultCandyGuardSettings })
+    .create({
+      guards: {
+        // Bot tax for all groups.
+        botTax: {
+          lamports: sol(0.01),
+          lastInstruction: false,
+        },
+        // Mint finished after 24h for all groups.
+        endSettings: {
+          endSettingType: EndSettingType.Date,
+          date: toDateTime('2022-09-06T16:00:00.000Z'),
+        },
+      },
+      groups: [
+        {
+          // First group for VIPs.
+          liveDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
+          lamports: { amount: sol(1) },
+          allowList: { merkleRoot },
+        },
+        {
+          // Second group for whitelist token holders.
+          liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
+          lamports: { amount: sol(2) },
+          whitelist: {
+            mint: whitelistMint,
+            presale: true,
+            discountPrice: null,
+            mode: WhitelistTokenMode.BurnEveryTime,
+          },
+        },
+        {
+          // Third group for the public.
+          liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+          lamports: { amount: sol(3) },
+          gatekeeper: { gatekeeperNetwork, expireOnUse: false },
+        },
+      ],
+    })
     .run();
 
   // Then we expect the Candy Guard account to exists with the following data.
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',
-    address: spokSamePubkey(findCandyGuardPda(base.publicKey)),
-    baseAddress: spokSamePubkey(base.publicKey),
-    authorityAddress: spokSamePubkey(mx.identity().publicKey),
-    accountInfo: {
-      executable: false,
-      owner: spokSamePubkey(mx.programs().get('CandyGuardProgram').address),
+    guards: {
+      ...emptyDefaultCandyGuardSettings,
+      botTax: {
+        lamports: spokSameAmount(sol(0.01)),
+        lastInstruction: false,
+      },
+      endSettings: {
+        endSettingType: EndSettingType.Date,
+        date: spokSameBignum(toDateTime('2022-09-06T16:00:00.000Z')),
+      },
     },
-    guards: emptyDefaultCandyGuardSettings,
-    groups: [],
-  });
+    groups: [
+      {
+        ...emptyDefaultCandyGuardSettings,
+        liveDate: {
+          date: spokSameBignum(toDateTime('2022-09-05T16:00:00.000Z')),
+        },
+        lamports: { amount: spokSameAmount(sol(1)) },
+        allowList: { merkleRoot },
+      },
+      {
+        ...emptyDefaultCandyGuardSettings,
+        liveDate: {
+          date: spokSameBignum(toDateTime('2022-09-05T18:00:00.000Z')),
+        },
+        lamports: { amount: spokSameAmount(sol(2)) },
+        whitelist: {
+          mint: spokSamePubkey(whitelistMint),
+          presale: true,
+          discountPrice: null,
+          mode: WhitelistTokenMode.BurnEveryTime,
+        },
+      },
+      {
+        ...emptyDefaultCandyGuardSettings,
+        liveDate: {
+          date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
+        },
+        lamports: { amount: spokSameAmount(sol(3)) },
+        gatekeeper: {
+          gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
+          expireOnUse: false,
+        },
+      },
+    ],
+  } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
