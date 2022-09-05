@@ -74,13 +74,17 @@ export class CandyGuardGuardsClient {
     };
 
     let buffer = serializeSet(guards);
+
+    if (groups.length > 0) {
+      const groupCountBuffer = Buffer.concat([Buffer.from([groups.length])], 4);
+      buffer = Buffer.concat([buffer, Buffer.from([1]), groupCountBuffer]);
+    } else {
+      buffer = Buffer.concat([buffer, Buffer.from([0])]);
+    }
+
     groups.forEach((group) => {
       buffer = Buffer.concat([buffer, serializeSet(group)]);
     });
-
-    if (groups.length === 0) {
-      buffer = Buffer.concat([buffer, Buffer.from([0])]);
-    }
 
     return buffer;
   }
