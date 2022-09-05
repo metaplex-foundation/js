@@ -8,6 +8,6 @@ export type SplTokenGuardSettings = SplToken;
 /** @internal */
 export const splTokenGuardManifest: CandyGuardManifest<SplToken> = {
   name: 'spl_token',
-  settingsBytes: 0, // TODO: set real value.
+  settingsBytes: 40,
   settingsSerializer: createSerializerFromBeet(splTokenBeet),
 };

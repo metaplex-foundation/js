@@ -9,7 +9,7 @@ export type WhitelistGuardSettings = Whitelist;
 /** @internal */
 export const whitelistGuardManifest: CandyGuardManifest<Whitelist> = {
   name: 'whitelist',
-  settingsBytes: 0, // TODO: set real value.
+  settingsBytes: 43,
   settingsSerializer: createSerializerFromBeet(
     whitelistBeet as Beet<Whitelist>
   ),

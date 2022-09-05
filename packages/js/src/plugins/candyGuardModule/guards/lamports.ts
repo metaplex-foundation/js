@@ -8,6 +8,6 @@ export type LamportsGuardSettings = Lamports;
 /** @internal */
 export const lamportsGuardManifest: CandyGuardManifest<Lamports> = {
   name: 'lamports',
-  settingsBytes: 0, // TODO: set real value.
+  settingsBytes: 8,
   settingsSerializer: createSerializerFromBeet(lamportsBeet),
 };

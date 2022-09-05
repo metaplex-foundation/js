@@ -11,6 +11,6 @@ export type GatekeeperGuardSettings = Gatekeeper;
 /** @internal */
 export const gatekeeperGuardManifest: CandyGuardManifest<Gatekeeper> = {
   name: 'gatekeeper',
-  settingsBytes: 0, // TODO: set real value.
+  settingsBytes: 33,
   settingsSerializer: createSerializerFromBeet(gatekeeperBeet),
 };
