@@ -10,12 +10,8 @@ import {
   findCandyGuardByAddressOperationHandler,
   findCandyGuardsByPublicKeyFieldOperation,
   findCandyGuardsByPublicKeyFieldOperationHandler,
-  findMintedNftsByCandyGuardOperation,
-  findMintedNftsByCandyGuardOperationHandler,
-  insertItemsToCandyGuardOperation,
-  InsertItemsToCandyGuardOperationHandler,
-  mintCandyGuardOperation,
-  mintCandyGuardOperationHandler,
+  mintFromCandyGuardOperation,
+  mintFromCandyGuardOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
 } from './operations';
@@ -38,14 +34,9 @@ export const candyGuardModule = (): MetaplexPlugin => ({
       findCandyGuardsByPublicKeyFieldOperationHandler
     );
     op.register(
-      findMintedNftsByCandyGuardOperation,
-      findMintedNftsByCandyGuardOperationHandler
+      mintFromCandyGuardOperation,
+      mintFromCandyGuardOperationHandler
     );
-    op.register(
-      insertItemsToCandyGuardOperation,
-      InsertItemsToCandyGuardOperationHandler
-    );
-    op.register(mintCandyGuardOperation, mintCandyGuardOperationHandler);
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
 
     const client = new CandyGuardClient(metaplex);

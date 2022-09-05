@@ -47,19 +47,15 @@ export const createCandyGuardOperation =
  * @category Types
  */
 export type CreateCandyGuardOperation<
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Operation<
-  typeof Key,
-  CreateCandyGuardInput<GuardSettings>,
-  CreateCandyGuardOutput<GuardSettings>
->;
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<typeof Key, CreateCandyGuardInput<T>, CreateCandyGuardOutput<T>>;
 
 /**
  * @group Operations
  * @category Inputs
  */
 export type CreateCandyGuardInput<
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = {
   /**
    * The "base" address of the Candy Guard to create as a Signer.
@@ -92,7 +88,14 @@ export type CreateCandyGuardInput<
    *
    * To deactivate a guard, set its settings to `null`.
    */
-  guards: GuardSettings;
+  guards: T;
+
+  /**
+   * TODO: explain
+   *
+   * @defaultValue `[]`
+   */
+  groups?: T[];
 
   /**
    * The Candy Guard program to use when creating the account.
@@ -110,13 +113,13 @@ export type CreateCandyGuardInput<
  * @category Outputs
  */
 export type CreateCandyGuardOutput<
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
   /** The created Candy Guard. */
-  candyGuard: CandyGuard<GuardSettings>;
+  candyGuard: CandyGuard<T>;
 
   /** The base address of the Candy Guard's account as a Signer. */
   base: Signer;
@@ -161,8 +164,8 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
  * @category Inputs
  */
 export type CreateCandyGuardBuilderParams<
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Omit<CreateCandyGuardInput<GuardSettings>, 'confirmOptions'> & {
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<CreateCandyGuardInput<T>, 'confirmOptions'> & {
   /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
   createCandyGuardInstructionKey?: string;
 };
@@ -198,7 +201,6 @@ export const createCandyGuardBuilder = (
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;
-  const candyGuardSettings = params.guards;
   const candyGuardProgram = metaplex
     .programs()
     .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
@@ -231,7 +233,7 @@ export const createCandyGuardBuilder = (
   const serializedSettings = metaplex
     .candyGuards()
     .guards()
-    .serializeSettings(candyGuardSettings, candyGuardProgram);
+    .serializeSettings(params.guards, params.groups ?? [], candyGuardProgram);
   const discriminator = serializeDiscriminator(
     initializeInstructionDiscriminator
   );

@@ -55,14 +55,24 @@ export class CandyGuardGuardsClient {
 
   /** TODO */
   serializeSettings<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    settings: T,
+    guards: T,
+    groups: T[] = [],
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): Buffer {
-    return this.getAllGuardsForProgram(program).reduce((acc, guard): Buffer => {
-      const value = settings[guard.name] ?? null;
-      const buffer = serialize(value, guard.settingsSerializer);
-      return Buffer.concat([acc, buffer]);
-    }, Buffer.from([]));
+    const availableGuards = this.getAllGuardsForProgram(program);
+    const serializeSet = (set: T) =>
+      availableGuards.reduce((acc, guard): Buffer => {
+        const value = set[guard.name] ?? null;
+        const buffer = serialize(value, guard.settingsSerializer);
+        return Buffer.concat([acc, buffer]);
+      }, Buffer.from([]));
+
+    let buffer = serializeSet(guards);
+    groups.forEach((group) => {
+      buffer = Buffer.concat([buffer, serializeSet(group)]);
+    });
+
+    return buffer;
   }
 
   /** TODO */
@@ -71,13 +81,27 @@ export class CandyGuardGuardsClient {
   >(
     buffer: Buffer,
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): T {
-    return this.getAllGuardsForProgram(program).reduce((acc, guard) => {
-      const [settings, offset] = deserialize(buffer, guard.settingsSerializer);
-      buffer = buffer.slice(offset);
-      acc[guard.name] = settings;
-      return acc;
-    }, {} as CandyGuardsSettings) as T;
+  ): { guards: T; groups: T[] } {
+    const availableGuards = this.getAllGuardsForProgram(program);
+    const deserializeSet = () =>
+      availableGuards.reduce((acc, guard) => {
+        const [settings, offset] = deserialize(
+          buffer,
+          guard.settingsSerializer
+        );
+        buffer = buffer.slice(offset);
+        acc[guard.name] = settings;
+        return acc;
+      }, {} as CandyGuardsSettings) as T;
+
+    const guards: T = deserializeSet();
+    const groups: T[] = [];
+
+    while (buffer.length > 0) {
+      groups.push(deserializeSet());
+    }
+
+    return { guards, groups };
   }
 
   /** TODO */
