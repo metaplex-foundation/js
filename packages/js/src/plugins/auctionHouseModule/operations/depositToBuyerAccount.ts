@@ -238,9 +238,7 @@ export const depositToBuyerAccountBuilder = (
   }
 
   // Signers.
-  const depositSigners = [buyer, params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
-  );
+  const depositSigners = [buyer, params.auctioneerAuthority].filter(isSigner);
 
   return (
     TransactionBuilder.make()
