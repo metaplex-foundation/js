@@ -65,7 +65,7 @@ export class CandyGuardGuardsClient {
         (acc, guard) => {
           const value = set[guard.name] ?? null;
           acc.features.push(!!value);
-          if (!!value) return acc;
+          if (!value) return acc;
 
           const newBuffer = serialize(value, guard.settingsSerializer);
           const paddedBuffer = Buffer.concat([newBuffer], guard.settingsBytes);
