@@ -155,7 +155,7 @@ test('[candyGuardModule] create with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test.only('[candyGuardModule] create with guard groups', async (t) => {
+test('[candyGuardModule] create with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -207,7 +207,6 @@ test.only('[candyGuardModule] create with guard groups', async (t) => {
     .run();
 
   // Then we expect the Candy Guard account to exists with the following data.
-  console.log(candyGuard);
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',

@@ -109,11 +109,8 @@ export class CandyGuardGuardsClient {
         acc[guard.name] = null;
         if (!isEnabled) return acc;
 
-        const [settings, offset] = deserialize(
-          buffer,
-          guard.settingsSerializer
-        );
-        buffer = buffer.slice(offset);
+        const [settings] = deserialize(buffer, guard.settingsSerializer);
+        buffer = buffer.slice(guard.settingsBytes);
         acc[guard.name] = settings;
         return acc;
       }, {} as CandyGuardsSettings) as T;
