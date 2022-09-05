@@ -6,6 +6,7 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuard } from '../models/CandyGuard';
 import { findCandyGuardPda } from '../pdas';
+import { CandyGuardProgram } from '../program';
 
 // -----------------
 // Operation
@@ -17,7 +18,7 @@ const Key = 'CreateCandyGuardOperation' as const;
  * Creates a new Candy Guard account with the provided settings.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * const { candyGuard } = await metaplex
  *   .candyGuards()
  *   .create({
  *     // TODO
@@ -79,6 +80,13 @@ export type CreateCandyGuardInput<GuardSettings = any> = {
 
   /** TODO */
   guards: GuardSettings;
+
+  /**
+   * The Candy Guard program to use when creating the account.
+   *
+   * @defaultValue `DefaultCandyGuardProgram.address`
+   */
+  candyGuardProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -178,7 +186,19 @@ export const createCandyGuardBuilder = (
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;
-  const candyGuard = findCandyGuardPda(base.publicKey);
+  const candyGuardProgram = metaplex
+    .programs()
+    .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
+  const candyGuard = findCandyGuardPda(
+    base.publicKey,
+    candyGuardProgram.address
+  );
+
+  const availableGuards = candyGuardProgram.availableGuards;
+  const guardData = availableGuards.reduce((acc, guardName) => {
+    acc[guardName] = { foo: 32 };
+    return acc;
+  }, {} as { [key: string]: object | null });
 
   const initializeInstruction = createInitializeInstruction(
     {
@@ -209,7 +229,7 @@ export const createCandyGuardBuilder = (
       .setFeePayer(payer)
       .setContext({ payer, base })
 
-      // Initialize the candy machine account.
+      // Create and initialize the candy guard account.
       .add({
         instruction: initializeInstruction,
         signers: [base, payer],

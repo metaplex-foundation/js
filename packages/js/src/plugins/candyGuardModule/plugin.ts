@@ -1,61 +1,55 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
+import { CandyGuardClient } from './CandyGuardClient';
 import {
-  createCandyMachineOperation,
-  createCandyMachineOperationHandler,
-  deleteCandyMachineOperation,
-  deleteCandyMachineOperationHandler,
-  findCandyMachineByAddressOperation,
-  findCandyMachineByAddressOperationHandler,
-  findCandyMachinesByPublicKeyFieldOperation,
-  findCandyMachinesByPublicKeyFieldOperationHandler,
-  findMintedNftsByCandyMachineOperation,
-  findMintedNftsByCandyMachineOperationHandler,
-  insertItemsToCandyMachineOperation,
-  InsertItemsToCandyMachineOperationHandler,
-  mintCandyMachineOperation,
-  mintCandyMachineOperationHandler,
-  updateCandyMachineOperation,
-  updateCandyMachineOperationHandler,
+  createCandyGuardOperation,
+  createCandyGuardOperationHandler,
+  deleteCandyGuardOperation,
+  deleteCandyGuardOperationHandler,
+  findCandyGuardByAddressOperation,
+  findCandyGuardByAddressOperationHandler,
+  findCandyGuardsByPublicKeyFieldOperation,
+  findCandyGuardsByPublicKeyFieldOperationHandler,
+  findMintedNftsByCandyGuardOperation,
+  findMintedNftsByCandyGuardOperationHandler,
+  insertItemsToCandyGuardOperation,
+  InsertItemsToCandyGuardOperationHandler,
+  mintCandyGuardOperation,
+  mintCandyGuardOperationHandler,
+  updateCandyGuardOperation,
+  updateCandyGuardOperationHandler,
 } from './operations';
+import { DefaultCandyGuardProgram } from './program';
 
 /** @group Plugins */
-export const candyMachineModule = (): MetaplexPlugin => ({
+export const candyGuardModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    const op = metaplex.operations();
-    op.register(
-      createCandyMachineOperation,
-      createCandyMachineOperationHandler
-    );
-    op.register(
-      deleteCandyMachineOperation,
-      deleteCandyMachineOperationHandler
-    );
-    op.register(
-      findCandyMachineByAddressOperation,
-      findCandyMachineByAddressOperationHandler
-    );
-    op.register(
-      findCandyMachinesByPublicKeyFieldOperation,
-      findCandyMachinesByPublicKeyFieldOperationHandler
-    );
-    op.register(
-      findMintedNftsByCandyMachineOperation,
-      findMintedNftsByCandyMachineOperationHandler
-    );
-    op.register(
-      insertItemsToCandyMachineOperation,
-      InsertItemsToCandyMachineOperationHandler
-    );
-    op.register(mintCandyMachineOperation, mintCandyMachineOperationHandler);
-    op.register(
-      updateCandyMachineOperation,
-      updateCandyMachineOperationHandler
-    );
+    metaplex.programs().register(DefaultCandyGuardProgram);
 
-    metaplex.candyGuards = function () {
-      return new CandyGuardClient(this);
-    };
+    const op = metaplex.operations();
+    op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
+    op.register(deleteCandyGuardOperation, deleteCandyGuardOperationHandler);
+    op.register(
+      findCandyGuardByAddressOperation,
+      findCandyGuardByAddressOperationHandler
+    );
+    op.register(
+      findCandyGuardsByPublicKeyFieldOperation,
+      findCandyGuardsByPublicKeyFieldOperationHandler
+    );
+    op.register(
+      findMintedNftsByCandyGuardOperation,
+      findMintedNftsByCandyGuardOperationHandler
+    );
+    op.register(
+      insertItemsToCandyGuardOperation,
+      InsertItemsToCandyGuardOperationHandler
+    );
+    op.register(mintCandyGuardOperation, mintCandyGuardOperationHandler);
+    op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
+
+    const client = new CandyGuardClient(metaplex);
+    metaplex.candyGuards = () => client;
   },
 });
 

@@ -2,47 +2,50 @@ import type { Metaplex } from '@/Metaplex';
 import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { CandyMachinesBuildersClient } from './CandyGuardBuildersClient';
-import { CandyMachine } from './models';
+import { CandyGuardBuildersClient } from './CandyGuardBuildersClient';
+import { UnregisteredCandyGuardError } from './errors';
+import { CandyGuardManifest } from './guards';
+import { CandyGuard } from './models';
 import {
-  CreateCandyMachineInput,
-  createCandyMachineOperation,
-  DeleteCandyMachineInput,
-  deleteCandyMachineOperation,
-  FindCandyMachineByAddressInput,
-  findCandyMachineByAddressOperation,
-  FindCandyMachinesByPublicKeyFieldInput,
-  findCandyMachinesByPublicKeyFieldOperation,
-  FindMintedNftsByCandyMachineInput,
-  findMintedNftsByCandyMachineOperation,
-  InsertItemsToCandyMachineInput,
-  insertItemsToCandyMachineOperation,
-  MintCandyMachineInput,
-  mintCandyMachineOperation,
-  UpdateCandyMachineInput,
-  updateCandyMachineOperation,
+  CreateCandyGuardInput,
+  createCandyGuardOperation,
+  DeleteCandyGuardInput,
+  deleteCandyGuardOperation,
+  FindCandyGuardByAddressInput,
+  findCandyGuardByAddressOperation,
+  FindCandyGuardsByPublicKeyFieldInput,
+  findCandyGuardsByPublicKeyFieldOperation,
+  FindMintedNftsByCandyGuardInput,
+  findMintedNftsByCandyGuardOperation,
+  InsertItemsToCandyGuardInput,
+  insertItemsToCandyGuardOperation,
+  MintCandyGuardInput,
+  mintCandyGuardOperation,
+  UpdateCandyGuardInput,
+  updateCandyGuardOperation,
 } from './operations';
+import { CandyGuardProgram } from './program';
 
 /**
- * This is a client for the Candy Machine module.
+ * This is a client for the Candy Guard module.
  *
- * It enables us to interact with the Candy Machine program in order to
- * create, update and delete Candy Machines as well as mint from them.
+ * It enables us to interact with the Candy Guard program in order to
+ * create, update and delete Candy Guards as well as mint from them.
  *
- * You may access this client via the `candyMachines()` method of your `Metaplex` instance.
+ * You may access this client via the `candyGuards()` method of your `Metaplex` instance.
  *
  * ```ts
- * const candyMachineClient = metaplex.candyMachines();
+ * const candyGuardClient = metaplex.candyGuards();
  * ```
  *
  * @example
- * You can create a new Candy Machine with minimum input like so.
+ * You can create a new Candy Guard with minimum input like so.
  * By default, the current identity of the Metaplex instance will be
- * the authority of the Candy Machine.
+ * the authority of the Candy Guard.
  *
  * ```ts
- * const { candyMachine } = await metaplex
- *   .candyMachines()
+ * const { candyGuard } = await metaplex
+ *   .candyGuards()
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
@@ -51,89 +54,117 @@ import {
  *   .run();
  * ```
  *
- * @see {@link CandyMachine} The `CandyMachine` model
+ * @see {@link CandyGuard} The `CandyGuard` model
  * @group Modules
  */
-export class CandyMachinesClient {
+export class CandyGuardClient {
+  private guards: CandyGuardManifest[] = [];
+
   constructor(readonly metaplex: Metaplex) {}
+
+  /** TODO */
+  register(...guard: CandyGuardManifest[]) {
+    this.guards.push(...guard);
+  }
+
+  /** TODO */
+  getGuard(name: string): CandyGuardManifest {
+    const guard = this.guards.find((guard) => guard.name === name);
+
+    if (!guard) {
+      throw new UnregisteredCandyGuardError(name);
+    }
+
+    return guard;
+  }
+
+  /** TODO */
+  getAllGuards(): CandyGuardManifest[] {
+    return this.guards;
+  }
+
+  /** TODO */
+  getAllGuardsForProgram(
+    nameOrAddress: string | PublicKey = 'CandyGuardProgram'
+  ): CandyGuardManifest[] {
+    const candyGuardProgram = this.metaplex
+      .programs()
+      .get<CandyGuardProgram>(nameOrAddress);
+
+    return candyGuardProgram.availableGuards.map((name) => this.getGuard(name));
+  }
 
   /**
    * You may use the `builders()` client to access the
    * underlying Transaction Builders of this module.
    *
    * ```ts
-   * const buildersClient = metaplex.candyMachines().builders();
+   * const buildersClient = metaplex.candyGuards().builders();
    * ```
    */
   builders() {
-    return new CandyMachinesBuildersClient(this.metaplex);
+    return new CandyGuardBuildersClient(this.metaplex);
   }
 
-  /** {@inheritDoc createCandyMachineOperation} */
-  create(input: CreateCandyMachineInput) {
+  /** {@inheritDoc createCandyGuardOperation} */
+  create(input: CreateCandyGuardInput) {
+    return this.metaplex.operations().getTask(createCandyGuardOperation(input));
+  }
+
+  /** {@inheritDoc deleteCandyGuardOperation} */
+  delete(input: DeleteCandyGuardInput) {
+    return this.metaplex.operations().getTask(deleteCandyGuardOperation(input));
+  }
+
+  /** {@inheritDoc findCandyGuardsByPublicKeyFieldOperation} */
+  findAllBy(input: FindCandyGuardsByPublicKeyFieldInput) {
     return this.metaplex
       .operations()
-      .getTask(createCandyMachineOperation(input));
+      .getTask(findCandyGuardsByPublicKeyFieldOperation(input));
   }
 
-  /** {@inheritDoc deleteCandyMachineOperation} */
-  delete(input: DeleteCandyMachineInput) {
+  /** {@inheritDoc findCandyGuardByAddressOperation} */
+  findByAddress(input: FindCandyGuardByAddressInput): Task<CandyGuard> {
     return this.metaplex
       .operations()
-      .getTask(deleteCandyMachineOperation(input));
+      .getTask(findCandyGuardByAddressOperation(input));
   }
 
-  /** {@inheritDoc findCandyMachinesByPublicKeyFieldOperation} */
-  findAllBy(input: FindCandyMachinesByPublicKeyFieldInput) {
+  /** {@inheritDoc findMintedNftsByCandyGuardOperation} */
+  findMintedNfts(input: FindMintedNftsByCandyGuardInput) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachinesByPublicKeyFieldOperation(input));
+      .getTask(findMintedNftsByCandyGuardOperation(input));
   }
 
-  /** {@inheritDoc findCandyMachineByAddressOperation} */
-  findByAddress(input: FindCandyMachineByAddressInput): Task<CandyMachine> {
+  /** {@inheritDoc insertItemsToCandyGuardOperation} */
+  insertItems(input: InsertItemsToCandyGuardInput) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachineByAddressOperation(input));
+      .getTask(insertItemsToCandyGuardOperation(input));
   }
 
-  /** {@inheritDoc findMintedNftsByCandyMachineOperation} */
-  findMintedNfts(input: FindMintedNftsByCandyMachineInput) {
-    return this.metaplex
-      .operations()
-      .getTask(findMintedNftsByCandyMachineOperation(input));
-  }
-
-  /** {@inheritDoc insertItemsToCandyMachineOperation} */
-  insertItems(input: InsertItemsToCandyMachineInput) {
-    return this.metaplex
-      .operations()
-      .getTask(insertItemsToCandyMachineOperation(input));
-  }
-
-  /** {@inheritDoc mintCandyMachineOperation} */
-  mint(input: MintCandyMachineInput) {
-    return this.metaplex.operations().getTask(mintCandyMachineOperation(input));
+  /** {@inheritDoc mintCandyGuardOperation} */
+  mint(input: MintCandyGuardInput) {
+    return this.metaplex.operations().getTask(mintCandyGuardOperation(input));
   }
 
   /**
-   * Helper method that refetches a given Candy Machine.
+   * Helper method that refetches a given Candy Guard.
    *
    * ```ts
-   * const candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
+   * const candyGuard = await metaplex.candyGuards().refresh(candyGuard).run();
    * ```
    */
   refresh(
-    candyMachine: CandyMachine | PublicKey,
-    input?: Omit<FindCandyMachineByAddressInput, 'address'>
-  ): Task<CandyMachine> {
-    return this.findByAddress({ address: toPublicKey(candyMachine), ...input });
+    candyGuard: CandyGuard | PublicKey,
+    input?: Omit<FindCandyGuardByAddressInput, 'address'>
+  ): Task<CandyGuard> {
+    return this.findByAddress({ address: toPublicKey(candyGuard), ...input });
   }
 
-  /** {@inheritDoc updateCandyMachineOperation} */
-  update(input: UpdateCandyMachineInput) {
-    return this.metaplex
-      .operations()
-      .getTask(updateCandyMachineOperation(input));
+  /** {@inheritDoc updateCandyGuardOperation} */
+  update(input: UpdateCandyGuardInput) {
+    return this.metaplex.operations().getTask(updateCandyGuardOperation(input));
   }
 }

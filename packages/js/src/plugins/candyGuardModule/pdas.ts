@@ -6,7 +6,7 @@ import { DefaultCandyGuardProgram } from './program';
 /** @group Pdas */
 export const findCandyGuardPda = (
   baseAddress: PublicKey,
-  programId: PublicKey = DefaultCandyGuardProgram.publicKey
+  programId: PublicKey = DefaultCandyGuardProgram.address
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('candy_guard', 'utf8'),

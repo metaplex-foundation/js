@@ -30,7 +30,7 @@ export class ProgramClient {
     return this.allForCluster(this.metaplex.cluster);
   }
 
-  get(nameOrAddress: string | PublicKey): Program {
+  get<T extends Program = Program>(nameOrAddress: string | PublicKey): T {
     const programs = this.allForCurrentCluster();
     const program =
       typeof nameOrAddress === 'string'
@@ -41,7 +41,7 @@ export class ProgramClient {
       throw new ProgramNotRecognizedError(nameOrAddress, this.metaplex.cluster);
     }
 
-    return program;
+    return program as T;
   }
 
   public getGpaBuilder<T extends GpaBuilder>(

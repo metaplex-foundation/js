@@ -1,8 +1,11 @@
+import { Metaplex } from '@/Metaplex';
 import {
   AccountInfo,
   assertModel,
   BigNumber,
+  createSerializerFromBeet,
   createSerializerFromSolitaType,
+  deserialize,
   deserializeAccount,
   isModel,
   Model,
@@ -12,10 +15,12 @@ import {
   toBigNumber,
   UnparsedAccount,
 } from '@/types';
+import { coptionNone } from '@metaplex-foundation/beet';
 import {
   CandyGuard as MplCandyGuard,
   candyGuardBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardsSettings } from '../guards';
 
 /** @group Models */
 export type CandyGuard<Guards> = Model<'candyGuard'> & {
@@ -50,12 +55,36 @@ export function assertCandyGuard<T>(
 }
 
 /** @group Model Helpers */
-export const toCandyGuard = <T>(account: UnparsedAccount): CandyGuard<T> => {
+export const toCandyGuard = <T extends CandyGuardsSettings>(
+  account: UnparsedAccount,
+  metaplex: Metaplex
+): CandyGuard<T> => {
   const candyGuardSerializer = createSerializerFromSolitaType(
     MplCandyGuard,
     candyGuardBeet.description
   );
   const parsedCandyGuard = deserializeAccount(account, candyGuardSerializer);
+
+  const availableGuards = metaplex
+    .candyGuards()
+    .getAllGuardsForProgram(account.owner);
+
+  let buffer = account.data;
+  const guards = availableGuards.reduce((acc, guard) => {
+    // if (!guard.settingsSerializer) {
+    // buffer = buffer.slice(4);
+    // acc[guard.name] = null;
+    // return acc;
+    // }
+
+    const serializer =
+      guard.settingsSerializer ??
+      createSerializerFromBeet(coptionNone<number>(guard.name));
+    const [settings, offset] = deserialize(buffer, serializer);
+    buffer = buffer.slice(offset);
+    acc[guard.name] = settings;
+    return acc;
+  }, {} as CandyGuardsSettings) as T;
 
   return {
     model: 'candyGuard',
@@ -66,9 +95,7 @@ export const toCandyGuard = <T>(account: UnparsedAccount): CandyGuard<T> => {
     features: featuresAsBooleanArray(
       toBigNumber(parsedCandyGuard.data.features)
     ),
-
-    // TODO(loris): Parse the guard settings.
-    guards: [],
+    guards,
   };
 };
 
