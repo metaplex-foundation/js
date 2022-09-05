@@ -218,14 +218,19 @@ export const createCandyGuardBuilder = (
     },
     {
       data: {
-        botTax: null,
-        liveDate: null,
-        lamports: null,
-        splToken: null,
-        thirdPartySigner: null,
-        whitelist: null,
-        gatekeeper: null,
-        endSettings: null,
+        default: {
+          botTax: null,
+          liveDate: null,
+          lamports: null,
+          splToken: null,
+          thirdPartySigner: null,
+          whitelist: null,
+          gatekeeper: null,
+          endSettings: null,
+          allowList: null,
+          mintLimit: null,
+        },
+        groups: null,
       },
     }
   );
