@@ -1,5 +1,6 @@
 import type { Metaplex } from '@/Metaplex';
 import { deserialize, PublicKey, serialize } from '@/types';
+import { u32 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import { UnregisteredCandyGuardError } from './errors';
 import {
@@ -113,8 +114,10 @@ export class CandyGuardGuardsClient {
 
     const guards: T = deserializeSet();
     const groups: T[] = [];
+    const groupsCount = u32.read(buffer, 0);
+    buffer = buffer.slice(4);
 
-    while (buffer.length > 0) {
+    for (let i = 0; i < groupsCount; i++) {
       groups.push(deserializeSet());
     }
 
