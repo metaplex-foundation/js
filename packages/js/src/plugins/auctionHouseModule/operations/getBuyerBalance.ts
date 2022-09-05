@@ -40,9 +40,10 @@ export type GetBuyerBalanceOperation = Operation<
  * @category Inputs
  */
 export type GetBuyerBalanceInput = {
-  /** The Auction House in which to get buyer's escrow balance. */
+  /** The Auction House in which to get the buyer's escrow balance. */
   auctionHouse: PublicKey;
-  /** Buyer's address. */
+
+  /** The buyer's address. */
   buyerAddress: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
