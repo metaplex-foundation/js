@@ -3069,7 +3069,7 @@
 
 "@metaplex-foundation/mpl-candy-guard@https://github.com/febo/candy-guard":
   version "0.0.1"
-  resolved "https://github.com/febo/candy-guard#fb2667100f080ec6bfc737a01f4ef7d96560f9c8"
+  resolved "https://github.com/febo/candy-guard#47977e23805a17cec26ad7667f19d7151d5c5d3d"
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
@@ -3079,7 +3079,7 @@
 
 "@metaplex-foundation/mpl-candy-machine-core@https://github.com/febo/candy-core":
   version "0.0.1"
-  resolved "https://github.com/febo/candy-core#9c13bfb865949b9e7f792470efa1c67439d5f86e"
+  resolved "https://github.com/febo/candy-core#b630deaffc325285d3e90386fbf000546244e3ec"
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
