@@ -1,4 +1,4 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { ConfirmOptions } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import {
