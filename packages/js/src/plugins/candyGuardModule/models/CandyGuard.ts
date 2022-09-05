@@ -2,7 +2,8 @@ import {
   AccountInfo,
   assertModel,
   BigNumber,
-  deserializeAccountFromBeetClass,
+  createSerializerFromSolitaType,
+  deserializeAccount,
   isModel,
   Model,
   Pda,
@@ -17,7 +18,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-guard';
 
 /** @group Models */
-export type CandyGuard = Model<'candyGuard'> & {
+export type CandyGuard<Guards> = Model<'candyGuard'> & {
   /** The PDA address of the Candy Guard account. */
   readonly address: Pda;
 
@@ -32,24 +33,29 @@ export type CandyGuard = Model<'candyGuard'> & {
 
   /** An array of boolean dictating which guards are activated. */
   readonly features: boolean[];
+
+  /** TODO. */
+  readonly guards: Guards;
 };
 
 /** @group Model Helpers */
-export const isCandyGuard = (value: any): value is CandyGuard =>
+export const isCandyGuard = <T>(value: any): value is CandyGuard<T> =>
   isModel('candyGuard', value);
 
 /** @group Model Helpers */
-export function assertCandyGuard(value: any): asserts value is CandyGuard {
+export function assertCandyGuard<T>(
+  value: any
+): asserts value is CandyGuard<T> {
   assertModel(isCandyGuard(value), `Expected CandyGuard model`);
 }
 
 /** @group Model Helpers */
-export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
-  const parsedCandyGuard = deserializeAccountFromBeetClass(
-    account,
+export const toCandyGuard = <T>(account: UnparsedAccount): CandyGuard<T> => {
+  const candyGuardSerializer = createSerializerFromSolitaType(
     MplCandyGuard,
     candyGuardBeet.description
   );
+  const parsedCandyGuard = deserializeAccount(account, candyGuardSerializer);
 
   return {
     model: 'candyGuard',
@@ -62,6 +68,7 @@ export const toCandyGuard = (account: UnparsedAccount): CandyGuard => {
     ),
 
     // TODO(loris): Parse the guard settings.
+    guards: [],
   };
 };
 

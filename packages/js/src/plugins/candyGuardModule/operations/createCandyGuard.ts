@@ -1,60 +1,26 @@
 import { Metaplex } from '@/Metaplex';
-import {
-  assertSameCurrencies,
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  SOL,
-  toBigNumber,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import {
-  DisposableScope,
-  Option,
-  RequiredKeys,
-  TransactionBuilder,
-} from '@/utils';
-import {
-  createInitializeCandyMachineInstruction,
-  createSetCollectionInstruction,
-  Creator,
-} from '@metaplex-foundation/mpl-candy-machine';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  TokenMetadataProgram,
-} from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  CandyMachine,
-  CandyMachineConfigs,
-  toCandyMachineInstructionData,
-} from '../models/CandyGuard';
-import { ExpectedSignerError } from '@/errors';
-import { getCandyMachineAccountSizeFromData } from '../helpers';
-import { findCandyMachineCollectionPda } from '../pdas';
-import { CandyMachineProgram } from '../program';
+import { CandyGuard } from '../models/CandyGuard';
+import { findCandyGuardPda } from '../pdas';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CreateCandyMachineOperation' as const;
+const Key = 'CreateCandyGuardOperation' as const;
 
 /**
- * Creates a brand new Candy Machine.
+ * Creates a new Candy Guard account with the provided settings.
  *
  * ```ts
  * const { candyMachine } = await metaplex
- *   .candyMachines()
+ *   .candyGuards()
  *   .create({
- *     sellerFeeBasisPoints: 500, // 5% royalties
- *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     // TODO
  *   })
  *   .run();
  * ```
@@ -62,30 +28,42 @@ const Key = 'CreateCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyMachineOperation =
-  useOperation<CreateCandyMachineOperation>(Key);
+export const createCandyGuardOperation =
+  useOperation<CreateCandyGuardOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyMachineOperation = Operation<
+// TODO: Default type parameters
+export type CreateCandyGuardOperation<
+  GuardSettings = any,
+  Guards = any
+> = Operation<
   typeof Key,
-  CreateCandyMachineInput,
-  CreateCandyMachineOutput
+  CreateCandyGuardInput<GuardSettings>,
+  CreateCandyGuardOutput<Guards>
 >;
 
-export type CreateCandyMachineInputWithoutConfigs = {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+// TODO: Default type parameters
+export type CreateCandyGuardInput<GuardSettings = any> = {
   /**
-   * The Candy Machine to create as a Signer.
-   * This expects a brand new Keypair with no associated account.
+   * The "base" address of the Candy Guard to create as a Signer.
+   *
+   * This address will be deterministically derived to obtain the real
+   * address of the Candy Guard account. It expects a brand new Keypair
+   * such that its derived address has no associated account.
    *
    * @defaultValue `Keypair.generate()`
    */
-  candyMachine?: Signer;
+  base?: Signer;
 
   /**
-   * The Signer that should pay for the creation of the Candy Machine.
+   * The Signer that should pay for the creation of the Candy Guard.
    * This includes both storage fees and the transaction fee.
    *
    * @defaultValue `metaplex.identity()`
@@ -93,25 +71,14 @@ export type CreateCandyMachineInputWithoutConfigs = {
   payer?: Signer;
 
   /**
-   * The authority that will be allowed to update the Candy Machine.
-   * Upon creation, passing the authority's public key is enough to set it.
-   * However, when also passing a `collection` to this operation,
-   * this authority will need to be passed as a Signer so the relevant
-   * instruction can be signed.
+   * The authority that will be allowed to update the Candy Guard.
    *
    * @defaultValue `metaplex.identity()`
    */
-  authority?: Signer | PublicKey; // Defaults to mx.identity().
+  authority?: PublicKey;
 
-  /**
-   * The mint address of the Collection NFT that all NFTs minted from
-   * this Candy Machine should be part of.
-   * When provided, the `authority` parameter will need to be passed as a `Signer`.
-   * When `null`, minted NFTs won't be part of a collection.
-   *
-   * @defaultValue `null`
-   */
-  collection?: Option<PublicKey>;
+  /** TODO */
+  guards: GuardSettings;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -119,70 +86,47 @@ export type CreateCandyMachineInputWithoutConfigs = {
 
 /**
  * @group Operations
- * @category Inputs
- */
-export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
-  RequiredKeys<
-    Partial<CandyMachineConfigs>,
-    'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'
-  >;
-
-/**
- * @group Operations
  * @category Outputs
  */
-export type CreateCandyMachineOutput = {
+// TODO: Default type parameters
+export type CreateCandyGuardOutput<Guards = any> = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
-  /** The created Candy Machine. */
-  candyMachine: CandyMachine;
+  /** The created Candy Guard. */
+  candyGuard: CandyGuard<Guards>;
 
-  /** The create Candy Machine's account as a Signer. */
-  candyMachineSigner: Signer;
+  /** The base address of the Candy Guard's account as a Signer. */
+  base: Signer;
 
-  /** The account that ended up paying for the Candy Machine as a Signer. */
+  /** The account that ended up paying for the Candy Guard as a Signer. */
   payer: Signer;
-
-  /** The created Candy Machine's wallet. */
-  wallet: PublicKey;
-
-  /** The created Candy Machine's authority. */
-  authority: PublicKey;
-
-  /** The created Candy Machine's creators. */
-  creators: Creator[];
 };
 
 /**
  * @group Operations
  * @category Handlers
  */
-export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
+export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
   {
     async handle(
-      operation: CreateCandyMachineOperation,
+      operation: CreateCandyGuardOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyMachineOutput> {
-      const builder = await createCandyMachineBuilder(
-        metaplex,
-        operation.input
-      );
-      scope.throwIfCanceled();
-
+    ): Promise<CreateCandyGuardOutput> {
+      const builder = createCandyGuardBuilder(metaplex, operation.input);
       const output = await builder.sendAndConfirm(
         metaplex,
         operation.input.confirmOptions
       );
       scope.throwIfCanceled();
 
-      const candyMachine = await metaplex
-        .candyMachines()
-        .findByAddress({ address: output.candyMachineSigner.publicKey })
+      const candyGuard = await metaplex
+        .candyGuards()
+        .findByBaseAddress({ address: output.base.publicKey })
         .run(scope);
 
-      return { ...output, candyMachine };
+      return { ...output, candyGuard };
     },
   };
 
@@ -194,174 +138,82 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyMachineBuilderParams = Omit<
-  CreateCandyMachineInput,
+// TODO: Default type parameters
+export type CreateCandyGuardBuilderParams<GuardSettings = any> = Omit<
+  CreateCandyGuardInput<GuardSettings>,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that creates the account. */
-  createAccountInstructionKey?: string;
-
-  /** A key to distinguish the instruction that initializes the Candy Machine. */
-  initializeCandyMachineInstructionKey?: string;
-
-  /** A key to distinguish the instruction that sets the collection. */
-  setCollectionInstructionKey?: string;
+  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
+  createCandyGuardInstructionKey?: string;
 };
 
 /**
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateCandyMachineBuilderContext = Omit<
-  CreateCandyMachineOutput,
-  'response' | 'candyMachine'
+export type CreateCandyGuardBuilderContext = Omit<
+  CreateCandyGuardOutput,
+  'response' | 'candyGuard'
 >;
 
 /**
- * Creates a brand new Candy Machine.
+ * Creates a new Candy Guard account with the provided settings.
  *
  * ```ts
  * const transactionBuilder = await metaplex
- *   .candyMachines()
+ *   .candyGuards()
  *   .builders()
  *   .create({
- *     sellerFeeBasisPoints: 500, // 5% royalties
- *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     // TODO
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyMachineBuilder = async (
+export const createCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: CreateCandyMachineBuilderParams
-): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
-  const candyMachine = params.candyMachine ?? Keypair.generate();
+  params: CreateCandyGuardBuilderParams
+): TransactionBuilder<CreateCandyGuardBuilderContext> => {
+  const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity();
-  const collection: PublicKey | null = params.collection ?? null;
+  const authority = params.authority ?? metaplex.identity().publicKey;
+  const candyGuard = findCandyGuardPda(base.publicKey);
 
-  const { data, wallet, tokenMint } = toCandyMachineInstructionData(
-    candyMachine.publicKey,
+  const initializeInstruction = createInitializeInstruction(
     {
-      ...params,
-      wallet: params.wallet ?? metaplex.identity().publicKey,
-      tokenMint: params.tokenMint ?? null,
-      symbol: params.symbol ?? '',
-      maxEditionSupply: params.maxEditionSupply ?? toBigNumber(0),
-      isMutable: params.isMutable ?? true,
-      retainAuthority: params.retainAuthority ?? true,
-      goLiveDate: params.goLiveDate ?? null,
-      endSettings: params.endSettings ?? null,
-      creators: params.creators ?? [
-        {
-          address: metaplex.identity().publicKey,
-          share: 100,
-          verified: false,
-        },
-      ],
-      hiddenSettings: params.hiddenSettings ?? null,
-      whitelistMintSettings: params.whitelistMintSettings ?? null,
-      gatekeeper: params.gatekeeper ?? null,
+      candyGuard,
+      base: base.publicKey,
+      authority,
+      payer: payer.publicKey,
+    },
+    {
+      data: {
+        botTax: null,
+        liveDate: null,
+        lamports: null,
+        splToken: null,
+        thirdPartySigner: null,
+        whitelist: null,
+        gatekeeper: null,
+        endSettings: null,
+      },
     }
   );
 
-  const initializeInstruction = createInitializeCandyMachineInstruction(
-    {
-      candyMachine: candyMachine.publicKey,
-      wallet,
-      authority: toPublicKey(authority),
-      payer: payer.publicKey,
-    },
-    { data }
-  );
-
-  if (tokenMint) {
-    initializeInstruction.keys.push({
-      pubkey: tokenMint,
-      isWritable: false,
-      isSigner: false,
-    });
-  } else {
-    assertSameCurrencies(params.price, SOL);
-  }
+  // TODO
+  initializeInstruction.data;
 
   return (
-    TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+    TransactionBuilder.make<CreateCandyGuardBuilderContext>()
       .setFeePayer(payer)
-      .setContext({
-        candyMachineSigner: candyMachine,
-        payer,
-        wallet,
-        authority: toPublicKey(authority),
-        creators: data.creators,
-      })
-
-      // Create an empty account for the candy machine.
-      .add(
-        await metaplex
-          .system()
-          .builders()
-          .createAccount({
-            payer,
-            newAccount: candyMachine,
-            space: getCandyMachineAccountSizeFromData(data),
-            program: CandyMachineProgram.publicKey,
-            instructionKey:
-              params.createAccountInstructionKey ?? 'createAccount',
-          })
-      )
+      .setContext({ payer, base })
 
       // Initialize the candy machine account.
       .add({
         instruction: initializeInstruction,
-        signers: [candyMachine, payer],
-        key:
-          params.initializeCandyMachineInstructionKey ??
-          'initializeCandyMachine',
-      })
-
-      // Set the collection.
-      .when(!!collection, (builder) => {
-        if (!isSigner(authority)) {
-          throw new ExpectedSignerError('authority', 'PublicKey', {
-            problemSuffix:
-              'You are trying to create a Candy Machine with a Collection NFT. ' +
-              'In order for the Collection NFT to be set successfully, you must provide the authority as a Signer.',
-            solution:
-              'Please provide the "authority" parameter as a Signer if you want to set the Collection NFT upon creation. ' +
-              'Alternatively, you may remove the "collection" parameter to create a Candy Machine without an associated Collection NFT.',
-          });
-        }
-
-        const collectionMint = collection as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const edition = findMasterEditionV2Pda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
-          candyMachine.publicKey
-        );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
-
-        return builder.add({
-          instruction: createSetCollectionInstruction({
-            candyMachine: candyMachine.publicKey,
-            authority: toPublicKey(authority),
-            collectionPda,
-            payer: payer.publicKey,
-            metadata,
-            mint: collectionMint,
-            edition,
-            collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
-          }),
-          signers: [authority],
-          key: params.setCollectionInstructionKey ?? 'setCollection',
-        });
+        signers: [base, payer],
+        key: params.createCandyGuardInstructionKey ?? 'createCandyGuard',
       })
   );
 };
