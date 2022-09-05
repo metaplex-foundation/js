@@ -7,7 +7,7 @@ export type MintLimitGuardSettings = MintLimit;
 
 /** @internal */
 export const mintLimitGuardManifest: CandyGuardManifest<MintLimit> = {
-  name: 'mint_limit',
+  name: 'mintLimit',
   settingsBytes: 5,
   settingsSerializer: createSerializerFromBeet(mintLimitBeet),
 };

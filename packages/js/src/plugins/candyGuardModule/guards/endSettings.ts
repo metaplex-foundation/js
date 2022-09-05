@@ -10,7 +10,7 @@ export type EndSettingsGuardSettings = EndSettings;
 
 /** @internal */
 export const endSettingsGuardManifest: CandyGuardManifest<EndSettings> = {
-  name: 'end_settings',
+  name: 'endSettings',
   settingsBytes: 9,
   settingsSerializer: createSerializerFromBeet(endSettingsBeet),
 };

@@ -25,15 +25,22 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
 };
 
 /** @internal */
-export const emptyDefaultCandyGuardSettings: DefaultCandyGuardSettings = {
-  botTax: null,
-  liveDate: null,
-  lamports: null,
-  splToken: null,
-  thirdPartySigner: null,
-  whitelist: null,
-  gatekeeper: null,
-  endSettings: null,
-  allowList: null,
-  mintLimit: null,
-};
+export const defaultCandyGuardNames: string[] = [
+  'botTax',
+  'liveDate',
+  'lamports',
+  'splToken',
+  'thirdPartySigner',
+  'whitelist',
+  'gatekeeper',
+  'endSettings',
+  'allowList',
+  'mintLimit',
+];
+
+/** @internal */
+export const emptyDefaultCandyGuardSettings: DefaultCandyGuardSettings =
+  defaultCandyGuardNames.reduce((acc, name) => {
+    acc[name] = null;
+    return acc;
+  }, {} as DefaultCandyGuardSettings);

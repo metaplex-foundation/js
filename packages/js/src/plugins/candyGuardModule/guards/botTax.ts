@@ -7,7 +7,7 @@ export type BotTaxGuardSettings = BotTax;
 
 /** @internal */
 export const botTaxGuardManifest: CandyGuardManifest<BotTax> = {
-  name: 'bot_tax',
+  name: 'botTax',
   settingsBytes: 9,
   settingsSerializer: createSerializerFromBeet(botTaxBeet),
 };

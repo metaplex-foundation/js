@@ -8,7 +8,7 @@ export type LiveDateGuardSettings = LiveDate;
 
 /** @internal */
 export const liveDateGuardManifest: CandyGuardManifest<LiveDate> = {
-  name: 'live_date',
+  name: 'liveDate',
   settingsBytes: 9,
   settingsSerializer: createSerializerFromBeet(liveDateBeet as Beet<LiveDate>),
 };

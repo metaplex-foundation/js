@@ -1,9 +1,10 @@
 import { ErrorWithLogs, Program } from '@/types';
-import {
-  PROGRAM_ID,
-  errorFromCode,
-} from '@metaplex-foundation/mpl-candy-guard';
 import { initCusper } from '@metaplex-foundation/cusper';
+import {
+  errorFromCode,
+  PROGRAM_ID,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { defaultCandyGuardNames } from './guards';
 
 export type CandyGuardProgram = Program & { availableGuards: string[] };
 
@@ -13,15 +14,5 @@ export const DefaultCandyGuardProgram: CandyGuardProgram = {
   address: PROGRAM_ID,
   errorResolver: (error: ErrorWithLogs) =>
     initCusper(errorFromCode).errorFromProgramLogs(error.logs, false),
-  availableGuards: [
-    'bot_tax',
-    'live_date',
-    'lamports',
-    'spl_token',
-    'third_party_signer',
-    'whitelist',
-    'gatekeeper',
-    'end_settings',
-    'allow_list',
-  ],
+  availableGuards: defaultCandyGuardNames,
 };

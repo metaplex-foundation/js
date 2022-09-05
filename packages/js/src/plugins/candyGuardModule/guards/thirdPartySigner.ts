@@ -11,7 +11,7 @@ export type ThirdPartySignerGuardSettings = ThirdPartySigner;
 /** @internal */
 export const thirdPartySignerGuardManifest: CandyGuardManifest<ThirdPartySigner> =
   {
-    name: 'third_party_signer',
+    name: 'thirdPartySigner',
     settingsBytes: 32,
     settingsSerializer: createSerializerFromBeet(thirdPartySignerBeet),
   };

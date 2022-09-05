@@ -132,6 +132,7 @@ export class CandyGuardGuardsClient {
   }
 }
 
+/** @ts-ignore */
 const serializeFeatures = (features: boolean[], length: number = 8): Buffer => {
   const bytes: number[] = [];
   let currentByte = 0;
