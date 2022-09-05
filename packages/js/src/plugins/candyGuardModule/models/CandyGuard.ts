@@ -64,19 +64,10 @@ export const toCandyGuard = <T extends CandyGuardsSettings>(
   );
   const parsedCandyGuard = deserializeAccount(account, candyGuardSerializer);
 
-  const availableGuards = metaplex
+  const guards = metaplex
     .candyGuards()
-    .getAllGuardsForProgram(account.owner);
-
-  let buffer = account.data;
-  const guards = availableGuards.reduce((acc, guard) => {
-    const serializer =
-      guard.settingsSerializer ?? createOptionNoneSerializer(guard.name);
-    const [settings, offset] = deserialize(buffer, serializer);
-    buffer = buffer.slice(offset);
-    acc[guard.name] = settings;
-    return acc;
-  }, {} as CandyGuardsSettings) as T;
+    .guards()
+    .deserializeSettings<T>(account.data, account.owner);
 
   return {
     model: 'candyGuard',
