@@ -36,7 +36,10 @@ import { AuctionHouse, LazyListing, Listing } from '../models';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMetadataPda } from '../../nftModule';
 import { AUCTIONEER_PRICE } from '../constants';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+import {
+  AuctioneerAuthorityRequiredError,
+  CreateListingRequiresSignerError,
+} from '../errors';
 
 // -----------------
 // Operation
@@ -274,9 +277,20 @@ export const createListingBuilder = (
   }
 
   // Signers.
-  const sellSigners = [authority, auctioneerAuthority].filter(
+  const sellSigners = [auctioneerAuthority].filter(
     (input): input is Signer => !!input && isSigner(input)
   );
+
+  if (isSigner(seller) || isSigner(authority)) {
+    const signer = isSigner(seller) ? seller : (authority as Signer);
+
+    const signerKeyIndex = sellInstruction.keys.findIndex((key) =>
+      key.pubkey.equals(signer.publicKey)
+    );
+    sellInstruction.keys[signerKeyIndex].isSigner = true;
+  } else {
+    throw new CreateListingRequiresSignerError();
+  }
 
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
