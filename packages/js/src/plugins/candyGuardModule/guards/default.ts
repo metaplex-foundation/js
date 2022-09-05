@@ -39,8 +39,9 @@ export const defaultCandyGuardNames: string[] = [
 ];
 
 /** @internal */
-export const emptyDefaultCandyGuardSettings: DefaultCandyGuardSettings =
-  defaultCandyGuardNames.reduce((acc, name) => {
-    acc[name] = null;
-    return acc;
-  }, {} as DefaultCandyGuardSettings);
+export const emptyDefaultCandyGuardSettings: {
+  [key in keyof DefaultCandyGuardSettings]: null;
+} = defaultCandyGuardNames.reduce((acc, name) => {
+  acc[name] = null;
+  return acc;
+}, {} as { [key in keyof DefaultCandyGuardSettings]: null });
