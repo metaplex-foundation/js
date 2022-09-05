@@ -2,7 +2,6 @@ import { Commitment, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, SolAmount } from '@/types';
 import { findAuctionHouseBuyerEscrowPda } from '../pdas';
-import { AuctionHouse } from '../models';
 
 // -----------------
 // Operation
@@ -11,7 +10,7 @@ import { AuctionHouse } from '../models';
 const Key = 'GetBuyerBalanceOperation' as const;
 
 /**
- * Gets buyer's balance in Auction House escrow account.
+ * Gets the balance of a buyer's escrow account for a given Auction House.
  *
  * ```ts
  * await metaplex
@@ -41,9 +40,10 @@ export type GetBuyerBalanceOperation = Operation<
  * @category Inputs
  */
 export type GetBuyerBalanceInput = {
-  /** The Auction House in which to get buyer's escrow balance. */
+  /** The Auction House in which to get the buyer's escrow balance. */
   auctionHouse: PublicKey;
-  /** Buyer's address. */
+
+  /** The buyer's address. */
   buyerAddress: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
@@ -66,7 +66,7 @@ export const getBuyerBalanceOperationHandler: OperationHandler<GetBuyerBalanceOp
       const { auctionHouse, buyerAddress, commitment } = operation.input;
 
       const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-        auctionHouse.address,
+        auctionHouse,
         buyerAddress
       );
 

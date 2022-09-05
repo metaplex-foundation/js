@@ -1,4 +1,4 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { ConfirmOptions } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -71,27 +71,28 @@ export type DepositToBuyerAccountInput = {
   >;
   /**
    * The buyer who deposits funds.
-   * TODO: Explain why public key or signer.
+   * This expects a Signer.
    *
    * @defaultValue `metaplex.identity()`
    */
-  buyer?: PublicKey | Signer;
+  buyer?: Signer;
 
   /**
-   * The Auction House authority.
-   * TODO: Explain why public key or signer.
-   *
-   * @defaultValue `auctionHouse.authority`
-   */
-  authority?: PublicKey | Signer;
-
-  /**
-   * The Auctioneer authority.
+   * The Auctioneer authority key.
    * It is required when Auction House has Auctioneer enabled.
    *
    * @defaultValue Defaults to not being used.
    */
   auctioneerAuthority?: Signer;
+
+  /**
+   * The Signer paying for the creation of all accounts
+   * required to deposit to the buyer's account.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
 
   /**
    * Amount of funds to deposit.
@@ -153,7 +154,7 @@ export type DepositToBuyerAccountBuilderContext = Omit<
 >;
 
 /**
- * Adds funds to user's buyer escrow account for the auction house.
+ * Adds funds to the user's buyer escrow account for the given auction house.
  *
  * ```ts
  * const transactionBuilder = metaplex
@@ -170,16 +171,20 @@ export const depositToBuyerAccountBuilder = (
   params: DepositToBuyerAccountBuilderParams
 ): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
   // Data.
-  const auctionHouse = params.auctionHouse;
-  const amountBasisPoint = params.amount.basisPoints;
+  const {
+    auctionHouse,
+    auctioneerAuthority,
+    amount,
+    instructionKey,
+    buyer = metaplex.identity(),
+    payer = metaplex.identity(),
+  } = params;
 
-  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Accounts.
-  const buyer = params.buyer ?? (metaplex.identity() as Signer);
-  const authority = params.authority ?? auctionHouse.authorityAddress;
   const paymentAccount = auctionHouse.isNative
     ? toPublicKey(buyer)
     : findAssociatedTokenAccountPda(
@@ -197,7 +202,7 @@ export const depositToBuyerAccountBuilder = (
     transferAuthority: toPublicKey(buyer),
     escrowPaymentAccount: escrowPayment,
     treasuryMint: auctionHouse.treasuryMint.address,
-    authority: toPublicKey(authority),
+    authority: toPublicKey(auctionHouse.authorityAddress),
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
   };
@@ -205,20 +210,20 @@ export const depositToBuyerAccountBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: amountBasisPoint,
+    amount: amount.basisPoints,
   };
 
   // Deposit Instruction.
   let depositInstruction = createDepositInstruction(accounts, args);
-  if (params.auctioneerAuthority) {
+  if (auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
-      params.auctioneerAuthority.publicKey
+      auctioneerAuthority.publicKey
     );
 
     const accountsWithAuctioneer = {
       ...accounts,
-      auctioneerAuthority: params.auctioneerAuthority.publicKey,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
       ahAuctioneerPda,
     };
 
@@ -229,18 +234,16 @@ export const depositToBuyerAccountBuilder = (
   }
 
   // Signers.
-  const depositSigners = [buyer, params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
-  );
+  const depositSigners = [buyer, auctioneerAuthority].filter(isSigner);
 
   return (
     TransactionBuilder.make()
-
+      .setFeePayer(payer)
       // Deposit.
       .add({
         instruction: depositInstruction,
         signers: depositSigners,
-        key: params.instructionKey ?? 'deposit',
+        key: instructionKey ?? 'depositToBuyerAccount',
       })
   );
 };
