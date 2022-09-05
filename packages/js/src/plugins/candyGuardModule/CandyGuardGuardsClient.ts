@@ -61,28 +61,24 @@ export class CandyGuardGuardsClient {
   ): Buffer {
     const availableGuards = this.forProgram(program);
     const serializeSet = (set: T): Buffer => {
-      const accumulator = availableGuards.reduce(
-        (acc, guard) => {
-          const value = set[guard.name] ?? null;
-          acc.features.push(!!value);
-          if (!value) return acc;
-
-          const newBuffer = serialize(value, guard.settingsSerializer);
-          const paddedBuffer = Buffer.concat([newBuffer], guard.settingsBytes);
-          acc.buffer = Buffer.concat([acc.buffer, paddedBuffer]);
-          return acc;
-        },
-        { buffer: Buffer.from([]), features: [] as boolean[] }
-      );
-
-      const serializedFeatures = serializeFeatures(accumulator.features);
-      return Buffer.concat([serializedFeatures, accumulator.buffer]);
+      return availableGuards.reduce((acc, guard) => {
+        const value = set[guard.name] ?? null;
+        const newBuffer = value
+          ? serialize(value, guard.settingsSerializer)
+          : Buffer.from([0]);
+        acc = Buffer.concat([acc, newBuffer]);
+        return acc;
+      }, Buffer.from([]));
     };
 
     let buffer = serializeSet(guards);
     groups.forEach((group) => {
       buffer = Buffer.concat([buffer, serializeSet(group)]);
     });
+
+    if (groups.length === 0) {
+      buffer = Buffer.concat([buffer, Buffer.from([0])]);
+    }
 
     return buffer;
   }
@@ -136,7 +132,7 @@ export class CandyGuardGuardsClient {
   }
 }
 
-const serializeFeatures = (features: boolean[]): Buffer => {
+const serializeFeatures = (features: boolean[], length: number = 8): Buffer => {
   const bytes: number[] = [];
   let currentByte = 0;
   for (let i = 0; i < features.length; i++) {
@@ -147,7 +143,7 @@ const serializeFeatures = (features: boolean[]): Buffer => {
       currentByte = 0;
     }
   }
-  return Buffer.from(bytes);
+  return Buffer.concat([Buffer.from(bytes)], length);
 };
 
 const deserializeFeatures = (buffer: Buffer): boolean[] => {
