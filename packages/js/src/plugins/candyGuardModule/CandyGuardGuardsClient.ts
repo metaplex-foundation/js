@@ -64,10 +64,11 @@ export class CandyGuardGuardsClient {
     const serializeSet = (set: T): Buffer => {
       return availableGuards.reduce((acc, guard) => {
         const value = set[guard.name] ?? null;
+        const optionPrefix = Buffer.from([value ? 1 : 0]);
         const newBuffer = value
           ? serialize(value, guard.settingsSerializer)
-          : Buffer.from([0]);
-        acc = Buffer.concat([acc, newBuffer]);
+          : Buffer.from([]);
+        acc = Buffer.concat([acc, optionPrefix, newBuffer]);
         return acc;
       }, Buffer.from([]));
     };

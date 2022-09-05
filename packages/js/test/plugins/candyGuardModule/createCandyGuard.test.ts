@@ -42,19 +42,16 @@ test.only('[candyGuardModule] create with all guards', async (t) => {
     .candyGuards()
     .create({
       guards: {
-        // botTax: null,
         botTax: {
           lamports: sol(0.01),
           lastInstruction: false,
         },
-        liveDate: null,
-        // liveDate: {
-        //   date: toDateTime('2022-09-05T20:00:00.000Z'),
-        // },
-        lamports: null,
-        // lamports: {
-        //   amount: sol(1.5),
-        // },
+        liveDate: {
+          date: toDateTime('2022-09-05T20:00:00.000Z'),
+        },
+        lamports: {
+          amount: sol(1.5),
+        },
         splToken: null,
         thirdPartySigner: null,
         whitelist: null,
