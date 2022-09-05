@@ -284,7 +284,9 @@ export const createBidBuilder = async (
   }
 
   // Signers.
-  const buySigners = [buyer, authority, params.auctioneerAuthority].filter(isSigner);
+  const buySigners = [buyer, authority, params.auctioneerAuthority].filter(
+    isSigner
+  );
 
   // Receipt.
   // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug
