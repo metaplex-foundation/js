@@ -10,10 +10,10 @@ export type CandyGuardManifest<
 > = {
   name: string;
   settingsBytes: number; // Fixed.
-  settingsSerializer: Serializer<Option<Settings>>;
+  settingsSerializer: Serializer<Settings>;
   mintArgsSerializer?: Serializer<MintArgs>;
   mintRemainingAccountsSerializer?: Serializer<MintRemainingAccounts>;
-  onBeforeMint?: (setting: Option<Settings>) => Promise<void>;
+  onBeforeMint?: (setting: Settings) => Promise<void>;
   onAfterMint?: (nft: NftWithToken) => Promise<void>;
 };
 
