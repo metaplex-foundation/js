@@ -15,6 +15,7 @@ import {
   CandyGuard as MplCandyGuard,
   candyGuardBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { CANDY_GUARD_DATA } from '../constants';
 import { CandyGuardsSettings } from '../guards';
 
 /** @group Models */
@@ -64,7 +65,10 @@ export const toCandyGuard = <T extends CandyGuardsSettings>(
   const { guards, groups } = metaplex
     .candyGuards()
     .guards()
-    .deserializeSettings<T>(account.data, account.owner);
+    .deserializeSettings<T>(
+      account.data.slice(CANDY_GUARD_DATA),
+      account.owner
+    );
 
   return {
     model: 'candyGuard',

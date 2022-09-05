@@ -16,7 +16,7 @@ import { CandyGuardProgram } from './program';
  * @group Module
  */
 export class CandyGuardGuardsClient {
-  private guards: CandyGuardManifest<any>[] = [];
+  readonly guards: CandyGuardManifest<any>[] = [];
 
   constructor(protected readonly metaplex: Metaplex) {}
 
@@ -26,7 +26,7 @@ export class CandyGuardGuardsClient {
   }
 
   /** TODO */
-  getGuard(name: string): CandyGuardManifest<any> {
+  get(name: string): CandyGuardManifest<any> {
     const guard = this.guards.find((guard) => guard.name === name);
 
     if (!guard) {
@@ -37,12 +37,12 @@ export class CandyGuardGuardsClient {
   }
 
   /** TODO */
-  getAllGuards(): CandyGuardManifest<any>[] {
+  all(): CandyGuardManifest<any>[] {
     return this.guards;
   }
 
   /** TODO */
-  getAllGuardsForProgram(
+  forProgram(
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): CandyGuardManifest<any>[] {
     const candyGuardProgram =
@@ -50,7 +50,7 @@ export class CandyGuardGuardsClient {
         ? program
         : this.metaplex.programs().get<CandyGuardProgram>(program);
 
-    return candyGuardProgram.availableGuards.map((name) => this.getGuard(name));
+    return candyGuardProgram.availableGuards.map((name) => this.get(name));
   }
 
   /** TODO */
@@ -59,7 +59,7 @@ export class CandyGuardGuardsClient {
     groups: T[] = [],
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): Buffer {
-    const availableGuards = this.getAllGuardsForProgram(program);
+    const availableGuards = this.forProgram(program);
     const serializeSet = (set: T) =>
       availableGuards.reduce((acc, guard): Buffer => {
         const value = set[guard.name] ?? null;
@@ -82,7 +82,7 @@ export class CandyGuardGuardsClient {
     buffer: Buffer,
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): { guards: T; groups: T[] } {
-    const availableGuards = this.getAllGuardsForProgram(program);
+    const availableGuards = this.forProgram(program);
     const deserializeSet = () =>
       availableGuards.reduce((acc, guard) => {
         const [settings, offset] = deserialize(

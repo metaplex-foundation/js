@@ -54,7 +54,11 @@ import { findCandyGuardPda } from './pdas';
  * @group Modules
  */
 export class CandyGuardClient {
-  constructor(readonly metaplex: Metaplex) {}
+  private readonly guardsClient: CandyGuardGuardsClient;
+
+  constructor(readonly metaplex: Metaplex) {
+    this.guardsClient = new CandyGuardGuardsClient(metaplex);
+  }
 
   /**
    * You may use the `guards()` client to access the default guards
@@ -65,7 +69,7 @@ export class CandyGuardClient {
    * ```
    */
   guards() {
-    return new CandyGuardGuardsClient(this.metaplex);
+    return this.guardsClient;
   }
 
   /**

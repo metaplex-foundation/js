@@ -1,6 +1,7 @@
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 import { CandyGuardClient } from './CandyGuardClient';
+import { botTaxGuardManifest } from './guards';
 import {
   createCandyGuardOperation,
   createCandyGuardOperationHandler,
@@ -20,8 +21,17 @@ import { DefaultCandyGuardProgram } from './program';
 /** @group Plugins */
 export const candyGuardModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
+    // Client.
+    const client = new CandyGuardClient(metaplex);
+    metaplex.candyGuards = () => client;
+
+    // Program.
     metaplex.programs().register(DefaultCandyGuardProgram);
 
+    // Default Guards.
+    client.guards().register(botTaxGuardManifest);
+
+    // Operations.
     const op = metaplex.operations();
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
     op.register(deleteCandyGuardOperation, deleteCandyGuardOperationHandler);
@@ -38,9 +48,6 @@ export const candyGuardModule = (): MetaplexPlugin => ({
       mintFromCandyGuardOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
-
-    const client = new CandyGuardClient(metaplex);
-    metaplex.candyGuards = () => client;
   },
 });
 

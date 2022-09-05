@@ -25,6 +25,19 @@ export type Serializer<T> = {
   deserialize: (buffer: Buffer, offset?: number) => [T, number];
 };
 
+export const mapSerializer = <T, U>(
+  serializer: Serializer<T>,
+  map: (value: T) => U,
+  unmap: (value: U) => T
+): Serializer<U> => ({
+  description: serializer.description,
+  serialize: (value) => serializer.serialize(unmap(value)),
+  deserialize: (buffer, offset) => {
+    const [value, newOffset] = serializer.deserialize(buffer, offset);
+    return [map(value), newOffset];
+  },
+});
+
 export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
   description: beet.description,
   serialize: (value: T) => {
