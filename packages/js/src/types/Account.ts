@@ -1,7 +1,12 @@
+import { AccountNotFoundError } from '@/errors';
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
 import { SolAmount } from './Amount';
+import {
+  createSerializerFromSolitaType,
+  deserializeAccount,
+  SolitaType,
+} from './Serializer';
 
 export type AccountInfo = {
   readonly executable: boolean;
@@ -22,11 +27,6 @@ export type MaybeAccount<T> =
 export type UnparsedAccount = Account<Buffer>;
 export type UnparsedMaybeAccount = MaybeAccount<Buffer>;
 
-export type AccountParser<T> = {
-  name: string;
-  deserialize: (data: Buffer, offset?: number) => [T, number];
-};
-
 export type AccountParsingFunction<T> = {
   (unparsedAccount: UnparsedAccount): Account<T>;
   (unparsedAccount: UnparsedMaybeAccount): MaybeAccount<T>;
@@ -37,26 +37,8 @@ export type AccountParsingAndAssertingFunction<T> = (
   solution?: string
 ) => Account<T>;
 
-export function parseAccount<T>(
-  account: UnparsedMaybeAccount,
-  parser: AccountParser<T>
-): MaybeAccount<T>;
-export function parseAccount<T>(
-  account: UnparsedAccount,
-  parser: AccountParser<T>
-): Account<T>;
-export function parseAccount<T>(
-  account: UnparsedAccount | UnparsedMaybeAccount,
-  parser: AccountParser<T>
-): Account<T> | MaybeAccount<T> {
-  if ('exists' in account && !account.exists) {
-    return account;
-  }
-  return getAccountParsingFunction(parser)(account);
-}
-
 export function getAccountParsingFunction<T>(
-  parser: AccountParser<T>
+  parser: SolitaType<T>
 ): AccountParsingFunction<T> {
   function parse(account: UnparsedAccount): Account<T>;
   function parse(account: UnparsedMaybeAccount): MaybeAccount<T>;
@@ -67,32 +49,15 @@ export function getAccountParsingFunction<T>(
       return account;
     }
 
-    try {
-      const data: T = parser.deserialize(account.data)[0];
-      return { ...account, data };
-    } catch (error) {
-      throw new UnexpectedAccountError(account.publicKey, parser.name, {
-        cause: error as Error,
-      });
-    }
+    const serializer = createSerializerFromSolitaType(parser);
+    return deserializeAccount(account, serializer);
   }
 
   return parse;
 }
 
-export function toAccount<T>(
-  account: UnparsedAccount | UnparsedMaybeAccount,
-  parser: AccountParser<T>,
-  solution?: string
-): Account<T> {
-  if ('exists' in account) {
-    assertAccountExists(account, parser.name, solution);
-  }
-  return getAccountParsingFunction(parser)(account);
-}
-
 export function getAccountParsingAndAssertingFunction<T>(
-  parser: AccountParser<T>
+  parser: SolitaType<T>
 ): AccountParsingAndAssertingFunction<T> {
   const parse = getAccountParsingFunction(parser);
 

@@ -5,12 +5,17 @@ import {
   isFixableBeet,
 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
-import { Account, UnparsedAccount } from './Account';
 import {
   FailedToDeserializeDataError,
   FailedToSerializeDataError,
   UnexpectedAccountError,
 } from '../errors';
+import {
+  Account,
+  MaybeAccount,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from './Account';
 
 export type Serializer<T> = {
   description: string;
@@ -36,18 +41,24 @@ export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
   },
 });
 
-type BeetClass<T> = {
+export type SolitaType<T> = {
   name: string;
   deserialize: (data: Buffer, offset?: number) => [T, number];
+  fromArgs: (args: T) => {
+    serialize: () => [Buffer, number];
+  };
 };
 
-export const createDeserializerFromBeetClass = <T>(
-  beet: BeetClass<T>,
+export const createSerializerFromSolitaType = <T>(
+  solitaType: SolitaType<T>,
   description?: string
-): Pick<Serializer<T>, 'description' | 'deserialize'> => ({
-  description: description ?? beet.name,
+): Serializer<T> => ({
+  description: description ?? solitaType.name,
+  serialize: (value: T) => {
+    return solitaType.fromArgs(value).serialize()[0];
+  },
   deserialize: (buffer: Buffer, offset?: number) => {
-    return beet.deserialize(buffer, offset);
+    return solitaType.deserialize(buffer, offset);
   },
 });
 
@@ -77,10 +88,22 @@ export const deserialize = <T>(
   }
 };
 
-export const deserializeAccount = <T>(
-  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>,
-  account: UnparsedAccount
-): Account<T> => {
+export function deserializeAccount<T>(
+  account: UnparsedMaybeAccount,
+  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>
+): MaybeAccount<T>;
+export function deserializeAccount<T>(
+  account: UnparsedAccount,
+  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>
+): Account<T>;
+export function deserializeAccount<T>(
+  account: UnparsedAccount | UnparsedMaybeAccount,
+  serializer: Pick<Serializer<T>, 'description' | 'deserialize'>
+): Account<T> | MaybeAccount<T> {
+  if ('exists' in account && !account.exists) {
+    return account;
+  }
+
   try {
     const data: T = serializer.deserialize(account.data)[0];
     return { ...account, data };
@@ -91,13 +114,4 @@ export const deserializeAccount = <T>(
       { cause: error as Error }
     );
   }
-};
-
-export const deserializeAccountFromBeetClass = <T>(
-  account: UnparsedAccount,
-  beetClass: BeetClass<T>,
-  description?: string
-): Account<T> => {
-  const serializer = createDeserializerFromBeetClass(beetClass, description);
-  return deserializeAccount(serializer, account);
-};
+}
