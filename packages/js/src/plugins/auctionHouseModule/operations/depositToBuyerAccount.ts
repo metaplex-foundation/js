@@ -161,7 +161,7 @@ export type DepositToBuyerAccountBuilderContext = Omit<
 >;
 
 /**
- * Adds funds to user's buyer escrow account for the auction house.
+ * Adds funds to the user's buyer escrow account for the given auction house.
  *
  * ```ts
  * const transactionBuilder = metaplex
