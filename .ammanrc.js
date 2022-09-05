@@ -19,6 +19,8 @@ const programIds = {
   fixedPriceSaleToken: 'SaLeTjyUa5wXHnGuewUSyJ5JWZaHwz3TxqUntCE9czo',
   candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ',
   auctionHouse: 'hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk',
+  candyMachineCore: 'cndy3CZK71ZHMp9ddpq5NVvQDx33o6cCYDf4JBAWCk7',
+  candyGuard: 'grd1hVewsa8dR1T1JfSFGzQUqgWmc1xXZ3uRRFJJ8XJ',
 };
 
 const programs = [
@@ -36,6 +38,16 @@ const programs = [
     label: 'Auction House',
     programId: programIds.auctionHouse,
     deployPath: localDeployPath('mpl_auction_house'),
+  },
+  {
+    label: 'Candy Machine V3',
+    programId: programIds.candyMachineCore,
+    deployPath: localDeployPath('mpl_candy_machine_core'),
+  },
+  {
+    label: 'Candy Guard',
+    programId: programIds.candyGuard,
+    deployPath: localDeployPath('mpl_candy_guard'),
   },
 ];
 
