@@ -29,6 +29,9 @@ const Key = 'UpdateCandyGuardOperation' as const;
 /**
  * Updates an existing Candy Guard account.
  *
+ * Note that the provided `guards` and `groups`
+ * will replace the existing ones.
+ *
  * ```ts
  * await metaplex
  *   .candyGuards()
@@ -83,7 +86,7 @@ export type UpdateCandyGuardInput<
    * own set of requirements — i.e. guards.
    *
    * Note that this will override the existing `groups` parameter
-   * so you must provide all guards you wish to activate.
+   * so you must provide all groups and guards you wish to activate.
    *
    * When groups are provided, the `guards` parameter becomes a set of default
    * guards that will be applied to all groups. If a specific group enables
@@ -105,7 +108,7 @@ export type UpdateCandyGuardInput<
 
   /**
    * The Signer that should pay for any changes in the
-   * Candy Guard account size. This also includes receiving
+   * Candy Guard account size. This includes receiving
    * lamports if the account size decreases.
    *
    * This account will also pay for the transaction fee by default.
@@ -168,6 +171,9 @@ export type UpdateCandyGuardBuilderParams<
 
 /**
  * Updates an existing Candy Guard account.
+ *
+ * Note that the provided `guards` and `groups`
+ * will replace the existing ones.
  *
  * ```ts
  * const transactionBuilder = metaplex
