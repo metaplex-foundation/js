@@ -16,8 +16,6 @@ import {
 import {
   createCandyGuardOperation,
   createCandyGuardOperationHandler,
-  deleteCandyGuardOperation,
-  deleteCandyGuardOperationHandler,
   findCandyGuardByAddressOperation,
   findCandyGuardByAddressOperationHandler,
   findCandyGuardsByPublicKeyFieldOperation,
@@ -54,7 +52,6 @@ export const candyGuardModule = (): MetaplexPlugin => ({
     // Operations.
     const op = metaplex.operations();
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
-    op.register(deleteCandyGuardOperation, deleteCandyGuardOperationHandler);
     op.register(
       findCandyGuardByAddressOperation(),
       findCandyGuardByAddressOperationHandler
