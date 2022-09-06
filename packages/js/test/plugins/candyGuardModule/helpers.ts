@@ -2,8 +2,11 @@ import { CreateCandyGuardInput, Metaplex } from '@/index';
 
 export const createCandyGuard = async (
   metaplex: Metaplex,
-  input: CreateCandyGuardInput
+  input?: Partial<CreateCandyGuardInput>
 ) => {
-  const { candyGuard } = await metaplex.candyGuards().create(input).run();
+  const { candyGuard } = await metaplex
+    .candyGuards()
+    .create({ guards: {}, ...input })
+    .run();
   return candyGuard;
 };

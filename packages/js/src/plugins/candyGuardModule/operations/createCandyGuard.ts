@@ -87,7 +87,7 @@ export type CreateCandyGuardInput<
   /**
    * The authority that will be allowed to update the Candy Guard.
    *
-   * @defaultValue `metaplex.identity()`
+   * @defaultValue `metaplex.identity().publicKey`
    */
   authority?: PublicKey;
 
