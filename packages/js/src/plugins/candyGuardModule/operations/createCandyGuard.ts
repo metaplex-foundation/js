@@ -87,9 +87,9 @@ export type CreateCandyGuardInput<
   /**
    * The authority that will be allowed to update the Candy Guard.
    *
-   * @defaultValue `metaplex.identity().publicKey`
+   * @defaultValue `metaplex.identity()`
    */
-  authority?: PublicKey;
+  authority?: Signer;
 
   /**
    * The settings of all guards we wish to activate.
@@ -222,7 +222,7 @@ export const createCandyGuardBuilder = <
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity().publicKey;
+  const authority = params.authority ?? metaplex.identity();
   const candyGuardProgram = metaplex
     .programs()
     .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
@@ -235,7 +235,7 @@ export const createCandyGuardBuilder = <
     {
       candyGuard,
       base: base.publicKey,
-      authority,
+      authority: authority.publicKey,
       payer: payer.publicKey,
     },
     {
@@ -271,7 +271,7 @@ export const createCandyGuardBuilder = <
       // Create and initialize the candy guard account.
       .add({
         instruction: initializeInstruction,
-        signers: [base, payer],
+        signers: [base, authority, payer],
         key: params.createCandyGuardInstructionKey ?? 'createCandyGuard',
       })
   );

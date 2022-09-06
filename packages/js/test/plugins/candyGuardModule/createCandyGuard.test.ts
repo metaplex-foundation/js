@@ -257,3 +257,22 @@ test('[candyGuardModule] create with guard groups', async (t) => {
     ],
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
+
+test('[candyGuardModule] create with explicit authority', async (t) => {
+  // Given a Metaplex instance and an authority.
+  const mx = await metaplex();
+  const authority = Keypair.generate();
+
+  // When we create a new Candy Guard using that authority.
+  const { candyGuard } = await mx
+    .candyGuards()
+    .create({ guards: {}, authority })
+    .run();
+
+  // Then we expect the Candy Guard's authority to be the given authority.
+  spok(t, candyGuard, {
+    $topic: 'Candy Guard',
+    model: 'candyGuard',
+    authorityAddress: spokSamePubkey(authority.publicKey),
+  });
+});
