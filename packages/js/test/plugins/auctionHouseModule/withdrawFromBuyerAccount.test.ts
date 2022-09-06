@@ -13,7 +13,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
 
   const { auctionHouse } = await createAuctionHouse(mx);
 
-  // Deposit 1 SOL.
+  // And deposit 1 SOL to the buyer's escrow account.
   await mx
     .auctionHouse()
     .depositToBuyerAccount({
@@ -22,15 +22,16 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
     })
     .run();
 
-  // And withdraw 1 SOL.
+  // When we withdraw 1 SOL from the buyer's escrow account.
   await mx
     .auctionHouse()
     .withdrawFromBuyerAccount({
       auctionHouse,
-      withdrawAmount: sol(1),
+      amount: sol(1),
     })
     .run();
 
+  // Then buyer's escrow account has minimum rent exempt SOL
   const buyerEscrow = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     mx.identity().publicKey
@@ -52,12 +53,12 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
 
   const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
 
-  // When  without providing auctioneer authority.
+  // When we don't provide auctioneer authority to withdrawFromBuyerAccount.
   const promise = mx
     .auctionHouse()
     .withdrawFromBuyerAccount({
       auctionHouse,
-      withdrawAmount: sol(1),
+      amount: sol(1),
     })
     .run();
 

@@ -33,7 +33,7 @@ const Key = 'WithdrawFromBuyerAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .withdraw({ auctionHouse, buyer, withdrawAmount })
+ *   .withdraw({ auctionHouse, buyer, amount })
  *   .run();
  * ```
  *
@@ -68,7 +68,7 @@ export type WithdrawInput = {
   buyer?: PublicKey | Signer;
   /**
    * The Authority key.
-   * It is required when Auction House has Auctioneer disabled.
+   * It is required when the buyer is not a signer.
    *
    * @defaultValue Defaults to not being used.
    */
@@ -84,7 +84,7 @@ export type WithdrawInput = {
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
-  withdrawAmount: SolAmount | SplTokenAmount;
+  amount: SolAmount | SplTokenAmount;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -146,15 +146,13 @@ export const withdrawFromBuyerAccountBuilder = (
   params: WithdrawBuilderParams,
   metaplex: Metaplex
 ): TransactionBuilder<WithdrawBuilderContext> => {
-  const { auctionHouse, auctioneerAuthority, withdrawAmount } = params;
+  const { auctionHouse, auctioneerAuthority, amount } = params;
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
-  // Data.
-
-  const amountBasisPoint = withdrawAmount.basisPoints;
+  const amountBasisPoint = amount.basisPoints;
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
@@ -162,7 +160,7 @@ export const withdrawFromBuyerAccountBuilder = (
     toPublicKey(buyer)
   );
 
-  //Accounts
+  // Accounts,
   const accounts: WithdrawInstructionAccounts = {
     wallet: toPublicKey(buyer),
     receiptAccount: toPublicKey(buyer),
@@ -180,7 +178,7 @@ export const withdrawFromBuyerAccountBuilder = (
   };
 
   // Withdraw Instruction.
-  let withdrawInstruction = createWithdrawInstruction(accounts, args);
+  let withdrawInstruction;
 
   if (auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
@@ -201,9 +199,7 @@ export const withdrawFromBuyerAccountBuilder = (
   }
 
   // Signers.
-  const withdrawSigners = [buyer, params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
-  );
+  const withdrawSigners = [buyer, authority, params.auctioneerAuthority].filter(isSigner);
 
   return (
     TransactionBuilder.make()
