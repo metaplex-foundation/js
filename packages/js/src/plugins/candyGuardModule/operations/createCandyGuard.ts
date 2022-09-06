@@ -116,7 +116,7 @@ export type CreateCandyGuardInput<
   /**
    * The Candy Guard program to use when creating the account.
    *
-   * @defaultValue `DefaultCandyGuardProgram.address`
+   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
    */
   candyGuardProgram?: PublicKey;
 
@@ -150,12 +150,12 @@ export type CreateCandyGuardOutput<
  */
 export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
   {
-    async handle(
-      operation: CreateCandyGuardOperation,
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: CreateCandyGuardOperation<T>,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyGuardOutput> {
-      const builder = createCandyGuardBuilder(metaplex, operation.input);
+    ): Promise<CreateCandyGuardOutput<T>> {
+      const builder = createCandyGuardBuilder<T>(metaplex, operation.input);
       const output = await builder.sendAndConfirm(
         metaplex,
         operation.input.confirmOptions
@@ -164,7 +164,7 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
 
       const candyGuard = await metaplex
         .candyGuards()
-        .findByBaseAddress({ address: output.base.publicKey })
+        .findByBaseAddress<T>({ address: output.base.publicKey })
         .run(scope);
 
       return { ...output, candyGuard };
@@ -243,7 +243,8 @@ export const createCandyGuardBuilder = <
         default: emptyDefaultCandyGuardSettings,
         groups: null,
       },
-    }
+    },
+    candyGuardProgram.address
   );
 
   const serializedSettings = metaplex

@@ -1,18 +1,24 @@
-import { NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import isEqual from 'lodash.isequal';
 import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  TokenMetadataProgram,
-} from '../../nftModule';
+  Operation,
+  OperationHandler,
+  serializeDiscriminator,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder } from '@/utils';
+import {
+  createUpdateInstruction,
+  updateInstructionDiscriminator,
+} from '@metaplex-foundation/mpl-candy-guard';
+import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
-import { CandyGuard } from '../models';
+import {
+  CandyGuardsSettings,
+  DefaultCandyGuardSettings,
+  emptyDefaultCandyGuardSettings,
+} from '../guards';
+import { CandyGuardProgram } from '../program';
 
 // -----------------
 // Operation
@@ -27,8 +33,13 @@ const Key = 'UpdateCandyGuardOperation' as const;
  * await metaplex
  *   .candyGuards()
  *   .update({
- *     candyGuard,
- *     // TODO
+ *     candyGuard: candyGuard.address,
+ *     guards: {
+ *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
+ *       lamports: { amount: sol(2), },
+ *       botTax: { lamports: sol(0.01), lastInstruction: true },
+ *     },
+ *     groups: [],
  *   })
  *   .run();
  * ```
@@ -43,11 +54,9 @@ export const updateCandyGuardOperation =
  * @group Operations
  * @category Types
  */
-export type UpdateCandyGuardOperation = Operation<
-  typeof Key,
-  UpdateCandyGuardInput,
-  UpdateCandyGuardOutput
->;
+export type UpdateCandyGuardOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<typeof Key, UpdateCandyGuardInput<T>, UpdateCandyGuardOutput>;
 
 /**
  * @group Operations
@@ -56,13 +65,36 @@ export type UpdateCandyGuardOperation = Operation<
 export type UpdateCandyGuardInput<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = {
+  /** The address of the Candy Guard to update. */
+  candyGuard: PublicKey;
+
   /**
-   * The Candy Guard to update.
+   * The settings of all guards we wish to activate.
    *
-   * Here we only need the Candy Guard's address and it's current authority.
-   * TODO
+   * Note that this will override the existing `guards` parameter
+   * so you must provide all guards you wish to activate.
+   *
+   * Any guard not provided or set to `null` will be disabled.
    */
-  candyGuard: Pick<CandyGuard<T>, 'address'>;
+  guards: Partial<T>;
+
+  /**
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * Note that this will override the existing `groups` parameter
+   * so you must provide all guards you wish to activate.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * For each group, any guard not provided or set to `null` will be disabled.
+   *
+   * You may disable groups by providing an empty array `[]`.
+   */
+  groups: Partial<T>[];
 
   /**
    * The Signer authorized to update the candy Guard.
@@ -72,27 +104,22 @@ export type UpdateCandyGuardInput<
   authority?: Signer;
 
   /**
-   * The Signer that should pay for any required account storage.
-   * E.g. for the collection PDA that keeps track of the Candy Guard's collection.
+   * The Signer that should pay for any changes in the
+   * Candy Guard account size. This also includes receiving
+   * lamports if the account size decreases.
+   *
+   * This account will also pay for the transaction fee by default.
    *
    * @defaultValue `metaplex.identity()`
    */
   payer?: Signer;
 
   /**
-   * The new Candy Guard authority.
+   * The Candy Guard program to use when updating the account.
    *
-   * @defaultValue Defaults to not being updated.
+   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
    */
-  newAuthority?: PublicKey;
-
-  /**
-   * The mint address of the new Candy Guard collection.
-   * When `null` is provided, the collection is removed.
-   *
-   * @defaultValue Defaults to not being updated.
-   */
-  newCollection?: Option<PublicKey>;
+  candyGuardProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -113,34 +140,14 @@ export type UpdateCandyGuardOutput = {
  */
 export const updateCandyGuardOperationHandler: OperationHandler<UpdateCandyGuardOperation> =
   {
-    async handle(
-      operation: UpdateCandyGuardOperation,
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: UpdateCandyGuardOperation<T>,
       metaplex: Metaplex
     ): Promise<UpdateCandyGuardOutput> {
-      const {
-        candyGuard,
-        authority = metaplex.identity(),
-        payer = metaplex.identity(),
-        newAuthority,
-        newCollection,
-        confirmOptions,
-        ...updatableFields
-      } = operation.input;
-
-      const builder = updateCandyGuardBuilder(metaplex, {
-        candyGuard,
-        authority,
-        payer,
-        newData: shouldUpdateData ? { ...data, wallet, tokenMint } : undefined,
-        newCollection,
-        newAuthority,
-      });
-
-      if (builder.isEmpty()) {
-        throw new NoInstructionsToSendError(Key);
-      }
-
-      return builder.sendAndConfirm(metaplex, confirmOptions);
+      return updateCandyGuardBuilder<T>(
+        metaplex,
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -167,19 +174,69 @@ export type UpdateCandyGuardBuilderParams<
  *   .candyGuards()
  *   .builders()
  *   .update({
- *     candyGuard: { address, walletAddress, collectionMintAddress },
- *     // TODO
+ *     candyGuard: candyGuard.address,
+ *     guards: {
+ *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
+ *       lamports: { amount: sol(2), },
+ *       botTax: { lamports: sol(0.01), lastInstruction: true },
+ *     },
+ *     groups: [],
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const updateCandyGuardBuilder = (
+export const updateCandyGuardBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: UpdateCandyGuardBuilderParams
+  params: UpdateCandyGuardBuilderParams<T>
 ): TransactionBuilder => {
-  const { payer = metaplex.identity() } = params;
+  const {
+    candyGuard,
+    guards,
+    groups,
+    payer = metaplex.identity(),
+    authority = metaplex.identity(),
+  } = params;
 
-  return TransactionBuilder.make().setFeePayer(payer);
+  const candyGuardProgram = metaplex
+    .programs()
+    .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
+
+  const updateInstruction = createUpdateInstruction(
+    {
+      candyGuard,
+      authority: authority.publicKey,
+      payer: payer.publicKey,
+    },
+    {
+      data: {
+        default: emptyDefaultCandyGuardSettings,
+        groups: null,
+      },
+    },
+    candyGuardProgram.address
+  );
+
+  const serializedSettings = metaplex
+    .candyGuards()
+    .guards()
+    .serializeSettings<T>(guards, groups, candyGuardProgram);
+
+  const discriminator = serializeDiscriminator(updateInstructionDiscriminator);
+  updateInstruction.data = Buffer.concat([discriminator, serializedSettings]);
+
+  return (
+    TransactionBuilder.make()
+      .setFeePayer(payer)
+
+      // Update the candy guard account.
+      .add({
+        instruction: updateInstruction,
+        signers: [authority, payer],
+        key: params.updateInstructionKey ?? 'updateCandyGuard',
+      })
+  );
 };
