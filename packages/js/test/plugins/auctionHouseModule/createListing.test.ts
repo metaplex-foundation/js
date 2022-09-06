@@ -10,6 +10,7 @@ import {
   spokSamePubkey,
   spokSameAmount,
   assertThrows,
+  createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import {
@@ -74,6 +75,28 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
     $topic: 'Retrieved Listing',
     ...expectedListing,
   } as unknown as Specifications<Listing>);
+});
+
+test('[auctionHouseModule] create a new listing using external seller on an Auction House', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const nft = await createNft(mx, { tokenOwner: seller.publicKey });
+  const { auctionHouse } = await createAuctionHouse(mx);
+
+  // When we list that NFT for 1 SOL.
+  const { listing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      seller,
+      mintAccount: nft.address,
+      price: sol(1),
+    })
+    .run();
+
+  // Then listing has correct seller.
+  t.same(listing.sellerAddress.toBase58(), seller.publicKey.toBase58());
 });
 
 test('[auctionHouseModule] create receipt-less listings but can fetch them afterwards by default', async (t: Test) => {

@@ -36,7 +36,10 @@ import { AuctionHouse, LazyListing, Listing } from '../models';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMetadataPda } from '../../nftModule';
 import { AUCTIONEER_PRICE } from '../constants';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+import {
+  AuctioneerAuthorityRequiredError,
+  CreateListingRequiresSignerError,
+} from '../errors';
 
 // -----------------
 // Operation
@@ -66,6 +69,7 @@ export type CreateListingOperation = Operation<
  */
 export type CreateListingInput = {
   auctionHouse: AuctionHouse;
+  payer?: Signer;
   seller?: PublicKey | Signer; // Default: identity
   authority?: PublicKey | Signer; // Default: auctionHouse.authority
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
@@ -189,32 +193,41 @@ export const createListingBuilder = (
   metaplex: Metaplex,
   params: CreateListingBuilderParams
 ): TransactionBuilder<CreateListingBuilderContext> => {
+  const {
+    auctionHouse,
+    auctioneerAuthority,
+    mintAccount,
+    payer = metaplex.identity(),
+    tokens = token(1),
+    seller = metaplex.identity(),
+    authority = auctionHouse.authorityAddress,
+  } = params;
+
   // Data.
-  const auctionHouse = params.auctionHouse;
-  const tokens = params.tokens ?? token(1);
-  const priceBasisPoint = params.auctioneerAuthority
+  const priceBasisPoint = auctioneerAuthority
     ? AUCTIONEER_PRICE
     : params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
     : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
 
-  if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
+  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
+  }
+  if (!isSigner(seller) && !isSigner(authority)) {
+    throw new CreateListingRequiresSignerError();
   }
 
   // Accounts.
-  const seller = params.seller ?? (metaplex.identity() as Signer);
-  const authority = params.authority ?? auctionHouse.authorityAddress;
-  const metadata = findMetadataPda(params.mintAccount);
+  const metadata = findMetadataPda(mintAccount);
   const tokenAccount =
     params.tokenAccount ??
-    findAssociatedTokenAccountPda(params.mintAccount, toPublicKey(seller));
+    findAssociatedTokenAccountPda(mintAccount, toPublicKey(seller));
   const sellerTradeState = findAuctionHouseTradeStatePda(
     auctionHouse.address,
     toPublicKey(seller),
     auctionHouse.treasuryMint.address,
-    params.mintAccount,
+    mintAccount,
     price.basisPoints,
     tokens.basisPoints,
     tokenAccount
@@ -223,7 +236,7 @@ export const createListingBuilder = (
     auctionHouse.address,
     toPublicKey(seller),
     auctionHouse.treasuryMint.address,
-    params.mintAccount,
+    mintAccount,
     lamports(0).basisPoints,
     tokens.basisPoints,
     tokenAccount
@@ -252,14 +265,14 @@ export const createListingBuilder = (
 
   // Sell Instruction.
   let sellInstruction = createSellInstruction(accounts, args);
-  if (params.auctioneerAuthority) {
+  if (auctioneerAuthority) {
     sellInstruction = createAuctioneerSellInstruction(
       {
         ...accounts,
-        auctioneerAuthority: params.auctioneerAuthority.publicKey,
+        auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
           auctionHouse.address,
-          params.auctioneerAuthority.publicKey
+          auctioneerAuthority.publicKey
         ),
       },
       args
@@ -267,20 +280,26 @@ export const createListingBuilder = (
   }
 
   // Signers.
-  const sellSigners = [seller, authority, params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
+  const signer = isSigner(seller) ? seller : (authority as Signer);
+  const sellSigners = [signer, auctioneerAuthority].filter(isSigner);
+
+  // Update the account to be a signer since it's not covered properly by MPL due to its dynamic nature.
+  const signerKeyIndex = sellInstruction.keys.findIndex((key) =>
+    key.pubkey.equals(signer.publicKey)
   );
+  sellInstruction.keys[signerKeyIndex].isSigner = true;
 
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
   // Don't print Auctioneer Sell receipt for the time being.
   const shouldPrintReceipt =
-    (params.printReceipt ?? true) && !params.auctioneerAuthority;
+    (params.printReceipt ?? true) && !auctioneerAuthority;
   const bookkeeper = params.bookkeeper ?? metaplex.identity();
   const receipt = findListingReceiptPda(sellerTradeState);
 
   return (
     TransactionBuilder.make<CreateListingBuilderContext>()
+      .setFeePayer(payer)
       .setContext({
         sellerTradeState,
         freeSellerTradeState,

@@ -96,7 +96,7 @@ export class CanceledBidIsNotAllowedError extends AuctionHouseError {
       title: 'Canceled Bid Is Not Allowed',
       problem: 'You are trying to execute a sale using a canceled Bid.',
       solution:
-        'Please provide a Bid that is not cancelld in order to execute the sale.',
+        'Please provide a Bid that is not cancelled in order to execute the sale.',
     });
   }
 }
@@ -111,6 +111,19 @@ export class CanceledListingIsNotAllowedError extends AuctionHouseError {
       problem: 'You are trying to execute a sale using a canceled Listing.',
       solution:
         'Please provide a Listing that is not cancelld in order to execute the sale.',
+    });
+  }
+}
+
+/** @group Errors */
+export class CreateListingRequiresSignerError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'create_listing_requires_signer',
+      title: 'Create Listing Requires Signer',
+      problem: 'You are trying to create a listing without providing a signer.',
+      solution: 'Either a seller or authority must be a Signer.',
     });
   }
 }
