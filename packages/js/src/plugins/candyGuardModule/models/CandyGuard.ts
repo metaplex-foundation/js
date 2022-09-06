@@ -32,10 +32,26 @@ export type CandyGuard<T extends CandyGuardsSettings> = Model<'candyGuard'> & {
   /** The address allowed to update the Candy Guard account */
   readonly authorityAddress: PublicKey;
 
-  /** TODO. */
+  /**
+   * This object provides the settings for all guards in the Candy Guard.
+   *
+   * If a guard is set to `null`, it is disabled. Otherwise, it is enabled and
+   * the object contains the settings for that guard.
+   */
   readonly guards: T;
 
-  /** TODO. */
+  /**
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * Each group functions the same way as the `guards` parameter, where a guard
+   * is enabled if and only if it is not `null`.
+   */
   readonly groups: T[];
 };
 
