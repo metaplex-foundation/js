@@ -178,8 +178,7 @@ export const withdrawFromBuyerAccountBuilder = (
   };
 
   // Withdraw Instruction.
-  let withdrawInstruction;
-
+  let withdrawInstruction = createWithdrawInstruction(accounts, args);
   if (auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
