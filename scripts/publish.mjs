@@ -53,4 +53,6 @@ if (json.version !== version) {
 }
 
 // Execute "npm publish" to publish
-execSync(`npm publish --access public --registry=https://registry.npmjs.org/`);
+execSync(`npm pack --access public --registry=https://registry.npmjs.org/`);
+
+// execSync(`npm publish --access public --registry=https://registry.npmjs.org/`);

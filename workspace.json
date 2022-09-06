@@ -16,11 +16,7 @@
         "build": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js",
-            "commands": [
-              "rm -rf ./dist/packages/js",
-              "yarn workspace @metaplex-foundation/js build"
-            ],
+            "commands": ["yarn workspace @metaplex-foundation/js build"],
             "parallel": false
           },
           "dependsOn": [
@@ -58,11 +54,8 @@
         "test": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js",
-            "commands": [
-              "rm -rf ./dist/packages/js",
-              "yarn workspace @metaplex-foundation/js test"
-            ],
+            "dir": "./dist/packages/js",
+            "commands": ["yarn workspace @metaplex-foundation/js test"],
             "parallel": false
           },
           "dependsOn": [
@@ -89,9 +82,7 @@
         "build": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js-plugin-aws",
             "commands": [
-              "rm -rf ./dist/packages/js-plugin-aws",
               "yarn workspace @metaplex-foundation/js-plugin-aws build"
             ],
             "parallel": false
@@ -130,9 +121,8 @@
         "test": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js-plugin-aws",
+            "dir": "./dist/packages/js-plugin-aws",
             "commands": [
-              "rm -rf ./dist/packages/js-plugin-aws",
               "yarn workspace @metaplex-foundation/js-plugin-aws test"
             ],
             "parallel": false
@@ -174,9 +164,7 @@
         "build": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js-plugin-nft-storage",
             "commands": [
-              "rm -rf ./dist/packages/js-plugin-nft-storage",
               "yarn workspace @metaplex-foundation/js-plugin-nft-storage build"
             ],
             "parallel": false
@@ -203,7 +191,7 @@
         "test": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "./dist/packages/js-plugin-nft-storage",
+            "dir": "./dist/packages/js-plugin-nft-storage",
             "commands": [
               "rm -rf ./dist/packages/js-plugin-nft-storage",
               "yarn workspace @metaplex-foundation/js-plugin-nft-storage test"
