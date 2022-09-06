@@ -9,12 +9,10 @@ import { CandyGuard } from './models';
 import {
   CreateCandyGuardInput,
   createCandyGuardOperation,
-  DeleteCandyGuardInput,
-  deleteCandyGuardOperation,
   FindCandyGuardByAddressInput,
   findCandyGuardByAddressOperation,
-  FindCandyGuardsByPublicKeyFieldInput,
-  findCandyGuardsByPublicKeyFieldOperation,
+  FindCandyGuardsByAuthorityInput,
+  findCandyGuardsByAuthorityOperation,
   MintFromCandyGuardInput,
   mintFromCandyGuardOperation,
   UpdateCandyGuardInput,
@@ -26,7 +24,7 @@ import { findCandyGuardPda } from './pdas';
  * This is a client for the Candy Guard module.
  *
  * It enables us to interact with the Candy Guard program in order to
- * create, update and delete Candy Guards as well as mint from them.
+ * create and update Candy Guards as well as mint from them.
  *
  * You may access this client via the `candyGuards()` method of your `Metaplex` instance.
  *
@@ -43,9 +41,11 @@ import { findCandyGuardPda } from './pdas';
  * const { candyGuard } = await metaplex
  *   .candyGuards()
  *   .create({
- *     sellerFeeBasisPoints: 500, // 5% royalties
- *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     guards: {
+ *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       lamports: { amount: sol(1.5), },
+ *       botTax: { lamports: sol(0.01), lastInstruction: true },
+ *     },
  *   })
  *   .run();
  * ```
@@ -89,16 +89,13 @@ export class CandyGuardClient {
     return this.metaplex.operations().getTask(createCandyGuardOperation(input));
   }
 
-  /** {@inheritDoc deleteCandyGuardOperation} */
-  delete(input: DeleteCandyGuardInput) {
-    return this.metaplex.operations().getTask(deleteCandyGuardOperation(input));
-  }
-
-  /** {@inheritDoc findCandyGuardsByPublicKeyFieldOperation} */
-  findAllBy(input: FindCandyGuardsByPublicKeyFieldInput) {
+  /** {@inheritDoc findCandyGuardsByAuthorityOperation} */
+  findAllByAuthority<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: FindCandyGuardsByAuthorityInput
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardsByPublicKeyFieldOperation(input));
+      .getTask(findCandyGuardsByAuthorityOperation<T>()(input));
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */

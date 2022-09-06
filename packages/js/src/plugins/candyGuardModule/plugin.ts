@@ -18,8 +18,8 @@ import {
   createCandyGuardOperationHandler,
   findCandyGuardByAddressOperation,
   findCandyGuardByAddressOperationHandler,
-  findCandyGuardsByPublicKeyFieldOperation,
-  findCandyGuardsByPublicKeyFieldOperationHandler,
+  findCandyGuardsByAuthorityOperation,
+  findCandyGuardsByAuthorityOperationHandler,
   mintFromCandyGuardOperation,
   mintFromCandyGuardOperationHandler,
   updateCandyGuardOperation,
@@ -57,8 +57,8 @@ export const candyGuardModule = (): MetaplexPlugin => ({
       findCandyGuardByAddressOperationHandler
     );
     op.register(
-      findCandyGuardsByPublicKeyFieldOperation,
-      findCandyGuardsByPublicKeyFieldOperationHandler
+      findCandyGuardsByAuthorityOperation(),
+      findCandyGuardsByAuthorityOperationHandler
     );
     op.register(
       mintFromCandyGuardOperation,
