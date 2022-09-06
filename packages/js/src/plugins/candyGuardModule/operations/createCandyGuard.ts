@@ -35,7 +35,11 @@ const Key = 'CreateCandyGuardOperation' as const;
  * const { candyGuard } = await metaplex
  *   .candyGuards()
  *   .create({
- *     // TODO
+ *     guards: {
+ *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       lamports: { amount: sol(1.5), },
+ *       botTax: { lamports: sol(0.01), lastInstruction: true },
+ *     },
  *   })
  *   .run();
  * ```
@@ -90,12 +94,20 @@ export type CreateCandyGuardInput<
   /**
    * The settings of all guards we wish to activate.
    *
-   * To deactivate a guard, set its settings to `null`.
+   * Any guard not provided or set to `null` will be disabled.
    */
   guards: Partial<T>;
 
   /**
-   * TODO: explain
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * For each group, any guard not provided or set to `null` will be disabled.
    *
    * @defaultValue `[]`
    */
@@ -191,7 +203,11 @@ export type CreateCandyGuardBuilderContext = Omit<
  *   .candyGuards()
  *   .builders()
  *   .create({
- *     // TODO
+ *     guards: {
+ *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       lamports: { amount: sol(1.5), },
+ *       botTax: { lamports: sol(0.01), lastInstruction: true },
+ *     },
  *   });
  * ```
  *

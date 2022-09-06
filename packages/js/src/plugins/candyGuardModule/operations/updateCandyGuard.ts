@@ -2,13 +2,6 @@ import { NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Option, TransactionBuilder } from '@/utils';
-import {
-  CandyMachineData,
-  createRemoveCollectionInstruction,
-  createSetCollectionInstruction,
-  createUpdateAuthorityInstruction,
-  createUpdateCandyGuardInstruction,
-} from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import {
