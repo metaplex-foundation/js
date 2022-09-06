@@ -285,7 +285,7 @@ export const createBidBuilder = async (
 
   // Signers.
   const buySigners = [buyer, authority, params.auctioneerAuthority].filter(
-    (input): input is Signer => !!input && isSigner(input)
+    isSigner
   );
 
   // Receipt.
