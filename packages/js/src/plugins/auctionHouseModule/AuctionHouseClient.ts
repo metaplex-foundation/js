@@ -119,7 +119,9 @@ export class AuctionHouseClient {
 
   /** {@inheritDoc withdrawFromBuyerAccountOperation} */
   withdrawFromBuyerAccount(input: WithdrawInput): Task<WithdrawOutput> {
-    return this.metaplex.operations().getTask(withdrawFromBuyerAccountOperation(input));
+    return this.metaplex
+      .operations()
+      .getTask(withdrawFromBuyerAccountOperation(input));
   }
 
   /** {@inheritDoc findAuctionHouseByAddressOperation} */

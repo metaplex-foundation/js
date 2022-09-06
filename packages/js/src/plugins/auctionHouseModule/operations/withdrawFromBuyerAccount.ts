@@ -40,7 +40,7 @@ const Key = 'WithdrawFromBuyerAccountOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const withdrawOperation = useOperation<WithdrawOperation>(Key);
+export const withdrawFromBuyerAccountOperation = useOperation<WithdrawOperation>(Key);
 
 /**
  * @group Operations
@@ -198,7 +198,9 @@ export const withdrawFromBuyerAccountBuilder = (
   }
 
   // Signers.
-  const withdrawSigners = [buyer, authority, params.auctioneerAuthority].filter(isSigner);
+  const withdrawSigners = [buyer, authority, params.auctioneerAuthority].filter(
+    isSigner
+  );
 
   return (
     TransactionBuilder.make()

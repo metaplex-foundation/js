@@ -39,7 +39,6 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
   const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
   const minimumRentExempt = await mx.rpc().getRent(0);
 
-
   t.same(
     buyerEscrowBalance.basisPoints.toNumber(),
     minimumRentExempt.basisPoints.toNumber()

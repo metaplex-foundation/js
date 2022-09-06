@@ -21,4 +21,4 @@ export * from './loadBid';
 export * from './loadListing';
 export * from './loadPurchase';
 export * from './updateAuctionHouse';
-export * from './withdraw';
+export * from './withdrawFromBuyerAccount';
