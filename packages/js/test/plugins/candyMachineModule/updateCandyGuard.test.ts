@@ -35,7 +35,7 @@ test('[candyGuardModule] it can update one guard', async (t) => {
   // When we update the Candy Guard's only guard.
   await mx
     .candyMachines()
-    .update({
+    .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {
         liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
@@ -75,7 +75,7 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
   // When we update the Candy Guard with a new set of guards.
   await mx
     .candyMachines()
-    .update({
+    .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {
         lamports: { amount: sol(2) },
@@ -118,7 +118,7 @@ test('[candyGuardModule] it can update groups', async (t) => {
   // When we update the guards of the only Candy Guard's group.
   await mx
     .candyMachines()
-    .update({
+    .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {},
       groups: [
@@ -175,7 +175,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
   const splTokenB = Keypair.generate().publicKey;
   await mx
     .candyMachines()
-    .update({
+    .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {},
       groups: [
@@ -251,7 +251,7 @@ test('[candyGuardModule] it can remove all guards and groups', async (t) => {
   // When we update the candy guard with no guards and no groups.
   await mx
     .candyMachines()
-    .update({
+    .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {},
       groups: [],
