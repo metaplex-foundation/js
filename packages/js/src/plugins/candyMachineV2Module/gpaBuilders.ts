@@ -20,7 +20,7 @@ const candyMachineV2Discriminator: AccountDiscriminator = [
 const AUTHORITY = candyMachineV2Discriminator.length;
 const WALLET = AUTHORITY + PublicKey.default.toBytes().byteLength;
 
-export class CandyMachineGpaBuilder extends GpaBuilder {
+export class CandyMachineV2GpaBuilder extends GpaBuilder {
   whereDiscriminator(discrimator: AccountDiscriminator) {
     return this.where(0, Buffer.from(discrimator));
   }

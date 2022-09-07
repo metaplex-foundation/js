@@ -11,7 +11,7 @@ import {
   toCandyMachineV2Account,
 } from '../accounts';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { findCandyMachineV2CollectionPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -65,7 +65,7 @@ export const findCandyMachineV2ByAddressOperationHandler: OperationHandler<FindC
       metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
-      const collectionPda = findCandyMachineCollectionPda(address);
+      const collectionPda = findCandyMachineV2CollectionPda(address);
       const accounts = await metaplex
         .rpc()
         .getMultipleAccounts([address, collectionPda], commitment);

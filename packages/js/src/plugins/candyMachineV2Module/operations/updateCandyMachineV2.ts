@@ -24,7 +24,7 @@ import {
   toCandyMachineV2Configs,
   toCandyMachineV2InstructionData,
 } from '../models';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { findCandyMachineV2CollectionPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -328,7 +328,7 @@ export const updateCandyMachineV2Builder = (
         const collectionMint = newCollection as PublicKey;
         const metadata = findMetadataPda(collectionMint);
         const edition = findMasterEditionV2Pda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
+        const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.address
         );
         const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
@@ -357,7 +357,7 @@ export const updateCandyMachineV2Builder = (
       .when(shouldRemoveCollection, (builder) => {
         const collectionMint = candyMachine.collectionMintAddress as PublicKey;
         const metadata = findMetadataPda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
+        const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.address
         );
         const collectionAuthorityRecord = findCollectionAuthorityRecordPda(

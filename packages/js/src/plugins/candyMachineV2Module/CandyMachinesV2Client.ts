@@ -2,7 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
+import { CandyMachinesV2BuildersClient } from './CandyMachinesV2BuildersClient';
 import { CandyMachineV2 } from './models';
 import {
   CreateCandyMachineV2Input,
@@ -54,7 +54,7 @@ import {
  * @see {@link CandyMachine} The `CandyMachine` model
  * @group Modules
  */
-export class CandyMachinesClient {
+export class CandyMachinesV2Client {
   constructor(readonly metaplex: Metaplex) {}
 
   /**
@@ -66,7 +66,7 @@ export class CandyMachinesClient {
    * ```
    */
   builders() {
-    return new CandyMachinesBuildersClient(this.metaplex);
+    return new CandyMachinesV2BuildersClient(this.metaplex);
   }
 
   /** {@inheritDoc createCandyMachineV2Operation} */

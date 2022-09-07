@@ -9,20 +9,20 @@ import { Option } from '@/utils';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 /** @group Errors */
-export class CandyMachineError extends MetaplexError {
+export class CandyMachineV2Error extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
       ...input,
-      key: `plugin.candy_machine.${input.key}`,
-      title: `Candy Machine > ${input.title}`,
+      key: `plugin.candy_machine_v2.${input.key}`,
+      title: `Candy Machine V2 > ${input.title}`,
       source: 'plugin',
-      sourceDetails: 'Candy Machine',
+      sourceDetails: 'Candy Machine V2',
     });
   }
 }
 
 /** @group Errors */
-export class CandyMachineIsFullError extends CandyMachineError {
+export class CandyMachineV2IsFullError extends CandyMachineV2Error {
   constructor(
     assetIndex: BigNumber,
     itemsAvailable: BigNumber,
@@ -42,7 +42,7 @@ export class CandyMachineIsFullError extends CandyMachineError {
 }
 
 /** @group Errors */
-export class CandyMachineIsEmptyError extends CandyMachineError {
+export class CandyMachineV2IsEmptyError extends CandyMachineV2Error {
   constructor(itemsAvailable: BigNumber, options?: MetaplexErrorOptions) {
     super({
       options,
@@ -57,7 +57,7 @@ export class CandyMachineIsEmptyError extends CandyMachineError {
 }
 
 /** @group Errors */
-export class CandyMachineCannotAddAmountError extends CandyMachineError {
+export class CandyMachineV2CannotAddAmountError extends CandyMachineV2Error {
   constructor(
     index: BigNumber,
     amount: number,
@@ -76,7 +76,7 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
 }
 
 /** @group Errors */
-export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
+export class CandyMachineV2AddItemConstraintsViolatedError extends CandyMachineV2Error {
   constructor(
     index: BigNumber,
     item: CandyMachineV2Item,
@@ -93,7 +93,7 @@ export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineErr
 }
 
 /** @group Errors */
-export class CandyMachineNotLiveError extends CandyMachineError {
+export class CandyMachineV2NotLiveError extends CandyMachineV2Error {
   constructor(goLiveDate: Option<DateTime>, options?: MetaplexErrorOptions) {
     super({
       options,
@@ -113,7 +113,7 @@ export class CandyMachineNotLiveError extends CandyMachineError {
 }
 
 /** @group Errors */
-export class CandyMachineEndedError extends CandyMachineError {
+export class CandyMachineV2EndedError extends CandyMachineV2Error {
   constructor(
     endSetting: CandyMachineV2EndSettings,
     options?: MetaplexErrorOptions
@@ -137,7 +137,7 @@ export class CandyMachineEndedError extends CandyMachineError {
 }
 
 /** @group Errors */
-export class CandyMachineBotTaxError extends CandyMachineError {
+export class CandyMachineV2BotTaxError extends CandyMachineV2Error {
   constructor(
     explorerLink: string,
     cause: Error,

@@ -31,11 +31,11 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
-import { CandyMachineBotTaxError } from '../errors';
+import { CandyMachineV2BotTaxError } from '../errors';
 import { CandyMachineV2 } from '../models';
 import {
-  findCandyMachineCollectionPda,
-  findCandyMachineCreatorPda,
+  findCandyMachineV2CollectionPda,
+  findCandyMachineV2CreatorPda,
 } from '../pdas';
 import { CandyMachineV2Program } from '../program';
 
@@ -228,7 +228,7 @@ export const mintCandyMachineV2OperationHandler: OperationHandler<MintCandyMachi
           })
           .run(scope)) as NftWithToken;
       } catch (error) {
-        throw new CandyMachineBotTaxError(
+        throw new CandyMachineV2BotTaxError(
           metaplex.rpc().getSolanaExporerUrl(output.response.signature),
           error as Error
         );
@@ -318,11 +318,11 @@ export const mintCandyMachineV2Builder = async (
     newMint.publicKey,
     tokenMetadataProgram
   );
-  const candyMachineCreator = findCandyMachineCreatorPda(
+  const candyMachineCreator = findCandyMachineV2CreatorPda(
     candyMachine.address,
     candyMachineProgram
   );
-  const candyMachineCollectionAddress = findCandyMachineCollectionPda(
+  const candyMachineCollectionAddress = findCandyMachineV2CollectionPda(
     candyMachine.address,
     candyMachineProgram
   );

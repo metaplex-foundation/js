@@ -3,7 +3,7 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { findNftsByCreatorOperation, Metadata, Nft } from '../../nftModule';
-import { findCandyMachineCreatorPda } from '../pdas';
+import { findCandyMachineV2CreatorPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -75,7 +75,9 @@ export const findMintedNftsByCandyMachineV2OperationHandler: OperationHandler<Fi
     ) => {
       const { candyMachine, version = 2, commitment } = operation.input;
       const firstCreator =
-        version === 2 ? findCandyMachineCreatorPda(candyMachine) : candyMachine;
+        version === 2
+          ? findCandyMachineV2CreatorPda(candyMachine)
+          : candyMachine;
 
       const mintedNfts = await metaplex.operations().execute(
         findNftsByCreatorOperation({

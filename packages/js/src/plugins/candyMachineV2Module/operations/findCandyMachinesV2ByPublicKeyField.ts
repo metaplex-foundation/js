@@ -7,9 +7,9 @@ import {
   parseCandyMachineV2Account,
   parseCandyMachineV2CollectionAccount,
 } from '../accounts';
-import { CandyMachineGpaBuilder } from '../gpaBuilders';
+import { CandyMachineV2GpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
 
 // -----------------
@@ -88,7 +88,7 @@ export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandl
         commitment,
       });
 
-      let candyMachineQuery: CandyMachineGpaBuilder;
+      let candyMachineQuery: CandyMachineV2GpaBuilder;
       switch (type) {
         case 'authority':
           candyMachineQuery =
@@ -105,7 +105,7 @@ export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandl
       scope.throwIfCanceled();
 
       const collectionPdas = unparsedAccounts.map((unparsedAccount) =>
-        findCandyMachineCollectionPda(unparsedAccount.publicKey)
+        findCandyMachineV2CollectionPda(unparsedAccount.publicKey)
       );
       const unparsedCollectionAccounts = await metaplex
         .rpc()

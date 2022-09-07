@@ -4,7 +4,7 @@ import { Pda } from '@/types';
 import { CandyMachineV2Program } from './program';
 
 /** @group Pdas */
-export const findCandyMachineCreatorPda = (
+export const findCandyMachineV2CreatorPda = (
   candyMachine: PublicKey,
   programId: PublicKey = CandyMachineV2Program.publicKey
 ): Pda => {
@@ -15,7 +15,7 @@ export const findCandyMachineCreatorPda = (
 };
 
 /** @group Pdas */
-export const findCandyMachineCollectionPda = (
+export const findCandyMachineV2CollectionPda = (
   candyMachine: PublicKey,
   programId: PublicKey = CandyMachineV2Program.publicKey
 ): Pda => {

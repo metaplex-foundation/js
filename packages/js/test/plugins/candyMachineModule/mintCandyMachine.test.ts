@@ -12,7 +12,7 @@ import {
 import { createCandyMachine } from './helpers';
 import {
   CandyMachineV2,
-  findCandyMachineCreatorPda,
+  findCandyMachineV2CreatorPda,
   Nft,
   now,
   toBigNumber,
@@ -58,7 +58,7 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
     creators: [
       {
         address: spokSamePubkey(
-          findCandyMachineCreatorPda(candyMachine.address)
+          findCandyMachineV2CreatorPda(candyMachine.address)
         ),
         verified: true,
         share: 0,

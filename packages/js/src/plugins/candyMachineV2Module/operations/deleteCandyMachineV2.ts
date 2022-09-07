@@ -5,7 +5,7 @@ import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-m
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { findCandyMachineV2CollectionPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -133,7 +133,7 @@ export const deleteCandyMachineV2Builder = (
   });
 
   if (candyMachine.collectionMintAddress) {
-    const collectionPda = findCandyMachineCollectionPda(candyMachine.address);
+    const collectionPda = findCandyMachineV2CollectionPda(candyMachine.address);
     deleteInstruction.keys.push({
       pubkey: collectionPda,
       isWritable: true,

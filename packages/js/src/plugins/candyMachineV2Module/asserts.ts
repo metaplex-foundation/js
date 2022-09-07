@@ -6,14 +6,14 @@ import {
   MAX_SYMBOL_LENGTH,
   MAX_URI_LENGTH,
 } from './constants';
-import { CandyMachineV2 } from './models/CandyMachineV2';
+import { CandyMachineV2 } from './models';
 import {
-  CandyMachineAddItemConstraintsViolatedError,
-  CandyMachineCannotAddAmountError,
-  CandyMachineEndedError,
-  CandyMachineIsEmptyError,
-  CandyMachineIsFullError,
-  CandyMachineNotLiveError,
+  CandyMachineV2AddItemConstraintsViolatedError,
+  CandyMachineV2CannotAddAmountError,
+  CandyMachineV2EndedError,
+  CandyMachineV2IsEmptyError,
+  CandyMachineV2IsFullError,
+  CandyMachineV2NotLiveError,
 } from './errors';
 import {
   ConfigLine,
@@ -54,7 +54,7 @@ export const assertNotFull = (
   index: BigNumber
 ) => {
   if (candyMachine.itemsAvailable.lte(candyMachine.itemsLoaded)) {
-    throw new CandyMachineIsFullError(index, candyMachine.itemsAvailable);
+    throw new CandyMachineV2IsFullError(index, candyMachine.itemsAvailable);
   }
 };
 
@@ -62,7 +62,7 @@ export const assertNotEmpty = (
   candyMachine: Pick<CandyMachineV2, 'itemsRemaining' | 'itemsAvailable'>
 ) => {
   if (candyMachine.itemsRemaining.isZero()) {
-    throw new CandyMachineIsEmptyError(candyMachine.itemsAvailable);
+    throw new CandyMachineV2IsEmptyError(candyMachine.itemsAvailable);
   }
 };
 
@@ -72,7 +72,7 @@ export const assertCanAdd = (
   amount: number
 ) => {
   if (index.addn(amount).gt(candyMachine.itemsAvailable)) {
-    throw new CandyMachineCannotAddAmountError(
+    throw new CandyMachineV2CannotAddAmountError(
       index,
       amount,
       candyMachine.itemsAvailable
@@ -86,7 +86,7 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       assertName(configLines[i].name);
       assertUri(configLines[i].uri);
     } catch (error) {
-      throw new CandyMachineAddItemConstraintsViolatedError(
+      throw new CandyMachineV2AddItemConstraintsViolatedError(
         toBigNumber(i),
         configLines[i],
         { cause: error as Error }
@@ -108,7 +108,7 @@ export const assertCandyMachineV2IsLive = (
   const liveDate = candyMachine.goLiveDate;
 
   if (!liveDate || liveDate.gte(now())) {
-    throw new CandyMachineNotLiveError(liveDate);
+    throw new CandyMachineV2NotLiveError(liveDate);
   }
 };
 
@@ -129,7 +129,7 @@ export const assertCandyMachineV2HasNotEnded = (
     endSettings.date.lt(now());
 
   if (hasEndedByAmount || hasEndedByDate) {
-    throw new CandyMachineEndedError(endSettings);
+    throw new CandyMachineV2EndedError(endSettings);
   }
 };
 

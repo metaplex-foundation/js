@@ -36,7 +36,7 @@ import {
 } from '../models';
 import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
 
 // -----------------
@@ -340,7 +340,7 @@ export const createCandyMachineV2Builder = async (
         const collectionMint = collection as PublicKey;
         const metadata = findMetadataPda(collectionMint);
         const edition = findMasterEditionV2Pda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
+        const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.publicKey
         );
         const collectionAuthorityRecord = findCollectionAuthorityRecordPda(

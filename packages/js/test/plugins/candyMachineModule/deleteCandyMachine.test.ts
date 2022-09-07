@@ -6,7 +6,7 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../helpers';
-import { findCandyMachineCollectionPda } from '@/plugins';
+import { findCandyMachineV2CollectionPda } from '@/plugins';
 import { createCandyMachine } from './helpers';
 
 killStuckProcess();
@@ -72,7 +72,7 @@ test('[candyMachineModule] it can delete a candy machine with a collection NFT',
   // And the Collection PDA has also been deleted.
   const collectionPda = await mx
     .rpc()
-    .getAccount(findCandyMachineCollectionPda(candyMachine.address));
+    .getAccount(findCandyMachineV2CollectionPda(candyMachine.address));
   t.false(
     collectionPda.exists,
     'candy machine collection PDA should not exist'
