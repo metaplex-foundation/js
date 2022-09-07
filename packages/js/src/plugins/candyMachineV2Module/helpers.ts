@@ -4,7 +4,7 @@ import {
   configLineBeet,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
-import { CandyMachineItem } from './models';
+import { CandyMachineV2Item } from './models';
 import { removeEmptyChars } from '@/utils';
 import { BigNumber, toBigNumber } from '@/types';
 
@@ -13,7 +13,9 @@ export function countCandyMachineV2Items(rawData: Buffer): BigNumber {
   return toBigNumber(number, 'le');
 }
 
-export function parseCandyMachineV2Items(rawData: Buffer): CandyMachineItem[] {
+export function parseCandyMachineV2Items(
+  rawData: Buffer
+): CandyMachineV2Item[] {
   const configLinesStart = CONFIG_ARRAY_START + 4;
   const lines = [];
   const count = countCandyMachineV2Items(rawData).toNumber();
@@ -30,7 +32,7 @@ export function parseCandyMachineV2Items(rawData: Buffer): CandyMachineItem[] {
   return lines;
 }
 
-export function getCandyMachineAccountSizeFromData(data: CandyMachineData) {
+export function getCandyMachineV2AccountSizeFromData(data: CandyMachineData) {
   if (data.hiddenSettings != null) {
     return CONFIG_ARRAY_START;
   } else {

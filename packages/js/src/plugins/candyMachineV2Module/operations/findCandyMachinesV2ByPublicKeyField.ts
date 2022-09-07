@@ -4,8 +4,8 @@ import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope, zipMap } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
-  parseCandyMachineAccount,
-  parseCandyMachineCollectionAccount,
+  parseCandyMachineV2Account,
+  parseCandyMachineV2CollectionAccount,
 } from '../accounts';
 import { CandyMachineGpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
@@ -116,9 +116,9 @@ export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandl
         unparsedAccounts,
         unparsedCollectionAccounts,
         (unparsedAccount, unparsedCollectionAccount) => {
-          const account = parseCandyMachineAccount(unparsedAccount);
+          const account = parseCandyMachineV2Account(unparsedAccount);
           const collectionAccount = unparsedCollectionAccount
-            ? parseCandyMachineCollectionAccount(unparsedCollectionAccount)
+            ? parseCandyMachineV2CollectionAccount(unparsedCollectionAccount)
             : null;
 
           return toCandyMachineV2(account, unparsedAccount, collectionAccount);

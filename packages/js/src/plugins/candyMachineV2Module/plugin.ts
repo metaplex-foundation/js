@@ -4,20 +4,20 @@ import { CandyMachinesClient } from './CandyMachinesClient';
 import {
   createCandyMachineV2Operation,
   createCandyMachineV2OperationHandler,
-  deleteCandyMachineOperation,
-  deleteCandyMachineOperationHandler,
-  findCandyMachineByAddressOperation,
-  findCandyMachineByAddressOperationHandler,
-  findCandyMachinesByPublicKeyFieldOperation,
-  findCandyMachinesByPublicKeyFieldOperationHandler,
-  findMintedNftsByCandyMachineOperation,
-  findMintedNftsByCandyMachineOperationHandler,
-  insertItemsToCandyMachineOperation,
-  InsertItemsToCandyMachineOperationHandler,
-  mintCandyMachineOperation,
-  mintCandyMachineOperationHandler,
-  updateCandyMachineOperation,
-  updateCandyMachineOperationHandler,
+  deleteCandyMachineV2Operation,
+  deleteCandyMachineV2OperationHandler,
+  findCandyMachineV2ByAddressOperation,
+  findCandyMachineV2ByAddressOperationHandler,
+  findCandyMachinesV2ByPublicKeyFieldOperation,
+  findCandyMachinesV2ByPublicKeyFieldOperationHandler,
+  findMintedNftsByCandyMachineV2Operation,
+  findMintedNftsByCandyMachineV2OperationHandler,
+  insertItemsToCandyMachineV2Operation,
+  InsertItemsToCandyMachineV2OperationHandler,
+  mintCandyMachineV2Operation,
+  mintCandyMachineV2OperationHandler,
+  updateCandyMachineV2Operation,
+  updateCandyMachineV2OperationHandler,
 } from './operations';
 
 /** @group Plugins */
@@ -29,29 +29,32 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       createCandyMachineV2OperationHandler
     );
     op.register(
-      deleteCandyMachineOperation,
-      deleteCandyMachineOperationHandler
+      deleteCandyMachineV2Operation,
+      deleteCandyMachineV2OperationHandler
     );
     op.register(
-      findCandyMachineByAddressOperation,
-      findCandyMachineByAddressOperationHandler
+      findCandyMachineV2ByAddressOperation,
+      findCandyMachineV2ByAddressOperationHandler
     );
     op.register(
-      findCandyMachinesByPublicKeyFieldOperation,
-      findCandyMachinesByPublicKeyFieldOperationHandler
+      findCandyMachinesV2ByPublicKeyFieldOperation,
+      findCandyMachinesV2ByPublicKeyFieldOperationHandler
     );
     op.register(
-      findMintedNftsByCandyMachineOperation,
-      findMintedNftsByCandyMachineOperationHandler
+      findMintedNftsByCandyMachineV2Operation,
+      findMintedNftsByCandyMachineV2OperationHandler
     );
     op.register(
-      insertItemsToCandyMachineOperation,
-      InsertItemsToCandyMachineOperationHandler
+      insertItemsToCandyMachineV2Operation,
+      InsertItemsToCandyMachineV2OperationHandler
     );
-    op.register(mintCandyMachineOperation, mintCandyMachineOperationHandler);
     op.register(
-      updateCandyMachineOperation,
-      updateCandyMachineOperationHandler
+      mintCandyMachineV2Operation,
+      mintCandyMachineV2OperationHandler
+    );
+    op.register(
+      updateCandyMachineV2Operation,
+      updateCandyMachineV2OperationHandler
     );
 
     metaplex.candyMachinesV2 = function () {

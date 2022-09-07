@@ -13,22 +13,23 @@ import {
 export type CandyMachineV2Account = Account<CandyMachine>;
 
 /** @group Account Helpers */
-export const parseCandyMachineAccount = getAccountParsingFunction(CandyMachine);
+export const parseCandyMachineV2Account =
+  getAccountParsingFunction(CandyMachine);
 
 /** @group Account Helpers */
-export const toCandyMachineAccount =
+export const toCandyMachineV2Account =
   getAccountParsingAndAssertingFunction(CandyMachine);
 
 /** @group Accounts */
-export type CandyMachineCollectionAccount = Account<CollectionPDA>;
+export type CandyMachineV2CollectionAccount = Account<CollectionPDA>;
 
 /** @group Accounts */
 export type MaybeCandyMachineV2CollectionAccount = MaybeAccount<CollectionPDA>;
 
 /** @group Account Helpers */
-export const parseCandyMachineCollectionAccount =
+export const parseCandyMachineV2CollectionAccount =
   getAccountParsingFunction(CollectionPDA);
 
 /** @group Account Helpers */
-export const toCandyMachineCollectionAccount =
+export const toCandyMachineV2CollectionAccount =
   getAccountParsingAndAssertingFunction(CollectionPDA);

@@ -7,8 +7,8 @@ import {
 } from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
-  parseCandyMachineCollectionAccount,
-  toCandyMachineAccount,
+  parseCandyMachineV2CollectionAccount,
+  toCandyMachineV2Account,
 } from '../accounts';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
 import { findCandyMachineCollectionPda } from '../pdas';
@@ -72,8 +72,10 @@ export const findCandyMachineV2ByAddressOperationHandler: OperationHandler<FindC
 
       const unparsedAccount = accounts[0];
       assertAccountExists(unparsedAccount);
-      const account = toCandyMachineAccount(unparsedAccount);
-      const collectionAccount = parseCandyMachineCollectionAccount(accounts[1]);
+      const account = toCandyMachineV2Account(unparsedAccount);
+      const collectionAccount = parseCandyMachineV2CollectionAccount(
+        accounts[1]
+      );
 
       return toCandyMachineV2(account, unparsedAccount, collectionAccount);
     },

@@ -7,20 +7,20 @@ import { CandyMachineV2 } from './models';
 import {
   CreateCandyMachineV2Input,
   createCandyMachineV2Operation,
-  DeleteCandyMachineInput,
-  deleteCandyMachineOperation,
-  FindCandyMachineByAddressInput,
-  findCandyMachineByAddressOperation,
-  FindCandyMachinesByPublicKeyFieldInput,
-  findCandyMachinesByPublicKeyFieldOperation,
-  FindMintedNftsByCandyMachineInput,
-  findMintedNftsByCandyMachineOperation,
-  InsertItemsToCandyMachineInput,
-  insertItemsToCandyMachineOperation,
-  MintCandyMachineInput,
-  mintCandyMachineOperation,
-  UpdateCandyMachineInput,
-  updateCandyMachineOperation,
+  DeleteCandyMachineV2Input,
+  deleteCandyMachineV2Operation,
+  FindCandyMachineV2ByAddressInput,
+  findCandyMachineV2ByAddressOperation,
+  FindCandyMachinesV2ByPublicKeyFieldInput,
+  findCandyMachinesV2ByPublicKeyFieldOperation,
+  FindMintedNftsByCandyMachineV2Input,
+  findMintedNftsByCandyMachineV2Operation,
+  InsertItemsToCandyMachineV2Input,
+  insertItemsToCandyMachineV2Operation,
+  MintCandyMachineV2Input,
+  mintCandyMachineV2Operation,
+  UpdateCandyMachineV2Input,
+  updateCandyMachineV2Operation,
 } from './operations';
 
 /**
@@ -29,10 +29,10 @@ import {
  * It enables us to interact with the Candy Machine program in order to
  * create, update and delete Candy Machines as well as mint from them.
  *
- * You may access this client via the `candyMachines()` method of your `Metaplex` instance.
+ * You may access this client via the `candyMachinesV2()` method of your `Metaplex` instance.
  *
  * ```ts
- * const candyMachineClient = metaplex.candyMachinesV2();
+ * const candyMachineV2Client = metaplex.candyMachinesV2();
  * ```
  *
  * @example
@@ -69,51 +69,53 @@ export class CandyMachinesClient {
     return new CandyMachinesBuildersClient(this.metaplex);
   }
 
-  /** {@inheritDoc createCandyMachineOperation} */
+  /** {@inheritDoc createCandyMachineV2Operation} */
   create(input: CreateCandyMachineV2Input) {
     return this.metaplex
       .operations()
       .getTask(createCandyMachineV2Operation(input));
   }
 
-  /** {@inheritDoc deleteCandyMachineOperation} */
-  delete(input: DeleteCandyMachineInput) {
+  /** {@inheritDoc deleteCandyMachineV2Operation} */
+  delete(input: DeleteCandyMachineV2Input) {
     return this.metaplex
       .operations()
-      .getTask(deleteCandyMachineOperation(input));
+      .getTask(deleteCandyMachineV2Operation(input));
   }
 
-  /** {@inheritDoc findCandyMachinesByPublicKeyFieldOperation} */
-  findAllBy(input: FindCandyMachinesByPublicKeyFieldInput) {
+  /** {@inheritDoc findCandyMachinesV2ByPublicKeyFieldOperation} */
+  findAllBy(input: FindCandyMachinesV2ByPublicKeyFieldInput) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachinesByPublicKeyFieldOperation(input));
+      .getTask(findCandyMachinesV2ByPublicKeyFieldOperation(input));
   }
 
-  /** {@inheritDoc findCandyMachineByAddressOperation} */
-  findByAddress(input: FindCandyMachineByAddressInput): Task<CandyMachineV2> {
+  /** {@inheritDoc findCandyMachineV2ByAddressOperation} */
+  findByAddress(input: FindCandyMachineV2ByAddressInput): Task<CandyMachineV2> {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachineByAddressOperation(input));
+      .getTask(findCandyMachineV2ByAddressOperation(input));
   }
 
-  /** {@inheritDoc findMintedNftsByCandyMachineOperation} */
-  findMintedNfts(input: FindMintedNftsByCandyMachineInput) {
+  /** {@inheritDoc findMintedNftsByCandyMachineV2Operation} */
+  findMintedNfts(input: FindMintedNftsByCandyMachineV2Input) {
     return this.metaplex
       .operations()
-      .getTask(findMintedNftsByCandyMachineOperation(input));
+      .getTask(findMintedNftsByCandyMachineV2Operation(input));
   }
 
-  /** {@inheritDoc insertItemsToCandyMachineOperation} */
-  insertItems(input: InsertItemsToCandyMachineInput) {
+  /** {@inheritDoc insertItemsToCandyMachineV2Operation} */
+  insertItems(input: InsertItemsToCandyMachineV2Input) {
     return this.metaplex
       .operations()
-      .getTask(insertItemsToCandyMachineOperation(input));
+      .getTask(insertItemsToCandyMachineV2Operation(input));
   }
 
-  /** {@inheritDoc mintCandyMachineOperation} */
-  mint(input: MintCandyMachineInput) {
-    return this.metaplex.operations().getTask(mintCandyMachineOperation(input));
+  /** {@inheritDoc mintCandyMachineV2Operation} */
+  mint(input: MintCandyMachineV2Input) {
+    return this.metaplex
+      .operations()
+      .getTask(mintCandyMachineV2Operation(input));
   }
 
   /**
@@ -125,15 +127,15 @@ export class CandyMachinesClient {
    */
   refresh(
     candyMachine: CandyMachineV2 | PublicKey,
-    input?: Omit<FindCandyMachineByAddressInput, 'address'>
+    input?: Omit<FindCandyMachineV2ByAddressInput, 'address'>
   ): Task<CandyMachineV2> {
     return this.findByAddress({ address: toPublicKey(candyMachine), ...input });
   }
 
-  /** {@inheritDoc updateCandyMachineOperation} */
-  update(input: UpdateCandyMachineInput) {
+  /** {@inheritDoc updateCandyMachineV2Operation} */
+  update(input: UpdateCandyMachineV2Input) {
     return this.metaplex
       .operations()
-      .getTask(updateCandyMachineOperation(input));
+      .getTask(updateCandyMachineV2Operation(input));
   }
 }

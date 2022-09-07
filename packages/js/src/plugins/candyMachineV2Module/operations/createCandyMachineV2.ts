@@ -33,9 +33,9 @@ import {
   CandyMachineV2,
   CandyMachineV2Configs,
   toCandyMachineV2InstructionData,
-} from '../models/CandyMachineV2';
+} from '../models';
 import { ExpectedSignerError } from '@/errors';
-import { getCandyMachineAccountSizeFromData } from '../helpers';
+import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineCollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
 
@@ -308,7 +308,7 @@ export const createCandyMachineV2Builder = async (
           .createAccount({
             payer,
             newAccount: candyMachine,
-            space: getCandyMachineAccountSizeFromData(data),
+            space: getCandyMachineV2AccountSizeFromData(data),
             program: CandyMachineV2Program.publicKey,
             instructionKey:
               params.createAccountInstructionKey ?? 'createAccount',

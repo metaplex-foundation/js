@@ -29,7 +29,7 @@ import {
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { parseCandyMachineCollectionAccount } from '../accounts';
+import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
 import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachineV2 } from '../models';
@@ -326,7 +326,7 @@ export const mintCandyMachineV2Builder = async (
     candyMachine.address,
     candyMachineProgram
   );
-  const candyMachineCollectionAccount = parseCandyMachineCollectionAccount(
+  const candyMachineCollectionAccount = parseCandyMachineV2CollectionAccount(
     await metaplex.rpc().getAccount(candyMachineCollectionAddress)
   );
 

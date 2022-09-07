@@ -3,7 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
-import { CandyMachineItem, CandyMachineEndSettings } from './models';
+import { CandyMachineV2Item, CandyMachineV2EndSettings } from './models';
 import { BigNumber, DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
@@ -79,7 +79,7 @@ export class CandyMachineCannotAddAmountError extends CandyMachineError {
 export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
   constructor(
     index: BigNumber,
-    item: CandyMachineItem,
+    item: CandyMachineV2Item,
     options?: MetaplexErrorOptions
   ) {
     super({
@@ -115,7 +115,7 @@ export class CandyMachineNotLiveError extends CandyMachineError {
 /** @group Errors */
 export class CandyMachineEndedError extends CandyMachineError {
   constructor(
-    endSetting: CandyMachineEndSettings,
+    endSetting: CandyMachineV2EndSettings,
     options?: MetaplexErrorOptions
   ) {
     const endSettingType =

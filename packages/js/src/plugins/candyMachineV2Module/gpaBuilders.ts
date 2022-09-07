@@ -13,11 +13,11 @@ type AccountDiscriminator = [
 ];
 // TODO(thlorenz): copied from candy machine SDK
 // SDK should either provide a GPA builder or expose this discriminator
-const candyMachineDiscriminator: AccountDiscriminator = [
+const candyMachineV2Discriminator: AccountDiscriminator = [
   51, 173, 177, 113, 25, 241, 109, 189,
 ];
 
-const AUTHORITY = candyMachineDiscriminator.length;
+const AUTHORITY = candyMachineV2Discriminator.length;
 const WALLET = AUTHORITY + PublicKey.default.toBytes().byteLength;
 
 export class CandyMachineGpaBuilder extends GpaBuilder {
@@ -26,7 +26,7 @@ export class CandyMachineGpaBuilder extends GpaBuilder {
   }
 
   candyMachineAccounts() {
-    return this.whereDiscriminator(candyMachineDiscriminator);
+    return this.whereDiscriminator(candyMachineV2Discriminator);
   }
 
   // wallet same as solTreasury

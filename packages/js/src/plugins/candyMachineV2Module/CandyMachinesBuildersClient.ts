@@ -2,14 +2,14 @@ import type { Metaplex } from '@/Metaplex';
 import {
   createCandyMachineV2Builder,
   CreateCandyMachineV2BuilderParams,
-  deleteCandyMachineBuilder,
-  DeleteCandyMachineBuilderParams,
-  insertItemsToCandyMachineBuilder,
-  InsertItemsToCandyMachineBuilderParams,
-  mintCandyMachineBuilder,
-  MintCandyMachineBuilderParams,
-  updateCandyMachineBuilder,
-  UpdateCandyMachineBuilderParams,
+  deleteCandyMachineV2Builder,
+  DeleteCandyMachineV2BuilderParams,
+  insertItemsToCandyMachineV2Builder,
+  InsertItemsToCandyMachineV2BuilderParams,
+  mintCandyMachineV2Builder,
+  MintCandyMachineV2BuilderParams,
+  updateCandyMachineV2Builder,
+  UpdateCandyMachineV2BuilderParams,
 } from './operations';
 
 /**
@@ -22,28 +22,28 @@ import {
 export class CandyMachinesBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
-  /** {@inheritDoc createCandyMachineBuilder} */
+  /** {@inheritDoc createCandyMachineV2Builder} */
   create(input: CreateCandyMachineV2BuilderParams) {
     return createCandyMachineV2Builder(this.metaplex, input);
   }
 
-  /** {@inheritDoc deleteCandyMachineBuilder} */
-  delete(input: DeleteCandyMachineBuilderParams) {
-    return deleteCandyMachineBuilder(this.metaplex, input);
+  /** {@inheritDoc deleteCandyMachineV2Builder} */
+  delete(input: DeleteCandyMachineV2BuilderParams) {
+    return deleteCandyMachineV2Builder(this.metaplex, input);
   }
 
-  /** {@inheritDoc insertItemsToCandyMachineBuilder} */
-  insertItems(input: InsertItemsToCandyMachineBuilderParams) {
-    return insertItemsToCandyMachineBuilder(this.metaplex, input);
+  /** {@inheritDoc insertItemsToCandyMachineV2Builder} */
+  insertItems(input: InsertItemsToCandyMachineV2BuilderParams) {
+    return insertItemsToCandyMachineV2Builder(this.metaplex, input);
   }
 
-  /** {@inheritDoc mintCandyMachineBuilder} */
-  mint(input: MintCandyMachineBuilderParams) {
-    return mintCandyMachineBuilder(this.metaplex, input);
+  /** {@inheritDoc mintCandyMachineV2Builder} */
+  mint(input: MintCandyMachineV2BuilderParams) {
+    return mintCandyMachineV2Builder(this.metaplex, input);
   }
 
-  /** {@inheritDoc updateCandyMachineBuilder} */
-  update(input: UpdateCandyMachineBuilderParams) {
-    return updateCandyMachineBuilder(this.metaplex, input);
+  /** {@inheritDoc updateCandyMachineV2Builder} */
+  update(input: UpdateCandyMachineV2BuilderParams) {
+    return updateCandyMachineV2Builder(this.metaplex, input);
   }
 }
