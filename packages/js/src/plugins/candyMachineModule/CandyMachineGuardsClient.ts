@@ -1,5 +1,10 @@
 import type { Metaplex } from '@/Metaplex';
-import { deserialize, PublicKey, serialize } from '@/types';
+import {
+  deserialize,
+  deserializeFeatureFlags,
+  PublicKey,
+  serialize,
+} from '@/types';
 import { u32, u8 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import { UnregisteredCandyGuardError } from './errors';
@@ -101,7 +106,7 @@ export class CandyMachineGuardsClient {
     const availableGuards = this.forProgram(program);
     const deserializeSet = () => {
       const serializedFeatures = buffer.slice(0, 8);
-      const features: boolean[] = deserializeFeatures(serializedFeatures);
+      const features = deserializeFeatureFlags(serializedFeatures);
       buffer = buffer.slice(8);
 
       return availableGuards.reduce((acc, guard, index) => {
@@ -138,29 +143,3 @@ export class CandyMachineGuardsClient {
     // TODO
   }
 }
-
-/** @ts-ignore */
-const serializeFeatures = (features: boolean[], length: number = 8): Buffer => {
-  const bytes: number[] = [];
-  let currentByte = 0;
-  for (let i = 0; i < features.length; i++) {
-    const byteIndex = i % 8;
-    currentByte |= Number(features[i]) << byteIndex;
-    if (byteIndex === 7) {
-      bytes.push(currentByte);
-      currentByte = 0;
-    }
-  }
-  return Buffer.concat([Buffer.from(bytes)], length);
-};
-
-const deserializeFeatures = (buffer: Buffer): boolean[] => {
-  const booleans: boolean[] = [];
-  for (let byte of buffer) {
-    for (let i = 0; i < 8; i++) {
-      booleans.push(Boolean(byte & 1));
-      byte >>= 1;
-    }
-  }
-  return booleans;
-};

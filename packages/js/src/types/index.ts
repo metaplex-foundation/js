@@ -4,6 +4,7 @@ export * from './BigNumber';
 export * from './Cluster';
 export * from './Creator';
 export * from './DateTime';
+export * from './FeatureFlags';
 export * from './HasDriver';
 export * from './HasMetaplex';
 export * from './MetaplexPlugin';
