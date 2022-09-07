@@ -28,7 +28,7 @@ export class UnregisteredCandyGuardError extends CandyMachineV3Error {
         `The SDK is trying to access a custom Candy Guard named [${name}] ` +
         `but that guard was not registered in the SDK`,
       solution:
-        'Register your custom guard by calling the `metaplex.candyGuards().guards().register()` method.',
+        'Register your custom guard by calling the `metaplex.candyMachines().guards().register()` method.',
     });
   }
 }

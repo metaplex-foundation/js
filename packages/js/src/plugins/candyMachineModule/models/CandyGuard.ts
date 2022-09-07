@@ -79,7 +79,7 @@ export const toCandyGuard = <T extends CandyGuardsSettings>(
   const parsedCandyGuard = deserializeAccount(account, candyGuardSerializer);
 
   const { guards, groups } = metaplex
-    .candyGuards()
+    .candyMachines()
     .guards()
     .deserializeSettings<T>(
       account.data.slice(CANDY_GUARD_DATA),

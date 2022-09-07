@@ -20,7 +20,7 @@ import {
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
 import { findCandyGuardPda } from '../pdas';
-import { CandyGuardProgram } from '../program';
+import { CandyGuardProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -33,8 +33,8 @@ const Key = 'CreateCandyGuardOperation' as const;
  *
  * ```ts
  * const { candyGuard } = await metaplex
- *   .candyGuards()
- *   .create({
+ *   .candyMachines()
+ *   .createCandyGuard({
  *     guards: {
  *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
  *       lamports: { amount: sol(1.5), },
@@ -163,8 +163,8 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
       scope.throwIfCanceled();
 
       const candyGuard = await metaplex
-        .candyGuards()
-        .findByBaseAddress<T>({ address: output.base.publicKey })
+        .candyMachines()
+        .findCandyGuardByBaseAddress<T>({ address: output.base.publicKey })
         .run(scope);
 
       return { ...output, candyGuard };
@@ -200,9 +200,9 @@ export type CreateCandyGuardBuilderContext = Omit<
  *
  * ```ts
  * const transactionBuilder = await metaplex
- *   .candyGuards()
+ *   .candyMachines()
  *   .builders()
- *   .create({
+ *   .createCandyGuard({
  *     guards: {
  *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
  *       lamports: { amount: sol(1.5), },
@@ -248,7 +248,7 @@ export const createCandyGuardBuilder = <
   );
 
   const serializedSettings = metaplex
-    .candyGuards()
+    .candyMachines()
     .guards()
     .serializeSettings<T>(
       params.guards,

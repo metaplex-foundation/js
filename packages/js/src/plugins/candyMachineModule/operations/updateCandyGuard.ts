@@ -18,7 +18,7 @@ import {
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
 } from '../guards';
-import { CandyGuardProgram } from '../program';
+import { CandyGuardProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -34,8 +34,8 @@ const Key = 'UpdateCandyGuardOperation' as const;
  *
  * ```ts
  * await metaplex
- *   .candyGuards()
- *   .update({
+ *   .candyMachines()
+ *   .updateCandyGuard({
  *     candyGuard: candyGuard.address,
  *     guards: {
  *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
@@ -177,9 +177,9 @@ export type UpdateCandyGuardBuilderParams<
  *
  * ```ts
  * const transactionBuilder = metaplex
- *   .candyGuards()
+ *   .candyMachines()
  *   .builders()
- *   .update({
+ *   .updateCandyGuard({
  *     candyGuard: candyGuard.address,
  *     guards: {
  *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
@@ -227,7 +227,7 @@ export const updateCandyGuardBuilder = <
   );
 
   const serializedSettings = metaplex
-    .candyGuards()
+    .candyMachines()
     .guards()
     .serializeSettings<T>(guards, groups, candyGuardProgram);
 

@@ -30,7 +30,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Client.
     const client = new CandyMachineClient(metaplex);
-    metaplex.candyGuards = () => client;
+    metaplex.candyMachines = () => client;
 
     // Program.
     metaplex.programs().register(DefaultCandyGuardProgram);
@@ -64,6 +64,6 @@ export const candyMachineModule = (): MetaplexPlugin => ({
 
 declare module '../../Metaplex' {
   interface Metaplex {
-    candyGuards(): CandyMachineClient;
+    candyMachines(): CandyMachineClient;
   }
 }

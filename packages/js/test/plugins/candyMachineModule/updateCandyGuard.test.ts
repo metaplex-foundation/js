@@ -34,7 +34,7 @@ test('[candyGuardModule] it can update one guard', async (t) => {
 
   // When we update the Candy Guard's only guard.
   await mx
-    .candyGuards()
+    .candyMachines()
     .update({
       candyGuard: candyGuard.address,
       guards: {
@@ -45,7 +45,7 @@ test('[candyGuardModule] it can update one guard', async (t) => {
     .run();
 
   // Then the updated Candy Guard has the expected data.
-  const updatedCandyGuard = await mx.candyGuards().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -74,7 +74,7 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
 
   // When we update the Candy Guard with a new set of guards.
   await mx
-    .candyGuards()
+    .candyMachines()
     .update({
       candyGuard: candyGuard.address,
       guards: {
@@ -86,7 +86,7 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
     .run();
 
   // Then all previous guards were overridden.
-  const updatedCandyGuard = await mx.candyGuards().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -117,7 +117,7 @@ test('[candyGuardModule] it can update groups', async (t) => {
 
   // When we update the guards of the only Candy Guard's group.
   await mx
-    .candyGuards()
+    .candyMachines()
     .update({
       candyGuard: candyGuard.address,
       guards: {},
@@ -130,7 +130,7 @@ test('[candyGuardModule] it can update groups', async (t) => {
     .run();
 
   // Then the updated Candy Guard has the expected data.
-  const updatedCandyGuard = await mx.candyGuards().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -174,7 +174,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
   // When we update the candy guard's groups.
   const splTokenB = Keypair.generate().publicKey;
   await mx
-    .candyGuards()
+    .candyMachines()
     .update({
       candyGuard: candyGuard.address,
       guards: {},
@@ -192,7 +192,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
     .run();
 
   // Then all previous groups were overridden.
-  const updatedCandyGuard = await mx.candyGuards().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -250,7 +250,7 @@ test('[candyGuardModule] it can remove all guards and groups', async (t) => {
 
   // When we update the candy guard with no guards and no groups.
   await mx
-    .candyGuards()
+    .candyMachines()
     .update({
       candyGuard: candyGuard.address,
       guards: {},
@@ -259,7 +259,7 @@ test('[candyGuardModule] it can remove all guards and groups', async (t) => {
     .run();
 
   // Then all groups and default guards were removed.
-  const updatedCandyGuard = await mx.candyGuards().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',

@@ -31,7 +31,7 @@ test('[candyGuardModule] create with no guards', async (t) => {
 
   // When we create a new Candy Guard with no guards.
   const { candyGuard, base } = await mx
-    .candyGuards()
+    .candyMachines()
     .create({ guards: {} })
     .run();
 
@@ -62,7 +62,7 @@ test('[candyGuardModule] create with all guards', async (t) => {
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = Array(32).fill(42);
   const { candyGuard } = await mx
-    .candyGuards()
+    .candyMachines()
     .create({
       guards: {
         botTax: {
@@ -164,7 +164,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = Array(32).fill(42);
   const { candyGuard } = await mx
-    .candyGuards()
+    .candyMachines()
     .create({
       guards: {
         // Bot tax for all groups.
@@ -265,7 +265,7 @@ test('[candyGuardModule] create with explicit authority', async (t) => {
 
   // When we create a new Candy Guard using that authority.
   const { candyGuard } = await mx
-    .candyGuards()
+    .candyMachines()
     .create({ guards: {}, authority })
     .run();
 

@@ -17,12 +17,12 @@ export class CandyMachineBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** {@inheritDoc createCandyGuardBuilder} */
-  create(input: CreateCandyGuardBuilderParams) {
+  createCandyGuard(input: CreateCandyGuardBuilderParams) {
     return createCandyGuardBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */
-  update(input: UpdateCandyGuardBuilderParams) {
+  updateCandyGuard(input: UpdateCandyGuardBuilderParams) {
     return updateCandyGuardBuilder(this.metaplex, input);
   }
 }

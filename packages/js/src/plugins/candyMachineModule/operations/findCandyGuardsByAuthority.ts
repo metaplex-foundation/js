@@ -17,8 +17,8 @@ const Key = 'FindCandyGuardsByAuthorityOperation' as const;
  *
  * ```ts
  * const candyGuards = await metaplex
- *   .candyGuards()
- *   .findAllByAuthority({ authority: new PublicKey('...') });
+ *   .candyMachines()
+ *   .findAllCandyGuardsByAuthority({ authority: new PublicKey('...') });
  *   .run();
  * ```
  *

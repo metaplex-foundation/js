@@ -5,7 +5,7 @@ export const createCandyGuard = async (
   input?: Partial<CreateCandyGuardInput>
 ) => {
   const { candyGuard } = await metaplex
-    .candyGuards()
+    .candyMachines()
     .create({ guards: {}, ...input })
     .run();
 

@@ -86,23 +86,23 @@ export class CandyMachineClient {
   }
 
   /** {@inheritDoc createCandyGuardOperation} */
-  create(input: CreateCandyGuardInput) {
+  createCandyGuard(input: CreateCandyGuardInput) {
     return this.metaplex.operations().getTask(createCandyGuardOperation(input));
   }
 
   /** {@inheritDoc findCandyGuardsByAuthorityOperation} */
-  findAllByAuthority<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: FindCandyGuardsByAuthorityInput
-  ) {
+  findAllCandyGuardsByAuthority<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(input: FindCandyGuardsByAuthorityInput) {
     return this.metaplex
       .operations()
       .getTask(findCandyGuardsByAuthorityOperation<T>()(input));
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */
-  findByAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: FindCandyGuardByAddressInput
-  ): Task<CandyGuard<T>> {
+  findCandyGuardByAddress<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(input: FindCandyGuardByAddressInput): Task<CandyGuard<T>> {
     return this.metaplex
       .operations()
       .getTask(findCandyGuardByAddressOperation<T>()(input));
@@ -113,13 +113,13 @@ export class CandyMachineClient {
    * address used to derived its PDA.
    *
    * ```ts
-   * const candyGuard = await metaplex.candyMachines().findByBaseAddress(base).run();
+   * const candyGuard = await metaplex.candyMachines().findCandyGuardByBaseAddress(base).run();
    * ```
    */
-  findByBaseAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: FindCandyGuardByAddressInput
-  ): Task<CandyGuard<T>> {
-    return this.findByAddress({
+  findCandyGuardByBaseAddress<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(input: FindCandyGuardByAddressInput): Task<CandyGuard<T>> {
+    return this.findCandyGuardByAddress({
       ...input,
       address: findCandyGuardPda(input.address),
     });
@@ -127,6 +127,8 @@ export class CandyMachineClient {
 
   /**
    * Helper method that refetches a given Candy Guard.
+   *
+   * TODO: Use for both candy guards and candy machines.
    *
    * ```ts
    * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
@@ -136,14 +138,14 @@ export class CandyMachineClient {
     candyGuard: CandyGuard<T> | PublicKey,
     input?: Omit<FindCandyGuardByAddressInput, 'address'>
   ): Task<CandyGuard<T>> {
-    return this.findByAddress<T>({
+    return this.findCandyGuardByAddress<T>({
       address: toPublicKey(candyGuard),
       ...input,
     });
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */
-  update(input: UpdateCandyGuardInput) {
+  updateCandyGuard(input: UpdateCandyGuardInput) {
     return this.metaplex.operations().getTask(updateCandyGuardOperation(input));
   }
 }

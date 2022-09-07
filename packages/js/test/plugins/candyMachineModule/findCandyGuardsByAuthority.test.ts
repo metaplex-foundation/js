@@ -20,7 +20,7 @@ test('[candyGuardModule] it can fetch all candy guards from a given authority', 
 
   // When we fetch all Candy Guards from authority A.
   const candyGuards = await mx
-    .candyGuards()
+    .candyMachines()
     .findAllByAuthority({ authority: authorityA.publicKey })
     .run();
 

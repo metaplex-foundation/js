@@ -16,10 +16,13 @@ import { CandyGuard, toCandyGuard } from '../models';
 const Key = 'FindCandyGuardByAddressOperation' as const;
 
 /**
- * Find an existing Candy Machine by its address.
+ * Find an existing Candy Guard by its address.
  *
  * ```ts
- * const candyMachine = await metaplex.candyMachinesV2().findbyAddress({ address }).run();
+ * const candyGuard = await metaplex
+ *   .candyMachines()
+ *   .findCandyGuardbyAddress({ address })
+ *   .run();
  * ```
  *
  * @group Operations
