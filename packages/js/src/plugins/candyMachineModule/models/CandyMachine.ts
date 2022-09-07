@@ -10,6 +10,7 @@ import {
   PublicKey,
   UnparsedAccount,
 } from '@/types';
+import { CandyMachineItem } from './CandyMachineItem';
 
 /**
  * This model contains all the relevant information about a Candy Machine.
