@@ -202,7 +202,7 @@ export const depositToBuyerAccountBuilder = (
     transferAuthority: toPublicKey(buyer),
     escrowPaymentAccount: escrowPayment,
     treasuryMint: auctionHouse.treasuryMint.address,
-    authority: toPublicKey(auctionHouse.authorityAddress),
+    authority: auctionHouse.authorityAddress,
     auctionHouse: auctionHouse.address,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
   };
