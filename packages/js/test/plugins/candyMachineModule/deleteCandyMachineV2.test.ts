@@ -7,14 +7,14 @@ import {
   metaplex,
 } from '../../helpers';
 import { findCandyMachineV2CollectionPda } from '@/plugins';
-import { createCandyMachine } from './helpers';
+import { createCandyMachineV2 } from './helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can delete a candy machine', async (t) => {
+test('[candyMachineV2Module] it can delete a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
+  const { candyMachine } = await createCandyMachineV2(mx);
 
   // When we delete that candy machine using default values.
   await mx.candyMachinesV2().delete({ candyMachine }).run();
@@ -24,11 +24,11 @@ test('[candyMachineModule] it can delete a candy machine', async (t) => {
   t.false(account.exists, 'candy machine should not exist');
 });
 
-test('[candyMachineModule] it can delete a candy machine using an explicit authority', async (t) => {
+test('[candyMachineV2Module] it can delete a candy machine using an explicit authority', async (t) => {
   // Given an existing Candy Machine with an explicit authority.
   const mx = await metaplex();
   const authority = await createWallet(mx);
-  const { candyMachine } = await createCandyMachine(mx, { authority });
+  const { candyMachine } = await createCandyMachineV2(mx, { authority });
 
   // When we delete that candy machine using that authority.
   await mx.candyMachinesV2().delete({ candyMachine, authority }).run();
@@ -38,10 +38,10 @@ test('[candyMachineModule] it can delete a candy machine using an explicit autho
   t.false(account.exists, 'candy machine should not exist');
 });
 
-test('[candyMachineModule] it cannot delete a candy machine using an invalid authority', async (t) => {
+test('[candyMachineV2Module] it cannot delete a candy machine using an invalid authority', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
+  const { candyMachine } = await createCandyMachineV2(mx);
 
   // When we delete that candy machine using an invalid authority.
   const invalidAuthority = await createWallet(mx);
@@ -54,11 +54,11 @@ test('[candyMachineModule] it cannot delete a candy machine using an invalid aut
   await assertThrows(t, promise, /A has one constraint was violated/);
 });
 
-test('[candyMachineModule] it can delete a candy machine with a collection NFT', async (t) => {
+test('[candyMachineV2Module] it can delete a candy machine with a collection NFT', async (t) => {
   // Given an existing Candy Machine with a collection NFT.
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     collection: collectionNft.address,
   });
 

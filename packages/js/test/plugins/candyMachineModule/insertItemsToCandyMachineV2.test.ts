@@ -4,15 +4,15 @@ import {
 } from '@/plugins/candyMachineV2Module/constants';
 import test from 'tape';
 import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
-import { createCandyMachine } from './helpers';
+import { createCandyMachineV2 } from './helpers';
 import { toBigNumber } from '@/index';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can add items to a candy machine', async (t) => {
+test('[candyMachineV2Module] it can add items to a candy machine', async (t) => {
   // Given an existing Candy Machine with a capacity of 100 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(100),
   });
 
@@ -43,10 +43,10 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   ]);
 });
 
-test('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
+test('[candyMachineV2Module] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(2),
   });
 
@@ -68,10 +68,10 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
   await assertThrows(t, promise, /Candy Machine Cannot Add Amount/);
 });
 
-test('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
+test('[candyMachineV2Module] it cannot add items once the candy machine is fully loaded', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -93,10 +93,10 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   await assertThrows(t, promise, /Candy Machine Is Full/);
 });
 
-test('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
+test('[candyMachineV2Module] it cannot add items if either of them have a name or URI that is too long', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
+  const { candyMachine } = await createCandyMachineV2(mx);
 
   // When we try to add items that are too long.
   const promise = mx
@@ -119,10 +119,10 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
   await assertThrows(t, promise, /Candy Machine Add Item Constraints Violated/);
 });
 
-test('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
+test('[candyMachineV2Module] it can add items to a custom offset and override existing items', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(3),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },

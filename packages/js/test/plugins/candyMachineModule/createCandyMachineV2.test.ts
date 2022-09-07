@@ -40,7 +40,7 @@ async function init() {
   return { mx, tc, client, minimalInput };
 }
 
-test('[candyMachineModule] create with minimal input', async (t) => {
+test('[candyMachineV2Module] create with minimal input', async (t) => {
   // Given a Candy Machine client.
   const { tc, mx, client } = await init();
 
@@ -57,6 +57,7 @@ test('[candyMachineModule] create with minimal input', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
+    model: 'candyMachineV2',
     programAddress: spokSamePubkey(CandyMachineV2Program.publicKey),
     version: 2,
     tokenMintAddress: null,
@@ -89,7 +90,7 @@ test('[candyMachineModule] create with minimal input', async (t) => {
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] create with creators', async (t) => {
+test('[candyMachineV2Module] create with creators', async (t) => {
   // Given a Candy Machine client and two creators.
   const { tc, client, minimalInput } = await init();
   const creatorA = Keypair.generate();
@@ -116,12 +117,12 @@ test('[candyMachineModule] create with creators', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     creators,
   });
 });
 
-test('[candyMachineModule] create with SPL treasury', async (t) => {
+test('[candyMachineV2Module] create with SPL treasury', async (t) => {
   // Given a Candy Machine client.
   const { tc, mx, client, minimalInput } = await init();
 
@@ -141,13 +142,13 @@ test('[candyMachineModule] create with SPL treasury', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     walletAddress: spokSamePubkey(token.address),
     tokenMintAddress: spokSamePubkey(token.mint.address),
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] create with end settings', async (t) => {
+test('[candyMachineV2Module] create with end settings', async (t) => {
   // Given a Candy Machine client.
   const { tc, client, minimalInput } = await init();
 
@@ -166,7 +167,7 @@ test('[candyMachineModule] create with end settings', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     endSettings: {
       endSettingType: EndSettingType.Amount,
       number: spokSameBignum(100),
@@ -174,7 +175,7 @@ test('[candyMachineModule] create with end settings', async (t) => {
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] create with hidden settings', async (t) => {
+test('[candyMachineV2Module] create with hidden settings', async (t) => {
   // Given a Candy Machine client and a computed hash.
   const { tc, client, minimalInput } = await init();
 
@@ -194,7 +195,7 @@ test('[candyMachineModule] create with hidden settings', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     hiddenSettings: {
       hash: create32BitsHash('cache-file'),
       uri: 'https://example.com',
@@ -203,7 +204,7 @@ test('[candyMachineModule] create with hidden settings', async (t) => {
   });
 });
 
-test('[candyMachineModule] try to create with invalid hidden settings', async (t) => {
+test('[candyMachineV2Module] try to create with invalid hidden settings', async (t) => {
   // Given a Candy Machine client.
   const { client, minimalInput } = await init();
 
@@ -223,7 +224,7 @@ test('[candyMachineModule] try to create with invalid hidden settings', async (t
   await assertThrows(t, promise, /len.+3.+should match len.+32/i);
 });
 
-test('[candyMachineModule] create with gatekeeper settings', async (t) => {
+test('[candyMachineV2Module] create with gatekeeper settings', async (t) => {
   // Given a Candy Machine client and a gatekeeper address.
   const { tc, client, minimalInput } = await init();
   const gatekeeper = Keypair.generate();
@@ -243,7 +244,7 @@ test('[candyMachineModule] create with gatekeeper settings', async (t) => {
   await tc.assertSuccess(t, response.signature);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     gatekeeper: {
       network: gatekeeper.publicKey,
       expireOnUse: true,
@@ -251,7 +252,7 @@ test('[candyMachineModule] create with gatekeeper settings', async (t) => {
   });
 });
 
-test('[candyMachineModule] create with whitelistMint settings', async (t) => {
+test('[candyMachineV2Module] create with whitelistMint settings', async (t) => {
   // Given a Candy Machine client and a mint account.
   const { tc, client, minimalInput } = await init();
   const mint = Keypair.generate();
@@ -274,7 +275,7 @@ test('[candyMachineModule] create with whitelistMint settings', async (t) => {
   console.log(candyMachine.whitelistMintSettings?.discountPrice);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    model: 'candyMachine',
+    model: 'candyMachineV2',
     price: spokSameAmount(sol(1)),
     whitelistMintSettings: {
       mode: WhitelistMintMode.BurnEveryTime,
@@ -285,7 +286,7 @@ test('[candyMachineModule] create with whitelistMint settings', async (t) => {
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] create with collection', async (t) => {
+test('[candyMachineV2Module] create with collection', async (t) => {
   // Given a Candy Machine client.
   const { mx, client, minimalInput } = await init();
 

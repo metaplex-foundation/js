@@ -15,14 +15,14 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { create32BitsHash, createCandyMachine } from './helpers';
+import { create32BitsHash, createCandyMachineV2 } from './helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can update the data of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the data of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     price: sol(1),
     sellerFeeBasisPoints: 100,
     itemsAvailable: toBigNumber(100),
@@ -87,10 +87,10 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can update the itemsAvailable of a candy machine with hidden settings', async (t) => {
+test('[candyMachineV2Module] it can update the itemsAvailable of a candy machine with hidden settings', async (t) => {
   // Given an existing Candy Machine with hidden settings.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(100),
     hiddenSettings: {
       hash: create32BitsHash('cache-file'),
@@ -113,10 +113,10 @@ test('[candyMachineModule] it can update the itemsAvailable of a candy machine w
   t.equals(updatedCandyMachine.itemsAvailable.toNumber(), 200);
 });
 
-test('[candyMachineModule] it can update the hidden settings of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the hidden settings of a candy machine', async (t) => {
   // Given an existing Candy Machine with hidden settings.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     hiddenSettings: {
       hash: create32BitsHash('cache-file'),
       name: 'mint-name',
@@ -152,10 +152,10 @@ test('[candyMachineModule] it can update the hidden settings of a candy machine'
   });
 });
 
-test('[candyMachineModule] it can add hidden settings to a candy machine that have zero items available', async (t) => {
+test('[candyMachineV2Module] it can add hidden settings to a candy machine that have zero items available', async (t) => {
   // Given an existing Candy Machine without hidden settings and without items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(0),
     hiddenSettings: null,
   });
@@ -188,10 +188,10 @@ test('[candyMachineModule] it can add hidden settings to a candy machine that ha
   });
 });
 
-test('[candyMachineModule] it can update the end settings of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the end settings of a candy machine', async (t) => {
   // Given an existing Candy Machine with end settings.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     endSettings: {
       endSettingType: EndSettingType.Amount,
       number: toBigNumber(100),
@@ -223,10 +223,10 @@ test('[candyMachineModule] it can update the end settings of a candy machine', a
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can update the whitelist settings of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the whitelist settings of a candy machine', async (t) => {
   // Given an existing Candy Machine with whitelist settings.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     whitelistMintSettings: {
       mode: WhitelistMintMode.BurnEveryTime,
       mint: Keypair.generate().publicKey,
@@ -265,10 +265,10 @@ test('[candyMachineModule] it can update the whitelist settings of a candy machi
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can update the gatekeeper of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the gatekeeper of a candy machine', async (t) => {
   // Given an existing Candy Machine with a gatekeeper.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     gatekeeper: {
       network: Keypair.generate().publicKey,
       expireOnUse: true,
@@ -301,11 +301,11 @@ test('[candyMachineModule] it can update the gatekeeper of a candy machine', asy
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the authority of a candy machine', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const authority = Keypair.generate();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     authority: authority.publicKey,
   });
 
@@ -324,11 +324,11 @@ test('[candyMachineModule] it can update the authority of a candy machine', asyn
   t.ok(updatedCandyMachine.authorityAddress.equals(newAuthority.publicKey));
 });
 
-test('[candyMachineModule] it cannot update the authority of a candy machine to the same authority', async (t) => {
+test('[candyMachineV2Module] it cannot update the authority of a candy machine to the same authority', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
   const authority = Keypair.generate();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     authority: authority.publicKey,
   });
 
@@ -342,10 +342,10 @@ test('[candyMachineModule] it cannot update the authority of a candy machine to 
   await assertThrows(t, promise, /No Instructions To Send/);
 });
 
-test('[candyMachineModule] it sends no transaction if nothing has changed when updating a candy machine.', async (t) => {
+test('[candyMachineV2Module] it sends no transaction if nothing has changed when updating a candy machine.', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
+  const { candyMachine } = await createCandyMachineV2(mx);
 
   // When we send an update without providing any changes.
   const builder = mx.candyMachinesV2().builders().update({ candyMachine });
@@ -358,10 +358,10 @@ test('[candyMachineModule] it sends no transaction if nothing has changed when u
   );
 });
 
-test('[candyMachineModule] it throws an error if nothing has changed when updating a candy machine.', async (t) => {
+test('[candyMachineV2Module] it throws an error if nothing has changed when updating a candy machine.', async (t) => {
   // Given an existing Candy Machine.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
+  const { candyMachine } = await createCandyMachineV2(mx);
 
   // When we send an update without providing any changes.
   const promise = mx.candyMachinesV2().update({ candyMachine }).run();
@@ -370,10 +370,10 @@ test('[candyMachineModule] it throws an error if nothing has changed when updati
   await assertThrows(t, promise, /No Instructions To Send/);
 });
 
-test('[candyMachineModule] it can update the treasury of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the treasury of a candy machine', async (t) => {
   // Given an existing Candy Machine with a SOL treasury.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     wallet: mx.identity().publicKey,
   });
 
@@ -399,10 +399,10 @@ test('[candyMachineModule] it can update the treasury of a candy machine', async
   t.ok(updatedCandyMachine.tokenMintAddress?.equals(token.mint.address));
 });
 
-test('[candyMachineModule] it can set the collection of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can set the collection of a candy machine', async (t) => {
   // Given an existing Candy Machine without a collection.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     collection: null,
   });
 
@@ -428,11 +428,11 @@ test('[candyMachineModule] it can set the collection of a candy machine', async 
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can update the collection of a candy machine', async (t) => {
   // Given an existing Candy Machine with a collection.
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     collection: collectionNft.address,
   });
 
@@ -458,11 +458,11 @@ test('[candyMachineModule] it can update the collection of a candy machine', asy
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can remove the collection of a candy machine', async (t) => {
+test('[candyMachineV2Module] it can remove the collection of a candy machine', async (t) => {
   // Given an existing Candy Machine with a collection.
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     collection: collectionNft.address,
   });
 
@@ -483,11 +483,11 @@ test('[candyMachineModule] it can remove the collection of a candy machine', asy
   } as unknown as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it keeps the same collection when the new collection is undefined', async (t) => {
+test('[candyMachineV2Module] it keeps the same collection when the new collection is undefined', async (t) => {
   // Given an existing Candy Machine with a collection.
   const mx = await metaplex();
   const collectionNft = await createNft(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     collection: collectionNft.address,
   });
 

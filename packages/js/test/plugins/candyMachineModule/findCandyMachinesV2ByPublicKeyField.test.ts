@@ -1,22 +1,22 @@
 import test from 'tape';
 import { killStuckProcess, metaplex } from '../../helpers';
-import { createCandyMachine } from './helpers';
+import { createCandyMachineV2 } from './helpers';
 import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[candyMachineModule] find all candy machines by wallet', async (t) => {
+test('[candyMachineV2Module] find all candy machines by wallet', async (t) => {
   // Given two candy machines from wallet A.
   const mx = await metaplex();
   const walletA = Keypair.generate();
   await Promise.all([
-    createCandyMachine(mx, { wallet: walletA.publicKey }),
-    createCandyMachine(mx, { wallet: walletA.publicKey }),
+    createCandyMachineV2(mx, { wallet: walletA.publicKey }),
+    createCandyMachineV2(mx, { wallet: walletA.publicKey }),
   ]);
 
   // And one candy machine from wallet B.
   const walletB = Keypair.generate();
-  await createCandyMachine(mx, { wallet: walletB.publicKey });
+  await createCandyMachineV2(mx, { wallet: walletB.publicKey });
 
   // When I find all candy machines from wallet A.
   const candyMachines = await mx
@@ -36,18 +36,18 @@ test('[candyMachineModule] find all candy machines by wallet', async (t) => {
   });
 });
 
-test('[candyMachineModule] find all candy machines by authority', async (t) => {
+test('[candyMachineV2Module] find all candy machines by authority', async (t) => {
   // Given two candy machines from authority A.
   const mx = await metaplex();
   const authorityA = Keypair.generate();
   await Promise.all([
-    createCandyMachine(mx, { authority: authorityA.publicKey }),
-    createCandyMachine(mx, { authority: authorityA.publicKey }),
+    createCandyMachineV2(mx, { authority: authorityA.publicKey }),
+    createCandyMachineV2(mx, { authority: authorityA.publicKey }),
   ]);
 
   // And one candy machine from authority B.
   const authorityB = Keypair.generate();
-  await createCandyMachine(mx, { authority: authorityB.publicKey });
+  await createCandyMachineV2(mx, { authority: authorityB.publicKey });
 
   // When I find all candy machines from authority A.
   const candyMachines = await mx

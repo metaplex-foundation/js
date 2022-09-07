@@ -9,7 +9,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { createCandyMachine } from './helpers';
+import { createCandyMachineV2 } from './helpers';
 import {
   CandyMachineV2,
   findCandyMachineV2CreatorPda,
@@ -23,10 +23,10 @@ import { WhitelistMintMode } from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can mint from candy machine', async (t) => {
+test('[candyMachineV2Module] it can mint from candy machine', async (t) => {
   // Given an existing Candy Machine with 2 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
@@ -86,11 +86,11 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
   } as Specifications<CandyMachineV2>);
 });
 
-test('[candyMachineModule] it can mint from candy machine with a collection', async (t) => {
+test('[candyMachineV2Module] it can mint from candy machine with a collection', async (t) => {
   // Given a Candy Machine with a set Collection.
   const mx = await metaplex();
   const collection = await createNft(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(1),
     collection: collection.address,
@@ -112,11 +112,11 @@ test('[candyMachineModule] it can mint from candy machine with a collection', as
   } as Specifications<Nft>);
 });
 
-test('[candyMachineModule] it can mint from candy machine as another payer', async (t) => {
+test('[candyMachineV2Module] it can mint from candy machine as another payer', async (t) => {
   // Given a loaded Candy Machine
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(1),
     symbol: 'CANDY',
@@ -152,7 +152,7 @@ test('[candyMachineModule] it can mint from candy machine as another payer', asy
   );
 });
 
-test('[candyMachineModule] it can mint from candy machine with an SPL treasury', async (t) => {
+test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury', async (t) => {
   // Given a mint accounts with two token accounts:
   // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
   // - One for the candy machine "treasuryTokenAccount".
@@ -169,7 +169,7 @@ test('[candyMachineModule] it can mint from candy machine with an SPL treasury',
     .run();
 
   // And given a Candy Machine with all of these settings.
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     price: token(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),
@@ -208,7 +208,7 @@ test('[candyMachineModule] it can mint from candy machine with an SPL treasury',
   );
 });
 
-test('[candyMachineModule] it can mint from candy machine even when we max out the instructions needed', async (t) => {
+test('[candyMachineV2Module] it can mint from candy machine even when we max out the instructions needed', async (t) => {
   // Given a mint accounts with two token accounts:
   // - One for the payer with an initial supply of 10 tokens "payerTokenAccount".
   // - One for the candy machine "treasuryTokenAccount".
@@ -240,7 +240,7 @@ test('[candyMachineModule] it can mint from candy machine even when we max out t
   const collection = await createNft(mx);
 
   // And given a Candy Machine with all of these settings.
-  const { candyMachine } = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachineV2(mx, {
     price: token(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),

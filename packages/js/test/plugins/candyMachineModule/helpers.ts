@@ -5,14 +5,14 @@ import {
   Metaplex,
   CreateCandyMachineV2Input,
   sol,
-  CandyMachineItem,
+  CandyMachineV2Item,
   toBigNumber,
 } from '@/index';
 
-export async function createCandyMachine(
+export async function createCandyMachineV2(
   mx: Metaplex,
   input: Partial<CreateCandyMachineV2Input> & {
-    items?: CandyMachineItem[];
+    items?: CandyMachineV2Item[];
   } = {}
 ) {
   let { candyMachine, response } = await mx
