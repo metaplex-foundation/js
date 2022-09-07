@@ -2,8 +2,6 @@ import type { Metaplex } from '@/Metaplex';
 import {
   createCandyGuardBuilder,
   CreateCandyGuardBuilderParams,
-  mintFromCandyGuardBuilder,
-  MintFromCandyGuardBuilderParams,
   updateCandyGuardBuilder,
   UpdateCandyGuardBuilderParams,
 } from './operations';
@@ -21,11 +19,6 @@ export class CandyGuardBuildersClient {
   /** {@inheritDoc createCandyGuardBuilder} */
   create(input: CreateCandyGuardBuilderParams) {
     return createCandyGuardBuilder(this.metaplex, input);
-  }
-
-  /** {@inheritDoc mintFromCandyGuardBuilder} */
-  mint(input: MintFromCandyGuardBuilderParams) {
-    return mintFromCandyGuardBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */

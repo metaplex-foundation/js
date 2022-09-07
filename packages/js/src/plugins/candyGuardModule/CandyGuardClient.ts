@@ -13,8 +13,6 @@ import {
   findCandyGuardByAddressOperation,
   FindCandyGuardsByAuthorityInput,
   findCandyGuardsByAuthorityOperation,
-  MintFromCandyGuardInput,
-  mintFromCandyGuardOperation,
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
 } from './operations';
@@ -122,13 +120,6 @@ export class CandyGuardClient {
       ...input,
       address: findCandyGuardPda(input.address),
     });
-  }
-
-  /** {@inheritDoc mintFromCandyGuardOperation} */
-  mint(input: MintFromCandyGuardInput) {
-    return this.metaplex
-      .operations()
-      .getTask(mintFromCandyGuardOperation(input));
   }
 
   /**
