@@ -9,14 +9,14 @@ import { findCandyMachineCreatorPda } from '../pdas';
 // Operation
 // -----------------
 
-const Key = 'FindMintedNftsByCandyMachineOperation' as const;
+const Key = 'FindMintedNftsByCandyMachineV2Operation' as const;
 
 /**
  * Find all minted NFTs from a given Candy Machine address.
  *
  * ```ts
  * const nfts = await metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .findMintedNfts({ candyMachine })
  *   .run();
  * ```
@@ -24,24 +24,24 @@ const Key = 'FindMintedNftsByCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findMintedNftsByCandyMachineOperation =
-  useOperation<FindMintedNftsByCandyMachineOperation>(Key);
+export const findMintedNftsByCandyMachineV2Operation =
+  useOperation<FindMintedNftsByCandyMachineV2Operation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindMintedNftsByCandyMachineOperation = Operation<
+export type FindMintedNftsByCandyMachineV2Operation = Operation<
   typeof Key,
-  FindMintedNftsByCandyMachineInput,
-  FindMintedNftsByCandyMachineOutput
+  FindMintedNftsByCandyMachineV2Input,
+  FindMintedNftsByCandyMachineV2Output
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindMintedNftsByCandyMachineInput = {
+export type FindMintedNftsByCandyMachineV2Input = {
   /** The Candy Machine address. */
   candyMachine: PublicKey;
 
@@ -60,16 +60,16 @@ export type FindMintedNftsByCandyMachineInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindMintedNftsByCandyMachineOutput = (Metadata | Nft)[];
+export type FindMintedNftsByCandyMachineV2Output = (Metadata | Nft)[];
 
 /**
  * @group Operations
  * @category Handlers
  */
-export const findMintedNftsByCandyMachineOperationHandler: OperationHandler<FindMintedNftsByCandyMachineOperation> =
+export const findMintedNftsByCandyMachineV2OperationHandler: OperationHandler<FindMintedNftsByCandyMachineV2Operation> =
   {
     handle: async (
-      operation: FindMintedNftsByCandyMachineOperation,
+      operation: FindMintedNftsByCandyMachineV2Operation,
       metaplex: Metaplex,
       scope: DisposableScope
     ) => {

@@ -1,22 +1,22 @@
-import {UnreachableCaseError} from '@/errors';
-import {Metaplex} from '@/Metaplex';
-import {Operation, OperationHandler, useOperation} from '@/types';
-import {DisposableScope, zipMap} from '@/utils';
-import {Commitment, PublicKey} from '@solana/web3.js';
+import { UnreachableCaseError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope, zipMap } from '@/utils';
+import { Commitment, PublicKey } from '@solana/web3.js';
 import {
-    parseCandyMachineAccount,
-    parseCandyMachineCollectionAccount,
+  parseCandyMachineAccount,
+  parseCandyMachineCollectionAccount,
 } from '../accounts';
-import {CandyMachineGpaBuilder} from '../gpaBuilders';
-import {CandyMachineV2, toCandyMachine} from '../models/CandyMachine';
-import {findCandyMachineCollectionPda} from '../pdas';
-import {CandyMachineV2Program} from '../program';
+import { CandyMachineGpaBuilder } from '../gpaBuilders';
+import { CandyMachineV2, toCandyMachineV2 } from '../models';
+import { findCandyMachineCollectionPda } from '../pdas';
+import { CandyMachineV2Program } from '../program';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
+const Key = 'FindCandyMachinesV2ByPublicKeyOperation' as const;
 
 /**
  * Find all Candy Machines matching by a given `publicKey` or a given `type`.
@@ -27,7 +27,7 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * ```ts
  * const someAuthority = new PublicKey('...');
  * const candyMachines = await metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .findAllBy({ type: 'authority', someAuthority });
  *   .run();
  * ```
@@ -36,7 +36,7 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * ```ts
  * const someWallet = new PublicKey('...');
  * const candyMachines = await metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .findAllBy({ type: 'wallet', someWallet });
  *   .run();
  * ```
@@ -44,83 +44,85 @@ const Key = 'FindCandyMachinesByPublicKeyOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyMachinesByPublicKeyFieldOperation =
-    useOperation<FindCandyMachinesByPublicKeyFieldOperation>(Key);
+export const findCandyMachinesV2ByPublicKeyFieldOperation =
+  useOperation<FindCandyMachinesV2ByPublicKeyFieldOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindCandyMachinesByPublicKeyFieldOperation = Operation<typeof Key,
-    FindCandyMachinesByPublicKeyFieldInput,
-    CandyMachineV2[]>;
+export type FindCandyMachinesV2ByPublicKeyFieldOperation = Operation<
+  typeof Key,
+  FindCandyMachinesV2ByPublicKeyFieldInput,
+  CandyMachineV2[]
+>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type FindCandyMachinesByPublicKeyFieldInput = {
-    /** Defines which type of account the `publicKey` field refers to.  */
-    type: 'authority' | 'wallet';
+export type FindCandyMachinesV2ByPublicKeyFieldInput = {
+  /** Defines which type of account the `publicKey` field refers to.  */
+  type: 'authority' | 'wallet';
 
-    /** The publicKey to filter Candy Machine by. */
-    publicKey: PublicKey;
+  /** The publicKey to filter Candy Machine by. */
+  publicKey: PublicKey;
 
-    /** The level of commitment desired when querying the blockchain. */
-    commitment?: Commitment;
+  /** The level of commitment desired when querying the blockchain. */
+  commitment?: Commitment;
 };
 
 /**
  * @group Operations
  * @category Handlers
  */
-export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler<FindCandyMachinesByPublicKeyFieldOperation> =
-    {
-        handle: async (
-            operation: FindCandyMachinesByPublicKeyFieldOperation,
-            metaplex: Metaplex,
-            scope: DisposableScope
-        ): Promise<CandyMachineV2[]> => {
-            const {type, publicKey, commitment} = operation.input;
-            const accounts = CandyMachineV2Program.accounts(metaplex).mergeConfig({
-                commitment,
-            });
+export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandler<FindCandyMachinesV2ByPublicKeyFieldOperation> =
+  {
+    handle: async (
+      operation: FindCandyMachinesV2ByPublicKeyFieldOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<CandyMachineV2[]> => {
+      const { type, publicKey, commitment } = operation.input;
+      const accounts = CandyMachineV2Program.accounts(metaplex).mergeConfig({
+        commitment,
+      });
 
-            let candyMachineQuery: CandyMachineGpaBuilder;
-            switch (type) {
-                case 'authority':
-                    candyMachineQuery =
-                        accounts.candyMachineAccountsForAuthority(publicKey);
-                    break;
-                case 'wallet':
-                    candyMachineQuery = accounts.candyMachineAccountsForWallet(publicKey);
-                    break;
-                default:
-                    throw new UnreachableCaseError(type);
-            }
+      let candyMachineQuery: CandyMachineGpaBuilder;
+      switch (type) {
+        case 'authority':
+          candyMachineQuery =
+            accounts.candyMachineAccountsForAuthority(publicKey);
+          break;
+        case 'wallet':
+          candyMachineQuery = accounts.candyMachineAccountsForWallet(publicKey);
+          break;
+        default:
+          throw new UnreachableCaseError(type);
+      }
 
-            const unparsedAccounts = await candyMachineQuery.get();
-            scope.throwIfCanceled();
+      const unparsedAccounts = await candyMachineQuery.get();
+      scope.throwIfCanceled();
 
-            const collectionPdas = unparsedAccounts.map((unparsedAccount) =>
-                findCandyMachineCollectionPda(unparsedAccount.publicKey)
-            );
-            const unparsedCollectionAccounts = await metaplex
-                .rpc()
-                .getMultipleAccounts(collectionPdas, commitment);
-            scope.throwIfCanceled();
+      const collectionPdas = unparsedAccounts.map((unparsedAccount) =>
+        findCandyMachineCollectionPda(unparsedAccount.publicKey)
+      );
+      const unparsedCollectionAccounts = await metaplex
+        .rpc()
+        .getMultipleAccounts(collectionPdas, commitment);
+      scope.throwIfCanceled();
 
-            return zipMap(
-                unparsedAccounts,
-                unparsedCollectionAccounts,
-                (unparsedAccount, unparsedCollectionAccount) => {
-                    const account = parseCandyMachineAccount(unparsedAccount);
-                    const collectionAccount = unparsedCollectionAccount
-                        ? parseCandyMachineCollectionAccount(unparsedCollectionAccount)
-                        : null;
+      return zipMap(
+        unparsedAccounts,
+        unparsedCollectionAccounts,
+        (unparsedAccount, unparsedCollectionAccount) => {
+          const account = parseCandyMachineAccount(unparsedAccount);
+          const collectionAccount = unparsedCollectionAccount
+            ? parseCandyMachineCollectionAccount(unparsedCollectionAccount)
+            : null;
 
-                    return toCandyMachine(account, unparsedAccount, collectionAccount);
-                }
-            );
-        },
-    };
+          return toCandyMachineV2(account, unparsedAccount, collectionAccount);
+        }
+      );
+    },
+  };

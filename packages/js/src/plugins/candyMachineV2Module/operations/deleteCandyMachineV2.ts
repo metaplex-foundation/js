@@ -17,7 +17,7 @@ const Key = 'DeleteCandyMachineV2Operation' as const;
  * Deletes an existing Candy Machine.
  *
  * ```ts
- * await metaplex.candyMachines().delete({ candyMachine }).run();
+ * await metaplex.candyMachinesV2().delete({ candyMachine }).run();
  * ```
  *
  * @group Operations
@@ -110,7 +110,7 @@ export type DeleteCandyMachineV2BuilderParams = Omit<
  *
  * ```ts
  * const transactionBuilder = metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .builders()
  *   .delete({
  *     candyMachine: { address, collectionMintAddress },

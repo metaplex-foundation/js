@@ -106,7 +106,7 @@ export class CandyMachineNotLiveError extends CandyMachineError {
           : `Its live date has not been set yet.`),
       solution:
         'You need to wait until the Candy Machine is live to mint from it. ' +
-        'If this is your Candy Machine, use "metaplex.candyMachines().update(...)" to set the live date. ' +
+        'If this is your Candy Machine, use "metaplex.candyMachinesV2().update(...)" to set the live date. ' +
         'Note that the authority of the Candy Machine can mint regardless of the live date.',
     });
   }
