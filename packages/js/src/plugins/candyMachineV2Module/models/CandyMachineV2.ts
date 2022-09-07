@@ -194,13 +194,13 @@ export type CandyMachineV2 = {
    */
   readonly endSettings: Option<CandyMachineV2EndSettings>;
 
-  /** {@inheritDoc CandyMachineHiddenSettings} */
+  /** {@inheritDoc CandyMachineV2HiddenSettings} */
   readonly hiddenSettings: Option<CandyMachineV2HiddenSettings>;
 
-  /** {@inheritDoc CandyMachineWhitelistMintSettings} */
+  /** {@inheritDoc CandyMachineV2WhitelistMintSettings} */
   readonly whitelistMintSettings: Option<CandyMachineV2WhitelistMintSettings>;
 
-  /** {@inheritDoc CandyMachineGatekeeper} */
+  /** {@inheritDoc CandyMachineV2Gatekeeper} */
   readonly gatekeeper: Option<CandyMachineV2Gatekeeper>;
 
   /** {@inheritDoc Creator} */
