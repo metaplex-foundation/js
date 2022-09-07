@@ -8,5 +8,6 @@ export const createCandyGuard = async (
     .candyGuards()
     .create({ guards: {}, ...input })
     .run();
+
   return candyGuard;
 };

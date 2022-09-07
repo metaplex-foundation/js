@@ -10,10 +10,10 @@ import {
  * This client allows you to access the underlying Transaction Builders
  * for the write operations of the Candy Guard module.
  *
- * @see {@link CandyGuardClient}
+ * @see {@link CandyMachineClient}
  * @group Module Builders
  */
-export class CandyGuardBuildersClient {
+export class CandyMachineBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** {@inheritDoc createCandyGuardBuilder} */

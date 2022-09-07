@@ -2,8 +2,8 @@ import type { Metaplex } from '@/Metaplex';
 import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
-import { CandyGuardBuildersClient } from './CandyGuardBuildersClient';
-import { CandyGuardGuardsClient } from './CandyGuardGuardsClient';
+import { CandyMachineBuildersClient } from './CandyMachineBuildersClient';
+import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
 import { CandyGuard } from './models';
 import {
@@ -19,25 +19,28 @@ import {
 import { findCandyGuardPda } from './pdas';
 
 /**
- * This is a client for the Candy Guard module.
+ * This is a client for the Candy Machine V3 module.
  *
- * It enables us to interact with the Candy Guard program in order to
- * create and update Candy Guards as well as mint from them.
+ * It enables us to interact with the Candy Machine V3 and Candy Guard programs
+ * in order to create, update, delete and mint from Candy Machines as well as
+ * registering your own custom Candy Guards.
  *
  * You may access this client via the `candyGuards()` method of your `Metaplex` instance.
  *
  * ```ts
- * const candyGuardClient = metaplex.candyGuards();
+ * const candyMachineClient = metaplex.candyMachines();
  * ```
  *
  * @example
+ * TODO: Update example with create candy machine when implemented.
+ *
  * You can create a new Candy Guard with minimum input like so.
  * By default, the current identity of the Metaplex instance will be
  * the authority of the Candy Guard.
  *
  * ```ts
  * const { candyGuard } = await metaplex
- *   .candyGuards()
+ *   .candyMachines()
  *   .create({
  *     guards: {
  *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
@@ -51,11 +54,11 @@ import { findCandyGuardPda } from './pdas';
  * @see {@link CandyGuard} The `CandyGuard` model
  * @group Modules
  */
-export class CandyGuardClient {
-  private readonly guardsClient: CandyGuardGuardsClient;
+export class CandyMachineClient {
+  private readonly guardsClient: CandyMachineGuardsClient;
 
   constructor(readonly metaplex: Metaplex) {
-    this.guardsClient = new CandyGuardGuardsClient(metaplex);
+    this.guardsClient = new CandyMachineGuardsClient(metaplex);
   }
 
   /**
@@ -63,7 +66,7 @@ export class CandyGuardClient {
    * available as well as register your own guards.
    *
    * ```ts
-   * const guardsClient = metaplex.candyGuards().guards();
+   * const guardsClient = metaplex.candyMachines().guards();
    * ```
    */
   guards() {
@@ -75,11 +78,11 @@ export class CandyGuardClient {
    * underlying Transaction Builders of this module.
    *
    * ```ts
-   * const buildersClient = metaplex.candyGuards().builders();
+   * const buildersClient = metaplex.candyMachines().builders();
    * ```
    */
   builders() {
-    return new CandyGuardBuildersClient(this.metaplex);
+    return new CandyMachineBuildersClient(this.metaplex);
   }
 
   /** {@inheritDoc createCandyGuardOperation} */
@@ -110,7 +113,7 @@ export class CandyGuardClient {
    * address used to derived its PDA.
    *
    * ```ts
-   * const candyGuard = await metaplex.candyGuards().findByBaseAddress(base).run();
+   * const candyGuard = await metaplex.candyMachines().findByBaseAddress(base).run();
    * ```
    */
   findByBaseAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
@@ -126,7 +129,7 @@ export class CandyGuardClient {
    * Helper method that refetches a given Candy Guard.
    *
    * ```ts
-   * const candyGuard = await metaplex.candyGuards().refresh(candyGuard).run();
+   * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
    * ```
    */
   refresh<T extends CandyGuardsSettings>(

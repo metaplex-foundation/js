@@ -8,7 +8,7 @@ import {
   CandyGuardsSettings,
   DefaultCandyGuardSettings,
 } from './guards';
-import { CandyGuardProgram } from './program';
+import { CandyGuardProgram } from './programs';
 
 /**
  * TODO
@@ -16,7 +16,7 @@ import { CandyGuardProgram } from './program';
  * @see {@link CandyGuardClient}
  * @group Module
  */
-export class CandyGuardGuardsClient {
+export class CandyMachineGuardsClient {
   readonly guards: CandyGuardManifest<any>[] = [];
 
   constructor(protected readonly metaplex: Metaplex) {}

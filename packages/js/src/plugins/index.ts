@@ -1,6 +1,6 @@
 export * from './auctionHouseModule';
 export * from './bundlrStorage';
-export * from './candyGuardModule';
+export * from './candyMachineModule';
 export * from './candyMachineV2Module';
 export * from './corePlugins';
 export * from './derivedIdentity';
