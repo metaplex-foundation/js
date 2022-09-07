@@ -23,7 +23,7 @@ import { AuctionHouse } from '../models';
 const Key = 'WithdrawFromFeeAccountOperation' as const;
 
 /**
- * Transfers funds from Auction House Fee Wallet to the Auction House Authority.
+ * Transfers funds from Auction House Fee Wallet to the Fee Withdrawal Destination Wallet.
  * By default Fee Withdrawal Destination Wallet is set to `metaplex.identity()`.
  *
  * ```ts
