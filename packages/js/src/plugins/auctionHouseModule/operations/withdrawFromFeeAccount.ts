@@ -171,7 +171,10 @@ export const withdrawFromFeeAccountBuilder = (
   };
 
   // Withdraw From Fee Instruction.
-  const withdrawFromFeeInstruction = createWithdrawFromFeeInstruction(accounts, args);
+  const withdrawFromFeeInstruction = createWithdrawFromFeeInstruction(
+    accounts,
+    args
+  );
 
   // Signers.
   return (
