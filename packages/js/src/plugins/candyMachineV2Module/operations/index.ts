@@ -1,4 +1,4 @@
-export * from './createCandyMachine';
+export * from './createCandyMachineV2';
 export * from './deleteCandyMachine';
 export * from './findCandyMachineByAddress';
 export * from './findCandyMachinesByPublicKeyField';
