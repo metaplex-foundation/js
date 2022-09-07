@@ -20,8 +20,6 @@ import {
   findCandyGuardByAddressOperationHandler,
   findCandyGuardsByAuthorityOperation,
   findCandyGuardsByAuthorityOperationHandler,
-  mintFromCandyGuardOperation,
-  mintFromCandyGuardOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
 } from './operations';
@@ -59,10 +57,6 @@ export const candyGuardModule = (): MetaplexPlugin => ({
     op.register(
       findCandyGuardsByAuthorityOperation(),
       findCandyGuardsByAuthorityOperationHandler
-    );
-    op.register(
-      mintFromCandyGuardOperation,
-      mintFromCandyGuardOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
   },
