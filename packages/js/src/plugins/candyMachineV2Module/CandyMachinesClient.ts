@@ -5,8 +5,8 @@ import type {PublicKey} from '@solana/web3.js';
 import {CandyMachinesBuildersClient} from './CandyMachinesBuildersClient';
 import {CandyMachineV2} from './models';
 import {
-    CreateCandyMachineInput,
-    createCandyMachineOperation,
+    CreateCandyMachineV2Input,
+    createCandyMachineV2Operation,
     DeleteCandyMachineInput,
     deleteCandyMachineOperation,
     FindCandyMachineByAddressInput,
@@ -71,10 +71,10 @@ export class CandyMachinesClient {
     }
 
     /** {@inheritDoc createCandyMachineOperation} */
-    create(input: CreateCandyMachineInput) {
+    create(input: CreateCandyMachineV2Input) {
         return this.metaplex
             .operations()
-            .getTask(createCandyMachineOperation(input));
+            .getTask(createCandyMachineV2Operation(input));
     }
 
     /** {@inheritDoc deleteCandyMachineOperation} */

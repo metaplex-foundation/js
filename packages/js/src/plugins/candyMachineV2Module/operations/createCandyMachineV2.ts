@@ -31,9 +31,9 @@ import {
 import {SendAndConfirmTransactionResponse} from '../../rpcModule';
 import {
     CandyMachineV2,
-    CandyMachineConfigs,
-    toCandyMachineInstructionData,
-} from '../models/CandyMachine';
+    CandyMachineV2Configs,
+    toCandyMachineV2InstructionData,
+} from '../models/CandyMachineV2';
 import {ExpectedSignerError} from '@/errors';
 import {getCandyMachineAccountSizeFromData} from '../helpers';
 import {findCandyMachineCollectionPda} from '../pdas';
@@ -43,14 +43,14 @@ import {CandyMachineV2Program} from '../program';
 // Operation
 // -----------------
 
-const Key = 'CreateCandyMachineOperation' as const;
+const Key = 'CreateCandyMachineV2Operation' as const;
 
 /**
  * Creates a brand new Candy Machine.
  *
  * ```ts
  * const { candyMachine } = await metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
@@ -62,18 +62,18 @@ const Key = 'CreateCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyMachineOperation =
-    useOperation<CreateCandyMachineOperation>(Key);
+export const createCandyMachineV2Operation =
+    useOperation<CreateCandyMachineV2Operation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyMachineOperation = Operation<typeof Key,
-    CreateCandyMachineInput,
-    CreateCandyMachineOutput>;
+export type CreateCandyMachineV2Operation = Operation<typeof Key,
+    CreateCandyMachineV2Input,
+    CreateCandyMachineV2Output>;
 
-export type CreateCandyMachineInputWithoutConfigs = {
+export type CreateCandyMachineV2InputWithoutConfigs = {
     /**
      * The Candy Machine to create as a Signer.
      * This expects a brand new Keypair with no associated account.
@@ -119,15 +119,15 @@ export type CreateCandyMachineInputWithoutConfigs = {
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
-    RequiredKeys<Partial<CandyMachineConfigs>,
+export type CreateCandyMachineV2Input = CreateCandyMachineV2InputWithoutConfigs &
+    RequiredKeys<Partial<CandyMachineV2Configs>,
         'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'>;
 
 /**
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyMachineOutput = {
+export type CreateCandyMachineV2Output = {
     /** The blockchain response from sending and confirming the transaction. */
     response: SendAndConfirmTransactionResponse;
 
@@ -154,14 +154,14 @@ export type CreateCandyMachineOutput = {
  * @group Operations
  * @category Handlers
  */
-export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
+export const createCandyMachineV2OperationHandler: OperationHandler<CreateCandyMachineV2Operation> =
     {
         async handle(
-            operation: CreateCandyMachineOperation,
+            operation: CreateCandyMachineV2Operation,
             metaplex: Metaplex,
             scope: DisposableScope
-        ): Promise<CreateCandyMachineOutput> {
-            const builder = await createCandyMachineBuilder(
+        ): Promise<CreateCandyMachineV2Output> {
+            const builder = await createCandyMachineV2Builder(
                 metaplex,
                 operation.input
             );
@@ -174,7 +174,7 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
             scope.throwIfCanceled();
 
             const candyMachine = await metaplex
-                .candyMachines()
+                .candyMachinesV2()
                 .findByAddress({address: output.candyMachineSigner.publicKey})
                 .run(scope);
 
@@ -190,7 +190,7 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyMachineBuilderParams = Omit<CreateCandyMachineInput,
+export type CreateCandyMachineV2BuilderParams = Omit<CreateCandyMachineV2Input,
     'confirmOptions'> & {
     /** A key to distinguish the instruction that creates the account. */
     createAccountInstructionKey?: string;
@@ -206,7 +206,7 @@ export type CreateCandyMachineBuilderParams = Omit<CreateCandyMachineInput,
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateCandyMachineBuilderContext = Omit<CreateCandyMachineOutput,
+export type CreateCandyMachineV2BuilderContext = Omit<CreateCandyMachineV2Output,
     'response' | 'candyMachine'>;
 
 /**
@@ -214,7 +214,7 @@ export type CreateCandyMachineBuilderContext = Omit<CreateCandyMachineOutput,
  *
  * ```ts
  * const transactionBuilder = await metaplex
- *   .candyMachines()
+ *   .candyMachinesV2()
  *   .builders()
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
@@ -226,16 +226,16 @@ export type CreateCandyMachineBuilderContext = Omit<CreateCandyMachineOutput,
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyMachineBuilder = async (
+export const createCandyMachineV2Builder = async (
     metaplex: Metaplex,
-    params: CreateCandyMachineBuilderParams
-): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
+    params: CreateCandyMachineV2BuilderParams
+): Promise<TransactionBuilder<CreateCandyMachineV2BuilderContext>> => {
     const candyMachine = params.candyMachine ?? Keypair.generate();
     const payer: Signer = params.payer ?? metaplex.identity();
     const authority = params.authority ?? metaplex.identity();
     const collection: PublicKey | null = params.collection ?? null;
 
-    const {data, wallet, tokenMint} = toCandyMachineInstructionData(
+    const {data, wallet, tokenMint} = toCandyMachineV2InstructionData(
         candyMachine.publicKey,
         {
             ...params,
@@ -281,7 +281,7 @@ export const createCandyMachineBuilder = async (
     }
 
     return (
-        TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+        TransactionBuilder.make<CreateCandyMachineV2BuilderContext>()
             .setFeePayer(payer)
             .setContext({
                 candyMachineSigner: candyMachine,

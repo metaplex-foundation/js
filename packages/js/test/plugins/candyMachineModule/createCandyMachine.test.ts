@@ -1,7 +1,7 @@
 import {
     CandyMachineV2,
     CandyMachineV2Program,
-    CreateCandyMachineInput,
+    CreateCandyMachineV2Input,
     getCandyMachineV2UuidFromAddress,
     sol,
     toBigNumber,
@@ -30,8 +30,8 @@ killStuckProcess();
 async function init() {
     const mx = await metaplex();
     const tc = amman.transactionChecker(mx.connection);
-    const client = mx.candyMachines();
-    const minimalInput: CreateCandyMachineInput = {
+    const client = mx.candyMachinesV2();
+    const minimalInput: CreateCandyMachineV2Input = {
         price: sol(1),
         sellerFeeBasisPoints: 500,
         itemsAvailable: toBigNumber(100),
