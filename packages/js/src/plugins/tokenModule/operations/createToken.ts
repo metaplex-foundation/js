@@ -1,14 +1,3 @@
-import { ExpectedSignerError } from '@/errors';
-import type { Metaplex } from '@/Metaplex';
-import {
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -20,6 +9,17 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../pdas';
 import { TokenProgram } from '../program';
 import { Token } from '../models/Token';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation
@@ -115,7 +115,7 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
   {
     async handle(
       operation: CreateTokenOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CreateTokenOutput> {
       const builder = await createTokenBuilder(metaplex, operation.input);
@@ -178,7 +178,7 @@ export type CreateTokenBuilderContext = {
  * @category Constructors
  */
 export const createTokenBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateTokenBuilderParams
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {
@@ -295,7 +295,7 @@ export type CreateTokenIfMissingBuilderParams = Omit<
  * @internal
  */
 export const createTokenIfMissingBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateTokenIfMissingBuilderParams
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {

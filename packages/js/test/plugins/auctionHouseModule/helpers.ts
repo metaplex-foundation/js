@@ -1,4 +1,4 @@
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 import { CreateAuctionHouseInput } from '@/plugins';
 import { sol, Signer } from '@/types';
 

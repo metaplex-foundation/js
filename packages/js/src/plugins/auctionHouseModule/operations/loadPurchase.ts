@@ -1,9 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { DisposableScope } from '@/utils';
 import { Purchase, LazyPurchase } from '../models/Purchase';
 import { assertNftOrSftWithToken } from '../../nftModule';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { useOperation, Operation, OperationHandler, amount } from '@/types';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -47,7 +47,7 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
   {
     handle: async (
       operation: LoadPurchaseOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ) => {
       const {

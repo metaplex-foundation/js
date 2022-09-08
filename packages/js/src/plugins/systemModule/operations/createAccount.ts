@@ -4,7 +4,8 @@ import {
   PublicKey,
   SystemProgram,
 } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 import {
   assertSol,
   Operation,
@@ -14,7 +15,6 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation
@@ -112,7 +112,7 @@ export const createAccountOperationHandler: OperationHandler<CreateAccountOperat
   {
     async handle(
       operation: CreateAccountOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CreateAccountOutput> {
       const builder = await createAccountBuilder(metaplex, operation.input);
@@ -161,7 +161,7 @@ export type CreateAccountBuilderContext = Omit<CreateAccountOutput, 'response'>;
  * @category Constructors
  */
 export const createAccountBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateAccountBuilderParams
 ): Promise<TransactionBuilder<CreateAccountBuilderContext>> => {
   const {

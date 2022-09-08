@@ -6,9 +6,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import type { Signer } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 import { SendAndConfirmTransactionResponse } from '..';
+import type { Signer } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -29,19 +29,19 @@ type TransactionOptions = {
 
 export class TransactionBuilder<C extends object = object> {
   /** The list of all instructions and their respective signers. */
-  private records: InstructionWithSigners[] = [];
+  private _records: InstructionWithSigners[] = [];
 
   /** Options used when building the transaction. */
-  private transactionOptions?: TransactionOptions;
+  private _transactionOptions?: TransactionOptions;
 
   /** The signer to use to pay for transaction fees. */
-  private feePayer: Signer | undefined = undefined;
+  private _feePayer: Signer | undefined = undefined;
 
   /** Any additional context gathered when creating the transaction builder. */
-  private context: C = {} as C;
+  private _context: C = {} as C;
 
   constructor(transactionOptions?: TransactionOptions) {
-    this.transactionOptions = transactionOptions;
+    this._transactionOptions = transactionOptions;
   }
 
   static make<C extends object = object>(
@@ -56,7 +56,7 @@ export class TransactionBuilder<C extends object = object> {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
-    this.records = [...newRecords, ...this.records];
+    this._records = [...newRecords, ...this._records];
 
     return this;
   }
@@ -67,7 +67,7 @@ export class TransactionBuilder<C extends object = object> {
     const newRecords = txs.flatMap((tx) =>
       tx instanceof TransactionBuilder ? tx.getInstructionsWithSigners() : [tx]
     );
-    this.records = [...this.records, ...newRecords];
+    this._records = [...this._records, ...newRecords];
 
     return this;
   }
@@ -80,16 +80,16 @@ export class TransactionBuilder<C extends object = object> {
 
   splitUsingKey(
     key: string,
-    include: boolean = true
+    include = true
   ): [TransactionBuilder, TransactionBuilder] {
-    const firstBuilder = new TransactionBuilder(this.transactionOptions);
-    const secondBuilder = new TransactionBuilder(this.transactionOptions);
-    let keyPosition = this.records.findIndex((record) => record.key === key);
+    const firstBuilder = new TransactionBuilder(this._transactionOptions);
+    const secondBuilder = new TransactionBuilder(this._transactionOptions);
+    let keyPosition = this._records.findIndex((record) => record.key === key);
 
     if (keyPosition > -1) {
       keyPosition += include ? 1 : 0;
-      firstBuilder.add(...this.records.slice(0, keyPosition));
-      firstBuilder.add(...this.records.slice(keyPosition));
+      firstBuilder.add(...this._records.slice(0, keyPosition));
+      firstBuilder.add(...this._records.slice(keyPosition));
     } else {
       firstBuilder.add(this);
     }
@@ -106,15 +106,15 @@ export class TransactionBuilder<C extends object = object> {
   }
 
   getInstructionsWithSigners(): InstructionWithSigners[] {
-    return this.records;
+    return this._records;
   }
 
   getInstructions(): TransactionInstruction[] {
-    return this.records.map((record) => record.instruction);
+    return this._records.map((record) => record.instruction);
   }
 
   getInstructionCount(): number {
-    return this.records.length;
+    return this._records.length;
   }
 
   isEmpty(): boolean {
@@ -122,8 +122,8 @@ export class TransactionBuilder<C extends object = object> {
   }
 
   getSigners(): Signer[] {
-    const feePayer = this.feePayer == null ? [] : [this.feePayer];
-    const signers = this.records.flatMap((record) => record.signers);
+    const feePayer = this._feePayer == null ? [] : [this._feePayer];
+    const signers = this._records.flatMap((record) => record.signers);
 
     return [...feePayer, ...signers];
   }
@@ -131,33 +131,33 @@ export class TransactionBuilder<C extends object = object> {
   setTransactionOptions(
     transactionOptions: TransactionOptions
   ): TransactionBuilder<C> {
-    this.transactionOptions = transactionOptions;
+    this._transactionOptions = transactionOptions;
 
     return this;
   }
 
   getTransactionOptions(): TransactionOptions | undefined {
-    return this.transactionOptions;
+    return this._transactionOptions;
   }
 
   setFeePayer(feePayer: Signer): TransactionBuilder<C> {
-    this.feePayer = feePayer;
+    this._feePayer = feePayer;
 
     return this;
   }
 
   getFeePayer(): PublicKey | undefined {
-    return this.feePayer?.publicKey;
+    return this._feePayer?.publicKey;
   }
 
   setContext(context: C): TransactionBuilder<C> {
-    this.context = context;
+    this._context = context;
 
     return this;
   }
 
   getContext(): C {
-    return this.context;
+    return this._context;
   }
 
   when(
@@ -183,7 +183,7 @@ export class TransactionBuilder<C extends object = object> {
   }
 
   async sendAndConfirm(
-    metaplex: Metaplex,
+    metaplex: MetaplexType,
     confirmOptions?: ConfirmOptions
   ): Promise<{ response: SendAndConfirmTransactionResponse } & C> {
     const response = await metaplex

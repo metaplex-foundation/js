@@ -1,26 +1,20 @@
 // .eslintrc file (no extension)
 {
   "parser": "@typescript-eslint/parser",
-  "extends": ["react-app", "plugin:react/recommended"],
+  "extends": [],
   "plugins": [
     "sort-class-members",
     "@typescript-eslint",
     "markdown",
     "json",
-    "prettier"
+    "prettier",
+    "import"
   ],
   "settings": {
     // Adding new import aliases require a change in tsconfig.json, .eslintrc, jest.config.ts and webpack.resolve.ts files
     "import/internal-regex": "^@(assets|hooks|consts|UI|components|services|utils|APIs|providers|localTypes|localTypes|config)/"
   },
   "rules": {
-    // REACT RULES:
-    "react/jsx-boolean-value": ["warn", "never"],
-    "react/jsx-curly-brace-presence": ["warn", "never"],
-    "react/self-closing-comp": "warn",
-    "react/display-name": "error",
-    "react/prop-types": "off",
-    "react-hooks/exhaustive-deps": "off",
     // TYPESCRIPT RULES:
     "@typescript-eslint/no-inferrable-types": "warn",
     "@typescript-eslint/no-unused-expressions": "warn",
@@ -32,7 +26,7 @@
     "object-shorthand": "warn",
     "no-empty": "warn",
     "no-unused-vars": "warn",
-    "no-duplicate-imports": "error",
+    "import/no-duplicates": "error",
     "no-restricted-globals": "off",
     "no-else-return": "error",
     "no-nested-ternary": "error",

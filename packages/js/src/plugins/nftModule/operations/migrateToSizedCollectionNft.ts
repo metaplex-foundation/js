@@ -1,4 +1,8 @@
-import { Metaplex } from '@/Metaplex';
+import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
 import {
   BigNumber,
   Operation,
@@ -6,11 +10,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -101,7 +101,7 @@ export const migrateToSizedCollectionNftOperationHandler: OperationHandler<Migra
   {
     handle: async (
       operation: MigrateToSizedCollectionNftOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<MigrateToSizedCollectionNftOutput> => {
       return migrateToSizedCollectionNftBuilder(
         metaplex,
@@ -142,7 +142,7 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
  * @category Constructors
  */
 export const migrateToSizedCollectionNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: MigrateToSizedCollectionNftBuilderParams
 ): TransactionBuilder => {
   const {

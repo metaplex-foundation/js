@@ -1,5 +1,6 @@
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 import {
   assertSol,
   Operation,
@@ -9,7 +10,6 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation
@@ -101,7 +101,7 @@ export const transferSolOperationHandler: OperationHandler<TransferSolOperation>
   {
     async handle(
       operation: TransferSolOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<TransferSolOutput> {
       const builder = transferSolBuilder(metaplex, operation.input);
@@ -142,7 +142,7 @@ export type TransferSolBuilderParams = Omit<
  * @category Constructors
  */
 export const transferSolBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: TransferSolBuilderParams
 ): TransactionBuilder => {
   const {

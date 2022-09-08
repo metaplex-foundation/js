@@ -1,11 +1,11 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createRevokeUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -93,7 +93,7 @@ export const revokeNftUseAuthorityOperationHandler: OperationHandler<RevokeNftUs
   {
     handle: async (
       operation: RevokeNftUseAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<RevokeNftUseAuthorityOutput> => {
       return revokeNftUseAuthorityBuilder(
         metaplex,
@@ -132,7 +132,7 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const revokeNftUseAuthorityBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: RevokeNftUseAuthorityBuilderParams
 ): TransactionBuilder => {
   const { mintAddress, user, owner = metaplex.identity() } = params;

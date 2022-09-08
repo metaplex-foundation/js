@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   approveTokenDelegateAuthorityBuilder,
   ApproveTokenDelegateAuthorityBuilderParams,
@@ -21,6 +20,7 @@ import {
   thawTokensBuilder,
   ThawTokensBuilderParams,
 } from './operations';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -30,7 +30,7 @@ import {
  * @group Module Builders
  * */
 export class TokenBuildersClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   // -----------------
   // Create

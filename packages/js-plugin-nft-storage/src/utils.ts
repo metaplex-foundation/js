@@ -15,7 +15,7 @@ export const DEFAULT_GATEWAY_HOST = 'https://nftstorage.link';
 
 export function toGatewayUri(
   cid: string,
-  path: string = '',
+  path = '',
   host: string = DEFAULT_GATEWAY_HOST
 ): string {
   let pathPrefix = `/ipfs/${cid}`;
@@ -28,7 +28,7 @@ export function toGatewayUri(
   return u.toString();
 }
 
-export function toIpfsUri(cid: string, path: string = ''): string {
+export function toIpfsUri(cid: string, path = ''): string {
   const u = new URL(path, `ipfs://${cid}`);
   return u.toString();
 }
@@ -58,7 +58,7 @@ export async function toEncodedCar(
 ): Promise<EncodedCar> {
   await blockstore.put(block.cid, block.bytes);
   const car = new BlockstoreCarReader([block.cid], blockstore);
-  const cid = block.cid;
+  const {cid} = block;
 
   return { car, cid };
 }

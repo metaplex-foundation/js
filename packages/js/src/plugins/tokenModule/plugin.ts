@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import type { MetaplexPlugin } from '@/types';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   approveTokenDelegateAuthorityOperation,
@@ -30,12 +28,14 @@ import {
   thawTokensOperationHandler,
 } from './operations';
 import { TokenClient } from './TokenClient';
+import type { MetaplexPlugin } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 /**
  * @group Plugins
  */
 /** @group Plugins */
 export const tokenModule = (): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
+  install(metaplex: MetaplexType) {
     // Program.
     metaplex.programs().register({
       name: 'TokenProgram',

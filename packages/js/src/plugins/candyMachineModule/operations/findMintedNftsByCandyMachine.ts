@@ -1,9 +1,9 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { findNftsByCreatorOperation, Metadata, Nft } from '../../nftModule';
 import { findCandyMachineCreatorPda } from '../pdas';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -70,7 +70,7 @@ export const findMintedNftsByCandyMachineOperationHandler: OperationHandler<Find
   {
     handle: async (
       operation: FindMintedNftsByCandyMachineOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ) => {
       const { candyMachine, version = 2, commitment } = operation.input;

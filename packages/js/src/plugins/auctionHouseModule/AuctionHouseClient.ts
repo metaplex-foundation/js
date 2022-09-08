@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { Task } from '@/utils';
 import { AuctionHouse, Bid, Listing, Purchase } from './models';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
@@ -47,12 +45,14 @@ import {
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
 } from './operations';
+import { Task } from '@/utils';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * @group Modules
  */
 export class AuctionHouseClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   /**
    * You may use the `builders()` client to access the

@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   approveNftCollectionAuthorityBuilder,
   ApproveNftCollectionAuthorityBuilderParams,
@@ -35,6 +34,7 @@ import {
   verifyNftCreatorBuilder,
   VerifyNftCreatorBuilderParams,
 } from './operations';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -44,7 +44,7 @@ import {
  * @group Module Builders
  * */
 export class NftBuildersClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   // -----------------
   // Create, Update and Delete

@@ -1,14 +1,3 @@
-import { ExpectedSignerError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import {
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -18,6 +7,17 @@ import {
   findProgramAsBurnerPda,
   findUseAuthorityRecordPda,
 } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import {
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation
@@ -105,7 +105,7 @@ export type UseNftOutput = {
 export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
   handle: async (
     operation: UseNftOperation,
-    metaplex: Metaplex
+    metaplex: MetaplexType
   ): Promise<UseNftOutput> => {
     return useNftBuilder(metaplex, operation.input).sendAndConfirm(
       metaplex,
@@ -141,7 +141,7 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
  * @category Constructors
  */
 export const useNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: UseNftBuilderParams
 ): TransactionBuilder => {
   const {

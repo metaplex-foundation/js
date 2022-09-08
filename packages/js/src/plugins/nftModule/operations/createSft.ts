@@ -1,4 +1,13 @@
-import { Metaplex } from '@/Metaplex';
+import {
+  createCreateMetadataAccountV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { assertSft, Sft, SftWithToken } from '../models';
+import { findMetadataPda } from '../pdas';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   Creator,
   CreatorInput,
@@ -10,16 +19,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import {
-  createCreateMetadataAccountV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { assertSft, Sft, SftWithToken } from '../models';
-import { findMetadataPda } from '../pdas';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -300,7 +300,7 @@ export type CreateSftOutput = {
 export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
   handle: async (
     operation: CreateSftOperation,
-    metaplex: Metaplex,
+    metaplex: MetaplexType,
     scope: DisposableScope
   ) => {
     const {
@@ -414,7 +414,7 @@ export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
  * @category Constructors
  */
 export const createSftBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateSftBuilderParams
 ): Promise<TransactionBuilder<CreateSftBuilderContext>> => {
   const {
@@ -536,7 +536,7 @@ export const createSftBuilder = async (
 };
 
 const createMintAndTokenForSftBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateSftBuilderParams,
   useNewMint: Signer
 ): Promise<

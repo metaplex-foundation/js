@@ -1,6 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { toPublicKey } from '@/types';
-import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
 import { CandyMachinesBuildersClient } from './CandyMachinesBuildersClient';
 import { CandyMachine } from './models';
@@ -22,6 +19,9 @@ import {
   UpdateCandyMachineInput,
   updateCandyMachineOperation,
 } from './operations';
+import { Task } from '@/utils';
+import { toPublicKey } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This is a client for the Candy Machine module.
@@ -55,7 +55,7 @@ import {
  * @group Modules
  */
 export class CandyMachinesClient {
-  constructor(readonly metaplex: Metaplex) {}
+  constructor(readonly metaplex: MetaplexType) {}
 
   /**
    * You may use the `builders()` client to access the

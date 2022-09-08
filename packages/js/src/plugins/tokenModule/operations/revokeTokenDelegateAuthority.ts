@@ -1,4 +1,9 @@
-import { Metaplex } from '@/Metaplex';
+import { createRevokeInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { TransactionBuilder } from '@/utils';
 import {
   isSigner,
   KeypairSigner,
@@ -7,12 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createRevokeInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -102,7 +102,7 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
   {
     handle: async (
       operation: RevokeTokenDelegateAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<RevokeTokenDelegateAuthorityOutput> => {
       return revokeTokenDelegateAuthorityBuilder(
         metaplex,
@@ -141,7 +141,7 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const revokeTokenDelegateAuthorityBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: RevokeTokenDelegateAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

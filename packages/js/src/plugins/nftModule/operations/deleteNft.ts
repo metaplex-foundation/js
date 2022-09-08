@@ -1,11 +1,11 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createBurnNftInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -95,7 +95,7 @@ export type DeleteNftOutput = {
 export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
   handle: async (
     operation: DeleteNftOperation,
-    metaplex: Metaplex
+    metaplex: MetaplexType
   ): Promise<DeleteNftOutput> => {
     return deleteNftBuilder(metaplex, operation.input).sendAndConfirm(
       metaplex,
@@ -131,7 +131,7 @@ export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
  * @category Constructors
  */
 export const deleteNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: DeleteNftBuilderParams
 ): TransactionBuilder => {
   const {

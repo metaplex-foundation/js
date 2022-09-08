@@ -1,12 +1,12 @@
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachineGpaBuilder } from './gpaBuilders';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 /** @group Programs */
 export const CandyMachineProgram = {
   publicKey: PROGRAM_ID,
 
-  accounts(metaplex: Metaplex) {
+  accounts(metaplex: MetaplexType) {
     return new CandyMachineGpaBuilder(metaplex, this.publicKey);
   },
 };

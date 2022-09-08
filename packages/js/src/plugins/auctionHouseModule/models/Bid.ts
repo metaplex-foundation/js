@@ -1,4 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
+import { BidReceiptAccount } from '../accounts';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
+import { AuctionHouse } from './AuctionHouse';
 import {
   amount,
   BigNumber,
@@ -11,10 +14,7 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { BidReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
-import { AuctionHouse } from './AuctionHouse';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 export type Bid = Readonly<
   {

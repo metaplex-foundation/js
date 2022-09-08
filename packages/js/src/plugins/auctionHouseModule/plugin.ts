@@ -1,6 +1,4 @@
 import { cusper } from '@metaplex-foundation/mpl-auction-house';
-import type { Metaplex } from '@/Metaplex';
-import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
 import {
@@ -41,10 +39,12 @@ import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
 } from './operations';
+import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
+  install(metaplex: MetaplexType) {
     // Auction House Program.
     metaplex.programs().register({
       name: 'AuctionHouseProgram',

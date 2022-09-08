@@ -1,12 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  BigNumber,
-  Operation,
-  OperationHandler,
-  Signer,
-  useOperation,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -16,6 +7,15 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachine, CandyMachineItem } from '../models/CandyMachine';
+import { TransactionBuilder } from '@/utils';
+import {
+  BigNumber,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -117,7 +117,7 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
   {
     async handle(
       operation: InsertItemsToCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<InsertItemsToCandyMachineOutput> {
       return insertItemsToCandyMachineBuilder(
         metaplex,
@@ -155,12 +155,12 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
  * @category Constructors
  */
 export const insertItemsToCandyMachineBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: InsertItemsToCandyMachineBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
-  const items = params.items;
+  const { items } = params;
   assertNotFull(params.candyMachine, index);
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllConfigLineConstraints(items);

@@ -1,5 +1,12 @@
-import { Metaplex } from '@/Metaplex';
-import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
+import {
+  createCreateMasterEditionV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertNftWithToken, NftWithToken } from '../models';
+import { findMasterEditionV2Pda } from '../pdas';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   BigNumber,
   CreatorInput,
@@ -10,15 +17,8 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import {
-  createCreateMasterEditionV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertNftWithToken, NftWithToken } from '../models';
-import { findMasterEditionV2Pda } from '../pdas';
+import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -275,7 +275,7 @@ export type CreateNftOutput = {
 export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (
     operation: CreateNftOperation,
-    metaplex: Metaplex,
+    metaplex: MetaplexType,
     scope: DisposableScope
   ) => {
     const {
@@ -384,7 +384,7 @@ export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
  * @category Constructors
  */
 export const createNftBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateNftBuilderParams
 ): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
   const {

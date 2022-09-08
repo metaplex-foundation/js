@@ -1,9 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { assert, DisposableScope } from '@/utils';
 import { Bid, LazyBid } from '../models/Bid';
 import { assertNftOrSftWithToken } from '../../nftModule';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { useOperation, Operation, OperationHandler, amount } from '@/types';
+import { assert, DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -42,7 +42,7 @@ export type LoadBidInput = {
 export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   handle: async (
     operation: LoadBidOperation,
-    metaplex: Metaplex,
+    metaplex: MetaplexType,
     scope: DisposableScope
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
@@ -76,23 +76,22 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         asset,
         tokens: amount(lazyBid.tokens, asset.mint.currency),
       };
-    } else {
-      const asset = await metaplex
-        .nfts()
-        .findByMetadata({
-          metadata: lazyBid.metadataAddress,
-          commitment,
-          loadJsonMetadata,
-        })
-        .run(scope);
-      scope.throwIfCanceled();
-
-      return {
-        ...bid,
-        isPublic: true,
-        asset,
-        tokens: amount(lazyBid.tokens, asset.mint.currency),
-      };
     }
+    const asset = await metaplex
+      .nfts()
+      .findByMetadata({
+        metadata: lazyBid.metadataAddress,
+        commitment,
+        loadJsonMetadata,
+      })
+      .run(scope);
+    scope.throwIfCanceled();
+
+    return {
+      ...bid,
+      isPublic: true,
+      asset,
+      tokens: amount(lazyBid.tokens, asset.mint.currency),
+    };
   },
 };

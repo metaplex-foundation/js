@@ -1,12 +1,15 @@
 import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   CancelInstructionAccounts,
   createCancelListingReceiptInstruction,
   createCancelInstruction,
   createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse, Listing } from '../models';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { findAuctioneerPda } from '../pdas';
+import { AUCTIONEER_PRICE } from '../constants';
 import {
   useOperation,
   Operation,
@@ -15,11 +18,8 @@ import {
   isSigner,
   Pda,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Listing } from '../models';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAuctioneerPda } from '../pdas';
-import { AUCTIONEER_PRICE } from '../constants';
+import { TransactionBuilder } from '@/utils';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -82,7 +82,7 @@ export type CancelListingOutput = {
  */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
   {
-    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
+    handle: async (operation: CancelListingOperation, metaplex: MetaplexType) =>
       cancelListingBuilder(operation.input).sendAndConfirm(
         metaplex,
         operation.input.confirmOptions

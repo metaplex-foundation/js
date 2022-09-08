@@ -1,11 +1,11 @@
-import type { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -94,7 +94,7 @@ export const freezeDelegatedNftOperationHandler: OperationHandler<FreezeDelegate
   {
     async handle(
       operation: FreezeDelegatedNftOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<FreezeDelegatedNftOutput> {
       return freezeDelegatedNftBuilder(
         metaplex,
@@ -133,7 +133,7 @@ export type FreezeDelegatedNftBuilderParams = Omit<
  * @category Constructors
  */
 export const freezeDelegatedNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: FreezeDelegatedNftBuilderParams
 ): TransactionBuilder => {
   const {

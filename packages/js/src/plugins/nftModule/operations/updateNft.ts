@@ -1,13 +1,3 @@
-import { NoInstructionsToSendError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import {
-  CreatorInput,
-  Operation,
-  OperationHandler,
-  Signer,
-  useOperation,
-} from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
 import {
   createUpdateMetadataAccountV2Instruction,
   UpdateMetadataAccountArgsV2,
@@ -18,6 +8,16 @@ import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
 import { findMetadataPda } from '../pdas';
+import { Option, TransactionBuilder } from '@/utils';
+import {
+  CreatorInput,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
 // Operation
@@ -214,7 +214,7 @@ export type UpdateNftOutput = {
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
   handle: async (
     operation: UpdateNftOperation,
-    metaplex: Metaplex
+    metaplex: MetaplexType
   ): Promise<UpdateNftOutput> => {
     const builder = updateNftBuilder(metaplex, operation.input);
 
@@ -253,7 +253,7 @@ export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
  * @category Constructors
  */
 export const updateNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
   const { nftOrSft, updateAuthority = metaplex.identity() } = params;

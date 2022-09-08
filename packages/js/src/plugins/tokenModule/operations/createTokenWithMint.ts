@@ -1,4 +1,8 @@
-import type { Metaplex } from '@/Metaplex';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
+import { TokenWithMint } from '../models/Token';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   isSigner,
   Operation,
@@ -8,11 +12,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
-import { TokenWithMint } from '../models/Token';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -150,7 +150,7 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
   {
     async handle(
       operation: CreateTokenWithMintOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CreateTokenWithMintOutput> {
       const builder = await createTokenWithMintBuilder(
@@ -232,7 +232,7 @@ export type CreateTokenWithMintBuilderContext = {
  * @category Constructors
  */
 export const createTokenWithMintBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateTokenWithMintBuilderParams
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
   const {

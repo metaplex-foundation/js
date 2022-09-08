@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
@@ -19,6 +18,7 @@ import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
 } from './operations/updateAuctionHouse';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -28,7 +28,7 @@ import {
  * @group Module Builders
  * */
 export class AuctionHouseBuildersClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   bid(input: CreateBidBuilderParams) {
     return createBidBuilder(this.metaplex, input);

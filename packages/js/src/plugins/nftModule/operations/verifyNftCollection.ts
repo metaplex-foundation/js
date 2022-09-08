@@ -1,6 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import {
   createVerifyCollectionInstruction,
   createVerifySizedCollectionItemInstruction,
@@ -12,6 +9,9 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -109,7 +109,7 @@ export const verifyNftCollectionOperationHandler: OperationHandler<VerifyNftColl
   {
     handle: async (
       operation: VerifyNftCollectionOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<VerifyNftCollectionOutput> => {
       return verifyNftCollectionBuilder(
         metaplex,
@@ -148,7 +148,7 @@ export type VerifyNftCollectionBuilderParams = Omit<
  * @category Constructors
  */
 export const verifyNftCollectionBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: VerifyNftCollectionBuilderParams
 ): TransactionBuilder => {
   const {
@@ -192,7 +192,7 @@ export const verifyNftCollectionBuilder = (
 
       // Verify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'verifyCollection',
       })

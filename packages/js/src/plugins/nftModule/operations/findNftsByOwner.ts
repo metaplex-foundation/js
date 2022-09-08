@@ -1,10 +1,10 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { TokenProgram } from '../../tokenModule';
 import { Metadata, Nft, Sft } from '../models';
 import { findNftsByMintListOperation } from './findNftsByMintList';
+import { DisposableScope } from '@/utils';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -64,7 +64,7 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
   {
     handle: async (
       operation: FindNftsByOwnerOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<FindNftsByOwnerOutput> => {
       const { owner, commitment } = operation.input;

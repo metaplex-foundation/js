@@ -1,10 +1,10 @@
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
 import { OperationClient } from './OperationClient';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const operationModule = (): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
+  install(metaplex: MetaplexType) {
     const operationClient = new OperationClient(metaplex);
     metaplex.operations = () => operationClient;
   },

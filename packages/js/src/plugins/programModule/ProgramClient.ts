@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 import { MissingGpaBuilderError, ProgramNotRecognizedError } from '@/errors';
 import { Program, Cluster } from '@/types';
 import { GpaBuilder } from '@/utils';
@@ -8,9 +8,8 @@ import { GpaBuilder } from '@/utils';
  * @group Modules
  */
 export class ProgramClient {
-  constructor(protected readonly metaplex: Metaplex) {}
-
   protected programs: Program[] = [];
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   register(program: Program): void {
     this.programs.push(program);
@@ -34,8 +33,8 @@ export class ProgramClient {
     const programs = this.allForCurrentCluster();
     const program =
       typeof nameOrAddress === 'string'
-        ? programs.find((program) => program.name === nameOrAddress)
-        : programs.find((program) => program.address.equals(nameOrAddress));
+        ? programs.find(({ name }) => name === nameOrAddress)
+        : programs.find(({ address }) => address.equals(nameOrAddress));
 
     if (!program) {
       throw new ProgramNotRecognizedError(nameOrAddress, this.metaplex.cluster);

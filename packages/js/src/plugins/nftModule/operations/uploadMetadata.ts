@@ -1,9 +1,9 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, walk } from '@/utils';
 import cloneDeep from 'lodash.clonedeep';
 import { isMetaplexFile, MetaplexFile } from '../../storageModule';
 import { JsonMetadata } from '../models';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope, walk } from '@/utils';
 
 // -----------------
 // Operation
@@ -73,7 +73,7 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
   {
     handle: async (
       operation: UploadMetadataOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<UploadMetadataOutput> => {
       const rawMetadata = operation.input;

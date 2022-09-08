@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   ApproveTokenDelegateAuthorityInput,
   approveTokenDelegateAuthorityOperation,
@@ -28,6 +27,7 @@ import {
   thawTokensOperation,
 } from './operations';
 import { TokenBuildersClient } from './TokenBuildersClient';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This is a client for the Token module.
@@ -53,7 +53,7 @@ import { TokenBuildersClient } from './TokenBuildersClient';
  * @group Modules
  */
 export class TokenClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   /**
    * You may use the `builders()` client to access the

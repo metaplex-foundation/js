@@ -1,14 +1,14 @@
+import { Buffer } from 'buffer';
 import {
   GetProgramAccountsConfig,
   GetProgramAccountsFilter,
   PublicKey,
 } from '@solana/web3.js';
-import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
-import { Metaplex } from '@/Metaplex';
-import { UnparsedAccount } from '@/types';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { UnparsedAccount } from '@/types';
 
 export type GpaSortCallback = (
   a: UnparsedAccount,
@@ -17,7 +17,7 @@ export type GpaSortCallback = (
 
 export class GpaBuilder {
   /** The connection instance to use when fetching accounts. */
-  protected readonly metaplex: Metaplex;
+  protected readonly metaplex: MetaplexType;
 
   /** The public key of the program we want to retrieve accounts from. */
   protected readonly programId: PublicKey;
@@ -28,7 +28,7 @@ export class GpaBuilder {
   /** When provided, reorder accounts using this callback. */
   protected sortCallback?: GpaSortCallback;
 
-  constructor(metaplex: Metaplex, programId: PublicKey) {
+  constructor(metaplex: MetaplexType, programId: PublicKey) {
     this.metaplex = metaplex;
     this.programId = programId;
   }

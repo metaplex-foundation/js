@@ -3,26 +3,11 @@ import {
   PublicKey,
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   createAuctioneerExecuteSaleInstruction,
   createExecuteSaleInstruction,
   createPrintPurchaseReceiptInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  Pda,
-  lamports,
-  Signer,
-  SolAmount,
-  SplTokenAmount,
-  amount,
-  isSigner,
-  now,
-} from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
@@ -40,6 +25,21 @@ import {
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
 } from '../errors';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  Pda,
+  lamports,
+  Signer,
+  SolAmount,
+  SplTokenAmount,
+  amount,
+  isSigner,
+  now,
+} from '@/types';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -125,7 +125,7 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
   {
     async handle(
       operation: ExecuteSaleOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<ExecuteSaleOutput> {
       const { auctionHouse } = operation.input;
@@ -201,7 +201,7 @@ export type ExecuteSaleBuilderContext = Omit<
  * @category Constructors
  */
 export const executeSaleBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: ExecuteSaleBuilderParams
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
@@ -362,7 +362,7 @@ export const executeSaleBuilder = (
         builder.add({
           instruction: createPrintPurchaseReceiptInstruction(
             {
-              purchaseReceipt: purchaseReceipt,
+              purchaseReceipt,
               listingReceipt: listing.receiptAddress as Pda,
               bidReceipt: bid.receiptAddress as Pda,
               bookkeeper: bookkeeper.publicKey,

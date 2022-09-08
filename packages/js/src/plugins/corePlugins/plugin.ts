@@ -1,6 +1,6 @@
-import type { Metaplex } from '../../Metaplex';
+import type { Metaplex as MetaplexType } from '../../Metaplex';
 
-// Low-level modules.
+// Low-level modules.:
 import { identityModule } from '../identityModule';
 import { storageModule } from '../storageModule';
 import { rpcModule } from '../rpcModule';
@@ -20,7 +20,7 @@ import { candyMachineModule } from '../candyMachineModule';
 import { auctionHouseModule } from '../auctionHouseModule';
 
 export const corePlugins = () => ({
-  install(metaplex: Metaplex) {
+  install(metaplex: MetaplexType) {
     // Low-level modules.
     metaplex.use(identityModule());
     metaplex.use(storageModule());

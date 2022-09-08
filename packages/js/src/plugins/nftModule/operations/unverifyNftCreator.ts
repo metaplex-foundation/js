@@ -1,10 +1,10 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createRemoveCreatorVerificationInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMetadataPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -74,7 +74,7 @@ export const unverifyNftCreatorOperationHandler: OperationHandler<UnverifyNftCre
   {
     handle: async (
       operation: UnverifyNftCreatorOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<UnverifyNftCreatorOutput> => {
       return unverifyNftCreatorBuilder(
         metaplex,
@@ -113,7 +113,7 @@ export type UnverifyNftCreatorBuilderParams = Omit<
  * @category Constructors
  */
 export const unverifyNftCreatorBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: UnverifyNftCreatorBuilderParams
 ): TransactionBuilder => {
   const { mintAddress, creator = metaplex.identity() } = params;

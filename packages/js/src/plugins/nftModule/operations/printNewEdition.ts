@@ -1,14 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  BigNumber,
-  Operation,
-  OperationHandler,
-  Signer,
-  toBigNumber,
-  token,
-  useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -25,6 +14,17 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  BigNumber,
+  Operation,
+  OperationHandler,
+  Signer,
+  toBigNumber,
+  token,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -169,7 +169,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
   {
     handle: async (
       operation: PrintNewEditionOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ) => {
       const originalEditionAccount = await metaplex
@@ -266,7 +266,7 @@ export type PrintNewEditionBuilderContext = Omit<
  * @category Constructors
  */
 export const printNewEditionBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: PrintNewEditionBuilderParams
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {

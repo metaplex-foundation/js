@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   createCandyMachineBuilder,
   CreateCandyMachineBuilderParams,
@@ -11,6 +10,7 @@ import {
   updateCandyMachineBuilder,
   UpdateCandyMachineBuilderParams,
 } from './operations';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -20,7 +20,7 @@ import {
  * @group Module Builders
  */
 export class CandyMachinesBuildersClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   /** {@inheritDoc createCandyMachineBuilder} */
   create(input: CreateCandyMachineBuilderParams) {

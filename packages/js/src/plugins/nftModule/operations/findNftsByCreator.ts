@@ -1,10 +1,10 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, Sft } from '../models';
 import { TokenMetadataProgram } from '../program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
+import { DisposableScope } from '@/utils';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -80,7 +80,7 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
   {
     handle: async (
       operation: FindNftsByCreatorOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<FindNftsByCreatorOutput> => {
       const { creator, position = 1, commitment } = operation.input;

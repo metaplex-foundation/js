@@ -1,8 +1,8 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
 import { findAuctionHousePda } from '../pdas';
 import { AuctionHouse } from '../models/AuctionHouse';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { useOperation, Operation, OperationHandler } from '@/types';
 
 // -----------------
 // Operation
@@ -48,7 +48,7 @@ export const findAuctionHouseByCreatorAndMintOperationHandler: OperationHandler<
   {
     handle: async (
       operation: FindAuctionHouseByCreatorAndMintOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ) => {
       const { creator, treasuryMint } = operation.input;
 

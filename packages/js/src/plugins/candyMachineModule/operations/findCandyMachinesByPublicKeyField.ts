@@ -1,7 +1,3 @@
-import { UnreachableCaseError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, zipMap } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   parseCandyMachineAccount,
@@ -11,6 +7,10 @@ import { CandyMachineGpaBuilder } from '../gpaBuilders';
 import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
 import { findCandyMachineCollectionPda } from '../pdas';
 import { CandyMachineProgram } from '../program';
+import { DisposableScope, zipMap } from '@/utils';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
+import { UnreachableCaseError } from '@/errors';
 
 // -----------------
 // Operation
@@ -80,7 +80,7 @@ export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler
   {
     handle: async (
       operation: FindCandyMachinesByPublicKeyFieldOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CandyMachine[]> => {
       const { type, publicKey, commitment } = operation.input;

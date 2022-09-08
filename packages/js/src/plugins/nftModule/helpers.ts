@@ -1,7 +1,7 @@
-import { PublicKeyValues, toPublicKey } from '@/types';
 import type { PublicKey } from '@solana/web3.js';
 import type { Nft, NftWithToken, Sft, SftWithToken } from './models';
 import type { Metadata } from './models/Metadata';
+import { PublicKeyValues, toPublicKey } from '@/types';
 
 export type HasMintAddress =
   | Nft

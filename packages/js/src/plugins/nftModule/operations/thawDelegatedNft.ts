@@ -1,11 +1,11 @@
-import type { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -94,7 +94,7 @@ export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNft
   {
     async handle(
       operation: ThawDelegatedNftOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<ThawDelegatedNftOutput> {
       return thawDelegatedNftBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -133,7 +133,7 @@ export type ThawDelegatedNftBuilderParams = Omit<
  * @category Constructors
  */
 export const thawDelegatedNftBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: ThawDelegatedNftBuilderParams
 ): TransactionBuilder => {
   const {

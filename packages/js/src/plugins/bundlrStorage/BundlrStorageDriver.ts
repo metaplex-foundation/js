@@ -1,7 +1,21 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
-import { Metaplex } from '@/Metaplex';
+import {
+  Connection,
+  PublicKey,
+  SendOptions,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
+import {
+  getBytesFromMetaplexFiles,
+  MetaplexFile,
+  MetaplexFileTag,
+  StorageDriver,
+} from '../storageModule';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 import {
   Amount,
   IdentitySigner,
@@ -17,20 +31,6 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
-import {
-  getBytesFromMetaplexFiles,
-  MetaplexFile,
-  MetaplexFileTag,
-  StorageDriver,
-} from '../storageModule';
-import {
-  Connection,
-  PublicKey,
-  SendOptions,
-  Signer as Web3Signer,
-  Transaction,
-  TransactionSignature,
-} from '@solana/web3.js';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -39,7 +39,7 @@ import {
  * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
  * This method fixes this by ensure there is not double default in the imported package.
  */
-function _removeDoubleDefault(pkg: any) {
+function removeDoubleDefault(pkg: any) {
   if (
     pkg &&
     typeof pkg === 'object' &&
@@ -52,7 +52,7 @@ function _removeDoubleDefault(pkg: any) {
   return pkg;
 }
 
-const BundlrPackage = _removeDoubleDefault(_BundlrPackage);
+const BundlrPackage = removeDoubleDefault(_BundlrPackage);
 
 export type BundlrOptions = {
   address?: string;
@@ -75,11 +75,11 @@ export type BundlrWalletAdapter = {
 };
 
 export class BundlrStorageDriver implements StorageDriver {
-  protected _metaplex: Metaplex;
+  protected _metaplex: MetaplexType;
   protected _bundlr: WebBundlr | NodeBundlr | null = null;
   protected _options: BundlrOptions;
 
-  constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
+  constructor(metaplex: MetaplexType, options: BundlrOptions = {}) {
     this._metaplex = metaplex;
     this._options = {
       providerUrl: metaplex.connection.rpcEndpoint,
@@ -240,9 +240,9 @@ export class BundlrStorageDriver implements StorageDriver {
       sendTransaction: (
         transaction: Transaction,
         connection: Connection,
-        options: SendOptions & { signers?: Web3Signer[] } = {}
+        params: SendOptions & { signers?: Web3Signer[] } = {}
       ): Promise<TransactionSignature> => {
-        const { signers, ...sendOptions } = options;
+        const { signers, ...sendOptions } = params;
 
         if ('rpc' in this._metaplex) {
           return this._metaplex

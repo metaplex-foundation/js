@@ -1,10 +1,10 @@
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
 import { ProgramClient } from './ProgramClient';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const programModule = (): MetaplexPlugin => ({
-  install(metaplex: Metaplex) {
+  install(metaplex: MetaplexType) {
     const programClient = new ProgramClient(metaplex);
     metaplex.programs = () => programClient;
   },

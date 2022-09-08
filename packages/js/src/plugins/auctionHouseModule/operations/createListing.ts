@@ -8,8 +8,19 @@ import {
   createPrintListingReceiptInstruction,
   createSellInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import type { Metaplex } from '@/Metaplex';
 import type { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import {
+  findAuctioneerPda,
+  findAuctionHouseProgramAsSignerPda,
+  findAuctionHouseTradeStatePda,
+  findListingReceiptPda,
+} from '../pdas';
+import { AuctionHouse, LazyListing, Listing } from '../models';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findMetadataPda } from '../../nftModule';
+import { AUCTIONEER_PRICE } from '../constants';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   useOperation,
   Operation,
@@ -25,18 +36,7 @@ import {
   SplTokenAmount,
   now,
 } from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
-import {
-  findAuctioneerPda,
-  findAuctionHouseProgramAsSignerPda,
-  findAuctionHouseTradeStatePda,
-  findListingReceiptPda,
-} from '../pdas';
-import { AuctionHouse, LazyListing, Listing } from '../models';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { findMetadataPda } from '../../nftModule';
-import { AUCTIONEER_PRICE } from '../constants';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -107,7 +107,7 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
   {
     async handle(
       operation: CreateListingOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CreateListingOutput> {
       const { auctionHouse, confirmOptions } = operation.input;
@@ -186,11 +186,11 @@ export type CreateListingBuilderContext = Omit<
  * @category Constructors
  */
 export const createListingBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateListingBuilderParams
 ): TransactionBuilder<CreateListingBuilderContext> => {
   // Data.
-  const auctionHouse = params.auctionHouse;
+  const { auctionHouse } = params;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.auctioneerAuthority
     ? AUCTIONEER_PRICE

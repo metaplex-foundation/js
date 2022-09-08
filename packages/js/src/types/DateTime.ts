@@ -1,6 +1,6 @@
 import BN from 'bn.js';
-import { assert, Opaque, Option } from '@/utils';
 import { BigNumberValues } from './BigNumber';
+import { assert, Opaque, Option } from '@/utils';
 
 export type DateTimeString = string;
 export type DateTimeValues = DateTimeString | BigNumberValues | Date;

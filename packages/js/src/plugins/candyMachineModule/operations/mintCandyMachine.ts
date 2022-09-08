@@ -1,13 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  Signer,
-  token,
-  useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   createMintNftInstruction,
   createSetCollectionDuringMintInstruction,
@@ -38,6 +28,16 @@ import {
   findCandyMachineCreatorPda,
 } from '../pdas';
 import { CandyMachineProgram } from '../program';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  Signer,
+  token,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -198,7 +198,7 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
   {
     async handle(
       operation: MintCandyMachineOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<MintCandyMachineOutput> {
       assertCanMintCandyMachine(
@@ -295,7 +295,7 @@ export type MintCandyMachineBuilderContext = Omit<
  * @category Constructors
  */
 export const mintCandyMachineBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: MintCandyMachineBuilderParams
 ): Promise<TransactionBuilder<MintCandyMachineBuilderContext>> => {
   const {
@@ -355,7 +355,7 @@ export const mintCandyMachineBuilder = async (
   const mintNftInstruction = createMintNftInstruction(
     {
       candyMachine: candyMachine.address,
-      candyMachineCreator: candyMachineCreator,
+      candyMachineCreator,
       payer: payer.publicKey,
       wallet: candyMachine.walletAddress,
       metadata: newMetadata,

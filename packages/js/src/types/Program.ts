@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 import { Cluster } from '@/types';
 import { GpaBuilder } from '@/utils';
 
@@ -14,5 +14,5 @@ export type Program = {
   address: PublicKey;
   clusterFilter?: (cluster: Cluster) => boolean;
   errorResolver?: (error: ErrorWithLogs) => ErrorWithCode | null | undefined;
-  gpaResolver?: (metaplex: Metaplex) => GpaBuilder;
+  gpaResolver?: (metaplex: MetaplexType) => GpaBuilder;
 };

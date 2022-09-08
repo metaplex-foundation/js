@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   CreateAccountInput,
   createAccountOperation,
@@ -6,6 +5,7 @@ import {
   transferSolOperation,
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 /**
  * This is a client for the System module.
@@ -30,7 +30,7 @@ import { SystemBuildersClient } from './SystemBuildersClient';
  * @group Modules
  */
 export class SystemClient {
-  constructor(protected readonly metaplex: Metaplex) {}
+  constructor(protected readonly metaplex: MetaplexType) {}
 
   /**
    * You may use the `builders()` client to access the

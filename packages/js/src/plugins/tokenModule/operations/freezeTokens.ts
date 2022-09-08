@@ -1,4 +1,9 @@
-import type { Metaplex } from '@/Metaplex';
+import { createFreezeAccountInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { TransactionBuilder } from '@/utils';
 import {
   isSigner,
   KeypairSigner,
@@ -7,12 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createFreezeAccountInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -104,7 +104,7 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
   {
     async handle(
       operation: FreezeTokensOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<FreezeTokensOutput> {
       return freezeTokensBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -140,7 +140,7 @@ export type FreezeTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const freezeTokensBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: FreezeTokensBuilderParams
 ): TransactionBuilder => {
   const {

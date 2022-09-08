@@ -1,21 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  assertSameCurrencies,
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  SOL,
-  toBigNumber,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import {
-  DisposableScope,
-  Option,
-  RequiredKeys,
-  TransactionBuilder,
-} from '@/utils';
 import {
   createInitializeCandyMachineInstruction,
   createSetCollectionInstruction,
@@ -34,10 +16,28 @@ import {
   CandyMachineConfigs,
   toCandyMachineInstructionData,
 } from '../models/CandyMachine';
-import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineAccountSizeFromData } from '../helpers';
 import { findCandyMachineCollectionPda } from '../pdas';
 import { CandyMachineProgram } from '../program';
+import { ExpectedSignerError } from '@/errors';
+import {
+  DisposableScope,
+  Option,
+  RequiredKeys,
+  TransactionBuilder,
+} from '@/utils';
+import {
+  assertSameCurrencies,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  SOL,
+  toBigNumber,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -162,7 +162,7 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
   {
     async handle(
       operation: CreateCandyMachineOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<CreateCandyMachineOutput> {
       const builder = await createCandyMachineBuilder(
@@ -235,7 +235,7 @@ export type CreateCandyMachineBuilderContext = Omit<
  * @category Constructors
  */
 export const createCandyMachineBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateCandyMachineBuilderParams
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();

@@ -3,8 +3,6 @@ import {
   PublicKey,
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   BuyInstructionAccounts,
   createAuctioneerBuyInstruction,
@@ -13,6 +11,17 @@ import {
   createPrintBidReceiptInstruction,
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findMetadataPda } from '../../nftModule';
+import { AuctionHouse, Bid, LazyBid } from '../models';
+import {
+  findAuctioneerPda,
+  findAuctionHouseBuyerEscrowPda,
+  findAuctionHouseTradeStatePda,
+  findBidReceiptPda,
+} from '../pdas';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   useOperation,
   Operation,
@@ -28,17 +37,8 @@ import {
   Pda,
   now,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { findMetadataPda } from '../../nftModule';
-import { AuctionHouse, Bid, LazyBid } from '../models';
-import {
-  findAuctioneerPda,
-  findAuctionHouseBuyerEscrowPda,
-  findAuctionHouseTradeStatePda,
-  findBidReceiptPda,
-} from '../pdas';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -108,7 +108,7 @@ export type CreateBidOutput = {
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
     operation: CreateBidOperation,
-    metaplex: Metaplex,
+    metaplex: MetaplexType,
     scope: DisposableScope
   ): Promise<CreateBidOutput> {
     const { auctionHouse, confirmOptions } = operation.input;
@@ -178,11 +178,11 @@ export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response' | 'bid'>;
  * @category Constructors
  */
 export const createBidBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: CreateBidBuilderParams
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
-  const auctionHouse = params.auctionHouse;
+  const { auctionHouse } = params;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative
@@ -335,8 +335,8 @@ export const createBidBuilder = async (
       })
 
       // Print the Bid Receipt.
-      .when(shouldPrintReceipt, (builder) =>
-        builder.add({
+      .when(shouldPrintReceipt, (builderArg) =>
+        builderArg.add({
           instruction: createPrintBidReceiptInstruction(
             {
               receipt,

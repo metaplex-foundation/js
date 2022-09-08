@@ -1,10 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  useOperation,
-} from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   parseCandyMachineCollectionAccount,
@@ -12,6 +5,13 @@ import {
 } from '../accounts';
 import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
 import { findCandyMachineCollectionPda } from '../pdas';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  useOperation,
+} from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -62,7 +62,7 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
   {
     handle: async (
       operation: FindCandyMachineByAddressOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ) => {
       const { address, commitment } = operation.input;
       const collectionPda = findCandyMachineCollectionPda(address);

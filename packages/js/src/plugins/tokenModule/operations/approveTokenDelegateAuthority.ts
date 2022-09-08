@@ -1,4 +1,9 @@
-import { Metaplex } from '@/Metaplex';
+import { createApproveInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { TransactionBuilder } from '@/utils';
 import {
   isSigner,
   KeypairSigner,
@@ -9,12 +14,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createApproveInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -119,7 +119,7 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveTokenDelegateAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<ApproveTokenDelegateAuthorityOutput> => {
       return approveTokenDelegateAuthorityBuilder(
         metaplex,
@@ -161,7 +161,7 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveTokenDelegateAuthorityBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: ApproveTokenDelegateAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

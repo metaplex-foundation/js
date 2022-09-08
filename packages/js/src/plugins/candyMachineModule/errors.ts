@@ -1,12 +1,12 @@
+import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
+import { CandyMachineItem, CandyMachineEndSettings } from './models';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
-import { CandyMachineItem, CandyMachineEndSettings } from './models';
 import { BigNumber, DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 /** @group Errors */
 export class CandyMachineError extends MetaplexError {

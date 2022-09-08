@@ -1,4 +1,9 @@
-import type { Metaplex } from '@/Metaplex';
+import { createMintToInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   isSigner,
   KeypairSigner,
@@ -9,12 +14,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { createMintToInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -133,7 +133,7 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
   {
     async handle(
       operation: MintTokensOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ): Promise<MintTokensOutput> {
       const {
@@ -211,7 +211,7 @@ export type MintTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const mintTokensBuilder = async (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: MintTokensBuilderParams
 ): Promise<TransactionBuilder> => {
   const {

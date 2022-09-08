@@ -1,4 +1,9 @@
-import type { Metaplex } from '@/Metaplex';
+import { createThawAccountInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
+import { TransactionBuilder } from '@/utils';
 import {
   isSigner,
   KeypairSigner,
@@ -7,12 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createThawAccountInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -104,7 +104,7 @@ export const thawTokensOperationHandler: OperationHandler<ThawTokensOperation> =
   {
     async handle(
       operation: ThawTokensOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<ThawTokensOutput> {
       return thawTokensBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -140,7 +140,7 @@ export type ThawTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const thawTokensBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: ThawTokensBuilderParams
 ): TransactionBuilder => {
   const {

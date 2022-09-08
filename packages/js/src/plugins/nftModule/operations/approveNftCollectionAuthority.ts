@@ -1,10 +1,10 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -92,7 +92,7 @@ export const approveNftCollectionAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveNftCollectionAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<ApproveNftCollectionAuthorityOutput> => {
       return approveNftCollectionAuthorityBuilder(
         metaplex,
@@ -134,7 +134,7 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveNftCollectionAuthorityBuilder = (
-  metaplex: Metaplex,
+  metaplex: MetaplexType,
   params: ApproveNftCollectionAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

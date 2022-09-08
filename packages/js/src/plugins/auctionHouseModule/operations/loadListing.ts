@@ -1,9 +1,9 @@
 import type { Commitment } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { LazyListing, Listing } from '../models/Listing';
-import { DisposableScope } from '@/utils';
 import { assertNftOrSftWithToken } from '../../nftModule';
+import type { Metaplex as MetaplexType } from '@/Metaplex';
+import { useOperation, Operation, OperationHandler, amount } from '@/types';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -47,7 +47,7 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
   {
     handle: async (
       operation: LoadListingOperation,
-      metaplex: Metaplex,
+      metaplex: MetaplexType,
       scope: DisposableScope
     ) => {
       const {

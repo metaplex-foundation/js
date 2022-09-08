@@ -36,8 +36,8 @@ export const zipMap = <T, U, V>(
 ): V[] => left.map((t: T, index) => fn(t, right?.[index] ?? null, index));
 
 export const randomStr = (
-  length: number = 20,
-  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  length = 20,
+  alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 ) => {
   let result = '';
   const alphabetLength = alphabet.length;

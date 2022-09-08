@@ -1,9 +1,9 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { toMintAccount, toTokenAccount } from '../accounts';
 import { toMint } from '../models/Mint';
 import { TokenWithMint, toTokenWithMint } from '../models/Token';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { Metaplex as MetaplexType } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -55,7 +55,7 @@ export const findTokenWithMintByAddressOperationHandler: OperationHandler<FindTo
   {
     handle: async (
       operation: FindTokenWithMintByAddressOperation,
-      metaplex: Metaplex
+      metaplex: MetaplexType
     ): Promise<TokenWithMint> => {
       const { address, commitment } = operation.input;
 

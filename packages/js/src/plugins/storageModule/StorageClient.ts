@@ -1,5 +1,3 @@
-import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
-import { HasDriver, Amount } from '@/types';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
@@ -7,6 +5,8 @@ import {
   toMetaplexFileFromJson,
 } from './MetaplexFile';
 import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
+import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
+import { HasDriver, Amount } from '@/types';
 
 /**
  * @group Modules
