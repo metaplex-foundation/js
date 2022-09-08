@@ -1,8 +1,8 @@
-import { CandyMachineItem } from './models';
-import { removeEmptyChars } from '@/utils';
+import { CandyMachineConfigLineSettings, CandyMachineItem } from './models';
+import { assert, removeEmptyChars } from '@/utils';
 import { toBigNumber } from '@/types';
 import { CANDY_MACHINE_HIDDEN_SECTION } from './constants';
-import { u32 } from '@metaplex-foundation/beet';
+import { array as beetArray, u32 } from '@metaplex-foundation/beet';
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
 
 export function countCandyMachineItems(buffer: Buffer): number {
@@ -18,12 +18,29 @@ type CandyMachineHiddenSection = {
 };
 
 export const deserializeCandyMachineHiddenSection = (
-  buffer: Buffer
+  buffer: Buffer,
+  itemsAvailable: number,
+  configLineSettings: CandyMachineConfigLineSettings,
+  offset: number = 0
 ): CandyMachineHiddenSection => {
-  let offset = 0;
+  // Items loaded.
   const itemsLoaded = u32.read(buffer, offset);
   offset += 4;
 
+  // Raw config lines.
+  const configLineSize =
+    configLineSettings.nameLength + configLineSettings.uriLength;
+  const configLinesSize = configLineSize * itemsAvailable;
+  const rawConfigLines = buffer.slice(offset, offset + configLinesSize);
+  offset += configLinesSize;
+
+  // Items loaded map.
+  const itemsLoadedMap = beetArray(u32)
+    .toFixedFromData(buffer, offset)
+    .read(buffer, offset);
+  offset += 4 + Math.floor(itemsAvailable / 8) + 1;
+
+  // Config lines.
   const configLinesStart = CONFIG_ARRAY_START + 4;
   const lines = [];
   const count = countCandyMachineItems(buffer);
@@ -37,7 +54,18 @@ export const deserializeCandyMachineHiddenSection = (
       uri: removeEmptyChars(line.uri),
     });
   }
-  return { itemsLoaded };
+
+  // Mint indices map.
+  const itemsMintIndicesMap = beetArray(u32)
+    .toFixedFromData(buffer, offset)
+    .read(buffer, offset);
+
+  return {
+    itemsLoaded,
+    items,
+    itemsLoadedMap,
+    itemsMintIndicesMap,
+  };
 };
 
 export const getCandyMachineSize = (data: CandyMachineData): number => {
@@ -45,8 +73,17 @@ export const getCandyMachineSize = (data: CandyMachineData): number => {
     return CANDY_MACHINE_HIDDEN_SECTION;
   }
 
+  // This should not happen as the candy machine input type
+  // ensures exactly on of them is provided.
+  assert(
+    !!data.configLineSettings,
+    'No config line settings nor hidden settings were provided. ' +
+      'Please provide one of them.'
+  );
+
   const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
-  const configLineSize = getCandyMachineConfigLineSize(data);
+  const configLineSize =
+    data.configLineSettings.nameLength + data.configLineSettings.uriLength;
 
   return Math.ceil(
     CANDY_MACHINE_HIDDEN_SECTION +
@@ -60,8 +97,3 @@ export const getCandyMachineSize = (data: CandyMachineData): number => {
       (4 + itemsAvailable * 4)
   );
 };
-
-export const getCandyMachineConfigLineSize = (data: CandyMachineData): number =>
-  data.configLineSettings
-    ? data.configLineSettings.nameLength + data.configLineSettings.uriLength
-    : 0;

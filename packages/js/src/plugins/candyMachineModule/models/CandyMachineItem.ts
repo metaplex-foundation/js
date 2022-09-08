@@ -9,6 +9,9 @@
  * @group Models
  */
 export type CandyMachineItem = {
+  /** The index of the config line. */
+  readonly index: number;
+
   /** The name of the NFT to be. */
   readonly name: string;
 
