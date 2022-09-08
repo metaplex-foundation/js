@@ -5,7 +5,6 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
-import generatePackageJson from 'rollup-plugin-generate-package-json';
 
 export const createConfigs = (options) => {
   const { builds, ...otherOptions } = options;
@@ -57,14 +56,6 @@ const createConfig = (build, options) => {
       moduleSideEffects: false,
     },
     plugins: [
-      generatePackageJson({
-        baseContents: (pkg) => ({
-          ...pkg,
-          module: pkg.module.replace('dist/esm/', ''),
-          main: pkg.main.replace('dist/cjs/', ''),
-          types: pkg.types.replace('dist/', ''),
-        }),
-      }),
       commonjs(),
       nodeResolve({
         browser,
