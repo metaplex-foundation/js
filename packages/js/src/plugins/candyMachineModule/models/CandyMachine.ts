@@ -1,16 +1,27 @@
-import { Option } from '@/utils';
+import { assert, Option } from '@/utils';
 import {
   AccountInfo,
   assertModel,
   BigNumber,
+  createSerializerFromSolitaType,
   Creator,
+  deserializeAccount,
+  deserializeFeatureFlags,
   FeatureFlags,
   isModel,
   Model,
   PublicKey,
+  toAccountInfo,
+  toBigNumber,
   UnparsedAccount,
 } from '@/types';
 import { CandyMachineItem } from './CandyMachineItem';
+import {
+  CandyMachine as MplCandyMachine,
+  candyMachineBeet,
+} from '@metaplex-foundation/mpl-candy-machine-core';
+import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
+import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
 
 /**
  * This model contains all the relevant information about a Candy Machine.
@@ -318,7 +329,74 @@ export function assertCandyMachine(value: any): asserts value is CandyMachine {
 
 /** @group Model Helpers */
 export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
+  const serializer = createSerializerFromSolitaType(
+    MplCandyMachine,
+    candyMachineBeet.description
+  );
+  const parsedAccount = deserializeAccount(account, serializer);
+
+  const itemsAvailable = toBigNumber(parsedAccount.data.data.itemsAvailable);
+  const itemsMinted = toBigNumber(parsedAccount.data.itemsRedeemed);
+  const itemsRemaining = toBigNumber(itemsAvailable.sub(itemsMinted));
+
+  let items: CandyMachineItem[] = [];
+  let itemsLoaded = 0;
+  let isFullyLoaded = true;
+  let itemLoadedMap: boolean[] = [];
+  let itemsMintIndicesMap: number[] = [];
+
+  const hiddenSettings = parsedAccount.data.data.hiddenSettings;
+  const configLineSettings = parsedAccount.data.data.configLineSettings;
+  let itemSettings: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
+  if (hiddenSettings) {
+    itemSettings = { ...hiddenSettings, type: 'hidden' };
+  } else {
+    assert(
+      !!configLineSettings,
+      'Expected either hidden or config line settings'
+    );
+    itemSettings = { ...configLineSettings, type: 'configLines' };
+    const hiddenSection = deserializeCandyMachineHiddenSection(
+      account.data,
+      itemsAvailable.toNumber(),
+      itemSettings,
+      CANDY_MACHINE_HIDDEN_SECTION
+    );
+
+    items = hiddenSection.items;
+    itemsLoaded = hiddenSection.itemsLoaded;
+    isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
+    itemLoadedMap = hiddenSection.itemsLoadedMap;
+    itemsMintIndicesMap = hiddenSection.itemsMintIndicesMap;
+  }
+
   return {
-    // TODO
+    model: 'candyMachine',
+    address: account.publicKey,
+    accountInfo: toAccountInfo(account),
+    authorityAddress: parsedAccount.data.authority,
+    updateAuthorityAddress: parsedAccount.data.updateAuthority,
+    collectionMintAddress: parsedAccount.data.collectionMint,
+    symbol: parsedAccount.data.data.symbol,
+    sellerFeeBasisPoints: parsedAccount.data.data.sellerFeeBasisPoints,
+    isMutable: parsedAccount.data.data.isMutable,
+    retainAuthority: parsedAccount.data.data.retainAuthority,
+    maxEditionSupply: toBigNumber(parsedAccount.data.data.maxSupply),
+    creators: parsedAccount.data.data.creators.map(
+      (creator): Creator => ({ ...creator, share: creator.percentageShare })
+    ),
+    items,
+    itemsAvailable,
+    itemsMinted,
+    itemsRemaining,
+    itemsLoaded,
+    isFullyLoaded,
+    itemLoadedMap,
+    itemsMintIndicesMap,
+    itemSettings,
+    featureFlags: deserializeFeatureFlags(
+      toBigNumber(parsedAccount.data.features).toBuffer(),
+      64
+    )[0],
   };
 };
