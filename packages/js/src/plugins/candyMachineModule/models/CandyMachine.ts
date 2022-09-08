@@ -41,11 +41,15 @@ export type CandyMachine = Model<'candyMachine'> & {
    * The address of the only authority that is allowed to mint from
    * this Candy Machine. This will refer to the address of the Candy
    * Guard associated with the Candy Machine if any.
+   *
+   * TODO: clarify this
    */
   readonly authorityAddress: PublicKey;
 
   /**
    * The address of the authority allowed to manage the Candy Machine.
+   *
+   * TODO: clarify this
    */
   readonly updateAuthorityAddress: PublicKey;
 
