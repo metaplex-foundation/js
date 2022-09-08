@@ -13,13 +13,14 @@ export type CandyMachineHiddenSection = {
   itemsLoaded: number;
   items: CandyMachineItem[];
   itemsLoadedMap: boolean[];
-  itemsMintIndicesMap: number[];
+  itemsLeftToMint: number[];
 };
 
 /** @internal */
 export const deserializeCandyMachineHiddenSection = (
   buffer: Buffer,
   itemsAvailable: number,
+  itemsRemaining: number,
   configLineSettings: CandyMachineConfigLineSettings,
   offset: number = 0
 ): CandyMachineHiddenSection => {
@@ -44,6 +45,13 @@ export const deserializeCandyMachineHiddenSection = (
   const itemsLoadedMapSize = Math.floor(itemsAvailable / 8) + 1;
   offset += itemsLoadedMapSize;
 
+  // Items left to mint.
+  offset += 4; // Skip the redundant size of the map.
+  const itemsLeftToMint = beetArray(u32)
+    .toFixedFromData(buffer, offset)
+    .read(buffer, offset)
+    .slice(0, itemsRemaining);
+
   // Parse config lines.
   const items: CandyMachineItem[] = [];
   itemsLoadedMap.forEach((loaded, index) => {
@@ -64,22 +72,17 @@ export const deserializeCandyMachineHiddenSection = (
 
     items.push({
       index,
+      minted: !itemsLeftToMint.includes(index),
       name: prefixName + removeEmptyChars(configLine.name),
       uri: prefixUri + removeEmptyChars(configLine.uri),
     });
   });
 
-  // Mint indices map.
-  offset += 4; // Skip the redundant size of the map.
-  const itemsMintIndicesMap = beetArray(u32)
-    .toFixedFromData(buffer, offset)
-    .read(buffer, offset);
-
   return {
     itemsLoaded,
     items,
     itemsLoadedMap,
-    itemsMintIndicesMap,
+    itemsLeftToMint,
   };
 };
 

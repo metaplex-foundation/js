@@ -156,12 +156,6 @@ export type CandyMachine = Model<'candyMachine'> & {
   readonly itemLoadedMap: boolean[];
 
   /**
-   * This array of number is used to map item indices to mint indices
-   * in order to provide a mint mechanism that is not sequential.
-   */
-  readonly itemsMintIndicesMap: number[];
-
-  /**
    * Settings related to the Candy Machine's items.
    *
    * These can either be inserted manually within the Candy Machine or
@@ -343,7 +337,6 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
   let itemsLoaded = 0;
   let isFullyLoaded = true;
   let itemLoadedMap: boolean[] = [];
-  let itemsMintIndicesMap: number[] = [];
 
   const hiddenSettings = parsedAccount.data.data.hiddenSettings;
   const configLineSettings = parsedAccount.data.data.configLineSettings;
@@ -359,6 +352,7 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
     const hiddenSection = deserializeCandyMachineHiddenSection(
       account.data,
       itemsAvailable.toNumber(),
+      itemsRemaining.toNumber(),
       itemSettings,
       CANDY_MACHINE_HIDDEN_SECTION
     );
@@ -367,7 +361,6 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
     itemsLoaded = hiddenSection.itemsLoaded;
     isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
     itemLoadedMap = hiddenSection.itemsLoadedMap;
-    itemsMintIndicesMap = hiddenSection.itemsMintIndicesMap;
   }
 
   return {
@@ -392,7 +385,6 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
     itemsLoaded,
     isFullyLoaded,
     itemLoadedMap,
-    itemsMintIndicesMap,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
       toBigNumber(parsedAccount.data.features).toBuffer(),
