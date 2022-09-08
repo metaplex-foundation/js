@@ -128,7 +128,7 @@ export type CandyMachine = Model<'candyMachine'> & {
    *
    * This field is irrelevant if the Candy Machine is using hidden settings.
    */
-  readonly itemsLoaded: BigNumber;
+  readonly itemsLoaded: number;
 
   /**
    * Whether all items in the Candy Machine have been inserted by
@@ -137,6 +137,18 @@ export type CandyMachine = Model<'candyMachine'> & {
    * This field is irrelevant if the Candy Machine is using hidden settings.
    */
   readonly isFullyLoaded: boolean;
+
+  /**
+   * This array of booleans is used to keep track of which
+   * items have been loaded in the Candy Machine.
+   */
+  readonly itemLoadedMap: boolean[];
+
+  /**
+   * This array of number is used to map item indices to mint indices
+   * in order to provide a mint mechanism that is not sequential.
+   */
+  readonly itemsMintIndicesMap: number[];
 
   /**
    * Settings related to the Candy Machine's items.
