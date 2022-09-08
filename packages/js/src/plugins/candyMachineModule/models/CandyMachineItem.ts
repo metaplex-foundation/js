@@ -12,12 +12,12 @@ export type CandyMachineItem = {
   /** The index of the config line. */
   readonly index: number;
 
+  /** Whether the item has been minted or not. */
+  readonly minted: boolean;
+
   /** The name of the NFT to be. */
   readonly name: string;
 
-  /**
-   * The URI of the NFT to be,
-   * pointing to some off-chain JSON Metadata.
-   */
+  /** The URI of the NFT to be, pointing to some off-chain JSON Metadata. */
   readonly uri: string;
 };
