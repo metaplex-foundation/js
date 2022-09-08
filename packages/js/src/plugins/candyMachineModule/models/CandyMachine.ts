@@ -402,13 +402,13 @@ export const toCandyMachine = (
     ? toBigNumber(0)
     : countCandyMachineItems(rawData);
   const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
-  const getEndSettings = () => {
+  const getEndSettings = (): Option<CandyMachineEndSettings> => {
     if (!endSettings) return null;
     const isDate = endSettings.endSettingType === EndSettingType.Date;
     return {
       endSettingType: isDate ? EndSettingType.Date : EndSettingType.Amount,
       date: toDateTime(endSettings.number),
-    };
+    } as CandyMachineEndSettings;
   };
   return {
     model: 'candyMachine',
