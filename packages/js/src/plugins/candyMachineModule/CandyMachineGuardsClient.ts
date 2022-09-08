@@ -106,7 +106,7 @@ export class CandyMachineGuardsClient {
     const availableGuards = this.forProgram(program);
     const deserializeSet = () => {
       const serializedFeatures = buffer.slice(0, 8);
-      const features = deserializeFeatureFlags(serializedFeatures);
+      const features = deserializeFeatureFlags(serializedFeatures, 64)[0];
       buffer = buffer.slice(8);
 
       return availableGuards.reduce((acc, guard, index) => {

@@ -1,9 +1,12 @@
 import { CandyMachineConfigLineSettings, CandyMachineItem } from './models';
 import { assert, removeEmptyChars } from '@/utils';
-import { toBigNumber } from '@/types';
+import { deserializeFeatureFlags, toBigNumber } from '@/types';
 import { CANDY_MACHINE_HIDDEN_SECTION } from './constants';
 import { array as beetArray, u32 } from '@metaplex-foundation/beet';
-import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
+import {
+  CandyMachineData,
+  configLineBeet,
+} from '@metaplex-foundation/mpl-candy-machine-core';
 
 export function countCandyMachineItems(buffer: Buffer): number {
   const offset = CANDY_MACHINE_HIDDEN_SECTION;
@@ -35,27 +38,42 @@ export const deserializeCandyMachineHiddenSection = (
   offset += configLinesSize;
 
   // Items loaded map.
-  const itemsLoadedMap = beetArray(u32)
-    .toFixedFromData(buffer, offset)
-    .read(buffer, offset);
-  offset += 4 + Math.floor(itemsAvailable / 8) + 1;
+  offset += 4; // Skip the redundant size of the map.
+  const [itemsLoadedMap] = deserializeFeatureFlags(
+    buffer,
+    itemsAvailable,
+    offset
+  );
+  const itemsLoadedMapSize = Math.floor(itemsAvailable / 8) + 1;
+  offset += itemsLoadedMapSize;
 
-  // Config lines.
-  const configLinesStart = CONFIG_ARRAY_START + 4;
-  const lines = [];
-  const count = countCandyMachineItems(buffer);
-  for (let i = 0; i < count; i++) {
-    const [line] = configLineBeet.deserialize(
-      buffer,
-      configLinesStart + i * CONFIG_LINE_SIZE
+  // Parse config lines.
+  const items: CandyMachineItem[] = [];
+  itemsLoadedMap.forEach((loaded, index) => {
+    if (!loaded) return;
+
+    const [configLine] = configLineBeet.deserialize(
+      rawConfigLines,
+      index * configLineSize
     );
-    lines.push({
-      name: removeEmptyChars(line.name),
-      uri: removeEmptyChars(line.uri),
+    const prefixName = replaceCandyMachineItemPattern(
+      configLineSettings.prefixName,
+      index
+    );
+    const prefixUri = replaceCandyMachineItemPattern(
+      configLineSettings.prefixUri,
+      index
+    );
+
+    items.push({
+      index,
+      name: prefixName + removeEmptyChars(configLine.name),
+      uri: prefixUri + removeEmptyChars(configLine.uri),
     });
-  }
+  });
 
   // Mint indices map.
+  offset += 4; // Skip the redundant size of the map.
   const itemsMintIndicesMap = beetArray(u32)
     .toFixedFromData(buffer, offset)
     .read(buffer, offset);
@@ -96,4 +114,11 @@ export const getCandyMachineSize = (data: CandyMachineData): number => {
       // Mint indices.
       (4 + itemsAvailable * 4)
   );
+};
+
+export const replaceCandyMachineItemPattern = (
+  value: string,
+  index: number
+): string => {
+  return value.replace('$ID+1$', `${index + 1}`).replace('$ID$', `${index}`);
 };

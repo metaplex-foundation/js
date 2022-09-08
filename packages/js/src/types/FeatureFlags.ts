@@ -34,7 +34,7 @@ export const serializeFeatureFlags = (
  */
 export const deserializeFeatureFlags = (
   buffer: Buffer,
-  numberOfFlags: number = 64,
+  numberOfFlags: number,
   offset = 0
 ): [FeatureFlags, number] => {
   const booleans: boolean[] = [];
