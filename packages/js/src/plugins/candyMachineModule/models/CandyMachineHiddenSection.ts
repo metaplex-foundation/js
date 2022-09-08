@@ -1,25 +1,22 @@
-import { CandyMachineConfigLineSettings, CandyMachineItem } from './models';
+import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 import { assert, removeEmptyChars } from '@/utils';
 import { deserializeFeatureFlags, toBigNumber } from '@/types';
-import { CANDY_MACHINE_HIDDEN_SECTION } from './constants';
+import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
 import { array as beetArray, u32 } from '@metaplex-foundation/beet';
 import {
   CandyMachineData,
   configLineBeet,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 
-export function countCandyMachineItems(buffer: Buffer): number {
-  const offset = CANDY_MACHINE_HIDDEN_SECTION;
-  return u32.read(buffer.slice(offset, offset + 4), 0);
-}
-
-type CandyMachineHiddenSection = {
+/** @internal */
+export type CandyMachineHiddenSection = {
   itemsLoaded: number;
   items: CandyMachineItem[];
   itemsLoadedMap: boolean[];
   itemsMintIndicesMap: number[];
 };
 
+/** @internal */
 export const deserializeCandyMachineHiddenSection = (
   buffer: Buffer,
   itemsAvailable: number,
@@ -86,6 +83,7 @@ export const deserializeCandyMachineHiddenSection = (
   };
 };
 
+/** @internal */
 export const getCandyMachineSize = (data: CandyMachineData): number => {
   if (data.hiddenSettings) {
     return CANDY_MACHINE_HIDDEN_SECTION;
@@ -116,6 +114,7 @@ export const getCandyMachineSize = (data: CandyMachineData): number => {
   );
 };
 
+/** @internal */
 export const replaceCandyMachineItemPattern = (
   value: string,
   index: number
