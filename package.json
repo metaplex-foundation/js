@@ -61,6 +61,7 @@
     "@types/tape": "^4.13.2",
     "babel-plugin-module-resolver": "^4.1.0",
     "depcheck": "^1.4.3",
+    "eslint": "^8.23.0",
     "gh-pages": "^4.0.0",
     "lerna": "^5.1.8",
     "nx": "^14.6.4",
