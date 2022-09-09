@@ -35,14 +35,24 @@ import { findCandyMachineAuthorityPda } from '../pdas';
 const Key = 'CreateCandyMachineOperation' as const;
 
 /**
- * TODO
+ * Creates a brand new Candy Machine with the provided settings.
+ *
+ * Unless the `withoutCandyGuard` option is set to `true`, a
+ * Candy Guard will be created with the given guards and
+ * immediately linked to the Candy Machine.
  *
  * ```ts
- * const { candyMachine } = await metaplex
- *   .candyMachines()
- *   .create({
- *   })
- *   .run();
+ *  const { candyMachine } = await metaplex
+ *    .candyMachines()
+ *    .create({
+ *      itemsAvailable: toBigNumber(5000),
+ *      sellerFeeBasisPoints: 333, // 3.33%
+ *      collection: {
+ *        address: collectionNft.address,
+ *        updateAuthority: collectionUpdateAuthority,
+ *      },
+ *    })
+ *    .run();
  * ```
  *
  * @group Operations
@@ -361,14 +371,25 @@ export type CreateCandyMachineBuilderContext = Omit<
 >;
 
 /**
- * TODO
+
+ * Creates a brand new Candy Machine with the provided settings.
+ *
+ * Unless the `withoutCandyGuard` option is set to `true`, a
+ * Candy Guard will be created with the given guards and
+ * immediately linked to the Candy Machine.
  *
  * ```ts
- * const transactionBuilder = await metaplex
- *   .candyMachines()
- *   .builders()
- *   .create({
- *   });
+ *  const transactionBuilder = await metaplex
+ *    .candyMachines()
+ *    .builders()
+ *    .create({
+ *      itemsAvailable: toBigNumber(5000),
+ *      sellerFeeBasisPoints: 333, // 3.33%
+ *      collection: {
+ *        address: collectionNft.address,
+ *        updateAuthority: collectionUpdateAuthority,
+ *      },
+ *    });
  * ```
  *
  * @group Transaction Builders

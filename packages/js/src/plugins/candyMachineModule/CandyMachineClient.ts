@@ -29,30 +29,30 @@ import { findCandyGuardPda } from './pdas';
  * in order to create, update, delete and mint from Candy Machines as well as
  * registering your own custom Candy Guards.
  *
- * You may access this client via the `candyGuards()` method of your `Metaplex` instance.
+ * You may access this client via the `candyMachines()` method of your `Metaplex` instance.
  *
  * ```ts
  * const candyMachineClient = metaplex.candyMachines();
  * ```
  *
  * @example
- * TODO: Update example with create candy machine when implemented.
- *
- * You can create a new Candy Guard with minimum input like so.
+ * You can create a new Candy Machine with minimum input like so.
  * By default, the current identity of the Metaplex instance will be
- * the authority of the Candy Guard.
+ * the authority of the Candy Machine and it will immediately create
+ * a Candy Guard linked to the new Candy Machine.
  *
  * ```ts
- * const { candyGuard } = await metaplex
- *   .candyMachines()
- *   .create({
- *     guards: {
- *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
- *       lamports: { amount: sol(1.5), },
- *       botTax: { lamports: sol(0.01), lastInstruction: true },
- *     },
- *   })
- *   .run();
+ *  const { candyMachine } = await metaplex
+ *    .candyMachines()
+ *    .create({
+ *      itemsAvailable: toBigNumber(5000),
+ *      sellerFeeBasisPoints: 333, // 3.33%
+ *      collection: {
+ *        address: collectionNft.address,
+ *        updateAuthority: collectionUpdateAuthority,
+ *      },
+ *    })
+ *    .run();
  * ```
  *
  * @see {@link CandyGuard} The `CandyGuard` model
