@@ -21,7 +21,7 @@ import { createCandyGuard } from './helpers';
 
 killStuckProcess();
 
-test('[candyGuardModule] it can update one guard', async (t) => {
+test('[candyMachineModule] it can update one guard', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -60,7 +60,7 @@ test('[candyGuardModule] it can update one guard', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] it overrides all previous guards', async (t) => {
+test('[candyMachineModule] it overrides all previous guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -109,7 +109,7 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] it can update groups', async (t) => {
+test('[candyMachineModule] it can update groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -155,7 +155,7 @@ test('[candyGuardModule] it can update groups', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] it overrides all previous groups', async (t) => {
+test('[candyMachineModule] it overrides all previous groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -243,7 +243,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] it can remove all guards and groups', async (t) => {
+test('[candyMachineModule] it can remove all guards and groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 

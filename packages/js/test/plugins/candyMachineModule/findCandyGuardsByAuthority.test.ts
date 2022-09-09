@@ -5,7 +5,7 @@ import { createCandyGuard } from './helpers';
 
 killStuckProcess();
 
-test('[candyGuardModule] it can fetch all candy guards from a given authority', async (t) => {
+test('[candyMachineModule] it can fetch all candy guards from a given authority', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 

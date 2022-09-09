@@ -25,14 +25,14 @@ import {
 
 killStuckProcess();
 
-test('[candyGuardModule] create with no guards', async (t) => {
+test('[candyMachineModule] create with no guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
   // When we create a new Candy Guard with no guards.
   const { candyGuard, base } = await mx
     .candyMachines()
-    .createCandyGuard<DefaultCandyGuardSettings>({ guards: {} })
+    .createCandyGuard({ guards: {} })
     .run();
 
   // Then we expect the Candy Guard account to exists with the following data.
@@ -51,7 +51,7 @@ test('[candyGuardModule] create with no guards', async (t) => {
   });
 });
 
-test('[candyGuardModule] create with all guards', async (t) => {
+test('[candyMachineModule] create with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -170,7 +170,7 @@ test('[candyGuardModule] create with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] create with guard groups', async (t) => {
+test('[candyMachineModule] create with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -282,7 +282,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyGuardModule] create with explicit authority', async (t) => {
+test('[candyMachineModule] create with explicit authority', async (t) => {
   // Given a Metaplex instance and an authority.
   const mx = await metaplex();
   const authority = Keypair.generate().publicKey;

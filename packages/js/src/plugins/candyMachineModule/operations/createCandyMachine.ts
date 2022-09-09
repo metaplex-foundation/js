@@ -196,7 +196,7 @@ export type CreateCandyMachineInput<
    *
    * @defaultValue `""`
    */
-  symbol: string;
+  symbol?: string;
 
   /**
    * The maximum number of editions that can be printed from the
@@ -210,7 +210,7 @@ export type CreateCandyMachineInput<
    *
    * @defaultValue `toBigNumber(0)`
    */
-  maxEditionSupply: BigNumber;
+  maxEditionSupply?: BigNumber;
 
   /**
    * Whether the minted NFTs should be mutable or not.
@@ -221,7 +221,7 @@ export type CreateCandyMachineInput<
    *
    * @defaultValue `true`
    */
-  isMutable: boolean;
+  isMutable?: boolean;
 
   /**
    * Array of creators that should be set on minted NFTs.
@@ -235,7 +235,7 @@ export type CreateCandyMachineInput<
    * [{ address: authority, share: 100 }]
    * ```
    */
-  creators: Omit<Creator, 'verified'>[];
+  creators?: Omit<Creator, 'verified'>[];
 
   /**
    * The settings of all guards we wish to activate.
@@ -272,7 +272,7 @@ export type CreateCandyMachineInput<
    *
    * @defaultValue `false`
    */
-  withoutCandyGuard: boolean;
+  withoutCandyGuard?: boolean;
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
