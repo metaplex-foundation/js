@@ -1,7 +1,8 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, PublicKey, useOperation } from '@/types';
+import { Operation, OperationHandler, PublicKey } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment } from '@solana/web3.js';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyMachine } from '../models';
 
 // -----------------
@@ -24,17 +25,23 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyMachineByAddressOperation =
-  useOperation<FindCandyMachineByAddressOperation>(Key);
+export const findCandyMachineByAddressOperation = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  input: FindCandyMachineByAddressInput
+): FindCandyMachineByAddressOperation<T> => ({ key: Key, input });
+findCandyMachineByAddressOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindCandyMachineByAddressOperation = Operation<
+export type FindCandyMachineByAddressOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
   FindCandyMachineByAddressInput,
-  FindCandyMachineByAddressOutput
+  FindCandyMachineByAddressOutput<T>
 >;
 
 /**
@@ -53,7 +60,9 @@ export type FindCandyMachineByAddressInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindCandyMachineByAddressOutput = CandyMachine;
+export type FindCandyMachineByAddressOutput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = CandyMachine<T>;
 
 /**
  * @group Operations
@@ -65,7 +74,7 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
       operation: FindCandyMachineByAddressOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<FindCandyMachineByAddressOutput> {
+    ): Promise<FindCandyMachineByAddressOutput<T>> {
       //
     },
   };
