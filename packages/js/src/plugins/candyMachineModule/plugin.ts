@@ -9,11 +9,11 @@ import {
   lamportsGuardManifest,
   liveDateGuardManifest,
   mintLimitGuardManifest,
+  nftPaymentGuardManifest,
   splTokenGuardManifest,
   thirdPartySignerGuardManifest,
   whitelistGuardManifest,
 } from './guards';
-import { NftPaymentGuardManifest } from './guards/nftPayment';
 import {
   createCandyGuardOperation,
   createCandyGuardOperationHandler,
@@ -48,7 +48,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     client.guards().register(endSettingsGuardManifest);
     client.guards().register(allowListGuardManifest);
     client.guards().register(mintLimitGuardManifest);
-    client.guards().register(NftPaymentGuardManifest);
+    client.guards().register(nftPaymentGuardManifest);
 
     // Operations.
     const op = metaplex.operations();

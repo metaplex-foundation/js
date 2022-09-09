@@ -7,6 +7,7 @@ export * from './gatekeeper';
 export * from './lamports';
 export * from './liveDate';
 export * from './mintLimit';
+export * from './nftPayment';
 export * from './splToken';
 export * from './thirdPartySigner';
 export * from './whitelist';
