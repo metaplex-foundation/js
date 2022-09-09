@@ -12,6 +12,7 @@ import { CandyGuardManifest } from './core';
 export type SplTokenGuardSettings = {
   amount: SplTokenAmount;
   tokenMint: PublicKey;
+  destinationAta: PublicKey;
 };
 
 /** @internal */
