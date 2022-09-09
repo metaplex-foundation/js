@@ -3,6 +3,7 @@ import {
   Operation,
   OperationHandler,
   Pda,
+  Program,
   serializeDiscriminator,
   Signer,
   useOperation,
@@ -114,12 +115,8 @@ export type CreateCandyGuardInput<
    */
   groups?: Partial<T>[];
 
-  /**
-   * The Candy Guard program to use when creating the account.
-   *
-   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
-   */
-  candyGuardProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programOverrides?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -226,7 +223,8 @@ export const createCandyGuardBuilder = <
   const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex
     .programs()
-    .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
+    .get<CandyGuardProgram>('CandyGuardProgram', params.programOverrides);
+
   const candyGuard = findCandyGuardPda(
     base.publicKey,
     candyGuardProgram.address

@@ -16,22 +16,25 @@ export class ProgramClient {
     this.programs.unshift(program);
   }
 
-  all(): Program[] {
-    return this.programs;
+  all(overrides: Program[] = []): Program[] {
+    return [...overrides, ...this.programs];
   }
 
-  allForCluster(cluster: Cluster): Program[] {
-    return this.programs.filter((program) => {
+  allForCluster(cluster: Cluster, overrides: Program[] = []): Program[] {
+    return this.all(overrides).filter((program) => {
       return program.clusterFilter?.(cluster) ?? true;
     });
   }
 
-  allForCurrentCluster(): Program[] {
-    return this.allForCluster(this.metaplex.cluster);
+  allForCurrentCluster(overrides: Program[] = []): Program[] {
+    return this.allForCluster(this.metaplex.cluster, overrides);
   }
 
-  get<T extends Program = Program>(nameOrAddress: string | PublicKey): T {
-    const programs = this.allForCurrentCluster();
+  get<T extends Program = Program>(
+    nameOrAddress: string | PublicKey,
+    overrides: Program[] = []
+  ): T {
+    const programs = this.allForCurrentCluster(overrides);
     const program =
       typeof nameOrAddress === 'string'
         ? programs.find((program) => program.name === nameOrAddress)
@@ -45,9 +48,10 @@ export class ProgramClient {
   }
 
   public getGpaBuilder<T extends GpaBuilder>(
-    nameOrAddress: string | PublicKey
+    nameOrAddress: string | PublicKey,
+    overrides: Program[] = []
   ): T {
-    const program = this.get(nameOrAddress);
+    const program = this.get(nameOrAddress, overrides);
 
     if (!program.gpaResolver) {
       throw new MissingGpaBuilderError(program);

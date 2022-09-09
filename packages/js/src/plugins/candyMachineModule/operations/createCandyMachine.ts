@@ -4,6 +4,7 @@ import {
   Creator,
   Operation,
   OperationHandler,
+  Program,
   PublicKey,
   Signer,
   toBigNumber,
@@ -253,13 +254,6 @@ export type CreateCandyMachineInput<
   groups?: Partial<T>[];
 
   /**
-   * The Candy Guard program to use when creating the account.
-   *
-   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
-   */
-  candyGuardProgram?: PublicKey;
-
-  /**
    * Whether to skip the part of this operation that creates a Candy Guard
    * for the new Candy Machine. When set to `true`, no Candy Guard will be
    * created for the Candy Machine.
@@ -267,6 +261,9 @@ export type CreateCandyMachineInput<
    * @defaultValue `false`
    */
   withoutCandyGuard: boolean;
+
+  /** An optional set of programs that override the registered ones. */
+  programOverrides?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -391,9 +388,6 @@ export const createCandyMachineBuilder = async <
   };
 
   const candyMachineProgram = metaplex.programs().get('CandyMachineProgram');
-  const candyGuardProgram = metaplex
-    .programs()
-    .get(params.candyGuardProgram ?? 'CandyGuardProgram');
 
   const candyMachineData = toCandyMachineData({
     itemsAvailable,
@@ -421,8 +415,9 @@ export const createCandyMachineBuilder = async <
         authority,
         guards: params.guards ?? {},
         groups: params.groups,
-        candyGuardProgram: candyGuardProgram.address,
+        programOverrides: params.programOverrides,
       });
+
     const { candyGuardAddress } = createCandyGuard.getContext();
     mintAuthority = candyGuardAddress;
 
