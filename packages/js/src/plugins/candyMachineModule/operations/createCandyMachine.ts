@@ -263,7 +263,7 @@ export type CreateCandyMachineInput<
   withoutCandyGuard: boolean;
 
   /** An optional set of programs that override the registered ones. */
-  programOverrides?: Program[];
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -415,7 +415,7 @@ export const createCandyMachineBuilder = async <
         authority,
         guards: params.guards ?? {},
         groups: params.groups,
-        programOverrides: params.programOverrides,
+        programs: params.programs,
       });
 
     const { candyGuardAddress } = createCandyGuard.getContext();

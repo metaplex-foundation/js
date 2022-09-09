@@ -116,7 +116,7 @@ export type CreateCandyGuardInput<
   groups?: Partial<T>[];
 
   /** An optional set of programs that override the registered ones. */
-  programOverrides?: Program[];
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -223,7 +223,7 @@ export const createCandyGuardBuilder = <
   const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex
     .programs()
-    .get<CandyGuardProgram>('CandyGuardProgram', params.programOverrides);
+    .get<CandyGuardProgram>('CandyGuardProgram', params.programs);
 
   const candyGuard = findCandyGuardPda(
     base.publicKey,
