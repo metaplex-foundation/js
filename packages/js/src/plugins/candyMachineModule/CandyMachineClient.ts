@@ -86,8 +86,12 @@ export class CandyMachineClient {
   }
 
   /** {@inheritDoc createCandyGuardOperation} */
-  createCandyGuard(input: CreateCandyGuardInput) {
-    return this.metaplex.operations().getTask(createCandyGuardOperation(input));
+  createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: CreateCandyGuardInput<T>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(createCandyGuardOperation<T>(input));
   }
 
   /** {@inheritDoc findCandyGuardsByAuthorityOperation} */
@@ -96,16 +100,16 @@ export class CandyMachineClient {
   >(input: FindCandyGuardsByAuthorityInput) {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardsByAuthorityOperation<T>()(input));
+      .getTask(findCandyGuardsByAuthorityOperation<T>(input));
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */
   findCandyGuardByAddress<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
-  >(input: FindCandyGuardByAddressInput): Task<CandyGuard<T>> {
+  >(input: FindCandyGuardByAddressInput) {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardByAddressOperation<T>()(input));
+      .getTask(findCandyGuardByAddressOperation<T>(input));
   }
 
   /**
@@ -118,8 +122,8 @@ export class CandyMachineClient {
    */
   findCandyGuardByBaseAddress<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
-  >(input: FindCandyGuardByAddressInput): Task<CandyGuard<T>> {
-    return this.findCandyGuardByAddress({
+  >(input: FindCandyGuardByAddressInput) {
+    return this.findCandyGuardByAddress<T>({
       ...input,
       address: findCandyGuardPda(input.address),
     });
@@ -145,7 +149,11 @@ export class CandyMachineClient {
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */
-  updateCandyGuard(input: UpdateCandyGuardInput) {
-    return this.metaplex.operations().getTask(updateCandyGuardOperation(input));
+  updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: UpdateCandyGuardInput<T>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(updateCandyGuardOperation<T>(input));
   }
 }

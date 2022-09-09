@@ -52,11 +52,11 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     const op = metaplex.operations();
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
     op.register(
-      findCandyGuardByAddressOperation(),
+      findCandyGuardByAddressOperation,
       findCandyGuardByAddressOperationHandler
     );
     op.register(
-      findCandyGuardsByAuthorityOperation(),
+      findCandyGuardsByAuthorityOperation,
       findCandyGuardsByAuthorityOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);

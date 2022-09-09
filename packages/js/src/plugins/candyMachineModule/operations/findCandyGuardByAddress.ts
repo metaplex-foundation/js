@@ -1,10 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  useOperation,
-} from '@/types';
+import { assertAccountExists, Operation, OperationHandler } from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard, toCandyGuard } from '../models';
@@ -30,7 +25,10 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  */
 export const findCandyGuardByAddressOperation = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
->() => useOperation<FindCandyGuardByAddressOperation<T>>(Key);
+>(
+  input: FindCandyGuardByAddressInput
+): FindCandyGuardByAddressOperation<T> => ({ key: Key, input });
+findCandyGuardByAddressOperation.key = Key;
 
 /**
  * @group Operations

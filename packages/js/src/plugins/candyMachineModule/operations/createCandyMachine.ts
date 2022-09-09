@@ -8,7 +8,6 @@ import {
   PublicKey,
   Signer,
   toBigNumber,
-  useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
@@ -43,8 +42,12 @@ const Key = 'CreateCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyMachineOperation =
-  useOperation<CreateCandyMachineOperation>(Key);
+export const createCandyMachineOperation = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  input: CreateCandyMachineInput<T>
+): CreateCandyMachineOperation<T> => ({ key: Key, input });
+createCandyMachineOperation.key = Key;
 
 /**
  * @group Operations

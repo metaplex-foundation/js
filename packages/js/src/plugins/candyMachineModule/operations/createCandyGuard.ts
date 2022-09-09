@@ -6,7 +6,6 @@ import {
   Program,
   serializeDiscriminator,
   Signer,
-  useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
@@ -49,8 +48,12 @@ const Key = 'CreateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyGuardOperation =
-  useOperation<CreateCandyGuardOperation>(Key);
+export const createCandyGuardOperation = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  input: CreateCandyGuardInput<T>
+): CreateCandyGuardOperation<T> => ({ key: Key, input });
+createCandyGuardOperation.key = Key;
 
 /**
  * @group Operations

@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler } from '@/types';
 import { GpaBuilder } from '@/utils';
 import { CandyGuard as MplCandyGuard } from '@metaplex-foundation/mpl-candy-guard';
 import { Commitment, PublicKey } from '@solana/web3.js';
@@ -27,7 +27,10 @@ const Key = 'FindCandyGuardsByAuthorityOperation' as const;
  */
 export const findCandyGuardsByAuthorityOperation = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
->() => useOperation<FindCandyGuardsByAuthorityOperation<T>>(Key);
+>(
+  input: FindCandyGuardsByAuthorityInput
+): FindCandyGuardsByAuthorityOperation<T> => ({ key: Key, input });
+findCandyGuardsByAuthorityOperation.key = Key;
 
 /**
  * @group Operations
