@@ -17,10 +17,14 @@ import {
 import {
   createCandyGuardOperation,
   createCandyGuardOperationHandler,
+  createCandyMachineOperation,
+  createCandyMachineOperationHandler,
   findCandyGuardByAddressOperation,
   findCandyGuardByAddressOperationHandler,
   findCandyGuardsByAuthorityOperation,
   findCandyGuardsByAuthorityOperationHandler,
+  findCandyMachineByAddressOperation,
+  findCandyMachineByAddressOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
 } from './operations';
@@ -54,12 +58,20 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     const op = metaplex.operations();
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
     op.register(
+      createCandyMachineOperation,
+      createCandyMachineOperationHandler
+    );
+    op.register(
       findCandyGuardByAddressOperation,
       findCandyGuardByAddressOperationHandler
     );
     op.register(
       findCandyGuardsByAuthorityOperation,
       findCandyGuardsByAuthorityOperationHandler
+    );
+    op.register(
+      findCandyMachineByAddressOperation,
+      findCandyMachineByAddressOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
   },
