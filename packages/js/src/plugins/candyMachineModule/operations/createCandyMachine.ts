@@ -67,26 +67,38 @@ export type CreateCandyMachineInput = {
   payer?: Signer;
 
   /**
-   * The authority that will be allowed to update the Candy Machine.
-   *
-   * TODO: clarify this
+   * Refers to the authority that is allowed to manage the Candy Machine.
+   * This includes updating its data, authorities, inserting items, etc.
    *
    * @defaultValue `metaplex.identity().publicKey`
    */
   authority?: PublicKey;
 
   /**
-   * TODO: clarify this
+   * Refers to the only authority that is allowed to mint from
+   * this Candy Machine. This will refer to the address of the Candy
+   * Guard associated with the Candy Machine if any.
    *
-   * @defaultValue `metaplex.identity().publicKey`
+   * @defaultValue Uses the same value as the `authority` parameter.
    */
-  updateAuthority?: PublicKey;
+  mintAuthority?: PublicKey;
 
   /**
    * The mint address of the Collection NFT that all NFTs minted from
    * this Candy Machine should be part of.
    *
-   * TODO: Explain how to create a collection NFT using the SDK.
+   * @example
+   * If you do not have a Collection NFT yet, you can create one using
+   * the `create` method of the NFT module and setting `isCollection` to `true`.
+   *
+   * ```ts
+   * const { nft } = await metaplex.
+   *   .nfts()
+   *   .create({ isCollection: true, name: 'My Collection', ... })
+   *   .run();
+   * ```
+   *
+   * You can now use `nft.address` as the value for this parameter.
    */
   collection: PublicKey;
 
@@ -146,20 +158,10 @@ export type CreateCandyMachineInput = {
   isMutable: boolean;
 
   /**
-   * Wheter the minted NFTs should use the Candy Machine authority
-   * as their update authority.
+   * Array of creators that should be set on minted NFTs.
    *
-   * We strongly recommend setting this to `true` unless you have a
-   * specific reason. When set to `false`, the update authority will
-   * be given to the address that minted the NFT and you will no longer
-   * be able to update the minted NFTs in the future.
+   * @see {@link Creator}
    *
-   * @defaultValue `true`
-   */
-  retainAuthority: boolean;
-
-  /**
-   * {@inheritDoc Creator}
    * @defaultValue
    * ```ts
    * [{

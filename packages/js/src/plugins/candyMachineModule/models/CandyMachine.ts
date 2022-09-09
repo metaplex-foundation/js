@@ -38,20 +38,17 @@ export type CandyMachine = Model<'candyMachine'> & {
   readonly accountInfo: AccountInfo;
 
   /**
-   * The address of the only authority that is allowed to mint from
-   * this Candy Machine. This will refer to the address of the Candy
-   * Guard associated with the Candy Machine if any.
-   *
-   * TODO: clarify this
+   * Refers to the authority that is allowed to manage the Candy Machine.
+   * This includes updating its data, authorities, inserting items, etc.
    */
   readonly authorityAddress: PublicKey;
 
   /**
-   * The address of the authority allowed to manage the Candy Machine.
-   *
-   * TODO: clarify this
+   * Refers to the only authority that is allowed to mint from
+   * this Candy Machine. This will refer to the address of the Candy
+   * Guard associated with the Candy Machine if any.
    */
-  readonly updateAuthorityAddress: PublicKey;
+  readonly mintAuthorityAddress: PublicKey;
 
   /**
    * The mint address of the collection NFT that should be associated with
@@ -82,17 +79,6 @@ export type CandyMachine = Model<'candyMachine'> & {
    * immutable NFTs mutable ever again.
    */
   readonly isMutable: boolean;
-
-  /**
-   * Wheter the minted NFTs should use the Candy Machine authority
-   * as their update authority.
-   *
-   * We strongly recommend setting this to `true` unless you have a
-   * specific reason. When set to `false`, the update authority will
-   * be given to the address that minted the NFT and you will no longer
-   * be able to update the minted NFTs in the future.
-   */
-  readonly retainAuthority: boolean;
 
   /**
    * The maximum number of editions that can be printed from the
@@ -310,8 +296,8 @@ export type CandyMachineConfigLineSettings = {
 
   /**
    * Indicates whether to use a sequential index generator or not.
-   *
-   * TODO: Explain what happens when this is set to false.
+   * When set to `true`, NFTs will be minted sequentially.
+   * When set to `false`, NFTs will be minted in a random order.
    */
   readonly isSequential: boolean;
 };
@@ -372,12 +358,11 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
     address: account.publicKey,
     accountInfo: toAccountInfo(account),
     authorityAddress: parsedAccount.data.authority,
-    updateAuthorityAddress: parsedAccount.data.updateAuthority,
+    mintAuthorityAddress: parsedAccount.data.mintAuthority,
     collectionMintAddress: parsedAccount.data.collectionMint,
     symbol: parsedAccount.data.data.symbol,
     sellerFeeBasisPoints: parsedAccount.data.data.sellerFeeBasisPoints,
     isMutable: parsedAccount.data.data.isMutable,
-    retainAuthority: parsedAccount.data.data.retainAuthority,
     maxEditionSupply: toBigNumber(parsedAccount.data.data.maxSupply),
     creators: parsedAccount.data.data.creators.map(
       (creator): Creator => ({ ...creator, share: creator.percentageShare })
