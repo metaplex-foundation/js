@@ -20,10 +20,11 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
+import { create32BitsHash } from './helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] create with minimum configuration', async (t) => {
+test('[candyMachineModule] create candy machine with minimum configuration', async (t) => {
   // Given an existing Collection NFT.
   const mx = await metaplex();
   const collectionNft = await createCollectionNft(mx);
@@ -95,7 +96,7 @@ test('[candyMachineModule] create with minimum configuration', async (t) => {
   t.ok(candyMachine.featureFlags.slice(0, 64).every((enabled) => !enabled));
 });
 
-test('[candyMachineModule] create with maximum configuration', async (t) => {
+test('[candyMachineModule] create candy machine with maximum configuration', async (t) => {
   // Given an existing Collection NFT.
   const mx = await metaplex();
   const collectionUpdateAuthority = await createWallet(mx);
@@ -218,10 +219,77 @@ test('[candyMachineModule] create with maximum configuration', async (t) => {
   } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] create without a candy guard', async (t) => {
-  //
+test('[candyMachineModule] create candy machine without a candy guard', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine without a Candy Guard.
+  const mintAuthority = Keypair.generate().publicKey;
+  const { candyMachine } = await mx
+    .candyMachines()
+    .create({
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
+      withoutCandyGuard: true,
+      mintAuthority,
+    })
+    .run();
+
+  // Then the Candy Machine has no associated Candy Guard account
+  // And its mint authority has been explcitly set.
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    mintAuthorityAddress: spokSamePubkey(mintAuthority),
+    candyGuard: null,
+  });
 });
 
-test.skip('[candyMachineModule] create with hidden settings', async (t) => {
-  //
+test('[candyMachineModule] create candy machine with hidden settings', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine with hidden settings.
+  const hash = create32BitsHash('some-file');
+  const { candyMachine } = await mx
+    .candyMachines()
+    .create({
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
+      itemSettings: {
+        type: 'hidden',
+        name: 'My NFT Drop #$ID+1$',
+        uri: 'https://my-server.com/nft/$ID+1$.json',
+        hash,
+      },
+    })
+    .run();
+
+  // Then the following data was set on the Candy Machine account.
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    itemSettings: {
+      type: 'hidden',
+      name: 'My NFT Drop #$ID+1$',
+      uri: 'https://my-server.com/nft/$ID+1$.json',
+      hash,
+    },
+    items: [],
+    itemsAvailable: spokSameBignum(5000),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(5000),
+    itemsLoaded: 0,
+    isFullyLoaded: true,
+  } as unknown as Specifications<CandyMachine>);
 });

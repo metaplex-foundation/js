@@ -471,6 +471,8 @@ export const createCandyMachineBuilder = async <
     },
     { data: candyMachineData }
   );
+
+  // TODO(loris): remove quick-fix when protocol is ready.
   initializeInstruction.keys[8].isWritable = true;
 
   return builder

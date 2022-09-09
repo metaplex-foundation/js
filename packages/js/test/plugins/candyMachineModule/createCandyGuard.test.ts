@@ -26,7 +26,7 @@ import {
 
 killStuckProcess();
 
-test('[candyMachineModule] create with no guards', async (t) => {
+test('[candyMachineModule] create candy guard with no guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -52,7 +52,7 @@ test('[candyMachineModule] create with no guards', async (t) => {
   });
 });
 
-test('[candyMachineModule] create with all guards', async (t) => {
+test('[candyMachineModule] create candy guard with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -171,7 +171,7 @@ test('[candyMachineModule] create with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyMachineModule] create with guard groups', async (t) => {
+test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -283,7 +283,7 @@ test('[candyMachineModule] create with guard groups', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyMachineModule] create with explicit authority', async (t) => {
+test('[candyMachineModule] create candy guard with explicit authority', async (t) => {
   // Given a Metaplex instance and an authority.
   const mx = await metaplex();
   const authority = Keypair.generate().publicKey;
@@ -302,7 +302,7 @@ test('[candyMachineModule] create with explicit authority', async (t) => {
   });
 });
 
-test('[candyMachineModule] create with explicit payer', async (t) => {
+test('[candyMachineModule] create candy guard with explicit payer', async (t) => {
   // Given a Metaplex instance and a payer with some SOLs.
   const mx = await metaplex();
   const payer = await createWallet(mx);
