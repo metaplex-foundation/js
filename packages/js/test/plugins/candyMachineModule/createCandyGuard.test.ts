@@ -16,6 +16,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
+  createWallet,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -298,5 +299,23 @@ test('[candyMachineModule] create with explicit authority', async (t) => {
     $topic: 'Candy Guard',
     model: 'candyGuard',
     authorityAddress: spokSamePubkey(authority),
+  });
+});
+
+test('[candyMachineModule] create with explicit payer', async (t) => {
+  // Given a Metaplex instance and a payer with some SOLs.
+  const mx = await metaplex();
+  const payer = await createWallet(mx);
+
+  // When we create a new Candy Guard using that payer.
+  const { candyGuard } = await mx
+    .candyMachines()
+    .createCandyGuard({ guards: {}, payer })
+    .run();
+
+  // Then the Candy Guard was created successfully.
+  spok(t, candyGuard, {
+    $topic: 'Candy Guard',
+    model: 'candyGuard',
   });
 });

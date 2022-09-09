@@ -112,7 +112,7 @@ test.only('[candyMachineModule] create with maximum configuration', async (t) =>
 
   // When we create a new Candy Machine with maximum configuration.
   const candyMachineSigner = Keypair.generate();
-  const payer = Keypair.generate();
+  const payer = await createWallet(mx);
   const authority = Keypair.generate().publicKey;
   const creatorA = Keypair.generate().publicKey;
   const creatorB = Keypair.generate().publicKey;
