@@ -417,7 +417,6 @@ export const toCandyMachineData = (
     symbol: candyMachine.symbol,
     sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
     maxSupply: candyMachine.maxEditionSupply,
-    retainAuthority: 'REMOVE ME', // TODO(loris): remove when protocol is ready.
     isMutable: candyMachine.isMutable,
     creators: candyMachine.creators.map((creator) => ({
       ...creator,
