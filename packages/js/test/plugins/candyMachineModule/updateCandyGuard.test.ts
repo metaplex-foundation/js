@@ -236,7 +236,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
         splToken: {
           tokenMint: spokSamePubkey(splTokenB),
           amount: spokSameAmount(token(42)),
-          destinationAta: spokSamePubkey(lamportDestination),
+          destinationAta: spokSamePubkey(tokenDestination),
         },
       },
     ],

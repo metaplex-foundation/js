@@ -244,7 +244,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         },
         lamports: {
           amount: spokSameAmount(sol(1)),
-          destinations: spokSamePubkey(mx.identity().publicKey),
+          destination: spokSamePubkey(mx.identity().publicKey),
         },
         allowList: { merkleRoot },
       },
@@ -255,7 +255,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         },
         lamports: {
           amount: spokSameAmount(sol(2)),
-          destinations: spokSamePubkey(mx.identity().publicKey),
+          destination: spokSamePubkey(mx.identity().publicKey),
         },
         whitelist: {
           mint: spokSamePubkey(whitelistMint),
@@ -271,7 +271,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         },
         lamports: {
           amount: spokSameAmount(sol(3)),
-          destinations: spokSamePubkey(mx.identity().publicKey),
+          destination: spokSamePubkey(mx.identity().publicKey),
         },
         gatekeeper: {
           gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
