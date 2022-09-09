@@ -13,7 +13,7 @@ export class ProgramClient {
   protected programs: Program[] = [];
 
   register(program: Program): void {
-    this.programs.push(program);
+    this.programs.unshift(program);
   }
 
   all(): Program[] {

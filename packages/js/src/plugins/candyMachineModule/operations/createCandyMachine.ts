@@ -244,7 +244,12 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateCandyMachineOutput> {
-      const builder = createCandyMachineBuilder(metaplex, operation.input);
+      const builder = await createCandyMachineBuilder(
+        metaplex,
+        operation.input
+      );
+      scope.throwIfCanceled();
+
       const output = await builder.sendAndConfirm(
         metaplex,
         operation.input.confirmOptions
@@ -328,6 +333,8 @@ export const createCandyMachineBuilder = async (
     isSequential: false,
   };
 
+  const candyMachineProgram = metaplex.programs().get('CandyMachineProgram');
+
   const candyMachineData = toCandyMachineData({
     itemsAvailable,
     symbol,
@@ -343,18 +350,27 @@ export const createCandyMachineBuilder = async (
     .setContext({ candyMachineSigner: candyMachine })
 
     .add(
-      await metaplex.system().builders().createAccount({
-        space: getCandyMachineSize(),
-      })
+      await metaplex
+        .system()
+        .builders()
+        .createAccount({
+          space: getCandyMachineSize(candyMachineData),
+          payer,
+          newAccount: candyMachine,
+          program: candyMachineProgram.address,
+        })
     )
 
     .add({
-      instruction: createInitializeInstruction({
-        candyMachine: candyMachine.publicKey,
-        authority,
-        mintAuthority,
-        payer: payer.publicKey,
-      }),
+      instruction: createInitializeInstruction(
+        {
+          candyMachine: candyMachine.publicKey,
+          authority,
+          mintAuthority,
+          payer: payer.publicKey,
+        },
+        { data: candyMachineData }
+      ),
       signers: [payer, candyMachine],
       key:
         params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
