@@ -19,7 +19,7 @@ export type SplTokenGuardSettings = {
 export const splTokenGuardManifest: CandyGuardManifest<SplTokenGuardSettings> =
   {
     name: 'splToken',
-    settingsBytes: 40,
+    settingsBytes: 72,
     settingsSerializer: mapSerializer<SplToken, SplTokenGuardSettings>(
       createSerializerFromBeet(splTokenBeet),
       (settings) => ({ ...settings, amount: token(settings.amount) }),

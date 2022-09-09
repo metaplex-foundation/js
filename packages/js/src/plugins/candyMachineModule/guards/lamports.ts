@@ -18,7 +18,7 @@ export type LamportsGuardSettings = {
 export const lamportsGuardManifest: CandyGuardManifest<LamportsGuardSettings> =
   {
     name: 'lamports',
-    settingsBytes: 8,
+    settingsBytes: 40,
     settingsSerializer: mapSerializer<Lamports, LamportsGuardSettings>(
       createSerializerFromBeet(lamportsBeet),
       (settings) => ({ ...settings, amount: lamports(settings.amount) }),

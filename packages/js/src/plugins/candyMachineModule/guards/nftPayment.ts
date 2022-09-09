@@ -12,6 +12,6 @@ export type NftPaymentGuardSettings = {
 export const nftPaymentGuardManifest: CandyGuardManifest<NftPaymentGuardSettings> =
   {
     name: 'nftPayment',
-    settingsBytes: 40,
+    settingsBytes: 33,
     settingsSerializer: createSerializerFromBeet(nftPaymentBeet),
   };
