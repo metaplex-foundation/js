@@ -1,13 +1,14 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CreateCandyGuardOperation' as const;
+const Key = 'UpdateCandyMachineOperation' as const;
 
 /**
  * TODO
@@ -23,30 +24,36 @@ const Key = 'CreateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyGuardOperation =
-  useOperation<CreateCandyGuardOperation>(Key);
+export const updateCandyMachineOperation = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  input: UpdateCandyMachineInput<T>
+): UpdateCandyMachineOperation<T> => ({ key: Key, input });
+updateCandyMachineOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyGuardOperation = Operation<
-  typeof Key,
-  CreateCandyGuardInput,
-  CreateCandyGuardOutput
->;
+export type UpdateCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<typeof Key, UpdateCandyMachineInput<T>, UpdateCandyMachineOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyGuardInput = {};
+export type UpdateCandyMachineInput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
+  //
+};
 
 /**
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyGuardOutput = {
+export type UpdateCandyMachineOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -55,13 +62,13 @@ export type CreateCandyGuardOutput = {
  * @group Operations
  * @category Handlers
  */
-export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
+export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
   {
-    async handle(
-      operation: CreateCandyGuardOperation,
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: UpdateCandyMachineOperation<T>,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyGuardOutput> {
+    ): Promise<UpdateCandyMachineOutput> {
       //
     },
   };
@@ -74,20 +81,19 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyGuardBuilderParams = Omit<
-  CreateCandyGuardInput,
-  'confirmOptions'
-> & {
+export type UpdateCandyMachineBuilderParams<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<UpdateCandyMachineInput<T>, 'confirmOptions'> & {
   /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  createCandyGuardInstructionKey?: string;
+  updateCandyMachineInstructionKey?: string;
 };
 
 /**
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateCandyGuardBuilderContext = Omit<
-  CreateCandyGuardOutput,
+export type UpdateCandyMachineBuilderContext = Omit<
+  UpdateCandyMachineOutput,
   'response'
 >;
 
@@ -105,11 +111,13 @@ export type CreateCandyGuardBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyGuardBuilder = (
+export const updateCandyMachineBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams
-): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  return TransactionBuilder.make<CreateCandyGuardBuilderContext>()
+  params: UpdateCandyMachineBuilderParams<T>
+): TransactionBuilder<UpdateCandyMachineBuilderContext> => {
+  return TransactionBuilder.make<UpdateCandyMachineBuilderContext>()
     .setFeePayer(payer)
     .setContext({});
 };
