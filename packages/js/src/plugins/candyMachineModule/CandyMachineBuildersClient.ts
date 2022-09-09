@@ -3,6 +3,8 @@ import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
 import {
   createCandyGuardBuilder,
   CreateCandyGuardBuilderParams,
+  createCandyMachineBuilder,
+  CreateCandyMachineBuilderParams,
   updateCandyGuardBuilder,
   UpdateCandyGuardBuilderParams,
 } from './operations';
@@ -17,17 +19,30 @@ import {
 export class CandyMachineBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  /** {@inheritDoc createCandyMachineBuilder} */
+  create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: CreateCandyMachineBuilderParams<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
+  ) {
+    return createCandyMachineBuilder(this.metaplex, input);
+  }
+
   /** {@inheritDoc createCandyGuardBuilder} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyGuardBuilderParams<T>
+    input: CreateCandyGuardBuilderParams<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
   ) {
-    return createCandyGuardBuilder<T>(this.metaplex, input);
+    return createCandyGuardBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */
   updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: UpdateCandyGuardBuilderParams<T>
+    input: UpdateCandyGuardBuilderParams<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
   ) {
-    return updateCandyGuardBuilder<T>(this.metaplex, input);
+    return updateCandyGuardBuilder(this.metaplex, input);
   }
 }
