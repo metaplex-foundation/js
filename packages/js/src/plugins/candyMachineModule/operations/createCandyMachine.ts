@@ -93,7 +93,12 @@ export type CreateCandyMachineInput<
    * this Candy Machine. This will refer to the address of the Candy
    * Guard associated with the Candy Machine if any.
    *
-   * @defaultValue Uses the same value as the `authority` parameter.
+   * @defaultValue
+   * - If `withoutCandyGuard` is `false` (default value),
+   *   this parameter is ignored as the mint authority will be
+   *   set to the Candy Guard's address.
+   * - If `withoutCandyGuard` is `true`, it defaults to using the same
+   *   value as the `authority` parameter.
    */
   mintAuthority?: PublicKey;
 
@@ -366,15 +371,12 @@ export const createCandyMachineBuilder = async <
     payer = metaplex.identity(),
     candyMachine = Keypair.generate(),
     authority = metaplex.identity().publicKey,
-    mintAuthority = authority,
     collection,
     sellerFeeBasisPoints,
     itemsAvailable,
     symbol = '',
     maxEditionSupply = toBigNumber(0),
     isMutable = true,
-    guards = {},
-    groups,
     withoutCandyGuard = false,
   } = params;
 
@@ -403,51 +405,55 @@ export const createCandyMachineBuilder = async <
     itemSettings,
   });
 
-  const createCandyGuard = metaplex
-    .candyMachines()
-    .builders()
-    .createCandyGuard({
-      base: candyMachine,
-      payer,
-      authority,
-      guards,
-      groups,
-      candyGuardProgram: candyGuardProgram.address,
+  const builder = TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({ candyMachineSigner: candyMachine });
+
+  let mintAuthority = params.mintAuthority ?? authority;
+
+  if (!withoutCandyGuard) {
+    const createCandyGuard = metaplex
+      .candyMachines()
+      .builders()
+      .createCandyGuard({
+        base: candyMachine,
+        payer,
+        authority,
+        guards: params.guards ?? {},
+        groups: params.groups,
+        candyGuardProgram: candyGuardProgram.address,
+      });
+    const { candyGuardAddress } = createCandyGuard.getContext();
+    mintAuthority = candyGuardAddress;
+
+    builder.add(createCandyGuard);
+  }
+
+  return builder
+    .add(
+      await metaplex
+        .system()
+        .builders()
+        .createAccount({
+          space: getCandyMachineSize(candyMachineData),
+          payer,
+          newAccount: candyMachine,
+          program: candyMachineProgram.address,
+        })
+    )
+
+    .add({
+      instruction: createInitializeInstruction(
+        {
+          candyMachine: candyMachine.publicKey,
+          authority,
+          mintAuthority,
+          payer: payer.publicKey,
+        },
+        { data: candyMachineData }
+      ),
+      signers: [payer, candyMachine],
+      key:
+        params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
     });
-
-  return (
-    TransactionBuilder.make<CreateCandyMachineBuilderContext>()
-      .setFeePayer(payer)
-      .setContext({ candyMachineSigner: candyMachine })
-
-      // TODO: Create Candy Guard
-
-      .add(
-        await metaplex
-          .system()
-          .builders()
-          .createAccount({
-            space: getCandyMachineSize(candyMachineData),
-            payer,
-            newAccount: candyMachine,
-            program: candyMachineProgram.address,
-          })
-      )
-
-      .add({
-        instruction: createInitializeInstruction(
-          {
-            candyMachine: candyMachine.publicKey,
-            authority,
-            mintAuthority,
-            payer: payer.publicKey,
-          },
-          { data: candyMachineData }
-        ),
-        signers: [payer, candyMachine],
-        key:
-          params.initializeCandyMachineInstructionKey ??
-          'initializeCandyMachine',
-      })
-  );
 };

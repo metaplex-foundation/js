@@ -2,6 +2,7 @@ import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
+  Pda,
   serializeDiscriminator,
   Signer,
   useOperation,
@@ -87,9 +88,9 @@ export type CreateCandyGuardInput<
   /**
    * The authority that will be allowed to update the Candy Guard.
    *
-   * @defaultValue `metaplex.identity()`
+   * @defaultValue `metaplex.identity().publicKey`
    */
-  authority?: Signer;
+  authority?: PublicKey;
 
   /**
    * The settings of all guards we wish to activate.
@@ -140,8 +141,8 @@ export type CreateCandyGuardOutput<
   /** The base address of the Candy Guard's account as a Signer. */
   base: Signer;
 
-  /** The account that ended up paying for the Candy Guard as a Signer. */
-  payer: Signer;
+  /** The address of the created Candy Guard. */
+  candyGuardAddress: Pda;
 };
 
 /**
@@ -222,7 +223,7 @@ export const createCandyGuardBuilder = <
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity();
+  const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex
     .programs()
     .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
@@ -235,7 +236,7 @@ export const createCandyGuardBuilder = <
     {
       candyGuard,
       base: base.publicKey,
-      authority: authority.publicKey,
+      authority,
       payer: payer.publicKey,
     },
     {
@@ -266,12 +267,12 @@ export const createCandyGuardBuilder = <
   return (
     TransactionBuilder.make<CreateCandyGuardBuilderContext>()
       .setFeePayer(payer)
-      .setContext({ payer, base })
+      .setContext({ base, candyGuardAddress: candyGuard })
 
       // Create and initialize the candy guard account.
       .add({
         instruction: initializeInstruction,
-        signers: [base, authority, payer],
+        signers: [base, payer],
         key: params.createCandyGuardInstructionKey ?? 'createCandyGuard',
       })
   );
