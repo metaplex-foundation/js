@@ -1,5 +1,10 @@
 import { Metaplex } from '@/Metaplex';
 import {
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/plugins/nftModule';
+import {
   BigNumber,
   Creator,
   Operation,
@@ -21,6 +26,7 @@ import {
   toCandyMachineData,
 } from '../models';
 import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
+import { findCandyMachineAuthorityPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -121,9 +127,12 @@ export type CreateCandyMachineInput<
    *   .run();
    * ```
    *
-   * You can now use `nft.address` as the value for this parameter.
+   * You can now use `nft` as the value for this parameter.
    */
-  collection: PublicKey;
+  collection: {
+    address: PublicKey;
+    updateAuthorityAddress: PublicKey;
+  };
 
   /**
    * The royalties that should be set on minted NFTs in basis points
@@ -312,8 +321,10 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
       );
       scope.throwIfCanceled();
 
-      // TODO: fetch
-      const candyMachine: CandyMachine = {} as unknown as CandyMachine;
+      const candyMachine = await metaplex
+        .candyMachines()
+        .findByAddress<T>({ address: output.candyMachineSigner.publicKey })
+        .run();
       scope.throwIfCanceled();
 
       return { ...output, candyMachine };
@@ -367,6 +378,7 @@ export const createCandyMachineBuilder = async <
   metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams<T>
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
+  // Input.
   const {
     payer = metaplex.identity(),
     candyMachine = Keypair.generate(),
@@ -378,8 +390,8 @@ export const createCandyMachineBuilder = async <
     maxEditionSupply = toBigNumber(0),
     isMutable = true,
     withoutCandyGuard = false,
+    programs,
   } = params;
-
   const creators = params.creators ?? [{ address: authority, share: 100 }];
   const itemSettings = params.itemSettings ?? {
     type: 'configLines',
@@ -390,7 +402,22 @@ export const createCandyMachineBuilder = async <
     isSequential: false,
   };
 
-  const candyMachineProgram = metaplex.programs().get('CandyMachineProgram');
+  // PDAs.
+  const authorityPda = findCandyMachineAuthorityPda(candyMachine.publicKey);
+  const collectionMetadata = findMetadataPda(collection.address);
+  const collectionMasterEdition = findMasterEditionV2Pda(collection.address);
+  const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+    collection.address,
+    authorityPda
+  );
+
+  // Programs.
+  const candyMachineProgram = metaplex
+    .programs()
+    .get('CandyMachineProgram', programs);
+  const tokenMetadataProgram = metaplex
+    .programs()
+    .get('TokenMetadataProgram', programs);
 
   const candyMachineData = toCandyMachineData({
     itemsAvailable,
@@ -423,7 +450,6 @@ export const createCandyMachineBuilder = async <
 
     const { candyGuardAddress } = createCandyGuard.getContext();
     mintAuthority = candyGuardAddress;
-
     builder.add(createCandyGuard);
   }
 
@@ -444,9 +470,16 @@ export const createCandyMachineBuilder = async <
       instruction: createInitializeInstruction(
         {
           candyMachine: candyMachine.publicKey,
+          authorityPda,
           authority,
           mintAuthority,
           payer: payer.publicKey,
+          collectionMetadata,
+          collectionMint: collection.address,
+          collectionMasterEdition,
+          collectionUpdateAuthority: collection.updateAuthorityAddress,
+          collectionAuthorityRecord,
+          tokenMetadataProgram: tokenMetadataProgram.address,
         },
         { data: candyMachineData }
       ),
