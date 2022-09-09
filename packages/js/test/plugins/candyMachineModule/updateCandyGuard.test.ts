@@ -65,20 +65,25 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
   const mx = await metaplex();
 
   // And an existing Candy Guard with a few enabled guards.
+  const lamportDestinationA = Keypair.generate().publicKey;
   const candyGuard = await createCandyGuard(mx, {
     guards: {
       liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
-      lamports: { amount: sol(1) },
+      lamports: { amount: sol(1), destination: lamportDestinationA },
     },
   });
 
   // When we update the Candy Guard with a new set of guards.
+  const lamportDestinationB = Keypair.generate().publicKey;
   await mx
     .candyMachines()
     .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {
-        lamports: { amount: sol(2) },
+        lamports: {
+          amount: sol(2),
+          destination: lamportDestinationB,
+        },
         botTax: { lamports: sol(0.01), lastInstruction: true },
       },
       groups: [],
@@ -94,7 +99,10 @@ test('[candyGuardModule] it overrides all previous guards', async (t) => {
     guards: {
       ...emptyDefaultCandyGuardSettings,
       liveDate: null,
-      lamports: { amount: spokSameAmount(sol(2)) },
+      lamports: {
+        amount: spokSameAmount(sol(2)),
+        destination: spokSamePubkey(lamportDestinationB),
+      },
       botTax: { lamports: spokSameAmount(sol(0.01)), lastInstruction: true },
     },
     groups: [],
@@ -152,21 +160,27 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
   const mx = await metaplex();
 
   // And an existing Candy Guard with three groups.
+  const lamportDestination = Keypair.generate().publicKey;
+  const tokenDestination = Keypair.generate().publicKey;
   const splTokenA = Keypair.generate().publicKey;
   const candyGuard = await createCandyGuard(mx, {
     guards: {},
     groups: [
       {
         liveDate: { date: null },
-        lamports: { amount: sol(1) },
+        lamports: { amount: sol(1), destination: lamportDestination },
       },
       {
         liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-        splToken: { tokenMint: splTokenA, amount: token(375) },
+        splToken: {
+          tokenMint: splTokenA,
+          amount: token(375),
+          destinationAta: tokenDestination,
+        },
       },
       {
         liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-        lamports: { amount: sol(2) },
+        lamports: { amount: sol(2), destination: lamportDestination },
       },
     ],
   });
@@ -181,11 +195,18 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
       groups: [
         {
           liveDate: { date: null },
-          lamports: { amount: sol(2) },
+          lamports: {
+            amount: sol(2),
+            destination: lamportDestination,
+          },
         },
         {
           liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-          splToken: { tokenMint: splTokenB, amount: token(42) },
+          splToken: {
+            tokenMint: splTokenB,
+            amount: token(42),
+            destinationAta: tokenDestination,
+          },
         },
       ],
     })
@@ -202,7 +223,10 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
       {
         ...emptyDefaultCandyGuardSettings,
         liveDate: { date: null },
-        lamports: { amount: spokSameAmount(sol(2)) },
+        lamports: {
+          amount: spokSameAmount(sol(2)),
+          destination: spokSamePubkey(lamportDestination),
+        },
       },
       {
         ...emptyDefaultCandyGuardSettings,
@@ -212,6 +236,7 @@ test('[candyGuardModule] it overrides all previous groups', async (t) => {
         splToken: {
           tokenMint: spokSamePubkey(splTokenB),
           amount: spokSameAmount(token(42)),
+          destinationAta: spokSamePubkey(lamportDestination),
         },
       },
     ],
@@ -223,6 +248,8 @@ test('[candyGuardModule] it can remove all guards and groups', async (t) => {
   const mx = await metaplex();
 
   // And an existing Candy Guard with three groups and some default guards.
+  const lamportDestination = Keypair.generate().publicKey;
+  const tokenDestination = Keypair.generate().publicKey;
   const splTokenA = Keypair.generate().publicKey;
   const candyGuard = await createCandyGuard(mx, {
     guards: {
@@ -235,15 +262,19 @@ test('[candyGuardModule] it can remove all guards and groups', async (t) => {
     groups: [
       {
         liveDate: { date: null },
-        lamports: { amount: sol(1) },
+        lamports: { amount: sol(1), destination: lamportDestination },
       },
       {
         liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-        splToken: { tokenMint: splTokenA, amount: token(375) },
+        splToken: {
+          tokenMint: splTokenA,
+          amount: token(375),
+          destinationAta: tokenDestination,
+        },
       },
       {
         liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-        lamports: { amount: sol(2) },
+        lamports: { amount: sol(2), destination: lamportDestination },
       },
     ],
   });

@@ -32,7 +32,7 @@ test('[candyGuardModule] create with no guards', async (t) => {
   // When we create a new Candy Guard with no guards.
   const { candyGuard, base } = await mx
     .candyMachines()
-    .createCandyGuard({ guards: {} })
+    .createCandyGuard<DefaultCandyGuardSettings>({ guards: {} })
     .run();
 
   // Then we expect the Candy Guard account to exists with the following data.
@@ -56,11 +56,14 @@ test('[candyGuardModule] create with all guards', async (t) => {
   const mx = await metaplex();
 
   // When we create a new Candy Guard with all guards.
+  const lamportDestination = Keypair.generate().publicKey;
   const tokenMint = Keypair.generate().publicKey;
+  const tokenDestination = Keypair.generate().publicKey;
   const thirdPartySigner = Keypair.generate().publicKey;
   const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = Array(32).fill(42);
+  const nftPaymentCollection = Keypair.generate().publicKey;
   const { candyGuard } = await mx
     .candyMachines()
     .createCandyGuard({
@@ -69,15 +72,17 @@ test('[candyGuardModule] create with all guards', async (t) => {
           lamports: sol(0.01),
           lastInstruction: false,
         },
-        liveDate: {
-          date: toDateTime('2022-09-05T20:00:00.000Z'),
-        },
         lamports: {
           amount: sol(1.5),
+          destination: lamportDestination,
         },
         splToken: {
           amount: token(5),
           tokenMint,
+          destinationAta: tokenDestination,
+        },
+        liveDate: {
+          date: toDateTime('2022-09-05T20:00:00.000Z'),
         },
         thirdPartySigner: {
           signerKey: thirdPartySigner,
@@ -103,6 +108,10 @@ test('[candyGuardModule] create with all guards', async (t) => {
           id: 1,
           limit: 5,
         },
+        nftPayment: {
+          burn: true,
+          requiredCollection: nftPaymentCollection,
+        },
       },
     })
     .run();
@@ -116,15 +125,17 @@ test('[candyGuardModule] create with all guards', async (t) => {
         lamports: spokSameAmount(sol(0.01)),
         lastInstruction: false,
       },
-      liveDate: {
-        date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
-      },
       lamports: {
         amount: spokSameAmount(sol(1.5)),
+        destination: spokSamePubkey(lamportDestination),
       },
       splToken: {
         amount: spokSameAmount(token(5)),
         tokenMint: spokSamePubkey(tokenMint),
+        destinationAta: spokSamePubkey(tokenDestination),
+      },
+      liveDate: {
+        date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
       },
       thirdPartySigner: {
         signerKey: spokSamePubkey(thirdPartySigner),
@@ -150,6 +161,10 @@ test('[candyGuardModule] create with all guards', async (t) => {
         id: 1,
         limit: 5,
       },
+      nftPayment: {
+        burn: true,
+        requiredCollection: spokSamePubkey(nftPaymentCollection),
+      },
     },
     groups: [],
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
@@ -165,7 +180,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
   const merkleRoot = Array(32).fill(42);
   const { candyGuard } = await mx
     .candyMachines()
-    .createCandyGuard({
+    .createCandyGuard<DefaultCandyGuardSettings>({
       guards: {
         // Bot tax for all groups.
         botTax: {
@@ -182,13 +197,13 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         {
           // First group for VIPs.
           liveDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
-          lamports: { amount: sol(1) },
+          lamports: { amount: sol(1), destination: mx.identity().publicKey },
           allowList: { merkleRoot },
         },
         {
           // Second group for whitelist token holders.
           liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
-          lamports: { amount: sol(2) },
+          lamports: { amount: sol(2), destination: mx.identity().publicKey },
           whitelist: {
             mint: whitelistMint,
             presale: true,
@@ -199,7 +214,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         {
           // Third group for the public.
           liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
-          lamports: { amount: sol(3) },
+          lamports: { amount: sol(3), destination: mx.identity().publicKey },
           gatekeeper: { gatekeeperNetwork, expireOnUse: false },
         },
       ],
@@ -227,7 +242,10 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         liveDate: {
           date: spokSameBignum(toDateTime('2022-09-05T16:00:00.000Z')),
         },
-        lamports: { amount: spokSameAmount(sol(1)) },
+        lamports: {
+          amount: spokSameAmount(sol(1)),
+          destinations: spokSamePubkey(mx.identity().publicKey),
+        },
         allowList: { merkleRoot },
       },
       {
@@ -235,7 +253,10 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         liveDate: {
           date: spokSameBignum(toDateTime('2022-09-05T18:00:00.000Z')),
         },
-        lamports: { amount: spokSameAmount(sol(2)) },
+        lamports: {
+          amount: spokSameAmount(sol(2)),
+          destinations: spokSamePubkey(mx.identity().publicKey),
+        },
         whitelist: {
           mint: spokSamePubkey(whitelistMint),
           presale: true,
@@ -248,7 +269,10 @@ test('[candyGuardModule] create with guard groups', async (t) => {
         liveDate: {
           date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
         },
-        lamports: { amount: spokSameAmount(sol(3)) },
+        lamports: {
+          amount: spokSameAmount(sol(3)),
+          destinations: spokSamePubkey(mx.identity().publicKey),
+        },
         gatekeeper: {
           gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
           expireOnUse: false,
@@ -261,7 +285,7 @@ test('[candyGuardModule] create with guard groups', async (t) => {
 test('[candyGuardModule] create with explicit authority', async (t) => {
   // Given a Metaplex instance and an authority.
   const mx = await metaplex();
-  const authority = Keypair.generate();
+  const authority = Keypair.generate().publicKey;
 
   // When we create a new Candy Guard using that authority.
   const { candyGuard } = await mx
@@ -273,6 +297,6 @@ test('[candyGuardModule] create with explicit authority', async (t) => {
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',
-    authorityAddress: spokSamePubkey(authority.publicKey),
+    authorityAddress: spokSamePubkey(authority),
   });
 });

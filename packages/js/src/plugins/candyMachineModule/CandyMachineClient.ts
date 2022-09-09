@@ -91,20 +91,22 @@ export class CandyMachineClient {
 
   /** {@inheritDoc createCandyMachineOperation} */
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyMachineInput<T>
+    input: CreateCandyMachineInput<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
   ) {
     return this.metaplex
       .operations()
-      .getTask(createCandyMachineOperation<T>(input));
+      .getTask(createCandyMachineOperation(input));
   }
 
   /** {@inheritDoc createCandyGuardOperation} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyGuardInput<T>
+    input: CreateCandyGuardInput<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
   ) {
-    return this.metaplex
-      .operations()
-      .getTask(createCandyGuardOperation<T>(input));
+    return this.metaplex.operations().getTask(createCandyGuardOperation(input));
   }
 
   /** {@inheritDoc findCandyGuardsByAuthorityOperation} */
@@ -172,10 +174,10 @@ export class CandyMachineClient {
 
   /** {@inheritDoc updateCandyGuardOperation} */
   updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: UpdateCandyGuardInput<T>
+    input: UpdateCandyGuardInput<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
   ) {
-    return this.metaplex
-      .operations()
-      .getTask(updateCandyGuardOperation<T>(input));
+    return this.metaplex.operations().getTask(updateCandyGuardOperation(input));
   }
 }
