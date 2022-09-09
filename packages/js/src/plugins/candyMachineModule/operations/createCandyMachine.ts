@@ -225,8 +225,10 @@ export type CreateCandyMachineInput<
    * Any guard not provided or set to `null` will be disabled.
    *
    * This parameter is ignored if `withoutCandyGuard` is set to `true`.
+   *
+   * @defaultValue `{}`, i.e. no guards are activated.
    */
-  guards: Partial<T>;
+  guards?: Partial<T>;
 
   /**
    * This parameter allows us to create multiple minting groups that have their
@@ -241,7 +243,7 @@ export type CreateCandyMachineInput<
    *
    * This parameter is ignored if `withoutCandyGuard` is set to `true`.
    *
-   * @defaultValue `[]`
+   * @defaultValue `[]`, i.e. no groups are created.
    */
   groups?: Partial<T>[];
 
@@ -363,7 +365,7 @@ export const createCandyMachineBuilder = async <
   const {
     payer = metaplex.identity(),
     candyMachine = Keypair.generate(),
-    authority,
+    authority = metaplex.identity().publicKey,
     mintAuthority = authority,
     collection,
     sellerFeeBasisPoints,
@@ -371,6 +373,9 @@ export const createCandyMachineBuilder = async <
     symbol = '',
     maxEditionSupply = toBigNumber(0),
     isMutable = true,
+    guards = {},
+    groups,
+    withoutCandyGuard = false,
   } = params;
 
   const creators = params.creators ?? [{ address: authority, share: 100 }];
@@ -384,6 +389,9 @@ export const createCandyMachineBuilder = async <
   };
 
   const candyMachineProgram = metaplex.programs().get('CandyMachineProgram');
+  const candyGuardProgram = metaplex
+    .programs()
+    .get(params.candyGuardProgram ?? 'CandyGuardProgram');
 
   const candyMachineData = toCandyMachineData({
     itemsAvailable,
@@ -394,6 +402,18 @@ export const createCandyMachineBuilder = async <
     creators,
     itemSettings,
   });
+
+  const createCandyGuard = metaplex
+    .candyMachines()
+    .builders()
+    .createCandyGuard({
+      base: candyMachine,
+      payer,
+      authority,
+      guards,
+      groups,
+      candyGuardProgram: candyGuardProgram.address,
+    });
 
   return (
     TransactionBuilder.make<CreateCandyMachineBuilderContext>()

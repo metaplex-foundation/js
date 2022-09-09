@@ -23,6 +23,8 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyGuard } from './CandyGuard';
 
 /**
  * This model contains all the relevant information about a Candy Machine.
@@ -31,7 +33,9 @@ import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
  *
  * @group Models
  */
-export type CandyMachine = Model<'candyMachine'> & {
+export type CandyMachine<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Model<'candyMachine'> & {
   /** The address of the Candy Machine account. */
   readonly address: PublicKey;
 
@@ -169,6 +173,11 @@ export type CandyMachine = Model<'candyMachine'> & {
    * new features have been enabled on the Candy Machine.
    */
   readonly featureFlags: FeatureFlags;
+
+  /**
+   * The Candy Guard associted with the Candy Machine if any.
+   */
+  readonly candyGuard: Option<CandyGuard<T>>;
 };
 
 /**
@@ -315,7 +324,12 @@ export function assertCandyMachine(value: any): asserts value is CandyMachine {
 }
 
 /** @group Model Helpers */
-export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
+export const toCandyMachine = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  account: UnparsedAccount,
+  candyGuard: Option<CandyGuard<T>> = null
+): CandyMachine<T> => {
   const serializer = createSerializerFromSolitaType(
     MplCandyMachine,
     candyMachineBeet.description
@@ -382,6 +396,7 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
       toBigNumber(parsedAccount.data.features).toBuffer(),
       64
     )[0],
+    candyGuard,
   };
 };
 
