@@ -393,7 +393,7 @@ export const toCandyMachine = <
     itemsLoadedMap,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
-      toBigNumber(parsedAccount.data.features).toBuffer(),
+      toBigNumber(parsedAccount.data.features).toBuffer('le', 8),
       64
     )[0],
     candyGuard,
