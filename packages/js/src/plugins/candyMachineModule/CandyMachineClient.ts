@@ -1,11 +1,11 @@
 import type { Metaplex } from '@/Metaplex';
 import { toPublicKey } from '@/types';
 import { Task } from '@/utils';
-import type { PublicKey } from '@solana/web3.js';
+import type { Commitment } from '@solana/web3.js';
 import { CandyMachineBuildersClient } from './CandyMachineBuildersClient';
 import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
-import { CandyGuard } from './models';
+import { CandyGuard, CandyMachine, isCandyMachine } from './models';
 import {
   CreateCandyGuardInput,
   createCandyGuardOperation,
@@ -161,15 +161,16 @@ export class CandyMachineClient {
    * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
    * ```
    */
-  refresh<T extends CandyGuardsSettings>(
-    model: CandyGuard<T> | PublicKey,
-    input?: Omit<FindCandyGuardByAddressInput, 'address'>
-  ): Task<CandyGuard<T>> {
-    // TODO: support CM too.
-    return this.findCandyGuardByAddress<T>({
-      address: toPublicKey(model),
-      ...input,
-    });
+  refresh<
+    T extends CandyGuardsSettings,
+    M extends CandyMachine<T> | CandyGuard<T>
+  >(model: M, commitment?: Commitment): Task<M> {
+    const input = { address: toPublicKey(model), commitment };
+    const task = isCandyMachine(model)
+      ? this.findByAddress<T>(input)
+      : this.findCandyGuardByAddress<T>(input);
+
+    return task as Task<M>;
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */

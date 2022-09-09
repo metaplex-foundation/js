@@ -21,27 +21,21 @@ export class CandyMachineBuildersClient {
 
   /** {@inheritDoc createCandyMachineBuilder} */
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyMachineBuilderParams<
-      T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    input: CreateCandyMachineBuilderParams<T>
   ) {
     return createCandyMachineBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc createCandyGuardBuilder} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyGuardBuilderParams<
-      T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    input: CreateCandyGuardBuilderParams<T>
   ) {
     return createCandyGuardBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */
   updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: UpdateCandyGuardBuilderParams<
-      T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    input: UpdateCandyGuardBuilderParams<T>
   ) {
     return updateCandyGuardBuilder(this.metaplex, input);
   }

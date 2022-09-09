@@ -441,7 +441,7 @@ export const createCandyMachineBuilder = async <
     const createCandyGuard = metaplex
       .candyMachines()
       .builders()
-      .createCandyGuard({
+      .createCandyGuard<T>({
         base: candyMachine,
         payer,
         authority,
