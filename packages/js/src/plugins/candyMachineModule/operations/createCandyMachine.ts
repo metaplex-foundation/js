@@ -13,6 +13,7 @@ import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions, Keypair } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
   CandyMachine,
   CandyMachineConfigLineSettings,
@@ -48,17 +49,21 @@ export const createCandyMachineOperation =
  * @group Operations
  * @category Types
  */
-export type CreateCandyMachineOperation = Operation<
+export type CreateCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
-  CreateCandyMachineInput,
-  CreateCandyMachineOutput
+  CreateCandyMachineInput<T>,
+  CreateCandyMachineOutput<T>
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyMachineInput = {
+export type CreateCandyMachineInput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /**
    * The Candy Machine to create as a Signer.
    * This expects a brand new Keypair with no associated account.
@@ -214,6 +219,48 @@ export type CreateCandyMachineInput = {
    */
   creators: Omit<Creator, 'verified'>[];
 
+  /**
+   * The settings of all guards we wish to activate.
+   *
+   * Any guard not provided or set to `null` will be disabled.
+   *
+   * This parameter is ignored if `withoutCandyGuard` is set to `true`.
+   */
+  guards: Partial<T>;
+
+  /**
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * For each group, any guard not provided or set to `null` will be disabled.
+   *
+   * This parameter is ignored if `withoutCandyGuard` is set to `true`.
+   *
+   * @defaultValue `[]`
+   */
+  groups?: Partial<T>[];
+
+  /**
+   * The Candy Guard program to use when creating the account.
+   *
+   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
+   */
+  candyGuardProgram?: PublicKey;
+
+  /**
+   * Whether to skip the part of this operation that creates a Candy Guard
+   * for the new Candy Machine. When set to `true`, no Candy Guard will be
+   * created for the Candy Machine.
+   *
+   * @defaultValue `false`
+   */
+  withoutCandyGuard: boolean;
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -222,12 +269,14 @@ export type CreateCandyMachineInput = {
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyMachineOutput = {
+export type CreateCandyMachineOutput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
   /** The Candy Machine that was created. */
-  candyMachine: CandyMachine;
+  candyMachine: CandyMachine<T>;
 
   /** The created Candy Machine has a Signer. */
   candyMachineSigner: Signer;
@@ -239,11 +288,11 @@ export type CreateCandyMachineOutput = {
  */
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
   {
-    async handle(
-      operation: CreateCandyMachineOperation,
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: CreateCandyMachineOperation<T>,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyMachineOutput> {
+    ): Promise<CreateCandyMachineOutput<T>> {
       const builder = await createCandyMachineBuilder(
         metaplex,
         operation.input
@@ -272,10 +321,9 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyMachineBuilderParams = Omit<
-  CreateCandyMachineInput,
-  'confirmOptions'
-> & {
+export type CreateCandyMachineBuilderParams<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<CreateCandyMachineInput<T>, 'confirmOptions'> & {
   /** A key to distinguish the instruction that creates the Candy Machine account. */
   createCandyMachineAccountInstructionKey?: string;
 
@@ -306,9 +354,11 @@ export type CreateCandyMachineBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyMachineBuilder = async (
+export const createCandyMachineBuilder = async <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: CreateCandyMachineBuilderParams
+  params: CreateCandyMachineBuilderParams<T>
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const {
     payer = metaplex.identity(),
@@ -345,34 +395,39 @@ export const createCandyMachineBuilder = async (
     itemSettings,
   });
 
-  return TransactionBuilder.make<CreateCandyMachineBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({ candyMachineSigner: candyMachine })
+  return (
+    TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+      .setFeePayer(payer)
+      .setContext({ candyMachineSigner: candyMachine })
 
-    .add(
-      await metaplex
-        .system()
-        .builders()
-        .createAccount({
-          space: getCandyMachineSize(candyMachineData),
-          payer,
-          newAccount: candyMachine,
-          program: candyMachineProgram.address,
-        })
-    )
+      // TODO: Create Candy Guard
 
-    .add({
-      instruction: createInitializeInstruction(
-        {
-          candyMachine: candyMachine.publicKey,
-          authority,
-          mintAuthority,
-          payer: payer.publicKey,
-        },
-        { data: candyMachineData }
-      ),
-      signers: [payer, candyMachine],
-      key:
-        params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
-    });
+      .add(
+        await metaplex
+          .system()
+          .builders()
+          .createAccount({
+            space: getCandyMachineSize(candyMachineData),
+            payer,
+            newAccount: candyMachine,
+            program: candyMachineProgram.address,
+          })
+      )
+
+      .add({
+        instruction: createInitializeInstruction(
+          {
+            candyMachine: candyMachine.publicKey,
+            authority,
+            mintAuthority,
+            payer: payer.publicKey,
+          },
+          { data: candyMachineData }
+        ),
+        signers: [payer, candyMachine],
+        key:
+          params.initializeCandyMachineInstructionKey ??
+          'initializeCandyMachine',
+      })
+  );
 };
