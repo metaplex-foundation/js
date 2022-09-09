@@ -1,4 +1,4 @@
-import { assert, Option } from '@/utils';
+import { assert, Option, removeEmptyChars } from '@/utils';
 import {
   AccountInfo,
   assertModel,
@@ -60,7 +60,7 @@ export type CandyMachine<
    * minted NFTs. When `null`, it means NFTs will not be part of a
    * collection when minted.
    */
-  readonly collectionMintAddress: Option<PublicKey>;
+  readonly collectionMintAddress: PublicKey;
 
   /**
    * The symbol to use when minting NFTs (e.g. "MYPROJECT")
@@ -150,7 +150,7 @@ export type CandyMachine<
    * This array of booleans is used to keep track of which
    * items have been loaded in the Candy Machine.
    */
-  readonly itemLoadedMap: boolean[];
+  readonly itemsLoadedMap: boolean[];
 
   /**
    * Settings related to the Candy Machine's items.
@@ -343,7 +343,7 @@ export const toCandyMachine = <
   let items: CandyMachineItem[] = [];
   let itemsLoaded = 0;
   let isFullyLoaded = true;
-  let itemLoadedMap: boolean[] = [];
+  let itemsLoadedMap: boolean[] = [];
 
   const hiddenSettings = parsedAccount.data.data.hiddenSettings;
   const configLineSettings = parsedAccount.data.data.configLineSettings;
@@ -367,7 +367,7 @@ export const toCandyMachine = <
     items = hiddenSection.items;
     itemsLoaded = hiddenSection.itemsLoaded;
     isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
-    itemLoadedMap = hiddenSection.itemsLoadedMap;
+    itemsLoadedMap = hiddenSection.itemsLoadedMap;
   }
 
   return {
@@ -377,7 +377,7 @@ export const toCandyMachine = <
     authorityAddress: parsedAccount.data.authority,
     mintAuthorityAddress: parsedAccount.data.mintAuthority,
     collectionMintAddress: parsedAccount.data.collectionMint,
-    symbol: parsedAccount.data.data.symbol,
+    symbol: removeEmptyChars(parsedAccount.data.data.symbol),
     sellerFeeBasisPoints: parsedAccount.data.data.sellerFeeBasisPoints,
     isMutable: parsedAccount.data.data.isMutable,
     maxEditionSupply: toBigNumber(parsedAccount.data.data.maxSupply),
@@ -390,7 +390,7 @@ export const toCandyMachine = <
     itemsRemaining,
     itemsLoaded,
     isFullyLoaded,
-    itemLoadedMap,
+    itemsLoadedMap,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
       toBigNumber(parsedAccount.data.features).toBuffer(),

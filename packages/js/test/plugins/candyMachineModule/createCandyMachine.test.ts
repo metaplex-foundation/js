@@ -1,5 +1,8 @@
 import {
   CandyGuard,
+  CandyMachine,
+  CandyMachineProgram,
+  DefaultCandyGuardProgram,
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
   findCandyGuardPda,
@@ -42,16 +45,57 @@ test.only('[candyMachineModule] create with minimum configuration', async (t) =>
     .run();
 
   // Then the following data was set on the Candy Machine account.
+  const candyGuardAddress = findCandyGuardPda(candyMachineSigner.publicKey);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
+    accountInfo: {
+      owner: spokSamePubkey(CandyMachineProgram.address),
+    },
     address: spokSamePubkey(candyMachineSigner.publicKey),
     authorityAddress: spokSamePubkey(mx.identity().publicKey),
-    accountInfo: {
-      executable: false,
-      owner: spokSamePubkey(mx.programs().get('CandyMachineProgram').address),
+    mintAuthorityAddress: spokSamePubkey(candyGuardAddress),
+    collectionMintAddress: spokSamePubkey(collectionNft.address),
+    symbol: '',
+    sellerFeeBasisPoints: 333,
+    isMutable: true,
+    maxEditionSupply: spokSameBignum(0),
+    creators: [
+      {
+        address: spokSamePubkey(mx.identity().publicKey),
+        share: 100,
+      },
+    ],
+    items: [],
+    itemsAvailable: spokSameBignum(5000),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(5000),
+    itemsLoaded: 0,
+    isFullyLoaded: false,
+    itemSettings: {
+      type: 'configLines',
+      prefixName: '',
+      nameLength: 32,
+      prefixUri: '',
+      uriLength: 200,
+      isSequential: false,
     },
-  });
+    candyGuard: {
+      model: 'candyGuard',
+      accountInfo: {
+        owner: spokSamePubkey(DefaultCandyGuardProgram.address),
+      },
+      address: spokSamePubkey(candyGuardAddress),
+      baseAddress: spokSamePubkey(candyMachineSigner.publicKey),
+      authorityAddress: spokSamePubkey(mx.identity().publicKey),
+      guards: emptyDefaultCandyGuardSettings,
+      groups: [],
+    },
+  } as unknown as Specifications<CandyMachine>);
+  t.equal(candyMachine.itemsLoadedMap.length, 5000);
+  t.ok(candyMachine.itemsLoadedMap.every((loaded) => !loaded));
+  t.equal(candyMachine.featureFlags.length, 64);
+  t.ok(candyMachine.featureFlags.slice(0, 64).every((enabled) => !enabled));
 });
 
 test.skip('[candyMachineModule] create with maximum configuration', async (t) => {
