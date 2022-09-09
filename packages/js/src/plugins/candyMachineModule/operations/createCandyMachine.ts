@@ -127,11 +127,13 @@ export type CreateCandyMachineInput<
    *   .run();
    * ```
    *
-   * You can now use `nft` as the value for this parameter.
+   * You can now use `nft.address` as the address of the collection and
+   * provide the update authority as a signer, which by default, should
+   * be `metaplex.identity()`.
    */
   collection: {
     address: PublicKey;
-    updateAuthorityAddress: PublicKey;
+    updateAuthority: Signer;
   };
 
   /**
@@ -477,13 +479,13 @@ export const createCandyMachineBuilder = async <
           collectionMetadata,
           collectionMint: collection.address,
           collectionMasterEdition,
-          collectionUpdateAuthority: collection.updateAuthorityAddress,
+          collectionUpdateAuthority: collection.updateAuthority.publicKey,
           collectionAuthorityRecord,
           tokenMetadataProgram: tokenMetadataProgram.address,
         },
         { data: candyMachineData }
       ),
-      signers: [payer, candyMachine],
+      signers: [payer, candyMachine, collection.updateAuthority],
       key:
         params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
     });

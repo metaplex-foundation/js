@@ -20,6 +20,7 @@ import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
   createCollectionNft,
+  createWallet,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -40,7 +41,10 @@ test('[candyMachineModule] create with minimum configuration', async (t) => {
     .create({
       itemsAvailable: toBigNumber(5000),
       sellerFeeBasisPoints: 333, // 3.33%
-      collection: collectionNft,
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
     })
     .run();
 
@@ -101,7 +105,10 @@ test('[candyMachineModule] create with minimum configuration', async (t) => {
 test.only('[candyMachineModule] create with maximum configuration', async (t) => {
   // Given an existing Collection NFT.
   const mx = await metaplex();
-  const collectionNft = await createCollectionNft(mx);
+  const collectionUpdateAuthority = await createWallet(mx);
+  const collectionNft = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthority,
+  });
 
   // When we create a new Candy Machine with maximum configuration.
   const candyMachineSigner = Keypair.generate();
@@ -116,7 +123,10 @@ test.only('[candyMachineModule] create with maximum configuration', async (t) =>
       candyMachine: candyMachineSigner,
       payer,
       authority,
-      collection: collectionNft,
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: collectionUpdateAuthority,
+      },
       sellerFeeBasisPoints: 333, // 3.33%
       itemsAvailable: toBigNumber(5000),
       itemSettings: {
@@ -143,6 +153,7 @@ test.only('[candyMachineModule] create with maximum configuration', async (t) =>
         { liveDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
         { liveDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
       ],
+      withoutCandyGuard: false,
     })
     .run();
 
