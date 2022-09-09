@@ -63,7 +63,14 @@ export type CancelListingInput = {
     'address' | 'authorityAddress' | 'feeAccountAddress' | 'hasAuctioneer'
   >;
 
-  /** The Listing to cancel. */
+  /**
+   * The Listing to cancel.
+   * We only need a subset of the `Listing` model but we
+   * need enough information regarding its settings to know how
+   * to cancel it.
+   *
+   * This includes, its asset, seller address, price, receipt address etc.
+   */
   listing: Pick<
     Listing,
     | 'asset'

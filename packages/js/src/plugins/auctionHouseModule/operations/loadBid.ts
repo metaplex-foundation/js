@@ -12,6 +12,15 @@ import { assertNftOrSftWithToken } from '../../nftModule';
 const Key = 'LoadBidOperation' as const;
 
 /**
+ * Transforms a `LazyBid` model into a `Bid` model.
+ *
+ * ```ts
+ * const bid = await metaplex
+ *   .auctionHouse()
+ *   .loadBid({ lazyBid })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -28,8 +37,15 @@ export type LoadBidOperation = Operation<typeof Key, LoadBidInput, Bid>;
  * @category Inputs
  */
 export type LoadBidInput = {
+  /** The `LazyBid` model to transform into the `Bid`.  */
   lazyBid: LazyBid;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

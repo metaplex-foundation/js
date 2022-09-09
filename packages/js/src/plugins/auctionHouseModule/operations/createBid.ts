@@ -89,7 +89,7 @@ export type CreateBidInput = {
    * Creator of a bid.
    *
    * @defaultValue `metaplex.identity()`
-   * */
+   */
   buyer?: Signer;
 
   /**
@@ -98,7 +98,7 @@ export type CreateBidInput = {
    * will be paid from the Auction House Fee Account
    *
    * @defaultValue `auctionHouse.authority`
-   * */
+   */
   authority?: PublicKey | Signer;
 
   /**
@@ -118,12 +118,16 @@ export type CreateBidInput = {
   /**
    * The account address that holds the asset a bid created is for.
    * If this or tokenAccount isn't provided, then the bid will be public.
+   *
+   * @defaultValue No default value.
    */
   seller?: Option<PublicKey>;
 
   /**
-   * The token account address that's related to the asset a bid created is for.
+   * The token account address that's associated to the asset a bid created is for.
    * If this or seller isn't provided, then the bid will be public.
+   *
+   * @defaultValue No default value.
    */
   tokenAccount?: Option<PublicKey>;
 
@@ -136,13 +140,13 @@ export type CreateBidInput = {
 
   /**
    * The number of tokens to bid for.
-   * For an NFT bid is must be 1 token.
+   * For an NFT bid it must be 1 token.
    *
    * When a Fungible Asset is put on sale.
    * The buyer can then create a buy order of said assets that is
    * less than the token_size of the sell order.
    *
-   * @defaultValue 1 tokens.
+   * @defaultValue 1 token.
    */
   tokens?: SplTokenAmount;
 
@@ -151,18 +155,18 @@ export type CreateBidInput = {
    * The receipt holds information about the bid,
    * So it's important to print it if you want to use the `Bid` model
    *
-   * For the Auctioneer Auction House receipt printing is skipped
+   * The receipt printing is skipped for the Auctioneer Auction House
    * Since it currently doesn't support it.
    *
    * @defaultValue `true`
-   * */
+   */
   printReceipt?: boolean;
 
   /**
-   * Account that creates a bid receipt, when it must be printed.
+   * The address of the bookkeeper wallet responsible for the receipt.
    *
    * @defaultValue `metaplex.identity()`
-   * */
+   */
   bookkeeper?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -174,22 +178,54 @@ export type CreateBidInput = {
  * @category Outputs
  */
 export type CreateBidOutput = {
+  /** Buyer trade state account PDA encoding the bid order. */
+  buyerTradeState: Pda;
+
+  /** The asset's token account address in case the bid is private. */
+  tokenAccount: Option<PublicKey>;
+
+  /** The asset's metadata PDA. */
+  metadata: Pda;
+
+  /** The potential buyer of the asset. */
+  buyer: PublicKey;
+
+  /** The PDA of the receipt account in case it was printed. */
+  receipt: Option<Pda>;
+
+  /** The address of the bookkeeper wallet responsible for the receipt. */
+  bookkeeper: Option<PublicKey>;
+
+  /** The buyer's price. */
+  price: SolAmount | SplTokenAmount;
+
+  /** The number of tokens to bid for. */
+  tokens: SplTokenAmount;
+
+  /** A model that keeps information about the Bid. */
+  bid: Bid;
+
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
-  buyerTradeState: Pda;
-  tokenAccount: Option<PublicKey>;
-  metadata: Pda;
-  buyer: PublicKey;
-  receipt: Option<Pda>;
-  bookkeeper: Option<PublicKey>;
-  price: SolAmount | SplTokenAmount;
-  tokens: SplTokenAmount;
-  bid: Bid;
 };
 
 /**
- * @group Operations
- * @category Handlers
+ * Creates a bid on a given asset.
+ *
+ * You can post a public bid on a non-listed NFT by skipping seller and tokenAccount properties.
+ * Public bids are specific to the token itself and not to any specific auction.
+ * This means that a bid can stay active beyond the end of an auction
+ * and be resolved if it meets the criteria for subsequent auctions of that token.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .createBid({ auctionHouse, mintAccount, seller });
+ * ```
+ *
+ * @group Transaction Builders
+ * @category Constructors
  */
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
@@ -260,6 +296,21 @@ export type CreateBidBuilderParams = Omit<CreateBidInput, 'confirmOptions'> & {
 export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response' | 'bid'>;
 
 /**
+ * Creates a bid on a given asset.
+ *
+ * You can post a public bid on a non-listed NFT by skipping seller and tokenAccount properties.
+ * Public bids are specific to the token itself and not to any specific auction.
+ * This means that a bid can stay active beyond the end of an auction
+ * and be resolved if it meets the criteria for subsequent auctions of that token.
+ *
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .createBid({ auctionHouse, mintAccount, seller })
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

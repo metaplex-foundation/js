@@ -14,6 +14,15 @@ import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
 const Key = 'FindAuctionHouseByAddressOperation' as const;
 
 /**
+ * Finds an Auction House by its address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findByAddress({ address })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -35,7 +44,15 @@ export type FindAuctionHouseByAddressOperation = Operation<
  * @category Inputs
  */
 export type FindAuctionHouseByAddressInput = {
+  /** The address of the Auction House. */
   address: PublicKey;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
   auctioneerAuthority?: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
