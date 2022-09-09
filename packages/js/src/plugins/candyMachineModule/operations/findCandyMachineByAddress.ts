@@ -1,13 +1,14 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Operation, OperationHandler, PublicKey, useOperation } from '@/types';
+import { DisposableScope } from '@/utils';
+import { Commitment } from '@solana/web3.js';
+import { CandyMachine } from '../models';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CreateCandyGuardOperation' as const;
+const Key = 'FindCandyMachineByAddressOperation' as const;
 
 /**
  * TODO
@@ -23,93 +24,48 @@ const Key = 'CreateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyGuardOperation =
-  useOperation<CreateCandyGuardOperation>(Key);
+export const findCandyMachineByAddressOperation =
+  useOperation<FindCandyMachineByAddressOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyGuardOperation = Operation<
+export type FindCandyMachineByAddressOperation = Operation<
   typeof Key,
-  CreateCandyGuardInput,
-  CreateCandyGuardOutput
+  FindCandyMachineByAddressInput,
+  FindCandyMachineByAddressOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyGuardInput = {};
+export type FindCandyMachineByAddressInput = {
+  /** The Candy Machine address. */
+  address: PublicKey;
+
+  /** The level of commitment desired when querying the blockchain. */
+  commitment?: Commitment;
+};
 
 /**
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyGuardOutput = {
-  /** The blockchain response from sending and confirming the transaction. */
-  response: SendAndConfirmTransactionResponse;
-};
+export type FindCandyMachineByAddressOutput = CandyMachine;
 
 /**
  * @group Operations
  * @category Handlers
  */
-export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
+export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
   {
     async handle(
-      operation: CreateCandyGuardOperation,
+      operation: FindCandyMachineByAddressOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyGuardOutput> {
+    ): Promise<FindCandyMachineByAddressOutput> {
       //
     },
   };
-
-// -----------------
-// Builder
-// -----------------
-
-/**
- * @group Transaction Builders
- * @category Inputs
- */
-export type CreateCandyGuardBuilderParams = Omit<
-  CreateCandyGuardInput,
-  'confirmOptions'
-> & {
-  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  createCandyGuardInstructionKey?: string;
-};
-
-/**
- * @group Transaction Builders
- * @category Contexts
- */
-export type CreateCandyGuardBuilderContext = Omit<
-  CreateCandyGuardOutput,
-  'response'
->;
-
-/**
- * TODO
- *
- * ```ts
- * const transactionBuilder = await metaplex
- *   .candyMachines()
- *   .builders()
- *   .create({
- *   });
- * ```
- *
- * @group Transaction Builders
- * @category Constructors
- */
-export const createCandyGuardBuilder = (
-  metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams
-): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  return TransactionBuilder.make<CreateCandyGuardBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({});
-};

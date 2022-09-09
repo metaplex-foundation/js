@@ -29,27 +29,23 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  * @category Constructors
  */
 export const findCandyGuardByAddressOperation = <
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
->() => useOperation<FindCandyGuardByAddressOperation<GuardSettings>>(Key);
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>() => useOperation<FindCandyGuardByAddressOperation<T>>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
 export type FindCandyGuardByAddressOperation<
-  GuardSettings extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Operation<
-  typeof Key,
-  FindCandyGuardByAddressInput,
-  CandyGuard<GuardSettings>
->;
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<typeof Key, FindCandyGuardByAddressInput, CandyGuard<T>>;
 
 /**
  * @group Operations
  * @category Inputs
  */
 export type FindCandyGuardByAddressInput = {
-  /** The Candy Machine address. */
+  /** The Candy Guard address. */
   address: PublicKey;
 
   /** The level of commitment desired when querying the blockchain. */
@@ -62,14 +58,14 @@ export type FindCandyGuardByAddressInput = {
  */
 export const findCandyGuardByAddressOperationHandler: OperationHandler<FindCandyGuardByAddressOperation> =
   {
-    handle: async (
+    handle: async <T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: FindCandyGuardByAddressOperation,
       metaplex: Metaplex
-    ) => {
+    ): Promise<CandyGuard<T>> => {
       const { address, commitment } = operation.input;
       const account = await metaplex.rpc().getAccount(address, commitment);
       assertAccountExists(account);
 
-      return toCandyGuard(account, metaplex);
+      return toCandyGuard<T>(account, metaplex);
     },
   };

@@ -23,7 +23,7 @@ import {
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
 } from './operations';
-import { DefaultCandyGuardProgram } from './programs';
+import { CandyMachineProgram, DefaultCandyGuardProgram } from './programs';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
@@ -33,6 +33,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     metaplex.candyMachines = () => client;
 
     // Program.
+    metaplex.programs().register(CandyMachineProgram);
     metaplex.programs().register(DefaultCandyGuardProgram);
 
     // Default Guards.
