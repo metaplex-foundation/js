@@ -10,9 +10,16 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions, Keypair } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachine } from '../models';
+import {
+  CandyMachine,
+  CandyMachineConfigLineSettings,
+  CandyMachineHiddenSettings,
+  toCandyMachineData,
+} from '../models';
+import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
 
 // -----------------
 // Operation
@@ -125,6 +132,40 @@ export type CreateCandyMachineInput = {
   itemsAvailable: BigNumber;
 
   /**
+   * Settings related to the Candy Machine's items.
+   *
+   * These can either be inserted manually within the Candy Machine or
+   * they can be infered from a set of hidden settings.
+   *
+   * - If `type` is `hidden`, the Candy Machine is using hidden settings.
+   * - If `type` is `configLines`, the Candy Machine is using config line settings.
+   *
+   * @defaultValue
+   * Defaults to using `configLines` settings with:
+   * - No prefixes.
+   * - A length of 32 for the name.
+   * - A length of 200 for the URI.
+   * - Random mint ordering.
+   *
+   * ```ts
+   * {
+   *   itemSettings: {
+   *     type: 'configLines',
+   *     prefixName: '',
+   *     nameLength: 32,
+   *     prefixUri: '',
+   *     uriLength: 200,
+   *     isSequential: false,
+   *   }
+   * }
+   * ```
+   *
+   * @see {@link CandyMachineHiddenSettings}
+   * @see {@link CandyMachineConfigLineSettings}
+   */
+  itemSettings?: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
+
+  /**
    * The symbol to use when minting NFTs (e.g. "MYPROJECT")
    *
    * This can be any string up to 10 bytes and can be made optional
@@ -230,8 +271,11 @@ export type CreateCandyMachineBuilderParams = Omit<
   CreateCandyMachineInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  createCandyMachineInstructionKey?: string;
+  /** A key to distinguish the instruction that creates the Candy Machine account. */
+  createCandyMachineAccountInstructionKey?: string;
+
+  /** A key to distinguish the instruction that initializes the Candy Machine account. */
+  initializeCandyMachineInstructionKey?: string;
 };
 
 /**
@@ -257,10 +301,10 @@ export type CreateCandyMachineBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyMachineBuilder = (
+export const createCandyMachineBuilder = async (
   metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams
-): TransactionBuilder<CreateCandyMachineBuilderContext> => {
+): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const {
     payer = metaplex.identity(),
     candyMachine = Keypair.generate(),
@@ -272,10 +316,47 @@ export const createCandyMachineBuilder = (
     symbol = '',
     maxEditionSupply = toBigNumber(0),
     isMutable = true,
-    creators = [{ address: authority, share: 100 }],
   } = params;
+
+  const creators = params.creators ?? [{ address: authority, share: 100 }];
+  const itemSettings = params.itemSettings ?? {
+    type: 'configLines',
+    prefixName: '',
+    nameLength: 32,
+    prefixUri: '',
+    uriLength: 200,
+    isSequential: false,
+  };
+
+  const candyMachineData = toCandyMachineData({
+    itemsAvailable,
+    symbol,
+    sellerFeeBasisPoints,
+    maxEditionSupply,
+    isMutable,
+    creators,
+    itemSettings,
+  });
 
   return TransactionBuilder.make<CreateCandyMachineBuilderContext>()
     .setFeePayer(payer)
-    .setContext({ candyMachineSigner: candyMachine });
+    .setContext({ candyMachineSigner: candyMachine })
+
+    .add(
+      await metaplex.system().builders().createAccount({
+        space: getCandyMachineSize(),
+      })
+    )
+
+    .add({
+      instruction: createInitializeInstruction({
+        candyMachine: candyMachine.publicKey,
+        authority,
+        mintAuthority,
+        payer: payer.publicKey,
+      }),
+      signers: [payer, candyMachine],
+      key:
+        params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
+    });
 };

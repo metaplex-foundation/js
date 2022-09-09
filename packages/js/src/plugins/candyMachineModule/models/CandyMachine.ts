@@ -19,6 +19,7 @@ import { CandyMachineItem } from './CandyMachineItem';
 import {
   CandyMachine as MplCandyMachine,
   candyMachineBeet,
+  CandyMachineData,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
@@ -94,10 +95,12 @@ export type CandyMachine = Model<'candyMachine'> & {
 
   /**
    * Array of creators that should be set on minted NFTs.
+   * creators can only verify NFTs after they have been minted.
+   * Thus, all the provided creators will have `verified` set to `false`.
    *
    * @see {@link Creator}
    */
-  readonly creators: Creator[];
+  readonly creators: Omit<Creator, 'verified'>[];
 
   /**
    * The parsed items that are loaded in the Candy Machine.
@@ -379,5 +382,40 @@ export const toCandyMachine = (account: UnparsedAccount): CandyMachine => {
       toBigNumber(parsedAccount.data.features).toBuffer(),
       64
     )[0],
+  };
+};
+
+export const toCandyMachineData = (
+  candyMachine: Pick<
+    CandyMachine,
+    | 'itemsAvailable'
+    | 'symbol'
+    | 'sellerFeeBasisPoints'
+    | 'maxEditionSupply'
+    | 'isMutable'
+    | 'creators'
+    | 'itemSettings'
+  >
+): CandyMachineData => {
+  return {
+    itemsAvailable: candyMachine.itemsAvailable,
+    symbol: candyMachine.symbol,
+    sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
+    maxSupply: candyMachine.maxEditionSupply,
+    retainAuthority: 'REMOVE ME', // TODO(loris): remove when protocol is ready.
+    isMutable: candyMachine.isMutable,
+    creators: candyMachine.creators.map((creator) => ({
+      ...creator,
+      verified: false,
+      percentageShare: creator.share,
+    })),
+    configLineSettings:
+      candyMachine.itemSettings.type === 'configLines'
+        ? candyMachine.itemSettings
+        : null,
+    hiddenSettings:
+      candyMachine.itemSettings.type === 'hidden'
+        ? candyMachine.itemSettings
+        : null,
   };
 };
