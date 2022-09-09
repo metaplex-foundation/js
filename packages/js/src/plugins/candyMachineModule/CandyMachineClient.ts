@@ -9,10 +9,14 @@ import { CandyGuard } from './models';
 import {
   CreateCandyGuardInput,
   createCandyGuardOperation,
+  CreateCandyMachineInput,
+  createCandyMachineOperation,
   FindCandyGuardByAddressInput,
   findCandyGuardByAddressOperation,
   FindCandyGuardsByAuthorityInput,
   findCandyGuardsByAuthorityOperation,
+  FindCandyMachineByAddressInput,
+  findCandyMachineByAddressOperation,
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
 } from './operations';
@@ -85,6 +89,15 @@ export class CandyMachineClient {
     return new CandyMachineBuildersClient(this.metaplex);
   }
 
+  /** {@inheritDoc createCandyMachineOperation} */
+  create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: CreateCandyMachineInput<T>
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(createCandyMachineOperation<T>(input));
+  }
+
   /** {@inheritDoc createCandyGuardOperation} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: CreateCandyGuardInput<T>
@@ -101,6 +114,15 @@ export class CandyMachineClient {
     return this.metaplex
       .operations()
       .getTask(findCandyGuardsByAuthorityOperation<T>(input));
+  }
+
+  /** {@inheritDoc findCandyMachineByAddressOperation} */
+  findByAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: FindCandyMachineByAddressInput
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(findCandyMachineByAddressOperation<T>(input));
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */
@@ -130,20 +152,20 @@ export class CandyMachineClient {
   }
 
   /**
-   * Helper method that refetches a given Candy Guard.
-   *
-   * TODO: Use for both candy guards and candy machines.
+   * Helper method that refetches a given Candy Machine or Candy Guard.
    *
    * ```ts
+   * const candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
    * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
    * ```
    */
   refresh<T extends CandyGuardsSettings>(
-    candyGuard: CandyGuard<T> | PublicKey,
+    model: CandyGuard<T> | PublicKey,
     input?: Omit<FindCandyGuardByAddressInput, 'address'>
   ): Task<CandyGuard<T>> {
+    // TODO: support CM too.
     return this.findCandyGuardByAddress<T>({
-      address: toPublicKey(candyGuard),
+      address: toPublicKey(model),
       ...input,
     });
   }
