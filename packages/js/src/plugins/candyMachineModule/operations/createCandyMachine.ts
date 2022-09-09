@@ -6,6 +6,7 @@ import {
   OperationHandler,
   PublicKey,
   Signer,
+  toBigNumber,
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
@@ -164,11 +165,10 @@ export type CreateCandyMachineInput = {
    * @see {@link Creator}
    *
    * @defaultValue
+   * Defaults to using the `authority` parameter as the only creator.
+   *
    * ```ts
-   * [{
-   *   address: metaplex.identity().publicKey,
-   *   share: 100,
-   * }]
+   * [{ address: authority, share: 100 }]
    * ```
    */
   creators: Omit<Creator, 'verified'>[];
@@ -261,8 +261,19 @@ export const createCandyMachineBuilder = (
   metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams
 ): TransactionBuilder<CreateCandyMachineBuilderContext> => {
-  const payer = params.payer ?? metaplex.identity();
-  const candyMachine = params.candyMachine ?? Keypair.generate();
+  const {
+    payer = metaplex.identity(),
+    candyMachine = Keypair.generate(),
+    authority,
+    mintAuthority = authority,
+    collection,
+    sellerFeeBasisPoints,
+    itemsAvailable,
+    symbol = '',
+    maxEditionSupply = toBigNumber(0),
+    isMutable = true,
+    creators = [{ address: authority, share: 100 }],
+  } = params;
 
   return TransactionBuilder.make<CreateCandyMachineBuilderContext>()
     .setFeePayer(payer)
