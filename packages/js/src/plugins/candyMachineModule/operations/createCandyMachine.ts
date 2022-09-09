@@ -9,8 +9,9 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { ConfirmOptions } from '@solana/web3.js';
+import { ConfirmOptions, Keypair } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyMachine } from '../models';
 
 // -----------------
 // Operation
@@ -183,6 +184,12 @@ export type CreateCandyMachineInput = {
 export type CreateCandyMachineOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
+
+  /** The Candy Machine that was created. */
+  candyMachine: CandyMachine;
+
+  /** The created Candy Machine has a Signer. */
+  candyMachineSigner: Signer;
 };
 
 /**
@@ -196,7 +203,18 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateCandyMachineOutput> {
-      //
+      const builder = createCandyMachineBuilder(metaplex, operation.input);
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      // TODO: fetch
+      const candyMachine: CandyMachine = {} as unknown as CandyMachine;
+      scope.throwIfCanceled();
+
+      return { ...output, candyMachine };
     },
   };
 
@@ -222,7 +240,7 @@ export type CreateCandyMachineBuilderParams = Omit<
  */
 export type CreateCandyMachineBuilderContext = Omit<
   CreateCandyMachineOutput,
-  'response'
+  'response' | 'candyMachine'
 >;
 
 /**
@@ -243,7 +261,10 @@ export const createCandyMachineBuilder = (
   metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams
 ): TransactionBuilder<CreateCandyMachineBuilderContext> => {
+  const payer = params.payer ?? metaplex.identity();
+  const candyMachine = params.candyMachine ?? Keypair.generate();
+
   return TransactionBuilder.make<CreateCandyMachineBuilderContext>()
     .setFeePayer(payer)
-    .setContext({});
+    .setContext({ candyMachineSigner: candyMachine });
 };
