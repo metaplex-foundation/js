@@ -1,4 +1,5 @@
 import { ErrorWithLogs, Program } from '@/types';
+import { assert } from '@/utils';
 import { initCusper } from '@metaplex-foundation/cusper';
 import {
   errorFromCode as defaultCandyGuardErrorFromCode,
@@ -23,6 +24,17 @@ export const CandyMachineProgram: Program = {
 
 /** @group Programs */
 export type CandyGuardProgram = Program & { availableGuards: string[] };
+
+export const isCandyGuardProgram = (
+  value: Program
+): value is CandyGuardProgram =>
+  typeof value === 'object' && 'availableGuards' in value;
+
+export function assertCandyGuardProgram(
+  value: Program
+): asserts value is CandyGuardProgram {
+  assert(isCandyGuardProgram(value), `Expected CandyGuardProgram model`);
+}
 
 /** @group Programs */
 export const DefaultCandyGuardProgram: CandyGuardProgram = {
