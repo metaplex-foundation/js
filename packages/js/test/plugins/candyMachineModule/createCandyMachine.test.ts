@@ -1,20 +1,13 @@
 import {
-  CandyGuard,
   CandyMachine,
   CandyMachineProgram,
   DefaultCandyGuardProgram,
-  DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
   findCandyGuardPda,
   sol,
   toBigNumber,
   toDateTime,
-  token,
 } from '@/index';
-import {
-  EndSettingType,
-  WhitelistTokenMode,
-} from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -102,7 +95,7 @@ test('[candyMachineModule] create with minimum configuration', async (t) => {
   t.ok(candyMachine.featureFlags.slice(0, 64).every((enabled) => !enabled));
 });
 
-test.only('[candyMachineModule] create with maximum configuration', async (t) => {
+test('[candyMachineModule] create with maximum configuration', async (t) => {
   // Given an existing Collection NFT.
   const mx = await metaplex();
   const collectionUpdateAuthority = await createWallet(mx);
