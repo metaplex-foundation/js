@@ -455,6 +455,24 @@ export const createCandyMachineBuilder = async <
     builder.add(createCandyGuard);
   }
 
+  const initializeInstruction = createInitializeInstruction(
+    {
+      candyMachine: candyMachine.publicKey,
+      authorityPda,
+      authority,
+      mintAuthority,
+      payer: payer.publicKey,
+      collectionMetadata,
+      collectionMint: collection.address,
+      collectionMasterEdition,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      collectionAuthorityRecord,
+      tokenMetadataProgram: tokenMetadataProgram.address,
+    },
+    { data: candyMachineData }
+  );
+  initializeInstruction.keys[8].isWritable = true;
+
   return builder
     .add(
       await metaplex
@@ -469,22 +487,7 @@ export const createCandyMachineBuilder = async <
     )
 
     .add({
-      instruction: createInitializeInstruction(
-        {
-          candyMachine: candyMachine.publicKey,
-          authorityPda,
-          authority,
-          mintAuthority,
-          payer: payer.publicKey,
-          collectionMetadata,
-          collectionMint: collection.address,
-          collectionMasterEdition,
-          collectionUpdateAuthority: collection.updateAuthority.publicKey,
-          collectionAuthorityRecord,
-          tokenMetadataProgram: tokenMetadataProgram.address,
-        },
-        { data: candyMachineData }
-      ),
+      instruction: initializeInstruction,
       signers: [payer, candyMachine, collection.updateAuthority],
       key:
         params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
