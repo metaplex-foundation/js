@@ -36,8 +36,17 @@ const Key = 'CancelBidOperation' as const;
 export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
 
 /**
+ * Cancels the user's bid in the given auction house.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .cancelBid({ auctionHouse, bid })
+ *   .run();
+ * ```
+ *
  * @group Operations
- * @category Types
+ * @category Constructors
  */
 export type CancelBidOperation = Operation<
   typeof Key,
@@ -50,11 +59,27 @@ export type CancelBidOperation = Operation<
  * @category Inputs
  */
 export type CancelBidInput = {
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
+  /**
+   * The Auction House in which to cancel Bid.
+   * We only need a subset of the `AuctionHouse` model but we
+   * need enough information regarding its settings to know how
+   * to cancel bid.
+   *
+   * This includes, its address, authority address, its fee account address, etc.
+   */
   auctionHouse: Pick<
     AuctionHouse,
     'authorityAddress' | 'address' | 'feeAccountAddress' | 'hasAuctioneer'
   >;
+
+  /**
+   * The Bid to cancel.
+   * We only need a subset of the `Bid` model but we
+   * need enough information regarding its settings to know how
+   * to cancel it.
+   *
+   * This includes, its asset, buyer address, price, receipt address etc.
+   */
   bid: Pick<
     Bid,
     | 'asset'
@@ -65,6 +90,14 @@ export type CancelBidInput = {
     | 'tokens'
     | 'tradeStateAddress'
   >;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
+  auctioneerAuthority?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -110,6 +143,15 @@ export type CancelBidBuilderParams = Omit<CancelBidInput, 'confirmOptions'> & {
 export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
 
 /**
+ * Cancels the user's bid in the given auction house.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .cancelBid({ auctionHouse, bid });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */

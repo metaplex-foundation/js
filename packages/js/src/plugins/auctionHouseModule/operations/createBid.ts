@@ -47,6 +47,21 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 const Key = 'CreateBidOperation' as const;
 
 /**
+ * Creates a bid on a given asset.
+ *
+ * You can post a public bid on a non-listed NFT by skipping seller and tokenAccount properties.
+ * Public bids are specific to the token itself and not to any specific auction.
+ * This means that a bid can stay active beyond the end of an auction
+ * and be resolved if it meets the criteria for subsequent auctions of that token.
+ *
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .createBid({ auctionHouse, mintAccount, seller })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -67,17 +82,88 @@ export type CreateBidOperation = Operation<
  * @category Inputs
  */
 export type CreateBidInput = {
+  /** The Auction House in which to create a Bid. */
   auctionHouse: AuctionHouse;
-  buyer?: PublicKey | Signer; // Default: identity
-  authority?: PublicKey | Signer; // Default: auctionHouse.authority
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  mintAccount: PublicKey; // Required for checking Metadata
-  seller?: Option<PublicKey>; // Default: null (i.e. public bid unless token account is provided)
-  tokenAccount?: Option<PublicKey>; // Default: null (i.e. public bid unless seller is provided).
+
+  /**
+   * Creator of a bid.
+   *
+   * @defaultValue `metaplex.identity()`
+   * */
+  buyer?: Signer;
+
+  /**
+   * The Auction House authority.
+   * If this is Signer the transaction fee
+   * will be paid from the Auction House Fee Account
+   *
+   * @defaultValue `auctionHouse.authority`
+   * */
+  authority?: PublicKey | Signer;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
+  auctioneerAuthority?: Signer;
+
+  /**
+   * The mint account to create a bid for.
+   * This is used to find the metadata.
+   */
+  mintAccount: PublicKey;
+
+  /**
+   * The account address that holds the asset a bid created is for.
+   * If this or tokenAccount isn't provided, then the bid will be public.
+   */
+  seller?: Option<PublicKey>;
+
+  /**
+   * The token account address that's related to the asset a bid created is for.
+   * If this or seller isn't provided, then the bid will be public.
+   */
+  tokenAccount?: Option<PublicKey>;
+
+  /**
+   * The buyer's price.
+   *
+   * @defaultValue 0 SOLs or tokens.
+   */
   price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
-  tokens?: SplTokenAmount; // Default: token(1)
-  bookkeeper?: Signer; // Default: identity
-  printReceipt?: boolean; // Default: true
+
+  /**
+   * The number of tokens to bid for.
+   * For an NFT bid is must be 1 token.
+   *
+   * When a Fungible Asset is put on sale.
+   * The buyer can then create a buy order of said assets that is
+   * less than the token_size of the sell order.
+   *
+   * @defaultValue 1 tokens.
+   */
+  tokens?: SplTokenAmount;
+
+  /**
+   * Prints the bid receipt.
+   * The receipt holds information about the bid,
+   * So it's important to print it if you want to use the `Bid` model
+   *
+   * For the Auctioneer Auction House receipt printing is skipped
+   * Since it currently doesn't support it.
+   *
+   * @defaultValue `true`
+   * */
+  printReceipt?: boolean;
+
+  /**
+   * Account that creates a bid receipt, when it must be printed.
+   *
+   * @defaultValue `metaplex.identity()`
+   * */
+  bookkeeper?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
