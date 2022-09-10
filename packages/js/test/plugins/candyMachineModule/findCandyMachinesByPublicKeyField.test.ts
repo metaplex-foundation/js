@@ -2,6 +2,7 @@ import test from 'tape';
 import { killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachine } from './helpers';
 import { Keypair } from '@solana/web3.js';
+import { token } from '@/index';
 
 killStuckProcess();
 
@@ -63,6 +64,63 @@ test('[candyMachineModule] find all candy machines by authority', async (t) => {
     t.ok(
       candyMachine.authorityAddress.equals(authorityA.publicKey),
       'authority matches'
+    );
+  });
+});
+
+test('[candyMachineModule] find all candy machines correctly parses token mints', async (t) => {
+  // Given two candy machines from authority A.
+  const mx = await metaplex();
+  const authorityA = Keypair.generate();
+
+  const { token: token1 } = await mx.tokens().createTokenWithMint().run();
+  const { token: token2 } = await mx.tokens().createTokenWithMint().run();
+
+  const amount1 = token(1.0, token1.mint.decimals, token1.mint.currency.symbol);
+  const amount2 = token(1.5, token2.mint.decimals, token2.mint.currency.symbol);
+
+  const candyMachineResults = await Promise.all([
+    createCandyMachine(mx, {
+      authority: authorityA.publicKey,
+      tokenMint: token1.mint.address,
+      price: amount1,
+      wallet: token1.address,
+    }),
+    createCandyMachine(mx, {
+      authority: authorityA.publicKey,
+      tokenMint: token2.mint.address,
+      price: amount2,
+      wallet: token2.address,
+    }),
+    createCandyMachine(mx, {
+      authority: authorityA.publicKey,
+      tokenMint: token2.mint.address,
+      price: amount2,
+      wallet: token2.address,
+    }),
+  ]);
+
+  // When I find all candy machines
+  const foundCandyMachines = await mx
+    .candyMachines()
+    .findAllBy({ type: 'authority', publicKey: authorityA.publicKey })
+    .run();
+
+  // Then we got two candy machines.
+  t.equal(foundCandyMachines.length, 3, 'returns three accounts');
+
+  // And they had the correct token mint addresses
+  candyMachineResults.forEach((result) => {
+    const foundCandyMachine = foundCandyMachines.find((foundCandyMachine) =>
+      foundCandyMachine.address.equals(result.candyMachine.address)
+    );
+    t.ok(
+      foundCandyMachine?.tokenMintAddress &&
+        result.candyMachine.tokenMintAddress &&
+        foundCandyMachine.tokenMintAddress.equals(
+          result.candyMachine.tokenMintAddress
+        ),
+      'tokenMintAddress matches'
     );
   });
 });
