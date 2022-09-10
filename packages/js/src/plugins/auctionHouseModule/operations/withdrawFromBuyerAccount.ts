@@ -58,7 +58,14 @@ export type WithdrawOperation = Operation<
  */
 export type WithdrawInput = {
   /** The Auction House from which escrow buyer withdraws funds. */
-  auctionHouse: AuctionHouse;
+  auctionHouse: Pick<
+    AuctionHouse,
+    | 'address'
+    | 'authorityAddress'
+    | 'hasAuctioneer'
+    | 'treasuryMint'
+    | 'feeAccountAddress'
+    >;
   /**
    * The buyer who withdraws funds.
    * This expects a Signer.
