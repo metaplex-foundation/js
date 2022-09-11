@@ -18,15 +18,15 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "clean": "nx run-many --all --target=clean --skip-nx-cache     ",
-    "build": "nx run-many --all --target=build --skip-nx-cache     ",
+    "clean": "nx run-many --all --target=clean",
+    "build": "nx run-many --all --target=build",
     "test": "yarn workspaces run test --testPathIgnorePatterns=/integration_tests/",
     "lint:test": "yarn workspaces run lint:test",
     "lint:fix": "yarn workspaces  run lint:fix",
     "format": "prettier --write packages/ ",
     "docs": "typedoc",
     "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
-    "publish": "lerna publish from-package",
+    "publish": "nx run-many --all --target=publish",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "lint": "prettier -c ."
@@ -72,7 +72,6 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-sort-class-members": "^1.15.2",
     "gh-pages": "^4.0.0",
-    "lerna": "^5.1.8",
     "nx": "^14.6.4",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
