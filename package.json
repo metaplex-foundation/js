@@ -26,7 +26,8 @@
     "format": "prettier --write packages/ ",
     "docs": "typedoc",
     "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
-    "publish": "nx run-many --all --target=publish",
+    "bump:version": "yarn changeset add",
+    "publish": "yarn changeset version",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
     "lint": "prettier -c ."
