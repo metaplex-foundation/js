@@ -30,6 +30,13 @@
             }
           ]
         },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js clean"],
+            "parallel": false
+          }
+        },
         "publish": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
@@ -97,6 +104,15 @@
               "projects": "dependencies"
             }
           ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-aws clean"
+            ],
+            "parallel": false
+          }
         },
         "publish": {
           "executor": "@nrwl/workspace:run-commands",
@@ -179,6 +195,15 @@
               "projects": "dependencies"
             }
           ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-storage clean"
+            ],
+            "parallel": false
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",

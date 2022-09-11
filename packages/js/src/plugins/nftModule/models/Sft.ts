@@ -73,7 +73,7 @@ export const toSftWithToken = (
   token: Token
 ): SftWithToken => {
   const sft = toSft(metadata, mint);
-  const {currency} = sft.mint;
+  const { currency } = sft.mint;
   return {
     ...sft,
     token: {

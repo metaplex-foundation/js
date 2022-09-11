@@ -33,16 +33,15 @@ export function parseCandyMachineItems(rawData: Buffer): CandyMachineItem[] {
 export function getCandyMachineAccountSizeFromData(data: CandyMachineData) {
   if (data.hiddenSettings != null) {
     return CONFIG_ARRAY_START;
-  } 
-    const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
-    return Math.ceil(
-      CONFIG_ARRAY_START +
-        4 +
-        itemsAvailable * CONFIG_LINE_SIZE +
-        8 +
-        2 * (itemsAvailable / 8 + 1)
-    );
-  
+  }
+  const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
+  return Math.ceil(
+    CONFIG_ARRAY_START +
+      4 +
+      itemsAvailable * CONFIG_LINE_SIZE +
+      8 +
+      2 * (itemsAvailable / 8 + 1)
+  );
 }
 
 export const getCandyMachineUuidFromAddress = (
