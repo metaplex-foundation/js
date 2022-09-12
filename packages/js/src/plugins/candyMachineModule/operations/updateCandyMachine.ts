@@ -1,4 +1,4 @@
-import { MissingInputDataError } from '@/errors';
+import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
@@ -294,6 +294,11 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       scope: DisposableScope
     ): Promise<UpdateCandyMachineOutput> {
       const builder = updateCandyMachineBuilder(metaplex, operation.input);
+
+      if (builder.isEmpty()) {
+        throw new NoInstructionsToSendError(Key);
+      }
+
       return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
@@ -350,7 +355,10 @@ export const updateCandyMachineBuilder = <
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
-    .add(updateCandyMachineDataBuilder(params, authority));
+    .add(updateCandyMachineDataBuilder(params, authority))
+    .add(updateCandyMachineAuthoritiesBuilder(params))
+    .add(updateCandyMachineCollectionBuilder(params))
+    .add(updateCandyGuardsBuilder(params));
 };
 
 const updateCandyMachineDataBuilder = (
