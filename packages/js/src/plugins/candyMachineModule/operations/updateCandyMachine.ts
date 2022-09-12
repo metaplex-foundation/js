@@ -13,6 +13,7 @@ import {
 import {
   assertObjectHasDefinedKeys,
   DisposableScope,
+  objectHasNoDefinedKeys,
   TransactionBuilder,
 } from '@/utils';
 import {
@@ -365,28 +366,26 @@ const updateCandyMachineDataBuilder = (
     creators: params.creators,
     itemSettings: params.itemSettings,
   };
-  const dataKeys = [
-    'itemsAvailable',
-    'symbol',
-    'sellerFeeBasisPoints',
-    'maxEditionSupply',
-    'isMutable',
-    'creators',
-    'itemSettings',
-  ] as const;
-
-  const fooKeys = ['foo'] as const;
-  assertObjectHasDefinedKeys(
-    { foo: 42 },
-    ['foo'] as typeof fooKeys[number][],
-    (x) => new MissingInputDataError(x)
-  );
 
   let data: CandyMachineData;
   if (isCandyMachine(params.candyMachine)) {
     data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
+  } else if (objectHasNoDefinedKeys(dataToUpdate)) {
+    return TransactionBuilder.make();
   } else {
-    assertObjectHasDefinedKeys(dataToUpdate, dataKeys, onMissingInputError);
+    assertObjectHasDefinedKeys(
+      dataToUpdate,
+      [
+        'itemsAvailable',
+        'symbol',
+        'sellerFeeBasisPoints',
+        'maxEditionSupply',
+        'isMutable',
+        'creators',
+        'itemSettings',
+      ],
+      onMissingInputError
+    );
     data = toCandyMachineData(dataToUpdate);
   }
 

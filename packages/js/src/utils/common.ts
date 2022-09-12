@@ -90,3 +90,7 @@ export const walk = (
     });
   }
 };
+
+export const objectHasNoDefinedKeys = (object: {
+  [key: string]: any;
+}): boolean => Object.keys(object).every((key) => object?.[key] === undefined);
