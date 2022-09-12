@@ -1,6 +1,11 @@
 import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/plugins/nftModule';
+import {
   BigNumber,
   Creator,
   Operation,
@@ -33,6 +38,7 @@ import {
   isCandyMachine,
   toCandyMachineData,
 } from '../models';
+import { findCandyMachineAuthorityPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -156,11 +162,20 @@ export type UpdateCandyMachineInput<
    * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
    * This must include its address and the update authority as a Signer.
    *
+   * If the `candyMachine` attribute is passed as a `PublicKey`, you will also need to
+   * provide the mint address of the current collection that will be overriden.
+   *
    * @defaultValue Defaults to not being updated.
    */
   collection?: {
+    /** The mint address of the collection. */
     address: PublicKey;
+
+    /** The update authority of the collection as a Signer. */
     updateAuthority: Signer;
+
+    /** The mint address of the current collection that will be overriden. */
+    currentCollectionAddress?: PublicKey;
   };
 
   /**
@@ -356,12 +371,24 @@ export const updateCandyMachineBuilder = <
     candyGuardAuthority = authority,
   } = params;
 
-  return TransactionBuilder.make()
-    .setFeePayer(payer)
-    .add(updateCandyMachineDataBuilder(params, authority))
-    .add(updateCandyMachineAuthoritiesBuilder(params, authority))
-    .add(updateCandyMachineCollectionBuilder(params, authority, payer))
-    .add(updateCandyGuardsBuilder(params, candyGuardAuthority));
+  return (
+    TransactionBuilder.make()
+      .setFeePayer(payer)
+
+      // Update Candy Machine data.
+      .add(updateCandyMachineDataBuilder(params, authority))
+
+      // Update Candy Machine authorities.
+      .add(updateCandyMachineAuthoritiesBuilder(params, authority))
+
+      // Update Candy Machine collection.
+      .add(
+        updateCandyMachineCollectionBuilder(metaplex, params, authority, payer)
+      )
+
+      // Update Candy Guard's guards and groups, if any.
+      .add(updateCandyGuardsBuilder(params, candyGuardAuthority))
+  );
 };
 
 const updateCandyMachineDataBuilder = (
@@ -454,6 +481,7 @@ const updateCandyMachineAuthoritiesBuilder = (
 };
 
 const updateCandyMachineCollectionBuilder = (
+  metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams,
   authority: Signer,
   payer: Signer
@@ -462,27 +490,48 @@ const updateCandyMachineCollectionBuilder = (
     return TransactionBuilder.make();
   }
 
+  const currentCollectionAddress =
+    params.collection.currentCollectionAddress ??
+    (isCandyMachine(params.candyMachine)
+      ? params.candyMachine.collectionMintAddress
+      : null);
+
+  if (!currentCollectionAddress) {
+    throw onMissingInputError(['collection.currentCollectionAddress']);
+  }
+
+  const candyMachineAddress = toPublicKey(params.candyMachine);
+  const authorityPda = findCandyMachineAuthorityPda(candyMachineAddress);
   const collectionAddress = params.collection.address;
   const collectionUpdateAuthority = params.collection.updateAuthority;
+  const tokenMetadataProgram = metaplex
+    .programs()
+    .get('TokenMetadataProgram', params.programs);
 
   return TransactionBuilder.make().add({
     instruction: createSetCollectionInstruction(
       {
-        candyMachine: toPublicKey(params.candyMachine),
+        candyMachine: candyMachineAddress,
         authority: authority.publicKey,
         authorityPda,
         payer: payer.publicKey,
-        collectionMint,
-        collectionMetadata,
-        collectionAuthorityRecord,
+        collectionMint: currentCollectionAddress,
+        collectionMetadata: findMetadataPda(currentCollectionAddress),
+        collectionAuthorityRecord: findCollectionAuthorityRecordPda(
+          currentCollectionAddress,
+          authorityPda
+        ),
         newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
-        newCollectionMetadata,
+        newCollectionMetadata: findMetadataPda(collectionAddress),
         newCollectionMint: collectionAddress,
-        newCollectionMasterEdition,
-        newCollectionAuthorityRecord,
-        tokenMetadataProgram,
+        newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
+        newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
+          collectionAddress,
+          authorityPda
+        ),
+        tokenMetadataProgram: tokenMetadataProgram.address,
       },
-      { authorityPdaBump }
+      { authorityPdaBump: authorityPda.bump }
     ),
     signers: [authority, payer],
     key: params.setCollectionInstructionKey ?? 'setCandyMachineCollection',
