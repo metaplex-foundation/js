@@ -19,6 +19,7 @@ import {
 import {
   CandyMachineData,
   createSetAuthorityInstruction,
+  createSetCollectionInstruction,
   createUpdateInstruction as createUpdateCandyMachineInstruction,
   SetAuthorityInstructionArgs,
 } from '@metaplex-foundation/mpl-candy-machine-core';
@@ -359,7 +360,7 @@ export const updateCandyMachineBuilder = <
     .setFeePayer(payer)
     .add(updateCandyMachineDataBuilder(params, authority))
     .add(updateCandyMachineAuthoritiesBuilder(params, authority))
-    .add(updateCandyMachineCollectionBuilder(params, authority))
+    .add(updateCandyMachineCollectionBuilder(params, authority, payer))
     .add(updateCandyGuardsBuilder(params, candyGuardAuthority));
 };
 
@@ -416,12 +417,12 @@ const updateCandyMachineAuthoritiesBuilder = (
   params: UpdateCandyMachineBuilderParams,
   authority: Signer
 ): TransactionBuilder => {
-  let args: SetAuthorityInstructionArgs;
   const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> = {
     newAuthority: params.newAuthority,
     newMintAuthority: params.mintAuthority,
   };
 
+  let args: SetAuthorityInstructionArgs;
   if (objectHasNoDefinedKeys(authoritiesToUpdate)) {
     return TransactionBuilder.make();
   } else if (isCandyMachine(params.candyMachine)) {
@@ -454,9 +455,38 @@ const updateCandyMachineAuthoritiesBuilder = (
 
 const updateCandyMachineCollectionBuilder = (
   params: UpdateCandyMachineBuilderParams,
-  authority: Signer
+  authority: Signer,
+  payer: Signer
 ): TransactionBuilder => {
-  return TransactionBuilder.make();
+  if (!params.collection) {
+    return TransactionBuilder.make();
+  }
+
+  const collectionAddress = params.collection.address;
+  const collectionUpdateAuthority = params.collection.updateAuthority;
+
+  return TransactionBuilder.make().add({
+    instruction: createSetCollectionInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+        authorityPda,
+        payer: payer.publicKey,
+        collectionMint,
+        collectionMetadata,
+        collectionAuthorityRecord,
+        newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
+        newCollectionMetadata,
+        newCollectionMint: collectionAddress,
+        newCollectionMasterEdition,
+        newCollectionAuthorityRecord,
+        tokenMetadataProgram,
+      },
+      { authorityPdaBump }
+    ),
+    signers: [authority, payer],
+    key: params.setCollectionInstructionKey ?? 'setCandyMachineCollection',
+  });
 };
 
 const updateCandyGuardsBuilder = (
