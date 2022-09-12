@@ -14,7 +14,7 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
     .create({
       sellerFeeBasisPoints: 200,
       payer,
-      confirmOptions: { skipPreflight: true }
+      confirmOptions: { skipPreflight: true },
     })
     .run();
 
@@ -46,7 +46,10 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
     .getBalance(toPublicKey(auctionHouse.feeWithdrawalDestinationAddress));
 
   t.same(
-    subtractAmounts(feeWithdrawalDestinationBalance, sol(100)).basisPoints.toNumber(),
+    subtractAmounts(
+      feeWithdrawalDestinationBalance,
+      sol(100)
+    ).basisPoints.toNumber(),
     sol(1).basisPoints.toNumber()
   );
 });

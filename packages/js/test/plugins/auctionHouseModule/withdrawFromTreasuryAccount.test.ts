@@ -1,10 +1,6 @@
 import test, { Test } from 'tape';
 import { sol, subtractAmounts, toPublicKey } from '@/types';
-import {
-  metaplex,
-  killStuckProcess,
-  createWallet,
-} from '../../helpers';
+import { metaplex, killStuckProcess, createWallet } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 
 killStuckProcess();
@@ -41,11 +37,14 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
 
   // And withdrawal destination account got 1 SOL more after withdrawal.
   const feeWithdrawalDestinationBalance = await mx
-  .rpc()
-  .getBalance(toPublicKey(auctionHouse.treasuryWithdrawalDestinationAddress));
+    .rpc()
+    .getBalance(toPublicKey(auctionHouse.treasuryWithdrawalDestinationAddress));
 
   t.same(
-    subtractAmounts(feeWithdrawalDestinationBalance, sol(100)).basisPoints.toNumber(),
+    subtractAmounts(
+      feeWithdrawalDestinationBalance,
+      sol(100)
+    ).basisPoints.toNumber(),
     sol(1).basisPoints.toNumber()
   );
 });

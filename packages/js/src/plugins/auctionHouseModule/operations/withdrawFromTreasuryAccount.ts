@@ -73,7 +73,7 @@ export type WithdrawFromTreasuryAccountInput = {
    *
    * @defaultValue `metaplex.identity()`
    */
-   authority?: Signer;
+  authority?: Signer;
 
   /**
    * The Signer paying for the transaction fee.
