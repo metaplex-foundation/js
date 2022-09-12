@@ -30,7 +30,6 @@
     "publish": "yarn changeset version",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop",
-    "lint": "prettier -c ."
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
