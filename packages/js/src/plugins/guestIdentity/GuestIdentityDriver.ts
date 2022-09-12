@@ -5,8 +5,8 @@ import { OperationUnauthorizedForGuestsError } from '@/errors';
 export class GuestIdentityDriver implements IdentityDriver {
   public readonly publicKey: PublicKey;
 
-  constructor() {
-    this.publicKey = PublicKey.default;
+  constructor(publicKey?: PublicKey) {
+    this.publicKey = publicKey ?? PublicKey.default;
   }
 
   public async signMessage(_message: Uint8Array): Promise<Uint8Array> {

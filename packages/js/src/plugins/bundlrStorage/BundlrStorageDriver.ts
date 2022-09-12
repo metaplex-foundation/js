@@ -3,6 +3,7 @@ import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import {
   Connection,
+  Keypair,
   PublicKey,
   SendOptions,
   Signer as Web3Signer,
@@ -19,6 +20,7 @@ import { Metaplex as MetaplexType } from '@/Metaplex';
 import {
   Amount,
   IdentitySigner,
+  isIdentitySigner,
   isKeypairSigner,
   KeypairSigner,
   lamports,
@@ -31,6 +33,8 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
+
+import { KeypairIdentityDriver } from '../keypairIdentity';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -194,9 +198,29 @@ export class BundlrStorageDriver implements StorageDriver {
 
     const identity: Signer =
       this._options.identity ?? this._metaplex.identity();
-    const bundlr = isKeypairSigner(identity)
-      ? this.initNodeBundlr(address, currency, identity, options)
-      : await this.initWebBundlr(address, currency, identity, options);
+
+    // if in node use node bundlr, else use web bundlr
+    // see: https://github.com/metaplex-foundation/js/issues/202
+    let isNode =
+      typeof window === 'undefined' || window.process?.hasOwnProperty('type');
+    let bundlr;
+    if (isNode && isKeypairSigner(identity))
+      bundlr = this.initNodeBundlr(address, currency, identity, options);
+    else {
+      let identitySigner: IdentitySigner;
+      if (isIdentitySigner(identity)) identitySigner = identity;
+      else
+        identitySigner = new KeypairIdentityDriver(
+          Keypair.fromSecretKey((identity as KeypairSigner).secretKey)
+        );
+
+      bundlr = await this.initWebBundlr(
+        address,
+        currency,
+        identitySigner,
+        options
+      );
+    }
 
     try {
       // Check for valid bundlr node.

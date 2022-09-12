@@ -1,10 +1,10 @@
+import { MetaplexPlugin } from '@/types';
+import { PublicKey } from '@solana/web3.js';
 import { GuestIdentityDriver } from './GuestIdentityDriver';
 import { Metaplex as MetaplexType } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
-
 /** @group Plugins */
-export const guestIdentity = (): MetaplexPlugin => ({
+export const guestIdentity = (publicKey?: PublicKey): MetaplexPlugin => ({
   install(metaplex: MetaplexType) {
-    metaplex.identity().setDriver(new GuestIdentityDriver());
+    metaplex.identity().setDriver(new GuestIdentityDriver(publicKey));
   },
 });

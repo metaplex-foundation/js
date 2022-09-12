@@ -29,7 +29,7 @@
     "bump:version": "yarn changeset add",
     "publish": "yarn changeset version",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
-    "amman:stop": "amman stop",
+    "amman:stop": "amman stop"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",

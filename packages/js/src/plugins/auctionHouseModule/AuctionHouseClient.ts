@@ -16,6 +16,9 @@ import {
   CreateListingInput,
   createListingOperation,
   CreateListingOutput,
+  DepositToBuyerAccountInput,
+  depositToBuyerAccountOperation,
+  DepositToBuyerAccountOutput,
   ExecuteSaleInput,
   executeSaleOperation,
   ExecuteSaleOutput,
@@ -27,14 +30,23 @@ import {
   findBidByReceiptOperation,
   FindBidByTradeStateInput,
   findBidByTradeStateOperation,
+  FindBidsByPublicKeyFieldInput,
+  findBidsByPublicKeyFieldOperation,
   FindListingByReceiptInput,
   findListingByReceiptOperation,
   FindListingByTradeStateInput,
   findListingByTradeStateOperation,
+  FindListingsByPublicKeyFieldInput,
+  findListingsByPublicKeyFieldOperation,
   FindPurchaseByReceiptInput,
   findPurchaseByReceiptOperation,
   FindPurchaseByTradeStateInput,
   findPurchaseByTradeStateOperation,
+  FindPurchasesByPublicKeyFieldInput,
+  findPurchasesByPublicKeyFieldOperation,
+  GetBuyerBalanceInput,
+  GetBuyerBalanceOutput,
+  getBuyerBalanceOperation,
   LoadBidInput,
   loadBidOperation,
   LoadListingInput,
@@ -69,6 +81,15 @@ export class AuctionHouseClient {
   /** {@inheritDoc createBidOperation} */
   bid(input: CreateBidInput): Task<CreateBidOutput> {
     return this.metaplex.operations().getTask(createBidOperation(input));
+  }
+
+  /** {@inheritDoc depositToBuyerAccountOperation} */
+  depositToBuyerAccount(
+    input: DepositToBuyerAccountInput
+  ): Task<DepositToBuyerAccountOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(depositToBuyerAccountOperation(input));
   }
 
   /** {@inheritDoc createAuctionHouseOperation} */
@@ -151,6 +172,13 @@ export class AuctionHouseClient {
       .getTask(findPurchaseByReceiptOperation(options));
   }
 
+  /** {@inheritDoc getBuyerBalanceOperation} */
+  getBuyerBalance(options: GetBuyerBalanceInput): Task<GetBuyerBalanceOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(getBuyerBalanceOperation(options));
+  }
+
   /** {@inheritDoc createListingOperation} */
   list(input: CreateListingInput): Task<CreateListingOutput> {
     return this.metaplex.operations().getTask(createListingOperation(input));
@@ -176,5 +204,26 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .getTask(updateAuctionHouseOperation(options));
+  }
+
+  /** {@inheritDoc findBidsByPublicKeyFieldOperation} */
+  findBidsBy(input: FindBidsByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findBidsByPublicKeyFieldOperation(input));
+  }
+
+  /** {@inheritDoc findListingsByPublicKeyFieldOperation} */
+  findListingsBy(input: FindListingsByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findListingsByPublicKeyFieldOperation(input));
+  }
+
+  /** {@inheritDoc findPurchasesByPublicKeyFieldOperation} */
+  findPurchasesBy(input: FindPurchasesByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findPurchasesByPublicKeyFieldOperation(input));
   }
 }
