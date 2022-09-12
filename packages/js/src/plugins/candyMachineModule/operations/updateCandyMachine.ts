@@ -100,7 +100,7 @@ export type UpdateCandyMachineInput<
    * Alternatively, if you provide a Candy Machine instance, the SDK will use its
    * current data to fill all the gaps so you can focus on what you want to update.
    */
-  candyMachine: PublicKey | CandyMachine;
+  candyMachine: PublicKey | CandyMachine<T>;
 
   /**
    * The address of the Candy Guard associated to the Candy Machine, if any.
@@ -376,23 +376,37 @@ export const updateCandyMachineBuilder = <
       .setFeePayer(payer)
 
       // Update Candy Machine data.
-      .add(updateCandyMachineDataBuilder(params, authority))
+      .add(updateCandyMachineDataBuilder<T>(params, authority))
 
       // Update Candy Machine authorities.
-      .add(updateCandyMachineAuthoritiesBuilder(params, authority))
+      .add(updateCandyMachineAuthoritiesBuilder<T>(params, authority))
 
       // Update Candy Machine collection.
       .add(
-        updateCandyMachineCollectionBuilder(metaplex, params, authority, payer)
+        updateCandyMachineCollectionBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          payer
+        )
       )
 
       // Update Candy Guard's guards and groups, if any.
-      .add(updateCandyGuardsBuilder<T>(metaplex, params, candyGuardAuthority))
+      .add(
+        updateCandyGuardsBuilder<T>(
+          metaplex,
+          params,
+          candyGuardAuthority,
+          payer
+        )
+      )
   );
 };
 
-const updateCandyMachineDataBuilder = (
-  params: UpdateCandyMachineBuilderParams,
+const updateCandyMachineDataBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
   const dataToUpdate: Partial<CandyMachine> = {
@@ -440,8 +454,10 @@ const updateCandyMachineDataBuilder = (
   });
 };
 
-const updateCandyMachineAuthoritiesBuilder = (
-  params: UpdateCandyMachineBuilderParams,
+const updateCandyMachineAuthoritiesBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
   const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> = {
@@ -480,9 +496,11 @@ const updateCandyMachineAuthoritiesBuilder = (
   });
 };
 
-const updateCandyMachineCollectionBuilder = (
+const updateCandyMachineCollectionBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: UpdateCandyMachineBuilderParams,
+  params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer,
   payer: Signer
 ): TransactionBuilder => {
@@ -547,21 +565,31 @@ const updateCandyGuardsBuilder = <
   payer: Signer
 ): TransactionBuilder => {
   const guardsToUpdate: {
+    candyGuard?: PublicKey;
     guards?: Partial<T>;
     groups?: Partial<T>[];
   } = {
+    candyGuard: params.candyGuard,
     guards: params.guards,
     groups: params.groups,
   };
 
   let args: {
+    candyGuard: PublicKey;
     guards: Partial<T>;
     groups: Partial<T>[];
   };
+
   if (objectHasNoDefinedKeys(guardsToUpdate)) {
     return TransactionBuilder.make();
-  } else if (isCandyMachine(params.candyMachine)) {
+  }
+
+  if (
+    isCandyMachine<T>(params.candyMachine) &&
+    params.candyMachine.candyGuard
+  ) {
     args = {
+      candyGuard: params.candyMachine.candyGuard.address,
       guards: params.candyMachine.candyGuard.guards,
       groups: params.candyMachine.candyGuard.groups,
       ...guardsToUpdate,
@@ -569,7 +597,7 @@ const updateCandyGuardsBuilder = <
   } else {
     assertObjectHasDefinedKeys(
       guardsToUpdate,
-      ['guards', 'groups'],
+      ['candyGuard', 'guards', 'groups'],
       onMissingInputError
     );
     args = guardsToUpdate;
@@ -579,7 +607,7 @@ const updateCandyGuardsBuilder = <
     .candyMachines()
     .builders()
     .updateCandyGuard<T>({
-      candyGuard: params.candyMachine.candyGuard.address,
+      candyGuard: args.candyGuard,
       guards: args.guards,
       groups: args.groups,
       authority: candyGuardAuthority,

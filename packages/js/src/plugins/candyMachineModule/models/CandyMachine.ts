@@ -315,11 +315,16 @@ export type CandyMachineConfigLineSettings = {
 };
 
 /** @group Model Helpers */
-export const isCandyMachine = (value: any): value is CandyMachine =>
-  isModel('candyMachine', value);
+export const isCandyMachine = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  value: any
+): value is CandyMachine<T> => isModel('candyMachine', value);
 
 /** @group Model Helpers */
-export function assertCandyMachine(value: any): asserts value is CandyMachine {
+export function assertCandyMachine<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(value: any): asserts value is CandyMachine<T> {
   assertModel(isCandyMachine(value), `Expected CandyMachine model`);
 }
 
