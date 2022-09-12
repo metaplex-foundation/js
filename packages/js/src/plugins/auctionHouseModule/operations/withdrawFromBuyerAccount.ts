@@ -77,6 +77,15 @@ export type WithdrawInput = {
   buyer?: Signer;
 
   /**
+   * The Signer paying for the creation of all accounts
+   * required to deposit to the buyer's account.
+   * This account will also pay for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
    * The Authority key.
    * It is required when the buyer is not a signer.
    *
@@ -158,7 +167,12 @@ export const withdrawFromBuyerAccountBuilder = (
   params: WithdrawBuilderParams,
   metaplex: Metaplex
 ): TransactionBuilder<WithdrawBuilderContext> => {
-  const { auctionHouse, auctioneerAuthority, amount } = params;
+  const {
+    auctionHouse,
+    auctioneerAuthority,
+    amount,
+    payer = metaplex.identity(),
+  } = params;
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -216,7 +230,7 @@ export const withdrawFromBuyerAccountBuilder = (
 
   return (
     TransactionBuilder.make()
-
+      .setFeePayer(payer)
       // Withdraw.
       .add({
         instruction: withdrawInstruction,
