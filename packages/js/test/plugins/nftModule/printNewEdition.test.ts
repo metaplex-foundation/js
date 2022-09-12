@@ -1,4 +1,5 @@
 import test, { Test } from 'tape';
+import spok, { Specifications } from 'spok';
 import {
   assertThrows,
   createNft,
@@ -7,7 +8,6 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import spok, { Specifications } from 'spok';
 import { Nft, toBigNumber } from '@/index';
 import { assertNftOriginalEdition } from '@/plugins';
 

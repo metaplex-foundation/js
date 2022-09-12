@@ -1,3 +1,4 @@
+import { Test } from 'tape';
 import {
   formatAmount,
   isEqualToAmount,
@@ -6,7 +7,6 @@ import {
   TokenWithMint,
 } from '@/index';
 import type { Metaplex as MetaplexType } from '@/Metaplex';
-import { Test } from 'tape';
 
 export const assertTokenHasAmount = (
   t: Test,

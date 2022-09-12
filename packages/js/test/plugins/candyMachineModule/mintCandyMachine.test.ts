@@ -1,6 +1,7 @@
 import test from 'tape';
 import spok, { Specifications } from 'spok';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import { WhitelistMintMode } from '@metaplex-foundation/mpl-candy-machine';
 import {
   createNft,
   createWallet,
@@ -19,7 +20,6 @@ import {
   toDateTime,
   token,
 } from '@/index';
-import { WhitelistMintMode } from '@metaplex-foundation/mpl-candy-machine';
 
 killStuckProcess();
 

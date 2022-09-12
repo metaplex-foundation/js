@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { sol, token } from '@/types';
+import { Keypair } from '@solana/web3.js';
 import {
   metaplex,
   killStuckProcess,
@@ -11,13 +11,13 @@ import {
   assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { sol, token } from '@/types';
 import {
   AccountNotFoundError,
   findAssociatedTokenAccountPda,
   Pda,
   Purchase,
 } from '@/index';
-import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 

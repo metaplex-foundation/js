@@ -1,7 +1,7 @@
-import { token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
+import { token } from '@/index';
 
 killStuckProcess();
 

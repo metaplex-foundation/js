@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
-import { Metadata } from '@/index';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
+import { Metadata } from '@/index';
 
 killStuckProcess();
 

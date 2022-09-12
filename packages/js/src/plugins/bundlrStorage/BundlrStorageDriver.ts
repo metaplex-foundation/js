@@ -16,6 +16,7 @@ import {
   MetaplexFileTag,
   StorageDriver,
 } from '../storageModule';
+import { KeypairIdentityDriver } from '../keypairIdentity';
 import { Metaplex as MetaplexType } from '@/Metaplex';
 import {
   Amount,
@@ -34,7 +35,6 @@ import {
   FailedToInitializeBundlrError,
 } from '@/errors';
 
-import { KeypairIdentityDriver } from '../keypairIdentity';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -201,7 +201,7 @@ export class BundlrStorageDriver implements StorageDriver {
 
     // if in node use node bundlr, else use web bundlr
     // see: https://github.com/metaplex-foundation/js/issues/202
-    let isNode =
+    const isNode =
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
     let bundlr;
     if (isNode && isKeypairSigner(identity))

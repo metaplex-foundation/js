@@ -1,8 +1,8 @@
-import { findAssociatedTokenAccountPda, token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { killStuckProcess, metaplex } from '../../helpers';
 import { assertRefreshedTokenHasAmount, assertTokenHasAmount } from './helpers';
+import { findAssociatedTokenAccountPda, token } from '@/index';
 
 killStuckProcess();
 

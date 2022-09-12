@@ -1,7 +1,7 @@
-import type { Metadata, Metaplex } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
+import type { Metadata, Metaplex } from '@/index';
 
 killStuckProcess();
 

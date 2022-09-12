@@ -1,4 +1,3 @@
-import { Nft, Sft, toMetaplexFile } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -14,6 +13,7 @@ import {
   assertCollectionHasSize,
   assertRefreshedCollectionHasSize,
 } from './helpers';
+import { Nft, Sft, toMetaplexFile } from '@/index';
 
 killStuckProcess();
 
@@ -300,7 +300,7 @@ test('[nftModule] it can set and verify the parent Collection of an NFT', async 
     .update({
       nftOrSft: nft,
       collection: collectionNft.address,
-      collectionAuthority: collectionAuthority,
+      collectionAuthority,
     })
     .run();
 

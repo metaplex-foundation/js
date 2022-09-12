@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
-import { ParsedProgramError } from '@/index';
 import { metaplex, killStuckProcess } from '../../helpers';
+import { ParsedProgramError } from '@/index';
 
 killStuckProcess();
 
