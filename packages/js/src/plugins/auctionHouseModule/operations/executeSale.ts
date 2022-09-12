@@ -172,7 +172,7 @@ export type ExecuteSaleOutput = {
   /** The PDA of the receipt account in case it was printed. */
   receipt: Option<Pda>;
 
-    /** The sale price. */
+  /** The sale price. */
   price: SolAmount | SplTokenAmount;
 
   /** The number of tokens bought. */

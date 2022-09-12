@@ -90,7 +90,7 @@ export type CreateAuctionHouseInput = {
    * The Auction House can then change the price to match a matching Bid that is greater than 0.
    *
    * @defaultValue `false`
-  */
+   */
   canChangeSalePrice?: boolean;
 
   /**

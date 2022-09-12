@@ -108,7 +108,7 @@ export type UpdateAuctionHouseInput = {
    * The Auction House can then change the price to match a matching Bid that is greater than 0.
    *
    * @defaultValue `auctionHouse.canChangeSalePrice`
-  */
+   */
   canChangeSalePrice?: boolean | null;
 
   /**
@@ -121,7 +121,7 @@ export type UpdateAuctionHouseInput = {
   /**
    * The account that is marked as a destination of withdrawal from the fee account.
    *
-    * @defaultValue `auctionHouse.feeWithdrawalDestination`
+   * @defaultValue `auctionHouse.feeWithdrawalDestination`
    */
   feeWithdrawalDestination?: PublicKey;
 

@@ -48,7 +48,7 @@ export type AuctionHouse = Readonly<
      * Is intended to be used with the Auction House that requires sign off.
      * If the seller intentionally lists their NFT for a price of 0, a new FreeSellerTradeState is made.
      * The Auction House can then change the price to match a matching Bid that is greater than 0.
-    */
+     */
     canChangeSalePrice: boolean;
 
     /**
@@ -58,9 +58,9 @@ export type AuctionHouse = Readonly<
     isNative: boolean;
   } & (
     | {
-      /** This Auction House doesn't have Auctioneer. */
-      hasAuctioneer: false
-    }
+        /** This Auction House doesn't have Auctioneer. */
+        hasAuctioneer: false;
+      }
     | {
         /**
          * This Auction House has Auctioneer enabled.
