@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { sol } from '@/types';
+import { addAmounts, sol } from '@/types';
 import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
@@ -22,6 +22,20 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
     })
     .run();
 
+  // Then buyer's escrow account has SOL in it
+  let buyerEscrow = findAuctionHouseBuyerEscrowPda(
+    auctionHouse.address,
+    mx.identity().publicKey
+  );
+
+  let buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const minimumRentExempt = await mx.rpc().getRent(0);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
+
   // When we withdraw 1 SOL from the buyer's escrow account.
   await mx
     .auctionHouse()
@@ -32,12 +46,64 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
     .run();
 
   // Then buyer's escrow account has minimum rent exempt SOL
-  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    mx.identity().publicKey
+  buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    minimumRentExempt.basisPoints.toNumber()
   );
-  const buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+});
+
+test('[auctionHouseModule] withdraw from buyer account on an Auctioneer Auction House', async (t: Test) => {
+  // Given we have an Auctioneer Auction House.
+  const mx = await metaplex();
+  const auctioneerAuthority = Keypair.generate();
+
+  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+
+  // And we deposit 1 SOL.
+  await mx
+    .auctionHouse()
+    .depositToBuyerAccount({
+      auctionHouse,
+      auctioneerAuthority,
+      amount: sol(1),
+    })
+    .run();
+
+  // Then buyer's escrow account has SOL in it.
+  let buyerEscrowBalance = await mx
+    .auctionHouse()
+    .getBuyerBalance({
+      auctionHouse: auctionHouse.address,
+      buyerAddress: mx.identity().publicKey,
+    })
+    .run();
   const minimumRentExempt = await mx.rpc().getRent(0);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
+
+  // When we withdraw 1 SOL from the buyer's escrow account.
+  await mx
+    .auctionHouse()
+    .withdrawFromBuyerAccount({
+      auctionHouse,
+      auctioneerAuthority,
+      amount: sol(1),
+    })
+    .run();
+
+  // Then buyer's escrow account has minimum rent exempt SOL
+  buyerEscrowBalance = buyerEscrowBalance = await mx
+    .auctionHouse()
+    .getBuyerBalance({
+      auctionHouse: auctionHouse.address,
+      buyerAddress: mx.identity().publicKey,
+    })
+    .run();
 
   t.same(
     buyerEscrowBalance.basisPoints.toNumber(),

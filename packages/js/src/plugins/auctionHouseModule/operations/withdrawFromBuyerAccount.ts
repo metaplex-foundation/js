@@ -40,7 +40,8 @@ const Key = 'WithdrawFromBuyerAccountOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const withdrawFromBuyerAccountOperation = useOperation<WithdrawOperation>(Key);
+export const withdrawFromBuyerAccountOperation =
+  useOperation<WithdrawOperation>(Key);
 
 /**
  * @group Operations
@@ -65,7 +66,8 @@ export type WithdrawInput = {
     | 'hasAuctioneer'
     | 'treasuryMint'
     | 'feeAccountAddress'
-    >;
+  >;
+
   /**
    * The buyer who withdraws funds.
    * This expects a Signer.
@@ -73,13 +75,15 @@ export type WithdrawInput = {
    * @defaultValue `metaplex.identity()`
    */
   buyer?: PublicKey | Signer;
+
   /**
    * The Authority key.
    * It is required when the buyer is not a signer.
    *
    * @defaultValue Defaults to not being used.
    */
-  authority?: PublicKey | Signer;
+  authority?: Signer;
+
   /**
    * The Auctioneer authority key.
    * It is required when Auction House has Auctioneer enabled.
@@ -87,6 +91,7 @@ export type WithdrawInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: Signer;
+
   /**
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
