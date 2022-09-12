@@ -1,16 +1,24 @@
+import { MissingInputDataError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
+  BigNumber,
+  Creator,
   Operation,
   OperationHandler,
-  Signer,
-  PublicKey,
   Program,
-  Creator,
-  BigNumber,
+  PublicKey,
+  Signer,
   toPublicKey,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { createUpdateInstruction as createUpdateCandyMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import {
+  assertObjectHasDefinedKeys,
+  DisposableScope,
+  TransactionBuilder,
+} from '@/utils';
+import {
+  CandyMachineData,
+  createUpdateInstruction as createUpdateCandyMachineInstruction,
+} from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
@@ -18,6 +26,7 @@ import {
   CandyMachine,
   CandyMachineConfigLineSettings,
   CandyMachineHiddenSettings,
+  isCandyMachine,
   toCandyMachineData,
 } from '../models';
 
@@ -347,8 +356,39 @@ const updateCandyMachineDataBuilder = (
   params: UpdateCandyMachineBuilderParams,
   authority: Signer
 ): TransactionBuilder => {
-  const hasMissingData = 'TODO';
-  const data = toCandyMachineData(params.candyMachine);
+  const dataToUpdate: Partial<CandyMachine> = {
+    itemsAvailable: params.itemsAvailable,
+    symbol: params.symbol,
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+    maxEditionSupply: params.maxEditionSupply,
+    isMutable: params.isMutable,
+    creators: params.creators,
+    itemSettings: params.itemSettings,
+  };
+  const dataKeys = [
+    'itemsAvailable',
+    'symbol',
+    'sellerFeeBasisPoints',
+    'maxEditionSupply',
+    'isMutable',
+    'creators',
+    'itemSettings',
+  ] as const;
+
+  const fooKeys = ['foo'] as const;
+  assertObjectHasDefinedKeys(
+    { foo: 42 },
+    ['foo'] as typeof fooKeys[number][],
+    (x) => new MissingInputDataError(x)
+  );
+
+  let data: CandyMachineData;
+  if (isCandyMachine(params.candyMachine)) {
+    data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
+  } else {
+    assertObjectHasDefinedKeys(dataToUpdate, dataKeys, onMissingInputError);
+    data = toCandyMachineData(dataToUpdate);
+  }
 
   return TransactionBuilder.make().add({
     instruction: createUpdateCandyMachineInstruction(
@@ -380,3 +420,12 @@ const updateCandyGuardsBuilder = (
 ): TransactionBuilder => {
   return TransactionBuilder.make();
 };
+
+const onMissingInputError = (missingKeys: string[]) =>
+  new MissingInputDataError(missingKeys, {
+    problem:
+      'When passing the Candy Machine as a `PublicKey` instead of a Candy Machine model ' +
+      'the SDK cannot rely on current data to fill the gaps within the provided input.',
+    solutionSuffix:
+      ' Alternatively, you can pass the Candy Machine model instead.',
+  });

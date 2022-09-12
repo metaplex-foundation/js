@@ -355,6 +355,22 @@ export class FailedToSerializeDataError extends SdkError {
 }
 
 /** @group Errors */
+export class MissingInputDataError extends SdkError {
+  constructor(missingParameters: string[], options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'missing_input_data',
+      title: 'Missing Input Data',
+      problem: 'Some parameters are missing from the provided input object.',
+      solution:
+        'Please provide the following missing parameters: [' +
+        missingParameters.join(', ') +
+        '].',
+    });
+  }
+}
+
+/** @group Errors */
 export class FailedToDeserializeDataError extends SdkError {
   constructor(dataDescription: string, options?: MetaplexErrorOptions) {
     super({
