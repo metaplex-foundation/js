@@ -133,7 +133,8 @@ export type WithdrawFromFeeAccountBuilderContext = Omit<
 >;
 
 /**
- * Adds funds to the user's buyer escrow account for the given auction house.
+ * Transfers funds from Auction House Fee Wallet to the Fee Withdrawal Destination Wallet.
+ * By default Fee Withdrawal Destination Wallet is set to `metaplex.identity()`.
  *
  * ```ts
  * const transactionBuilder = metaplex

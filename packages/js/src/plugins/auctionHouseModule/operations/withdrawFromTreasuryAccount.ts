@@ -135,7 +135,8 @@ export type WithdrawFromTreasuryAccountBuilderContext = Omit<
 >;
 
 /**
- * Adds funds to the user's buyer escrow account for the given auction house.
+ * Transfers funds from Auction House Treasury Wallet to the Treasury Withdrawal Destination Wallet set on an Auction House creation.
+ * By default Treasury Withdrawal Destination Wallet is set to `metaplex.identity()`.
  *
  * ```ts
  * const transactionBuilder = metaplex
