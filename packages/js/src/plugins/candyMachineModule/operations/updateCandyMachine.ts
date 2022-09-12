@@ -7,8 +7,10 @@ import {
   Program,
   Creator,
   BigNumber,
+  toPublicKey,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createUpdateInstruction as createUpdateCandyMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
@@ -16,6 +18,7 @@ import {
   CandyMachine,
   CandyMachineConfigLineSettings,
   CandyMachineHiddenSettings,
+  toCandyMachineData,
 } from '../models';
 
 // -----------------
@@ -280,7 +283,8 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<UpdateCandyMachineOutput> {
-      //
+      const builder = updateCandyMachineBuilder(metaplex, operation.input);
+      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -295,18 +299,18 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
 export type UpdateCandyMachineBuilderParams<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = Omit<UpdateCandyMachineInput<T>, 'confirmOptions'> & {
-  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  updateCandyMachineInstructionKey?: string;
-};
+  /** A key to distinguish the instruction that updates the Candy Machine data. */
+  updateDataInstructionKey?: string;
 
-/**
- * @group Transaction Builders
- * @category Contexts
- */
-export type UpdateCandyMachineBuilderContext = Omit<
-  UpdateCandyMachineOutput,
-  'response'
->;
+  /** A key to distinguish the instruction that updates the Candy Machine authorities. */
+  setAuthoritiesInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Machine collection. */
+  setCollectionInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the associated Candy Guard, if any. */
+  updateCandyGuardInstructionKey?: string;
+};
 
 /**
  * TODO
@@ -327,8 +331,52 @@ export const updateCandyMachineBuilder = <
 >(
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>
-): TransactionBuilder<UpdateCandyMachineBuilderContext> => {
-  return TransactionBuilder.make<UpdateCandyMachineBuilderContext>()
+): TransactionBuilder => {
+  const {
+    payer = metaplex.identity(),
+    authority = metaplex.identity(),
+    candyGuardAuthority = authority,
+  } = params;
+
+  return TransactionBuilder.make()
     .setFeePayer(payer)
-    .setContext({});
+    .add(updateCandyMachineDataBuilder(params, authority));
+};
+
+const updateCandyMachineDataBuilder = (
+  params: UpdateCandyMachineBuilderParams,
+  authority: Signer
+): TransactionBuilder => {
+  const hasMissingData = 'TODO';
+  const data = toCandyMachineData(params.candyMachine);
+
+  return TransactionBuilder.make().add({
+    instruction: createUpdateCandyMachineInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+      },
+      { data }
+    ),
+    signers: [authority],
+    key: params.updateDataInstructionKey ?? 'updateCandyMachineData',
+  });
+};
+
+const updateCandyMachineAuthoritiesBuilder = (
+  input: UpdateCandyMachineBuilderParams
+): TransactionBuilder => {
+  return TransactionBuilder.make();
+};
+
+const updateCandyMachineCollectionBuilder = (
+  input: UpdateCandyMachineBuilderParams
+): TransactionBuilder => {
+  return TransactionBuilder.make();
+};
+
+const updateCandyGuardsBuilder = (
+  input: UpdateCandyMachineBuilderParams
+): TransactionBuilder => {
+  return TransactionBuilder.make();
 };
