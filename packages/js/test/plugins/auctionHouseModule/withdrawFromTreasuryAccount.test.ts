@@ -11,7 +11,7 @@ import { createAuctionHouse } from './helpers';
 killStuckProcess();
 
 test('[auctionHouseModule] withdraw from treasury account on an Auction House', async (t: Test) => {
-  // Given we have an Auction House with fee that equals 100 basis points and an NFT.
+  // Given we have an Auction House with fee that equals 10% and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
   const nft = await createNft(mx);
@@ -20,7 +20,7 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
     sellerFeeBasisPoints: 1000,
   });
 
-  // And we deposited 2 SOL to the buyer's escrow, so 0.1 SOL fee can be withdrawn.
+  // And we deposited 2 SOL to the buyer's escrow, so 0.2 SOL fee can be withdrawn.
   await mx
     .auctionHouse()
     .depositToBuyerAccount({
