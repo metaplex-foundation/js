@@ -127,3 +127,17 @@ export class CreateListingRequiresSignerError extends AuctionHouseError {
     });
   }
 }
+
+/** @group Errors */
+export class WithdrawRequiresSignerError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'withdraw_requires_signer',
+      title: 'Withdraw Requires Signer',
+      problem:
+        'You are trying to perform a withdraw without providing a signer.',
+      solution: 'Either a buyer or authority must be a Signer.',
+    });
+  }
+}

@@ -19,7 +19,10 @@ import {
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
 import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+import {
+  AuctioneerAuthorityRequiredError,
+  WithdrawRequiresSignerError,
+} from '../errors';
 
 // -----------------
 // Operation
@@ -181,6 +184,11 @@ export const withdrawFromBuyerAccountBuilder = (
   const amountBasisPoint = amount.basisPoints;
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
+
+  if (!isSigner(buyer) && !isSigner(authority)) {
+    throw new WithdrawRequiresSignerError();
+  }
+
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     toPublicKey(buyer)
