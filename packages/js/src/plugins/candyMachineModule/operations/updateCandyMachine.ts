@@ -387,7 +387,7 @@ export const updateCandyMachineBuilder = <
       )
 
       // Update Candy Guard's guards and groups, if any.
-      .add(updateCandyGuardsBuilder(params, candyGuardAuthority))
+      .add(updateCandyGuardsBuilder<T>(metaplex, params, candyGuardAuthority))
   );
 };
 
@@ -538,11 +538,56 @@ const updateCandyMachineCollectionBuilder = (
   });
 };
 
-const updateCandyGuardsBuilder = (
-  params: UpdateCandyMachineBuilderParams,
-  candyGuardAuthority: Signer
+const updateCandyGuardsBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  candyGuardAuthority: Signer,
+  payer: Signer
 ): TransactionBuilder => {
-  return TransactionBuilder.make();
+  const guardsToUpdate: {
+    guards?: Partial<T>;
+    groups?: Partial<T>[];
+  } = {
+    guards: params.guards,
+    groups: params.groups,
+  };
+
+  let args: {
+    guards: Partial<T>;
+    groups: Partial<T>[];
+  };
+  if (objectHasNoDefinedKeys(guardsToUpdate)) {
+    return TransactionBuilder.make();
+  } else if (isCandyMachine(params.candyMachine)) {
+    args = {
+      guards: params.candyMachine.candyGuard.guards,
+      groups: params.candyMachine.candyGuard.groups,
+      ...guardsToUpdate,
+    };
+  } else {
+    assertObjectHasDefinedKeys(
+      guardsToUpdate,
+      ['guards', 'groups'],
+      onMissingInputError
+    );
+    args = guardsToUpdate;
+  }
+
+  return metaplex
+    .candyMachines()
+    .builders()
+    .updateCandyGuard<T>({
+      candyGuard: params.candyMachine.candyGuard.address,
+      guards: args.guards,
+      groups: args.groups,
+      authority: candyGuardAuthority,
+      payer,
+      programs: params.programs,
+      updateInstructionKey:
+        params.updateCandyGuardInstructionKey ?? 'updateCandyGuard',
+    });
 };
 
 const onMissingInputError = (missingKeys: string[]) =>
