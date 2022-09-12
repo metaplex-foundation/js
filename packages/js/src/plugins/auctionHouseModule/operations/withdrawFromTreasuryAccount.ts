@@ -69,6 +69,13 @@ export type WithdrawFromTreasuryAccountInput = {
   >;
 
   /**
+   * The Auction House authority.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+   authority?: Signer;
+
+  /**
    * The Signer paying for the transaction fee.
    *
    * @defaultValue `metaplex.identity()`
@@ -158,6 +165,7 @@ export const withdrawFromTreasuryAccountBuilder = (
     amount,
     instructionKey,
     payer = metaplex.identity(),
+    authority = metaplex.identity(),
   } = params;
 
   // Accounts.
@@ -192,7 +200,7 @@ export const withdrawFromTreasuryAccountBuilder = (
       // Withdraw From Treasury.
       .add({
         instruction: withdrawFromTreasuryInstruction,
-        signers: [],
+        signers: [authority],
         key: instructionKey ?? 'withdrawFromTreasuryAccount',
       })
   );

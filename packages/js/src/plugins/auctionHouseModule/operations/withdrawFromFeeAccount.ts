@@ -67,6 +67,13 @@ export type WithdrawFromFeeAccountInput = {
   >;
 
   /**
+   * The Auction House authority.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+   authority?: Signer;
+
+  /**
    * The Signer paying for the transaction fee.
    *
    * @defaultValue `metaplex.identity()`
@@ -156,6 +163,7 @@ export const withdrawFromFeeAccountBuilder = (
     amount,
     instructionKey,
     payer = metaplex.identity(),
+    authority = metaplex.identity(),
   } = params;
 
   // Accounts.
@@ -184,7 +192,7 @@ export const withdrawFromFeeAccountBuilder = (
       // Withdraw From Fee.
       .add({
         instruction: withdrawFromFeeInstruction,
-        signers: [],
+        signers: [authority],
         key: instructionKey ?? 'withdrawFromFeeAccount',
       })
   );

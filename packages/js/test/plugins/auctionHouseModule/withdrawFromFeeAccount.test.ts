@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { sol, toPublicKey } from '@/types';
+import { sol, subtractAmounts, toPublicKey } from '@/types';
 import { metaplex, killStuckProcess, createWallet } from '../../helpers';
 
 killStuckProcess();
@@ -7,11 +7,14 @@ killStuckProcess();
 test('[auctionHouseModule] withdraw from fee account on an Auction House', async (t: Test) => {
   // Given we have an Auction House and airdropped 100 SOL to fee account.
   const mx = await metaplex();
+  const payer = await createWallet(mx);
 
   const { auctionHouse } = await mx
     .auctionHouse()
     .create({
       sellerFeeBasisPoints: 200,
+      payer,
+      confirmOptions: { skipPreflight: true }
     })
     .run();
 
@@ -22,6 +25,7 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
     .auctionHouse()
     .withdrawFromFeeAccount({
       auctionHouse,
+      payer,
       amount: sol(1),
     })
     .run();
@@ -34,6 +38,16 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
   t.same(
     feeAccountBalance.basisPoints.toNumber(),
     sol(99).basisPoints.toNumber()
+  );
+
+  // And withdrawal destination account got 1 SOL more after withdrawal.
+  const feeWithdrawalDestinationBalance = await mx
+    .rpc()
+    .getBalance(toPublicKey(auctionHouse.feeWithdrawalDestinationAddress));
+
+  t.same(
+    subtractAmounts(feeWithdrawalDestinationBalance, sol(100)).basisPoints.toNumber(),
+    sol(1).basisPoints.toNumber()
   );
 });
 
