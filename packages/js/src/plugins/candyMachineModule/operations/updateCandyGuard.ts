@@ -2,6 +2,7 @@ import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
+  Program,
   serializeDiscriminator,
   Signer,
 } from '@/types';
@@ -120,12 +121,8 @@ export type UpdateCandyGuardInput<
    */
   payer?: Signer;
 
-  /**
-   * The Candy Guard program to use when updating the account.
-   *
-   * @defaultValue `metaplex.programs().get("CandyGuardProgram")`.
-   */
-  candyGuardProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -208,11 +205,12 @@ export const updateCandyGuardBuilder = <
     groups,
     payer = metaplex.identity(),
     authority = metaplex.identity(),
+    programs,
   } = params;
 
   const candyGuardProgram = metaplex
     .programs()
-    .get<CandyGuardProgram>(params.candyGuardProgram ?? 'CandyGuardProgram');
+    .get<CandyGuardProgram>('CandyGuardProgram', programs);
 
   const updateInstruction = createUpdateInstruction(
     {

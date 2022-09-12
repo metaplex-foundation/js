@@ -123,8 +123,8 @@ export type CreateCandyMachineInput<
   mintAuthority?: PublicKey;
 
   /**
-   * The mint address of the Collection NFT that all NFTs minted from
-   * this Candy Machine should be part of.
+   * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
+   * This must include its address and the update authority as a Signer.
    *
    * @example
    * If you do not have a Collection NFT yet, you can create one using
@@ -147,7 +147,7 @@ export type CreateCandyMachineInput<
   };
 
   /**
-   * The royalties that should be set on minted NFTs in basis points
+   * The royalties that should be set on minted NFTs in basis points.
    *
    * @example
    * ```ts
