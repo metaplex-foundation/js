@@ -18,7 +18,9 @@ import {
 } from '@/utils';
 import {
   CandyMachineData,
+  createSetAuthorityInstruction,
   createUpdateInstruction as createUpdateCandyMachineInstruction,
+  SetAuthorityInstructionArgs,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -356,9 +358,9 @@ export const updateCandyMachineBuilder = <
   return TransactionBuilder.make()
     .setFeePayer(payer)
     .add(updateCandyMachineDataBuilder(params, authority))
-    .add(updateCandyMachineAuthoritiesBuilder(params))
-    .add(updateCandyMachineCollectionBuilder(params))
-    .add(updateCandyGuardsBuilder(params));
+    .add(updateCandyMachineAuthoritiesBuilder(params, authority))
+    .add(updateCandyMachineCollectionBuilder(params, authority))
+    .add(updateCandyGuardsBuilder(params, candyGuardAuthority));
 };
 
 const updateCandyMachineDataBuilder = (
@@ -376,10 +378,10 @@ const updateCandyMachineDataBuilder = (
   };
 
   let data: CandyMachineData;
-  if (isCandyMachine(params.candyMachine)) {
-    data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
-  } else if (objectHasNoDefinedKeys(dataToUpdate)) {
+  if (objectHasNoDefinedKeys(dataToUpdate)) {
     return TransactionBuilder.make();
+  } else if (isCandyMachine(params.candyMachine)) {
+    data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
   } else {
     assertObjectHasDefinedKeys(
       dataToUpdate,
@@ -411,19 +413,55 @@ const updateCandyMachineDataBuilder = (
 };
 
 const updateCandyMachineAuthoritiesBuilder = (
-  input: UpdateCandyMachineBuilderParams
+  params: UpdateCandyMachineBuilderParams,
+  authority: Signer
 ): TransactionBuilder => {
-  return TransactionBuilder.make();
+  let args: SetAuthorityInstructionArgs;
+  const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> = {
+    newAuthority: params.newAuthority,
+    newMintAuthority: params.mintAuthority,
+  };
+
+  if (objectHasNoDefinedKeys(authoritiesToUpdate)) {
+    return TransactionBuilder.make();
+  } else if (isCandyMachine(params.candyMachine)) {
+    args = {
+      newAuthority: params.candyMachine.authorityAddress,
+      newMintAuthority: params.candyMachine.mintAuthorityAddress,
+      ...authoritiesToUpdate,
+    };
+  } else {
+    assertObjectHasDefinedKeys(
+      authoritiesToUpdate,
+      ['newAuthority', 'newMintAuthority'],
+      onMissingInputError
+    );
+    args = authoritiesToUpdate;
+  }
+
+  return TransactionBuilder.make().add({
+    instruction: createSetAuthorityInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+      },
+      args
+    ),
+    signers: [authority],
+    key: params.setAuthoritiesInstructionKey ?? 'setCandyMachineAuthorities',
+  });
 };
 
 const updateCandyMachineCollectionBuilder = (
-  input: UpdateCandyMachineBuilderParams
+  params: UpdateCandyMachineBuilderParams,
+  authority: Signer
 ): TransactionBuilder => {
   return TransactionBuilder.make();
 };
 
 const updateCandyGuardsBuilder = (
-  input: UpdateCandyMachineBuilderParams
+  params: UpdateCandyMachineBuilderParams,
+  candyGuardAuthority: Signer
 ): TransactionBuilder => {
   return TransactionBuilder.make();
 };
