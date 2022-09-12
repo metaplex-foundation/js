@@ -74,7 +74,7 @@ export type WithdrawInput = {
    *
    * @defaultValue `metaplex.identity()`
    */
-  buyer?: PublicKey | Signer;
+  buyer?: Signer;
 
   /**
    * The Authority key.
