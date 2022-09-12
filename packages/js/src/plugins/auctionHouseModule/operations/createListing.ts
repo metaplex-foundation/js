@@ -105,7 +105,7 @@ export type CreateListingInput = {
    * The Auction House authority.
    *
    * There must be one and only one signer; Authority or Seller must sign.
-   * Auction house should be the signer for changing the price instead of user wallet for cases when seller lists at 0.   *
+   * Auction house should be the signer for changing the price instead of user wallet for cases when seller lists at 0.
    *
    * @defaultValue `auctionHouse.authority`
    */
