@@ -30,12 +30,6 @@ import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
 const Key = 'CancelBidOperation' as const;
 
 /**
- * @group Operations
- * @category Constructors
- */
-export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
-
-/**
  * Cancels the user's bid in the given auction house.
  *
  * ```ts
@@ -47,6 +41,12 @@ export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
  *
  * @group Operations
  * @category Constructors
+ */
+export const cancelBidOperation = useOperation<CancelBidOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
  */
 export type CancelBidOperation = Operation<
   typeof Key,
