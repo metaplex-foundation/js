@@ -5,4 +5,5 @@ export * from './findCandyGuardsByAuthority';
 export * from './findCandyMachineByAddress';
 export * from './unwrapCandyGuard';
 export * from './updateCandyGuard';
+export * from './updateCandyMachine';
 export * from './wrapCandyGuard';

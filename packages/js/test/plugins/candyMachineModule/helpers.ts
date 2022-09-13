@@ -1,5 +1,36 @@
-import { CreateCandyGuardInput, Metaplex } from '@/index';
+import {
+  CreateCandyGuardInput,
+  CreateCandyMachineInput,
+  Metaplex,
+  toBigNumber,
+} from '@/index';
 import nacl from 'tweetnacl';
+import { createCollectionNft } from '../../helpers';
+
+export const createCandyMachine = async (
+  metaplex: Metaplex,
+  input?: Partial<CreateCandyMachineInput>
+) => {
+  let collection;
+  if (input?.collection) {
+    collection = input.collection;
+  } else {
+    const nft = await createCollectionNft(metaplex);
+    collection = { address: nft.address, updateAuthority: metaplex.identity() };
+  }
+
+  const { candyMachine } = await metaplex
+    .candyMachines()
+    .create({
+      collection,
+      sellerFeeBasisPoints: 200,
+      itemsAvailable: toBigNumber(1000),
+      ...input,
+    })
+    .run();
+
+  return candyMachine;
+};
 
 export const createCandyGuard = async (
   metaplex: Metaplex,

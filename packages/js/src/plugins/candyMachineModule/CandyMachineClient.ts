@@ -19,6 +19,8 @@ import {
   findCandyMachineByAddressOperation,
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
+  UpdateCandyMachineInput,
+  updateCandyMachineOperation,
 } from './operations';
 import { findCandyGuardPda } from './pdas';
 
@@ -171,6 +173,17 @@ export class CandyMachineClient {
       : this.findCandyGuardByAddress<T>(input);
 
     return task as Task<M>;
+  }
+
+  /** {@inheritDoc updateCandyMachineOperation} */
+  update<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+    input: UpdateCandyMachineInput<
+      T extends undefined ? DefaultCandyGuardSettings : T
+    >
+  ) {
+    return this.metaplex
+      .operations()
+      .getTask(updateCandyMachineOperation(input));
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */

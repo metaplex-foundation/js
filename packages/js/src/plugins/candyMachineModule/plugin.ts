@@ -27,6 +27,8 @@ import {
   findCandyMachineByAddressOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
+  updateCandyMachineOperation,
+  updateCandyMachineOperationHandler,
 } from './operations';
 import { CandyMachineProgram, DefaultCandyGuardProgram } from './programs';
 
@@ -74,6 +76,10 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       findCandyMachineByAddressOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
+    op.register(
+      updateCandyMachineOperation,
+      updateCandyMachineOperationHandler
+    );
   },
 });
 
