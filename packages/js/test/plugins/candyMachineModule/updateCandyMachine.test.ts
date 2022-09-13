@@ -735,10 +735,92 @@ test('[candyMachineModule] it fails when the provided guards to update miss prop
   });
 });
 
-test.skip('[candyMachineModule] it fails when there is nothing to update', async (t) => {
-  //
+test('[candyMachineModule] it fails when there is nothing to update', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx);
+
+  // When we try to update it without any changes.
+  const promise = mx.candyMachines().update({ candyMachine }).run();
+
+  // Then we expect an error telling us there is nothing to update.
+  await assertThrows(t, promise, /No Instructions To Send/);
 });
 
-test.skip('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
-  //
+test('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
+  // Given an existing Candy Machine with the following data.
+  const mx = await metaplex();
+  const authorityA = Keypair.generate();
+  const treasuryA = Keypair.generate().publicKey;
+  const collectionUpdateAuthorityA = Keypair.generate();
+  const collectionA = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityA,
+  });
+  const candyMachine = await createCandyMachine(mx, {
+    symbol: 'OLD',
+    sellerFeeBasisPoints: 100,
+    authority: authorityA.publicKey,
+    collection: {
+      address: collectionA.address,
+      updateAuthority: collectionUpdateAuthorityA,
+    },
+    guards: {
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+      lamports: { amount: sol(1), destination: treasuryA },
+    },
+  });
+
+  // When we update its data, authorities, collection and guards.
+  const authorityB = Keypair.generate().publicKey;
+  const treasuryB = Keypair.generate().publicKey;
+  const collectionUpdateAuthorityB = Keypair.generate();
+  const collectionB = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityB,
+  });
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      authority: authorityA,
+      symbol: 'NEW',
+      sellerFeeBasisPoints: 200,
+      // newAuthority: authorityB, // TODO(loris): When program is updated.
+      collection: {
+        address: collectionB.address,
+        updateAuthority: collectionUpdateAuthorityB,
+      },
+      guards: {
+        botTax: { lamports: sol(0.02), lastInstruction: false },
+        lamports: { amount: sol(2), destination: treasuryB },
+      },
+    })
+    .run();
+
+  // Then the Candy Machine's data was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    model: 'candyMachine',
+    address: spokSamePubkey(candyMachine.address),
+    authorityAddress: spokSamePubkey(candyMachine.authorityAddress), // TODO
+    mintAuthorityAddress: spokSamePubkey(candyMachine.mintAuthorityAddress),
+    collectionMintAddress: spokSamePubkey(collectionB.address),
+    symbol: 'NEW',
+    sellerFeeBasisPoints: 200,
+    candyGuard: {
+      model: 'candyGuard',
+      address: spokSamePubkey(candyMachine.candyGuard?.address),
+      guards: {
+        ...emptyDefaultCandyGuardSettings,
+        botTax: { lamports: spokSameAmount(sol(0.02)), lastInstruction: false },
+        lamports: {
+          amount: spokSameAmount(sol(2)),
+          destination: spokSamePubkey(treasuryB),
+        },
+      },
+    },
+  } as unknown as Specifications<CandyMachine>);
 });
