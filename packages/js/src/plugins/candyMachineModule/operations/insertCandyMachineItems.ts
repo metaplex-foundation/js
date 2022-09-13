@@ -71,8 +71,21 @@ export type InsertCandyMachineItemsInput = {
 
   /**
    * The items to insert into the candy machine.
+   *
+   * This only requires the `name` and the `uri` to insert for each item.
+   *
+   * Important: If your config line settings use prefixes, you must
+   * only provide the part of the name or URI that comes after theses prefixes.
+   *
+   * For example, if your config line settings use the following prefixes:
+   * - `prefixName`: `My NFT #`
+   * - `prefixUri`: `https://example.com/nfts/`
+   *
+   * Then, an item to insert could be: `{ name: '1', uri: '1.json' }`.
+   *
+   * @see {@link CandyMachineItem}
    */
-  items: CandyMachineItem[];
+  items: Pick<CandyMachineItem, 'name' | 'uri'>[];
 
   /**
    * The index we should use to insert the new items. This refers to the
