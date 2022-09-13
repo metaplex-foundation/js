@@ -118,7 +118,10 @@ test('[candyMachineModule] it can update groups', async (t) => {
     guards: {},
     groups: [
       {
-        liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
+        label: 'OLD',
+        guards: {
+          liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
+        },
       },
     ],
   });
@@ -131,7 +134,10 @@ test('[candyMachineModule] it can update groups', async (t) => {
       guards: {},
       groups: [
         {
-          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          label: 'NEW',
+          guards: {
+            liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          },
         },
       ],
     })
@@ -146,9 +152,12 @@ test('[candyMachineModule] it can update groups', async (t) => {
     guards: emptyDefaultCandyGuardSettings,
     groups: [
       {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: {
-          date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
+        label: 'NEW',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
+          },
         },
       },
     ],
@@ -167,20 +176,29 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
     guards: {},
     groups: [
       {
-        liveDate: { date: null },
-        lamports: { amount: sol(1), destination: lamportDestination },
-      },
-      {
-        liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-        splToken: {
-          tokenMint: splTokenA,
-          amount: token(375),
-          destinationAta: tokenDestination,
+        label: 'GUARD1',
+        guards: {
+          liveDate: { date: null },
+          lamports: { amount: sol(1), destination: lamportDestination },
         },
       },
       {
-        liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-        lamports: { amount: sol(2), destination: lamportDestination },
+        label: 'GUARD2',
+        guards: {
+          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          splToken: {
+            tokenMint: splTokenA,
+            amount: token(375),
+            destinationAta: tokenDestination,
+          },
+        },
+      },
+      {
+        label: 'GUARD3',
+        guards: {
+          liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
+          lamports: { amount: sol(2), destination: lamportDestination },
+        },
       },
     ],
   });
@@ -194,18 +212,24 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
       guards: {},
       groups: [
         {
-          liveDate: { date: null },
-          lamports: {
-            amount: sol(2),
-            destination: lamportDestination,
+          label: 'GUARD1',
+          guards: {
+            liveDate: { date: null },
+            lamports: {
+              amount: sol(2),
+              destination: lamportDestination,
+            },
           },
         },
         {
-          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-          splToken: {
-            tokenMint: splTokenB,
-            amount: token(42),
-            destinationAta: tokenDestination,
+          label: 'GUARD2',
+          guards: {
+            liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+            splToken: {
+              tokenMint: splTokenB,
+              amount: token(42),
+              destinationAta: tokenDestination,
+            },
           },
         },
       ],
@@ -221,22 +245,28 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
     guards: emptyDefaultCandyGuardSettings,
     groups: [
       {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: { date: null },
-        lamports: {
-          amount: spokSameAmount(sol(2)),
-          destination: spokSamePubkey(lamportDestination),
+        label: 'GUARD1',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: { date: null },
+          lamports: {
+            amount: spokSameAmount(sol(2)),
+            destination: spokSamePubkey(lamportDestination),
+          },
         },
       },
       {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: {
-          date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
-        },
-        splToken: {
-          tokenMint: spokSamePubkey(splTokenB),
-          amount: spokSameAmount(token(42)),
-          destinationAta: spokSamePubkey(tokenDestination),
+        label: 'GUARD2',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
+          },
+          splToken: {
+            tokenMint: spokSamePubkey(splTokenB),
+            amount: spokSameAmount(token(42)),
+            destinationAta: spokSamePubkey(tokenDestination),
+          },
         },
       },
     ],
@@ -261,20 +291,29 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
     },
     groups: [
       {
-        liveDate: { date: null },
-        lamports: { amount: sol(1), destination: lamportDestination },
-      },
-      {
-        liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-        splToken: {
-          tokenMint: splTokenA,
-          amount: token(375),
-          destinationAta: tokenDestination,
+        label: 'GUARD1',
+        guards: {
+          liveDate: { date: null },
+          lamports: { amount: sol(1), destination: lamportDestination },
         },
       },
       {
-        liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-        lamports: { amount: sol(2), destination: lamportDestination },
+        label: 'GUARD2',
+        guards: {
+          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          splToken: {
+            tokenMint: splTokenA,
+            amount: token(375),
+            destinationAta: tokenDestination,
+          },
+        },
+      },
+      {
+        label: 'GUARD3',
+        guards: {
+          liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
+          lamports: { amount: sol(2), destination: lamportDestination },
+        },
       },
     ],
   });

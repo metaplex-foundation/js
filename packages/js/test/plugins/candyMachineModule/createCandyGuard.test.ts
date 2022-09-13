@@ -171,7 +171,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test.only('[candyMachineModule] create candy guard with guard groups', async (t) => {
+test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
