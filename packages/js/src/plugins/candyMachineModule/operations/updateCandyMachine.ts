@@ -47,12 +47,15 @@ import { findCandyMachineAuthorityPda } from '../pdas';
 const Key = 'UpdateCandyMachineOperation' as const;
 
 /**
- * TODO
+ * Updates the every aspect of an existing Candy Machine, including its
+ * authorities, collection and guards (when associated with a Candy Guard).
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .update({
+ *     candyMachine,
+ *     sellerFeeBasisPoints: 500,
  *   })
  *   .run();
  * ```
@@ -346,13 +349,16 @@ export type UpdateCandyMachineBuilderParams<
 };
 
 /**
- * TODO
+ * Updates the every aspect of an existing Candy Machine, including its
+ * authorities, collection and guards (when associated with a Candy Guard).
  *
  * ```ts
  * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
  *   .update({
+ *     candyMachine,
+ *     sellerFeeBasisPoints: 500,
  *   });
  * ```
  *

@@ -17,6 +17,8 @@ import {
   findCandyGuardsByAuthorityOperation,
   FindCandyMachineByAddressInput,
   findCandyMachineByAddressOperation,
+  InsertCandyMachineItemsInput,
+  insertCandyMachineItemsOperation,
   UpdateCandyGuardInput,
   updateCandyGuardOperation,
   UpdateCandyMachineInput,
@@ -153,6 +155,13 @@ export class CandyMachineClient {
       ...input,
       address: findCandyGuardPda(input.address),
     });
+  }
+
+  /** {@inheritDoc insertCandyMachineItemsOperation} */
+  insertItems(input: InsertCandyMachineItemsInput) {
+    return this.metaplex
+      .operations()
+      .getTask(insertCandyMachineItemsOperation(input));
   }
 
   /**

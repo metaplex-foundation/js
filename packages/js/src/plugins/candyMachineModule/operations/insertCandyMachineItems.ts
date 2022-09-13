@@ -1,21 +1,30 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { TransactionBuilder } from '@/utils';
+import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyMachine, CandyMachineItem } from '../models';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CreateCandyGuardOperation' as const;
+const Key = 'InsertCandyMachineItemsOperation' as const;
 
 /**
- * TODO
+ * Insert items into an existing Candy Machine.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
- *   .create({
+ *   .insertItems({
+ *     candyMachine,
+ *     items: [
+ *       { name: 'My NFT #1', uri: 'https://example.com/nft1' },
+ *       { name: 'My NFT #2', uri: 'https://example.com/nft2' },
+ *       { name: 'My NFT #3', uri: 'https://example.com/nft3' },
+ *     ],
  *   })
  *   .run();
  * ```
@@ -23,30 +32,68 @@ const Key = 'CreateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyGuardOperation =
-  useOperation<CreateCandyGuardOperation>(Key);
+export const insertCandyMachineItemsOperation =
+  useOperation<InsertCandyMachineItemsOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyGuardOperation = Operation<
+export type InsertCandyMachineItemsOperation = Operation<
   typeof Key,
-  CreateCandyGuardInput,
-  CreateCandyGuardOutput
+  InsertCandyMachineItemsInput,
+  InsertCandyMachineItemsOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyGuardInput = {};
+export type InsertCandyMachineItemsInput = {
+  /**
+   * The Candy Machine to insert items into.
+   *
+   * We only need a subset of the `CandyMachine` model.
+   * We need its address and the number of items loaded and to be loaded
+   * so we can check if the operation is valid.
+   */
+  candyMachine: Pick<
+    CandyMachine,
+    'itemsAvailable' | 'itemsLoaded' | 'address'
+  >;
+
+  /**
+   * The Signer authorized to update the candy machine.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /**
+   * The items to insert into the candy machine.
+   */
+  items: CandyMachineItem[];
+
+  /**
+   * The index we should use to insert the new items. This refers to the
+   * index of the first item to insert and the others will follow after it.
+   *
+   * By defaults, this uses the `itemsLoaded` property so items are simply
+   * appended to the current items.
+   *
+   * @defaultValue `candyMachine.itemsLoaded`
+   */
+  index?: number;
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
+  confirmOptions?: ConfirmOptions;
+};
 
 /**
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyGuardOutput = {
+export type InsertCandyMachineItemsOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -55,14 +102,16 @@ export type CreateCandyGuardOutput = {
  * @group Operations
  * @category Handlers
  */
-export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
+export const InsertCandyMachineItemsOperationHandler: OperationHandler<InsertCandyMachineItemsOperation> =
   {
     async handle(
-      operation: CreateCandyGuardOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
-    ): Promise<CreateCandyGuardOutput> {
-      //
+      operation: InsertCandyMachineItemsOperation,
+      metaplex: Metaplex
+    ): Promise<InsertCandyMachineItemsOutput> {
+      return insertCandyMachineItemsBuilder(
+        metaplex,
+        operation.input
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
     },
   };
 
@@ -74,42 +123,43 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyGuardBuilderParams = Omit<
-  CreateCandyGuardInput,
+export type InsertCandyMachineItemsBuilderParams = Omit<
+  InsertCandyMachineItemsInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  createCandyGuardInstructionKey?: string;
+  instructionKey?: string;
 };
 
 /**
- * @group Transaction Builders
- * @category Contexts
- */
-export type CreateCandyGuardBuilderContext = Omit<
-  CreateCandyGuardOutput,
-  'response'
->;
-
-/**
- * TODO
+ * Insert items into an existing Candy Machine.
  *
  * ```ts
- * const transactionBuilder = await metaplex
+ * const transactionBuilder = metaplex
  *   .candyMachines()
  *   .builders()
- *   .create({
- *   });
+ *   .insertItems({ candyMachine, items });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyGuardBuilder = (
+export const insertCandyMachineItemsBuilder = (
   metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams
-): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  return TransactionBuilder.make<CreateCandyGuardBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({});
+  params: InsertCandyMachineItemsBuilderParams
+): TransactionBuilder => {
+  const authority = params.authority ?? metaplex.identity();
+  const index = params.index ?? params.candyMachine.itemsLoaded;
+  const items = params.items;
+
+  return TransactionBuilder.make().add({
+    instruction: createAddConfigLinesInstruction(
+      {
+        candyMachine: params.candyMachine.address,
+        authority: authority.publicKey,
+      },
+      { index, configLines: items }
+    ),
+    signers: [authority],
+    key: params.instructionKey ?? 'insertItems',
+  });
 };

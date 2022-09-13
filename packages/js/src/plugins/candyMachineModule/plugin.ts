@@ -25,6 +25,8 @@ import {
   findCandyGuardsByAuthorityOperationHandler,
   findCandyMachineByAddressOperation,
   findCandyMachineByAddressOperationHandler,
+  insertCandyMachineItemsOperation,
+  InsertCandyMachineItemsOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
   updateCandyMachineOperation,
@@ -74,6 +76,10 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     op.register(
       findCandyMachineByAddressOperation,
       findCandyMachineByAddressOperationHandler
+    );
+    op.register(
+      insertCandyMachineItemsOperation,
+      InsertCandyMachineItemsOperationHandler
     );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
     op.register(

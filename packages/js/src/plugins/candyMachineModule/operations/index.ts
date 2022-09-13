@@ -3,6 +3,7 @@ export * from './createCandyMachine';
 export * from './findCandyGuardByAddress';
 export * from './findCandyGuardsByAuthority';
 export * from './findCandyMachineByAddress';
+export * from './insertCandyMachineItems';
 export * from './unwrapCandyGuard';
 export * from './updateCandyGuard';
 export * from './updateCandyMachine';
