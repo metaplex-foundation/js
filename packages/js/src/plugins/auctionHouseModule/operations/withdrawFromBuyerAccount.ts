@@ -145,7 +145,7 @@ export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
  * @group Transaction Builders
  * @category Inputs
  */
-export type WithdrawBuilderParams = Omit<WithdrawInput, 'confirmOptions'> & {
+export type WithdrawFromBuyerAccountBuilderParams = Omit<WithdrawInput, 'confirmOptions'> & {
   instructionKey?: string;
 };
 
@@ -169,8 +169,8 @@ export type WithdrawBuilderContext = Omit<WithdrawOutput, 'response'>;
  * @category Constructors
  */
 export const withdrawFromBuyerAccountBuilder = (
-  params: WithdrawBuilderParams,
-  metaplex: Metaplex
+  metaplex: Metaplex,
+  params: WithdrawFromBuyerAccountBuilderParams
 ): TransactionBuilder<WithdrawBuilderContext> => {
   const {
     auctionHouse,
