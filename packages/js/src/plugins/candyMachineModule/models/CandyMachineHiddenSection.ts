@@ -38,7 +38,8 @@ export const deserializeCandyMachineHiddenSection = (
   const [itemsLoadedMap] = deserializeFeatureFlags(
     buffer,
     itemsAvailable,
-    offset
+    offset,
+    false
   );
   const itemsLoadedMapSize = Math.floor(itemsAvailable / 8) + 1;
   offset += itemsLoadedMapSize;

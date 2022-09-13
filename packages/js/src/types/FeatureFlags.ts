@@ -9,14 +9,19 @@ export type FeatureFlags = boolean[];
  */
 export const serializeFeatureFlags = (
   features: FeatureFlags,
-  byteSize?: number
+  byteSize?: number,
+  littleEndian = true
 ): Buffer => {
   const bytes: number[] = [];
   let currentByte = 0;
 
   for (let i = 0; i < features.length; i++) {
     const byteIndex = i % 8;
-    currentByte |= Number(features[i]) << byteIndex;
+    if (littleEndian) {
+      currentByte |= Number(features[i]) << byteIndex;
+    } else {
+      currentByte |= Number(features[i]) >> byteIndex;
+    }
     if (byteIndex === 7) {
       bytes.push(currentByte);
       currentByte = 0;
@@ -35,7 +40,8 @@ export const serializeFeatureFlags = (
 export const deserializeFeatureFlags = (
   buffer: Buffer,
   numberOfFlags: number,
-  offset = 0
+  offset = 0,
+  littleEndian = true
 ): [FeatureFlags, number] => {
   const booleans: boolean[] = [];
   const byteSize = Math.ceil(numberOfFlags / 8);
@@ -43,11 +49,13 @@ export const deserializeFeatureFlags = (
 
   for (let byte of bytes) {
     for (let i = 0; i < 8; i++) {
-      // TODO: Ensure Candy Guard is not broken by this change.
-      // booleans.push(Boolean(byte & 1));
-      // byte >>= 1;
-      booleans.push(Boolean(byte & 0b1000_0000));
-      byte <<= 1;
+      if (littleEndian) {
+        booleans.push(Boolean(byte & 1));
+        byte >>= 1;
+      } else {
+        booleans.push(Boolean(byte & 0b1000_0000));
+        byte <<= 1;
+      }
     }
   }
 
