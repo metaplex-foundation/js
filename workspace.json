@@ -9,7 +9,7 @@
         "prebuild": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test",
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
             "cwd": "packages/js"
           }
         },
@@ -82,7 +82,7 @@
         "prebuild": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test",
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
             "cwd": "packages/js-plugin-aws"
           }
         },
@@ -161,7 +161,7 @@
         "prebuild": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test",
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
             "cwd": "packages/js-plugin-nft-storage"
           }
         },
