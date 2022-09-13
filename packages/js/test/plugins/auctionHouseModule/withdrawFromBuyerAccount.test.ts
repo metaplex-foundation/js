@@ -1,6 +1,11 @@
 import test, { Test } from 'tape';
 import { addAmounts, sol } from '@/types';
-import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
+import {
+  metaplex,
+  killStuckProcess,
+  assertThrows,
+  createWallet,
+} from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
@@ -42,6 +47,55 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
     .withdrawFromBuyerAccount({
       auctionHouse,
       amount: sol(1),
+    })
+    .run();
+
+  // Then buyer's escrow account has minimum rent exempt SOL
+  buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    minimumRentExempt.basisPoints.toNumber()
+  );
+});
+
+test('[auctionHouseModule] withdraw from buyer account on an Auction House with assigned authority', async (t: Test) => {
+  // Given we have an Auction House.
+  const mx = await metaplex();
+  const authority = await createWallet(mx);
+
+  const { auctionHouse } = await createAuctionHouse(mx, null, { authority });
+
+  // And deposit 1 SOL to the buyer's escrow account.
+  await mx
+    .auctionHouse()
+    .depositToBuyerAccount({
+      auctionHouse,
+      amount: sol(1),
+    })
+    .run();
+
+  // Then buyer's escrow account has SOL in it
+  let buyerEscrow = findAuctionHouseBuyerEscrowPda(
+    auctionHouse.address,
+    mx.identity().publicKey
+  );
+
+  let buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
+  const minimumRentExempt = await mx.rpc().getRent(0);
+
+  t.same(
+    buyerEscrowBalance.basisPoints.toNumber(),
+    addAmounts(sol(1), minimumRentExempt).basisPoints.toNumber()
+  );
+
+  // When we withdraw 1 SOL from the buyer's escrow account.
+  await mx
+    .auctionHouse()
+    .withdrawFromBuyerAccount({
+      auctionHouse,
+      amount: sol(1),
+      authority,
     })
     .run();
 

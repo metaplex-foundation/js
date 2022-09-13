@@ -131,7 +131,7 @@ export type WithdrawOutput = {
  */
 export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
   handle: async (operation: WithdrawOperation, metaplex: Metaplex) =>
-    withdrawFromBuyerAccountBuilder(operation.input, metaplex).sendAndConfirm(
+    withdrawFromBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
       metaplex,
       operation.input.confirmOptions
     ),
@@ -145,7 +145,10 @@ export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
  * @group Transaction Builders
  * @category Inputs
  */
-export type WithdrawFromBuyerAccountBuilderParams = Omit<WithdrawInput, 'confirmOptions'> & {
+export type WithdrawFromBuyerAccountBuilderParams = Omit<
+  WithdrawInput,
+  'confirmOptions'
+> & {
   instructionKey?: string;
 };
 
@@ -234,9 +237,14 @@ export const withdrawFromBuyerAccountBuilder = (
   }
 
   // Signers.
-  const withdrawSigners = [buyer, authority, params.auctioneerAuthority].filter(
-    isSigner
+  const signer = isSigner(buyer) ? buyer : (authority as Signer);
+  const withdrawSigners = [signer, params.auctioneerAuthority].filter(isSigner);
+
+  // Update the account to be a signer since it's not covered properly by MPL due to its dynamic nature.
+  const signerKeyIndex = withdrawInstruction.keys.findIndex((key) =>
+    key.pubkey.equals(signer.publicKey)
   );
+  withdrawInstruction.keys[signerKeyIndex].isSigner = true;
 
   return (
     TransactionBuilder.make()
