@@ -209,24 +209,6 @@ export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
-/**
- * Creates a bid on a given asset.
- *
- * You can post a public bid on a non-listed NFT by skipping seller and tokenAccount properties.
- * Public bids are specific to the token itself and not to any specific auction.
- * This means that a bid can stay active beyond the end of an auction
- * and be resolved if it meets the criteria for subsequent auctions of that token.
- *
- * ```ts
- * const transactionBuilder = metaplex
- *   .auctionHouse()
- *   .builders()
- *   .createBid({ auctionHouse, mintAccount, seller });
- * ```
- *
- * @group Transaction Builders
- * @category Constructors
- */
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
     operation: CreateBidOperation,

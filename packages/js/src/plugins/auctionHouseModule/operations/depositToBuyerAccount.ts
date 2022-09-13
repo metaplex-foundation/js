@@ -76,6 +76,7 @@ export type DepositToBuyerAccountInput = {
     | 'treasuryMint'
     | 'feeAccountAddress'
   >;
+
   /**
    * The buyer who deposits funds.
    * This expects a Signer.

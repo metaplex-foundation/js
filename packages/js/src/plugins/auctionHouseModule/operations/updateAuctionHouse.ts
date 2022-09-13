@@ -66,10 +66,6 @@ export type UpdateAuctionHouseInput = {
    * the provided data to update. For instance, if you only want to
    * update the `feeWithdrawalDestination`, we need to send an instruction that updates
    * the data whilst keeping all other properties the same.
-   *
-   * If you want more control over how this transaction is built,
-   * you may use the associated transaction builder instead using
-   * `metaplex.auctionHouse().builders().updateAuctionHouse({...})`.
    */
   auctionHouse: AuctionHouse;
 
@@ -169,17 +165,8 @@ export type UpdateAuctionHouseOutput = {
 };
 
 /**
- * Updates an existing Auction House.
- *
- * ```ts
- * const transactionBuilder = metaplex
- *   .auctionHouse()
- *   .builders()
- *   .updateAuctionHouse({ auctionHouse, canChangeSalePrice: true })
- * ```
- *
- * @group Transaction Builders
- * @category Constructors
+ * @group Operations
+ * @category Handlers
  */
 export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionHouseOperation> =
   {
@@ -233,6 +220,15 @@ export type UpdateAuctionHouseBuilderParams = Omit<
 };
 
 /**
+ * Updates an existing Auction House.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .updateAuctionHouse({ auctionHouse, canChangeSalePrice: true })
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
