@@ -20,8 +20,8 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
 
   // And withdrawal destination has 100 SOL.
   const originalFeeWithdrawalDestinationBalance = await mx
-  .rpc()
-  .getBalance(toPublicKey(auctionHouse.feeWithdrawalDestinationAddress));
+    .rpc()
+    .getBalance(toPublicKey(auctionHouse.feeWithdrawalDestinationAddress));
 
   t.same(
     originalFeeWithdrawalDestinationBalance.basisPoints.toNumber(),
