@@ -231,7 +231,7 @@ test.only('[candyMachineModule] create candy guard with guard groups', async (t)
     })
     .run();
 
-  // Then we expect the Candy Guard account to exists with the following data.
+  // Then we expect the Candy Guard account to exist with the following data.
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',
