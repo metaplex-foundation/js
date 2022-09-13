@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { sol, subtractAmounts, toPublicKey } from '@/types';
+import { sol, toPublicKey } from '@/types';
 import { metaplex, killStuckProcess, createWallet } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 
@@ -14,6 +14,16 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
     sellerFeeBasisPoints: 1000,
     payer,
   });
+
+  // And withdrawal destination has 100 SOL.
+  const originalTreasuryWithdrawalDestinationBalance = await mx
+    .rpc()
+    .getBalance(toPublicKey(auctionHouse.treasuryWithdrawalDestinationAddress));
+
+  t.same(
+    originalTreasuryWithdrawalDestinationBalance.basisPoints.toNumber(),
+    sol(100).basisPoints.toNumber()
+  );
 
   // And we airdropped 2 SOL to the treasury account.
   await mx.rpc().airdrop(auctionHouse.treasuryAccountAddress, sol(2));
@@ -35,16 +45,13 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
 
   t.same(treasuryBalance.basisPoints.toNumber(), sol(1).basisPoints.toNumber());
 
-  // And withdrawal destination account got 1 SOL more after withdrawal.
-  const feeWithdrawalDestinationBalance = await mx
+  // And withdrawal destination account has 101 SOL after withdrawal.
+  const treasuryWithdrawalDestinationBalance = await mx
     .rpc()
     .getBalance(toPublicKey(auctionHouse.treasuryWithdrawalDestinationAddress));
 
   t.same(
-    subtractAmounts(
-      feeWithdrawalDestinationBalance,
-      sol(100)
-    ).basisPoints.toNumber(),
-    sol(1).basisPoints.toNumber()
+    treasuryWithdrawalDestinationBalance.basisPoints.toNumber(),
+    sol(101).basisPoints.toNumber()
   );
 });
