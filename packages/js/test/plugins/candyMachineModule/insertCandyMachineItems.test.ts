@@ -41,8 +41,18 @@ test.only('[candyMachineModule] it can add items to a candy machine', async (t) 
   t.equals(updatedCandyMachine.itemsLoaded, 2);
   t.equals(updatedCandyMachine.items.length, 2);
   t.deepEquals(updatedCandyMachine.items, [
-    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-    { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    {
+      index: 0,
+      minted: false,
+      name: 'Degen #1',
+      uri: 'https://example.com/degen/1',
+    },
+    {
+      index: 1,
+      minted: false,
+      name: 'Degen #2',
+      uri: 'https://example.com/degen/2',
+    },
   ]);
 });
 

@@ -15,6 +15,9 @@ const Key = 'InsertCandyMachineItemsOperation' as const;
 /**
  * Insert items into an existing Candy Machine.
  *
+ * Note that the name and URI of each item should not include
+ * the prefixes configured in the config line settings.
+ *
  * ```ts
  * await metaplex
  *   .candyMachines()
@@ -145,6 +148,9 @@ export type InsertCandyMachineItemsBuilderParams = Omit<
 
 /**
  * Insert items into an existing Candy Machine.
+ *
+ * Note that the name and URI of each item should not include
+ * the prefixes configured in the config line settings.
  *
  * ```ts
  * const transactionBuilder = metaplex
