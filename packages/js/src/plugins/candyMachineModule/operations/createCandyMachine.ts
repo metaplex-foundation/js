@@ -493,7 +493,7 @@ export const createCandyMachineBuilder = async <
     { data: candyMachineData }
   );
 
-  // TODO(loris): remove quick-fix when protocol is ready.
+  // TODO(loris): remove quick-fix when protocol is ready. The test should pass without it.
   initializeInstruction.keys[8].isWritable = true;
 
   return builder

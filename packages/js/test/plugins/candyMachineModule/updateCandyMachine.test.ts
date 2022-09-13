@@ -5,6 +5,7 @@ import test from 'tape';
 import {
   assertThrows,
   assertThrowsFn,
+  createCollectionNft,
   killStuckProcess,
   metaplex,
   spokSameBignum,
@@ -321,23 +322,124 @@ test('[candyMachineModule] it fails when the provided data to update misses prop
 });
 
 test.skip('[candyMachineModule] it can update the authorities of a candy machine', async (t) => {
-  //
+  // TODO: waiting on program update.
 });
 
 test.skip('[candyMachineModule] updating one authority does not override the other', async (t) => {
-  //
+  // TODO: waiting on program update.
 });
 
 test.skip('[candyMachineModule] it fails when the provided authorities to update miss properties', async (t) => {
-  //
+  // TODO: waiting on program update.
 });
 
-test.skip('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
-  //
+test('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
+  // Given a Candy Machine associated to Collection A.
+  const mx = await metaplex();
+  const collectionUpdateAuthorityA = Keypair.generate();
+  const collectionA = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityA,
+  });
+  const candyMachine = await createCandyMachine(mx, {
+    collection: {
+      address: collectionA.address,
+      updateAuthority: collectionUpdateAuthorityA,
+    },
+  });
+
+  // When we update its collection to Collection B.
+  const collectionUpdateAuthorityB = Keypair.generate();
+  const collectionB = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityB,
+  });
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      collection: {
+        address: collectionB.address,
+        updateAuthority: collectionUpdateAuthorityB,
+      },
+    })
+    .run();
+
+  // Then the Candy Machine's collection was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  t.ok(updatedCandyMachine.collectionMintAddress.equals(collectionB.address));
 });
 
-test.skip('[candyMachineModule] it can update the collection of a candy machine when passed as a public key', async (t) => {
-  //
+test('[candyMachineModule] it can update the collection of a candy machine when passed as a public key', async (t) => {
+  // Given a Candy Machine associated to Collection A.
+  const mx = await metaplex();
+  const collectionUpdateAuthorityA = Keypair.generate();
+  const collectionA = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityA,
+  });
+  const candyMachine = await createCandyMachine(mx, {
+    collection: {
+      address: collectionA.address,
+      updateAuthority: collectionUpdateAuthorityA,
+    },
+  });
+
+  // When we update its collection to Collection B by providing the Candy
+  // Machine as a public key and the current collection's mint address.
+  const collectionUpdateAuthorityB = Keypair.generate();
+  const collectionB = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthorityB,
+  });
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine: candyMachine.address,
+      collection: {
+        address: collectionB.address,
+        updateAuthority: collectionUpdateAuthorityB,
+        currentCollectionAddress: candyMachine.collectionMintAddress,
+      },
+    })
+    .run();
+
+  // Then the Candy Machine's collection was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  t.ok(updatedCandyMachine.collectionMintAddress.equals(collectionB.address));
+});
+
+test('[candyMachineModule] it fails when the provided collection to update misses properties', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx);
+
+  // When we try to update its collection without providing all data
+  // and by providing the Candy Machine as a public key.
+  const collectionUpdateAuthority = Keypair.generate();
+  const collection = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthority,
+  });
+  const promise = mx
+    .candyMachines()
+    .update({
+      candyMachine: candyMachine.address,
+      collection: {
+        address: collection.address,
+        updateAuthority: collectionUpdateAuthority,
+        // <- Misses the current collection mint address to revoke current authority.
+      },
+    })
+    .run();
+
+  // Then we expect an error telling us some data is missing from the input.
+  await assertThrowsFn(t, promise, (error) => {
+    const missingProperties = '[collection.currentCollectionAddress]';
+    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
+    t.ok(error.solution.includes(missingProperties));
+  });
 });
 
 test.skip('[candyMachineModule] it can update the guards of a candy machine', async (t) => {
