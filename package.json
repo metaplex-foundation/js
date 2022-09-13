@@ -20,7 +20,7 @@
   "scripts": {
     "clean": "nx run-many --all --target=clean",
     "build": "nx run-many --all --target=build",
-    "test": "yarn workspaces run test --testPathIgnorePatterns=/integration_tests/",
+    "test": "nx run-many --all --target=test",
     "lint:test": "yarn workspaces run lint:test",
     "lint:fix": "yarn workspaces  run lint:fix",
     "format": "prettier --write packages/ ",
