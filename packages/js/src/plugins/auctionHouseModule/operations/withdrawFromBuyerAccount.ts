@@ -1,4 +1,4 @@
-import { ConfirmOptions } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder } from '@/utils';
 import {
@@ -73,11 +73,12 @@ export type WithdrawInput = {
 
   /**
    * The buyer who withdraws funds.
-   * This expects a Signer.
+   *
+   * There must be one and only one signer; Authority or Seller must sign.
    *
    * @defaultValue `metaplex.identity()`
    */
-  buyer?: Signer;
+  buyer?: PublicKey | Signer;
 
   /**
    * The Signer paying for the creation of all accounts
@@ -91,10 +92,11 @@ export type WithdrawInput = {
   /**
    * The Authority key.
    * It is required when the buyer is not a signer.
+   * There must be one and only one signer; Authority or Buyer must sign.
    *
    * @defaultValue Defaults to not being used.
    */
-  authority?: Signer;
+  authority?: PublicKey | Signer;
 
   /**
    * The Auctioneer authority key.
