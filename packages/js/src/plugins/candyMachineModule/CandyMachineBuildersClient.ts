@@ -5,6 +5,8 @@ import {
   CreateCandyGuardBuilderParams,
   createCandyMachineBuilder,
   CreateCandyMachineBuilderParams,
+  insertCandyMachineItemsBuilder,
+  InsertCandyMachineItemsBuilderParams,
   updateCandyGuardBuilder,
   UpdateCandyGuardBuilderParams,
 } from './operations';
@@ -31,6 +33,11 @@ export class CandyMachineBuildersClient {
     input: CreateCandyGuardBuilderParams<T>
   ) {
     return createCandyGuardBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc insertCandyMachineItemsBuilder} */
+  insertItems(input: InsertCandyMachineItemsBuilderParams) {
+    return insertCandyMachineItemsBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */
