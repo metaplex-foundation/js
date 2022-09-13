@@ -1,4 +1,11 @@
-import { CandyMachine, toBigNumber } from '@/index';
+import {
+  CandyMachine,
+  emptyDefaultCandyGuardSettings,
+  sol,
+  toBigNumber,
+  toDateTime,
+} from '@/index';
+import { EndSettingType } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -8,6 +15,7 @@ import {
   createCollectionNft,
   killStuckProcess,
   metaplex,
+  spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
@@ -442,16 +450,289 @@ test('[candyMachineModule] it fails when the provided collection to update misse
   });
 });
 
-test.skip('[candyMachineModule] it can update the guards of a candy machine', async (t) => {
-  //
+test('[candyMachineModule] it can update the guards of a candy machine', async (t) => {
+  // Given a Candy Machine using the following guards and groups.
+  const mx = await metaplex();
+  const treasuryA = Keypair.generate().publicKey;
+  const candyMachine = await createCandyMachine(mx, {
+    guards: {
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+    },
+    groups: [
+      {
+        liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+        lamports: { amount: sol(2), destination: treasuryA },
+      },
+      {
+        liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+        lamports: { amount: sol(4), destination: treasuryA },
+      },
+    ],
+  });
+
+  // When we update its Candy Guard settings to the following.
+  const treasuryB = Keypair.generate().publicKey;
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      guards: {
+        botTax: { lamports: sol(0.02), lastInstruction: false },
+      },
+      groups: [
+        {
+          liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
+          lamports: { amount: sol(1), destination: treasuryB },
+          endSettings: {
+            endSettingType: EndSettingType.Date,
+            date: toDateTime('2022-09-15T12:00:00.000Z'),
+          },
+        },
+        {
+          liveDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
+          lamports: { amount: sol(3), destination: treasuryB },
+        },
+      ],
+    })
+    .run();
+
+  // Then the Candy Guard's data was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    model: 'candyMachine',
+    candyGuard: {
+      model: 'candyGuard',
+      address: spokSamePubkey(candyMachine.candyGuard?.address),
+      guards: {
+        ...emptyDefaultCandyGuardSettings,
+        botTax: { lamports: spokSameAmount(sol(0.02)), lastInstruction: false },
+      },
+      groups: [
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-15T10:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(1)),
+            destination: spokSamePubkey(treasuryB),
+          },
+          endSettings: {
+            endSettingType: EndSettingType.Date,
+            date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+          },
+        },
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(3)),
+            destination: spokSamePubkey(treasuryB),
+          },
+        },
+      ],
+    },
+  } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it can update the guards of a candy machine when passed as a public key', async (t) => {
-  //
+test('[candyMachineModule] updating part of the Candy Guard data does not override the rest of it', async (t) => {
+  // Given a Candy Machine using the following guards and groups.
+  const mx = await metaplex();
+  const treasury = Keypair.generate().publicKey;
+  const candyMachine = await createCandyMachine(mx, {
+    guards: {
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+    },
+    groups: [
+      {
+        liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+        lamports: { amount: sol(2), destination: treasury },
+      },
+      {
+        liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+        lamports: { amount: sol(4), destination: treasury },
+      },
+    ],
+  });
+
+  // When we only update the guards without providing the groups.
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      guards: {
+        botTax: { lamports: sol(0.02), lastInstruction: false },
+      },
+    })
+    .run();
+
+  // Then the Candy Guard's guards were updated and the groups were not overriden.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    model: 'candyMachine',
+    candyGuard: {
+      model: 'candyGuard',
+      address: spokSamePubkey(candyMachine.candyGuard?.address),
+      guards: {
+        ...emptyDefaultCandyGuardSettings,
+        botTax: { lamports: spokSameAmount(sol(0.02)), lastInstruction: false },
+      },
+      groups: [
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-13T10:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(2)),
+            destination: spokSamePubkey(treasury),
+          },
+        },
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-13T12:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(4)),
+            destination: spokSamePubkey(treasury),
+          },
+        },
+      ],
+    },
+  } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it fails when the provided guards to update miss properties', async (t) => {
-  //
+test('[candyMachineModule] it can update the guards of a candy machine when passed as a public key', async (t) => {
+  // Given a Candy Machine using the following guards and groups.
+  const mx = await metaplex();
+  const treasuryA = Keypair.generate().publicKey;
+  const candyMachine = await createCandyMachine(mx, {
+    guards: {
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+    },
+    groups: [
+      {
+        liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+        lamports: { amount: sol(2), destination: treasuryA },
+      },
+      {
+        liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+        lamports: { amount: sol(4), destination: treasuryA },
+      },
+    ],
+  });
+
+  // When we update its Candy Guard settings by providing the Candy Machine
+  // as a public key and by providing the Candy Guard's address explicitly.
+  const treasuryB = Keypair.generate().publicKey;
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine: candyMachine.address,
+      candyGuard: candyMachine.candyGuard?.address,
+      guards: {
+        botTax: { lamports: sol(0.02), lastInstruction: false },
+      },
+      groups: [
+        {
+          liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
+          lamports: { amount: sol(1), destination: treasuryB },
+          endSettings: {
+            endSettingType: EndSettingType.Date,
+            date: toDateTime('2022-09-15T12:00:00.000Z'),
+          },
+        },
+        {
+          liveDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
+          lamports: { amount: sol(3), destination: treasuryB },
+        },
+      ],
+    })
+    .run();
+
+  // Then the Candy Guard's data was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    model: 'candyMachine',
+    candyGuard: {
+      model: 'candyGuard',
+      address: spokSamePubkey(candyMachine.candyGuard?.address),
+      guards: {
+        ...emptyDefaultCandyGuardSettings,
+        botTax: { lamports: spokSameAmount(sol(0.02)), lastInstruction: false },
+      },
+      groups: [
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-15T10:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(1)),
+            destination: spokSamePubkey(treasuryB),
+          },
+          endSettings: {
+            endSettingType: EndSettingType.Date,
+            date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+          },
+        },
+        {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(3)),
+            destination: spokSamePubkey(treasuryB),
+          },
+        },
+      ],
+    },
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it fails when the provided guards to update miss properties', async (t) => {
+  // Given a Candy Machine using the following guards.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    guards: {
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+    },
+  });
+
+  // When we try to update its Candy Guard settings by only providing the guards object
+  // and by passing the Candy Machine as a public key.
+  const promise = mx
+    .candyMachines()
+    .update({
+      candyMachine: candyMachine.address,
+      guards: {
+        botTax: { lamports: sol(0.02), lastInstruction: false },
+      },
+    })
+    .run();
+
+  // Then we expect an error telling us some data is missing from the input.
+  await assertThrowsFn(t, promise, (error) => {
+    const missingProperties = '[candyGuard, groups]';
+    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
+    t.ok(error.solution.includes(missingProperties));
+  });
 });
 
 test.skip('[candyMachineModule] it fails when there is nothing to update', async (t) => {
