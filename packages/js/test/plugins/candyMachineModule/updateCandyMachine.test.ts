@@ -4,6 +4,7 @@ import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
   assertThrows,
+  assertThrowsFn,
   killStuckProcess,
   metaplex,
   spokSameBignum,
@@ -250,12 +251,73 @@ test('[candyMachineModule] it cannot go from config line settings to hidden sett
   await assertThrows(t, promise, /CannotSwitchToHiddenSettings/);
 });
 
-test.skip('[candyMachineModule] updating part of the data does not override the rest of it', async (t) => {
-  //
+test('[candyMachineModule] updating part of the data does not override the rest of it', async (t) => {
+  // Given a Candy Machine with the following data.
+  const mx = await metaplex();
+  const creatorA = Keypair.generate().publicKey;
+  const candyMachine = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1000),
+    symbol: 'MYNFT',
+    sellerFeeBasisPoints: 100,
+    maxEditionSupply: toBigNumber(1),
+    isMutable: true,
+    creators: [{ address: creatorA, share: 100 }],
+    itemSettings: {
+      type: 'configLines',
+      prefixName: 'My NFT #',
+      nameLength: 4,
+      prefixUri: 'https://arweave.net/',
+      uriLength: 50,
+      isSequential: true,
+    },
+  });
+
+  // When we only update its symbol.
+  await mx.candyMachines().update({ candyMachine, symbol: 'NEW' }).run();
+
+  // Then the rest of the data is still the same.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Updated Candy Machine',
+    model: 'candyMachine',
+    symbol: 'NEW',
+    sellerFeeBasisPoints: 100,
+    isMutable: true,
+    maxEditionSupply: spokSameBignum(1),
+    creators: [{ address: spokSamePubkey(creatorA), share: 100 }],
+    itemsAvailable: spokSameBignum(1000),
+    itemSettings: {
+      type: 'configLines',
+      prefixName: 'My NFT #',
+      nameLength: 4,
+      prefixUri: 'https://arweave.net/',
+      uriLength: 50,
+      isSequential: true,
+    },
+  } as unknown as Specifications<CandyMachine>);
 });
 
-test.skip('[candyMachineModule] it fails when the provided data to update misses properties', async (t) => {
-  //
+test('[candyMachineModule] it fails when the provided data to update misses properties', async (t) => {
+  // Given an existing Candy Machine.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx);
+
+  // When we try to update part of its data by providing the Candy Machine as a public key.
+  const promise = mx
+    .candyMachines()
+    .update({ candyMachine: candyMachine.address, symbol: 'NEW' })
+    .run();
+
+  // Then we expect an error telling us some data is missing from the input.
+  await assertThrowsFn(t, promise, (error) => {
+    const missingProperties =
+      '[itemsAvailable, sellerFeeBasisPoints, maxEditionSupply, isMutable, creators, itemSettings]';
+    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
+    t.ok(error.solution.includes(missingProperties));
+  });
 });
 
 test.skip('[candyMachineModule] it can update the authorities of a candy machine', async (t) => {
