@@ -2,11 +2,8 @@ import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 import { assert, removeEmptyChars } from '@/utils';
 import { deserializeFeatureFlags, toBigNumber } from '@/types';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
-import { array as beetArray, u32 } from '@metaplex-foundation/beet';
-import {
-  CandyMachineData,
-  configLineBeet,
-} from '@metaplex-foundation/mpl-candy-machine-core';
+import { uniformFixedSizeArray, u32 } from '@metaplex-foundation/beet';
+import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
 
 /** @internal */
 export type CandyMachineHiddenSection = {
@@ -29,8 +26,9 @@ export const deserializeCandyMachineHiddenSection = (
   offset += 4;
 
   // Raw config lines.
-  const configLineSize =
-    configLineSettings.nameLength + configLineSettings.uriLength;
+  const nameLength = configLineSettings.nameLength;
+  const uriLength = configLineSettings.uriLength;
+  const configLineSize = nameLength + uriLength;
   const configLinesSize = configLineSize * itemsAvailable;
   const rawConfigLines = buffer.slice(offset, offset + configLinesSize);
   offset += configLinesSize;
@@ -47,8 +45,7 @@ export const deserializeCandyMachineHiddenSection = (
 
   // Items left to mint.
   offset += 4; // Skip the redundant size of the map.
-  const itemsLeftToMint = beetArray(u32)
-    .toFixedFromData(buffer, offset)
+  const itemsLeftToMint = uniformFixedSizeArray(u32, itemsAvailable)
     .read(buffer, offset)
     .slice(0, itemsRemaining);
 
@@ -57,10 +54,15 @@ export const deserializeCandyMachineHiddenSection = (
   itemsLoadedMap.forEach((loaded, index) => {
     if (!loaded) return;
 
-    const [configLine] = configLineBeet.deserialize(
-      rawConfigLines,
-      index * configLineSize
-    );
+    const namePosition = index * configLineSize;
+    const uriPosition = namePosition + nameLength;
+    const name = rawConfigLines
+      .slice(namePosition, namePosition + nameLength)
+      .toString('utf8');
+    const uri = rawConfigLines
+      .slice(uriPosition, uriPosition + uriLength)
+      .toString('utf8');
+
     const prefixName = replaceCandyMachineItemPattern(
       configLineSettings.prefixName,
       index
@@ -73,8 +75,8 @@ export const deserializeCandyMachineHiddenSection = (
     items.push({
       index,
       minted: !itemsLeftToMint.includes(index),
-      name: prefixName + removeEmptyChars(configLine.name),
-      uri: prefixUri + removeEmptyChars(configLine.uri),
+      name: prefixName + removeEmptyChars(name),
+      uri: prefixUri + removeEmptyChars(uri),
     });
   });
 

@@ -43,8 +43,11 @@ export const deserializeFeatureFlags = (
 
   for (let byte of bytes) {
     for (let i = 0; i < 8; i++) {
-      booleans.push(Boolean(byte & 1));
-      byte >>= 1;
+      // TODO: Ensure Candy Guard is not broken by this change.
+      // booleans.push(Boolean(byte & 1));
+      // byte >>= 1;
+      booleans.push(Boolean(byte & 0b1000_0000));
+      byte <<= 1;
     }
   }
 
