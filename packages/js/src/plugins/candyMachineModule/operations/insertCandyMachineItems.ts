@@ -4,6 +4,11 @@ import { TransactionBuilder } from '@/utils';
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import {
+  assertAllItemConstraints,
+  assertCanAdd,
+  assertNotFull,
+} from '../asserts';
 import { CandyMachine, CandyMachineItem } from '../models';
 
 // -----------------
@@ -57,12 +62,12 @@ export type InsertCandyMachineItemsInput = {
    * The Candy Machine to insert items into.
    *
    * We only need a subset of the `CandyMachine` model.
-   * We need its address and the number of items loaded and to be loaded
-   * so we can check if the operation is valid.
+   * We need its address, its items settings and the number of items loaded
+   * and to be loaded so we can check if the operation is valid.
    */
   candyMachine: Pick<
     CandyMachine,
-    'itemsAvailable' | 'itemsLoaded' | 'address'
+    'address' | 'itemsAvailable' | 'itemsLoaded' | 'itemSettings'
   >;
 
   /**
@@ -169,6 +174,10 @@ export const insertCandyMachineItemsBuilder = (
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const items = params.items;
+
+  assertNotFull(params.candyMachine, index);
+  assertCanAdd(params.candyMachine, index, items.length);
+  assertAllItemConstraints(params.candyMachine, items);
 
   return TransactionBuilder.make().add({
     instruction: createAddConfigLinesInstruction(

@@ -133,10 +133,10 @@ test('[candyMachineModule] it cannot add items to a candy machine with hidden se
   await assertThrows(t, promise, /HiddenSettingsDoNotHaveConfigLines/);
 });
 
-test.skip('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
+test.only('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const candyMachine = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
   });
 
@@ -145,7 +145,6 @@ test.skip('[candyMachineModule] it cannot add items that would make the candy ma
     .candyMachines()
     .insertItems({
       candyMachine,
-      authority: mx.identity(),
       items: [
         { name: 'Degen #1', uri: 'https://example.com/degen/1' },
         { name: 'Degen #2', uri: 'https://example.com/degen/2' },
