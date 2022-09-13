@@ -1,23 +1,11 @@
-import {
-  CandyMachine,
-  CandyMachineProgram,
-  DefaultCandyGuardProgram,
-  emptyDefaultCandyGuardSettings,
-  findCandyGuardPda,
-  sol,
-  toBigNumber,
-  toDateTime,
-} from '@/index';
+import { CandyMachine, toBigNumber } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
   assertThrows,
-  createCollectionNft,
-  createWallet,
   killStuckProcess,
   metaplex,
-  spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
@@ -132,7 +120,135 @@ test('[candyMachineModule] it cannot update the number of items when using confi
   await assertThrows(t, promise, /CannotChangeNumberOfLines/);
 });
 
-// it can update the hidden settings of a candy machine?
+test('[candyMachineModule] it can update the number of items when using hidden settings', async (t) => {
+  // Given a Candy Machine using hidden settings with 1000 items.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1000),
+    itemSettings: {
+      type: 'hidden',
+      name: 'My NFT #$ID+1$',
+      uri: 'https://my.app.com/nfts/$ID+1$.json',
+      hash: create32BitsHash('some-file'),
+    },
+  });
+
+  // When we update the number of items to 2000.
+  await mx
+    .candyMachines()
+    .update({ candyMachine, itemsAvailable: toBigNumber(2000) })
+    .run();
+
+  // Then the Candy Machine's data was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  t.equal(updatedCandyMachine.itemsAvailable.toNumber(), 2000);
+});
+
+test('[candyMachineModule] it can update the hidden settings of a candy machine', async (t) => {
+  // Given a Candy Machine using the following hidden settings.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    itemSettings: {
+      type: 'hidden',
+      name: 'My Old NFT #$ID+1$',
+      uri: 'https://old.app.com/nfts/$ID+1$.json',
+      hash: create32BitsHash('some-old-file'),
+    },
+  });
+
+  // When we update its hidden settings to the following.
+  await mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      itemSettings: {
+        type: 'hidden',
+        name: 'My NFT NFT #$ID+1$',
+        uri: 'https://nft.app.com/nfts/$ID+1$.json',
+        hash: create32BitsHash('some-new-file'),
+      },
+    })
+    .run();
+
+  // Then the Candy Machine's data was updated accordingly.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  t.same(updatedCandyMachine.itemSettings, {
+    type: 'hidden',
+    name: 'My NFT NFT #$ID+1$',
+    uri: 'https://nft.app.com/nfts/$ID+1$.json',
+    hash: create32BitsHash('some-new-file'),
+  });
+});
+
+test('[candyMachineModule] it cannot go from hidden settings to config line settings', async (t) => {
+  // Given a Candy Machine using the following hidden settings.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    itemSettings: {
+      type: 'hidden',
+      name: 'My NFT #$ID+1$',
+      uri: 'https://my.app.com/nfts/$ID+1$.json',
+      hash: create32BitsHash('some-file'),
+    },
+  });
+
+  // When we try to update it so it uses config line settings instead.
+  const promise = mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      itemSettings: {
+        type: 'configLines',
+        prefixName: 'My NFT #',
+        nameLength: 4,
+        prefixUri: 'https://arweave.net/',
+        uriLength: 50,
+        isSequential: true,
+      },
+    })
+    .run();
+
+  // Then we expect an error from the Program.
+  await assertThrows(t, promise, /CannotSwitchFromHiddenSettings/);
+});
+
+test('[candyMachineModule] it cannot go from config line settings to hidden settings', async (t) => {
+  // Given a Candy Machine using the following config line settings.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    itemSettings: {
+      type: 'configLines',
+      prefixName: 'My NFT #',
+      nameLength: 4,
+      prefixUri: 'https://arweave.net/',
+      uriLength: 50,
+      isSequential: true,
+    },
+  });
+
+  // When we try to update it so it uses hidden settings instead.
+  const promise = mx
+    .candyMachines()
+    .update({
+      candyMachine,
+      itemSettings: {
+        type: 'hidden',
+        name: 'My NFT #$ID+1$',
+        uri: 'https://my.app.com/nfts/$ID+1$.json',
+        hash: create32BitsHash('some-file'),
+      },
+    })
+    .run();
+
+  // Then we expect an error from the Program.
+  await assertThrows(t, promise, /CannotSwitchToHiddenSettings/);
+});
 
 test.skip('[candyMachineModule] updating part of the data does not override the rest of it', async (t) => {
   //
