@@ -171,7 +171,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
 });
 
-test('[candyMachineModule] create candy guard with guard groups', async (t) => {
+test.only('[candyMachineModule] create candy guard with guard groups', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -197,26 +197,35 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
       groups: [
         {
           // First group for VIPs.
-          liveDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
-          lamports: { amount: sol(1), destination: mx.identity().publicKey },
-          allowList: { merkleRoot },
+          label: 'VIP',
+          guards: {
+            liveDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
+            lamports: { amount: sol(1), destination: mx.identity().publicKey },
+            allowList: { merkleRoot },
+          },
         },
         {
           // Second group for whitelist token holders.
-          liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
-          lamports: { amount: sol(2), destination: mx.identity().publicKey },
-          whitelist: {
-            mint: whitelistMint,
-            presale: true,
-            discountPrice: null,
-            mode: WhitelistTokenMode.BurnEveryTime,
+          label: 'WLIST',
+          guards: {
+            liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
+            lamports: { amount: sol(2), destination: mx.identity().publicKey },
+            whitelist: {
+              mint: whitelistMint,
+              presale: true,
+              discountPrice: null,
+              mode: WhitelistTokenMode.BurnEveryTime,
+            },
           },
         },
         {
           // Third group for the public.
-          liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
-          lamports: { amount: sol(3), destination: mx.identity().publicKey },
-          gatekeeper: { gatekeeperNetwork, expireOnUse: false },
+          label: 'PUBLIC',
+          guards: {
+            liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+            lamports: { amount: sol(3), destination: mx.identity().publicKey },
+            gatekeeper: { gatekeeperNetwork, expireOnUse: false },
+          },
         },
       ],
     })
@@ -239,44 +248,53 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
     },
     groups: [
       {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: {
-          date: spokSameBignum(toDateTime('2022-09-05T16:00:00.000Z')),
-        },
-        lamports: {
-          amount: spokSameAmount(sol(1)),
-          destination: spokSamePubkey(mx.identity().publicKey),
-        },
-        allowList: { merkleRoot },
-      },
-      {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: {
-          date: spokSameBignum(toDateTime('2022-09-05T18:00:00.000Z')),
-        },
-        lamports: {
-          amount: spokSameAmount(sol(2)),
-          destination: spokSamePubkey(mx.identity().publicKey),
-        },
-        whitelist: {
-          mint: spokSamePubkey(whitelistMint),
-          presale: true,
-          discountPrice: null,
-          mode: WhitelistTokenMode.BurnEveryTime,
+        label: 'VIP',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-05T16:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(1)),
+            destination: spokSamePubkey(mx.identity().publicKey),
+          },
+          allowList: { merkleRoot },
         },
       },
       {
-        ...emptyDefaultCandyGuardSettings,
-        liveDate: {
-          date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
+        label: 'WLIST',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-05T18:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(2)),
+            destination: spokSamePubkey(mx.identity().publicKey),
+          },
+          whitelist: {
+            mint: spokSamePubkey(whitelistMint),
+            presale: true,
+            discountPrice: null,
+            mode: WhitelistTokenMode.BurnEveryTime,
+          },
         },
-        lamports: {
-          amount: spokSameAmount(sol(3)),
-          destination: spokSamePubkey(mx.identity().publicKey),
-        },
-        gatekeeper: {
-          gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
-          expireOnUse: false,
+      },
+      {
+        label: 'PUBLIC',
+        guards: {
+          ...emptyDefaultCandyGuardSettings,
+          liveDate: {
+            date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
+          },
+          lamports: {
+            amount: spokSameAmount(sol(3)),
+            destination: spokSamePubkey(mx.identity().publicKey),
+          },
+          gatekeeper: {
+            gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
+            expireOnUse: false,
+          },
         },
       },
     ],

@@ -35,6 +35,7 @@ export const CANDY_MACHINE_HIDDEN_SECTION =
   MAX_URI_LENGTH + // u32 + max uri length
   32; // hash
 
+export const CANDY_GUARD_LABEL_SIZE = 6;
 export const CANDY_GUARD_DATA =
   8 + // discriminator
   32 + // base

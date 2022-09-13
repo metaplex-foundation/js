@@ -101,7 +101,7 @@ export type UpdateCandyGuardInput<
    *
    * You may disable groups by providing an empty array `[]`.
    */
-  groups: Partial<T>[];
+  groups?: { label: string; guards: Partial<T> }[];
 
   /**
    * The Signer authorized to update the candy Guard.

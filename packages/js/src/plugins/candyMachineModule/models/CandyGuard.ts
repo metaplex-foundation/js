@@ -52,7 +52,7 @@ export type CandyGuard<T extends CandyGuardsSettings> = Model<'candyGuard'> & {
    * Each group functions the same way as the `guards` parameter, where a guard
    * is enabled if and only if it is not `null`.
    */
-  readonly groups: T[];
+  readonly groups: { label: string; guards: T }[];
 };
 
 /** @group Model Helpers */

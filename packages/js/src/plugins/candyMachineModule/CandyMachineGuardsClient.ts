@@ -5,8 +5,9 @@ import {
   PublicKey,
   serialize,
 } from '@/types';
-import { u32, u8 } from '@metaplex-foundation/beet';
+import { fixedSizeUtf8String, u32, u8 } from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
+import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import { UnregisteredCandyGuardError } from './errors';
 import {
   CandyGuardManifest,
@@ -62,7 +63,7 @@ export class CandyMachineGuardsClient {
   /** TODO */
   serializeSettings<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     guards: Partial<T>,
-    groups: Partial<T>[] = [],
+    groups: { label: string; guards: Partial<T> }[] = [],
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): Buffer {
     const availableGuards = this.forProgram(program);
@@ -90,7 +91,13 @@ export class CandyMachineGuardsClient {
     }
 
     groups.forEach((group) => {
-      buffer = Buffer.concat([buffer, serializeSet(group)]);
+      const labelBuffer = Buffer.alloc(CANDY_GUARD_LABEL_SIZE);
+      fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE).write(
+        labelBuffer,
+        0,
+        group.label
+      );
+      buffer = Buffer.concat([buffer, labelBuffer, serializeSet(group.guards)]);
     });
 
     return buffer;
@@ -102,7 +109,7 @@ export class CandyMachineGuardsClient {
   >(
     buffer: Buffer,
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): { guards: T; groups: T[] } {
+  ): { guards: T; groups: { label: string; guards: T }[] } {
     const availableGuards = this.forProgram(program);
     const deserializeSet = () => {
       const serializedFeatures = buffer.slice(0, 8);
@@ -122,12 +129,14 @@ export class CandyMachineGuardsClient {
     };
 
     const guards: T = deserializeSet();
-    const groups: T[] = [];
+    const groups: { label: string; guards: T }[] = [];
     const groupsCount = u32.read(buffer, 0);
     buffer = buffer.slice(4);
 
     for (let i = 0; i < groupsCount; i++) {
-      groups.push(deserializeSet());
+      const label = fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE).read(buffer, 0);
+      buffer = buffer.slice(CANDY_GUARD_LABEL_SIZE);
+      groups.push({ label, guards: deserializeSet() });
     }
 
     return { guards, groups };

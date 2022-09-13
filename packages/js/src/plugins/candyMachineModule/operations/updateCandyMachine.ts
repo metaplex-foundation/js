@@ -285,7 +285,7 @@ export type UpdateCandyMachineInput<
    *
    * @defaultValue Defaults to not being updated.
    */
-  groups?: Partial<T>[];
+  groups?: { label: string; guards: Partial<T> }[];
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];

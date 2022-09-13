@@ -275,7 +275,7 @@ export type CreateCandyMachineInput<
    *
    * @defaultValue `[]`, i.e. no groups are created.
    */
-  groups?: Partial<T>[];
+  groups?: { label: string; guards: Partial<T> }[];
 
   /**
    * Whether to skip the part of this operation that creates a Candy Guard
