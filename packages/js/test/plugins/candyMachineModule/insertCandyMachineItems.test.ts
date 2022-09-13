@@ -1,11 +1,12 @@
 import { toBigNumber } from '@/index';
-import {
-  MAX_NAME_LENGTH,
-  MAX_URI_LENGTH,
-} from '@/plugins/candyMachineModule/constants';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
-import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
+import {
+  assertThrows,
+  assertThrowsFn,
+  killStuckProcess,
+  metaplex,
+} from '../../helpers';
 import { create32BitsHash, createCandyMachine } from './helpers';
 
 killStuckProcess();
@@ -133,7 +134,7 @@ test('[candyMachineModule] it cannot add items to a candy machine with hidden se
   await assertThrows(t, promise, /HiddenSettingsDoNotHaveConfigLines/);
 });
 
-test.only('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
+test('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
   const candyMachine = await createCandyMachine(mx, {
@@ -157,10 +158,10 @@ test.only('[candyMachineModule] it cannot add items that would make the candy ma
   await assertThrows(t, promise, /Candy Machine Cannot Add Amount/);
 });
 
-test.skip('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
+test('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const candyMachine = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -173,7 +174,6 @@ test.skip('[candyMachineModule] it cannot add items once the candy machine is fu
     .candyMachines()
     .insertItems({
       candyMachine,
-      authority: mx.identity(),
       items: [{ name: 'Degen #3', uri: 'https://example.com/degen/3' }],
     })
     .run();
@@ -182,36 +182,70 @@ test.skip('[candyMachineModule] it cannot add items once the candy machine is fu
   await assertThrows(t, promise, /Candy Machine Is Full/);
 });
 
-test.skip('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
-  // Given an existing Candy Machine.
+test('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
+  // Given a Candy Machine with a name limit of 10 characters
+  // and a URI limit of 50 characters.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx);
+  const candyMachine = await createCandyMachine(mx, {
+    itemSettings: {
+      type: 'configLines',
+      prefixName: '',
+      nameLength: 10,
+      prefixUri: '',
+      uriLength: 50,
+      isSequential: false,
+    },
+  });
 
-  // When we try to add items that are too long.
-  const promise = mx
+  // When we try to add items such that one of the names is too long.
+  const promiseName = mx
     .candyMachines()
     .insertItems({
       candyMachine,
-      authority: mx.identity(),
       items: [
         { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        {
-          name: 'x'.repeat(MAX_NAME_LENGTH + 1),
-          uri: 'https://example.com/degen/2',
-        },
-        { name: 'Degen #3', uri: 'x'.repeat(MAX_URI_LENGTH + 1) },
+        { name: 'x'.repeat(11), uri: 'https://example.com/degen/2' },
       ],
     })
     .run();
 
-  // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Add Item Constraints Violated/);
+  // Then we expect an error to be thrown regarding that name.
+  await assertThrowsFn(t, promiseName, (error) => {
+    t.equal(
+      error.key,
+      'metaplex.errors.plugin.candy_machine_v3.candy_machine_item_text_too_long'
+    );
+    t.ok(error.problem.includes('the name limit as 10 characters'));
+    t.ok(error.problem.includes(`the item at index 1`));
+  });
+
+  // And when we try to add items such that one of the URIs is too long.
+  const promiseUri = mx
+    .candyMachines()
+    .insertItems({
+      candyMachine,
+      items: [
+        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+        { name: 'Degen #2', uri: 'x'.repeat(51) },
+      ],
+    })
+    .run();
+
+  // Then we expect an error to be thrown regarding that URI.
+  await assertThrowsFn(t, promiseUri, (error) => {
+    t.equal(
+      error.key,
+      'metaplex.errors.plugin.candy_machine_v3.candy_machine_item_text_too_long'
+    );
+    t.ok(error.problem.includes('the uri limit as 50 characters'));
+    t.ok(error.problem.includes(`the item at index 1`));
+  });
 });
 
-test.skip('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
+test('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx, {
+  const candyMachine = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(3),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -224,28 +258,42 @@ test.skip('[candyMachineModule] it can add items to a custom offset and override
     .candyMachines()
     .insertItems({
       candyMachine,
-      authority: mx.identity(),
-      index: toBigNumber(1),
+      index: 1,
       items: [
         { name: 'Degen #3', uri: 'https://example.com/degen/3' },
         { name: 'Degen #4', uri: 'https://example.com/degen/4' },
       ],
     })
     .run();
+
+  // Then the Candy Machine has been updated properly.
   const updatedCandyMachine = await mx
     .candyMachines()
     .refresh(candyMachine)
     .run();
-
-  // Then the Candy Machine has been updated properly.
   t.true(updatedCandyMachine.isFullyLoaded);
-  t.equals(updatedCandyMachine.itemsLoaded.toNumber(), 3);
+  t.equals(updatedCandyMachine.itemsLoaded, 3);
   t.equals(updatedCandyMachine.items.length, 3);
 
   // And the item of index 1 was overriden.
   t.deepEquals(updatedCandyMachine.items, [
-    { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-    { name: 'Degen #3', uri: 'https://example.com/degen/3' },
-    { name: 'Degen #4', uri: 'https://example.com/degen/4' },
+    {
+      index: 0,
+      minted: false,
+      name: 'Degen #1',
+      uri: 'https://example.com/degen/1',
+    },
+    {
+      index: 1,
+      minted: false,
+      name: 'Degen #3',
+      uri: 'https://example.com/degen/3',
+    },
+    {
+      index: 2,
+      minted: false,
+      name: 'Degen #4',
+      uri: 'https://example.com/degen/4',
+    },
   ]);
 });

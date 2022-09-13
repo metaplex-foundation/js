@@ -1,4 +1,5 @@
 import {
+  CandyMachineItem,
   CreateCandyGuardInput,
   CreateCandyMachineInput,
   Metaplex,
@@ -9,7 +10,9 @@ import { createCollectionNft } from '../../helpers';
 
 export const createCandyMachine = async (
   metaplex: Metaplex,
-  input?: Partial<CreateCandyMachineInput>
+  input?: Partial<CreateCandyMachineInput> & {
+    items?: Pick<CandyMachineItem, 'name' | 'uri'>[];
+  }
 ) => {
   let collection;
   if (input?.collection) {
@@ -19,7 +22,7 @@ export const createCandyMachine = async (
     collection = { address: nft.address, updateAuthority: metaplex.identity() };
   }
 
-  const { candyMachine } = await metaplex
+  let { candyMachine } = await metaplex
     .candyMachines()
     .create({
       collection,
@@ -28,6 +31,18 @@ export const createCandyMachine = async (
       ...input,
     })
     .run();
+
+  if (input?.items) {
+    await metaplex
+      .candyMachines()
+      .insertItems({
+        candyMachine,
+        authority: metaplex.identity(),
+        items: input.items,
+      })
+      .run();
+    candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
+  }
 
   return candyMachine;
 };
