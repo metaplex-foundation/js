@@ -12,6 +12,15 @@ import { assertNftOrSftWithToken } from '../../nftModule';
 const Key = 'LoadPurchaseOperation' as const;
 
 /**
+ * Transforms a `LazyPurchase` model into a `Purchase` model.
+ *
+ * ```ts
+ * const purchase = await metaplex
+ *   .auctionHouse()
+ *   .loadPurchase({ lazyPurchase })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -32,8 +41,15 @@ export type LoadPurchaseOperation = Operation<
  * @category Inputs
  */
 export type LoadPurchaseInput = {
+  /** The `LazyPurchase` model to transform into the `Purchase`.  */
   lazyPurchase: LazyPurchase;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

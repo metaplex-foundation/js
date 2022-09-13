@@ -67,6 +67,33 @@ import {
 } from './operations';
 
 /**
+ * This is a client for the Auction House module.
+ *
+ * It enables us to interact with the Auction House program in order to
+ * create and update Auction House to configure a marketplace as well to allow
+ * users to list, bid and execute sales.
+ *
+ * You may access this client via the `auctionHouse()` method of your `Metaplex` instance.
+ *
+ * ```ts
+ * const auctionHouseClient = metaplex.auctionHouse();
+ * ```
+ *
+ * @example
+ * You can create a new Auction House with minimum input like so.
+ * By default, the current identity of the Metaplex instance will be
+ * the authority of the Auction House.
+ *
+ * ```ts
+ * const { auctionHouse } = await metaplex
+ *   .auctionHouse()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *   })
+ *   .run();
+ * ```
+ *
+ * @see {@link AuctionHouse} The `AuctionHouse` model
  * @group Modules
  */
 export class AuctionHouseClient {

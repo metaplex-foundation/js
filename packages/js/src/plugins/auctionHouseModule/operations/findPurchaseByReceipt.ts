@@ -12,6 +12,15 @@ import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
 const Key = 'FindPurchaseByReceiptOperation' as const;
 
 /**
+ * Finds a Purchase by its receipt address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findPurchaseByReceipt({ receiptAddress, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,9 +42,22 @@ export type FindPurchaseByReceiptOperation = Operation<
  * @category Inputs
  */
 export type FindPurchaseByReceiptInput = {
+  /**
+   * The address of the purchase receipt account.
+   * This is the account that stores information about this purchase.
+   * The Purchase model is built on top of this account.
+   */
   receiptAddress: PublicKey;
+
+  /** A model of the Auction House related to this purchase. */
   auctionHouse: AuctionHouse;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

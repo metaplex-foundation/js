@@ -48,6 +48,15 @@ import {
 const Key = 'ExecuteSaleOperation' as const;
 
 /**
+ * Executes a sale on a given bid and listing.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .executeSale({ auctionHouse, bid, listing })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -68,6 +77,14 @@ export type ExecuteSaleOperation = Operation<
  * @category Inputs
  */
 export type ExecuteSaleInput = {
+  /**
+   * The Bid that is used in the sale.
+   * We only need a subset of the `Bid` model but we
+   * need enough information regarding its settings to know how
+   * to execute the sale.
+   *
+   * This includes, its asset, auction house address, buyer, receipt address etc.
+   */
   bid: Pick<
     Bid,
     | 'asset'
@@ -79,6 +96,15 @@ export type ExecuteSaleInput = {
     | 'tokens'
     | 'tradeStateAddress'
   >;
+
+  /**
+   * The Listing that is used in the sale.
+   * We only need a subset of the `Listing` model but we
+   * need enough information regarding its settings to know how
+   * to execute the sale.
+   *
+   * This includes, its asset, auction house address, seller, receipt address etc.
+   */
   listing: Pick<
     Listing,
     | 'asset'
@@ -89,9 +115,31 @@ export type ExecuteSaleInput = {
     | 'receiptAddress'
   >;
 
+  /** The Auction House in which to execute a sale. */
   auctionHouse: AuctionHouse;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  bookkeeper?: Signer; // Default: identity
+
+  /**
+   * The address of the bookkeeper wallet responsible for the receipt.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  bookkeeper?: Signer;
+
+  /**
+   * Prints the purchase receipt.
+   * The receipt holds information about the purchase,
+   * So it's important to print it if you want to use the `Purchase` model
+   *
+   * @defaultValue `true`
+   */
   printReceipt?: boolean; // Default: true
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -103,23 +151,52 @@ export type ExecuteSaleInput = {
  * @category Outputs
  */
 export type ExecuteSaleOutput = {
+  /** Seller trade state account address encoding the listing order. */
+  sellerTradeState: PublicKey;
+
+  /** Biyer trade state account address encoding the bid order. */
+  buyerTradeState: PublicKey;
+
+  /** The buyer address. */
+  buyer: PublicKey;
+
+  /** The seller address. */
+  seller: PublicKey;
+
+  /** The asset's metadata address. */
+  metadata: PublicKey;
+
+  /** The address of the bookkeeper account responsible for the receipt. */
+  bookkeeper: Option<PublicKey>;
+
+  /** The PDA of the receipt account in case it was printed. */
+  receipt: Option<Pda>;
+
+  /** The sale price. */
+  price: SolAmount | SplTokenAmount;
+
+  /** The number of tokens bought. */
+  tokens: SplTokenAmount;
+
+  /** A model that keeps information about the Purchase. */
+  purchase: Purchase;
+
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
-  sellerTradeState: PublicKey;
-  buyerTradeState: PublicKey;
-  buyer: PublicKey;
-  seller: PublicKey;
-  metadata: PublicKey;
-  bookkeeper: Option<PublicKey>;
-  receipt: Option<Pda>;
-  price: SolAmount | SplTokenAmount;
-  tokens: SplTokenAmount;
-  purchase: Purchase;
 };
 
 /**
- * @group Operations
- * @category Handlers
+ * Executes a sale on a given bid and listing.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .executeSale({ auctionHouse, listing, bid });
+ * ```
+ *
+ * @group Transaction Builders
+ * @category Constructors
  */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
   {

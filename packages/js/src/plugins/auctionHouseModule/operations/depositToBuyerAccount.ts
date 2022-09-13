@@ -59,7 +59,14 @@ export type DepositToBuyerAccountOperation = Operation<
  * @category Inputs
  */
 export type DepositToBuyerAccountInput = {
-  /** The Auction House in which escrow buyer deposits funds. */
+  /**
+   * The Auction House in which escrow buyer deposits funds.
+   * We only need a subset of the `AuctionHouse` model but we
+   * need enough information regarding its settings to know how
+   * to deposit funds.
+   *
+   * This includes, its address, authority address, treasury mint, etc.
+   */
   auctionHouse: Pick<
     AuctionHouse,
     | 'address'
@@ -69,6 +76,7 @@ export type DepositToBuyerAccountInput = {
     | 'treasuryMint'
     | 'feeAccountAddress'
   >;
+
   /**
    * The buyer who deposits funds.
    * This expects a Signer.
