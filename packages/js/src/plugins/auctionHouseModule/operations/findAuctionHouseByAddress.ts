@@ -5,7 +5,7 @@ import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
 import { DisposableScope } from '@/utils';
 import { useOperation, Operation, OperationHandler } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -50,7 +50,7 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
   {
     handle: async (
       operation: FindAuctionHouseByAddressOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const { address, auctioneerAuthority, commitment } = operation.input;

@@ -18,7 +18,7 @@ import {
   useOperation,
 } from '@/types';
 import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -275,7 +275,7 @@ export type CreateNftOutput = {
 export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (
     operation: CreateNftOperation,
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     scope: DisposableScope
   ) => {
     const {
@@ -384,7 +384,7 @@ export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
  * @category Constructors
  */
 export const createNftBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateNftBuilderParams
 ): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
   const {

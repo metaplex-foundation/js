@@ -12,7 +12,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -150,7 +150,7 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
   {
     async handle(
       operation: CreateTokenWithMintOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateTokenWithMintOutput> {
       const builder = await createTokenWithMintBuilder(
@@ -232,7 +232,7 @@ export type CreateTokenWithMintBuilderContext = {
  * @category Constructors
  */
 export const createTokenWithMintBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateTokenWithMintBuilderParams
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
   const {

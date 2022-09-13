@@ -16,7 +16,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
@@ -214,7 +214,7 @@ export type UpdateNftOutput = {
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
   handle: async (
     operation: UpdateNftOperation,
-    metaplex: MetaplexType
+    metaplex: Metaplex
   ): Promise<UpdateNftOutput> => {
     const builder = updateNftBuilder(metaplex, operation.input);
 
@@ -253,7 +253,7 @@ export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
  * @category Constructors
  */
 export const updateNftBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
   const { nftOrSft, updateAuthority = metaplex.identity() } = params;

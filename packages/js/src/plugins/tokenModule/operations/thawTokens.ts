@@ -12,7 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -104,7 +104,7 @@ export const thawTokensOperationHandler: OperationHandler<ThawTokensOperation> =
   {
     async handle(
       operation: ThawTokensOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<ThawTokensOutput> {
       return thawTokensBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -140,7 +140,7 @@ export type ThawTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const thawTokensBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: ThawTokensBuilderParams
 ): TransactionBuilder => {
   const {

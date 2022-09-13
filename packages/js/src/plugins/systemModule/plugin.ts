@@ -7,14 +7,14 @@ import {
 } from './operations';
 import { SystemClient } from './SystemClient';
 import type { MetaplexPlugin } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * @group Plugins
  */
 /** @group Plugins */
 export const systemModule = (): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     // Program.
     metaplex.programs().register({
       name: 'SystemProgram',

@@ -26,7 +26,7 @@ import {
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 import { DisposableScope } from '@/utils';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -118,7 +118,7 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
   {
     handle: async (
       operation: FindNftByMintOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftByMintOutput> => {
       const {

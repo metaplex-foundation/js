@@ -1,7 +1,7 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse, Purchase } from '../models';
 import { findPurchaseReceiptPda } from '../pdas';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 
@@ -48,7 +48,7 @@ export const findPurchaseByTradeStateOperationHandler: OperationHandler<FindPurc
   {
     handle: async (
       operation: FindPurchaseByTradeStateOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const { sellerTradeState, buyerTradeState } = operation.input;

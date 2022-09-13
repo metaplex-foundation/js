@@ -4,7 +4,7 @@ import {
   transferSolBuilder,
   TransferSolBuilderParams,
 } from './operations';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -14,7 +14,7 @@ import type { Metaplex as MetaplexType } from '@/Metaplex';
  * @group Module Builders
  * */
 export class SystemBuildersClient {
-  constructor(protected readonly metaplex: MetaplexType) {}
+  constructor(protected readonly metaplex: Metaplex) {}
 
   /** {@inheritDoc createAccountBuilder} */
   createAccount(input: CreateAccountBuilderParams) {

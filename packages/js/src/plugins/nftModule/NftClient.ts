@@ -60,7 +60,7 @@ import {
 } from './operations';
 import { PartialKeys, Task } from '@/utils';
 import { token } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the NFT module.
@@ -102,7 +102,7 @@ import type { Metaplex as MetaplexType } from '@/Metaplex';
  * @group Modules
  */
 export class NftClient {
-  constructor(protected readonly metaplex: MetaplexType) {}
+  constructor(protected readonly metaplex: Metaplex) {}
 
   /**
    * You may use the `builders()` client to access the

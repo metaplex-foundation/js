@@ -1,9 +1,9 @@
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { CreateAuctionHouseInput } from '@/plugins';
 import { sol, Signer } from '@/types';
 
 export const createAuctionHouse = async (
-  mx: MetaplexType,
+  mx: Metaplex,
   auctioneerAuthority?: Signer | null,
   input: Partial<CreateAuctionHouseInput> = {}
 ) => {

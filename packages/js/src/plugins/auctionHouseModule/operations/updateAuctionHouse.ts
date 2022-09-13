@@ -18,7 +18,7 @@ import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { NoInstructionsToSendError } from '@/errors';
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -85,7 +85,7 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
   {
     async handle(
       operation: UpdateAuctionHouseOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ) {
       const { auctionHouse, auctioneerAuthority, confirmOptions } =
@@ -137,7 +137,7 @@ export type UpdateAuctionHouseBuilderParams = Omit<
  * @category Constructors
  */
 export const updateAuctionHouseBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UpdateAuctionHouseBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();

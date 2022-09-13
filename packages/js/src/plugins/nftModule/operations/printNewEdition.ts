@@ -24,7 +24,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -169,7 +169,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
   {
     handle: async (
       operation: PrintNewEditionOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const originalEditionAccount = await metaplex
@@ -266,7 +266,7 @@ export type PrintNewEditionBuilderContext = Omit<
  * @category Constructors
  */
 export const printNewEditionBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: PrintNewEditionBuilderParams
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {

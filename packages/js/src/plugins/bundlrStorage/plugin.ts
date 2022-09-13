@@ -1,9 +1,9 @@
 import { BundlrOptions, BundlrStorageDriver } from './BundlrStorageDriver';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 
 export const bundlrStorage = (options: BundlrOptions = {}): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     metaplex.storage().setDriver(new BundlrStorageDriver(metaplex, options));
   },
 });

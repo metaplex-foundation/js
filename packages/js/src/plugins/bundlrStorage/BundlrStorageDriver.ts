@@ -17,7 +17,7 @@ import {
   StorageDriver,
 } from '../storageModule';
 import { KeypairIdentityDriver } from '../keypairIdentity';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import {
   Amount,
   IdentitySigner,
@@ -34,7 +34,6 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
-
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -79,11 +78,11 @@ export type BundlrWalletAdapter = {
 };
 
 export class BundlrStorageDriver implements StorageDriver {
-  protected _metaplex: MetaplexType;
+  protected _metaplex: Metaplex;
   protected _bundlr: WebBundlr | NodeBundlr | null = null;
   protected _options: BundlrOptions;
 
-  constructor(metaplex: MetaplexType, options: BundlrOptions = {}) {
+  constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
     this._metaplex = metaplex;
     this._options = {
       providerUrl: metaplex.connection.rpcEndpoint,

@@ -5,7 +5,7 @@ import { CandyMachine } from '../models/CandyMachine';
 import { findCandyMachineCollectionPda } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -80,7 +80,7 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
   {
     async handle(
       operation: DeleteCandyMachineOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<DeleteCandyMachineOutput> {
       return deleteCandyMachineBuilder(
         metaplex,
@@ -121,7 +121,7 @@ export type DeleteCandyMachineBuilderParams = Omit<
  * @category Constructors
  */
 export const deleteCandyMachineBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: DeleteCandyMachineBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();

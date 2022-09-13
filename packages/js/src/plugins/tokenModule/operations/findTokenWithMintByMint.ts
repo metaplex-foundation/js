@@ -5,7 +5,7 @@ import { toMint } from '../models/Mint';
 import { findAssociatedTokenAccountPda } from '../pdas';
 import { TokenWithMint, toTokenWithMint } from '../models/Token';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -79,7 +79,7 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
   {
     handle: async (
       operation: FindTokenWithMintByMintOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<TokenWithMint> => {
       const { mint, address, addressType, commitment } = operation.input;
       const tokenAddress =

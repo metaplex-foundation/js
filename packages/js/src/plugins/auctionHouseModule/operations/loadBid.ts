@@ -1,7 +1,7 @@
 import type { Commitment } from '@solana/web3.js';
 import { Bid, LazyBid } from '../models/Bid';
 import { assertNftOrSftWithToken } from '../../nftModule';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler, amount } from '@/types';
 import { assert, DisposableScope } from '@/utils';
 
@@ -42,7 +42,7 @@ export type LoadBidInput = {
 export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   handle: async (
     operation: LoadBidOperation,
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     scope: DisposableScope
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;

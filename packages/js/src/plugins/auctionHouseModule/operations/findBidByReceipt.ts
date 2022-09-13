@@ -1,7 +1,7 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { AuctionHouse, Bid, toLazyBid } from '../models';
 import { toBidReceiptAccount } from '../accounts';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
 
@@ -49,7 +49,7 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
   {
     handle: async (
       operation: FindBidByReceiptOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ) => {
       const { receiptAddress, auctionHouse, commitment } = operation.input;

@@ -37,7 +37,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -162,7 +162,7 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
   {
     async handle(
       operation: CreateCandyMachineOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateCandyMachineOutput> {
       const builder = await createCandyMachineBuilder(
@@ -235,7 +235,7 @@ export type CreateCandyMachineBuilderContext = Omit<
  * @category Constructors
  */
 export const createCandyMachineBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateCandyMachineBuilderParams
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();

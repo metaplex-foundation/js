@@ -1,6 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 
@@ -94,7 +94,7 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
   {
     handle: async (
       operation: LoadMetadataOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<LoadMetadataOutput> => {
       const { metadata, loadJsonMetadata = true } = operation.input;

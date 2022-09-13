@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../../tokenModule';
 import { NftWithToken, SftWithToken } from '../models';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 
@@ -70,7 +70,7 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
   {
     handle: async (
       operation: FindNftByTokenOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftByTokenOutput> => {
       const token = toTokenAccount(

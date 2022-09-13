@@ -23,7 +23,7 @@ import {
 import { findCandyMachineCollectionPda } from '../pdas';
 import { Option, TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
@@ -130,7 +130,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
   {
     async handle(
       operation: UpdateCandyMachineOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
       const {
         candyMachine,
@@ -268,7 +268,7 @@ export type UpdateCandyMachineBuilderParams = {
  * @category Constructors
  */
 export const updateCandyMachineBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams
 ): TransactionBuilder => {
   const {

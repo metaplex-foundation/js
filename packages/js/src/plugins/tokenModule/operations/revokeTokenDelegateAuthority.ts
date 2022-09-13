@@ -12,7 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -102,7 +102,7 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
   {
     handle: async (
       operation: RevokeTokenDelegateAuthorityOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<RevokeTokenDelegateAuthorityOutput> => {
       return revokeTokenDelegateAuthorityBuilder(
         metaplex,
@@ -141,7 +141,7 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const revokeTokenDelegateAuthorityBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: RevokeTokenDelegateAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

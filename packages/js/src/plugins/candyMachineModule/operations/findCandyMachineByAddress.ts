@@ -11,7 +11,7 @@ import {
   OperationHandler,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -62,7 +62,7 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
   {
     handle: async (
       operation: FindCandyMachineByAddressOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ) => {
       const { address, commitment } = operation.input;
       const collectionPda = findCandyMachineCollectionPda(address);

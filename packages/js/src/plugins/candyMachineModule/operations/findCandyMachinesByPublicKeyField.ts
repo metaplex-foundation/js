@@ -9,7 +9,7 @@ import { findCandyMachineCollectionPda } from '../pdas';
 import { CandyMachineProgram } from '../program';
 import { DisposableScope, zipMap } from '@/utils';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { UnreachableCaseError } from '@/errors';
 
 // -----------------
@@ -80,7 +80,7 @@ export const findCandyMachinesByPublicKeyFieldOperationHandler: OperationHandler
   {
     handle: async (
       operation: FindCandyMachinesByPublicKeyFieldOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CandyMachine[]> => {
       const { type, publicKey, commitment } = operation.input;

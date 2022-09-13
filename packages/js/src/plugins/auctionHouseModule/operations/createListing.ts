@@ -39,7 +39,7 @@ import {
   SplTokenAmount,
   now,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/index';
+import { Metaplex } from '@/index';
 
 // -----------------
 // Operation
@@ -111,7 +111,7 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
   {
     async handle(
       operation: CreateListingOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateListingOutput> {
       const { auctionHouse, confirmOptions } = operation.input;
@@ -190,7 +190,7 @@ export type CreateListingBuilderContext = Omit<
  * @category Constructors
  */
 export const createListingBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateListingBuilderParams
 ): TransactionBuilder<CreateListingBuilderContext> => {
   const {

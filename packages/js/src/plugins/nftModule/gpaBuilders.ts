@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { Key, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { GpaBuilder, padEmptyChars } from '@/utils';
 import { toBigNumber } from '@/types';
 
@@ -16,7 +16,7 @@ const URI_START = SYMBOL_START + MAX_SYMBOL_LENGTH + 4;
 const CREATORS_START = URI_START + MAX_URI_LENGTH + 2 + 1 + 4;
 
 export class TokenMetadataGpaBuilder extends GpaBuilder {
-  constructor(metaplex: MetaplexType, programId?: PublicKey) {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId ?? PROGRAM_ID);
   }
 
@@ -26,7 +26,7 @@ export class TokenMetadataGpaBuilder extends GpaBuilder {
 }
 
 export class MetadataV1GpaBuilder extends TokenMetadataGpaBuilder {
-  constructor(metaplex: MetaplexType, programId?: PublicKey) {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId);
     this.whereKey(Key.MetadataV1);
   }

@@ -1,6 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { chunk } from './common';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
 
 export type GmaBuilderOptions = {
@@ -11,13 +11,13 @@ export type GmaBuilderOptions = {
 };
 
 export class GmaBuilder {
-  protected readonly metaplex: MetaplexType;
+  protected readonly metaplex: Metaplex;
   protected readonly publicKeys: PublicKey[];
   protected readonly commitment?: Commitment;
   protected chunkSize: number;
 
   constructor(
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     publicKeys: PublicKey[],
     options: GmaBuilderOptions = {}
   ) {
@@ -28,7 +28,7 @@ export class GmaBuilder {
   }
 
   static make(
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     publicKeys: PublicKey[],
     options: GmaBuilderOptions = {}
   ) {

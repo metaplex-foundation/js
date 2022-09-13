@@ -37,7 +37,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -198,7 +198,7 @@ export const mintCandyMachineOperationHandler: OperationHandler<MintCandyMachine
   {
     async handle(
       operation: MintCandyMachineOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<MintCandyMachineOutput> {
       assertCanMintCandyMachine(
@@ -295,7 +295,7 @@ export type MintCandyMachineBuilderContext = Omit<
  * @category Constructors
  */
 export const mintCandyMachineBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: MintCandyMachineBuilderParams
 ): Promise<TransactionBuilder<MintCandyMachineBuilderContext>> => {
   const {

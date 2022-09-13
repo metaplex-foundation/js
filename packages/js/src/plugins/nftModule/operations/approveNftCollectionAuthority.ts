@@ -4,7 +4,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -92,7 +92,7 @@ export const approveNftCollectionAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveNftCollectionAuthorityOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<ApproveNftCollectionAuthorityOutput> => {
       return approveNftCollectionAuthorityBuilder(
         metaplex,
@@ -134,7 +134,7 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveNftCollectionAuthorityBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: ApproveNftCollectionAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

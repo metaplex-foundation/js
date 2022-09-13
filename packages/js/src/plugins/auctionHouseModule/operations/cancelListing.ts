@@ -19,7 +19,7 @@ import {
   Pda,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -82,7 +82,7 @@ export type CancelListingOutput = {
  */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
   {
-    handle: async (operation: CancelListingOperation, metaplex: MetaplexType) =>
+    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
       cancelListingBuilder(operation.input).sendAndConfirm(
         metaplex,
         operation.input.confirmOptions

@@ -6,7 +6,7 @@ import {
   StorageDriver,
   lamports,
   Amount,
-  Metaplex as MetaplexType,
+  Metaplex as Metaplex,
   Signer,
   isKeypairSigner,
 } from '@metaplex-foundation/js';
@@ -28,7 +28,7 @@ export type NftStorageDriverOptions = {
 };
 
 export class NftStorageDriver implements StorageDriver {
-  readonly metaplex: MetaplexType;
+  readonly metaplex: Metaplex;
   readonly identity?: Signer;
   readonly token?: string;
   readonly endpoint?: URL;
@@ -37,7 +37,7 @@ export class NftStorageDriver implements StorageDriver {
   batchSize: number;
   useGatewayUrls: boolean;
 
-  constructor(metaplex: MetaplexType, options: NftStorageDriverOptions = {}) {
+  constructor(metaplex: Metaplex, options: NftStorageDriverOptions = {}) {
     this.metaplex = metaplex;
     this.identity = options.identity;
     this.token = options.token;

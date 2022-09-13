@@ -1,12 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import { MINT_SIZE, ACCOUNT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { GpaBuilder } from '@/utils';
 import { BigNumber } from '@/types';
 
 /** @internal */
 export class MintGpaBuilder extends GpaBuilder {
-  constructor(metaplex: MetaplexType, programId?: PublicKey) {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId ?? TOKEN_PROGRAM_ID);
     this.whereSize(MINT_SIZE);
   }
@@ -33,7 +33,7 @@ export class MintGpaBuilder extends GpaBuilder {
 
 /** @internal */
 export class TokenGpaBuilder extends GpaBuilder {
-  constructor(metaplex: MetaplexType, programId?: PublicKey) {
+  constructor(metaplex: Metaplex, programId?: PublicKey) {
     super(metaplex, programId ?? TOKEN_PROGRAM_ID);
     this.whereSize(ACCOUNT_SIZE);
   }

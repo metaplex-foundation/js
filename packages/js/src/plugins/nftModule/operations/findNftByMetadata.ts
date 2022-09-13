@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 
@@ -96,7 +96,7 @@ export const findNftByMetadataOperationHandler: OperationHandler<FindNftByMetada
   {
     handle: async (
       operation: FindNftByMetadataOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftByMetadataOutput> => {
       const metadata = toMetadataAccount(

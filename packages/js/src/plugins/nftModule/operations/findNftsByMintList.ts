@@ -4,7 +4,7 @@ import { Metadata, Nft, Sft, toMetadata } from '../models';
 import { findMetadataPda } from '../pdas';
 import { DisposableScope, GmaBuilder } from '@/utils';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -64,7 +64,7 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
   {
     handle: async (
       operation: FindNftsByMintListOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByMintListOutput> => {
       const { mints, commitment } = operation.input;

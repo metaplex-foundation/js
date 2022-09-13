@@ -1,4 +1,4 @@
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   OperationConstructor,
   Operation,
@@ -23,7 +23,7 @@ export class OperationClient {
     string,
     OperationHandler<any, any, any, any>
   > = new Map();
-  constructor(protected readonly metaplex: MetaplexType) {}
+  constructor(protected readonly metaplex: Metaplex) {}
 
   register<
     T extends Operation<K, I, O>,

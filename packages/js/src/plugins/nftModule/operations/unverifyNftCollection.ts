@@ -11,7 +11,7 @@ import {
 } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -109,7 +109,7 @@ export const unverifyNftCollectionOperationHandler: OperationHandler<UnverifyNft
   {
     handle: async (
       operation: UnverifyNftCollectionOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<UnverifyNftCollectionOutput> => {
       return unverifyNftCollectionBuilder(
         metaplex,
@@ -148,7 +148,7 @@ export type UnverifyNftCollectionBuilderParams = Omit<
  * @category Constructors
  */
 export const unverifyNftCollectionBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UnverifyNftCollectionBuilderParams
 ): TransactionBuilder => {
   const {

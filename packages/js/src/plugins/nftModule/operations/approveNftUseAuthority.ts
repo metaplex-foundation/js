@@ -9,7 +9,7 @@ import {
 } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -114,7 +114,7 @@ export const approveNftUseAuthorityOperationHandler: OperationHandler<ApproveNft
   {
     handle: async (
       operation: ApproveNftUseAuthorityOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<ApproveNftUseAuthorityOutput> => {
       return approveNftUseAuthorityBuilder(
         metaplex,
@@ -153,7 +153,7 @@ export type ApproveNftUseAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveNftUseAuthorityBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: ApproveNftUseAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

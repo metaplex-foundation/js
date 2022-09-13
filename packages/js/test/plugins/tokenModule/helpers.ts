@@ -6,7 +6,7 @@ import {
   Token,
   TokenWithMint,
 } from '@/index';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 export const assertTokenHasAmount = (
   t: Test,
@@ -21,7 +21,7 @@ export const assertTokenHasAmount = (
 
 export const assertRefreshedTokenHasAmount = async (
   t: Test,
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   token: Token | TokenWithMint,
   amount: SplTokenAmount
 ) => {
@@ -30,7 +30,7 @@ export const assertRefreshedTokenHasAmount = async (
 };
 
 export const refreshToken = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   token: Token | TokenWithMint
 ) => {
   return metaplex.tokens().findTokenByAddress({ address: token.address }).run();

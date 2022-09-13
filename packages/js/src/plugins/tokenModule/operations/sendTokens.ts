@@ -14,7 +14,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -155,7 +155,7 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
   {
     async handle(
       operation: SendTokensOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<SendTokensOutput> {
       const {
@@ -233,7 +233,7 @@ export type SendTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const sendTokensBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: SendTokensBuilderParams
 ): Promise<TransactionBuilder> => {
   const {

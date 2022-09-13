@@ -20,7 +20,7 @@ import {
   Pda,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
 
 // -----------------
@@ -84,7 +84,7 @@ export type CancelBidOutput = {
  * @category Handlers
  */
 export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
-  handle: async (operation: CancelBidOperation, metaplex: MetaplexType) =>
+  handle: async (operation: CancelBidOperation, metaplex: Metaplex) =>
     cancelBidBuilder(operation.input).sendAndConfirm(
       metaplex,
       operation.input.confirmOptions

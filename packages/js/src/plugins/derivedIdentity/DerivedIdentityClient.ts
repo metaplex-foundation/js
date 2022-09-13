@@ -3,7 +3,7 @@ import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { TransferSolOutput } from '../systemModule';
 import { UninitializedDerivedIdentityError } from './errors';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   IdentitySigner,
   isSigner,
@@ -17,11 +17,11 @@ import { Task } from '@/utils';
  * @group Modules
  */
 export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
-  protected readonly metaplex: MetaplexType;
+  protected readonly metaplex: Metaplex;
   protected originalSigner: Signer | null = null;
   protected derivedKeypair: Keypair | null = null;
 
-  constructor(metaplex: MetaplexType) {
+  constructor(metaplex: Metaplex) {
     this.metaplex = metaplex;
   }
 

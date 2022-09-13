@@ -28,7 +28,7 @@ import {
   isSigner,
   toPublicKey,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -98,7 +98,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
   {
     async handle(
       operation: CreateAuctionHouseOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateAuctionHouseOutput> {
       const output = await createAuctionHouseBuilder(
@@ -147,7 +147,7 @@ export type CreateAuctionHouseBuilderContext = Omit<
  * @category Constructors
  */
 export const createAuctionHouseBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateAuctionHouseBuilderParams
 ): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
   // Data.

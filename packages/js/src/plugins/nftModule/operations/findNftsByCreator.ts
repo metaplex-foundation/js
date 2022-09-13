@@ -4,7 +4,7 @@ import { TokenMetadataProgram } from '../program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { DisposableScope } from '@/utils';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -80,7 +80,7 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
   {
     handle: async (
       operation: FindNftsByCreatorOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByCreatorOutput> => {
       const { creator, position = 1, commitment } = operation.input;

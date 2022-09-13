@@ -14,7 +14,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -119,7 +119,7 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveTokenDelegateAuthorityOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<ApproveTokenDelegateAuthorityOutput> => {
       return approveTokenDelegateAuthorityBuilder(
         metaplex,
@@ -161,7 +161,7 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const approveTokenDelegateAuthorityBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: ApproveTokenDelegateAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

@@ -5,7 +5,7 @@ import {
   transferSolOperation,
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the System module.
@@ -30,7 +30,7 @@ import type { Metaplex as MetaplexType } from '@/Metaplex';
  * @group Modules
  */
 export class SystemClient {
-  constructor(protected readonly metaplex: MetaplexType) {}
+  constructor(protected readonly metaplex: Metaplex) {}
 
   /**
    * You may use the `builders()` client to access the

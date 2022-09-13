@@ -19,7 +19,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -300,7 +300,7 @@ export type CreateSftOutput = {
 export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
   handle: async (
     operation: CreateSftOperation,
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     scope: DisposableScope
   ) => {
     const {
@@ -414,7 +414,7 @@ export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
  * @category Constructors
  */
 export const createSftBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateSftBuilderParams
 ): Promise<TransactionBuilder<CreateSftBuilderContext>> => {
   const {
@@ -536,7 +536,7 @@ export const createSftBuilder = async (
 };
 
 const createMintAndTokenForSftBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateSftBuilderParams,
   useNewMint: Signer
 ): Promise<

@@ -29,13 +29,13 @@ import {
 } from './operations';
 import { TokenClient } from './TokenClient';
 import type { MetaplexPlugin } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 /**
  * @group Plugins
  */
 /** @group Plugins */
 export const tokenModule = (): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     // Program.
     metaplex.programs().register({
       name: 'TokenProgram',

@@ -1,10 +1,10 @@
 import { UtilsClient } from './UtilsClient';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const utilsModule = (): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     const utilsClient = new UtilsClient(metaplex);
     metaplex.utils = () => utilsClient;
   },

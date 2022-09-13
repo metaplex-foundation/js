@@ -4,7 +4,7 @@ import { Metadata, Nft, Sft } from '../models';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 import { DisposableScope } from '@/utils';
 import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -64,7 +64,7 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
   {
     handle: async (
       operation: FindNftsByOwnerOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByOwnerOutput> => {
       const { owner, commitment } = operation.input;

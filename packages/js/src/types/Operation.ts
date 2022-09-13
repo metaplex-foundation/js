@@ -1,4 +1,4 @@
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { DisposableScope } from '@/utils';
 
 export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown>
@@ -37,7 +37,7 @@ export type OperationHandler<
 > = {
   handle: (
     operation: T,
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     scope: DisposableScope
   ) => O | Promise<O>;
 };

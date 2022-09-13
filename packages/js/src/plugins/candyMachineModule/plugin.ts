@@ -17,12 +17,12 @@ import {
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
 } from './operations';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     const op = metaplex.operations();
     op.register(
       createCandyMachineOperation,

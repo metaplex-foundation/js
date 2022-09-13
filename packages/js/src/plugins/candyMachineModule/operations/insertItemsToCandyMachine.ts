@@ -15,7 +15,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -117,7 +117,7 @@ export const InsertItemsToCandyMachineOperationHandler: OperationHandler<InsertI
   {
     async handle(
       operation: InsertItemsToCandyMachineOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<InsertItemsToCandyMachineOutput> {
       return insertItemsToCandyMachineBuilder(
         metaplex,
@@ -155,7 +155,7 @@ export type InsertItemsToCandyMachineBuilderParams = Omit<
  * @category Constructors
  */
 export const insertItemsToCandyMachineBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: InsertItemsToCandyMachineBuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();

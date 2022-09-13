@@ -7,7 +7,7 @@ import {
 import base58 from 'bs58';
 import BN from 'bn.js';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { UnparsedAccount } from '@/types';
 
 export type GpaSortCallback = (
@@ -17,7 +17,7 @@ export type GpaSortCallback = (
 
 export class GpaBuilder {
   /** The connection instance to use when fetching accounts. */
-  protected readonly metaplex: MetaplexType;
+  protected readonly metaplex: Metaplex;
 
   /** The public key of the program we want to retrieve accounts from. */
   protected readonly programId: PublicKey;
@@ -28,7 +28,7 @@ export class GpaBuilder {
   /** When provided, reorder accounts using this callback. */
   protected sortCallback?: GpaSortCallback;
 
-  constructor(metaplex: MetaplexType, programId: PublicKey) {
+  constructor(metaplex: Metaplex, programId: PublicKey) {
     this.metaplex = metaplex;
     this.programId = programId;
   }

@@ -1,9 +1,9 @@
 import { MockStorageDriver, MockStorageOptions } from './MockStorageDriver';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 
 export const mockStorage = (options?: MockStorageOptions): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     metaplex.storage().setDriver(new MockStorageDriver(options));
   },
 });

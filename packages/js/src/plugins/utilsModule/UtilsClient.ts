@@ -1,4 +1,4 @@
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   addAmounts,
   lamports,
@@ -13,11 +13,11 @@ const TRANSACTION_FEE = 5000;
  * @group Modules
  */
 export class UtilsClient {
-  protected readonly metaplex: MetaplexType;
+  protected readonly metaplex: Metaplex;
   protected cachedRentPerEmptyAccount: SolAmount | null = null;
   protected cachedRentPerByte: SolAmount | null = null;
 
-  constructor(metaplex: MetaplexType) {
+  constructor(metaplex: Metaplex) {
     this.metaplex = metaplex;
   }
 

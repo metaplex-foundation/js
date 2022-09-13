@@ -4,7 +4,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMetadataPda } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -74,7 +74,7 @@ export const unverifyNftCreatorOperationHandler: OperationHandler<UnverifyNftCre
   {
     handle: async (
       operation: UnverifyNftCreatorOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<UnverifyNftCreatorOutput> => {
       return unverifyNftCreatorBuilder(
         metaplex,
@@ -113,7 +113,7 @@ export type UnverifyNftCreatorBuilderParams = Omit<
  * @category Constructors
  */
 export const unverifyNftCreatorBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UnverifyNftCreatorBuilderParams
 ): TransactionBuilder => {
   const { mintAddress, creator = metaplex.identity() } = params;

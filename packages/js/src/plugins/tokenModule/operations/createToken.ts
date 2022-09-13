@@ -18,7 +18,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { ExpectedSignerError } from '@/errors';
 
 // -----------------
@@ -115,7 +115,7 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
   {
     async handle(
       operation: CreateTokenOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateTokenOutput> {
       const builder = await createTokenBuilder(metaplex, operation.input);
@@ -178,7 +178,7 @@ export type CreateTokenBuilderContext = {
  * @category Constructors
  */
 export const createTokenBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateTokenBuilderParams
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {
@@ -295,7 +295,7 @@ export type CreateTokenIfMissingBuilderParams = Omit<
  * @internal
  */
 export const createTokenIfMissingBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateTokenIfMissingBuilderParams
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {

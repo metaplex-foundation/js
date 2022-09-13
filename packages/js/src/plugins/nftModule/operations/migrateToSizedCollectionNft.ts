@@ -10,7 +10,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -101,7 +101,7 @@ export const migrateToSizedCollectionNftOperationHandler: OperationHandler<Migra
   {
     handle: async (
       operation: MigrateToSizedCollectionNftOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<MigrateToSizedCollectionNftOutput> => {
       return migrateToSizedCollectionNftBuilder(
         metaplex,
@@ -142,7 +142,7 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
  * @category Constructors
  */
 export const migrateToSizedCollectionNftBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: MigrateToSizedCollectionNftBuilderParams
 ): TransactionBuilder => {
   const {

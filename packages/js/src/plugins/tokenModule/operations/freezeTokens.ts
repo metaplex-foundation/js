@@ -12,7 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -104,7 +104,7 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
   {
     async handle(
       operation: FreezeTokensOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<FreezeTokensOutput> {
       return freezeTokensBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -140,7 +140,7 @@ export type FreezeTokensBuilderParams = Omit<
  * @category Constructors
  */
 export const freezeTokensBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: FreezeTokensBuilderParams
 ): TransactionBuilder => {
   const {

@@ -5,7 +5,7 @@ import { Mint } from '../models/Mint';
 import { TokenProgram } from '../program';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -112,7 +112,7 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
   {
     async handle(
       operation: CreateMintOperation,
-      metaplex: MetaplexType,
+      metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<CreateMintOutput> {
       const builder = await createMintBuilder(metaplex, operation.input);
@@ -172,7 +172,7 @@ export type CreateMintBuilderContext = Omit<
  * @category Constructors
  */
 export const createMintBuilder = async (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: CreateMintBuilderParams
 ): Promise<TransactionBuilder<CreateMintBuilderContext>> => {
   const {

@@ -21,7 +21,7 @@ import {
 } from './operations';
 import { Task } from '@/utils';
 import { toPublicKey } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the Candy Machine module.
@@ -55,7 +55,7 @@ import type { Metaplex as MetaplexType } from '@/Metaplex';
  * @group Modules
  */
 export class CandyMachinesClient {
-  constructor(readonly metaplex: MetaplexType) {}
+  constructor(readonly metaplex: Metaplex) {}
 
   /**
    * You may use the `builders()` client to access the

@@ -5,7 +5,7 @@ import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -94,7 +94,7 @@ export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNft
   {
     async handle(
       operation: ThawDelegatedNftOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<ThawDelegatedNftOutput> {
       return thawDelegatedNftBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
@@ -133,7 +133,7 @@ export type ThawDelegatedNftBuilderParams = Omit<
  * @category Constructors
  */
 export const thawDelegatedNftBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: ThawDelegatedNftBuilderParams
 ): TransactionBuilder => {
   const {

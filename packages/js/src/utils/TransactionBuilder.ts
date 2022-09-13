@@ -8,7 +8,7 @@ import {
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '..';
 import type { Signer } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -183,7 +183,7 @@ export class TransactionBuilder<C extends object = object> {
   }
 
   async sendAndConfirm(
-    metaplex: MetaplexType,
+    metaplex: Metaplex,
     confirmOptions?: ConfirmOptions
   ): Promise<{ response: SendAndConfirmTransactionResponse } & C> {
     const response = await metaplex

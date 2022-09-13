@@ -12,7 +12,7 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import {
   getSignerHistogram,
   Signer,
@@ -44,7 +44,7 @@ export type SendAndConfirmTransactionResponse = {
  * @group Modules
  */
 export class RpcClient {
-  constructor(protected readonly metaplex: MetaplexType) {}
+  constructor(protected readonly metaplex: Metaplex) {}
 
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,

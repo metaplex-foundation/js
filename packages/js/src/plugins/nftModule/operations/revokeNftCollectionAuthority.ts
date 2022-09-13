@@ -4,7 +4,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 import { TransactionBuilder } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -78,7 +78,7 @@ export const revokeNftCollectionAuthorityOperationHandler: OperationHandler<Revo
   {
     handle: async (
       operation: RevokeNftCollectionAuthorityOperation,
-      metaplex: MetaplexType
+      metaplex: Metaplex
     ): Promise<RevokeNftCollectionAuthorityOutput> => {
       return revokeNftCollectionAuthorityBuilder(
         metaplex,
@@ -117,7 +117,7 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
  * @category Constructors
  */
 export const revokeNftCollectionAuthorityBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: RevokeNftCollectionAuthorityBuilderParams
 ): TransactionBuilder => {
   const {

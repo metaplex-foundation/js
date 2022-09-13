@@ -16,7 +16,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Metaplex as MetaplexType } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { ExpectedSignerError } from '@/errors';
 
 // -----------------
@@ -105,7 +105,7 @@ export type UseNftOutput = {
 export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
   handle: async (
     operation: UseNftOperation,
-    metaplex: MetaplexType
+    metaplex: Metaplex
   ): Promise<UseNftOutput> => {
     return useNftBuilder(metaplex, operation.input).sendAndConfirm(
       metaplex,
@@ -141,7 +141,7 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
  * @category Constructors
  */
 export const useNftBuilder = (
-  metaplex: MetaplexType,
+  metaplex: Metaplex,
   params: UseNftBuilderParams
 ): TransactionBuilder => {
   const {

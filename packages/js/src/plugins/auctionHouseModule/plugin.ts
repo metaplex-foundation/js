@@ -50,11 +50,11 @@ import {
   updateAuctionHouseOperationHandler,
 } from './operations';
 import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
-import type { Metaplex as MetaplexType } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
-  install(metaplex: MetaplexType) {
+  install(metaplex: Metaplex) {
     // Auction House Program.
     metaplex.programs().register({
       name: 'AuctionHouseProgram',
