@@ -143,9 +143,18 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
         lamports: { amount: sol(1.5), destination: treasury },
       },
       groups: [
-        { liveDate: { date: toDateTime('2022-09-09T16:00:00Z') } },
-        { liveDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
-        { liveDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
+        {
+          label: 'GROUP1',
+          guards: { liveDate: { date: toDateTime('2022-09-09T16:00:00Z') } },
+        },
+        {
+          label: 'GROUP2',
+          guards: { liveDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
+        },
+        {
+          label: 'GROUP3',
+          guards: { liveDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
+        },
       ],
       withoutCandyGuard: false,
     })
@@ -200,18 +209,27 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
       },
       groups: [
         {
-          liveDate: {
-            date: spokSameBignum(toDateTime('2022-09-09T16:00:00Z')),
+          label: 'GROUP1',
+          guards: {
+            liveDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T16:00:00Z')),
+            },
           },
         },
         {
-          liveDate: {
-            date: spokSameBignum(toDateTime('2022-09-09T18:00:00Z')),
+          label: 'GROUP2',
+          guards: {
+            liveDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T18:00:00Z')),
+            },
           },
         },
         {
-          liveDate: {
-            date: spokSameBignum(toDateTime('2022-09-09T20:00:00Z')),
+          label: 'GROUP3',
+          guards: {
+            liveDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T20:00:00Z')),
+            },
           },
         },
       ],
