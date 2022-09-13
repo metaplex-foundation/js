@@ -209,6 +209,10 @@ export type CreateBidOutput = {
   response: SendAndConfirmTransactionResponse;
 };
 
+/**
+ * @group Operations
+ * @category Handlers
+ */
 export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
     operation: CreateBidOperation,
