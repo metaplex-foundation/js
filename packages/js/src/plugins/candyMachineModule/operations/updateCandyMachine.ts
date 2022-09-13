@@ -533,30 +533,27 @@ const updateCandyMachineCollectionBuilder = <
     .programs()
     .get('TokenMetadataProgram', params.programs);
 
-  const instruction = createSetCollectionInstruction(
-    {
-      candyMachine: candyMachineAddress,
-      authority: authority.publicKey,
-      authorityPda,
-      payer: payer.publicKey,
-      collectionMint: currentCollectionAddress,
-      collectionMetadata: findMetadataPda(currentCollectionAddress),
-      collectionAuthorityRecord: findCollectionAuthorityRecordPda(
-        currentCollectionAddress,
-        authorityPda
-      ),
-      newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
-      newCollectionMetadata: findMetadataPda(collectionAddress),
-      newCollectionMint: collectionAddress,
-      newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
-      newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
-        collectionAddress,
-        authorityPda
-      ),
-      tokenMetadataProgram: tokenMetadataProgram.address,
-    },
-    { authorityPdaBump: authorityPda.bump }
-  );
+  const instruction = createSetCollectionInstruction({
+    candyMachine: candyMachineAddress,
+    authority: authority.publicKey,
+    authorityPda,
+    payer: payer.publicKey,
+    collectionMint: currentCollectionAddress,
+    collectionMetadata: findMetadataPda(currentCollectionAddress),
+    collectionAuthorityRecord: findCollectionAuthorityRecordPda(
+      currentCollectionAddress,
+      authorityPda
+    ),
+    newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
+    newCollectionMetadata: findMetadataPda(collectionAddress),
+    newCollectionMint: collectionAddress,
+    newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
+    newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
+      collectionAddress,
+      authorityPda
+    ),
+    tokenMetadataProgram: tokenMetadataProgram.address,
+  });
 
   // TODO(loris): remove quick-fix when protocol is ready. The test should pass without it.
   instruction.keys[7].isWritable = true;
