@@ -18,7 +18,7 @@ import {
 import {
   assertObjectHasDefinedKeys,
   DisposableScope,
-  objectHasNoDefinedKeys,
+  removeUndefinedAttributes,
   TransactionBuilder,
 } from '@/utils';
 import {
@@ -409,7 +409,7 @@ const updateCandyMachineDataBuilder = <
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
-  const dataToUpdate: Partial<CandyMachine> = {
+  const dataToUpdate: Partial<CandyMachine> = removeUndefinedAttributes({
     itemsAvailable: params.itemsAvailable,
     symbol: params.symbol,
     sellerFeeBasisPoints: params.sellerFeeBasisPoints,
@@ -417,10 +417,10 @@ const updateCandyMachineDataBuilder = <
     isMutable: params.isMutable,
     creators: params.creators,
     itemSettings: params.itemSettings,
-  };
+  });
 
   let data: CandyMachineData;
-  if (objectHasNoDefinedKeys(dataToUpdate)) {
+  if (Object.keys(dataToUpdate).length === 0) {
     return TransactionBuilder.make();
   } else if (isCandyMachine(params.candyMachine)) {
     data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
@@ -460,13 +460,14 @@ const updateCandyMachineAuthoritiesBuilder = <
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
-  const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> = {
-    newAuthority: params.newAuthority,
-    newMintAuthority: params.mintAuthority,
-  };
+  const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> =
+    removeUndefinedAttributes({
+      newAuthority: params.newAuthority,
+      newMintAuthority: params.mintAuthority,
+    });
 
   let args: SetAuthorityInstructionArgs;
-  if (objectHasNoDefinedKeys(authoritiesToUpdate)) {
+  if (Object.keys(authoritiesToUpdate).length === 0) {
     return TransactionBuilder.make();
   } else if (isCandyMachine(params.candyMachine)) {
     args = {
@@ -568,11 +569,11 @@ const updateCandyGuardsBuilder = <
     candyGuard?: PublicKey;
     guards?: Partial<T>;
     groups?: Partial<T>[];
-  } = {
+  } = removeUndefinedAttributes({
     candyGuard: params.candyGuard,
     guards: params.guards,
     groups: params.groups,
-  };
+  });
 
   let args: {
     candyGuard: PublicKey;
@@ -580,7 +581,7 @@ const updateCandyGuardsBuilder = <
     groups: Partial<T>[];
   };
 
-  if (objectHasNoDefinedKeys(guardsToUpdate)) {
+  if (Object.keys(guardsToUpdate).length === 0) {
     return TransactionBuilder.make();
   }
 

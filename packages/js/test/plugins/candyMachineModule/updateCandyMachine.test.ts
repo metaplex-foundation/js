@@ -12,6 +12,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
+  assertThrows,
   createCollectionNft,
   createWallet,
   killStuckProcess,
@@ -24,7 +25,7 @@ import { create32BitsHash, createCandyMachine } from './helpers';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] it can update the data of a candy machine', async (t) => {
+test('[candyMachineModule] it can update the data of a candy machine', async (t) => {
   // Given a Candy Machine with the following data.
   const mx = await metaplex();
   const creatorA = Keypair.generate().publicKey;
@@ -104,6 +105,31 @@ test.only('[candyMachineModule] it can update the data of a candy machine', asyn
       address: spokSamePubkey(candyMachine.candyGuard?.address),
     },
   } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it cannot update the number of items when using config line settings', async (t) => {
+  // Given a Candy Machine using config line settings with 1000 items.
+  const mx = await metaplex();
+  const candyMachine = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1000),
+    itemSettings: {
+      type: 'configLines',
+      prefixName: 'My Old NFT #',
+      nameLength: 4,
+      prefixUri: 'https://arweave.net/',
+      uriLength: 50,
+      isSequential: true,
+    },
+  });
+
+  // When we try to update the number of items to 2000.
+  const promise = mx
+    .candyMachines()
+    .update({ candyMachine, itemsAvailable: toBigNumber(2000) })
+    .run();
+
+  // Then we get an error from the Program.
+  await assertThrows(t, promise, /CannotChangeNumberOfLines/);
 });
 
 // it can update the hidden settings of a candy machine?
