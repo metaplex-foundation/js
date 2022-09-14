@@ -41,6 +41,9 @@
     "preversion": "yarn build",
     "postversion": "git push --follow-tags"
   },
+  "resolutions": {
+    "@metaplex-foundation/beet": "0.6.0"
+  },
   "dependencies": {
     "@bundlr-network/client": "^0.7.14",
     "@metaplex-foundation/beet": "^0.6.0",

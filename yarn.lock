@@ -2968,26 +2968,26 @@
     npmlog "^6.0.2"
     write-file-atomic "^3.0.3"
 
-"@metaplex-foundation/amman-client@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman-client/-/amman-client-0.1.0.tgz#042fc91bb39d655da3c24d7c05d3d7a886e16f9e"
-  integrity sha512-Gzw7m8NWsk8ipGY7dodaoxFWKFGywyvu9ewhhOXjRqpMsGA6IdXFUGOGmocV/QUlHZVTMlbB11l6Tydd/wkS2w==
+"@metaplex-foundation/amman-client@^0.2.0", "@metaplex-foundation/amman-client@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman-client/-/amman-client-0.2.2.tgz#ca5517f0349ea35ae4f4299bd09e885760570728"
+  integrity sha512-EmqC93u6icVenOh3/j5srKgUTldNYb6GDsXLhfA0UB3O7XEU1Yu0/wYpbU/yy9Pg6Mc8/z9Z0oYghnsZQKkqwg==
   dependencies:
     "@metaplex-foundation/cusper" "^0.0.2"
     "@solana/spl-token-registry" "^0.2.2405"
-    "@solana/web3.js" "^1.43.4"
+    "@solana/web3.js" "^1.55.0"
     bn.js "^5.2.1"
     debug "^4.3.3"
     js-sha3 "^0.8.0"
     socket.io-client "^4.4.1"
     tweetnacl "^1.0.3"
 
-"@metaplex-foundation/amman@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.10.0.tgz#b91cd9e2d258561704422f0d46089d4c4268583f"
-  integrity sha512-ivr1AeDUkGfrM4zVBd+c+MdohhXRJPHo2TQyBQeApdxuhkXKrLCWvyPSJlfxqzYHcqpOo6g9eJkqP9gExPFQhA==
+"@metaplex-foundation/amman@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.12.0.tgz#c7519d29c9c818d174d5f183dd9b99b736576311"
+  integrity sha512-T6fE5rglKVmnDrPvs6Vv8ijXUZyBqALICb/OA39n+UAhkYP80MafGmV+ViuhfxoWgtD2tSBCan8VDshcH7l3UA==
   dependencies:
-    "@metaplex-foundation/amman-client" "^0.1.0"
+    "@metaplex-foundation/amman-client" "^0.2.0"
     "@solana/spl-token" "^0.2.0"
     "@solana/web3.js" "^1.43.4"
     ansi-colors "^4.1.1"
@@ -3003,6 +3003,7 @@
     split2 "^4.1.0"
     text-table "^0.2.0"
     timeago.js "^4.0.2"
+    ts-essentials "^9.3.0"
     wait-on "^6.0.0"
     yargs "^17.3.0"
 
@@ -3071,7 +3072,7 @@
   integrity sha512-i+S4Z8fb9HIC+Yyx8Kaeau7jKFv8qIOE5pLsdQx4eGkqrQyxVynRyzP6EMsitkGJ11pHUYvrcmRmTvMYYV8pfQ==
   dependencies:
     "@bundlr-network/client" "^0.7.14"
-    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet" "^0.6.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
     "@metaplex-foundation/mpl-auction-house" "^2.1.1"
     "@metaplex-foundation/mpl-candy-machine" "^4.4.1"
@@ -3850,7 +3851,7 @@
     superstruct "^0.14.2"
     tweetnacl "^1.0.0"
 
-"@solana/web3.js@^1.56.2":
+"@solana/web3.js@^1.55.0", "@solana/web3.js@^1.56.2":
   version "1.61.1"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.61.1.tgz#183339352a69ef3c8db66ee804001ae511d46aea"
   integrity sha512-rGxK1N/c+bGuY7ehpsT6q1jBzQ+8cmd+rPf7pQbMz0e9aBxI+67c/lBxq+0jOlj19salkT79d8R/OO+JNDyLsg==
@@ -10335,6 +10336,11 @@ ts-command-line-args@^2.2.0:
     command-line-args "^5.1.1"
     command-line-usage "^6.1.0"
     string-format "^2.0.0"
+
+ts-essentials@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-9.3.0.tgz#7e639c1a76b1805c3c60d6e1b5178da2e70aea02"
+  integrity sha512-XeiCboEyBG8UqXZtXl59bWEi4ZgOqRsogFDI6WDGIF1LmzbYiAkIwjkXN6zZWWl4re/lsOqMlYfe8KA0XiiEPw==
 
 ts-node@^10.5.0:
   version "10.7.0"
