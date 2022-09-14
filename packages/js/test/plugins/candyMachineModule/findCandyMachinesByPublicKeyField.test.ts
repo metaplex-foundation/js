@@ -106,7 +106,7 @@ test('[candyMachineModule] find all candy machines correctly parses token mints'
     .findAllBy({ type: 'authority', publicKey: authorityA.publicKey })
     .run();
 
-  // Then we got two candy machines.
+  // Then we got three candy machines.
   t.equal(foundCandyMachines.length, 3, 'returns three accounts');
 
   // And they had the correct token mint addresses
