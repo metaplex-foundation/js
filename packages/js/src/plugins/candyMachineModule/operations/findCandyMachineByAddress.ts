@@ -19,13 +19,12 @@ import { assertCandyGuardProgram } from '../programs';
 const Key = 'FindCandyMachineByAddressOperation' as const;
 
 /**
- * TODO
+ * Find an existing Candy Machine by its address.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * const candyMachine = await metaplex
  *   .candyMachines()
- *   .create({
- *   })
+ *   .findbyAddress({ address })
  *   .run();
  * ```
  *

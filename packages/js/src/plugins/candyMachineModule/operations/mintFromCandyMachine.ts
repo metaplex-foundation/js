@@ -1,21 +1,29 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
+import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation
 // -----------------
 
-const Key = 'CreateCandyGuardOperation' as const;
+const Key = 'MintFromCandyMachineOperation' as const;
 
 /**
  * TODO
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * const { nft } = await metaplex
  *   .candyMachines()
- *   .create({
+ *   .mint({
+ *     // TODO
  *   })
  *   .run();
  * ```
@@ -23,30 +31,44 @@ const Key = 'CreateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyGuardOperation =
-  useOperation<CreateCandyGuardOperation>(Key);
+export const mintFromCandyMachineOperation =
+  useOperation<MintFromCandyMachineOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyGuardOperation = Operation<
+export type MintFromCandyMachineOperation = Operation<
   typeof Key,
-  CreateCandyGuardInput,
-  CreateCandyGuardOutput
+  MintFromCandyMachineInput,
+  MintFromCandyMachineOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type CreateCandyGuardInput = {};
+export type MintFromCandyMachineInput = {
+  /**
+   * The Signer that should pay for the mint and, therefore, own the NFT.
+   * This includes paying for both storage fees and the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
+  /** A set of options to configure how the transaction is sent and confirmed. */
+  confirmOptions?: ConfirmOptions;
+};
 
 /**
  * @group Operations
  * @category Outputs
  */
-export type CreateCandyGuardOutput = {
+export type MintFromCandyMachineOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -55,14 +77,23 @@ export type CreateCandyGuardOutput = {
  * @group Operations
  * @category Handlers
  */
-export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuardOperation> =
+export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCandyMachineOperation> =
   {
     async handle(
-      operation: CreateCandyGuardOperation,
+      operation: MintFromCandyMachineOperation,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyGuardOutput> {
-      //
+    ): Promise<MintFromCandyMachineOutput> {
+      const builder = mintFromCandyMachineBuilder(metaplex, operation.input);
+      scope.throwIfCanceled();
+
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      );
+      scope.throwIfCanceled();
+
+      return output;
     },
   };
 
@@ -74,20 +105,20 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyGuardBuilderParams = Omit<
-  CreateCandyGuardInput,
+export type MintFromCandyMachineBuilderParams = Omit<
+  MintFromCandyMachineInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that creates and initializes the Candy Guard account. */
-  createCandyGuardInstructionKey?: string;
+  /** A key to distinguish the instruction that mints from the Candy Machine. */
+  mintFromCandyMachineInstructionKey?: string;
 };
 
 /**
  * @group Transaction Builders
  * @category Contexts
  */
-export type CreateCandyGuardBuilderContext = Omit<
-  CreateCandyGuardOutput,
+export type MintFromCandyMachineBuilderContext = Omit<
+  MintFromCandyMachineOutput,
   'response'
 >;
 
@@ -98,18 +129,21 @@ export type CreateCandyGuardBuilderContext = Omit<
  * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
- *   .create({
+ *   .mint({
+ *     // TODO
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyGuardBuilder = (
+export const mintFromCandyMachineBuilder = (
   metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams
-): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  return TransactionBuilder.make<CreateCandyGuardBuilderContext>()
+  params: MintFromCandyMachineBuilderParams
+): TransactionBuilder<MintFromCandyMachineBuilderContext> => {
+  const { payer = metaplex.identity() } = params;
+
+  return TransactionBuilder.make<MintFromCandyMachineBuilderContext>()
     .setFeePayer(payer)
     .setContext({});
 };

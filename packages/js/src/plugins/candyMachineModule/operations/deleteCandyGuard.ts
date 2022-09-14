@@ -22,7 +22,7 @@ const Key = 'DeleteCandyGuardOperation' as const;
  * Deletes a Candy Guard account by withdrawing its rent-exempt balance.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .deleteCandyGuard({
  *     candyGuard,

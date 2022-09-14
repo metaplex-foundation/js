@@ -22,7 +22,7 @@ const Key = 'DeleteCandyMachineOperation' as const;
  * Deletes a Candy Machine account by withdrawing its rent-exempt balance.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .delete({
  *     candyMachine: candyMachine.address,

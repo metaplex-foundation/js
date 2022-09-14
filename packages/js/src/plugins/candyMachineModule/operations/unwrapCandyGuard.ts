@@ -24,7 +24,7 @@ const Key = 'UnwrapCandyGuardOperation' as const;
  * This makes the Candy Machine authority its own mint authority again
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .unwrapCandyGuard({
  *     candyMachine,

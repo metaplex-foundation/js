@@ -25,7 +25,7 @@ const Key = 'WrapCandyGuardOperation' as const;
  * which means all minting will have to go through the Candy Guard.
  *
  * ```ts
- * const { candyMachine } = await metaplex
+ * await metaplex
  *   .candyMachines()
  *   .wrapCandyGuard({
  *     candyMachine,
