@@ -476,26 +476,6 @@ export const createCandyMachineBuilder = async <
     builder.add(createCandyGuard);
   }
 
-  const initializeInstruction = createInitializeInstruction(
-    {
-      candyMachine: candyMachine.publicKey,
-      authorityPda,
-      authority,
-      mintAuthority,
-      payer: payer.publicKey,
-      collectionMetadata,
-      collectionMint: collection.address,
-      collectionMasterEdition,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      collectionAuthorityRecord,
-      tokenMetadataProgram: tokenMetadataProgram.address,
-    },
-    { data: candyMachineData }
-  );
-
-  // TODO(loris): remove quick-fix when protocol is ready. The test should pass without it.
-  initializeInstruction.keys[8].isWritable = true;
-
   return builder
     .add(
       await metaplex
@@ -510,7 +490,22 @@ export const createCandyMachineBuilder = async <
     )
 
     .add({
-      instruction: initializeInstruction,
+      instruction: createInitializeInstruction(
+        {
+          candyMachine: candyMachine.publicKey,
+          authorityPda,
+          authority,
+          mintAuthority,
+          payer: payer.publicKey,
+          collectionMetadata,
+          collectionMint: collection.address,
+          collectionMasterEdition,
+          collectionUpdateAuthority: collection.updateAuthority.publicKey,
+          collectionAuthorityRecord,
+          tokenMetadataProgram: tokenMetadataProgram.address,
+        },
+        { data: candyMachineData }
+      ),
       signers: [payer, candyMachine, collection.updateAuthority],
       key:
         params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
