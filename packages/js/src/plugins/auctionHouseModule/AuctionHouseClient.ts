@@ -58,6 +58,9 @@ import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
+  WithdrawFromBuyerAccountInput,
+  withdrawFromBuyerAccountOperation,
+  WithdrawFromBuyerAccountOutput,
   WithdrawFromFeeAccountInput,
   withdrawFromFeeAccountOperation,
   WithdrawFromFeeAccountOutput,
@@ -116,13 +119,14 @@ export class AuctionHouseClient {
     return this.metaplex.operations().getTask(createBidOperation(input));
   }
 
-  /** {@inheritDoc depositToBuyerAccountOperation} */
-  depositToBuyerAccount(
-    input: DepositToBuyerAccountInput
-  ): Task<DepositToBuyerAccountOutput> {
-    return this.metaplex
-      .operations()
-      .getTask(depositToBuyerAccountOperation(input));
+  /** {@inheritDoc cancelBidOperation} */
+  cancelBid(input: CancelBidInput): Task<CancelBidOutput> {
+    return this.metaplex.operations().getTask(cancelBidOperation(input));
+  }
+
+  /** {@inheritDoc cancelListingOperation} */
+  cancelListing(input: CancelListingInput): Task<CancelListingOutput> {
+    return this.metaplex.operations().getTask(cancelListingOperation(input));
   }
 
   /** {@inheritDoc createAuctionHouseOperation} */
@@ -132,14 +136,13 @@ export class AuctionHouseClient {
       .getTask(createAuctionHouseOperation(input));
   }
 
-  /** {@inheritDoc cancelBidOperation} */
-  cancelBid(input: CancelBidInput): Task<CancelBidOutput> {
-    return this.metaplex.operations().getTask(cancelBidOperation(input));
-  }
-
-  /** {@inheritDoc cancelListingOperation} */
-  cancelListing(input: CancelListingInput): Task<CancelListingOutput> {
-    return this.metaplex.operations().getTask(cancelListingOperation(input));
+  /** {@inheritDoc depositToBuyerAccountOperation} */
+  depositToBuyerAccount(
+    input: DepositToBuyerAccountInput
+  ): Task<DepositToBuyerAccountOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(depositToBuyerAccountOperation(input));
   }
 
   /** {@inheritDoc executeSaleOperation} */
@@ -258,6 +261,15 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .getTask(updateAuctionHouseOperation(options));
+  }
+
+  /** {@inheritDoc withdrawFromBuyerAccountOperation} */
+  withdrawFromBuyerAccount(
+    input: WithdrawFromBuyerAccountInput
+  ): Task<WithdrawFromBuyerAccountOutput> {
+    return this.metaplex
+      .operations()
+      .getTask(withdrawFromBuyerAccountOperation(input));
   }
 
   /** {@inheritDoc withdrawFromFeeAccountOperation} */

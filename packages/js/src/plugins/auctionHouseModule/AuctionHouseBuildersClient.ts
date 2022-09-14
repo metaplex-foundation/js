@@ -2,6 +2,8 @@ import type { Metaplex } from '@/Metaplex';
 import {
   DepositToBuyerAccountBuilderParams,
   depositToBuyerAccountBuilder,
+  withdrawFromBuyerAccountBuilder,
+  WithdrawFromBuyerAccountBuilderParams,
 } from './operations';
 import {
   createAuctionHouseBuilder,
@@ -62,5 +64,10 @@ export class AuctionHouseBuildersClient {
   /** {@inheritDoc updateAuctionHouseBuilder} */
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
     return updateAuctionHouseBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc withdrawFromBuyerAccountBuilder} */
+  withdrawFromBuyerAccount(input: WithdrawFromBuyerAccountBuilderParams) {
+    return withdrawFromBuyerAccountBuilder(this.metaplex, input);
   }
 }
