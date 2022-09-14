@@ -12,6 +12,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
+  assertThrows,
   createCollectionNft,
   createWallet,
   killStuckProcess,
@@ -107,7 +108,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
   // When we create a new Candy Machine with maximum configuration.
   const candyMachineSigner = Keypair.generate();
   const payer = await createWallet(mx);
-  const authority = Keypair.generate().publicKey;
+  const authority = Keypair.generate();
   const creatorA = Keypair.generate().publicKey;
   const creatorB = Keypair.generate().publicKey;
   const treasury = Keypair.generate().publicKey;
@@ -166,7 +167,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
     $topic: 'Candy Machine',
     model: 'candyMachine',
     address: spokSamePubkey(candyMachineSigner.publicKey),
-    authorityAddress: spokSamePubkey(authority),
+    authorityAddress: spokSamePubkey(authority.publicKey),
     mintAuthorityAddress: spokSamePubkey(candyGuardAddress),
     collectionMintAddress: spokSamePubkey(collectionNft.address),
     symbol: 'MYNFT',
@@ -195,7 +196,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
       model: 'candyGuard',
       address: spokSamePubkey(candyGuardAddress),
       baseAddress: spokSamePubkey(candyMachineSigner.publicKey),
-      authorityAddress: spokSamePubkey(authority),
+      authorityAddress: spokSamePubkey(authority.publicKey),
       guards: {
         ...emptyDefaultCandyGuardSettings,
         botTax: {
@@ -237,33 +238,59 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
   } as unknown as Specifications<CandyMachine>);
 });
 
-test('[candyMachineModule] create candy machine without a candy guard', async (t) => {
+test('[candyMachineModule] it fails to wrap a Candy Guard if the authority is provided as a public key', async (t) => {
   // Given an existing Collection NFT.
   const mx = await metaplex();
   const collectionNft = await createCollectionNft(mx);
 
-  // When we create a new Candy Machine without a Candy Guard.
-  const mintAuthority = Keypair.generate().publicKey;
-  const { candyMachine } = await mx
+  // When we create a new Candy Machine with a Candy Guard
+  // whilst passing the authority as a Public Key.
+  const promise = mx
     .candyMachines()
     .create({
+      authority: Keypair.generate().publicKey,
       itemsAvailable: toBigNumber(5000),
       sellerFeeBasisPoints: 333, // 3.33%
       collection: {
         address: collectionNft.address,
         updateAuthority: mx.identity(),
       },
+    })
+    .run();
+
+  // Then we expect an error to be thrown.
+  await assertThrows(
+    t,
+    promise,
+    /Expected variable \[authority\] to be of type \[Signer\] but got \[PublicKey\]/
+  );
+});
+
+test('[candyMachineModule] create candy machine without a candy guard', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine without a Candy Guard.
+  const { candyMachine } = await mx
+    .candyMachines()
+    .create({
       withoutCandyGuard: true,
-      mintAuthority,
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
     })
     .run();
 
   // Then the Candy Machine has no associated Candy Guard account
-  // And its mint authority has been explcitly set.
+  // And its mint authority is the Candy Machine authority.
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
-    mintAuthorityAddress: spokSamePubkey(mintAuthority),
+    mintAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
     candyGuard: null,
   });
 });
