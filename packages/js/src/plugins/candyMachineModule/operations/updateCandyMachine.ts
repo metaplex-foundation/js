@@ -24,9 +24,9 @@ import {
 import {
   CandyMachineData,
   createSetAuthorityInstruction,
+  createSetMintAuthorityInstruction,
   createSetCollectionInstruction,
   createUpdateInstruction as createUpdateCandyMachineInstruction,
-  SetAuthorityInstructionArgs,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -154,12 +154,12 @@ export type UpdateCandyMachineInput<
   /**
    * The new authority that will be able to mint from this Candy Machine.
    *
-   * This can be used to attach or dettach a Candy Guard from a Candy Machine as
-   * Candy Guards are mint authorities on Candy Machines.
+   * This must be a Signer to ensure Candy Guards are not used to mint from
+   * unexpected Candy Machines as some of its guards could have side effects.
    *
    * @defaultValue Defaults to not being updated.
    */
-  newMintAuthority?: PublicKey;
+  newMintAuthority?: Signer;
 
   /**
    * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
@@ -338,14 +338,17 @@ export type UpdateCandyMachineBuilderParams<
   /** A key to distinguish the instruction that updates the Candy Machine data. */
   updateDataInstructionKey?: string;
 
-  /** A key to distinguish the instruction that updates the Candy Machine authorities. */
-  setAuthoritiesInstructionKey?: string;
-
   /** A key to distinguish the instruction that updates the Candy Machine collection. */
   setCollectionInstructionKey?: string;
 
   /** A key to distinguish the instruction that updates the associated Candy Guard, if any. */
   updateCandyGuardInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Machine's mint authority. */
+  setMintAuthorityInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Machine's authority. */
+  setAuthorityInstructionKey?: string;
 };
 
 /**
@@ -404,8 +407,11 @@ export const updateCandyMachineBuilder = <
         )
       )
 
-      // Update Candy Machine authorities.
-      .add(updateCandyMachineAuthoritiesBuilder<T>(params, authority))
+      // Update Candy Machine mint authority.
+      .add(updateCandyMachineMintAuthorityBuilder<T>(params, authority))
+
+      // Update Candy Machine authority.
+      .add(updateCandyMachineAuthorityBuilder<T>(params, authority))
   );
 };
 
@@ -457,49 +463,6 @@ const updateCandyMachineDataBuilder = <
     ),
     signers: [authority],
     key: params.updateDataInstructionKey ?? 'updateCandyMachineData',
-  });
-};
-
-const updateCandyMachineAuthoritiesBuilder = <
-  T extends CandyGuardsSettings = DefaultCandyGuardSettings
->(
-  params: UpdateCandyMachineBuilderParams<T>,
-  authority: Signer
-): TransactionBuilder => {
-  const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> =
-    removeUndefinedAttributes({
-      newAuthority: params.newAuthority,
-      newMintAuthority: params.newMintAuthority,
-    });
-
-  let args: SetAuthorityInstructionArgs;
-  if (Object.keys(authoritiesToUpdate).length === 0) {
-    return TransactionBuilder.make();
-  } else if (isCandyMachine(params.candyMachine)) {
-    args = {
-      newAuthority: params.candyMachine.authorityAddress,
-      newMintAuthority: params.candyMachine.mintAuthorityAddress,
-      ...authoritiesToUpdate,
-    };
-  } else {
-    assertObjectHasDefinedKeys(
-      authoritiesToUpdate,
-      ['newAuthority', 'newMintAuthority'],
-      onMissingInputError
-    );
-    args = authoritiesToUpdate;
-  }
-
-  return TransactionBuilder.make().add({
-    instruction: createSetAuthorityInstruction(
-      {
-        candyMachine: toPublicKey(params.candyMachine),
-        authority: authority.publicKey,
-      },
-      args
-    ),
-    signers: [authority],
-    key: params.setAuthoritiesInstructionKey ?? 'setCandyMachineAuthorities',
   });
 };
 
@@ -620,6 +583,50 @@ const updateCandyGuardsBuilder = <
       updateInstructionKey:
         params.updateCandyGuardInstructionKey ?? 'updateCandyGuard',
     });
+};
+
+const updateCandyMachineMintAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer
+): TransactionBuilder => {
+  if (!params.newMintAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  return TransactionBuilder.make().add({
+    instruction: createSetMintAuthorityInstruction({
+      candyMachine: toPublicKey(params.candyMachine),
+      authority: authority.publicKey,
+      mintAuthority: params.newMintAuthority.publicKey,
+    }),
+    signers: [authority, params.newMintAuthority],
+    key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
+  });
+};
+
+const updateCandyMachineAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer
+): TransactionBuilder => {
+  if (!params.newAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  return TransactionBuilder.make().add({
+    instruction: createSetAuthorityInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+      },
+      { newAuthority: params.newAuthority }
+    ),
+    signers: [authority],
+    key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
+  });
 };
 
 const onMissingInputError = (missingKeys: string[]) =>
