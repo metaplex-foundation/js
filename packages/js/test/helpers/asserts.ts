@@ -1,9 +1,9 @@
+import { Amount, BigNumber, sameAmounts } from '@/types';
+import type { bignum } from '@metaplex-foundation/beet';
 import { PublicKey } from '@solana/web3.js';
-import { bignum } from '@metaplex-foundation/beet';
 import BN from 'bn.js';
 import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
-import { Amount, BigNumber, sameAmounts } from '@/types';
 
 export function spokSamePubkey(
   a: PublicKey | string | null | undefined

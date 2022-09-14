@@ -6,7 +6,7 @@ import {
   serialize,
 } from '@/types';
 import { padEmptyChars, removeEmptyChars } from '@/utils';
-import { fixedSizeUtf8String, u32, u8 } from '@metaplex-foundation/beet';
+import beet from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import { UnregisteredCandyGuardError } from './errors';
@@ -84,8 +84,8 @@ export class CandyMachineGuardsClient {
 
     if (groups.length > 0) {
       const groupCountBuffer = Buffer.alloc(5);
-      u8.write(groupCountBuffer, 0, 1);
-      u32.write(groupCountBuffer, 1, groups.length);
+      beet.u8.write(groupCountBuffer, 0, 1);
+      beet.u32.write(groupCountBuffer, 1, groups.length);
       buffer = Buffer.concat([buffer, groupCountBuffer]);
     } else {
       buffer = Buffer.concat([buffer, Buffer.from([0])]);
@@ -93,11 +93,13 @@ export class CandyMachineGuardsClient {
 
     groups.forEach((group) => {
       const labelBuffer = Buffer.alloc(4 + CANDY_GUARD_LABEL_SIZE);
-      fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE).write(
-        labelBuffer,
-        0,
-        padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE)
-      );
+      beet
+        .fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE)
+        .write(
+          labelBuffer,
+          0,
+          padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE)
+        );
       buffer = Buffer.concat([buffer, labelBuffer, serializeSet(group.guards)]);
     });
 
@@ -131,7 +133,7 @@ export class CandyMachineGuardsClient {
 
     const guards: T = deserializeSet();
     const groups: { label: string; guards: T }[] = [];
-    const groupsCount = u32.read(buffer, 0);
+    const groupsCount = beet.u32.read(buffer, 0);
     buffer = buffer.slice(4);
 
     for (let i = 0; i < groupsCount; i++) {

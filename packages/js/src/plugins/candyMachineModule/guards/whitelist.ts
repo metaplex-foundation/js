@@ -6,7 +6,7 @@ import {
   SolAmount,
 } from '@/types';
 import { Option } from '@/utils';
-import { Beet } from '@metaplex-foundation/beet';
+import type { Beet } from '@metaplex-foundation/beet';
 import {
   Whitelist,
   whitelistBeet,

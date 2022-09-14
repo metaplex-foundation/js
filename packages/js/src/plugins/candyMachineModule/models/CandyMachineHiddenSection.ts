@@ -1,9 +1,9 @@
-import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
-import { assert, removeEmptyChars } from '@/utils';
 import { deserializeFeatureFlags, toBigNumber } from '@/types';
-import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
-import { uniformFixedSizeArray, u32 } from '@metaplex-foundation/beet';
+import { assert, removeEmptyChars } from '@/utils';
+import beet from '@metaplex-foundation/beet';
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
+import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
+import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
 
 /** @internal */
 export type CandyMachineHiddenSection = {
@@ -22,7 +22,7 @@ export const deserializeCandyMachineHiddenSection = (
   offset: number = 0
 ): CandyMachineHiddenSection => {
   // Items loaded.
-  const itemsLoaded = u32.read(buffer, offset);
+  const itemsLoaded = beet.u32.read(buffer, offset);
   offset += 4;
 
   // Raw config lines.
@@ -46,7 +46,8 @@ export const deserializeCandyMachineHiddenSection = (
 
   // Items left to mint.
   offset += 4; // Skip the redundant size of the map.
-  const itemsLeftToMint = uniformFixedSizeArray(u32, itemsAvailable)
+  const itemsLeftToMint = beet
+    .uniformFixedSizeArray(beet.u32, itemsAvailable)
     .read(buffer, offset)
     .slice(0, itemsRemaining);
 

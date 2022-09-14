@@ -1,11 +1,5 @@
-import {
-  Beet,
-  BeetReader,
-  BeetWriter,
-  isFixableBeet,
-  u8,
-  uniformFixedSizeArray,
-} from '@metaplex-foundation/beet';
+import type { Beet } from '@metaplex-foundation/beet';
+import beet from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import {
   FailedToDeserializeDataError,
@@ -38,19 +32,23 @@ export const mapSerializer = <T, U>(
   },
 });
 
-export const createSerializerFromBeet = <T>(beet: Beet<T>): Serializer<T> => ({
-  description: beet.description,
+export const createSerializerFromBeet = <T>(
+  beetArg: Beet<T>
+): Serializer<T> => ({
+  description: beetArg.description,
   serialize: (value: T) => {
-    const fixedBeet = isFixableBeet(beet) ? beet.toFixedFromValue(value) : beet;
-    const writer = new BeetWriter(fixedBeet.byteSize);
+    const fixedBeet = beet.isFixableBeet(beetArg)
+      ? beetArg.toFixedFromValue(value)
+      : beetArg;
+    const writer = new beet.BeetWriter(fixedBeet.byteSize);
     writer.write(fixedBeet, value);
     return writer.buffer;
   },
   deserialize: (buffer: Buffer, offset?: number) => {
-    const fixedBeet = isFixableBeet(beet)
-      ? beet.toFixedFromData(buffer, offset ?? 0)
-      : beet;
-    const reader = new BeetReader(buffer, offset ?? 0);
+    const fixedBeet = beet.isFixableBeet(beetArg)
+      ? beetArg.toFixedFromData(buffer, offset ?? 0)
+      : beetArg;
+    const reader = new beet.BeetReader(buffer, offset ?? 0);
     const value = reader.read(fixedBeet);
     return [value, reader.offset];
   },
@@ -132,6 +130,8 @@ export function deserializeAccount<T>(
 }
 
 export const serializeDiscriminator = (discriminator: number[]): Buffer => {
-  const serializer = createSerializerFromBeet(uniformFixedSizeArray(u8, 8));
+  const serializer = createSerializerFromBeet(
+    beet.uniformFixedSizeArray(beet.u8, 8)
+  );
   return serialize(discriminator, serializer);
 };
