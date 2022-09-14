@@ -348,7 +348,7 @@ test('[candyMachineModule] it can update the authorities of a candy machine', as
       candyMachine,
       authority: authorityA,
       newAuthority: authorityB.publicKey,
-      mintAuthority: mintAuthorityB.publicKey,
+      newMintAuthority: mintAuthorityB.publicKey,
     })
     .run();
 
@@ -382,7 +382,7 @@ test('[candyMachineModule] updating one authority does not override the other', 
     .update({
       candyMachine,
       authority: authorityA,
-      mintAuthority: mintAuthorityB.publicKey,
+      newMintAuthority: mintAuthorityB.publicKey,
     })
     .run();
 
@@ -875,7 +875,7 @@ test('[candyMachineModule] it fails when there is nothing to update', async (t) 
   await assertThrows(t, promise, /No Instructions To Send/);
 });
 
-test('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
+test.only('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
   // Given an existing Candy Machine with the following data.
   const mx = await metaplex();
   const authorityA = Keypair.generate();
@@ -910,9 +910,9 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
     .update({
       candyMachine,
       authority: authorityA,
+      newAuthority: authorityB,
       symbol: 'NEW',
       sellerFeeBasisPoints: 200,
-      // newAuthority: authorityB, // TODO(loris): When program is updated.
       collection: {
         address: collectionB.address,
         updateAuthority: collectionUpdateAuthorityB,
@@ -933,7 +933,7 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
     $topic: 'Updated Candy Machine',
     model: 'candyMachine',
     address: spokSamePubkey(candyMachine.address),
-    authorityAddress: spokSamePubkey(candyMachine.authorityAddress), // TODO
+    authorityAddress: spokSamePubkey(authorityB),
     mintAuthorityAddress: spokSamePubkey(candyMachine.mintAuthorityAddress),
     collectionMintAddress: spokSamePubkey(collectionB.address),
     symbol: 'NEW',

@@ -159,7 +159,7 @@ export type UpdateCandyMachineInput<
    *
    * @defaultValue Defaults to not being updated.
    */
-  mintAuthority?: PublicKey;
+  newMintAuthority?: PublicKey;
 
   /**
    * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
@@ -469,7 +469,7 @@ const updateCandyMachineAuthoritiesBuilder = <
   const authoritiesToUpdate: Partial<SetAuthorityInstructionArgs> =
     removeUndefinedAttributes({
       newAuthority: params.newAuthority,
-      newMintAuthority: params.mintAuthority,
+      newMintAuthority: params.newMintAuthority,
     });
 
   let args: SetAuthorityInstructionArgs;
@@ -576,7 +576,7 @@ const updateCandyGuardsBuilder = <
   const guardsToUpdate: {
     candyGuard?: PublicKey;
     guards?: Partial<T>;
-    groups?: Partial<T>[];
+    groups?: { label: string; guards: Partial<T> }[];
   } = removeUndefinedAttributes({
     candyGuard: params.candyGuard,
     guards: params.guards,
@@ -586,7 +586,7 @@ const updateCandyGuardsBuilder = <
   let args: {
     candyGuard: PublicKey;
     guards: Partial<T>;
-    groups: Partial<T>[];
+    groups: { label: string; guards: Partial<T> }[];
   };
 
   if (Object.keys(guardsToUpdate).length === 0) {
