@@ -8,7 +8,7 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
@@ -16,16 +16,16 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 // Operation
 // -----------------
 
-const Key = 'DeleteCandyMachineOperation' as const;
+const Key = 'DeleteCandyGuardOperation' as const;
 
 /**
- * Deletes a Candy Machine account by withdrawing its rent-exempt balance.
+ * Deletes a Candy Guard account by withdrawing its rent-exempt balance.
  *
  * ```ts
  * const { candyMachine } = await metaplex
  *   .candyMachines()
- *   .delete({
- *     candyMachine,
+ *   .deleteCandyGuard({
+ *     candyGuard,
  *     authority,
  *   })
  *   .run();
@@ -34,32 +34,32 @@ const Key = 'DeleteCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const deleteCandyMachineOperation =
-  useOperation<DeleteCandyMachineOperation>(Key);
+export const deleteCandyGuardOperation =
+  useOperation<DeleteCandyGuardOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type DeleteCandyMachineOperation = Operation<
+export type DeleteCandyGuardOperation = Operation<
   typeof Key,
-  DeleteCandyMachineInput,
-  DeleteCandyMachineOutput
+  DeleteCandyGuardInput,
+  DeleteCandyGuardOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type DeleteCandyMachineInput = {
-  /** The address of the Candy Machine account to delete. */
-  candyMachine: PublicKey;
+export type DeleteCandyGuardInput = {
+  /** The address of the Candy Guard account to delete. */
+  candyGuard: PublicKey;
 
   /**
-   * The authority of the Candy Machine account.
+   * The authority of the Candy Guard account.
    *
    * This is the account that will received the rent-exemption
-   * lamports from the Candy Machine account.
+   * lamports from the Candy Guard account.
    *
    * @defaultValue `metaplex.identity()`
    */
@@ -83,7 +83,7 @@ export type DeleteCandyMachineInput = {
  * @group Operations
  * @category Outputs
  */
-export type DeleteCandyMachineOutput = {
+export type DeleteCandyGuardOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -92,16 +92,16 @@ export type DeleteCandyMachineOutput = {
  * @group Operations
  * @category Handlers
  */
-export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMachineOperation> =
+export const deleteCandyGuardOperationHandler: OperationHandler<DeleteCandyGuardOperation> =
   {
     async handle(
-      operation: DeleteCandyMachineOperation,
+      operation: DeleteCandyGuardOperation,
       metaplex: Metaplex
-    ): Promise<DeleteCandyMachineOutput> {
-      return deleteCandyMachineBuilder(
+    ): Promise<DeleteCandyGuardOutput> {
+      return deleteCandyGuardBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input.confirmOptions
+      );
     },
   };
 
@@ -113,23 +113,23 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type DeleteCandyMachineBuilderParams = Omit<
-  DeleteCandyMachineInput,
+export type DeleteCandyGuardBuilderParams = Omit<
+  DeleteCandyGuardInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that deletes the Candy Machine account. */
-  deleteCandyMachineInstructionKey?: string;
+  /** A key to distinguish the instruction that deletes the Candy Guard account. */
+  deleteCandyGuardInstructionKey?: string;
 };
 
 /**
- * Deletes a Candy Machine account by withdrawing its rent-exempt balance.
+ * Deletes a Candy Guard account by withdrawing its rent-exempt balance.
  *
  * ```ts
  * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
- *   .delete({
- *     candyMachine,
+ *   .deleteCandyGuard({
+ *     candyGuard,
  *     authority,
  *   });
  * ```
@@ -137,32 +137,32 @@ export type DeleteCandyMachineBuilderParams = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const deleteCandyMachineBuilder = (
+export const deleteCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineBuilderParams
+  params: DeleteCandyGuardBuilderParams
 ): TransactionBuilder => {
   const {
-    candyMachine,
+    candyGuard,
     authority = metaplex.identity(),
     payer = metaplex.identity(),
     programs,
   } = params;
 
-  const candyMachineProgram = metaplex
+  const candyGuardProgram = metaplex
     .programs()
-    .get('CandyMachineProgram', programs);
+    .get('CandyGuardProgram', programs);
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
     .add({
       instruction: createWithdrawInstruction(
         {
-          candyMachine,
+          candyGuard,
           authority: authority.publicKey,
         },
-        candyMachineProgram.address
+        candyGuardProgram.address
       ),
       signers: [authority],
-      key: params.deleteCandyMachineInstructionKey ?? 'deleteCandyMachine',
+      key: params.deleteCandyGuardInstructionKey ?? 'deleteCandyGuard',
     });
 };
