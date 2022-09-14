@@ -3052,7 +3052,7 @@
     bn.js "^5.2.0"
     debug "^4.3.3"
 
-"@metaplex-foundation/beet@^0.6.0":
+"@metaplex-foundation/beet@^0.6.0", "@metaplex-foundation/beet@^0.6.1":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.6.1.tgz#6331bdde0648bf2cae6f9e482f8e3552db05d69f"
   integrity sha512-OYgnijLFzw0cdUlRKH5POp0unQECPOW9muJ2X3QIVyak5G6I6l/rKo72sICgPLIFKdmsi2jmnkuLY7wp14iXdw==
@@ -3072,7 +3072,7 @@
   integrity sha512-i+S4Z8fb9HIC+Yyx8Kaeau7jKFv8qIOE5pLsdQx4eGkqrQyxVynRyzP6EMsitkGJ11pHUYvrcmRmTvMYYV8pfQ==
   dependencies:
     "@bundlr-network/client" "^0.7.14"
-    "@metaplex-foundation/beet" "^0.6.0"
+    "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
     "@metaplex-foundation/mpl-auction-house" "^2.1.1"
     "@metaplex-foundation/mpl-candy-machine" "^4.4.1"
