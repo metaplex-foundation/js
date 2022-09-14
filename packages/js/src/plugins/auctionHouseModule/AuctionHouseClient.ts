@@ -263,7 +263,6 @@ export class AuctionHouseClient {
       .getTask(updateAuctionHouseOperation(options));
   }
 
-
   /** {@inheritDoc withdrawFromBuyerAccountOperation} */
   withdrawFromBuyerAccount(
     input: WithdrawFromBuyerAccountInput
