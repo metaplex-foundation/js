@@ -160,7 +160,7 @@ export type WithdrawFromBuyerAccountBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type WithdrawBuilderContext = Omit<
+export type WithdrawFromBuyerAccountBuilderContext = Omit<
   WithdrawFromBuyerAccountOutput,
   'response'
 >;
@@ -181,7 +181,7 @@ export type WithdrawBuilderContext = Omit<
 export const withdrawFromBuyerAccountBuilder = (
   metaplex: Metaplex,
   params: WithdrawFromBuyerAccountBuilderParams
-): TransactionBuilder<WithdrawBuilderContext> => {
+): TransactionBuilder<WithdrawFromBuyerAccountBuilderContext> => {
   const {
     auctionHouse,
     auctioneerAuthority,
