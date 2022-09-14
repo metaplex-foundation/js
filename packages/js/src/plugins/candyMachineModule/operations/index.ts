@@ -6,6 +6,7 @@ export * from './findCandyGuardByAddress';
 export * from './findCandyGuardsByAuthority';
 export * from './findCandyMachineByAddress';
 export * from './insertCandyMachineItems';
+export * from './mintFromCandyMachine';
 export * from './unwrapCandyGuard';
 export * from './updateCandyGuard';
 export * from './updateCandyMachine';

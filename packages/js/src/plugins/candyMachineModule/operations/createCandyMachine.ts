@@ -1,4 +1,4 @@
-import { ExpectedSignerError } from '@/index';
+import { ExpectedSignerError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   findCollectionAuthorityRecordPda,
