@@ -384,9 +384,6 @@ export const updateCandyMachineBuilder = <
       // Update Candy Machine data.
       .add(updateCandyMachineDataBuilder<T>(params, authority))
 
-      // Update Candy Machine authorities.
-      .add(updateCandyMachineAuthoritiesBuilder<T>(params, authority))
-
       // Update Candy Machine collection.
       .add(
         updateCandyMachineCollectionBuilder<T>(
@@ -406,6 +403,9 @@ export const updateCandyMachineBuilder = <
           payer
         )
       )
+
+      // Update Candy Machine authorities.
+      .add(updateCandyMachineAuthoritiesBuilder<T>(params, authority))
   );
 };
 
@@ -533,33 +533,28 @@ const updateCandyMachineCollectionBuilder = <
     .programs()
     .get('TokenMetadataProgram', params.programs);
 
-  const instruction = createSetCollectionInstruction({
-    candyMachine: candyMachineAddress,
-    authority: authority.publicKey,
-    authorityPda,
-    payer: payer.publicKey,
-    collectionMint: currentCollectionAddress,
-    collectionMetadata: findMetadataPda(currentCollectionAddress),
-    collectionAuthorityRecord: findCollectionAuthorityRecordPda(
-      currentCollectionAddress,
-      authorityPda
-    ),
-    newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
-    newCollectionMetadata: findMetadataPda(collectionAddress),
-    newCollectionMint: collectionAddress,
-    newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
-    newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
-      collectionAddress,
-      authorityPda
-    ),
-    tokenMetadataProgram: tokenMetadataProgram.address,
-  });
-
-  // TODO(loris): remove quick-fix when protocol is ready. The test should pass without it.
-  instruction.keys[7].isWritable = true;
-
   return TransactionBuilder.make().add({
-    instruction,
+    instruction: createSetCollectionInstruction({
+      candyMachine: candyMachineAddress,
+      authority: authority.publicKey,
+      authorityPda,
+      payer: payer.publicKey,
+      collectionMint: currentCollectionAddress,
+      collectionMetadata: findMetadataPda(currentCollectionAddress),
+      collectionAuthorityRecord: findCollectionAuthorityRecordPda(
+        currentCollectionAddress,
+        authorityPda
+      ),
+      newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
+      newCollectionMetadata: findMetadataPda(collectionAddress),
+      newCollectionMint: collectionAddress,
+      newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
+      newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
+        collectionAddress,
+        authorityPda
+      ),
+      tokenMetadataProgram: tokenMetadataProgram.address,
+    }),
     signers: [authority, payer, collectionUpdateAuthority],
     key: params.setCollectionInstructionKey ?? 'setCandyMachineCollection',
   });

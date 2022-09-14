@@ -409,7 +409,7 @@ test('[candyMachineModule] it fails when the provided authorities to update miss
     .candyMachines()
     .update({
       candyMachine: candyMachine.address,
-      mintAuthority: Keypair.generate().publicKey,
+      newMintAuthority: Keypair.generate().publicKey,
     })
     .run();
 
@@ -773,7 +773,7 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
           },
         },
         {
-          label: 'NEW1',
+          label: 'NEW2',
           guards: {
             liveDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
             lamports: { amount: sol(3), destination: treasuryB },
@@ -875,7 +875,7 @@ test('[candyMachineModule] it fails when there is nothing to update', async (t) 
   await assertThrows(t, promise, /No Instructions To Send/);
 });
 
-test.only('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
+test('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {
   // Given an existing Candy Machine with the following data.
   const mx = await metaplex();
   const authorityA = Keypair.generate();
