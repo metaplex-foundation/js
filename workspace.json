@@ -62,11 +62,7 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "dir": "./dist/packages/js",
-            "commands": [
-              "nohup yarn run amman:start &",
-              "yarn workspace @metaplex-foundation/js test",
-              "yarn run amman:stop"
-            ],
+            "commands": ["yarn workspace @metaplex-foundation/js test"],
             "parallel": false
           },
           "dependsOn": [
@@ -143,9 +139,7 @@
           "options": {
             "dir": "./dist/packages/js-plugin-aws",
             "commands": [
-              "nohup yarn run amman:start &",
-              "yarn workspace @metaplex-foundation/js-plugin-aws test",
-              "yarn run amman:stop"
+              "yarn workspace @metaplex-foundation/js-plugin-aws test"
             ],
             "parallel": false
           },
@@ -224,10 +218,8 @@
           "options": {
             "dir": "./dist/packages/js-plugin-nft-storage",
             "commands": [
-              "nohup yarn run amman:start &",
               "rm -rf ./dist/packages/js-plugin-nft-storage",
-              "yarn workspace @metaplex-foundation/js-plugin-nft-storage test",
-              "yarn run amman:stop"
+              "yarn workspace @metaplex-foundation/js-plugin-nft-storage test"
             ],
             "parallel": false
           },
