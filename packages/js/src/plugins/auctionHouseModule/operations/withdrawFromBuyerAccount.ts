@@ -238,7 +238,7 @@ export const withdrawFromBuyerAccountBuilder = (
     };
 
     withdrawInstruction = createAuctioneerWithdrawInstruction(
-      { ...accountsWithAuctioneer },
+      accountsWithAuctioneer,
       args
     );
   }
