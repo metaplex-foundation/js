@@ -1,4 +1,4 @@
-import { CandyMachine } from '@/index';
+import { assert, CandyMachine } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -15,14 +15,16 @@ test('[candyMachineModule] it can unwrap a Candy Machine from Candy Guard', asyn
     authority: candyMachineAuthority,
   });
   t.notEqual(candyMachine.candyGuard, null);
+  console.log('here');
 
   // When we unwrap the Candy Machine from its Candy Guard.
+  assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');
   await mx
     .candyMachines()
     .unwrapCandyGuard({
       candyMachine: candyMachine.address,
       candyMachineAuthority,
-      candyGuard: candyMachine.address,
+      candyGuard: candyMachine.candyGuard.address,
       candyGuardAuthority: candyMachineAuthority,
     })
     .run();
