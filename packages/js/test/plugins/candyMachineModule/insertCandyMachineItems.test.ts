@@ -16,7 +16,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   const mx = await metaplex();
   const authority = Keypair.generate();
   const candyMachine = await createCandyMachine(mx, {
-    authority: authority.publicKey,
+    authority,
     itemsAvailable: toBigNumber(100),
   });
 

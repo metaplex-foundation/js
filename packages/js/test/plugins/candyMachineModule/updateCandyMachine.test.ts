@@ -329,30 +329,24 @@ test('[candyMachineModule] it fails when the provided data to update misses prop
   });
 });
 
-test('[candyMachineModule] it can update the authorities of a candy machine', async (t) => {
-  // Given a Candy Machine using the following authorities.
+test('[candyMachineModule] it can update the authority of a candy machine', async (t) => {
+  // Given a Candy Machine using authority A.
   const mx = await metaplex();
   const authorityA = Keypair.generate();
-  const mintAuthorityA = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
-    authority: authorityA.publicKey,
-    mintAuthority: mintAuthorityA.publicKey,
-  });
+  const candyMachine = await createCandyMachine(mx, { authority: authorityA });
 
-  // When we update its authorities to the following.
+  // When we update it to use authority B.
   const authorityB = Keypair.generate();
-  const mintAuthorityB = Keypair.generate();
   await mx
     .candyMachines()
     .update({
       candyMachine,
       authority: authorityA,
       newAuthority: authorityB.publicKey,
-      newMintAuthority: mintAuthorityB.publicKey,
     })
     .run();
 
-  // Then the Candy Machine's authorities were updated accordingly.
+  // Then the Candy Machine's authority was updated accordingly.
   const updatedCandyMachine = await mx
     .candyMachines()
     .refresh(candyMachine)
@@ -361,32 +355,32 @@ test('[candyMachineModule] it can update the authorities of a candy machine', as
     $topic: 'Updated Candy Machine',
     model: 'candyMachine',
     authorityAddress: spokSamePubkey(authorityB.publicKey),
-    mintAuthorityAddress: spokSamePubkey(mintAuthorityB.publicKey),
+    mintAuthorityAddress: spokSamePubkey(candyMachine.mintAuthorityAddress),
   } as unknown as Specifications<CandyMachine>);
 });
 
-test('[candyMachineModule] updating one authority does not override the other', async (t) => {
-  // Given a Candy Machine using the following authorities.
+test('[candyMachineModule] it can update the mint authority of a candy machine', async (t) => {
+  // Given an Candy Machine with a mint authority equal to its authority.
   const mx = await metaplex();
   const authorityA = Keypair.generate();
-  const mintAuthorityA = Keypair.generate();
   const candyMachine = await createCandyMachine(mx, {
-    authority: authorityA.publicKey,
-    mintAuthority: mintAuthorityA.publicKey,
+    authority: authorityA,
+    withoutCandyGuard: true,
   });
+  t.ok(candyMachine.mintAuthorityAddress.equals(authorityA.publicKey));
 
-  // When we update its authorities by providing only one of them.
+  // When we update its mint authority.
   const mintAuthorityB = Keypair.generate();
   await mx
     .candyMachines()
     .update({
       candyMachine,
       authority: authorityA,
-      newMintAuthority: mintAuthorityB.publicKey,
+      newMintAuthority: mintAuthorityB,
     })
     .run();
 
-  // Then the other authority was not overridden.
+  // Then the Candy Machine's mint authority was updated accordingly.
   const updatedCandyMachine = await mx
     .candyMachines()
     .refresh(candyMachine)
@@ -397,28 +391,6 @@ test('[candyMachineModule] updating one authority does not override the other', 
     authorityAddress: spokSamePubkey(authorityA.publicKey),
     mintAuthorityAddress: spokSamePubkey(mintAuthorityB.publicKey),
   } as unknown as Specifications<CandyMachine>);
-});
-
-test('[candyMachineModule] it fails when the provided authorities to update miss properties', async (t) => {
-  // Given an existing Candy Machine.
-  const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx);
-
-  // When we try to update part of its authorities by providing the Candy Machine as a public key.
-  const promise = mx
-    .candyMachines()
-    .update({
-      candyMachine: candyMachine.address,
-      newMintAuthority: Keypair.generate().publicKey,
-    })
-    .run();
-
-  // Then we expect an error telling us some data is missing from the input.
-  await assertThrowsFn(t, promise, (error) => {
-    const missingProperties = '[newAuthority]';
-    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
-    t.ok(error.solution.includes(missingProperties));
-  });
 });
 
 test('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
@@ -887,7 +859,7 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
   const candyMachine = await createCandyMachine(mx, {
     symbol: 'OLD',
     sellerFeeBasisPoints: 100,
-    authority: authorityA.publicKey,
+    authority: authorityA,
     collection: {
       address: collectionA.address,
       updateAuthority: collectionUpdateAuthorityA,
@@ -911,6 +883,9 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
       candyMachine,
       authority: authorityA,
       newAuthority: authorityB,
+      // newMintAuthority: it makes no sense to update this
+      // property whilst updating the Candy Guard settings
+      // since this will unwrap the associated Candy Guard.
       symbol: 'NEW',
       sellerFeeBasisPoints: 200,
       collection: {
