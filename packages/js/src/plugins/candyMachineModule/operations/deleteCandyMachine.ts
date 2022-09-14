@@ -25,7 +25,8 @@ const Key = 'DeleteCandyMachineOperation' as const;
  * const { candyMachine } = await metaplex
  *   .candyMachines()
  *   .delete({
- *     candyMachine,
+ *     candyMachine: candyMachine.address,
+ *     candyGuard: candyMachine.candyGuard.address,
  *     authority,
  *   })
  *   .run();
@@ -56,6 +57,14 @@ export type DeleteCandyMachineInput = {
   candyMachine: PublicKey;
 
   /**
+   * The address of the Candy Guard associated with the Candy Machine account.
+   * When provided the Candy Guard will be deleted as well.
+   *
+   * @defaultValue Defaults to not being deleted.
+   */
+  candyGuard?: PublicKey;
+
+  /**
    * The authority of the Candy Machine account.
    *
    * This is the account that will received the rent-exemption
@@ -64,6 +73,16 @@ export type DeleteCandyMachineInput = {
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
+
+  /**
+   * The authority of the Candy Guard account to delete.
+   *
+   * This is only required if `candyGuard` is provided and the Candy
+   * Guard authority is not the same as the Candy Machine authority.
+   *
+   * @defaultValue `authority`
+   */
+  candyGuardAuthority?: Signer;
 
   /**
    * The Signer that should pay for the transaction fee.
@@ -129,7 +148,8 @@ export type DeleteCandyMachineBuilderParams = Omit<
  *   .candyMachines()
  *   .builders()
  *   .delete({
- *     candyMachine,
+ *     candyMachine: candyMachine.address,
+ *     candyGuard: candyMachine.candyGuard.address,
  *     authority,
  *   });
  * ```
@@ -143,7 +163,9 @@ export const deleteCandyMachineBuilder = (
 ): TransactionBuilder => {
   const {
     candyMachine,
+    candyGuard,
     authority = metaplex.identity(),
+    candyGuardAuthority = authority,
     payer = metaplex.identity(),
     programs,
   } = params;
@@ -152,7 +174,7 @@ export const deleteCandyMachineBuilder = (
     .programs()
     .get('CandyMachineProgram', programs);
 
-  return TransactionBuilder.make()
+  const builder = TransactionBuilder.make()
     .setFeePayer(payer)
     .add({
       instruction: createWithdrawInstruction(
@@ -165,4 +187,17 @@ export const deleteCandyMachineBuilder = (
       signers: [authority],
       key: params.deleteCandyMachineInstructionKey ?? 'deleteCandyMachine',
     });
+
+  if (candyGuard) {
+    builder.add(
+      metaplex.candyMachines().builders().deleteCandyGuard({
+        candyGuard,
+        authority: candyGuardAuthority,
+        payer,
+        programs,
+      })
+    );
+  }
+
+  return builder;
 };
