@@ -14,6 +14,8 @@ import {
   createBidOperationHandler,
   createListingOperation,
   createListingOperationHandler,
+  depositToBuyerAccountOperation,
+  depositToBuyerAccountOperationHandler,
   executeSaleOperation,
   executeSaleOperationHandler,
   findAuctionHouseByAddressOperation,
@@ -24,14 +26,22 @@ import {
   findBidByReceiptOperationHandler,
   findBidByTradeStateOperation,
   findBidByTradeStateOperationHandler,
+  findBidsByPublicKeyFieldOperation,
+  findBidsByPublicKeyFieldOperationHandler,
   findListingByReceiptOperation,
   findListingByReceiptOperationHandler,
   findListingByTradeStateOperation,
   findListingByTradeStateOperationHandler,
+  findListingsByPublicKeyFieldOperation,
+  findListingsByPublicKeyFieldOperationHandler,
   findPurchaseByReceiptOperation,
   findPurchaseByReceiptOperationHandler,
   findPurchaseByTradeStateOperation,
   findPurchaseByTradeStateOperationHandler,
+  findPurchasesByPublicKeyFieldOperation,
+  findPurchasesByPublicKeyFieldOperationHandler,
+  getBuyerBalanceOperation,
+  getBuyerBalanceOperationHandler,
   loadBidOperation,
   loadBidOperationHandler,
   loadListingOperation,
@@ -40,6 +50,12 @@ import {
   loadPurchaseOperationHandler,
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
+  withdrawFromBuyerAccountOperation,
+  withdrawFromBuyerAccountOperationHandler,
+  withdrawFromFeeAccountOperation,
+  withdrawFromFeeAccountOperationHandler,
+  withdrawFromTreasuryAccountOperation,
+  withdrawFromTreasuryAccountOperationHandler,
 } from './operations';
 
 /** @group Plugins */
@@ -62,6 +78,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     );
     op.register(createBidOperation, createBidOperationHandler);
     op.register(createListingOperation, createListingOperationHandler);
+    op.register(
+      depositToBuyerAccountOperation,
+      depositToBuyerAccountOperationHandler
+    );
     op.register(executeSaleOperation, executeSaleOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,
@@ -77,12 +97,20 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findBidByTradeStateOperationHandler
     );
     op.register(
+      findBidsByPublicKeyFieldOperation,
+      findBidsByPublicKeyFieldOperationHandler
+    );
+    op.register(
       findListingByReceiptOperation,
       findListingByReceiptOperationHandler
     );
     op.register(
       findListingByTradeStateOperation,
       findListingByTradeStateOperationHandler
+    );
+    op.register(
+      findListingsByPublicKeyFieldOperation,
+      findListingsByPublicKeyFieldOperationHandler
     );
     op.register(
       findPurchaseByReceiptOperation,
@@ -92,12 +120,29 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findPurchaseByTradeStateOperation,
       findPurchaseByTradeStateOperationHandler
     );
+    op.register(
+      findPurchasesByPublicKeyFieldOperation,
+      findPurchasesByPublicKeyFieldOperationHandler
+    );
+    op.register(getBuyerBalanceOperation, getBuyerBalanceOperationHandler);
     op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);
     op.register(loadPurchaseOperation, loadPurchaseOperationHandler);
     op.register(
       updateAuctionHouseOperation,
       updateAuctionHouseOperationHandler
+    );
+    op.register(
+      withdrawFromBuyerAccountOperation,
+      withdrawFromBuyerAccountOperationHandler
+    );
+    op.register(
+      withdrawFromFeeAccountOperation,
+      withdrawFromFeeAccountOperationHandler
+    );
+    op.register(
+      withdrawFromTreasuryAccountOperation,
+      withdrawFromTreasuryAccountOperationHandler
     );
 
     metaplex.auctionHouse = function () {

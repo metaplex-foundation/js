@@ -21,6 +21,7 @@ import { AuctionHouse, Bid } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findAuctioneerPda } from '../pdas';
+import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
 
 // -----------------
 // Operation
@@ -29,6 +30,15 @@ import { findAuctioneerPda } from '../pdas';
 const Key = 'CancelBidOperation' as const;
 
 /**
+ * Cancels the user's bid in the given auction house.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .cancelBid({ auctionHouse, bid })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -49,9 +59,45 @@ export type CancelBidOperation = Operation<
  * @category Inputs
  */
 export type CancelBidInput = {
-  auctionHouse: AuctionHouse;
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  bid: Bid;
+  /**
+   * The Auction House in which to cancel Bid.
+   * We only need a subset of the `AuctionHouse` model but we
+   * need enough information regarding its settings to know how
+   * to cancel bid.
+   *
+   * This includes, its address, authority address, its fee account address, etc.
+   */
+  auctionHouse: Pick<
+    AuctionHouse,
+    'authorityAddress' | 'address' | 'feeAccountAddress' | 'hasAuctioneer'
+  >;
+
+  /**
+   * The Bid to cancel.
+   * We only need a subset of the `Bid` model but we
+   * need enough information regarding its settings to know how
+   * to cancel it.
+   *
+   * This includes, its asset, buyer address, price, receipt address etc.
+   */
+  bid: Pick<
+    Bid,
+    | 'asset'
+    | 'buyerAddress'
+    | 'isPublic'
+    | 'price'
+    | 'receiptAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
+  auctioneerAuthority?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -97,6 +143,15 @@ export type CancelBidBuilderParams = Omit<CancelBidInput, 'confirmOptions'> & {
 export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
 
 /**
+ * Cancels the user's bid in the given auction house.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .cancelBid({ auctionHouse, bid });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
@@ -105,28 +160,42 @@ export const cancelBidBuilder = (
 ): TransactionBuilder<CancelBidBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, bid } = params;
 
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  // Data.
+  const {
+    asset,
+    buyerAddress,
+    tradeStateAddress,
+    price,
+    receiptAddress,
+    tokens,
+    isPublic,
+  } = bid;
+  const {
+    authorityAddress,
+    address: auctionHouseAddress,
+    feeAccountAddress,
+    hasAuctioneer,
+  } = auctionHouse;
+
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
-
-  // Data.
-  const { asset, tradeStateAddress, price, tokens, isPublic } = bid;
 
   // Accounts.
   const tokenAccount = isPublic
     ? findAssociatedTokenAccountPda(
         asset.mint.address,
-        toPublicKey(bid.buyerAddress)
+        toPublicKey(buyerAddress)
       )
-    : bid.asset.token.address;
+    : (asset as SftWithToken | NftWithToken).token.address;
 
   const accounts: CancelInstructionAccounts = {
-    wallet: bid.buyerAddress,
+    wallet: buyerAddress,
     tokenAccount,
     tokenMint: asset.address,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
-    auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
+    authority: authorityAddress,
+    auctionHouse: auctionHouseAddress,
+    auctionHouseFeeAccount: feeAccountAddress,
     tradeState: tradeStateAddress,
   };
 
@@ -144,7 +213,7 @@ export const cancelBidBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },
@@ -166,10 +235,10 @@ export const cancelBidBuilder = (
       })
 
       // Cancel Bid Receipt.
-      .when(Boolean(bid.receiptAddress), (builder) =>
+      .when(Boolean(receiptAddress), (builder) =>
         builder.add({
           instruction: createCancelBidReceiptInstruction({
-            receipt: bid.receiptAddress as Pda,
+            receipt: receiptAddress as Pda,
             instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
           }),
           signers: [],

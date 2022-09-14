@@ -1,5 +1,11 @@
 import type { Metaplex } from '@/Metaplex';
 import {
+  DepositToBuyerAccountBuilderParams,
+  depositToBuyerAccountBuilder,
+  withdrawFromBuyerAccountBuilder,
+  WithdrawFromBuyerAccountBuilderParams,
+} from './operations';
+import {
   createAuctionHouseBuilder,
   CreateAuctionHouseBuilderParams,
 } from './operations/createAuctionHouse';
@@ -30,23 +36,38 @@ import {
 export class AuctionHouseBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
+  /** {@inheritDoc createBidBuilder} */
   bid(input: CreateBidBuilderParams) {
     return createBidBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc createAuctionHouseBuilder} */
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
     return createAuctionHouseBuilder(this.metaplex, input);
   }
 
-  list(input: CreateListingBuilderParams) {
-    return createListingBuilder(this.metaplex, input);
+  /** {@inheritDoc depositToBuyerAccountBuilder} */
+  depositToBuyerAccount(input: DepositToBuyerAccountBuilderParams) {
+    return depositToBuyerAccountBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc executeSaleBuilder} */
   executeSale(input: ExecuteSaleBuilderParams) {
     return executeSaleBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc createListingBuilder} */
+  list(input: CreateListingBuilderParams) {
+    return createListingBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc updateAuctionHouseBuilder} */
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
     return updateAuctionHouseBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc withdrawFromBuyerAccountBuilder} */
+  withdrawFromBuyerAccount(input: WithdrawFromBuyerAccountBuilderParams) {
+    return withdrawFromBuyerAccountBuilder(this.metaplex, input);
   }
 }

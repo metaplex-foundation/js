@@ -48,6 +48,15 @@ import {
 const Key = 'ExecuteSaleOperation' as const;
 
 /**
+ * Executes a sale on a given bid and listing.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .executeSale({ auctionHouse, bid, listing })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -68,11 +77,69 @@ export type ExecuteSaleOperation = Operation<
  * @category Inputs
  */
 export type ExecuteSaleInput = {
+  /**
+   * The Bid that is used in the sale.
+   * We only need a subset of the `Bid` model but we
+   * need enough information regarding its settings to know how
+   * to execute the sale.
+   *
+   * This includes, its asset, auction house address, buyer, receipt address etc.
+   */
+  bid: Pick<
+    Bid,
+    | 'asset'
+    | 'auctionHouse'
+    | 'buyerAddress'
+    | 'canceledAt'
+    | 'price'
+    | 'receiptAddress'
+    | 'tokens'
+    | 'tradeStateAddress'
+  >;
+
+  /**
+   * The Listing that is used in the sale.
+   * We only need a subset of the `Listing` model but we
+   * need enough information regarding its settings to know how
+   * to execute the sale.
+   *
+   * This includes, its asset, auction house address, seller, receipt address etc.
+   */
+  listing: Pick<
+    Listing,
+    | 'asset'
+    | 'auctionHouse'
+    | 'canceledAt'
+    | 'sellerAddress'
+    | 'tradeStateAddress'
+    | 'receiptAddress'
+  >;
+
+  /** The Auction House in which to execute a sale. */
   auctionHouse: AuctionHouse;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
   auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
-  listing: Listing;
-  bid: Bid;
-  bookkeeper?: Signer; // Default: identity
+
+  /**
+   * The address of the bookkeeper wallet responsible for the receipt.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  bookkeeper?: Signer;
+
+  /**
+   * Prints the purchase receipt.
+   * The receipt holds information about the purchase,
+   * So it's important to print it if you want to use the `Purchase` model
+   *
+   * @defaultValue `true`
+   */
   printReceipt?: boolean; // Default: true
 
   /** A set of options to configure how the transaction is sent and confirmed. */
@@ -84,23 +151,52 @@ export type ExecuteSaleInput = {
  * @category Outputs
  */
 export type ExecuteSaleOutput = {
+  /** Seller trade state account address encoding the listing order. */
+  sellerTradeState: PublicKey;
+
+  /** Biyer trade state account address encoding the bid order. */
+  buyerTradeState: PublicKey;
+
+  /** The buyer address. */
+  buyer: PublicKey;
+
+  /** The seller address. */
+  seller: PublicKey;
+
+  /** The asset's metadata address. */
+  metadata: PublicKey;
+
+  /** The address of the bookkeeper account responsible for the receipt. */
+  bookkeeper: Option<PublicKey>;
+
+  /** The PDA of the receipt account in case it was printed. */
+  receipt: Option<Pda>;
+
+  /** The sale price. */
+  price: SolAmount | SplTokenAmount;
+
+  /** The number of tokens bought. */
+  tokens: SplTokenAmount;
+
+  /** A model that keeps information about the Purchase. */
+  purchase: Purchase;
+
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
-  sellerTradeState: PublicKey;
-  buyerTradeState: PublicKey;
-  buyer: PublicKey;
-  seller: PublicKey;
-  metadata: PublicKey;
-  bookkeeper: Option<PublicKey>;
-  receipt: Option<Pda>;
-  price: SolAmount | SplTokenAmount;
-  tokens: SplTokenAmount;
-  purchase: Purchase;
 };
 
 /**
- * @group Operations
- * @category Handlers
+ * Executes a sale on a given bid and listing.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .executeSale({ auctionHouse, listing, bid });
+ * ```
+ *
+ * @group Transaction Builders
+ * @category Constructors
  */
 export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation> =
   {
@@ -188,6 +284,14 @@ export const executeSaleBuilder = (
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
   const { sellerAddress, asset } = listing;
   const { buyerAddress, tokens } = bid;
+  const {
+    hasAuctioneer,
+    isNative,
+    treasuryMint,
+    address: auctionHouseAddress,
+    authorityAddress,
+    treasuryAccountAddress,
+  } = auctionHouse;
 
   if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
     throw new BidAndListingHaveDifferentAuctionHousesError();
@@ -201,34 +305,31 @@ export const executeSaleBuilder = (
   if (listing.canceledAt) {
     throw new CanceledListingIsNotAllowedError();
   }
-  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
+  if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
   // Data.
-  const price = auctionHouse.isNative
+  const price = isNative
     ? lamports(bid.price.basisPoints)
-    : amount(bid.price.basisPoints, auctionHouse.treasuryMint.currency);
+    : amount(bid.price.basisPoints, treasuryMint.currency);
 
   // Accounts.
-  const sellerPaymentReceiptAccount = auctionHouse.isNative
+  const sellerPaymentReceiptAccount = isNative
     ? sellerAddress
-    : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        sellerAddress
-      );
+    : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
   const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
     asset.address,
     buyerAddress
   );
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
+    auctionHouseAddress,
     buyerAddress
   );
   const freeTradeState = findAuctionHouseTradeStatePda(
-    auctionHouse.address,
+    auctionHouseAddress,
     sellerAddress,
-    auctionHouse.treasuryMint.address,
+    treasuryMint.address,
     asset.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
@@ -242,14 +343,14 @@ export const executeSaleBuilder = (
     tokenAccount: asset.token.address,
     tokenMint: asset.address,
     metadata: asset.metadataAddress,
-    treasuryMint: auctionHouse.treasuryMint.address,
+    treasuryMint: treasuryMint.address,
     escrowPaymentAccount: escrowPayment,
     sellerPaymentReceiptAccount,
     buyerReceiptTokenAccount,
-    authority: auctionHouse.authorityAddress,
-    auctionHouse: auctionHouse.address,
+    authority: authorityAddress,
+    auctionHouse: auctionHouseAddress,
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
-    auctionHouseTreasury: auctionHouse.treasuryAccountAddress,
+    auctionHouseTreasury: treasuryAccountAddress,
     buyerTradeState: bid.tradeStateAddress,
     sellerTradeState: listing.tradeStateAddress,
     freeTradeState,
@@ -273,7 +374,7 @@ export const executeSaleBuilder = (
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
         ahAuctioneerPda: findAuctioneerPda(
-          auctionHouse.address,
+          auctionHouseAddress,
           auctioneerAuthority.publicKey
         ),
       },
@@ -290,12 +391,9 @@ export const executeSaleBuilder = (
     });
 
     // Provide ATA to receive SPL token royalty if is not native SOL sale.
-    if (!auctionHouse.isNative) {
+    if (!isNative) {
       executeSaleInstruction.keys.push({
-        pubkey: findAssociatedTokenAccountPda(
-          auctionHouse.treasuryMint.address,
-          address
-        ),
+        pubkey: findAssociatedTokenAccountPda(treasuryMint.address, address),
         isWritable: true,
         isSigner: false,
       });
