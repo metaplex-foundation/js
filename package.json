@@ -22,7 +22,7 @@
     "build": "nx run-many --all --target=build",
     "test": "nx run-many --all --target=test --parallel=1",
     "lint:test": "yarn workspaces run lint:test",
-    "lint:fix": "yarn workspaces  run lint:fix",
+    "lint:fix": "yarn workspaces run lint:fix",
     "format": "prettier --write packages/ ",
     "docs": "typedoc",
     "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
