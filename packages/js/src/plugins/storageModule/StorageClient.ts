@@ -1,12 +1,13 @@
 import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
-import { HasDriver, Amount } from '@/types';
+import { Amount, HasDriver } from '@/types';
+import { fetch } from 'cross-fetch';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
   toMetaplexFile,
   toMetaplexFileFromJson,
 } from './MetaplexFile';
-import { StorageDriver, StorageDownloadOptions } from './StorageDriver';
+import { StorageDownloadOptions, StorageDriver } from './StorageDriver';
 
 /**
  * @group Modules
