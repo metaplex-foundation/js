@@ -51,11 +51,6 @@ export class AuctionHouseBuildersClient {
     return depositToBuyerAccountBuilder(this.metaplex, input);
   }
 
-  /** {@inheritDoc withdrawFromBuyerAccountBuilder} */
-  withdrawFromBuyerAccount(input: WithdrawFromBuyerAccountBuilderParams) {
-    return withdrawFromBuyerAccountBuilder(this.metaplex, input);
-  }
-
   /** {@inheritDoc executeSaleBuilder} */
   executeSale(input: ExecuteSaleBuilderParams) {
     return executeSaleBuilder(this.metaplex, input);
@@ -69,5 +64,10 @@ export class AuctionHouseBuildersClient {
   /** {@inheritDoc updateAuctionHouseBuilder} */
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
     return updateAuctionHouseBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc withdrawFromBuyerAccountBuilder} */
+  withdrawFromBuyerAccount(input: WithdrawFromBuyerAccountBuilderParams) {
+    return withdrawFromBuyerAccountBuilder(this.metaplex, input);
   }
 }

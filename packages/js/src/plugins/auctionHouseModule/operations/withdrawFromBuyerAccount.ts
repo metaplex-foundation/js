@@ -21,7 +21,7 @@ import { AuctionHouse } from '../models';
 import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
-  WithdrawRequiresSignerError,
+  WithdrawFromBuyerAccountRequiresSignerError,
 } from '../errors';
 
 // -----------------
@@ -96,7 +96,7 @@ export type WithdrawInput = {
    *
    * @defaultValue Defaults to not being used.
    */
-  authority?: PublicKey | Signer;
+  authority?: Signer;
 
   /**
    * The Auctioneer authority key.
@@ -191,7 +191,7 @@ export const withdrawFromBuyerAccountBuilder = (
   const authority = params.authority ?? auctionHouse.authorityAddress;
 
   if (!isSigner(buyer) && !isSigner(authority)) {
-    throw new WithdrawRequiresSignerError();
+    throw new WithdrawFromBuyerAccountRequiresSignerError();
   }
 
   const escrowPayment = findAuctionHouseBuyerEscrowPda(
