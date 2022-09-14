@@ -51,7 +51,7 @@ import {
   updateAuctionHouseOperation,
   updateAuctionHouseOperationHandler,
   withdrawFromBuyerAccountOperation,
-  withdrawOperationHandler,
+  withdrawFromBuyerAccountOperationHandler,
   withdrawFromFeeAccountOperation,
   withdrawFromFeeAccountOperationHandler,
   withdrawFromTreasuryAccountOperation,
@@ -132,7 +132,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       updateAuctionHouseOperation,
       updateAuctionHouseOperationHandler
     );
-    op.register(withdrawFromBuyerAccountOperation, withdrawOperationHandler);
+    op.register(
+      withdrawFromBuyerAccountOperation,
+      withdrawFromBuyerAccountOperationHandler
+    );
     op.register(
       withdrawFromFeeAccountOperation,
       withdrawFromFeeAccountOperationHandler

@@ -44,23 +44,23 @@ const Key = 'WithdrawFromBuyerAccountOperation' as const;
  * @category Constructors
  */
 export const withdrawFromBuyerAccountOperation =
-  useOperation<WithdrawOperation>(Key);
+  useOperation<WithdrawFromBuyerAccountOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type WithdrawOperation = Operation<
+export type WithdrawFromBuyerAccountOperation = Operation<
   typeof Key,
-  WithdrawInput,
-  WithdrawOutput
+  WithdrawFromBuyerAccountInput,
+  WithdrawFromBuyerAccountOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type WithdrawInput = {
+export type WithdrawFromBuyerAccountInput = {
   /** The Auction House from which escrow buyer withdraws funds. */
   auctionHouse: Pick<
     AuctionHouse,
@@ -120,7 +120,7 @@ export type WithdrawInput = {
  * @group Operations
  * @category Outputs
  */
-export type WithdrawOutput = {
+export type WithdrawFromBuyerAccountOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -129,13 +129,17 @@ export type WithdrawOutput = {
  * @group Operations
  * @category Handlers
  */
-export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
-  handle: async (operation: WithdrawOperation, metaplex: Metaplex) =>
-    withdrawFromBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    ),
-};
+export const withdrawFromBuyerAccountOperationHandler: OperationHandler<WithdrawFromBuyerAccountOperation> =
+  {
+    handle: async (
+      operation: WithdrawFromBuyerAccountOperation,
+      metaplex: Metaplex
+    ) =>
+      withdrawFromBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
+        metaplex,
+        operation.input.confirmOptions
+      ),
+  };
 
 // -----------------
 // Builder
@@ -146,7 +150,7 @@ export const withdrawOperationHandler: OperationHandler<WithdrawOperation> = {
  * @category Inputs
  */
 export type WithdrawFromBuyerAccountBuilderParams = Omit<
-  WithdrawInput,
+  WithdrawFromBuyerAccountInput,
   'confirmOptions'
 > & {
   instructionKey?: string;
@@ -156,7 +160,10 @@ export type WithdrawFromBuyerAccountBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type WithdrawBuilderContext = Omit<WithdrawOutput, 'response'>;
+export type WithdrawBuilderContext = Omit<
+  WithdrawFromBuyerAccountOutput,
+  'response'
+>;
 
 /**
  * Withdraws funds from the user's buyer escrow account to the given auction house.

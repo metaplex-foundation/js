@@ -58,9 +58,9 @@ import {
   UpdateAuctionHouseInput,
   updateAuctionHouseOperation,
   UpdateAuctionHouseOutput,
-  WithdrawInput,
+  WithdrawFromBuyerAccountInput,
   withdrawFromBuyerAccountOperation,
-  WithdrawOutput,
+  WithdrawFromBuyerAccountOutput,
   WithdrawFromFeeAccountInput,
   withdrawFromFeeAccountOperation,
   WithdrawFromFeeAccountOutput,
@@ -151,7 +151,9 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc withdrawFromBuyerAccountOperation} */
-  withdrawFromBuyerAccount(input: WithdrawInput): Task<WithdrawOutput> {
+  withdrawFromBuyerAccount(
+    input: WithdrawFromBuyerAccountInput
+  ): Task<WithdrawFromBuyerAccountOutput> {
     return this.metaplex
       .operations()
       .getTask(withdrawFromBuyerAccountOperation(input));
