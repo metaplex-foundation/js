@@ -15,7 +15,6 @@ test('[candyMachineModule] it can unwrap a Candy Machine from Candy Guard', asyn
     authority: candyMachineAuthority,
   });
   t.notEqual(candyMachine.candyGuard, null);
-  console.log('here');
 
   // When we unwrap the Candy Machine from its Candy Guard.
   assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');
