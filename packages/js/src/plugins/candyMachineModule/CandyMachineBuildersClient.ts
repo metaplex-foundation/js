@@ -7,10 +7,14 @@ import {
   CreateCandyMachineBuilderParams,
   insertCandyMachineItemsBuilder,
   InsertCandyMachineItemsBuilderParams,
+  unwrapCandyGuardBuilder,
+  UnwrapCandyGuardBuilderParams,
   updateCandyGuardBuilder,
   UpdateCandyGuardBuilderParams,
   updateCandyMachineBuilder,
   UpdateCandyMachineBuilderParams,
+  wrapCandyGuardBuilder,
+  WrapCandyGuardBuilderParams,
 } from './operations';
 
 /**
@@ -42,6 +46,11 @@ export class CandyMachineBuildersClient {
     return insertCandyMachineItemsBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc unwrapCandyGuardBuilder} */
+  unwrapCandyGuard(input: UnwrapCandyGuardBuilderParams) {
+    return unwrapCandyGuardBuilder(this.metaplex, input);
+  }
+
   /** {@inheritDoc updateCandyMachineBuilder} */
   update<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: UpdateCandyMachineBuilderParams<T>
@@ -54,5 +63,10 @@ export class CandyMachineBuildersClient {
     input: UpdateCandyGuardBuilderParams<T>
   ) {
     return updateCandyGuardBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc wrapCandyGuardBuilder} */
+  wrapCandyGuard(input: WrapCandyGuardBuilderParams) {
+    return wrapCandyGuardBuilder(this.metaplex, input);
   }
 }

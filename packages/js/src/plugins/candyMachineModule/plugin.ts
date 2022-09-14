@@ -27,10 +27,14 @@ import {
   findCandyMachineByAddressOperationHandler,
   insertCandyMachineItemsOperation,
   InsertCandyMachineItemsOperationHandler,
+  unwrapCandyGuardOperation,
+  unwrapCandyGuardOperationHandler,
   updateCandyGuardOperation,
   updateCandyGuardOperationHandler,
   updateCandyMachineOperation,
   updateCandyMachineOperationHandler,
+  wrapCandyGuardOperation,
+  wrapCandyGuardOperationHandler,
 } from './operations';
 import { CandyMachineProgram, DefaultCandyGuardProgram } from './programs';
 
@@ -81,11 +85,13 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       insertCandyMachineItemsOperation,
       InsertCandyMachineItemsOperationHandler
     );
+    op.register(wrapCandyGuardOperation, wrapCandyGuardOperationHandler);
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
     op.register(
       updateCandyMachineOperation,
       updateCandyMachineOperationHandler
     );
+    op.register(unwrapCandyGuardOperation, unwrapCandyGuardOperationHandler);
   },
 });
 
