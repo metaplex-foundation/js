@@ -11,6 +11,10 @@ import {
   createCandyGuardOperation,
   CreateCandyMachineInput,
   createCandyMachineOperation,
+  DeleteCandyGuardInput,
+  deleteCandyGuardOperation,
+  DeleteCandyMachineInput,
+  deleteCandyMachineOperation,
   FindCandyGuardByAddressInput,
   findCandyGuardByAddressOperation,
   FindCandyGuardsByAuthorityInput,
@@ -115,6 +119,18 @@ export class CandyMachineClient {
     >
   ) {
     return this.metaplex.operations().getTask(createCandyGuardOperation(input));
+  }
+
+  /** {@inheritDoc deleteCandyMachineOperation} */
+  delete(input: DeleteCandyMachineInput) {
+    return this.metaplex
+      .operations()
+      .getTask(deleteCandyMachineOperation(input));
+  }
+
+  /** {@inheritDoc deleteCandyGuardOperation} */
+  deleteCandyGuard(input: DeleteCandyGuardInput) {
+    return this.metaplex.operations().getTask(deleteCandyGuardOperation(input));
   }
 
   /** {@inheritDoc findCandyGuardsByAuthorityOperation} */

@@ -5,6 +5,10 @@ import {
   CreateCandyGuardBuilderParams,
   createCandyMachineBuilder,
   CreateCandyMachineBuilderParams,
+  deleteCandyGuardBuilder,
+  DeleteCandyGuardBuilderParams,
+  deleteCandyMachineBuilder,
+  DeleteCandyMachineBuilderParams,
   insertCandyMachineItemsBuilder,
   InsertCandyMachineItemsBuilderParams,
   unwrapCandyGuardBuilder,
@@ -39,6 +43,16 @@ export class CandyMachineBuildersClient {
     input: CreateCandyGuardBuilderParams<T>
   ) {
     return createCandyGuardBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc deleteCandyMachineBuilder} */
+  delete(input: DeleteCandyMachineBuilderParams) {
+    return deleteCandyMachineBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc deleteCandyGuardBuilder} */
+  deleteCandyGuard(input: DeleteCandyGuardBuilderParams) {
+    return deleteCandyGuardBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc insertCandyMachineItemsBuilder} */
