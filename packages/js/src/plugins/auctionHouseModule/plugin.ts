@@ -52,6 +52,10 @@ import {
   updateAuctionHouseOperationHandler,
   withdrawFromBuyerAccountOperation,
   withdrawOperationHandler,
+  withdrawFromFeeAccountOperation,
+  withdrawFromFeeAccountOperationHandler,
+  withdrawFromTreasuryAccountOperation,
+  withdrawFromTreasuryAccountOperationHandler,
 } from './operations';
 
 /** @group Plugins */
@@ -79,7 +83,6 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       depositToBuyerAccountOperationHandler
     );
     op.register(executeSaleOperation, executeSaleOperationHandler);
-    op.register(withdrawFromBuyerAccountOperation, withdrawOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,
       findAuctionHouseByAddressOperationHandler
@@ -128,6 +131,15 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     op.register(
       updateAuctionHouseOperation,
       updateAuctionHouseOperationHandler
+    );
+    op.register(withdrawFromBuyerAccountOperation, withdrawOperationHandler);
+    op.register(
+      withdrawFromFeeAccountOperation,
+      withdrawFromFeeAccountOperationHandler
+    );
+    op.register(
+      withdrawFromTreasuryAccountOperation,
+      withdrawFromTreasuryAccountOperationHandler
     );
 
     metaplex.auctionHouse = function () {

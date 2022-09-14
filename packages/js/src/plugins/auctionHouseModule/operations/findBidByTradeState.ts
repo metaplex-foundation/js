@@ -12,6 +12,15 @@ import { AuctionHouse, Bid } from '../models';
 const Key = 'FindBidByTradeStateOperation' as const;
 
 /**
+ * Finds a Bid by its trade state address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findBidByTradeState({ tradeStateAddress, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,8 +42,17 @@ export type FindBidByTradeStateOperation = Operation<
  * @category Inputs
  */
 export type FindBidByTradeStateInput = {
+  /** Buyer trade state PDA account encoding the bid order. */
   tradeStateAddress: PublicKey;
+
+  /** A model of the Auction House related to this bid. */
   auctionHouse: AuctionHouse;
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
   loadJsonMetadata?: boolean; // Default: true
 
   /** The level of commitment desired when querying the blockchain. */

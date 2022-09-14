@@ -22,3 +22,5 @@ export * from './loadListing';
 export * from './loadPurchase';
 export * from './updateAuctionHouse';
 export * from './withdrawFromBuyerAccount';
+export * from './withdrawFromFeeAccount';
+export * from './withdrawFromTreasuryAccount';

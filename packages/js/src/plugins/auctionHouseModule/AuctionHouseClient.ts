@@ -47,8 +47,8 @@ import {
   FindPurchasesByPublicKeyFieldInput,
   findPurchasesByPublicKeyFieldOperation,
   GetBuyerBalanceInput,
-  GetBuyerBalanceOutput,
   getBuyerBalanceOperation,
+  GetBuyerBalanceOutput,
   LoadBidInput,
   loadBidOperation,
   LoadListingInput,
@@ -61,9 +61,42 @@ import {
   WithdrawInput,
   withdrawFromBuyerAccountOperation,
   WithdrawOutput,
+  WithdrawFromFeeAccountInput,
+  withdrawFromFeeAccountOperation,
+  WithdrawFromFeeAccountOutput,
+  WithdrawFromTreasuryAccountInput,
+  withdrawFromTreasuryAccountOperation,
+  WithdrawFromTreasuryAccountOutput,
 } from './operations';
 
 /**
+ * This is a client for the Auction House module.
+ *
+ * It enables us to interact with the Auction House program in order to
+ * create and update Auction House to configure a marketplace as well to allow
+ * users to list, bid and execute sales.
+ *
+ * You may access this client via the `auctionHouse()` method of your `Metaplex` instance.
+ *
+ * ```ts
+ * const auctionHouseClient = metaplex.auctionHouse();
+ * ```
+ *
+ * @example
+ * You can create a new Auction House with minimum input like so.
+ * By default, the current identity of the Metaplex instance will be
+ * the authority of the Auction House.
+ *
+ * ```ts
+ * const { auctionHouse } = await metaplex
+ *   .auctionHouse()
+ *   .create({
+ *     sellerFeeBasisPoints: 500, // 5% royalties
+ *   })
+ *   .run();
+ * ```
+ *
+ * @see {@link AuctionHouse} The `AuctionHouse` model
  * @group Modules
  */
 export class AuctionHouseClient {
@@ -154,6 +187,13 @@ export class AuctionHouseClient {
       .getTask(findBidByTradeStateOperation(options));
   }
 
+  /** {@inheritDoc findBidsByPublicKeyFieldOperation} */
+  findBidsBy(input: FindBidsByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findBidsByPublicKeyFieldOperation(input));
+  }
+
   /** {@inheritDoc findListingByTradeStateOperation} */
   findListingByTradeState(options: FindListingByTradeStateInput) {
     return this.metaplex
@@ -168,6 +208,13 @@ export class AuctionHouseClient {
       .getTask(findListingByReceiptOperation(options));
   }
 
+  /** {@inheritDoc findListingsByPublicKeyFieldOperation} */
+  findListingsBy(input: FindListingsByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findListingsByPublicKeyFieldOperation(input));
+  }
+
   /** {@inheritDoc findPurchaseByTradeStateOperation} */
   findPurchaseByTradeState(options: FindPurchaseByTradeStateInput) {
     return this.metaplex
@@ -180,6 +227,13 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .getTask(findPurchaseByReceiptOperation(options));
+  }
+
+  /** {@inheritDoc findPurchasesByPublicKeyFieldOperation} */
+  findPurchasesBy(input: FindPurchasesByPublicKeyFieldInput) {
+    return this.metaplex
+      .operations()
+      .getTask(findPurchasesByPublicKeyFieldOperation(input));
   }
 
   /** {@inheritDoc getBuyerBalanceOperation} */
@@ -216,24 +270,21 @@ export class AuctionHouseClient {
       .getTask(updateAuctionHouseOperation(options));
   }
 
-  /** {@inheritDoc findBidsByPublicKeyFieldOperation} */
-  findBidsBy(input: FindBidsByPublicKeyFieldInput) {
+  /** {@inheritDoc withdrawFromFeeAccountOperation} */
+  withdrawFromFeeAccount(
+    input: WithdrawFromFeeAccountInput
+  ): Task<WithdrawFromFeeAccountOutput> {
     return this.metaplex
       .operations()
-      .getTask(findBidsByPublicKeyFieldOperation(input));
+      .getTask(withdrawFromFeeAccountOperation(input));
   }
 
-  /** {@inheritDoc findListingsByPublicKeyFieldOperation} */
-  findListingsBy(input: FindListingsByPublicKeyFieldInput) {
+  /** {@inheritDoc withdrawFromTreasuryAccountOperation} */
+  withdrawFromTreasuryAccount(
+    input: WithdrawFromTreasuryAccountInput
+  ): Task<WithdrawFromTreasuryAccountOutput> {
     return this.metaplex
       .operations()
-      .getTask(findListingsByPublicKeyFieldOperation(input));
-  }
-
-  /** {@inheritDoc findPurchasesByPublicKeyFieldOperation} */
-  findPurchasesBy(input: FindPurchasesByPublicKeyFieldInput) {
-    return this.metaplex
-      .operations()
-      .getTask(findPurchasesByPublicKeyFieldOperation(input));
+      .getTask(withdrawFromTreasuryAccountOperation(input));
   }
 }

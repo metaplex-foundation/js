@@ -12,6 +12,15 @@ import { findPurchaseReceiptPda } from '../pdas';
 const Key = 'FindPurchaseByTradeStateOperation' as const;
 
 /**
+ * Finds a Purchase by its trade state address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findPurchaseByTradeState({ sellerTradeState, buyerTradeState, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,10 +42,23 @@ export type FindPurchaseByTradeStateOperation = Operation<
  * @category Inputs
  */
 export type FindPurchaseByTradeStateInput = {
+  /** Seller trade state PDA account encoding the listing order. */
   sellerTradeState: PublicKey;
+
+  /** Buyer trade state PDA account encoding the bid order. */
   buyerTradeState: PublicKey;
+
+  /** A model of the Auction House related to this purchase. */
   auctionHouse: AuctionHouse;
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
   loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
 
