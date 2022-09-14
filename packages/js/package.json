@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/metaplex-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@bundlr-network/client": "^0.7.14",
-    "@metaplex-foundation/beet": "^0.4.0",
+    "@metaplex-foundation/beet": "^0.6.0",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-guard": "npm:@lorisleiva/mpl-candy-guard@^0.0.4",
     "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
