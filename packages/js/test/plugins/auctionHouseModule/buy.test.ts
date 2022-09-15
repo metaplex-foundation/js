@@ -38,7 +38,7 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
     .buy({
       auctionHouse,
       listing,
-      price: sol(1)
+      price: sol(1),
     })
     .run();
 
