@@ -12,6 +12,15 @@ import { toBidReceiptAccount } from '../accounts';
 const Key = 'FindBidByReceiptOperation' as const;
 
 /**
+ * Finds a Bid by its receipt address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findBidByReceipt({ receiptAddress, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,9 +42,22 @@ export type FindBidByReceiptOperation = Operation<
  * @category Inputs
  */
 export type FindBidByReceiptInput = {
+  /**
+   * The address of the bid receipt account.
+   * This is the account that stores information about this bid.
+   * The Bid model is built on top of this account.
+   */
   receiptAddress: PublicKey;
+
+  /** A model of the Auction House related to this bid. */
   auctionHouse: AuctionHouse;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

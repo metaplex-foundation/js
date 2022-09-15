@@ -12,6 +12,15 @@ import { assertNftOrSftWithToken } from '../../nftModule';
 const Key = 'LoadListingOperation' as const;
 
 /**
+ * Transforms a `LazyListing` model into a `Listing` model.
+ *
+ * ```ts
+ * const listing = await metaplex
+ *   .auctionHouse()
+ *   .loadListing({ lazyListing })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -32,8 +41,15 @@ export type LoadListingOperation = Operation<
  * @category Inputs
  */
 export type LoadListingInput = {
+  /** The `LazyListing` model to transform into the `Listing`.  */
   lazyListing: LazyListing;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

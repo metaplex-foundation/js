@@ -28,6 +28,15 @@ import { AUCTIONEER_PRICE } from '../constants';
 const Key = 'CancelListingOperation' as const;
 
 /**
+ * Cancels the user's listing in the given auction house.
+ *
+ * ```ts
+ * await metaplex
+ *   .auctionHouse()
+ *   .cancelListing({ auctionHouse, listing })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -48,11 +57,20 @@ export type CancelListingOperation = Operation<
  * @category Inputs
  */
 export type CancelListingInput = {
-  auctioneerAuthority?: Signer; // Use Auctioneer ix when provided
+  /** The Auction House in which to cancel Bid. */
   auctionHouse: Pick<
     AuctionHouse,
     'address' | 'authorityAddress' | 'feeAccountAddress' | 'hasAuctioneer'
   >;
+
+  /**
+   * The Listing to cancel.
+   * We only need a subset of the `Listing` model but we
+   * need enough information regarding its settings to know how
+   * to cancel it.
+   *
+   * This includes, its asset, seller address, price, receipt address etc.
+   */
   listing: Pick<
     Listing,
     | 'asset'
@@ -62,6 +80,14 @@ export type CancelListingInput = {
     | 'tokens'
     | 'tradeStateAddress'
   >;
+
+  /**
+   * The Auctioneer authority key.
+   * It is required when Auction House has Auctioneer enabled.
+   *
+   * @defaultValue No default value.
+   */
+  auctioneerAuthority?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -111,6 +137,15 @@ export type CancelListingBuilderParams = Omit<
 export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
 
 /**
+ * Cancels the user's listing in the given auction house.
+ *
+ * ```ts
+ * const transactionBuilder = metaplex
+ *   .auctionHouse()
+ *   .builders()
+ *   .cancelListing({ auctionHouse, listing });
+ * ```
+ *
  * @group Transaction Builders
  * @category Constructors
  */
