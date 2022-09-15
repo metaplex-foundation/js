@@ -49,7 +49,28 @@ export type BuyInput = {
   auctionHouse: AuctionHouse;
 
   /**
+   * The Auction House authority.
+   * If this is Signer the transaction fee
+   * will be paid from the Auction House Fee Account
+   *
+   * @defaultValue `auctionHouse.authority`
+   */
+  authority?: PublicKey | Signer;
+
+  /**
+   * Creator of a bid.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  buyer?: Signer;
+
+  /**
    * The Listing that is used in the sale.
+   * We only need a subset of the `Listing` model but we
+   * need enough information regarding its settings to know how
+   * to execute the sale.
+   *
+   * This includes, its asset, auction house address, seller, receipt address etc.
    */
   listing: Pick<
     Listing,
@@ -70,11 +91,50 @@ export type BuyInput = {
   auctioneerAuthority?: Signer;
 
   /**
+   * The token account address that's associated to the asset a bid created is for.
+   * If this or seller isn't provided in the Listing, then the bid will be public.
+   *
+   * @defaultValue No default value.
+   */
+  tokenAccount?: Option<PublicKey>;
+
+  /**
    * The buyer's price.
    *
    * @defaultValue 0 SOLs or tokens.
    */
   price?: SolAmount | SplTokenAmount;
+
+  /**
+   * The number of tokens to bid for.
+   * For an NFT bid it must be 1 token.
+   *
+   * When a Fungible Asset is put on sale.
+   * The buyer can then create a buy order of said assets that is
+   * less than the token_size of the sell order.
+   *
+   * @defaultValue 1 token.
+   */
+  tokens?: SplTokenAmount;
+
+  /**
+   * Prints the bid receipt.
+   * The receipt holds information about the bid,
+   * So it's important to print it if you want to use the `Bid` model
+   *
+   * The receipt printing is skipped for the Auctioneer Auction House
+   * Since it currently doesn't support it.
+   *
+   * @defaultValue `true`
+   */
+  printReceipt?: boolean;
+
+  /**
+   * The address of the bookkeeper wallet responsible for the receipt.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  bookkeeper?: Signer;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -125,23 +185,48 @@ export type BuyOutput = {
  */
 export const buyOperationHandler: OperationHandler<BuyOperation> = {
   handle: async (operation: BuyOperation, metaplex: Metaplex) => {
-    const { auctionHouse, listing, price } = operation.input;
+    const {
+      auctionHouse,
+      listing,
+      price,
+      confirmOptions,
+      printReceipt,
+      authority,
+      buyer,
+      tokenAccount,
+      tokens,
+      bookkeeper,
+      auctioneerAuthority,
+    } = operation.input;
 
     const { bid } = await metaplex
       .auctionHouse()
       .bid({
         auctionHouse,
-        mintAccount: listing.asset.mint.address,
+        auctioneerAuthority,
+        authority,
         price,
+        buyer,
+        tokenAccount,
+        tokens,
+        printReceipt,
+        bookkeeper,
+        confirmOptions,
+        mintAccount: listing.asset.mint.address,
+        seller: listing.sellerAddress,
       })
       .run();
 
     return await metaplex
       .auctionHouse()
       .executeSale({
-        auctionHouse,
-        listing,
         bid,
+        listing,
+        auctionHouse,
+        auctioneerAuthority,
+        bookkeeper,
+        printReceipt,
+        confirmOptions,
       })
       .run();
   },

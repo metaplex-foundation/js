@@ -35,7 +35,11 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
   // When we execute a sale with given listing and created private bid on that NFT for 1 SOL.
   const { purchase } = await mx
     .auctionHouse()
-    .buy({ auctionHouse, listing, price: sol(1) })
+    .buy({
+      auctionHouse,
+      listing,
+      price: sol(1)
+    })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.
