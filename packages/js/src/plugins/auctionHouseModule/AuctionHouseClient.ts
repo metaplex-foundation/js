@@ -21,6 +21,9 @@ import {
   DepositToBuyerAccountInput,
   depositToBuyerAccountOperation,
   DepositToBuyerAccountOutput,
+  DirectBuyInput,
+  DirectBuyOutput,
+  directBuyOperation,
   ExecuteSaleInput,
   executeSaleOperation,
   ExecuteSaleOutput,
@@ -143,6 +146,11 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .getTask(depositToBuyerAccountOperation(input));
+  }
+
+  /** {@inheritDoc directBuyOperation} */
+  directBuy(input: DirectBuyInput): Task<DirectBuyOutput> {
+    return this.metaplex.operations().getTask(directBuyOperation(input));
   }
 
   /** {@inheritDoc executeSaleOperation} */

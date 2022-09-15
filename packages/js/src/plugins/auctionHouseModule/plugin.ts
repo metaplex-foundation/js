@@ -4,6 +4,8 @@ import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
 import {
+  directBuyOperation,
+  directBuyOperationHandler,
   cancelBidOperation,
   cancelBidOperationHandler,
   cancelListingOperation,
@@ -70,6 +72,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     });
 
     const op = metaplex.operations();
+    op.register(directBuyOperation, directBuyOperationHandler);
     op.register(cancelBidOperation, cancelBidOperationHandler);
     op.register(cancelListingOperation, cancelListingOperationHandler);
     op.register(
