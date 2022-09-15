@@ -14,7 +14,7 @@ import { findAssociatedTokenAccountPda, Pda, Purchase } from '@/index';
 
 killStuckProcess();
 
-test('[auctionHouseModule] direct buy on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -35,7 +35,7 @@ test('[auctionHouseModule] direct buy on an Auction House', async (t: Test) => {
   // When we execute a sale with given listing and created private bid on that NFT for 1 SOL.
   const { purchase } = await mx
     .auctionHouse()
-    .directBuy({ auctionHouse, listing, price: sol(1) })
+    .buy({ auctionHouse, listing, price: sol(1) })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.

@@ -1,4 +1,4 @@
-export * from './directBuy';
+export * from './buy';
 export * from './cancelBid';
 export * from './cancelListing';
 export * from './createAuctionHouse';

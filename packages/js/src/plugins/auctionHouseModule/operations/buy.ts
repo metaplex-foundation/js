@@ -17,7 +17,7 @@ import { AuctionHouse, Listing, Purchase } from '../models';
 // Operation
 // -----------------
 
-const Key = 'DirectBuyOperation' as const;
+const Key = 'BuyOperation' as const;
 
 /**
  * Creates a bid on a given asset and then executes a sale on the created bid and listing.
@@ -25,30 +25,26 @@ const Key = 'DirectBuyOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .directBuy({ auctionHouse, bid })
+ *   .buy({ auctionHouse, bid })
  *   .run();
  * ```
  *
  * @group Operations
  * @category Constructors
  */
-export const directBuyOperation = useOperation<DirectBuyOperation>(Key);
+export const buyOperation = useOperation<BuyOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type DirectBuyOperation = Operation<
-  typeof Key,
-  DirectBuyInput,
-  DirectBuyOutput
->;
+export type BuyOperation = Operation<typeof Key, BuyInput, BuyOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type DirectBuyInput = {
+export type BuyInput = {
   /** The Auction House in which to create a Bid and execute a Sale. */
   auctionHouse: AuctionHouse;
 
@@ -88,7 +84,7 @@ export type DirectBuyInput = {
  * @group Operations
  * @category Outputs
  */
-export type DirectBuyOutput = {
+export type BuyOutput = {
   /** Seller trade state account address encoding the listing order. */
   sellerTradeState: PublicKey;
 
@@ -127,8 +123,8 @@ export type DirectBuyOutput = {
  * @group Operations
  * @category Handlers
  */
-export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
-  handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
+export const buyOperationHandler: OperationHandler<BuyOperation> = {
+  handle: async (operation: BuyOperation, metaplex: Metaplex) => {
     const { auctionHouse, listing, price } = operation.input;
 
     const { bid } = await metaplex
@@ -139,13 +135,13 @@ export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
         price,
       })
       .run();
-    const ah = operation.input.auctionHouse;
+
     return await metaplex
       .auctionHouse()
       .executeSale({
-        auctionHouse: ah,
-        listing: operation.input.listing,
-        bid: bid,
+        auctionHouse,
+        listing,
+        bid,
       })
       .run();
   },
