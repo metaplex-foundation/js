@@ -47,20 +47,14 @@ export class AuctionHouseBuildersClient {
   cancelBid(input: CancelBidBuilderParams) {
     return cancelBidBuilder(input);
   }
+  /** {@inheritDoc cancelListingBuilder} */
+  cancelListing(input: CancelListingBuilderParams) {
+    return cancelListingBuilder(input);
+  }
 
   /** {@inheritDoc createAuctionHouseBuilder} */
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
     return createAuctionHouseBuilder(this.metaplex, input);
-  }
-
-  /** {@inheritDoc createListingBuilder} */
-  list(input: CreateListingBuilderParams) {
-    return createListingBuilder(this.metaplex, input);
-  }
-
-  /** {@inheritDoc cancelListingBuilder} */
-  cancelListing(input: CancelListingBuilderParams) {
-    return cancelListingBuilder(input);
   }
 
   /** {@inheritDoc depositToBuyerAccountBuilder} */
@@ -71,6 +65,11 @@ export class AuctionHouseBuildersClient {
   /** {@inheritDoc executeSaleBuilder} */
   executeSale(input: ExecuteSaleBuilderParams) {
     return executeSaleBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc createListingBuilder} */
+  list(input: CreateListingBuilderParams) {
+    return createListingBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateAuctionHouseBuilder} */
