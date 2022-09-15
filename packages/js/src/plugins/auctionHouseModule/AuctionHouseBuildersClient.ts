@@ -49,6 +49,7 @@ export class AuctionHouseBuildersClient {
   cancelBid(input: CancelBidBuilderParams) {
     return cancelBidBuilder(input);
   }
+
   /** {@inheritDoc cancelListingBuilder} */
   cancelListing(input: CancelListingBuilderParams) {
     return cancelListingBuilder(input);
