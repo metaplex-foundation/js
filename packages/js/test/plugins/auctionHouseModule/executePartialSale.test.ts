@@ -1,4 +1,3 @@
-import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { sol, token } from '@/types';
 import {
@@ -122,6 +121,82 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
     t,
     promise,
     /The calculated partial price does not equal the partial price provided./
+  );
+});
+
+test('[auctionHouseModule] it throws when executing partial sale when no supply left on an Auction House', async (t: Test) => {
+  // Given we have an Auction House and a SFT with 5 supply.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+  const auctionHouse = await createAuctionHouse(mx);
+  const sft = await createSft(mx);
+
+  await mx
+    .tokens()
+    .mint({
+      mintAddress: sft.address,
+      amount: token(5),
+    })
+    .run();
+
+  // And we listed that 5 SFTs for 1 SOL each.
+  const { listing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: sft.address,
+      price: sol(5),
+      tokens: token(5),
+    })
+    .run();
+
+  // And we bought only 3 Tokens but for 1 SOL.
+  const { bid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: sft.address,
+      price: sol(3),
+      tokens: token(3),
+    })
+    .run();
+
+  await mx
+    .auctionHouse()
+    .executeSale({
+      auctionHouse,
+      listing,
+      bid,
+    })
+    .run();
+
+  // When we execute a sale to buy more tokens than left.
+  const { bid: exceedBid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: sft.address,
+      price: sol(3),
+      tokens: token(3),
+    })
+    .run();
+
+  const promise = mx
+    .auctionHouse()
+    .executeSale({
+      auctionHouse,
+      listing,
+      bid: exceedBid,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /Amount of tokens available for purchase is less than the partial order amount./
   );
 });
 
