@@ -18,6 +18,7 @@ export * from './findPurchaseByReceipt';
 export * from './findPurchaseByTradeState';
 export * from './findPurchasesByPublicKeyField';
 export * from './getBuyerBalance';
+export * from './instantSale';
 export * from './loadBid';
 export * from './loadListing';
 export * from './loadPurchase';
