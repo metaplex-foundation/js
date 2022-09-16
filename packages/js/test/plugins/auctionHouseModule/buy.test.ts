@@ -65,17 +65,4 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
     $topic: 'Purchase',
     ...expectedPurchase,
   } as unknown as Specifications<Purchase>);
-
-  // And we get the same result when we fetch the Purchase by address.
-  const retrievePurchase = await mx
-    .auctionHouse()
-    .findPurchaseByReceipt({
-      receiptAddress: purchase.receiptAddress as Pda,
-      auctionHouse,
-    })
-    .run();
-  spok(t, retrievePurchase, {
-    $topic: 'Retrieved Purchase',
-    ...expectedPurchase,
-  } as unknown as Specifications<Purchase>);
 });

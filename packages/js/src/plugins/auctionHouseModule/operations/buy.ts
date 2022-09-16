@@ -25,7 +25,7 @@ const Key = 'BuyOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .buy({ auctionHouse, bid })
+ *   .buy({ auctionHouse, listing, buyer })
  *   .run();
  * ```
  *
@@ -185,35 +185,20 @@ export type BuyOutput = {
  */
 export const buyOperationHandler: OperationHandler<BuyOperation> = {
   handle: async (operation: BuyOperation, metaplex: Metaplex) => {
-    const {
-      auctionHouse,
-      listing,
-      price,
-      confirmOptions,
-      printReceipt,
-      authority,
-      buyer,
-      tokenAccount,
-      tokens,
-      bookkeeper,
-      auctioneerAuthority,
-    } = operation.input;
+    const { listing, price, buyer, tokenAccount, tokens, authority, ...rest } =
+      operation.input;
 
     const { bid } = await metaplex
       .auctionHouse()
       .bid({
-        auctionHouse,
-        auctioneerAuthority,
         authority,
         price,
         buyer,
         tokenAccount,
         tokens,
-        printReceipt,
-        bookkeeper,
-        confirmOptions,
         mintAccount: listing.asset.mint.address,
         seller: listing.sellerAddress,
+        ...rest,
       })
       .run();
 
@@ -222,11 +207,7 @@ export const buyOperationHandler: OperationHandler<BuyOperation> = {
       .executeSale({
         bid,
         listing,
-        auctionHouse,
-        auctioneerAuthority,
-        bookkeeper,
-        printReceipt,
-        confirmOptions,
+        ...rest,
       })
       .run();
   },
