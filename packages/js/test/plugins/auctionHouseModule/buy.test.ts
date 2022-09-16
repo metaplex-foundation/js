@@ -10,7 +10,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda, Pda, Purchase } from '@/index';
+import { findAssociatedTokenAccountPda, Purchase } from '@/index';
 
 killStuckProcess();
 
@@ -32,7 +32,7 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
     })
     .run();
 
-  // When we execute a sale with given listing and created private bid on that NFT for 1 SOL.
+  // When we execute direct buy with the given listing.
   const { purchase } = await mx
     .auctionHouse()
     .buy({
