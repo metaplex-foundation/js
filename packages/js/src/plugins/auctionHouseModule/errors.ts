@@ -134,10 +134,28 @@ export class WithdrawFromBuyerAccountRequiresSignerError extends AuctionHouseErr
     super({
       options,
       key: 'withdraw_from_buyer_account_requires_signer',
-      title: 'Withdraw From Buyer Account Requires Signer',
+      title: 'Withdraw From Buyer Account Requires Signer.',
       problem:
         'You are trying to withdraw from buyer account without providing a signer.',
       solution: 'Either a buyer or authority must be a Signer.',
+    });
+  }
+}
+
+/** @group Errors */
+export class PartialPriceMismatchError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'partial_price_mismatch_signer',
+      title:
+        'The calculated partial price does not equal the partial price provided.',
+      problem:
+        'You are trying to execute the sale by providing the wrong price for the token.',
+      solution:
+        'The token price must equal the price it has in the listing. ' +
+        'If executing a partial sale, ' +
+        'divide the total price by the number of total tokens on sale and multiply it by the number of tokens you want to buy.',
     });
   }
 }

@@ -6,6 +6,8 @@ import {
 import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
+  AuctioneerExecuteSaleInstructionAccounts,
+  createAuctioneerExecutePartialSaleInstruction,
   createAuctioneerExecuteSaleInstruction,
   createExecutePartialSaleInstruction,
   createExecuteSaleInstruction,
@@ -40,6 +42,7 @@ import {
   BidAndListingHaveDifferentMintsError,
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
+  PartialPriceMismatchError,
 } from '../errors';
 
 // -----------------
@@ -298,6 +301,9 @@ export const executeSaleBuilder = (
   } = auctionHouse;
 
   const isPartialSale = bid.tokens.basisPoints < listing.tokens.basisPoints;
+  // Use full size of listing & price when finding trade state PDA for the partial sale.
+  const { tokens, price } = isPartialSale ? listing : bid;
+  const { price: buyerPrice, tokens: buyerTokensSize } = bid;
 
   if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
     throw new BidAndListingHaveDifferentAuctionHousesError();
@@ -314,10 +320,15 @@ export const executeSaleBuilder = (
   if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
+  if (isPartialSale) {
+    const buyerPricePerToken = buyerPrice.basisPoints.div(
+      buyerTokensSize.basisPoints
+    );
 
-  // Data.
-  // Use full size of listing & price when finding trade state PDA for the partial sale.
-  const { tokens, price } = isPartialSale ? listing : bid;
+    if (!price.basisPoints.eq(buyerPricePerToken.mul(tokens.basisPoints))) {
+      throw new PartialPriceMismatchError();
+    }
+  }
 
   // Accounts.
   const sellerPaymentReceiptAccount = isNative
@@ -372,32 +383,32 @@ export const executeSaleBuilder = (
   };
 
   // Execute Sale Instruction
-  let executeSaleInstruction = createExecuteSaleInstruction(accounts, args);
-  if (auctioneerAuthority) {
-    executeSaleInstruction = createAuctioneerExecuteSaleInstruction(
-      {
-        ...accounts,
-        auctioneerAuthority: auctioneerAuthority.publicKey,
-        ahAuctioneerPda: findAuctioneerPda(
-          auctionHouseAddress,
-          auctioneerAuthority.publicKey
-        ),
-      },
-      args
-    );
-  }
+  const partialSaleArgs: ExecutePartialSaleInstructionArgs = {
+    ...args,
+    partialOrderSize: bid.tokens.basisPoints,
+    partialOrderPrice: bid.price.basisPoints,
+  };
 
-  if (isPartialSale) {
-    const partialSaleArgs: ExecutePartialSaleInstructionArgs = {
-      ...args,
-      partialOrderSize: bid.tokens.basisPoints,
-      partialOrderPrice: bid.price.basisPoints,
+  let executeSaleInstruction = isPartialSale
+    ? createExecutePartialSaleInstruction(accounts, partialSaleArgs)
+    : createExecuteSaleInstruction(accounts, args);
+
+  if (auctioneerAuthority) {
+    const auctioneerAccounts: AuctioneerExecuteSaleInstructionAccounts = {
+      ...accounts,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      ahAuctioneerPda: findAuctioneerPda(
+        auctionHouseAddress,
+        auctioneerAuthority.publicKey
+      ),
     };
 
-    executeSaleInstruction = createExecutePartialSaleInstruction(
-      accounts,
-      partialSaleArgs
-    );
+    executeSaleInstruction = isPartialSale
+      ? createAuctioneerExecutePartialSaleInstruction(
+          auctioneerAccounts,
+          partialSaleArgs
+        )
+      : createAuctioneerExecuteSaleInstruction(auctioneerAccounts, args);
   }
 
   // Provide additional keys to pay royalties.
@@ -423,9 +434,8 @@ export const executeSaleBuilder = (
 
   // Receipt.
   const shouldPrintReceipt =
-    !isPartialSale &&
     (params.printReceipt ?? true) &&
-    Boolean(listing.receiptAddress && bid.receiptAddress);
+    Boolean(listing.receiptAddress && bid.receiptAddress && !isPartialSale);
   const bookkeeper = params.bookkeeper ?? metaplex.identity();
   const purchaseReceipt = findPurchaseReceiptPda(
     listing.tradeStateAddress,
