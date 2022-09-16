@@ -34,10 +34,10 @@ test('[auctionHouseModule] instant sale on an Auction House', async (t: Test) =>
     })
     .run();
 
-  // Then we execute an instantSale on the bid
+  // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .instantSale({ auctionHouse, bid })
+    .sell({ auctionHouse, bid })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.

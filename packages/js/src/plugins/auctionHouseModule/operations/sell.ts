@@ -17,38 +17,34 @@ import { AuctionHouse, Bid, Purchase } from '../models';
 // Operation
 // -----------------
 
-const Key = 'InstantSaleOperation' as const;
+const Key = 'SellOperation' as const;
 
 /**
- * Creates a listing on a given asset and then executes a sale on the created bid and listing.
+ * Creates a listing on a given asset and then executes a sell on the created bid and listing.
  *
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .instantSale({ auctionHouse, bid })
+ *   .sell({ auctionHouse, bid })
  *   .run();
  * ```
  *
  * @group Operations
  * @category Constructors
  */
-export const instantSaleOperation = useOperation<InstantSaleOperation>(Key);
+export const sellOperation = useOperation<SellOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type InstantSaleOperation = Operation<
-  typeof Key,
-  InstantSaleInput,
-  InstantSaleOutput
->;
+export type SellOperation = Operation<typeof Key, SellInput, SellOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type InstantSaleInput = {
+export type SellInput = {
   /** The Auction House in which to create a Listing and execute a Sale. */
   auctionHouse: AuctionHouse;
 
@@ -144,11 +140,11 @@ export type InstantSaleInput = {
  * @group Operations
  * @category Outputs
  */
-export type InstantSaleOutput = {
+export type SellOutput = {
   /** Seller trade state account address encoding the listing order. */
   sellerTradeState: PublicKey;
 
-  /** InstantSaleer trade state account address encoding the bid order. */
+  /** Saleer trade state account address encoding the bid order. */
   buyerTradeState: PublicKey;
 
   /** The buyer address. */
@@ -183,32 +179,31 @@ export type InstantSaleOutput = {
  * @group Operations
  * @category Handlers
  */
-export const instantSaleOperationHandler: OperationHandler<InstantSaleOperation> =
-  {
-    handle: async (operation: InstantSaleOperation, metaplex: Metaplex) => {
-      const { bid, seller, tokenAccount, tokens, authority, ...rest } =
-        operation.input;
+export const sellOperationHandler: OperationHandler<SellOperation> = {
+  handle: async (operation: SellOperation, metaplex: Metaplex) => {
+    const { bid, seller, tokenAccount, tokens, authority, ...rest } =
+      operation.input;
 
-      const { listing } = await metaplex
-        .auctionHouse()
-        .list({
-          mintAccount: bid.asset.mint.address,
-          price: bid.price,
-          seller,
-          authority,
-          tokenAccount,
-          tokens,
-          ...rest,
-        })
-        .run();
+    const { listing } = await metaplex
+      .auctionHouse()
+      .list({
+        mintAccount: bid.asset.mint.address,
+        price: bid.price,
+        seller,
+        authority,
+        tokenAccount,
+        tokens,
+        ...rest,
+      })
+      .run();
 
-      return await metaplex
-        .auctionHouse()
-        .executeSale({
-          bid,
-          listing,
-          ...rest,
-        })
-        .run();
-    },
-  };
+    return await metaplex
+      .auctionHouse()
+      .executeSale({
+        bid,
+        listing,
+        ...rest,
+      })
+      .run();
+  },
+};

@@ -72,10 +72,10 @@ import {
   WithdrawFromTreasuryAccountOutput,
 } from './operations';
 import {
-  InstantSaleInput,
-  instantSaleOperation,
-  InstantSaleOutput,
-} from '@/plugins/auctionHouseModule/operations/instantSale';
+  SellInput,
+  sellOperation,
+  SellOutput,
+} from '@/plugins/auctionHouseModule/operations/sell';
 
 /**
  * This is a client for the Auction House module.
@@ -249,9 +249,9 @@ export class AuctionHouseClient {
       .getTask(getBuyerBalanceOperation(options));
   }
 
-  /** {@inheritDoc instantSaleOperation} */
-  instantSale(options: InstantSaleInput): Task<InstantSaleOutput> {
-    return this.metaplex.operations().getTask(instantSaleOperation(options));
+  /** {@inheritDoc saleOperation} */
+  sell(options: SellInput): Task<SellOutput> {
+    return this.metaplex.operations().getTask(sellOperation(options));
   }
 
   /** {@inheritDoc createListingOperation} */
