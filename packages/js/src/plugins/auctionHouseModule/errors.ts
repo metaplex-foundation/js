@@ -56,6 +56,20 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
 }
 
 /** @group Errors */
+export class AuctioneerPartialSaleNotSupportedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'auctioneer_partial_sale_not_supported',
+      title: 'Auctioneer Partial Sale Is Not Supported',
+      problem: 'You are trying to execute a partial sale, but partial orders are not supported in Auctioneer.',
+      solution:
+        'Any Partial Buys must be executed against a sale listed through the Auction House Sale.',
+    });
+  }
+}
+
+/** @group Errors */
 export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({

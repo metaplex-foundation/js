@@ -7,7 +7,6 @@ import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   AuctioneerExecuteSaleInstructionAccounts,
-  createAuctioneerExecutePartialSaleInstruction,
   createAuctioneerExecuteSaleInstruction,
   createExecutePartialSaleInstruction,
   createExecuteSaleInstruction,
@@ -38,6 +37,7 @@ import {
 } from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
+  AuctioneerPartialSaleNotSupportedError,
   BidAndListingHaveDifferentAuctionHousesError,
   BidAndListingHaveDifferentMintsError,
   CanceledBidIsNotAllowedError,
@@ -320,6 +320,9 @@ export const executeSaleBuilder = (
   if (hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
+  if (isPartialSale && hasAuctioneer) {
+    throw new AuctioneerPartialSaleNotSupportedError();
+  }
   if (isPartialSale) {
     const buyerPricePerToken = buyerPrice.basisPoints.div(
       buyerTokensSize.basisPoints
@@ -403,12 +406,7 @@ export const executeSaleBuilder = (
       ),
     };
 
-    executeSaleInstruction = isPartialSale
-      ? createAuctioneerExecutePartialSaleInstruction(
-          auctioneerAccounts,
-          partialSaleArgs
-        )
-      : createAuctioneerExecuteSaleInstruction(auctioneerAccounts, args);
+    executeSaleInstruction = createAuctioneerExecuteSaleInstruction(auctioneerAccounts, args);
   }
 
   // Provide additional keys to pay royalties.
