@@ -62,7 +62,8 @@ export class AuctioneerPartialSaleNotSupportedError extends AuctionHouseError {
       options,
       key: 'auctioneer_partial_sale_not_supported',
       title: 'Auctioneer Partial Sale Is Not Supported',
-      problem: 'You are trying to execute a partial sale, but partial orders are not supported in Auctioneer.',
+      problem:
+        'You are trying to execute a partial sale, but partial orders are not supported in Auctioneer.',
       solution:
         'Any Partial Buys must be executed against a sale listed through the Auction House Sale.',
     });

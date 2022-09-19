@@ -406,7 +406,10 @@ export const executeSaleBuilder = (
       ),
     };
 
-    executeSaleInstruction = createAuctioneerExecuteSaleInstruction(auctioneerAccounts, args);
+    executeSaleInstruction = createAuctioneerExecuteSaleInstruction(
+      auctioneerAccounts,
+      args
+    );
   }
 
   // Provide additional keys to pay royalties.
