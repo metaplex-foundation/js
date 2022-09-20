@@ -4,8 +4,8 @@ import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
 import {
-  buyOperation,
-  buyOperationHandler,
+  directBuyOperation,
+  directBuyOperationHandler,
   cancelBidOperation,
   cancelBidOperationHandler,
   cancelListingOperation,
@@ -44,8 +44,8 @@ import {
   findPurchasesByPublicKeyFieldOperationHandler,
   getBuyerBalanceOperation,
   getBuyerBalanceOperationHandler,
-  sellOperation,
-  sellOperationHandler,
+  directSellOperation,
+  directSellOperationHandler,
   loadBidOperation,
   loadBidOperationHandler,
   loadListingOperation,
@@ -74,7 +74,6 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     });
 
     const op = metaplex.operations();
-    op.register(buyOperation, buyOperationHandler);
     op.register(cancelBidOperation, cancelBidOperationHandler);
     op.register(cancelListingOperation, cancelListingOperationHandler);
     op.register(
@@ -87,6 +86,8 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       depositToBuyerAccountOperation,
       depositToBuyerAccountOperationHandler
     );
+    op.register(directBuyOperation, directBuyOperationHandler);
+    op.register(directSellOperation, directSellOperationHandler);
     op.register(executeSaleOperation, executeSaleOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,
@@ -133,7 +134,6 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);
     op.register(loadPurchaseOperation, loadPurchaseOperationHandler);
-    op.register(sellOperation, sellOperationHandler);
     op.register(
       updateAuctionHouseOperation,
       updateAuctionHouseOperationHandler

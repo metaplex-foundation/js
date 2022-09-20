@@ -17,7 +17,7 @@ import { AuctionHouse, Listing, Purchase } from '../models';
 // Operation
 // -----------------
 
-const Key = 'BuyOperation' as const;
+const Key = 'DirectBuyOperation' as const;
 
 /**
  * Creates a bid on a given asset and then executes a sale on the created bid and listing.
@@ -32,19 +32,19 @@ const Key = 'BuyOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const buyOperation = useOperation<BuyOperation>(Key);
+export const directBuyOperation = useOperation<DirectBuyOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type BuyOperation = Operation<typeof Key, BuyInput, BuyOutput>;
+export type DirectBuyOperation = Operation<typeof Key, DirectBuyInput, DirectBuyOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type BuyInput = {
+export type DirectBuyInput = {
   /** The Auction House in which to create a Bid and execute a Sale. */
   auctionHouse: AuctionHouse;
 
@@ -77,7 +77,9 @@ export type BuyInput = {
     | 'asset'
     | 'auctionHouse'
     | 'canceledAt'
+    | 'price'
     | 'sellerAddress'
+    | 'tokens'
     | 'tradeStateAddress'
     | 'receiptAddress'
   >;
@@ -118,9 +120,9 @@ export type BuyInput = {
   tokens?: SplTokenAmount;
 
   /**
-   * Prints the bid receipt.
-   * The receipt holds information about the bid,
-   * So it's important to print it if you want to use the `Bid` model
+   * Prints the bid and purchase receipts.
+   * The receipt holds information about the bid and about the purchase,
+   * So it's important to print it if you want to use the `Bid` or `Purchase` model
    *
    * The receipt printing is skipped for the Auctioneer Auction House
    * Since it currently doesn't support it.
@@ -144,7 +146,7 @@ export type BuyInput = {
  * @group Operations
  * @category Outputs
  */
-export type BuyOutput = {
+export type DirectBuyOutput = {
   /** Seller trade state account address encoding the listing order. */
   sellerTradeState: PublicKey;
 
@@ -183,8 +185,8 @@ export type BuyOutput = {
  * @group Operations
  * @category Handlers
  */
-export const buyOperationHandler: OperationHandler<BuyOperation> = {
-  handle: async (operation: BuyOperation, metaplex: Metaplex) => {
+export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
+  handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
     const { listing, price, buyer, tokenAccount, tokens, authority, ...rest } =
       operation.input;
 
@@ -192,10 +194,10 @@ export const buyOperationHandler: OperationHandler<BuyOperation> = {
       .auctionHouse()
       .bid({
         authority,
-        price,
         buyer,
-        tokenAccount,
-        tokens,
+        tokenAccount: listing.asset.token.address,
+        tokens: tokens || listing.tokens,
+        price: price || listing.price,
         mintAccount: listing.asset.mint.address,
         seller: listing.sellerAddress,
         ...rest,

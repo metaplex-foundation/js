@@ -17,7 +17,7 @@ import { AuctionHouse, Bid, Purchase } from '../models';
 // Operation
 // -----------------
 
-const Key = 'SellOperation' as const;
+const Key = 'DirectSellOperation' as const;
 
 /**
  * Creates a listing on a given asset and then executes a sell on the created bid and listing.
@@ -32,19 +32,19 @@ const Key = 'SellOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const sellOperation = useOperation<SellOperation>(Key);
+export const directSellOperation = useOperation<DirectSellOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type SellOperation = Operation<typeof Key, SellInput, SellOutput>;
+export type DirectSellOperation = Operation<typeof Key, DirectSellInput, DirectSellOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type SellInput = {
+export type DirectSellInput = {
   /** The Auction House in which to create a Listing and execute a Sale. */
   auctionHouse: AuctionHouse;
 
@@ -140,7 +140,7 @@ export type SellInput = {
  * @group Operations
  * @category Outputs
  */
-export type SellOutput = {
+export type DirectSellOutput = {
   /** Seller trade state account address encoding the listing order. */
   sellerTradeState: PublicKey;
 
@@ -179,8 +179,8 @@ export type SellOutput = {
  * @group Operations
  * @category Handlers
  */
-export const sellOperationHandler: OperationHandler<SellOperation> = {
-  handle: async (operation: SellOperation, metaplex: Metaplex) => {
+export const directSellOperationHandler: OperationHandler<DirectSellOperation> = {
+  handle: async (operation: DirectSellOperation, metaplex: Metaplex) => {
     const { bid, seller, tokenAccount, tokens, authority, ...rest } =
       operation.input;
 
