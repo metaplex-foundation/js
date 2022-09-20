@@ -324,6 +324,7 @@ export class NftClient {
 
   /** {@inheritDoc sendTokensOperation} */
   send(input: PartialKeys<SendTokensInput, 'amount'>) {
+    // TODO: update documentation.
     return this.metaplex.tokens().send({
       ...input,
       amount: token(1),
