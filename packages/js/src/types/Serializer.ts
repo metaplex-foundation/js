@@ -1,5 +1,5 @@
 import type { Beet } from '@metaplex-foundation/beet';
-import beet from '@metaplex-foundation/beet';
+import * as beet from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import {
   FailedToDeserializeDataError,

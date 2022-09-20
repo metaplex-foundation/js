@@ -6,7 +6,7 @@ import {
   serialize,
 } from '@/types';
 import { padEmptyChars, removeEmptyChars } from '@/utils';
-import beet from '@metaplex-foundation/beet';
+import * as beet from '@metaplex-foundation/beet';
 import { Buffer } from 'buffer';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import { UnregisteredCandyGuardError } from './errors';
