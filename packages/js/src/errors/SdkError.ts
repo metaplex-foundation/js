@@ -149,7 +149,7 @@ export class UninitializedWalletAdapterError extends SdkError {
       problem: 'The current wallet adapter is not initialized.',
       solution:
         'You likely have selected a wallet adapter but forgot to initialize it. ' +
-        'You may do this by running the following asynchronous method: "walletAdater.connect();".',
+        'You may do this by running the following asynchronous method: "walletAdapter.connect();".',
     });
   }
 }
