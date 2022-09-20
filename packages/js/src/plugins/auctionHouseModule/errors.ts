@@ -3,6 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
+import { Amount, formatAmount } from '@/types';
 
 /** @group Errors */
 export class AuctionHouseError extends MetaplexError {
@@ -159,14 +160,14 @@ export class WithdrawFromBuyerAccountRequiresSignerError extends AuctionHouseErr
 
 /** @group Errors */
 export class PartialPriceMismatchError extends AuctionHouseError {
-  constructor(options?: MetaplexErrorOptions) {
+  constructor(options: Partial<MetaplexErrorOptions> & { expected: Amount, actual: Amount }) {
     super({
       options,
       key: 'partial_price_mismatch_signer',
       title:
         'The calculated partial price does not equal the partial price provided',
       problem:
-        'You are trying to execute the sale by providing the wrong price for the token.',
+        `Expected ${formatAmount(options.expected)} but provided ${formatAmount(options.actual)}.`,
       solution:
         'The token price must equal the price it has in the listing. ' +
         'If executing a partial sale, ' +

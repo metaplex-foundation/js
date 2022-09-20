@@ -324,12 +324,16 @@ export const executeSaleBuilder = (
     throw new AuctioneerPartialSaleNotSupportedError();
   }
   if (isPartialSale) {
+    const listingPricePerToken = price.basisPoints.div(tokens.basisPoints);
     const buyerPricePerToken = buyerPrice.basisPoints.div(
       buyerTokensSize.basisPoints
     );
 
-    if (!price.basisPoints.eq(buyerPricePerToken.mul(tokens.basisPoints))) {
-      throw new PartialPriceMismatchError();
+    if (!listingPricePerToken.eq(buyerPricePerToken)) {
+      throw new PartialPriceMismatchError({
+        expected: lamports(listingPricePerToken.mul(buyerTokensSize.basisPoints)),
+        actual: lamports(buyerPricePerToken.mul(buyerTokensSize.basisPoints))
+      });
     }
   }
 
