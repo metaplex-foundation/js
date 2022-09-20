@@ -164,7 +164,7 @@ export class PartialPriceMismatchError extends AuctionHouseError {
       options,
       key: 'partial_price_mismatch_signer',
       title:
-        'The calculated partial price does not equal the partial price provided.',
+        'The calculated partial price does not equal the partial price provided',
       problem:
         'You are trying to execute the sale by providing the wrong price for the token.',
       solution:
