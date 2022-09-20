@@ -1,0 +1,84 @@
+import type { Commitment } from '@solana/web3.js';
+import { LazyListing, Listing } from '../models/Listing';
+import { assertNftOrSftWithToken } from '@metaplex-foundation/js-plugin-nft-module';
+import type { Metaplex } from '@metaplex-foundation/js';
+
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  amount,
+} from '@metaplex-foundation/js';
+import { DisposableScope } from '@metaplex-foundation/js';
+
+// -----------------
+// Operation
+// -----------------
+
+const Key = 'LoadListingOperation' as const;
+
+/**
+ * @group Operations
+ * @category Constructors
+ */
+export const loadListingOperation = useOperation<LoadListingOperation>(Key);
+
+/**
+ * @group Operations
+ * @category Types
+ */
+export type LoadListingOperation = Operation<
+  typeof Key,
+  LoadListingInput,
+  Listing
+>;
+
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type LoadListingInput = {
+  lazyListing: LazyListing;
+  loadJsonMetadata?: boolean; // Default: true
+
+  /** The level of commitment desired when querying the blockchain. */
+  commitment?: Commitment;
+};
+
+/**
+ * @group Operations
+ * @category Handlers
+ */
+export const loadListingOperationHandler: OperationHandler<LoadListingOperation> =
+  {
+    handle: async (
+      operation: LoadListingOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const {
+        lazyListing,
+        loadJsonMetadata = true,
+        commitment,
+      } = operation.input;
+
+      const asset = await metaplex
+        .nfts()
+        .findByMetadata({
+          metadata: lazyListing.metadataAddress,
+          tokenOwner: lazyListing.sellerAddress,
+          commitment,
+          loadJsonMetadata,
+        })
+        .run(scope);
+      assertNftOrSftWithToken(asset);
+
+      return {
+        ...lazyListing,
+        model: 'listing',
+        lazy: false,
+        asset,
+        tokens: amount(lazyListing.tokens, asset.mint.currency),
+      };
+    },
+  };
