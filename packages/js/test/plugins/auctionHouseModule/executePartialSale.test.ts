@@ -117,11 +117,11 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
     })
     .run();
 
-  // Then we expect an error.
+  // Then we expect an error with expected and provided amounts.
   await assertThrows(
     t,
     promise,
-    /The calculated partial price does not equal the partial price provided/
+    /Expected to receive SOL 1.000000000 per token but provided SOL 0.333333333 per token/
   );
 });
 

@@ -171,9 +171,9 @@ export class PartialPriceMismatchError extends AuctionHouseError {
       key: 'partial_price_mismatch_signer',
       title:
         'The calculated partial price does not equal the partial price provided',
-      problem: `Expected ${formatAmount(
+      problem: `Expected to receive ${formatAmount(
         options.expected
-      )} but provided ${formatAmount(options.actual)}.`,
+      )} per token but provided ${formatAmount(options.actual)} per token.`,
       solution:
         'The token price must equal the price it has in the listing. ' +
         'If executing a partial sale, ' +

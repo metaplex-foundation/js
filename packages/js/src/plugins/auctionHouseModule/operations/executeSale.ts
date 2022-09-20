@@ -331,10 +331,8 @@ export const executeSaleBuilder = (
 
     if (!listingPricePerToken.eq(buyerPricePerToken)) {
       throw new PartialPriceMismatchError({
-        expected: lamports(
-          listingPricePerToken.mul(buyerTokensSize.basisPoints)
-        ),
-        actual: lamports(buyerPricePerToken.mul(buyerTokensSize.basisPoints)),
+        expected: lamports(listingPricePerToken),
+        actual: lamports(buyerPricePerToken),
       });
     }
   }
