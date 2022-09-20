@@ -164,6 +164,7 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
           })
           .run(scope)) as NftWithToken;
       } catch (error) {
+        // TODO: Only throw if the CM has a bot tax guard. Otherwise, `throw error`.
         throw new CandyMachineBotTaxError(
           metaplex.rpc().getSolanaExporerUrl(output.response.signature),
           error as Error
