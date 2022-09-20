@@ -149,7 +149,7 @@ export class WithdrawFromBuyerAccountRequiresSignerError extends AuctionHouseErr
     super({
       options,
       key: 'withdraw_from_buyer_account_requires_signer',
-      title: 'Withdraw From Buyer Account Requires Signer.',
+      title: 'Withdraw From Buyer Account Requires Signer',
       problem:
         'You are trying to withdraw from buyer account without providing a signer.',
       solution: 'Either a buyer or authority must be a Signer.',
