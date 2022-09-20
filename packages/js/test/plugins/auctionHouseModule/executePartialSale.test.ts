@@ -61,12 +61,20 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
     .run();
 
   // Then the user must receive 3 Tokens.
-  const buyerToken = await mx
+  const buyerTokens = await mx
     .nfts()
     .findByToken({ token: purchase.asset.token.address })
     .run();
 
-  t.equal(buyerToken.token.amount.basisPoints.toNumber(), 3);
+  t.equal(buyerTokens.token.amount.basisPoints.toNumber(), 3);
+
+  // And then the seller must have 2 Tokens left.
+  const sellerTokens = await mx
+    .nfts()
+    .findByToken({ token: listing.asset.token.address })
+    .run();
+
+  t.equal(sellerTokens.token.amount.basisPoints.toNumber(), 2);
 });
 
 test('[auctionHouseModule] it throws when executing partial sale with wrong price on an Auction House', async (t: Test) => {
