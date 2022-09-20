@@ -1,4 +1,4 @@
-import { MetaplexErrorOptions, SdkError } from '@/errors';
+import { MetaplexErrorOptions, SdkError } from '@metaplex-foundation/js';
 
 /** @group Errors */
 export class UninitializedDerivedIdentityError extends SdkError {

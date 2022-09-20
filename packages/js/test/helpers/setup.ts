@@ -10,7 +10,7 @@ import {
   CreateNftInput,
   KeypairSigner,
   CreateSftInput,
-} from '@/index';
+} from '@metaplex-foundation/js/index';
 
 export type MetaplexTestOptions = {
   rpcEndpoint?: string;

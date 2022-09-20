@@ -1,14 +1,14 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { IdentityDriver } from './IdentityDriver';
-import { DriverNotProvidedError } from '@/errors';
+import { DriverNotProvidedError } from '@metaplex-foundation/js';
 import {
   HasDriver,
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
-} from '@/types';
+} from '@metaplex-foundation/js';
 
 /**
  * @group Modules

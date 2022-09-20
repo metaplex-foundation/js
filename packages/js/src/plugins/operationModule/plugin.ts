@@ -1,6 +1,7 @@
 import { OperationClient } from './OperationClient';
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
+import type { Metaplex } from '@metaplex-foundation/js';
+
+import { MetaplexPlugin } from '@metaplex-foundation/js';
 
 /** @group Plugins */
 export const operationModule = (): MetaplexPlugin => ({
@@ -10,7 +11,7 @@ export const operationModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js/Metaplex' {
   interface Metaplex {
     operations(): OperationClient;
   }

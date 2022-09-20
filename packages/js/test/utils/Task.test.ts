@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import AbortController from 'abort-controller';
-import { Task } from '@/index';
+import { Task } from '@metaplex-foundation/js/index';
 
 test('[Task] it can succeed with an asynchronous callback', async (t: Test) => {
   // Given a "pending" async task that returns a number.

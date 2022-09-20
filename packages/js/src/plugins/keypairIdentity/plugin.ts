@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import { KeypairIdentityDriver } from './KeypairIdentityDriver';
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
+import { Metaplex } from '@metaplex-foundation/js/Metaplex';
+import { MetaplexPlugin } from '@metaplex-foundation/js';
 
 export const keypairIdentity = (keypair: Keypair): MetaplexPlugin => ({
   install(metaplex: Metaplex) {

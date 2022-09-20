@@ -4,7 +4,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
-import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
+import type { ConfirmTransactionResponse } from 'packages/js-plugin-rpc-module/src';
 
 /** @group Errors */
 export class RpcError extends MetaplexError {

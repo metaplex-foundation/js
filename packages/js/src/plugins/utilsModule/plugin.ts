@@ -1,6 +1,7 @@
 import { UtilsClient } from './UtilsClient';
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
+import type { Metaplex } from '@metaplex-foundation/js';
+
+import { MetaplexPlugin } from '@metaplex-foundation/js';
 
 /** @group Plugins */
 export const utilsModule = (): MetaplexPlugin => ({
@@ -10,7 +11,7 @@ export const utilsModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js/Metaplex' {
   interface Metaplex {
     utils(): UtilsClient;
   }

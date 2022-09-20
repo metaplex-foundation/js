@@ -4,8 +4,9 @@ import {
   PublicKey,
   SystemProgram,
 } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '../../../../../js-plugin-rpc-module/src';
+import type { Metaplex } from '@metaplex-foundation/js';
+
 import {
   assertSol,
   Operation,
@@ -13,8 +14,8 @@ import {
   Signer,
   SolAmount,
   useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+} from '@metaplex-foundation/js';
+import { DisposableScope, TransactionBuilder } from '@metaplex-foundation/js';
 
 // -----------------
 // Operation

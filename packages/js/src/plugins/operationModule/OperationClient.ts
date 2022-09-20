@@ -1,4 +1,5 @@
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js';
+
 import {
   OperationConstructor,
   Operation,
@@ -6,9 +7,9 @@ import {
   InputOfOperation,
   OutputOfOperation,
   OperationHandler,
-} from '@/types';
-import { Task, TaskOptions } from '@/utils';
-import { OperationHandlerMissingError } from '@/errors';
+} from '@metaplex-foundation/js';
+import { Task, TaskOptions } from '@metaplex-foundation/js';
+import { OperationHandlerMissingError } from '@metaplex-foundation/js';
 
 /**
  * @group Modules

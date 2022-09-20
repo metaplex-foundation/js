@@ -1,6 +1,9 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
-import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
+import {
+  AccountNotFoundError,
+  UnexpectedAccountError,
+} from '@metaplex-foundation/js';
 
 export type Account<T> = {
   readonly publicKey: PublicKey;

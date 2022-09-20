@@ -1,6 +1,14 @@
-import { MetaplexFile, StorageDriver } from '../storageModule';
-import { Amount, BigNumber, lamports, toBigNumber } from '@/types';
-import { AssetNotFoundError } from '@/errors';
+import {
+  MetaplexFile,
+  StorageDriver,
+} from '@metaplex-foundation/js-plugin-storage-module';
+import {
+  Amount,
+  BigNumber,
+  lamports,
+  toBigNumber,
+} from '@metaplex-foundation/js';
+import { AssetNotFoundError } from '@metaplex-foundation/js';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = 1;

@@ -3,7 +3,7 @@ import { bignum } from '@metaplex-foundation/beet';
 import BN from 'bn.js';
 import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
-import { Amount, BigNumber, sameAmounts } from '@/types';
+import { Amount, BigNumber, sameAmounts } from '@metaplex-foundation/js';
 
 export function spokSamePubkey(
   a: PublicKey | string | null | undefined

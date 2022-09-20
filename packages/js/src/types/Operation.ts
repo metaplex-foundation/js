@@ -1,5 +1,5 @@
-import { Metaplex } from '@/Metaplex';
-import { DisposableScope } from '@/utils';
+import { Metaplex } from '@metaplex-foundation/js/Metaplex';
+import { DisposableScope } from '@metaplex-foundation/js';
 
 export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown>
   ? N

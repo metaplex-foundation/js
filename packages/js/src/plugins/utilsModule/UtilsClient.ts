@@ -1,11 +1,12 @@
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js';
+
 import {
   addAmounts,
   lamports,
   multiplyAmount,
   SolAmount,
   subtractAmounts,
-} from '@/types';
+} from '@metaplex-foundation/js';
 
 const TRANSACTION_FEE = 5000;
 

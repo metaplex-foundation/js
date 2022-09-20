@@ -1,6 +1,7 @@
 import { IdentityClient } from './IdentityClient';
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
+import type { Metaplex } from '@metaplex-foundation/js';
+
+import { MetaplexPlugin } from '@metaplex-foundation/js';
 
 /** @group Plugins */
 export const identityModule = (): MetaplexPlugin => ({
@@ -10,7 +11,7 @@ export const identityModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js/Metaplex' {
   interface Metaplex {
     identity(): IdentityClient;
   }

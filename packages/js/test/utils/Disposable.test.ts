@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import { AbortController } from 'abort-controller';
-import { Disposable } from '@/index';
+import { Disposable } from '@metaplex-foundation/js/index';
 
 test('[Disposable] it can cancel callbacks', async (t: Test) => {
   // Given a disposable.

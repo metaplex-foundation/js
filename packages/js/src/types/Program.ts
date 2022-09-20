@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
-import { Metaplex } from '@/Metaplex';
-import { Cluster } from '@/types';
-import { GpaBuilder } from '@/utils';
+import { Metaplex } from '@metaplex-foundation/js/Metaplex';
+import { Cluster } from '@metaplex-foundation/js';
+import { GpaBuilder } from '@metaplex-foundation/js';
 
 export type ErrorWithLogs = Error & { logs: string[] };
 export type ErrorWithCode = Error & { code: number };

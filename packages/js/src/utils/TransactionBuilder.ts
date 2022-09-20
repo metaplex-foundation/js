@@ -7,8 +7,8 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '..';
-import type { Signer } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Signer } from '@metaplex-foundation/js';
+import type { Metaplex } from '@metaplex-foundation/js';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;

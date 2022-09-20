@@ -1,6 +1,6 @@
 import type { Buffer } from 'buffer';
 import BN from 'bn.js';
-import { assert, Opaque, Option } from '@/utils';
+import { assert, Opaque, Option } from '@metaplex-foundation/js';
 
 export type BigNumber = Opaque<BN, 'BigNumber'>;
 export type BigNumberValues =

@@ -15,9 +15,9 @@ import {
   MetaplexFile,
   MetaplexFileTag,
   StorageDriver,
-} from '../storageModule';
+} from '@metaplex-foundation/js-plugin-storage-module';
 import { KeypairIdentityDriver } from '../keypairIdentity';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js/Metaplex';
 import {
   Amount,
   IdentitySigner,
@@ -27,13 +27,13 @@ import {
   lamports,
   Signer,
   toBigNumber,
-} from '@/types';
+} from '@metaplex-foundation/js';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
-} from '@/errors';
+} from '@metaplex-foundation/js';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.

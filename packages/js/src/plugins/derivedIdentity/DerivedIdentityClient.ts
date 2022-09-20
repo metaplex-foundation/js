@@ -3,15 +3,16 @@ import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import { TransferSolOutput } from '../systemModule';
 import { UninitializedDerivedIdentityError } from './errors';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js';
+
 import {
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
   SolAmount,
-} from '@/types';
-import { Task } from '@/utils';
+} from '@metaplex-foundation/js';
+import { Task } from '@metaplex-foundation/js';
 
 /**
  * @group Modules

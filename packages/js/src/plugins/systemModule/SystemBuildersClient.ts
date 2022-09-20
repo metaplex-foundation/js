@@ -4,7 +4,7 @@ import {
   transferSolBuilder,
   TransferSolBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js';
 
 /**
  * This client allows you to access the underlying Transaction Builders

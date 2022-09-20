@@ -3,7 +3,7 @@ import { IdentityDriver } from '../identityModule';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
-} from '@/errors';
+} from '@metaplex-foundation/js';
 
 export type WalletAdapter = {
   publicKey: PublicKey | null;

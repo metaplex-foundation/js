@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["./**/*"],
+  "include": ["./**/*", "../../js-plugin-auction-house-module/test/cancelBid.test.ts", "../../js-plugin-nft-module/test/approveNftCollectionAuthority.test.ts"],
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",

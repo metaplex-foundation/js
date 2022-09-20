@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "../js-plugin-nft-module/src/models", "../js-plugin-rpc-module/src/index.ts", "../js-plugin-token-module/src/models", "../js-plugin-candy-machine-module/src/models", "../js-plugin-storage-module/src/index.ts"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",

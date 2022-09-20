@@ -2,8 +2,8 @@ import type { Metaplex } from '../../Metaplex';
 
 // Low-level modules.:
 import { identityModule } from '../identityModule';
-import { storageModule } from '../storageModule';
-import { rpcModule } from '../rpcModule';
+import { storageModule } from '@metaplex-foundation/js-plugin-storage-module';
+import { rpcModule } from '../../../../js-plugin-rpc-module/src';
 import { operationModule } from '../operationModule';
 import { programModule } from '../programModule';
 import { utilsModule } from '../utilsModule';
@@ -14,10 +14,10 @@ import { bundlrStorage } from '../bundlrStorage';
 
 // Verticals.
 import { systemModule } from '../systemModule';
-import { tokenModule } from '../tokenModule';
-import { nftModule } from '../nftModule';
-import { candyMachineModule } from '../candyMachineModule';
-import { auctionHouseModule } from '../auctionHouseModule';
+import { tokenModule } from '@metaplex-foundation/js-plugin-token-module';
+import { nftModule } from '@metaplex-foundation/js-plugin-nft-module';
+import { candyMachineModule } from '@metaplex-foundation/js-plugin-candy-machine-module';
+import { auctionHouseModule } from '@metaplex-foundation/js-plugin-auction-house-module';
 
 export const corePlugins = () => ({
   install(metaplex: Metaplex) {

@@ -6,8 +6,8 @@ import {
   transferSolOperationHandler,
 } from './operations';
 import { SystemClient } from './SystemClient';
-import type { MetaplexPlugin } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { MetaplexPlugin } from '@metaplex-foundation/js';
+import type { Metaplex } from '@metaplex-foundation/js';
 
 /**
  * @group Plugins
@@ -32,7 +32,7 @@ export const systemModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js/Metaplex' {
   interface Metaplex {
     system(): SystemClient;
   }

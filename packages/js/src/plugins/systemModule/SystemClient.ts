@@ -5,7 +5,7 @@ import {
   transferSolOperation,
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js';
 
 /**
  * This is a client for the System module.

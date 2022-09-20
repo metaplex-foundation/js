@@ -1,6 +1,9 @@
 import test, { Test } from 'tape';
-import { metaplex, killStuckProcess } from '../../helpers';
-import { addAmounts, lamports, multiplyAmount } from '@/types';
+import {
+  metaplex,
+  killStuckProcess,
+} from '@metaplex-foundation/js/../test/helpers';
+import { addAmounts, lamports, multiplyAmount } from '@metaplex-foundation/js';
 
 killStuckProcess();
 

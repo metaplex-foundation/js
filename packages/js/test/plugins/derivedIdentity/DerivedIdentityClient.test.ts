@@ -1,6 +1,10 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { amman, killStuckProcess, metaplex } from '../../helpers';
+import {
+  amman,
+  killStuckProcess,
+  metaplex,
+} from '@metaplex-foundation/js/../test/helpers';
 import {
   Metaplex,
   derivedIdentity,
@@ -10,7 +14,7 @@ import {
   isEqualToAmount,
   isLessThanAmount,
   isGreaterThanAmount,
-} from '@/index';
+} from '@metaplex-foundation/js/index';
 
 killStuckProcess();
 
