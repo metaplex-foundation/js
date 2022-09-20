@@ -34,7 +34,6 @@ export const deserializeCandyMachineHiddenSection = (
   offset += configLinesSize;
 
   // Items loaded map.
-  offset += 4; // Skip the redundant size of the map.
   const [itemsLoadedMap] = deserializeFeatureFlags(
     buffer,
     itemsAvailable,
@@ -45,7 +44,6 @@ export const deserializeCandyMachineHiddenSection = (
   offset += itemsLoadedMapSize;
 
   // Items left to mint.
-  offset += 4; // Skip the redundant size of the map.
   const itemsLeftToMint = beet
     .uniformFixedSizeArray(beet.u32, itemsAvailable)
     .read(buffer, offset)
