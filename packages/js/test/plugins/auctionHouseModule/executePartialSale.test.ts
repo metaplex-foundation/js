@@ -121,7 +121,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
   await assertThrows(
     t,
     promise,
-    /The calculated partial price does not equal the partial price provided./
+    /The calculated partial price does not equal the partial price provided/
   );
 });
 
@@ -197,7 +197,7 @@ test('[auctionHouseModule] it throws when executing partial sale when no supply 
   await assertThrows(
     t,
     promise,
-    /Amount of tokens available for purchase is less than the partial order amount./
+    /Amount of tokens available for purchase is less than the partial order amount/
   );
 });
 
@@ -256,6 +256,6 @@ test('[auctionHouseModule] it throws when executing partial sale in Auctioneer',
   await assertThrows(
     t,
     promise,
-    /You are trying to execute a partial sale, but partial orders are not supported in Auctioneer./
+    /You are trying to execute a partial sale, but partial orders are not supported in Auctioneer/
   );
 });
