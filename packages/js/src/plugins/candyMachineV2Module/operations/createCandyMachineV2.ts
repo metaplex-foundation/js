@@ -26,7 +26,6 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  TokenMetadataProgram,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -38,6 +37,7 @@ import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // -----------------
 // Operation
@@ -358,7 +358,7 @@ export const createCandyMachineV2Builder = async (
             mint: collectionMint,
             edition,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+            tokenMetadataProgram: TOKEN_PROGRAM_ID,
           }),
           signers: [authority],
           key: params.setCollectionInstructionKey ?? 'setCollection',

@@ -13,6 +13,10 @@ import {
   createSetCollectionDuringMintInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
+import {
   ConfirmOptions,
   Keypair,
   PublicKey,
@@ -25,7 +29,6 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
   NftWithToken,
-  TokenMetadataProgram,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
@@ -307,9 +310,8 @@ export const mintCandyMachineV2Builder = async (
     newMint = Keypair.generate(),
     newOwner = metaplex.identity().publicKey,
     newToken,
-    tokenProgram,
-    associatedTokenProgram,
-    tokenMetadataProgram = TokenMetadataProgram.publicKey,
+    associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
+    tokenMetadataProgram = TOKEN_PROGRAM_ID,
     candyMachineProgram = CandyMachineV2Program.publicKey,
   } = params;
 
@@ -342,8 +344,6 @@ export const mintCandyMachineV2Builder = async (
       owner: newOwner,
       token: newToken,
       payer,
-      tokenProgram,
-      associatedTokenProgram,
       createMintAccountInstructionKey: params.createMintAccountInstructionKey,
       initializeMintInstructionKey: params.initializeMintInstructionKey,
       createAssociatedTokenAccountInstructionKey:
