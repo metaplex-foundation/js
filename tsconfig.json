@@ -1,5 +1,5 @@
 {
-  "include": ["packages/*/src"],
+  "include": ["packages/*/src", "packages/types/Account.ts"],
   "exclude": ["node_modules", "packages/*/node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
@@ -9,6 +9,7 @@
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
     "paths": {
+      
       "@/*": ["packages/js/src/*"],
       "@metaplex-foundation/js": ["packages/js/src"],
       "@metaplex-foundation/js/*": ["packages/js/src/*"],
@@ -25,7 +26,7 @@
       "@metaplex-foundation/js-plugin-candy-machine-module": ["packages/js-plugin-candy-machine-module/src"],
       "@metaplex-foundation/js-plugin-candy-machine-module/*": ["packages/js-plugin-candy-machine-module/src/*"],
       "@metaplex-foundation/js-plugin-auction-house-module": ["packages/js-plugin-auction-house-module/src"],
-      "@metaplex-foundation/js-plugin-auction-house-module/*": ["packages/js-plugin-auction-house-module/src/*"],
+      "@metaplex-foundation/js-plugin-auction-house-module/*": ["packages/js-plugin-auction-house-module/src/*"]
     },
 
     "target": "es2019",

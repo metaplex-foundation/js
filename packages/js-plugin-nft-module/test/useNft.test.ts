@@ -10,7 +10,8 @@ import {
   assertThrows,
   createSft,
 } from '@metaplex-foundation/js/../test/helpers';
-import { Nft, Sft, token } from '@metaplex-foundation/js/index';
+import { Nft, Sft } from '@metaplex-foundation/js-plugin-nft-module';
+import { tokenModule } from '@metaplex-foundation/js-plugin-token-module';
 
 killStuckProcess();
 
@@ -46,7 +47,7 @@ test('[nftModule] it can use an SFT', async (t: Test) => {
   const mx = await metaplex();
   const sft = await createSft(mx, {
     tokenOwner: mx.identity().publicKey,
-    tokenAmount: token(10),
+    tokenAmount: tokenModule(10),
     uses: {
       useMethod: UseMethod.Multiple,
       remaining: 10,

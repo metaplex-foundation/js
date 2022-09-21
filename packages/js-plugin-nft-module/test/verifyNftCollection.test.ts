@@ -9,7 +9,7 @@ import {
   spokSamePubkey,
 } from '@metaplex-foundation/js/../test/helpers';
 import { assertRefreshedCollectionHasSize } from './helpers';
-import { Nft } from '@metaplex-foundation/js/index';
+import { Nft } from '@metaplex-foundation/js-plugin-nft-module';
 
 killStuckProcess();
 

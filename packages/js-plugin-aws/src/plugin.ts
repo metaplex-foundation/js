@@ -1,5 +1,7 @@
 import type { S3Client } from '@aws-sdk/client-s3';
-import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js';
+import type { MetaplexPlugin } from '@/types';
+import type { Metaplex } from '@/index';
+
 import { AwsStorageDriver } from './AwsStorageDriver';
 
 export const awsStorage = (

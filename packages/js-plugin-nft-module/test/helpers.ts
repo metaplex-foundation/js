@@ -1,5 +1,6 @@
 import { Test } from 'tape';
-import { Metaplex, Nft } from '@metaplex-foundation/js/index';
+import { Metaplex } from '@metaplex-foundation/js/index';
+import { Nft } from '@metaplex-foundation/js-plugin-nft-module';
 
 export const assertCollectionHasSize = (
   t: Test,

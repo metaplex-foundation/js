@@ -8,8 +8,9 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '@metaplex-foundation/js/../test/helpers';
-import { Nft, toBigNumber } from '@metaplex-foundation/js/index';
+import { Nft } from '@metaplex-foundation/js-plugin-nft-module';
 import { assertNftOriginalEdition } from '@metaplex-foundation/js/plugins';
+import { toBigNumber } from '@/types';
 
 killStuckProcess();
 

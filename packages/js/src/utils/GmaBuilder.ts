@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { chunk } from './common';
 import { Metaplex } from '@metaplex-foundation/js/Metaplex';
-import { UnparsedMaybeAccount } from '@metaplex-foundation/js';
+import { UnparsedMaybeAccount } from '@/types/Account';
 
 export type GmaBuilderOptions = {
   chunkSize?: number;

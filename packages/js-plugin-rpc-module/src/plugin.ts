@@ -1,5 +1,5 @@
 import { RpcClient } from './RpcClient';
-import type { Metaplex } from '@metaplex-foundation/js';
+import type { Metaplex } from '@metaplex-foundation/js/Metaplex';
 
 import { MetaplexPlugin } from '@metaplex-foundation/js';
 

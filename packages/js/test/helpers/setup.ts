@@ -6,11 +6,13 @@ import {
   guestIdentity,
   keypairIdentity,
   mockStorage,
+  KeypairSigner,
+} from '@metaplex-foundation/js/index';
+import {
   UploadMetadataInput,
   CreateNftInput,
-  KeypairSigner,
   CreateSftInput,
-} from '@metaplex-foundation/js/index';
+} from '@metaplex-foundation/js-plugin-nft-module';
 
 export type MetaplexTestOptions = {
   rpcEndpoint?: string;

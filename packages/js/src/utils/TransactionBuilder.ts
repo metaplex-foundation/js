@@ -6,9 +6,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '..';
 import type { Signer } from '@metaplex-foundation/js';
 import type { Metaplex } from '@metaplex-foundation/js';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-plugin-rpc-module';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;

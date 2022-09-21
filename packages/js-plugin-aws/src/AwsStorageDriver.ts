@@ -1,10 +1,9 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Amount, lamports } from '@metaplex-foundation/js/types/Amount';
 import {
   MetaplexFile,
   StorageDriver,
-  lamports,
-  Amount,
-} from '@metaplex-foundation/js';
+} from '@metaplex-foundation/js-plugin-storage-module';
 
 export class AwsStorageDriver implements StorageDriver {
   protected client: S3Client;

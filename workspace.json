@@ -10,7 +10,7 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js"
+            "cwd": "js"
           }
         },
         "build": {
@@ -77,13 +77,14 @@
     },
     "packages/js-plugin-auction-house-module": {
       "root": "packages/js-plugin-auction-house-module",
+      "projectType": "library",
       "sourceRoot": "packages/js-plugin-auction-house-module/src",
       "targets": {
         "prebuild": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-auction-house-module"
+            "cwd": "js-plugin-auction-house-module"
           }
         },
         "build": {
@@ -117,7 +118,8 @@
         "publish": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-auction-house-module {args.ver} {args.tag}"
+            "command": "node ./scripts/publish.mjs packages/js-plugin-auction-house-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
           },
           "dependsOn": [
             {
@@ -157,13 +159,14 @@
     },
     "packages/js-plugin-aws": {
       "root": "packages/js-plugin-aws",
+      "projectType": "library",
       "sourceRoot": "packages/js-plugin-aws/src",
       "targets": {
         "prebuild": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-aws"
+            "cwd": "js-plugin-aws"
           }
         },
         "build": {
@@ -197,7 +200,8 @@
         "publish": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-aws {args.ver} {args.tag}"
+            "command": "node ./scripts/publish.mjs packages/js-plugin-aws {args.ver} {args.tag}",
+            "forwardAllArgs": true
           },
           "dependsOn": [
             {
@@ -233,6 +237,168 @@
       },
       "tags": []
     },
+    "packages/js-plugin-candy-machine-module": {
+      "root": "packages/js-plugin-candy-machine-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-candy-machine-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "js-plugin-candy-machine-module"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-candy-machine-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-candy-machine-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-candy-machine-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": [
+              "packages/js-plugin-candy-machine-module/**/*.ts"
+            ],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-candy-machine-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-candy-machine-module test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-nft-module": {
+      "root": "packages/js-plugin-nft-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-nft-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "js-plugin-nft-module"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-nft-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-nft-module/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-nft-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-module test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
     "packages/js-plugin-nft-storage": {
       "root": "packages/js-plugin-nft-storage",
       "projectType": "library",
@@ -242,20 +408,8 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-nft-storage"
+            "cwd": "js-plugin-nft-storage"
           }
-        },
-        "publish": {
-          "executor": "@nrwl/workspace:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-nft-storage {args.ver} {args.tag}"
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
         },
         "build": {
           "executor": "@nrwl/workspace:run-commands",
@@ -285,6 +439,19 @@
             "parallel": false
           }
         },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-nft-storage {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "outputs": ["{options.outputFile}"],
@@ -298,8 +465,247 @@
           "options": {
             "dir": "./dist/packages/js-plugin-nft-storage",
             "commands": [
-              "rm -rf ./dist/packages/js-plugin-nft-storage",
               "yarn workspace @metaplex-foundation/js-plugin-nft-storage test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-rpc-module": {
+      "root": "packages/js-plugin-rpc-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-rpc-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "js-plugin-rpc-module"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-rpc-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-rpc-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-rpc-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-rpc-module/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-rpc-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-rpc-module test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-storage-module": {
+      "root": "packages/js-plugin-storage-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-storage-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "js-plugin-storage-module"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-storage-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-storage-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-storage-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-storage-module/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-storage-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-storage-module test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-token-module": {
+      "root": "packages/js-plugin-token-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-token-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "js-plugin-token-module"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-token-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-token-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-token-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-token-module/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-token-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-token-module test"
             ],
             "parallel": false
           },
