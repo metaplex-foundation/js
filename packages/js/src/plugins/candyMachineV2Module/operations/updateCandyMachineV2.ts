@@ -9,13 +9,13 @@ import {
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  TokenMetadataProgram,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -346,7 +346,7 @@ export const updateCandyMachineV2Builder = (
             mint: collectionMint,
             edition,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+            tokenMetadataProgram: TOKEN_PROGRAM_ID,
           }),
           signers: [payer, authority],
           key: params.setCollectionInstructionKey ?? 'setCollection',
@@ -373,7 +373,7 @@ export const updateCandyMachineV2Builder = (
             metadata,
             mint: collectionMint,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
+            tokenMetadataProgram: TOKEN_PROGRAM_ID,
           }),
           signers: [authority],
           key: params.removeCollectionInstructionKey ?? 'removeCollection',
