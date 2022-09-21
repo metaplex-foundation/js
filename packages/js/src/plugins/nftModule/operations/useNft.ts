@@ -13,7 +13,6 @@ import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import {
   findMetadataPda,
   findProgramAsBurnerPda,
@@ -156,7 +155,7 @@ export const useNftBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   if (!isSigner(owner) && !useAuthority) {
@@ -170,7 +169,15 @@ export const useNftBuilder = (
   const metadata = findMetadataPda(mintAddress);
   const tokenAccount =
     params.ownerTokenAccount ??
-    findAssociatedTokenAccountPda(mintAddress, toPublicKey(owner));
+    metaplex
+      .tokens()
+      .pdas()
+      .associatedTokenAccount({
+        mint: mintAddress,
+        owner: toPublicKey(owner),
+        programs,
+      });
+
   const useAuthorityRecord = useAuthority
     ? findUseAuthorityRecordPda(mintAddress, useAuthority.publicKey)
     : undefined;
@@ -193,7 +200,8 @@ export const useNftBuilder = (
             useAuthorityRecord,
             burner: useAuthorityRecord ? programAsBurner : undefined,
           },
-          { utilizeArgs: { numberOfUses } }
+          { utilizeArgs: { numberOfUses } },
+          tokenMetadataProgram.address
         ),
         signers: [owner, useAuthority].filter(isSigner),
         key: params.instructionKey ?? 'utilizeNft',

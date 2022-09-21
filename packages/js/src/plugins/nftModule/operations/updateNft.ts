@@ -262,7 +262,7 @@ export const updateNftBuilder = (
 ): TransactionBuilder => {
   const { nftOrSft, updateAuthority = metaplex.identity(), programs } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const updateInstructionDataWithoutChanges = toInstructionData(nftOrSft);
@@ -297,6 +297,7 @@ export const updateNftBuilder = (
       return metaplex.nfts().builders().verifyCreator({
         mintAddress: nftOrSft.address,
         creator: creator.authority,
+        programs,
       });
     });
 
@@ -315,6 +316,7 @@ export const updateNftBuilder = (
               collectionMintAddress: nftOrSft.collection?.address as PublicKey,
               collectionAuthority: updateAuthority,
               isSizedCollection: params.oldCollectionIsSized ?? true,
+              programs,
             })
         )
       )
@@ -327,9 +329,8 @@ export const updateNftBuilder = (
               metadata: findMetadataPda(nftOrSft.address),
               updateAuthority: updateAuthority.publicKey,
             },
-            {
-              updateMetadataAccountArgsV2: updateInstructionData,
-            }
+            { updateMetadataAccountArgsV2: updateInstructionData },
+            tokenMetadataProgram.address
           ),
           signers: [updateAuthority],
           key: params.updateMetadataInstructionKey ?? 'updateMetadata',
@@ -351,6 +352,7 @@ export const updateNftBuilder = (
               collectionAuthority: params.collectionAuthority as Signer,
               isDelegated: params.collectionAuthorityIsDelegated ?? false,
               isSizedCollection: params.collectionIsSized ?? true,
+              programs,
             })
         )
       )

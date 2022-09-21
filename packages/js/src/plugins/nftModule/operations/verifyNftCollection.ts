@@ -170,7 +170,7 @@ export const verifyNftCollectionBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
@@ -185,8 +185,11 @@ export const verifyNftCollectionBuilder = (
   };
 
   const instruction = isSizedCollection
-    ? createVerifySizedCollectionItemInstruction(accounts)
-    : createVerifyCollectionInstruction(accounts);
+    ? createVerifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createVerifyCollectionInstruction(accounts, tokenMetadataProgram.address);
 
   if (isDelegated) {
     instruction.keys.push({
@@ -205,7 +208,7 @@ export const verifyNftCollectionBuilder = (
 
       // Verify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'verifyCollection',
       })
