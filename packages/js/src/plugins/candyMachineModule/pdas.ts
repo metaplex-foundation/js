@@ -1,12 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { Pda } from '@/types';
-import { CandyMachineProgram, DefaultCandyGuardProgram } from './programs';
+import { candyMachineProgram, defaultCandyGuardProgram } from './programs';
 
 /** @group Pdas */
 export const findCandyMachineAuthorityPda = (
   candyMachineAddress: PublicKey,
-  programId: PublicKey = CandyMachineProgram.address
+  programId: PublicKey = candyMachineProgram.address
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('candy_machine', 'utf8'),
@@ -17,7 +17,7 @@ export const findCandyMachineAuthorityPda = (
 /** @group Pdas */
 export const findCandyGuardPda = (
   baseAddress: PublicKey,
-  programId: PublicKey = DefaultCandyGuardProgram.address
+  programId: PublicKey = defaultCandyGuardProgram.address
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('candy_guard', 'utf8'),

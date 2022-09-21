@@ -40,7 +40,7 @@ import {
   wrapCandyGuardOperation,
   wrapCandyGuardOperationHandler,
 } from './operations';
-import { CandyMachineProgram, DefaultCandyGuardProgram } from './programs';
+import { candyMachineProgram, defaultCandyGuardProgram } from './programs';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
@@ -50,8 +50,8 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     metaplex.candyMachines = () => client;
 
     // Program.
-    metaplex.programs().register(CandyMachineProgram);
-    metaplex.programs().register(DefaultCandyGuardProgram);
+    metaplex.programs().register(candyMachineProgram);
+    metaplex.programs().register(defaultCandyGuardProgram);
 
     // Default Guards.
     client.guards().register(botTaxGuardManifest);

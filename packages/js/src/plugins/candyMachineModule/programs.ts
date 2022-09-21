@@ -11,7 +11,7 @@ import {
 import { defaultCandyGuardNames } from './guards';
 
 /** @group Programs */
-export const CandyMachineProgram: Program = {
+export const candyMachineProgram: Program = {
   name: 'CandyMachineProgram',
   address: CANDY_MACHINE_PROGRAM_ID,
   errorResolver: (error: ErrorWithLogs) =>
@@ -33,7 +33,7 @@ export function assertCandyGuardProgram(
 }
 
 /** @group Programs */
-export const DefaultCandyGuardProgram: CandyGuardProgram = {
+export const defaultCandyGuardProgram: CandyGuardProgram = {
   name: 'CandyGuardProgram',
   address: DEFAULT_CANDY_GUARD_PROGRAM_ID,
   errorResolver: (error: ErrorWithLogs) =>

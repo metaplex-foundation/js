@@ -1,7 +1,7 @@
 import {
   CandyMachine,
-  CandyMachineProgram,
-  DefaultCandyGuardProgram,
+  candyMachineProgram,
+  defaultCandyGuardProgram,
   emptyDefaultCandyGuardSettings,
   findCandyGuardPda,
   sol,
@@ -49,7 +49,7 @@ test('[candyMachineModule] create candy machine with minimum configuration', asy
     $topic: 'Candy Machine',
     model: 'candyMachine',
     accountInfo: {
-      owner: spokSamePubkey(CandyMachineProgram.address),
+      owner: spokSamePubkey(candyMachineProgram.address),
     },
     address: spokSamePubkey(candyMachineSigner.publicKey),
     authorityAddress: spokSamePubkey(mx.identity().publicKey),
@@ -82,7 +82,7 @@ test('[candyMachineModule] create candy machine with minimum configuration', asy
     candyGuard: {
       model: 'candyGuard',
       accountInfo: {
-        owner: spokSamePubkey(DefaultCandyGuardProgram.address),
+        owner: spokSamePubkey(defaultCandyGuardProgram.address),
       },
       address: spokSamePubkey(candyGuardAddress),
       baseAddress: spokSamePubkey(candyMachineSigner.publicKey),
