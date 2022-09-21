@@ -1,6 +1,7 @@
 export * from './CandyMachineBuildersClient';
 export * from './CandyMachineClient';
 export * from './CandyMachineGuardsClient';
+export * from './CandyMachinePdasClient';
 export * from './errors';
 export * from './guards';
 export * from './models';

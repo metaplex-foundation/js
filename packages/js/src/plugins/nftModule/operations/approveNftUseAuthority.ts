@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createApproveUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
@@ -87,8 +93,8 @@ export type ApproveNftUseAuthorityInput = {
    */
   numberOfUses?: number;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The address of the SPL System program to override if necessary. */
   systemProgram?: PublicKey;

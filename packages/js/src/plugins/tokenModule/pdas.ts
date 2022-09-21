@@ -1,13 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
 import { Pda } from '@/types';
-import { TokenProgram } from './program';
-import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
 
 /** @group Pdas */
 export const findAssociatedTokenAccountPda = (
   mint: PublicKey,
   owner: PublicKey,
-  tokenProgramId: PublicKey = TokenProgram.publicKey,
+  tokenProgramId: PublicKey = TOKEN_PROGRAM_ID,
   associatedTokenProgramId: PublicKey = ASSOCIATED_TOKEN_PROGRAM_ID
 ): Pda => {
   return Pda.find(associatedTokenProgramId, [

@@ -1,5 +1,11 @@
 import type { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
@@ -79,8 +85,8 @@ export type CreateMintInput = {
    */
   freezeAuthority?: Option<PublicKey>;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

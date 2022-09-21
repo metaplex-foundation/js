@@ -4,6 +4,7 @@ import {
   isSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   toPublicKey,
   useOperation,
@@ -85,8 +86,8 @@ export type CreateTokenInput = {
    */
   payer?: Signer;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The address of the SPL Associated Token program to override if necessary. */
   associatedTokenProgram?: PublicKey;
@@ -186,8 +187,7 @@ export const createTokenBuilder = async (
     owner = metaplex.identity().publicKey,
     token,
     payer = metaplex.identity(),
-    tokenProgram = TokenProgram.publicKey,
-    associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
+    programs,
   } = params;
 
   const isAssociatedToken = token === undefined;

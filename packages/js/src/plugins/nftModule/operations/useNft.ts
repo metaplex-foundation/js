@@ -4,6 +4,7 @@ import {
   isSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   toPublicKey,
   useOperation,
@@ -84,6 +85,9 @@ export type UseNftInput = {
    * and using the `owner` parameter as a Signer instead.
    */
   useAuthority?: Signer;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

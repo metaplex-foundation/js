@@ -60,7 +60,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       this: ProgramClient,
       programs?: Program[]
     ) {
-      return this.get('CandyMachineProgram', programs);
+      return this.get(candyMachineProgram.name, programs);
     };
 
     // Candy Guard Program.
@@ -69,7 +69,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       this: ProgramClient,
       programs?: Program[]
     ): T {
-      return this.get('CandyGuardProgram', programs);
+      return this.get(defaultCandyGuardProgram.name, programs);
     };
 
     // Default Guards.

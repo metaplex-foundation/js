@@ -1,17 +1,17 @@
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { MintGpaBuilder, TokenGpaBuilder } from './gpaBuilders';
-import { Metaplex } from '@/Metaplex';
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
+import { Program } from '@/types';
 
 /** @group Programs */
-export const TokenProgram = {
+export const tokenProgram: Program = {
   name: 'TokenProgram',
-  publicKey: TOKEN_PROGRAM_ID,
+  address: TOKEN_PROGRAM_ID,
+};
 
-  mintAccounts(metaplex: Metaplex) {
-    return new MintGpaBuilder(metaplex, this.publicKey);
-  },
-
-  tokenAccounts(metaplex: Metaplex) {
-    return new TokenGpaBuilder(metaplex, this.publicKey);
-  },
+/** @group Programs */
+export const associatedTokenProgram: Program = {
+  name: 'AssociatedTokenProgram',
+  address: ASSOCIATED_TOKEN_PROGRAM_ID,
 };

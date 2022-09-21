@@ -4,6 +4,7 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   useOperation,
 } from '@/types';
@@ -80,8 +81,8 @@ export type FreezeTokensInput = {
    */
   multiSigners?: KeypairSigner[];
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;

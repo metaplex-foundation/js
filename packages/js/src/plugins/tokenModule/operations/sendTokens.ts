@@ -4,6 +4,7 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   SplTokenAmount,
   toPublicKey,
@@ -128,11 +129,8 @@ export type SendTokensInput = {
    */
   payer?: Signer;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
