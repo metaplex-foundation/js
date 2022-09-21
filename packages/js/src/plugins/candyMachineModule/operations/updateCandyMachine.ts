@@ -384,7 +384,7 @@ export const updateCandyMachineBuilder = <
       .setFeePayer(payer)
 
       // Update Candy Machine data.
-      .add(updateCandyMachineDataBuilder<T>(params, authority))
+      .add(updateCandyMachineDataBuilder<T>(metaplex, params, authority))
 
       // Update Candy Machine collection.
       .add(
@@ -407,16 +407,19 @@ export const updateCandyMachineBuilder = <
       )
 
       // Update Candy Machine mint authority.
-      .add(updateCandyMachineMintAuthorityBuilder<T>(params, authority))
+      .add(
+        updateCandyMachineMintAuthorityBuilder<T>(metaplex, params, authority)
+      )
 
       // Update Candy Machine authority.
-      .add(updateCandyMachineAuthorityBuilder<T>(params, authority))
+      .add(updateCandyMachineAuthorityBuilder<T>(metaplex, params, authority))
   );
 };
 
 const updateCandyMachineDataBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
+  metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
@@ -429,6 +432,10 @@ const updateCandyMachineDataBuilder = <
     creators: params.creators,
     itemSettings: params.itemSettings,
   });
+
+  const candyMachineProgram = metaplex
+    .programs()
+    .getCandyMachine(params.programs);
 
   let data: CandyMachineData;
   if (Object.keys(dataToUpdate).length === 0) {
@@ -458,7 +465,8 @@ const updateCandyMachineDataBuilder = <
         candyMachine: toPublicKey(params.candyMachine),
         authority: authority.publicKey,
       },
-      { data }
+      { data },
+      candyMachineProgram.address
     ),
     signers: [authority],
     key: params.updateDataInstructionKey ?? 'updateCandyMachineData',
@@ -496,29 +504,33 @@ const updateCandyMachineCollectionBuilder = <
   const collectionAddress = params.collection.address;
   const collectionUpdateAuthority = params.collection.updateAuthority;
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
   return TransactionBuilder.make().add({
-    instruction: createSetCollectionInstruction({
-      candyMachine: candyMachineAddress,
-      authority: authority.publicKey,
-      authorityPda,
-      payer: payer.publicKey,
-      collectionMint: currentCollectionAddress,
-      collectionMetadata: findMetadataPda(currentCollectionAddress),
-      collectionAuthorityRecord: findCollectionAuthorityRecordPda(
-        currentCollectionAddress,
-        authorityPda
-      ),
-      newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
-      newCollectionMetadata: findMetadataPda(collectionAddress),
-      newCollectionMint: collectionAddress,
-      newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
-      newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
-        collectionAddress,
-        authorityPda
-      ),
-      tokenMetadataProgram: tokenMetadataProgram.address,
-    }),
+    instruction: createSetCollectionInstruction(
+      {
+        candyMachine: candyMachineAddress,
+        authority: authority.publicKey,
+        authorityPda,
+        payer: payer.publicKey,
+        collectionMint: currentCollectionAddress,
+        collectionMetadata: findMetadataPda(currentCollectionAddress),
+        collectionAuthorityRecord: findCollectionAuthorityRecordPda(
+          currentCollectionAddress,
+          authorityPda
+        ),
+        newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
+        newCollectionMetadata: findMetadataPda(collectionAddress),
+        newCollectionMint: collectionAddress,
+        newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
+        newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
+          collectionAddress,
+          authorityPda
+        ),
+        tokenMetadataProgram: tokenMetadataProgram.address,
+      },
+      candyMachineProgram.address
+    ),
     signers: [authority, payer, collectionUpdateAuthority],
     key: params.setCollectionInstructionKey ?? 'setCandyMachineCollection',
   });
@@ -589,6 +601,7 @@ const updateCandyGuardsBuilder = <
 const updateCandyMachineMintAuthorityBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
+  metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
@@ -596,12 +609,19 @@ const updateCandyMachineMintAuthorityBuilder = <
     return TransactionBuilder.make();
   }
 
+  const candyMachineProgram = metaplex
+    .programs()
+    .getCandyMachine(params.programs);
+
   return TransactionBuilder.make().add({
-    instruction: createSetMintAuthorityInstruction({
-      candyMachine: toPublicKey(params.candyMachine),
-      authority: authority.publicKey,
-      mintAuthority: params.newMintAuthority.publicKey,
-    }),
+    instruction: createSetMintAuthorityInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+        mintAuthority: params.newMintAuthority.publicKey,
+      },
+      candyMachineProgram.address
+    ),
     signers: [authority, params.newMintAuthority],
     key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
   });
@@ -610,6 +630,7 @@ const updateCandyMachineMintAuthorityBuilder = <
 const updateCandyMachineAuthorityBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
+  metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer
 ): TransactionBuilder => {
@@ -617,13 +638,18 @@ const updateCandyMachineAuthorityBuilder = <
     return TransactionBuilder.make();
   }
 
+  const candyMachineProgram = metaplex
+    .programs()
+    .getCandyMachine(params.programs);
+
   return TransactionBuilder.make().add({
     instruction: createSetAuthorityInstruction(
       {
         candyMachine: toPublicKey(params.candyMachine),
         authority: authority.publicKey,
       },
-      { newAuthority: params.newAuthority }
+      { newAuthority: params.newAuthority },
+      candyMachineProgram.address
     ),
     signers: [authority],
     key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',

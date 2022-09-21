@@ -161,6 +161,7 @@ export const unwrapCandyGuardBuilder = (
     programs,
   } = params;
 
+  // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
 

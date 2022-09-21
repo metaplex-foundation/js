@@ -2,7 +2,6 @@ import type { Metaplex } from '@/Metaplex';
 import { ErrorWithLogs, MetaplexPlugin, Program } from '@/types';
 import { cusper, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { ProgramClient } from '../programModule';
-import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { NftClient } from './NftClient';
 import {
   approveNftCollectionAuthorityOperation,

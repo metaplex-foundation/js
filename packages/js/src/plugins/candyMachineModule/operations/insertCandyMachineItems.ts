@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import type { ConfirmOptions } from '@solana/web3.js';
@@ -106,6 +112,9 @@ export type InsertCandyMachineItemsInput = {
    */
   index?: number;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -171,6 +180,7 @@ export const insertCandyMachineItemsBuilder = (
   metaplex: Metaplex,
   params: InsertCandyMachineItemsBuilderParams
 ): TransactionBuilder => {
+  const programs = params.programs;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const items = params.items;
@@ -179,13 +189,17 @@ export const insertCandyMachineItemsBuilder = (
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllItemConstraints(params.candyMachine, items);
 
+  // Programs.
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
   return TransactionBuilder.make().add({
     instruction: createAddConfigLinesInstruction(
       {
         candyMachine: params.candyMachine.address,
         authority: authority.publicKey,
       },
-      { index, configLines: items }
+      { index, configLines: items },
+      candyMachineProgram.address
     ),
     signers: [authority],
     key: params.instructionKey ?? 'insertItems',

@@ -3,6 +3,7 @@ import {
   assertAccountExists,
   Operation,
   OperationHandler,
+  Program,
   PublicKey,
 } from '@/types';
 import { DisposableScope } from '@/utils';
@@ -57,6 +58,9 @@ export type FindCandyMachineByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
@@ -80,11 +84,11 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindCandyMachineByAddressOutput<T>> {
-      const { address, commitment } = operation.input;
+      const { address, commitment, programs } = operation.input;
       const potentialCandyGuardAddress = metaplex
         .candyMachines()
         .pdas()
-        .candyGuard({ base: address });
+        .candyGuard({ base: address, programs });
       const [candyMachineAccount, potentialCandyGuardAccount] = await metaplex
         .rpc()
         .getMultipleAccounts([address, potentialCandyGuardAddress], commitment);

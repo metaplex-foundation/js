@@ -498,7 +498,8 @@ export const createCandyMachineBuilder = async <
           collectionAuthorityRecord,
           tokenMetadataProgram: tokenMetadataProgram.address,
         },
-        { data: candyMachineData }
+        { data: candyMachineData },
+        candyMachineProgram.address
       ),
       signers: [payer, candyMachine, collection.updateAuthority],
       key:

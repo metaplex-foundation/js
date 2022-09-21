@@ -246,11 +246,11 @@ export const mintFromCandyMachineBuilder = async (
     programs,
   } = params;
 
-  // TODO: Ensure these programs are registered.
-  const tokenProgram = metaplex.programs().get('TokenProgram', programs);
+  // Programs.
+  const tokenProgram = metaplex.programs().getToken(programs);
   const associatedTokenProgram = metaplex
     .programs()
-    .get('AssociatedTokenProgram', programs);
+    .getAssociatedToken(programs);
 
   const tokenWithMintBuilder = await metaplex
     .tokens()
@@ -264,8 +264,7 @@ export const mintFromCandyMachineBuilder = async (
       owner,
       token,
       payer,
-      tokenProgram: tokenProgram.address,
-      associatedTokenProgram: associatedTokenProgram.address,
+      programs,
       createMintAccountInstructionKey: params.createMintAccountInstructionKey,
       initializeMintInstructionKey: params.initializeMintInstructionKey,
       createAssociatedTokenAccountInstructionKey:
