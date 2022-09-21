@@ -227,7 +227,7 @@ export const createCandyGuardBuilder = <
   const candyGuard = metaplex
     .candyMachines()
     .pdas()
-    .candyGuard({ baseAddress: base.publicKey, programs });
+    .candyGuard({ base: base.publicKey, programs });
 
   const initializeInstruction = createInitializeInstruction(
     {
