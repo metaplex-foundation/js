@@ -10,7 +10,7 @@ test('[auctionHouseModule] deposit to buyer account on an Auction House', async 
   // Given we have an Auction House.
   const mx = await metaplex();
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we deposit 1 SOL.
   await mx
@@ -42,7 +42,7 @@ test('[auctionHouseModule] deposit to buyer account on an Auctioneer Auction Hou
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
 
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we deposit 1 SOL.
   await mx
@@ -75,7 +75,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
 
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we deposit without providing auctioneer authority.
   const promise = mx

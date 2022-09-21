@@ -9,8 +9,7 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   // Given we have an Auction House with fee that equals 10% and an NFT.
   const mx = await metaplex();
   const payer = await createWallet(mx);
-
-  const { auctionHouse } = await createAuctionHouse(mx, null, {
+  const auctionHouse = await createAuctionHouse(mx, null, {
     sellerFeeBasisPoints: 1000,
     payer,
   });
