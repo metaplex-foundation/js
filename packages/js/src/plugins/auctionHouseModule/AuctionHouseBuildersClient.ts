@@ -4,6 +4,10 @@ import {
   depositToBuyerAccountBuilder,
   withdrawFromBuyerAccountBuilder,
   WithdrawFromBuyerAccountBuilderParams,
+  DirectSellBuilderParams,
+  directSellBuilder,
+  DirectBuyBuilderParams,
+  directBuyBuilder,
 } from './operations';
 import {
   createAuctionHouseBuilder,
@@ -41,6 +45,11 @@ export class AuctionHouseBuildersClient {
     return createBidBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc directBuyBuilder} */
+  buy(input: DirectBuyBuilderParams) {
+    return directBuyBuilder(this.metaplex, input);
+  }
+
   /** {@inheritDoc createAuctionHouseBuilder} */
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
     return createAuctionHouseBuilder(this.metaplex, input);
@@ -59,6 +68,11 @@ export class AuctionHouseBuildersClient {
   /** {@inheritDoc createListingBuilder} */
   list(input: CreateListingBuilderParams) {
     return createListingBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc directSellBuilder} */
+  sell(input: DirectSellBuilderParams) {
+    return directSellBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc updateAuctionHouseBuilder} */
