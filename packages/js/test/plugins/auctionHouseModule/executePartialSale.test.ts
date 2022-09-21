@@ -178,70 +178,70 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
 });
 
 test('[auctionHouseModule] it throws when executing partial sale with wrong price on an Auction House', async (t: Test) => {
- // Given we have a Metaplex instance and SFT with 10 Supply.
- const mx = await metaplex();
- const buyer = await createWallet(mx);
- const sft = await createSft(mx);
+  // Given we have a Metaplex instance and SFT with 10 Supply.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+  const sft = await createSft(mx);
 
- await mx
-   .tokens()
-   .mint({
-     mintAddress: sft.address,
-     amount: token(10),
-   })
-   .run();
+  await mx
+    .tokens()
+    .mint({
+      mintAddress: sft.address,
+      amount: token(10),
+    })
+    .run();
 
- // And existing SPL treasury SFT.
- const paymentSft = await createSft(mx);
+  // And existing SPL treasury SFT.
+  const paymentSft = await createSft(mx);
 
- // And airdrop 4 Payment SPL Tokens to buyer.
- await mx
-   .tokens()
-   .mint({
-     mintAddress: paymentSft.mint.address,
-     amount: token(4),
-     toOwner: buyer.publicKey,
-   })
-   .run();
+  // And airdrop 4 Payment SPL Tokens to buyer.
+  await mx
+    .tokens()
+    .mint({
+      mintAddress: paymentSft.mint.address,
+      amount: token(4),
+      toOwner: buyer.publicKey,
+    })
+    .run();
 
- // And we created a new Auction House using that treasury.
- const treasuryMint = paymentSft.mint.address;
- const auctionHouse = await createAuctionHouse(mx, null, {
-   treasuryMint,
- });
+  // And we created a new Auction House using that treasury.
+  const treasuryMint = paymentSft.mint.address;
+  const auctionHouse = await createAuctionHouse(mx, null, {
+    treasuryMint,
+  });
 
- // And we listed that 5 SFTs for 2 Payment Tokens each.
- const { listing } = await mx
-   .auctionHouse()
-   .list({
-     auctionHouse,
-     mintAccount: sft.address,
-     price: token(10),
-     tokens: token(5),
-   })
-   .run();
+  // And we listed that 5 SFTs for 2 Payment Tokens each.
+  const { listing } = await mx
+    .auctionHouse()
+    .list({
+      auctionHouse,
+      mintAccount: sft.address,
+      price: token(10),
+      tokens: token(5),
+    })
+    .run();
 
- // And we created a private bid on 2 SFTs for 2 Payment Tokens only.
- const { bid } = await mx
-   .auctionHouse()
-   .bid({
-     auctionHouse,
-     buyer,
-     mintAccount: sft.address,
-     price: token(2),
-     tokens: token(2),
-   })
-   .run();
+  // And we created a private bid on 2 SFTs for 2 Payment Tokens only.
+  const { bid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: sft.address,
+      price: token(2),
+      tokens: token(2),
+    })
+    .run();
 
   // When we execute a sale with the price that is lower than required.
   const promise = mx
-   .auctionHouse()
-   .executeSale({
-     auctionHouse,
-     listing,
-     bid,
-   })
-   .run();
+    .auctionHouse()
+    .executeSale({
+      auctionHouse,
+      listing,
+      bid,
+    })
+    .run();
 
   // Then we expect an error with expected and provided amounts.
   await assertThrows(
