@@ -10,7 +10,7 @@ import { TransactionBuilder } from '@/utils';
 import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
 
 // -----------------
@@ -150,7 +150,7 @@ export const freezeDelegatedNftBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const editionAddress = findMasterEditionV2Pda(mintAddress);
@@ -158,13 +158,16 @@ export const freezeDelegatedNftBuilder = (
     tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
 
   return TransactionBuilder.make().add({
-    instruction: createFreezeDelegatedAccountInstruction({
-      delegate: delegateAuthority.publicKey,
-      tokenAccount: tokenAddressOrAta,
-      edition: editionAddress,
-      mint: mintAddress,
-      tokenProgram,
-    }),
+    instruction: createFreezeDelegatedAccountInstruction(
+      {
+        delegate: delegateAuthority.publicKey,
+        tokenAccount: tokenAddressOrAta,
+        edition: editionAddress,
+        mint: mintAddress,
+        tokenProgram: tokenProgram.address,
+      },
+      tokenMetadataProgram.address
+    ),
     signers: [delegateAuthority],
     key: params.instructionKey ?? 'freezeDelegatedNft',
   });

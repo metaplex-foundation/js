@@ -157,7 +157,6 @@ export const migrateToSizedCollectionNftBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
@@ -177,7 +176,8 @@ export const migrateToSizedCollectionNftBuilder = (
                 )
               : undefined,
           },
-          { setCollectionSizeArgs: { size } }
+          { setCollectionSizeArgs: { size } },
+          tokenMetadataProgram.address
         ),
         signers: [collectionAuthority],
         key: params.instructionKey ?? 'setCollectionSize',

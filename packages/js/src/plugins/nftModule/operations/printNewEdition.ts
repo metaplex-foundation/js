@@ -278,7 +278,7 @@ export const printNewEditionBuilder = async (
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   // Original NFT.
@@ -315,8 +315,7 @@ export const printNewEditionBuilder = async (
       owner: newOwner,
       token: newTokenAccount,
       payer,
-      tokenProgram,
-      associatedTokenProgram,
+      programs,
       createMintAccountInstructionKey: params.createMintAccountInstructionKey,
       initializeMintInstructionKey: params.initializeMintInstructionKey,
       createAssociatedTokenAccountInstructionKey:
@@ -358,7 +357,8 @@ export const printNewEditionBuilder = async (
             tokenAccountOwner: originalTokenAccountOwner.publicKey,
             tokenAccount: originalTokenAccount,
           },
-          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } },
+          tokenMetadataProgram.address
         ),
         signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
         key: printNewEditionInstructionKey,
