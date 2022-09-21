@@ -161,10 +161,9 @@ export class WithdrawFromBuyerAccountRequiresSignerError extends AuctionHouseErr
 /** @group Errors */
 export class PartialPriceMismatchError extends AuctionHouseError {
   constructor(
-    options: Partial<MetaplexErrorOptions> & {
-      expected: Amount;
-      actual: Amount;
-    }
+    expected: Amount,
+    actual: Amount,
+    options?: MetaplexErrorOptions
   ) {
     super({
       options,
@@ -172,8 +171,8 @@ export class PartialPriceMismatchError extends AuctionHouseError {
       title:
         'The calculated partial price does not equal the partial price provided',
       problem: `Expected to receive ${formatAmount(
-        options.expected
-      )} per token but provided ${formatAmount(options.actual)} per token.`,
+        expected
+      )} per SFT but provided ${formatAmount(actual)} per SFT.`,
       solution:
         'The token price must equal the price it has in the listing. ' +
         'If executing a partial sale, ' +

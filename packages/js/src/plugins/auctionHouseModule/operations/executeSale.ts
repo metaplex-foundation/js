@@ -24,6 +24,7 @@ import {
   SplTokenAmount,
   isSigner,
   now,
+  amount,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
@@ -330,10 +331,14 @@ export const executeSaleBuilder = (
     );
 
     if (!listingPricePerToken.eq(buyerPricePerToken)) {
-      throw new PartialPriceMismatchError({
-        expected: lamports(listingPricePerToken),
-        actual: lamports(buyerPricePerToken),
-      });
+      throw new PartialPriceMismatchError(
+        auctionHouse.isNative
+          ? lamports(listingPricePerToken)
+          : amount(listingPricePerToken, auctionHouse.treasuryMint.currency),
+        auctionHouse.isNative
+          ? lamports(buyerPricePerToken)
+          : amount(buyerPricePerToken, auctionHouse.treasuryMint.currency)
+      );
     }
   }
 

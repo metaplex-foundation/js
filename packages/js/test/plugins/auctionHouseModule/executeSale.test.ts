@@ -472,7 +472,6 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
       auctionHouse,
       listing,
       bid,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 
