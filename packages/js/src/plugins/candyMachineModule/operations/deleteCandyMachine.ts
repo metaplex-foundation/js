@@ -170,9 +170,7 @@ export const deleteCandyMachineBuilder = (
     programs,
   } = params;
 
-  const candyMachineProgram = metaplex
-    .programs()
-    .get('CandyMachineProgram', programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
   const builder = TransactionBuilder.make()
     .setFeePayer(payer)

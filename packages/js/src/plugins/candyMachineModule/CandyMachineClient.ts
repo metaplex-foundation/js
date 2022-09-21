@@ -4,6 +4,7 @@ import { Task } from '@/utils';
 import type { Commitment } from '@solana/web3.js';
 import { CandyMachineBuildersClient } from './CandyMachineBuildersClient';
 import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
+import { CandyMachinePdasClient } from './CandyMachinePdasClient';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
 import { CandyGuard, CandyMachine, isCandyMachine } from './models';
 import {
@@ -32,7 +33,6 @@ import {
   WrapCandyGuardInput,
   wrapCandyGuardOperation,
 } from './operations';
-import { findCandyGuardPda } from './pdas';
 
 /**
  * This is a client for the Candy Machine V3 module.
@@ -101,6 +101,17 @@ export class CandyMachineClient {
     return new CandyMachineBuildersClient(this.metaplex);
   }
 
+  /**
+   * You may use the `pdas()` client to build PDAs related to this module.
+   *
+   * ```ts
+   * const pdasClient = metaplex.candyMachines().pdas();
+   * ```
+   */
+  pdas() {
+    return new CandyMachinePdasClient(this.metaplex);
+  }
+
   /** {@inheritDoc createCandyMachineOperation} */
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: CreateCandyMachineInput<
@@ -165,16 +176,17 @@ export class CandyMachineClient {
    * address used to derived its PDA.
    *
    * ```ts
-   * const candyGuard = await metaplex.candyMachines().findCandyGuardByBaseAddress(base).run();
+   * const candyGuard = await metaplex
+   *   .candyMachines()
+   *   .findCandyGuardByBaseAddress({ address: base })
+   *   .run();
    * ```
    */
   findCandyGuardByBaseAddress<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
   >(input: FindCandyGuardByAddressInput) {
-    return this.findCandyGuardByAddress<T>({
-      ...input,
-      address: findCandyGuardPda(input.address),
-    });
+    const address = this.pdas().candyGuard({ base: input.address });
+    return this.findCandyGuardByAddress<T>({ ...input, address });
   }
 
   /** {@inheritDoc insertCandyMachineItemsOperation} */

@@ -3,7 +3,6 @@ import {
   candyMachineProgram,
   defaultCandyGuardProgram,
   emptyDefaultCandyGuardSettings,
-  findCandyGuardPda,
   sol,
   toBigNumber,
   toDateTime,
@@ -44,7 +43,10 @@ test('[candyMachineModule] create candy machine with minimum configuration', asy
     .run();
 
   // Then the following data was set on the Candy Machine account.
-  const candyGuardAddress = findCandyGuardPda(candyMachineSigner.publicKey);
+  const candyGuardAddress = mx
+    .candyMachines()
+    .pdas()
+    .candyGuard({ base: candyMachineSigner.publicKey });
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
@@ -162,7 +164,10 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
     .run();
 
   // Then the following data was set on the Candy Machine account.
-  const candyGuardAddress = findCandyGuardPda(candyMachineSigner.publicKey);
+  const candyGuardAddress = mx
+    .candyMachines()
+    .pdas()
+    .candyGuard({ base: candyMachineSigner.publicKey });
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',

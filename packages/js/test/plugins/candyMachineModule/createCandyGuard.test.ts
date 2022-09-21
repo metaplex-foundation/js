@@ -2,7 +2,6 @@ import {
   CandyGuard,
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
-  findCandyGuardPda,
   sol,
   toBigNumber,
   toDateTime,
@@ -40,12 +39,14 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   spok(t, candyGuard, {
     $topic: 'Candy Guard',
     model: 'candyGuard',
-    address: spokSamePubkey(findCandyGuardPda(base.publicKey)),
+    address: spokSamePubkey(
+      mx.candyMachines().pdas().candyGuard({ base: base.publicKey })
+    ),
     baseAddress: spokSamePubkey(base.publicKey),
     authorityAddress: spokSamePubkey(mx.identity().publicKey),
     accountInfo: {
       executable: false,
-      owner: spokSamePubkey(mx.programs().get('CandyGuardProgram').address),
+      owner: spokSamePubkey(mx.programs().getCandyGuard().address),
     },
     guards: emptyDefaultCandyGuardSettings,
     groups: [],

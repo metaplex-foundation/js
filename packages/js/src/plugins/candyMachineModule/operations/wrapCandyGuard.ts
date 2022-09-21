@@ -163,12 +163,8 @@ export const wrapCandyGuardBuilder = (
     programs,
   } = params;
 
-  const candyMachineProgram = metaplex
-    .programs()
-    .get('CandyMachineProgram', programs);
-  const candyGuardProgram = metaplex
-    .programs()
-    .get('CandyGuardProgram', programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
 
   return TransactionBuilder.make()
     .setFeePayer(payer)

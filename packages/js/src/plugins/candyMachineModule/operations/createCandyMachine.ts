@@ -29,7 +29,6 @@ import {
   toCandyMachineData,
 } from '../models';
 import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
-import { findCandyMachineAuthorityPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -424,7 +423,10 @@ export const createCandyMachineBuilder = async <
   };
 
   // PDAs.
-  const authorityPda = findCandyMachineAuthorityPda(candyMachine.publicKey);
+  const authorityPda = metaplex
+    .candyMachines()
+    .pdas()
+    .authority({ candyMachine: candyMachine.publicKey, programs });
   const collectionMetadata = findMetadataPda(collection.address);
   const collectionMasterEdition = findMasterEditionV2Pda(collection.address);
   const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
@@ -433,9 +435,7 @@ export const createCandyMachineBuilder = async <
   );
 
   // Programs.
-  const candyMachineProgram = metaplex
-    .programs()
-    .get('CandyMachineProgram', programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
   const tokenMetadataProgram = metaplex
     .programs()
     .get('TokenMetadataProgram', programs);

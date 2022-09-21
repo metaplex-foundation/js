@@ -18,7 +18,6 @@ import {
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
 } from '../guards';
-import { CandyGuardProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -208,10 +207,7 @@ export const updateCandyGuardBuilder = <
     programs,
   } = params;
 
-  const candyGuardProgram = metaplex
-    .programs()
-    .get<CandyGuardProgram>('CandyGuardProgram', programs);
-
+  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
   const updateInstruction = createUpdateInstruction(
     {
       candyGuard,

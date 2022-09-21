@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler } from '@/types';
+import { Operation, OperationHandler, Program } from '@/types';
 import { GpaBuilder } from '@/utils';
 import { CandyGuard as MplCandyGuard } from '@metaplex-foundation/mpl-candy-guard';
 import { Commitment, PublicKey } from '@solana/web3.js';
@@ -48,8 +48,8 @@ export type FindCandyGuardsByAuthorityInput = {
   /** The authority to filter Candy Guards by. */
   authority: PublicKey;
 
-  /** The Candy Guard program to use when fetching accounts. */
-  candyCoreProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
@@ -65,8 +65,8 @@ export const findCandyGuardsByAuthorityOperationHandler: OperationHandler<FindCa
       operation: FindCandyGuardsByAuthorityOperation<T>,
       metaplex: Metaplex
     ) => {
-      const { authority, commitment } = operation.input;
-      const candyGuardProgram = metaplex.programs().get('CandyGuardProgram');
+      const { authority, programs, commitment } = operation.input;
+      const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
       const query = MplCandyGuard.gpaBuilder(
         candyGuardProgram.address
       ).addFilter('authority', authority);

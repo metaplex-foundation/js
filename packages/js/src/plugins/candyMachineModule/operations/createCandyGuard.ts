@@ -20,8 +20,6 @@ import {
   emptyDefaultCandyGuardSettings,
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
-import { findCandyGuardPda } from '../pdas';
-import { CandyGuardProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -221,17 +219,15 @@ export const createCandyGuardBuilder = <
   metaplex: Metaplex,
   params: CreateCandyGuardBuilderParams<T>
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
+  const programs = params.programs;
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;
-  const candyGuardProgram = metaplex
-    .programs()
-    .get<CandyGuardProgram>('CandyGuardProgram', params.programs);
-
-  const candyGuard = findCandyGuardPda(
-    base.publicKey,
-    candyGuardProgram.address
-  );
+  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
+  const candyGuard = metaplex
+    .candyMachines()
+    .pdas()
+    .candyGuard({ baseAddress: base.publicKey, programs });
 
   const initializeInstruction = createInitializeInstruction(
     {

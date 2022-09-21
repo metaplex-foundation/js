@@ -9,7 +9,6 @@ import { DisposableScope } from '@/utils';
 import { Commitment } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
-import { findCandyGuardPda } from '../pdas';
 import { assertCandyGuardProgram } from '../programs';
 
 // -----------------
@@ -82,7 +81,10 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
       scope: DisposableScope
     ): Promise<FindCandyMachineByAddressOutput<T>> {
       const { address, commitment } = operation.input;
-      const potentialCandyGuardAddress = findCandyGuardPda(address);
+      const potentialCandyGuardAddress = metaplex
+        .candyMachines()
+        .pdas()
+        .candyGuard({ base: address });
       const [candyMachineAccount, potentialCandyGuardAccount] = await metaplex
         .rpc()
         .getMultipleAccounts([address, potentialCandyGuardAddress], commitment);

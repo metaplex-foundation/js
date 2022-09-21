@@ -148,9 +148,7 @@ export const deleteCandyGuardBuilder = (
     programs,
   } = params;
 
-  const candyGuardProgram = metaplex
-    .programs()
-    .get('CandyGuardProgram', programs);
+  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
 
   return TransactionBuilder.make()
     .setFeePayer(payer)

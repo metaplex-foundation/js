@@ -24,8 +24,8 @@ import {
 import {
   CandyMachineData,
   createSetAuthorityInstruction,
-  createSetMintAuthorityInstruction,
   createSetCollectionInstruction,
+  createSetMintAuthorityInstruction,
   createUpdateInstruction as createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
@@ -38,7 +38,6 @@ import {
   isCandyMachine,
   toCandyMachineData,
 } from '../models';
-import { findCandyMachineAuthorityPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -488,8 +487,12 @@ const updateCandyMachineCollectionBuilder = <
     throw onMissingInputError(['collection.currentCollectionAddress']);
   }
 
+  const programs = params.programs;
   const candyMachineAddress = toPublicKey(params.candyMachine);
-  const authorityPda = findCandyMachineAuthorityPda(candyMachineAddress);
+  const authorityPda = metaplex
+    .candyMachines()
+    .pdas()
+    .authority({ candyMachine: candyMachineAddress, programs });
   const collectionAddress = params.collection.address;
   const collectionUpdateAuthority = params.collection.updateAuthority;
   const tokenMetadataProgram = metaplex
