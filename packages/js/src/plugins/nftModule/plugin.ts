@@ -1,6 +1,7 @@
 import type { Metaplex } from '@/Metaplex';
-import { ErrorWithLogs, MetaplexPlugin } from '@/types';
+import { ErrorWithLogs, MetaplexPlugin, Program } from '@/types';
 import { cusper } from '@metaplex-foundation/mpl-token-metadata';
+import { ProgramClient } from '../programModule';
 import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { NftClient } from './NftClient';
 import {
@@ -63,14 +64,21 @@ import { TokenMetadataProgram } from './program';
 export const nftModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Token Metadata Program.
-    metaplex.programs().register({
+    const tokenMetadataProgram = {
       name: 'TokenMetadataProgram',
       address: TokenMetadataProgram.publicKey,
       errorResolver: (error: ErrorWithLogs) =>
         cusper.errorFromProgramLogs(error.logs, false),
       gpaResolver: (metaplex: Metaplex) =>
         new TokenMetadataGpaBuilder(metaplex, TokenMetadataProgram.publicKey),
-    });
+    };
+    metaplex.programs().register(tokenMetadataProgram);
+    metaplex.programs().getTokenMetadata = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(tokenMetadataProgram.name, programs);
+    };
 
     // Operations.
     const op = metaplex.operations();
@@ -143,5 +151,11 @@ export const nftModule = (): MetaplexPlugin => ({
 declare module '../../Metaplex' {
   interface Metaplex {
     nfts(): NftClient;
+  }
+}
+
+declare module '../programModule/ProgramClient' {
+  interface ProgramClient {
+    getTokenMetadata(programs?: Program[]): Program;
   }
 }

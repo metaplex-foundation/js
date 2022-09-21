@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, Sft } from '../models';
@@ -45,6 +45,9 @@ export type FindNftsByUpdateAuthorityOperation = Operation<
 export type FindNftsByUpdateAuthorityInput = {
   /** The address of the update authority. */
   updateAuthority: PublicKey;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

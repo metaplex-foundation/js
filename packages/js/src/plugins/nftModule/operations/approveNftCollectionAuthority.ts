@@ -1,8 +1,14 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 
@@ -68,8 +74,8 @@ export type ApproveNftCollectionAuthorityInput = {
    */
   payer?: Signer;
 
-  /** The address of the SPL System program to override if necessary. */
-  systemProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -142,6 +148,7 @@ export const approveNftCollectionAuthorityBuilder = (
     collectionAuthority,
     updateAuthority = metaplex.identity(),
     payer = metaplex.identity(),
+    programs,
   } = params;
   const metadata = findMetadataPda(mintAddress);
   const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
@@ -149,21 +156,27 @@ export const approveNftCollectionAuthorityBuilder = (
     collectionAuthority
   );
 
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
 
       // Approve the collection authority.
       .add({
-        instruction: createApproveCollectionAuthorityInstruction({
-          collectionAuthorityRecord,
-          newCollectionAuthority: collectionAuthority,
-          updateAuthority: updateAuthority.publicKey,
-          payer: payer.publicKey,
-          metadata,
-          mint: mintAddress,
-          systemProgram: params.systemProgram ?? SystemProgram.programId,
-        }),
+        instruction: createApproveCollectionAuthorityInstruction(
+          {
+            collectionAuthorityRecord,
+            newCollectionAuthority: collectionAuthority,
+            updateAuthority: updateAuthority.publicKey,
+            payer: payer.publicKey,
+            metadata,
+            mint: mintAddress,
+            systemProgram: systemProgram.address,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [payer, updateAuthority],
         key: params.instructionKey ?? 'approveCollectionAuthority',
       })

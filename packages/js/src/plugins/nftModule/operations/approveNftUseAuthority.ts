@@ -96,9 +96,6 @@ export type ApproveNftUseAuthorityInput = {
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
 
-  /** The address of the SPL System program to override if necessary. */
-  systemProgram?: PublicKey;
-
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
