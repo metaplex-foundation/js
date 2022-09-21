@@ -154,7 +154,11 @@ export const migrateToSizedCollectionNftBuilder = (
     collectionAuthority = metaplex.identity(),
     size,
     isDelegated = false,
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()

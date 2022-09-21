@@ -133,7 +133,12 @@ export const revokeNftCollectionAuthorityBuilder = (
     mintAddress,
     collectionAuthority,
     revokeAuthority = metaplex.identity(),
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const metadata = findMetadataPda(mintAddress);
   const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
     mintAddress,

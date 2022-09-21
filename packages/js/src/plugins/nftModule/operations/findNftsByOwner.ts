@@ -2,7 +2,7 @@ import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import { TokenGpaBuilder, TokenProgram } from '../../tokenModule';
+import { TokenGpaBuilder } from '../../tokenModule';
 import { Metadata, Nft, Sft } from '../models';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 
@@ -70,9 +70,9 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByOwnerOutput> => {
-      const { owner, commitment } = operation.input;
+      const { owner, commitment, programs } = operation.input;
 
-      const tokenProgram = metaplex.programs().getToken();
+      const tokenProgram = metaplex.programs().getToken(programs);
       const mints = await new TokenGpaBuilder(metaplex, tokenProgram.address)
         .selectMint()
         .whereOwner(owner)

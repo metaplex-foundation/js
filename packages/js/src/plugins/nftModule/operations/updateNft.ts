@@ -260,7 +260,11 @@ export const updateNftBuilder = (
   metaplex: Metaplex,
   params: UpdateNftBuilderParams
 ): TransactionBuilder => {
-  const { nftOrSft, updateAuthority = metaplex.identity() } = params;
+  const { nftOrSft, updateAuthority = metaplex.identity(), programs } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const updateInstructionDataWithoutChanges = toInstructionData(nftOrSft);
   const updateInstructionData = toInstructionData(nftOrSft, params);
   const shouldSendUpdateInstruction = !isEqual(

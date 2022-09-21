@@ -145,8 +145,11 @@ export const deleteNftBuilder = (
     owner = metaplex.identity(),
     ownerTokenAccount,
     collection,
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const metadata = findMetadataPda(mintAddress);
   const edition = findMasterEditionV2Pda(mintAddress);

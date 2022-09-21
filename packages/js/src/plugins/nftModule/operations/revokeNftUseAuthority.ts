@@ -138,7 +138,11 @@ export const revokeNftUseAuthorityBuilder = (
   metaplex: Metaplex,
   params: RevokeNftUseAuthorityBuilderParams
 ): TransactionBuilder => {
-  const { mintAddress, user, owner = metaplex.identity() } = params;
+  const { mintAddress, user, owner = metaplex.identity(), programs } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const metadata = findMetadataPda(mintAddress);
   const useAuthorityRecord = findUseAuthorityRecordPda(mintAddress, user);
   const ownerTokenAddress =

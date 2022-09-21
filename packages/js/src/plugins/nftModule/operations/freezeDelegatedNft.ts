@@ -147,8 +147,11 @@ export const freezeDelegatedNftBuilder = (
     delegateAuthority,
     tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const editionAddress = findMasterEditionV2Pda(mintAddress);
   const tokenAddressOrAta =

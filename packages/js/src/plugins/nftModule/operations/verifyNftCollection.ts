@@ -167,7 +167,11 @@ export const verifyNftCollectionBuilder = (
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
     payer = metaplex.identity(),
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
     metadata: findMetadataPda(mintAddress),

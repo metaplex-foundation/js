@@ -125,7 +125,10 @@ export const verifyNftCreatorBuilder = (
   metaplex: Metaplex,
   params: VerifyNftCreatorBuilderParams
 ): TransactionBuilder => {
-  const { mintAddress, creator = metaplex.identity() } = params;
+  const { mintAddress, creator = metaplex.identity(), programs } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()

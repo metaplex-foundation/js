@@ -391,7 +391,10 @@ export const createNftBuilder = async (
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
+    programs,
   } = params;
+
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const sftBuilder = await metaplex
     .nfts()
@@ -440,7 +443,8 @@ export const createNftBuilder = async (
             createMasterEditionArgs: {
               maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
             },
-          }
+          },
+          tokenMetadataProgram.address
         ),
         signers: [payer, mintAuthority, updateAuthority],
         key: params.createMasterEditionInstructionKey ?? 'createMasterEdition',

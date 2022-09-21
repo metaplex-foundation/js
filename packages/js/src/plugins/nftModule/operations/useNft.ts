@@ -153,7 +153,11 @@ export const useNftBuilder = (
     numberOfUses = 1,
     owner = metaplex.identity(),
     useAuthority,
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   if (!isSigner(owner) && !useAuthority) {
     throw new ExpectedSignerError('owner', 'PublicKey', {

@@ -8,9 +8,8 @@ import {
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createApproveUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import {
   findMetadataPda,
   findProgramAsBurnerPda,
@@ -164,13 +163,23 @@ export const approveNftUseAuthorityBuilder = (
     user,
     owner = metaplex.identity(),
     payer = metaplex.identity(),
+    programs,
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const metadata = findMetadataPda(mintAddress);
   const useAuthorityRecord = findUseAuthorityRecordPda(mintAddress, user);
   const programAsBurner = findProgramAsBurnerPda();
   const ownerTokenAddress =
     params.ownerTokenAddress ??
-    findAssociatedTokenAccountPda(mintAddress, owner.publicKey);
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: owner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()
@@ -188,14 +197,15 @@ export const approveNftUseAuthorityBuilder = (
             metadata,
             mint: mintAddress,
             burner: programAsBurner,
-            tokenProgram: params.tokenProgram ?? TokenProgram.publicKey,
-            systemProgram: params.systemProgram ?? SystemProgram.programId,
+            tokenProgram: tokenProgram.address,
+            systemProgram: systemProgram.address,
           },
           {
             approveUseAuthorityArgs: {
               numberOfUses: params.numberOfUses ?? 1,
             },
-          }
+          },
+          tokenMetadataProgram.address
         ),
         signers: [owner, payer],
         key: params.instructionKey ?? 'approveUseAuthority',

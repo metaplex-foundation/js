@@ -274,10 +274,12 @@ export const printNewEditionBuilder = async (
     newOwner = metaplex.identity().publicKey,
     newTokenAccount,
     payer = metaplex.identity(),
-    tokenProgram,
-    associatedTokenProgram,
+    programs,
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
+
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   // Original NFT.
   const originalMetadataAddress = findMetadataPda(originalMint);
