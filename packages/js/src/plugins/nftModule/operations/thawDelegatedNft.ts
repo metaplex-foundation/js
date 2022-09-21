@@ -10,7 +10,6 @@ import { TransactionBuilder } from '@/utils';
 import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
 
 // -----------------
@@ -150,21 +149,30 @@ export const thawDelegatedNftBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const editionAddress = findMasterEditionV2Pda(mintAddress);
   const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: tokenOwner,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
-    instruction: createThawDelegatedAccountInstruction({
-      delegate: delegateAuthority.publicKey,
-      tokenAccount: tokenAddressOrAta,
-      edition: editionAddress,
-      mint: mintAddress,
-      tokenProgram,
-    }),
+    instruction: createThawDelegatedAccountInstruction(
+      {
+        delegate: delegateAuthority.publicKey,
+        tokenAccount: tokenAddressOrAta,
+        edition: editionAddress,
+        mint: mintAddress,
+        tokenProgram: tokenProgram.address,
+      },
+      tokenMetadataProgram.address
+    ),
     signers: [delegateAuthority],
     key: params.instructionKey ?? 'thawDelegatedNft',
   });

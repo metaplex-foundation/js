@@ -136,22 +136,23 @@ export const revokeNftCollectionAuthorityBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
-
   const metadata = findMetadataPda(mintAddress);
   const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
     mintAddress,
     collectionAuthority
   );
 
-  const instruction = createRevokeCollectionAuthorityInstruction({
-    collectionAuthorityRecord,
-    delegateAuthority: collectionAuthority,
-    revokeAuthority: revokeAuthority.publicKey,
-    metadata,
-    mint: mintAddress,
-  });
+  const instruction = createRevokeCollectionAuthorityInstruction(
+    {
+      collectionAuthorityRecord,
+      delegateAuthority: collectionAuthority,
+      revokeAuthority: revokeAuthority.publicKey,
+      metadata,
+      mint: mintAddress,
+    },
+    tokenMetadataProgram.address
+  );
 
   // Temporary fix. The Shank macro wrongfully ask for the delegateAuthority to be a signer.
   // https://github.com/metaplex-foundation/metaplex-program-library/pull/639

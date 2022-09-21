@@ -170,7 +170,7 @@ export const unverifyNftCollectionBuilder = (
     programs,
   } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
@@ -191,8 +191,14 @@ export const unverifyNftCollectionBuilder = (
   };
 
   const instruction = isSizedCollection
-    ? createUnverifySizedCollectionItemInstruction(accounts)
-    : createUnverifyCollectionInstruction(accounts);
+    ? createUnverifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createUnverifyCollectionInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      );
 
   return (
     TransactionBuilder.make()
@@ -200,7 +206,7 @@ export const unverifyNftCollectionBuilder = (
 
       // Unverify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'unverifyCollection',
       })

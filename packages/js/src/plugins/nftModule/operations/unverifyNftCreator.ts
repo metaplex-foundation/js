@@ -127,7 +127,7 @@ export const unverifyNftCreatorBuilder = (
 ): TransactionBuilder => {
   const { mintAddress, creator = metaplex.identity(), programs } = params;
 
-  const systemProgram = metaplex.programs().getSystem(programs);
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
@@ -135,10 +135,13 @@ export const unverifyNftCreatorBuilder = (
 
       // Verify the creator.
       .add({
-        instruction: createRemoveCreatorVerificationInstruction({
-          metadata: findMetadataPda(mintAddress),
-          creator: creator.publicKey,
-        }),
+        instruction: createRemoveCreatorVerificationInstruction(
+          {
+            metadata: findMetadataPda(mintAddress),
+            creator: creator.publicKey,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [creator],
         key: params.instructionKey ?? 'unverifyCreator',
       })

@@ -8,9 +8,8 @@ import {
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createRevokeUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
 
 // -----------------
@@ -140,30 +139,39 @@ export const revokeNftUseAuthorityBuilder = (
 ): TransactionBuilder => {
   const { mintAddress, user, owner = metaplex.identity(), programs } = params;
 
+  // Programs.
   const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const metadata = findMetadataPda(mintAddress);
   const useAuthorityRecord = findUseAuthorityRecordPda(mintAddress, user);
   const ownerTokenAddress =
     params.ownerTokenAddress ??
-    findAssociatedTokenAccountPda(mintAddress, owner.publicKey);
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: owner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()
 
       // Revoke the use authority.
       .add({
-        instruction: createRevokeUseAuthorityInstruction({
-          useAuthorityRecord,
-          owner: owner.publicKey,
-          user,
-          ownerTokenAccount: ownerTokenAddress,
-          mint: mintAddress,
-          metadata,
-          tokenProgram: params.tokenProgram ?? TokenProgram.publicKey,
-          systemProgram: params.systemProgram ?? SystemProgram.programId,
-        }),
+        instruction: createRevokeUseAuthorityInstruction(
+          {
+            useAuthorityRecord,
+            owner: owner.publicKey,
+            user,
+            ownerTokenAccount: ownerTokenAddress,
+            mint: mintAddress,
+            metadata,
+            tokenProgram: tokenProgram.address,
+            systemProgram: systemProgram.address,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [owner],
         key: params.instructionKey ?? 'revokeUseAuthority',
       })
