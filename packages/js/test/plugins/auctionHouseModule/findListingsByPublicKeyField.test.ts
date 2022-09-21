@@ -20,7 +20,7 @@ test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
   const secondNft = await createNft(mx);
   const thirdNft = await createNft(mx, { tokenOwner: secondSeller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
   await mx
@@ -81,7 +81,7 @@ test('[auctionHouseModule] find all lazy listings by metadata', async (t) => {
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
   await mx
@@ -131,7 +131,7 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
   await mx

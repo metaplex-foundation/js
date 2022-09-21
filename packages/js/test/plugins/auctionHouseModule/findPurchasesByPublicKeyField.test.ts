@@ -22,7 +22,7 @@ test('[auctionHouseModule] find all lazy purchases by buyer', async (t) => {
   const secondNft = await createNft(mx);
   const thirdNft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we execute sale on first NFT for 1 SOL.
   const { listing: firstListing } = await mx
@@ -131,7 +131,7 @@ test('[auctionHouseModule] find all lazy purchases by seller', async (t) => {
   const secondNft = await createNft(mx);
   const thirdNft = await createNft(mx, { tokenOwner: secondSeller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we execute sale on first NFT for 1 SOL.
   const { listing: firstListing } = await mx
@@ -241,7 +241,7 @@ test('[auctionHouseModule] find all lazy purchases by metadata', async (t) => {
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we execute sale on first NFT for 1 SOL.
   const { listing: firstListing } = await mx
@@ -326,7 +326,7 @@ test('[auctionHouseModule] find all purchases by mint', async (t) => {
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we execute sale on first NFT for 1 SOL.
   const { listing: firstListing } = await mx

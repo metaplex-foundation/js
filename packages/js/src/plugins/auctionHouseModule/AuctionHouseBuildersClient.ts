@@ -1,6 +1,12 @@
 import {
   DepositToBuyerAccountBuilderParams,
   depositToBuyerAccountBuilder,
+  cancelBidBuilder,
+  CancelBidBuilderParams,
+  CancelListingBuilderParams,
+  cancelListingBuilder,
+  withdrawFromBuyerAccountBuilder,
+  WithdrawFromBuyerAccountBuilderParams,
 } from './operations';
 import {
   createAuctionHouseBuilder,
@@ -39,6 +45,16 @@ export class AuctionHouseBuildersClient {
     return createBidBuilder(this.metaplex, input);
   }
 
+  /** {@inheritDoc cancelBidBuilder} */
+  cancelBid(input: CancelBidBuilderParams) {
+    return cancelBidBuilder(input);
+  }
+
+  /** {@inheritDoc cancelListingBuilder} */
+  cancelListing(input: CancelListingBuilderParams) {
+    return cancelListingBuilder(input);
+  }
+
   /** {@inheritDoc createAuctionHouseBuilder} */
   createAuctionHouse(input: CreateAuctionHouseBuilderParams) {
     return createAuctionHouseBuilder(this.metaplex, input);
@@ -62,5 +78,10 @@ export class AuctionHouseBuildersClient {
   /** {@inheritDoc updateAuctionHouseBuilder} */
   updateAuctionHouse(input: UpdateAuctionHouseBuilderParams) {
     return updateAuctionHouseBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc withdrawFromBuyerAccountBuilder} */
+  withdrawFromBuyerAccount(input: WithdrawFromBuyerAccountBuilderParams) {
+    return withdrawFromBuyerAccountBuilder(this.metaplex, input);
   }
 }

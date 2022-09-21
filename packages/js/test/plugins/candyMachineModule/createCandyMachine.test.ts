@@ -1,4 +1,13 @@
 import {
+  CandyMachine,
+  CandyMachineProgram,
+  CreateCandyMachineInput,
+  getCandyMachineUuidFromAddress,
+  sol,
+  token,
+  toBigNumber,
+} from '@/index';
+import {
   EndSettingType,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
@@ -121,19 +130,64 @@ test('[candyMachineModule] create with creators', async (t) => {
   });
 });
 
-test('[candyMachineModule] create with SPL treasury', async (t) => {
+test('[candyMachineModule] create with 0-decimal SPL token treasury', async (t) => {
   // Given a Candy Machine client.
   const { tc, mx, client, minimalInput } = await init();
 
   // And a token account and its mint account.
-  const { token } = await mx.tokens().createTokenWithMint().run();
+  const { token: tokenMint } = await mx.tokens().createTokenWithMint().run();
+
+  const amount = token(
+    100,
+    tokenMint.mint.decimals,
+    tokenMint.mint.currency.symbol
+  );
 
   // When we create a Candy Machine with an SPL treasury.
   const { response, candyMachine } = await client
     .create({
       ...minimalInput,
-      wallet: token.address,
-      tokenMint: token.mint.address,
+      price: amount,
+      wallet: tokenMint.address,
+      tokenMint: tokenMint.mint.address,
+    })
+    .run();
+
+  // Then a Candy Machine was created with the SPL treasury as configured.
+  await tc.assertSuccess(t, response.signature);
+
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    walletAddress: spokSamePubkey(tokenMint.address),
+    tokenMintAddress: spokSamePubkey(tokenMint.mint.address),
+    price: spokSameAmount(amount),
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] create with 9-decimal SPL token treasury', async (t) => {
+  // Given a Candy Machine client.
+  const { tc, mx, client, minimalInput } = await init();
+
+  // And a token account and its mint account.
+  const { token: tokenMint } = await mx
+    .tokens()
+    .createTokenWithMint({ decimals: 9 })
+    .run();
+
+  const amount = token(
+    1.25,
+    tokenMint.mint.decimals,
+    tokenMint.mint.currency.symbol
+  );
+
+  // When we create a Candy Machine with an SPL treasury.
+  const { response, candyMachine } = await client
+    .create({
+      ...minimalInput,
+      price: amount,
+      wallet: tokenMint.address,
+      tokenMint: tokenMint.mint.address,
     })
     .run();
 
@@ -142,8 +196,8 @@ test('[candyMachineModule] create with SPL treasury', async (t) => {
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
-    walletAddress: spokSamePubkey(token.address),
-    tokenMintAddress: spokSamePubkey(token.mint.address),
+    walletAddress: spokSamePubkey(tokenMint.address),
+    tokenMintAddress: spokSamePubkey(tokenMint.mint.address),
   } as unknown as Specifications<CandyMachine>);
 });
 

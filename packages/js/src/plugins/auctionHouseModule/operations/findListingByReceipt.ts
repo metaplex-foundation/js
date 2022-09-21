@@ -12,6 +12,15 @@ import { DisposableScope } from '@/utils';
 const Key = 'FindListingByReceiptOperation' as const;
 
 /**
+ * Finds a Listing by its receipt address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findListingByReceipt({ receiptAddress, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -33,9 +42,22 @@ export type FindListingByReceiptOperation = Operation<
  * @category Inputs
  */
 export type FindListingByReceiptInput = {
+  /**
+   * The address of the listing receipt account.
+   * This is the account that stores information about this listing.
+   * The Listing model is built on top of this account.
+   */
   receiptAddress: PublicKey;
+
+  /** A model of the Auction House related to this listing. */
   auctionHouse: AuctionHouse;
-  loadJsonMetadata?: boolean; // Default: true
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
+  loadJsonMetadata?: boolean;
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
