@@ -495,9 +495,7 @@ const updateCandyMachineCollectionBuilder = <
     .authority({ candyMachine: candyMachineAddress, programs });
   const collectionAddress = params.collection.address;
   const collectionUpdateAuthority = params.collection.updateAuthority;
-  const tokenMetadataProgram = metaplex
-    .programs()
-    .get('TokenMetadataProgram', params.programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return TransactionBuilder.make().add({
     instruction: createSetCollectionInstruction({

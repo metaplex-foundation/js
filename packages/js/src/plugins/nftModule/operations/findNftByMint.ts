@@ -3,7 +3,6 @@ import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
-  findAssociatedTokenAccountPda,
   toMint,
   toMintAccount,
   toToken,
@@ -130,10 +129,15 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
         tokenOwner,
         loadJsonMetadata = true,
         commitment,
+        programs,
       } = operation.input;
 
       const associatedTokenAddress = tokenOwner
-        ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+        ? metaplex.tokens().pdas().associatedTokenAccount({
+            mint: mintAddress,
+            owner: tokenOwner,
+            programs,
+          })
         : undefined;
       const accountAddresses = [
         mintAddress,

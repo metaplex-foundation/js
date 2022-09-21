@@ -436,9 +436,7 @@ export const createCandyMachineBuilder = async <
 
   // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
-  const tokenMetadataProgram = metaplex
-    .programs()
-    .get('TokenMetadataProgram', programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const candyMachineData = toCandyMachineData({
     itemsAvailable,

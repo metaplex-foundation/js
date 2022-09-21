@@ -1,12 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { BigNumber, Pda, toBigNumber } from '@/types';
-import { TokenMetadataProgram } from './program';
+import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 
 /** @group Pdas */
 export const findMetadataPda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -18,7 +18,7 @@ export const findMetadataPda = (
 /** @group Pdas */
 export const findMasterEditionV2Pda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -31,7 +31,7 @@ export const findMasterEditionV2Pda = (
 /** @group Pdas */
 export const findEditionPda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -45,7 +45,7 @@ export const findEditionPda = (
 export const findEditionMarkerPda = (
   mint: PublicKey,
   edition: BigNumber,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -60,7 +60,7 @@ export const findEditionMarkerPda = (
 export const findCollectionAuthorityRecordPda = (
   mint: PublicKey,
   collectionAuthority: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -75,7 +75,7 @@ export const findCollectionAuthorityRecordPda = (
 export const findUseAuthorityRecordPda = (
   mint: PublicKey,
   useAuthority: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -88,7 +88,7 @@ export const findUseAuthorityRecordPda = (
 
 /** @group Pdas */
 export const findProgramAsBurnerPda = (
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),

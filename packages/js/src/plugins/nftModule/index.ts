@@ -8,4 +8,3 @@ export * from './NftClient';
 export * from './operations';
 export * from './pdas';
 export * from './plugin';
-export * from './program';
