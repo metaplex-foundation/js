@@ -4,6 +4,7 @@ import {
   assertSol,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   SolAmount,
   useOperation,
@@ -77,8 +78,8 @@ export type TransferSolInput = {
    */
   seed?: string;
 
-  /** The address of the SPL System program to override if necessary. */
-  program?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -151,7 +152,7 @@ export const transferSolBuilder = (
     amount,
     basePubkey,
     seed,
-    program = SystemProgram.programId,
+    programs,
   } = params;
 
   assertSol(amount);
@@ -162,7 +163,7 @@ export const transferSolBuilder = (
       toPubkey: to,
       lamports: amount.basisPoints.toNumber(),
       ...(basePubkey ? { basePubkey, seed } : {}),
-      programId: program,
+      programId: metaplex.programs().getSystem(programs).address,
     }),
     signers: [from],
     key: params.instructionKey ?? 'transferSol',

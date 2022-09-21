@@ -11,7 +11,6 @@ import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -187,8 +186,10 @@ export const createMintBuilder = async (
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity().publicKey,
     freezeAuthority = mintAuthority,
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
+
+  const tokenProgram = metaplex.programs().getToken(programs);
 
   return (
     TransactionBuilder.make<CreateMintBuilderContext>()
@@ -204,7 +205,7 @@ export const createMintBuilder = async (
             payer,
             newAccount: mint,
             space: MINT_SIZE,
-            program: tokenProgram,
+            program: tokenProgram.address,
             instructionKey:
               params.createAccountInstructionKey ?? 'createAccount',
           })
@@ -217,7 +218,7 @@ export const createMintBuilder = async (
           decimals,
           mintAuthority,
           freezeAuthority,
-          tokenProgram
+          tokenProgram.address
         ),
         signers: [mint],
         key: params.initializeMintInstructionKey ?? 'initializeMint',

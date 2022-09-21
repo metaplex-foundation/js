@@ -12,14 +12,11 @@ import {
 import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   ACCOUNT_SIZE,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   createInitializeAccountInstruction,
 } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 import { Token } from '../models/Token';
 
 // -----------------
@@ -88,9 +85,6 @@ export type CreateTokenInput = {
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -190,17 +184,20 @@ export const createTokenBuilder = async (
     programs,
   } = params;
 
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const associatedTokenProgram = metaplex
+    .programs()
+    .getAssociatedToken(programs);
+
   const isAssociatedToken = token === undefined;
   const builder =
     TransactionBuilder.make<CreateTokenBuilderContext>().setFeePayer(payer);
 
   if (isAssociatedToken) {
-    const associatedTokenAddress = findAssociatedTokenAccountPda(
-      mint,
-      owner,
-      tokenProgram,
-      associatedTokenProgram
-    );
+    const associatedTokenAddress = metaplex
+      .tokens()
+      .pdas()
+      .associatedTokenAccount({ mint, owner, programs });
 
     return (
       builder
@@ -213,8 +210,8 @@ export const createTokenBuilder = async (
             associatedTokenAddress,
             owner,
             mint,
-            tokenProgram,
-            associatedTokenProgram
+            tokenProgram.address,
+            associatedTokenProgram.address
           ),
           signers: [payer],
           key:
@@ -238,7 +235,7 @@ export const createTokenBuilder = async (
             payer,
             newAccount: token,
             space: ACCOUNT_SIZE,
-            program: tokenProgram,
+            program: tokenProgram.address,
             instructionKey:
               params.createAccountInstructionKey ?? 'createAccount',
           })
@@ -250,7 +247,7 @@ export const createTokenBuilder = async (
           token.publicKey,
           mint,
           owner,
-          tokenProgram
+          tokenProgram.address
         ),
         signers: [token],
         key: params.initializeTokenInstructionKey ?? 'initializeToken',
@@ -305,9 +302,12 @@ export const createTokenIfMissingBuilder = async (
     tokenExists = true,
     payer = metaplex.identity(),
     tokenVariable = 'token',
+    programs,
   } = params;
 
-  const destination = token ?? findAssociatedTokenAccountPda(mint, owner);
+  const destination =
+    token ??
+    metaplex.tokens().pdas().associatedTokenAccount({ mint, owner, programs });
   const destinationAddress = toPublicKey(destination);
   const builder = TransactionBuilder.make<CreateTokenBuilderContext>()
     .setFeePayer(payer)

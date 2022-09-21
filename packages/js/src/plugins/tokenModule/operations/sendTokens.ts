@@ -14,8 +14,6 @@ import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createTransferInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -160,10 +158,16 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
         mintAddress,
         toOwner = metaplex.identity().publicKey,
         toToken,
+        programs,
       } = operation.input;
 
       const destination =
-        toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+        toToken ??
+        metaplex.tokens().pdas().associatedTokenAccount({
+          mint: mintAddress,
+          owner: toOwner,
+          programs,
+        });
       const destinationAddress = toPublicKey(destination);
       const destinationAccountExists = await metaplex
         .rpc()
@@ -245,17 +249,28 @@ export const sendTokensBuilder = async (
     fromMultiSigners = [],
     delegateAuthority,
     payer = metaplex.identity(),
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
 
   const [fromOwnerPublicKey, signers] = isSigner(fromOwner)
     ? [fromOwner.publicKey, [fromOwner]]
     : [fromOwner, [delegateAuthority, ...fromMultiSigners].filter(isSigner)];
 
+  const tokenProgram = metaplex.programs().getToken(programs);
   const source =
-    fromToken ?? findAssociatedTokenAccountPda(mintAddress, fromOwnerPublicKey);
+    fromToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: fromOwnerPublicKey,
+      programs,
+    });
   const destination =
-    toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+    toToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: toOwner,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()
@@ -284,7 +299,7 @@ export const sendTokensBuilder = async (
           delegateAuthority ? delegateAuthority.publicKey : fromOwnerPublicKey,
           amount.basisPoints.toNumber(),
           fromMultiSigners,
-          tokenProgram
+          tokenProgram.address
         ),
         signers,
         key: params.transferTokensInstructionKey ?? 'transferTokens',

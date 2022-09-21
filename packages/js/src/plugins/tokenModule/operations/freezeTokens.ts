@@ -12,8 +12,6 @@ import { TransactionBuilder } from '@/utils';
 import { createFreezeAccountInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -150,15 +148,21 @@ export const freezeTokensBuilder = (
     tokenAddress,
     multiSigners = [],
     freezeAuthority,
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
 
   const [authorityPublicKey, signers] = isSigner(freezeAuthority)
     ? [freezeAuthority.publicKey, [freezeAuthority]]
     : [freezeAuthority, multiSigners];
 
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: tokenOwner,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
     instruction: createFreezeAccountInstruction(
@@ -166,7 +170,7 @@ export const freezeTokensBuilder = (
       mintAddress,
       authorityPublicKey,
       multiSigners,
-      tokenProgram
+      tokenProgram.address
     ),
     signers,
     key: params.instructionKey ?? 'freezeTokens',

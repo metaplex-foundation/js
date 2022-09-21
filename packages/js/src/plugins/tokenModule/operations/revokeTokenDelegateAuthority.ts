@@ -12,8 +12,6 @@ import { TransactionBuilder } from '@/utils';
 import { createRevokeInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -150,22 +148,28 @@ export const revokeTokenDelegateAuthorityBuilder = (
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
 
   const [ownerPublicKey, signers] = isSigner(owner)
     ? [owner.publicKey, [owner]]
     : [owner, multiSigners];
 
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenAccount =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: ownerPublicKey,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
     instruction: createRevokeInstruction(
       tokenAccount,
       ownerPublicKey,
       multiSigners,
-      tokenProgram
+      tokenProgram.address
     ),
     signers,
     key: params.instructionKey ?? 'revokeDelegateAuthority',

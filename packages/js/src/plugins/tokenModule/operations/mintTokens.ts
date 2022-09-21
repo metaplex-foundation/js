@@ -14,8 +14,6 @@ import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintToInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -138,10 +136,16 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
         mintAddress,
         toOwner = metaplex.identity().publicKey,
         toToken,
+        programs,
       } = operation.input;
 
       const destination =
-        toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+        toToken ??
+        metaplex.tokens().pdas().associatedTokenAccount({
+          mint: mintAddress,
+          owner: toOwner,
+          programs,
+        });
       const destinationAddress = toPublicKey(destination);
       const destinationAccountExists = await metaplex
         .rpc()
@@ -221,15 +225,21 @@ export const mintTokensBuilder = async (
     mintAuthority = metaplex.identity(),
     multiSigners = [],
     payer = metaplex.identity(),
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
 
   const [mintAuthorityPublicKey, signers] = isSigner(mintAuthority)
     ? [mintAuthority.publicKey, [mintAuthority]]
     : [mintAuthority, multiSigners];
 
+  const tokenProgram = metaplex.programs().getToken(programs);
   const destination =
-    toToken ?? findAssociatedTokenAccountPda(mintAddress, toOwner);
+    toToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: toOwner,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()
@@ -258,7 +268,7 @@ export const mintTokensBuilder = async (
           mintAuthorityPublicKey,
           amount.basisPoints.toNumber(),
           multiSigners,
-          tokenProgram
+          tokenProgram.address
         ),
         signers,
         key: params.mintTokensInstructionKey ?? 'mintTokens',
