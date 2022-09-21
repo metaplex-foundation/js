@@ -18,7 +18,7 @@ test('[auctionHouseModule] find all lazy bids by buyer', async (t) => {
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on that NFT for 6.5 SOL.
   await mx
@@ -77,7 +77,7 @@ test('[auctionHouseModule] find all lazy bids by metadata', async (t) => {
   const firstNft = await createNft(mx, { tokenOwner: seller.publicKey });
   const secondNft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on first NFT for 6.5 SOL.
   await mx
@@ -138,7 +138,7 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
   const firstNft = await createNft(mx, { tokenOwner: seller.publicKey });
   const secondNft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on first NFT for 6.5 SOL.
   await mx

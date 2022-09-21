@@ -17,6 +17,15 @@ import { DisposableScope } from '@metaplex-foundation/js';
 const Key = 'FindListingByTradeStateOperation' as const;
 
 /**
+ * Finds a Listing by its trade state address.
+ *
+ * ```ts
+ * const nft = await metaplex
+ *   .auctionHouse()
+ *   .findListingByTradeState({ tradeStateAddress, auctionHouse })
+ *   .run();
+ * ```
+ *
  * @group Operations
  * @category Constructors
  */
@@ -38,8 +47,17 @@ export type FindListingByTradeStateOperation = Operation<
  * @category Inputs
  */
 export type FindListingByTradeStateInput = {
+  /** Seller trade state PDA account encoding the listing order. */
   tradeStateAddress: PublicKey;
+
+  /** A model of the Auction House related to this listing. */
   auctionHouse: AuctionHouse;
+
+  /**
+   * Whether or not we should fetch the JSON Metadata for the NFT or SFT.
+   *
+   * @defaultValue `true`
+   */
   loadJsonMetadata?: boolean; // Default: true
 
   /** The level of commitment desired when querying the blockchain. */

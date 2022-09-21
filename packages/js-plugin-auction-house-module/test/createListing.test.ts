@@ -26,7 +26,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we list that NFT for 6.5 SOL.
   const { listing, sellerTradeState } = await mx
@@ -82,7 +82,7 @@ test('[auctionHouseModule] create a new listing using external seller on an Auct
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we list that NFT for 1 SOL.
   const { listing } = await mx
@@ -103,7 +103,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we list that NFT without printing a receipt.
   const { listing, sellerTradeState } = await mx
@@ -150,7 +150,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   const auctioneerAuthority = Keypair.generate();
 
   // Create a simple Auctioneer Auction House.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we list that NFT.
   const { listing, sellerTradeState } = await mx
@@ -175,7 +175,7 @@ test('[auctionHouseModule] create a new receipt-less Auctioneer listing on an Au
   const auctioneerAuthority = Keypair.generate();
 
   // Create a simple Auction House.
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
   // Delegate Auctioneer on update.
   await mx
     .auctionHouse()
@@ -208,7 +208,7 @@ test('[auctionHouseModule] it throws an error if Sell is not included in Auction
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House to only allow Buy.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Buy],
   });
 
@@ -238,7 +238,7 @@ test('[auctionHouseModule] it allows to List after Auctioneer scope update', asy
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House to only allow Buy.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Buy],
   });
 
@@ -274,7 +274,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we list that NFT without providing auctioneer authority.
   const promise = mx

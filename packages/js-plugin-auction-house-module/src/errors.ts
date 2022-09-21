@@ -2,7 +2,12 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
+<<<<<<< HEAD:packages/js-plugin-auction-house-module/src/errors.ts
 } from '@metaplex-foundation/js';
+=======
+} from '@/errors';
+import { Amount, formatAmount } from '@/types';
+>>>>>>> feat/monorepo:packages/js/src/plugins/auctionHouseModule/errors.ts
 
 /** @group Errors */
 export class AuctionHouseError extends MetaplexError {
@@ -51,6 +56,21 @@ export class AuctioneerAuthorityRequiredError extends AuctionHouseError {
         'Please provide the "auctioneerAuthority" parameter so the SDK can figure out which Auctioneer instance to interact with. ' +
         'Note that we keep that parameter optional because no Auctioneer Authority is needed for Auction Houses ' +
         'that use native Auction House behavior.',
+    });
+  }
+}
+
+/** @group Errors */
+export class AuctioneerPartialSaleNotSupportedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'auctioneer_partial_sale_not_supported',
+      title: 'Auctioneer Partial Sale Is Not Supported',
+      problem:
+        'You are trying to execute a partial sale, but partial orders are not supported in Auctioneer.',
+      solution:
+        'Any Partial Buys must be executed against a sale listed through the Auction House Sale.',
     });
   }
 }
@@ -124,6 +144,43 @@ export class CreateListingRequiresSignerError extends AuctionHouseError {
       title: 'Create Listing Requires Signer',
       problem: 'You are trying to create a listing without providing a signer.',
       solution: 'Either a seller or authority must be a Signer.',
+    });
+  }
+}
+
+/** @group Errors */
+export class WithdrawFromBuyerAccountRequiresSignerError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'withdraw_from_buyer_account_requires_signer',
+      title: 'Withdraw From Buyer Account Requires Signer',
+      problem:
+        'You are trying to withdraw from buyer account without providing a signer.',
+      solution: 'Either a buyer or authority must be a Signer.',
+    });
+  }
+}
+
+/** @group Errors */
+export class PartialPriceMismatchError extends AuctionHouseError {
+  constructor(
+    expected: Amount,
+    actual: Amount,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'partial_price_mismatch_signer',
+      title:
+        'The calculated partial price does not equal the partial price provided',
+      problem: `Expected to receive ${formatAmount(
+        expected
+      )} per SFT but provided ${formatAmount(actual)} per SFT.`,
+      solution:
+        'The token price must equal the price it has in the listing. ' +
+        'If executing a partial sale, ' +
+        'divide the total price by the number of total tokens on sale and multiply it by the number of tokens you want to buy.',
     });
   }
 }
