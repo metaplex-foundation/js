@@ -7,6 +7,7 @@ import { SendTokensInput } from '../tokenModule';
 import { toMintAddress } from './helpers';
 import { Nft, NftWithToken, Sft, SftWithToken } from './models';
 import { NftBuildersClient } from './NftBuildersClient';
+import { NftPdasClient } from './NftPdasClient';
 import {
   ApproveNftCollectionAuthorityInput,
   approveNftCollectionAuthorityOperation,
@@ -114,6 +115,17 @@ export class NftClient {
    */
   builders() {
     return new NftBuildersClient(this.metaplex);
+  }
+
+  /**
+   * You may use the `pdas()` client to build PDAs related to this module.
+   *
+   * ```ts
+   * const pdasClient = metaplex.nfts().pdas();
+   * ```
+   */
+  pdas() {
+    return new NftPdasClient(this.metaplex);
   }
 
   // -----------------

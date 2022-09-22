@@ -5,6 +5,7 @@ export * from './helpers';
 export * from './models';
 export * from './NftBuildersClient';
 export * from './NftClient';
+export * from './NftPdasClient';
 export * from './operations';
 export * from './pdas';
 export * from './plugin';

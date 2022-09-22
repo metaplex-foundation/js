@@ -10,10 +10,17 @@ import {
   token as tokenAmount,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { ConfirmOptions, Keypair } from '@solana/web3.js';
+import { createMintInstruction as createMintFromMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import { createMintInstruction as createMintFromGuardInstruction } from '@metaplex-foundation/mpl-candy-guard';
+import {
+  ConfirmOptions,
+  Keypair,
+  SYSVAR_SLOT_HASHES_PUBKEY,
+} from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachine } from '../models';
+import { candyMachineProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -248,9 +255,16 @@ export const mintFromCandyMachineBuilder = async (
 
   // Programs.
   const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
   const associatedTokenProgram = metaplex
     .programs()
     .getAssociatedToken(programs);
+
+  // PDAs.
+  const authorityPda = metaplex.candyMachines().pdas().authority({
+    candyMachine: candyMachine.address,
+    programs,
+  });
 
   const tokenWithMintBuilder = await metaplex
     .tokens()
@@ -276,8 +290,40 @@ export const mintFromCandyMachineBuilder = async (
 
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
-  return TransactionBuilder.make<MintFromCandyMachineBuilderContext>()
-    .setFeePayer(payer)
-    .setContext({ tokenAddress })
-    .add(tokenWithMintBuilder);
+  const mintNftInstruction = createMintFromMachineInstruction(
+    {
+      candyMachine: candyMachine.address,
+      authorityPda,
+      mintAuthority: candyMachine.mintAuthority,
+      payer: payer.publicKey,
+      nftMint: mint.publicKey,
+      nftMintAuthority: payer.publicKey,
+      nftMetadata,
+      nftMasterEdition,
+      collectionAuthorityRecord,
+      collectionMint,
+      collectionUpdateAuthority: collection.updateAuthorityAddress,
+      collectionMetadata,
+      collectionMasterEdition,
+      tokenMetadataProgram: tokenMetadataProgram.address,
+      recentSlothashes: SYSVAR_SLOT_HASHES_PUBKEY,
+    },
+    candyMachineProgram.address
+  );
+
+  return (
+    TransactionBuilder.make<MintFromCandyMachineBuilderContext>()
+      .setFeePayer(payer)
+      .setContext({ tokenAddress })
+
+      // Create token and mint accounts.
+      .add(tokenWithMintBuilder)
+
+      // Mint the new NFT.
+      .add({
+        instruction: mintNftInstruction,
+        signers: [payer, mint],
+        key: params.mintFromCandyMachineInstructionKey ?? 'mintNft',
+      })
+  );
 };
