@@ -34,6 +34,7 @@ test('[auctionHouseModule] instant sale on an Auction House', async (t: Test) =>
     })
     .run();
 
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()

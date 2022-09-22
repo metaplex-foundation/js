@@ -1,19 +1,18 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { Option, TransactionBuilder } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import {
   now,
   Operation,
   OperationHandler,
+  Pda,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, Listing, Purchase } from '../models';
-import {createBidBuilder} from './createBid';
-import {executeSaleBuilder, ExecuteSaleBuilderContext} from './executeSale';
+import { AuctionHouse, Bid, LazyBid, Listing, Purchase } from '../models';
+import { createBidBuilder } from './createBid';
+import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 
 // -----------------
 // Operation
@@ -99,45 +98,6 @@ export type DirectBuyInput = {
   auctioneerAuthority?: Signer;
 
   /**
-   * The token account address that's associated to the asset a bid created is for.
-   * If this or seller isn't provided in the Listing, then the bid will be public.
-   *
-   * @defaultValue No default value.
-   */
-  tokenAccount?: Option<PublicKey>;
-
-  /**
-   * The buyer's price.
-   *
-   * @defaultValue 0 SOLs or tokens.
-   */
-  price?: SolAmount | SplTokenAmount;
-
-  /**
-   * The number of tokens to bid for.
-   * For an NFT bid it must be 1 token.
-   *
-   * When a Fungible Asset is put on sale.
-   * The buyer can then create a buy order of said assets that is
-   * less than the token_size of the sell order.
-   *
-   * @defaultValue 1 token.
-   */
-  tokens?: SplTokenAmount;
-
-  /**
-   * Prints the bid and purchase receipts.
-   * The receipt holds information about the bid and about the purchase,
-   * So it's important to print it if you want to use the `Bid` or `Purchase` model
-   *
-   * The receipt printing is skipped for the Auctioneer Auction House
-   * Since it currently doesn't support it.
-   *
-   * @defaultValue `true`
-   */
-  printReceipt?: boolean;
-
-  /**
    * The address of the bookkeeper wallet responsible for the receipt.
    *
    * @defaultValue `metaplex.identity()`
@@ -153,6 +113,7 @@ export type DirectBuyInput = {
  * @category Outputs
  */
 export type DirectBuyOutput = {
+  /** A model that keeps information about the Bid. */
   bid: Bid;
 
   /** A model that keeps information about the Purchase. */
@@ -168,10 +129,23 @@ export type DirectBuyOutput = {
  */
 export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
   handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
-    return (await directBuyBuilder(metaplex, operation.input)).sendAndConfirm(
+    const { auctionHouse } = operation.input;
+    const { receipt, bid, response } = await directBuyBuilder(
       metaplex,
-      operation.input.confirmOptions
+      operation.input
+    ).then((buyBuilder) =>
+      buyBuilder.sendAndConfirm(metaplex, operation.input.confirmOptions)
     );
+
+    const purchase = await metaplex
+      .auctionHouse()
+      .findPurchaseByReceipt({
+        auctionHouse,
+        receiptAddress: receipt,
+      })
+      .run();
+
+    return { bid, purchase, response };
   },
 };
 
@@ -183,19 +157,19 @@ export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
  * @group Transaction Builders
  * @category Inputs
  */
-export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'> & {
-  instructionKey?: string;
-};
+export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'>;
 
 /**
  * @group Transaction Builders
  * @category Contexts
  */
-export type DirectBuyBuilderContext = Omit<DirectBuyOutput, 'response'>;
+export type DirectBuyBuilderContext = Omit<
+  DirectBuyOutput,
+  'response' | 'purchase'
+> & { receipt: Pda };
 
 /**
  * Creates a bid on a given asset and executes a sale on the created bid and given listing.
- *
  *
  * ```ts
  * const transactionBuilder = metaplex
@@ -215,67 +189,62 @@ export const directBuyBuilder = async (
   const {
     auctionHouse,
     listing,
-    price,
-    buyer,
-    tokenAccount,
-    tokens,
-    authority,
+    buyer = metaplex.identity(),
+    authority = auctionHouse.authorityAddress,
+    bookkeeper = metaplex.identity(),
     ...rest
   } = params;
+  const { tokens, price, asset, sellerAddress } = listing;
+  const printReceipt = true;
 
   const bidBuilder = await createBidBuilder(metaplex, {
     auctionHouse,
     authority,
-    tokens: tokens || listing.tokens,
-    price: price || listing.price,
-    mintAccount: listing.asset.mint.address,
-    seller: listing.sellerAddress,
+    tokens,
+    price,
+    mintAccount: asset.mint.address,
+    seller: sellerAddress,
+    buyer,
+    printReceipt,
+    bookkeeper,
     ...rest,
   });
-  const createBidBuilderContext = bidBuilder.getContext();
+  const { receipt, buyerTradeState } = bidBuilder.getContext();
 
-  const bid = {
+  const lazyBid: LazyBid = {
     model: 'bid',
-    lazy: false,
-    isPublic: false,
+    lazy: true,
     auctionHouse,
-    asset: listing.asset,
-    buyerAddress: createBidBuilderContext.buyer,
-    canceledAt: null,
-    price: listing.price,
-    receiptAddress: createBidBuilderContext.receipt,
-    tokens: createBidBuilderContext.tokens,
-    tradeStateAddress: createBidBuilderContext.buyerTradeState,
-    bookkeeperAddress: createBidBuilderContext.bookkeeper,
+    tradeStateAddress: buyerTradeState,
+    bookkeeperAddress: bookkeeper.publicKey,
+    buyerAddress: buyer.publicKey,
+    metadataAddress: asset.metadataAddress,
+    tokenAddress: asset.token.address,
+    receiptAddress: receipt,
     purchaseReceiptAddress: null,
+    price,
+    tokens: tokens.basisPoints,
+    isPublic: false,
+    canceledAt: null,
     createdAt: now(),
-  } as Bid;
+  };
+
+  const bid = await metaplex.auctionHouse().loadBid({ lazyBid }).run();
 
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
     await executeSaleBuilder(metaplex, {
       auctionHouse,
       bid,
       listing,
+      printReceipt,
+      bookkeeper,
       ...rest,
     });
 
   return TransactionBuilder.make<DirectBuyBuilderContext>()
     .setContext({
       bid,
-      purchase: {
-        auctionHouse,
-        model: 'purchase',
-        lazy: false,
-        asset: listing.asset,
-        buyerAddress: saleBuilder.getContext().buyer,
-        sellerAddress: saleBuilder.getContext().seller,
-        metadataAddress: saleBuilder.getContext().metadata,
-        bookkeeperAddress: saleBuilder.getContext().bookkeeper,
-        receiptAddress: saleBuilder.getContext().receipt,
-        price: listing.price,
-        tokens: saleBuilder.getContext().tokens,
-        createdAt: now(),
-      } as Purchase,
+      receipt: saleBuilder.getContext().receipt as Pda,
     })
     .add(bidBuilder)
     .add(saleBuilder);

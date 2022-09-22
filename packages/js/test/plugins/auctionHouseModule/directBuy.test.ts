@@ -29,6 +29,7 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
       auctionHouse,
       mintAccount: nft.address,
       price: sol(1),
+      printReceipt: true,
     })
     .run();
 
@@ -39,7 +40,6 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
       auctionHouse,
       listing,
       buyer,
-      price: sol(1),
     })
     .run();
 
