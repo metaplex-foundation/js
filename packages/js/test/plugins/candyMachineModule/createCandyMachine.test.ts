@@ -93,8 +93,6 @@ test('[candyMachineModule] create candy machine with minimum configuration', asy
       groups: [],
     },
   } as unknown as Specifications<CandyMachine>);
-  t.equal(candyMachine.itemsLoadedMap.length, 5000);
-  t.ok(candyMachine.itemsLoadedMap.every((loaded) => !loaded));
   t.equal(candyMachine.featureFlags.length, 64);
   t.ok(candyMachine.featureFlags.slice(0, 64).every((enabled) => !enabled));
 });

@@ -11,7 +11,7 @@ test('[candyMachineModule] it can wrap a Candy Machine in a Candy Guard', async 
   // Given a Candy Machine without a Candy Guard.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority: candyMachineAuthority,
     withoutCandyGuard: true,
   });
@@ -56,7 +56,7 @@ test('[candyMachineModule] it can wrap a different Candy Guard on a Candy Machin
   // Given a Candy Machine wrapped in a Candy Guard.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority: candyMachineAuthority,
   });
   t.notEqual(candyMachine.candyGuard, null);

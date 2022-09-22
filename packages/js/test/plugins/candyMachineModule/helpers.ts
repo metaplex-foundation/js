@@ -2,6 +2,7 @@ import {
   CandyMachineItem,
   CreateCandyGuardInput,
   CreateCandyMachineInput,
+  isSigner,
   Metaplex,
   toBigNumber,
 } from '@/index';
@@ -37,7 +38,10 @@ export const createCandyMachine = async (
       .candyMachines()
       .insertItems({
         candyMachine,
-        authority: metaplex.identity(),
+        authority:
+          input.authority && isSigner(input.authority)
+            ? input.authority
+            : metaplex.identity(),
         items: input.items,
       })
       .run();

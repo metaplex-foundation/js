@@ -69,14 +69,7 @@ export type MintFromCandyMachineInput = {
    *
    * TODO: This includes ...
    */
-  candyMachine: Pick<
-    CandyMachine,
-    | 'address'
-    | 'collectionMintAddress'
-    | 'itemsRemaining'
-    | 'itemsAvailable'
-    | 'itemsMinted'
-  >;
+  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
 
   /**
    * The address of the update authority of the Collection NFT

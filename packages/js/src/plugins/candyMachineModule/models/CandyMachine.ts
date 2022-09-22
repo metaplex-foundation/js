@@ -147,12 +147,6 @@ export type CandyMachine<
   readonly isFullyLoaded: boolean;
 
   /**
-   * This array of booleans is used to keep track of which
-   * items have been loaded in the Candy Machine.
-   */
-  readonly itemsLoadedMap: boolean[];
-
-  /**
    * Settings related to the Candy Machine's items.
    *
    * These can either be inserted manually within the Candy Machine or
@@ -348,7 +342,6 @@ export const toCandyMachine = <
   let items: CandyMachineItem[] = [];
   let itemsLoaded = 0;
   let isFullyLoaded = true;
-  let itemsLoadedMap: boolean[] = [];
 
   const hiddenSettings = parsedAccount.data.data.hiddenSettings;
   const configLineSettings = parsedAccount.data.data.configLineSettings;
@@ -372,7 +365,6 @@ export const toCandyMachine = <
     items = hiddenSection.items;
     itemsLoaded = hiddenSection.itemsLoaded;
     isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
-    itemsLoadedMap = hiddenSection.itemsLoadedMap;
   }
 
   return {
@@ -395,7 +387,6 @@ export const toCandyMachine = <
     itemsRemaining,
     itemsLoaded,
     isFullyLoaded,
-    itemsLoadedMap,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
       toBigNumber(parsedAccount.data.features).toBuffer('le', 8),
