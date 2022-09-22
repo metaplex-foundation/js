@@ -5,6 +5,20 @@ import {
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
+  amount,
+  Amount,
+  BigNumber,
+  Creator,
+  DateTime,
+  lamports,
+  SOL,
+  toBigNumber,
+  toDateTime,
+  toOptionDateTime,
+  UnparsedAccount,
+} from '@/types';
+import { assert, Option, removeEmptyChars } from '@/utils';
+import {
   countCandyMachineItems,
   getCandyMachineUuidFromAddress,
   parseCandyMachineItems,
@@ -14,18 +28,7 @@ import {
   MaybeCandyMachineCollectionAccount,
 } from '../accounts';
 import { CandyMachineProgram } from '../program';
-import {
-  Amount,
-  BigNumber,
-  DateTime,
-  lamports,
-  toBigNumber,
-  toDateTime,
-  toOptionDateTime,
-  UnparsedAccount,
-  Creator,
-} from '@/types';
-import { assert, Option, removeEmptyChars } from '@/utils';
+import { Mint } from '@/plugins/tokenModule';
 
 // -----------------
 // Model
@@ -387,8 +390,15 @@ export function assertCandyMachine(value: any): asserts value is CandyMachine {
 export const toCandyMachine = (
   account: CandyMachineAccount,
   unparsedAccount: UnparsedAccount,
-  collectionAccount: MaybeCandyMachineCollectionAccount | null
+  collectionAccount: MaybeCandyMachineCollectionAccount | null,
+  mint: Mint | null
 ): CandyMachine => {
+  assert(
+    mint === null ||
+      (account.data.tokenMint !== null &&
+        mint.address.equals(account.data.tokenMint))
+  );
+
   const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
   const itemsMinted = toBigNumber(account.data.itemsRedeemed);
 
@@ -423,9 +433,7 @@ export const toCandyMachine = (
         ? collectionAccount.data.mint
         : null,
     uuid: account.data.data.uuid,
-
-    // TODO(loris): Provide a more accurate Amount if `tokenMintAddress` is not `null`.
-    price: lamports(account.data.data.price),
+    price: amount(account.data.data.price, mint ? mint.currency : SOL),
     symbol: removeEmptyChars(account.data.data.symbol),
     sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
     isMutable: account.data.data.isMutable,

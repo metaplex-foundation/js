@@ -23,7 +23,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we create a public bid on that NFT for 6.5 SOL.
   const { bid, buyerTradeState } = await mx
@@ -76,7 +76,7 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   const tokenAddress = findAssociatedTokenAccountPda(
     nft.address,
@@ -123,7 +123,7 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
@@ -165,7 +165,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
@@ -207,7 +207,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
 
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // When we create a public bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
@@ -249,7 +249,7 @@ test('[auctionHouseModule] create private receipt-less Auctioneer bid', async (t
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
@@ -279,7 +279,7 @@ test('[auctionHouseModule] create public receipt-less Auctioneer bid', async (t:
 
   const auctioneerAuthority = Keypair.generate();
 
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we create a public bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx
@@ -308,7 +308,7 @@ test('[auctionHouseModule] it throws an error if Buy is not included in Auctione
   const auctioneerAuthority = Keypair.generate();
 
   // Create Auctioneer Auction House to only allow Sell.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Sell],
   });
 
@@ -341,7 +341,7 @@ test('[auctionHouseModule] it allows to Buy after Auctioneer scope update', asyn
   const auctioneerAuthority = Keypair.generate();
 
   // And an Auctioneer Auction House that, at first, could only Sell.
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Sell],
   });
 
@@ -379,7 +379,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
 
   // And an Auctioneer Auction House.
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we create a private bid on that NFT for 1 SOL without providing auctioneerAuthority.
   const promise = mx

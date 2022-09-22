@@ -17,7 +17,7 @@ test('[auctionHouseModule] cancel a Private Bid on an Auction House', async (t: 
   const mx = await metaplex();
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we put a private bid on that NFT for 1 SOL.
   const { bid } = await mx
@@ -55,7 +55,7 @@ test('[auctionHouseModule] cancel a Public Bid on an Auction House', async (t: T
   const mx = await metaplex();
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we put a public bid on that NFT for 1 SOL.
   const { bid } = await mx
@@ -81,7 +81,7 @@ test('[auctionHouseModule] cancel a Private Bid on an Auctioneer Auction House',
 
   const nft = await createNft(mx);
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we put a private bid on that NFT for 1 SOL.
   const { bid } = await mx
@@ -112,7 +112,7 @@ test('[auctionHouseModule] cancel a Public Bid on an Auctioneer Auction House', 
 
   const nft = await createNft(mx);
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we put a public bid on that NFT for 1 SOL.
   const { bid } = await mx
@@ -142,7 +142,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -195,7 +195,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we put a public bid on that NFT for 1 SOL.
   const { bid } = await mx

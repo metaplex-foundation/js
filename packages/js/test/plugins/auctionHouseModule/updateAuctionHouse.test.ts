@@ -125,7 +125,7 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
 test('[auctionHouseModule] it can assign an Auctioneer authority on an Auction House update', async (t) => {
   // Given an Auction House without Auctioneer.
   const mx = await metaplex();
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
   t.false(auctionHouse.hasAuctioneer);
 
   // When we update it with an Auctioneer authority.
@@ -157,7 +157,7 @@ test('[auctionHouseModule] it can assign an Auctioneer authority with an explici
   // Given an Auction House without Auctioneer.
   const mx = await metaplex();
   const authority = await createWallet(mx);
-  const { auctionHouse } = await createAuctionHouse(mx, null, { authority });
+  const auctionHouse = await createAuctionHouse(mx, null, { authority });
   t.false(auctionHouse.hasAuctioneer);
 
   // When we send an update with auctioneerAuthority to delegate.
@@ -191,7 +191,7 @@ test('[auctionHouseModule] it keeps the original scope when updating the Auction
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Buy],
   });
 
@@ -224,7 +224,7 @@ test('[auctionHouseModule] it can update Auctioneer Scope', async (t) => {
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.PublicBuy],
   });
 
@@ -257,7 +257,7 @@ test('[auctionHouseModule] it can update both the Auctioneer authority and scope
   // Given an existing Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Sell],
   });
 
@@ -291,7 +291,7 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
   // Given an Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority, {
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority, {
     auctioneerScopes: [AuthorityScope.Sell],
   });
 

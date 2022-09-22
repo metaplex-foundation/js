@@ -1,5 +1,4 @@
 export * from './accounts';
-export * from './models/AuctionHouse';
 export * from './AuctionHouseClient';
 export * from './errors';
 export * from './pdas';
