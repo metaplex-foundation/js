@@ -72,11 +72,34 @@ export type MintFromCandyMachineInput = {
   candyMachine: Pick<
     CandyMachine,
     | 'address'
-    | 'authorityAddress'
+    | 'collectionMintAddress'
     | 'itemsRemaining'
     | 'itemsAvailable'
     | 'itemsMinted'
   >;
+
+  /**
+   * The address of the update authority of the Collection NFT
+   * that is being assigned to each minted NFT.
+   */
+  collectionUpdateAuthority: PublicKey;
+
+  /**
+   * The account that should pay for the minted NFT
+   * and for the transaction fee.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  payer?: Signer;
+
+  /**
+   * The authority that is allowed to mint NFTs from the Candy Machine.
+   *
+   * @defaultValue
+   * `metaplex.identity()` if the Candy Machine has no associated Candy Guard.
+   * Otherwise, this parameter will be ignored.
+   */
+  mintAuthority?: Signer;
 
   /**
    * The mint account to create as a Signer.
@@ -104,14 +127,6 @@ export type MintFromCandyMachineInput = {
    * @defaultValue associated token address of `owner` and `mint`.
    */
   token?: Signer;
-
-  /**
-   * The account that should pay for the minted NFT
-   * and for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
@@ -246,7 +261,9 @@ export const mintFromCandyMachineBuilder = async (
 ): Promise<TransactionBuilder<MintFromCandyMachineBuilderContext>> => {
   const {
     candyMachine,
+    collectionUpdateAuthority,
     payer = metaplex.identity(),
+    mintAuthority = metaplex.identity(),
     mint = Keypair.generate(),
     owner = metaplex.identity().publicKey,
     token,
@@ -265,7 +282,32 @@ export const mintFromCandyMachineBuilder = async (
     candyMachine: candyMachine.address,
     programs,
   });
+  const nftMetadata = metaplex.nfts().pdas().metadata({
+    mint: mint.publicKey,
+    programs,
+  });
+  const nftMasterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: mint.publicKey,
+    programs,
+  });
+  const collectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: candyMachine.collectionMintAddress,
+    programs,
+  });
+  const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: candyMachine.collectionMintAddress,
+    programs,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: candyMachine.collectionMintAddress,
+      collectionAuthority: authorityPda,
+      programs,
+    });
 
+  // Transaction Builder that prepares the mint and token accounts.
   const tokenWithMintBuilder = await metaplex
     .tokens()
     .builders()
@@ -287,22 +329,22 @@ export const mintFromCandyMachineBuilder = async (
       initializeTokenInstructionKey: params.initializeTokenInstructionKey,
       mintTokensInstructionKey: params.mintTokensInstructionKey,
     });
-
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
+  const hasCandyGuard = false; // TODO(loris)
   const mintNftInstruction = createMintFromMachineInstruction(
     {
       candyMachine: candyMachine.address,
       authorityPda,
-      mintAuthority: candyMachine.mintAuthority,
+      mintAuthority: mintAuthority.publicKey,
       payer: payer.publicKey,
       nftMint: mint.publicKey,
       nftMintAuthority: payer.publicKey,
       nftMetadata,
       nftMasterEdition,
       collectionAuthorityRecord,
-      collectionMint,
-      collectionUpdateAuthority: collection.updateAuthorityAddress,
+      collectionMint: candyMachine.collectionMintAddress,
+      collectionUpdateAuthority,
       collectionMetadata,
       collectionMasterEdition,
       tokenMetadataProgram: tokenMetadataProgram.address,
@@ -311,10 +353,14 @@ export const mintFromCandyMachineBuilder = async (
     candyMachineProgram.address
   );
 
+  const mintNftSigners = hasCandyGuard
+    ? [payer, mint]
+    : [payer, mint, mintAuthority];
+
   return (
     TransactionBuilder.make<MintFromCandyMachineBuilderContext>()
       .setFeePayer(payer)
-      .setContext({ tokenAddress })
+      .setContext({ tokenAddress, mintSigner: mint })
 
       // Create token and mint accounts.
       .add(tokenWithMintBuilder)
@@ -322,7 +368,7 @@ export const mintFromCandyMachineBuilder = async (
       // Mint the new NFT.
       .add({
         instruction: mintNftInstruction,
-        signers: [payer, mint],
+        signers: mintNftSigners,
         key: params.mintFromCandyMachineInstructionKey ?? 'mintNft',
       })
   );
