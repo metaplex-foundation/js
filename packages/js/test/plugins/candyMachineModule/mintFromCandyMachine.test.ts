@@ -120,7 +120,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
   });
 });
 
-test.skip('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
+test.only('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
   // Given a loaded Candy Machine with some guards.
   const mx = await metaplex();
   const treasury = Keypair.generate();

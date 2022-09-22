@@ -9,7 +9,7 @@ import {
   useOperation,
   token as tokenAmount,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { createMintInstruction as createMintFromMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { createMintInstruction as createMintFromGuardInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import {
@@ -123,6 +123,33 @@ export type MintFromCandyMachineInput = {
    * @defaultValue associated token address of `owner` and `mint`.
    */
   token?: Signer;
+
+  /**
+   * The label of the group to mint from.
+   *
+   * If groups are configured on the Candy Machine,
+   * you must specify a group label to mint from.
+   *
+   * When set to `null` it will mint using the default
+   * guards, provided no groups are configured.
+   *
+   * @defaultValue `null`
+   */
+  group?: Option<string>;
+
+  /**
+   * Guard-specific data required to mint from the Candy Machine.
+   *
+   * Some guards require additional data to be provided at mint time.
+   * For instance, the `allowList` guard will require a Merkle proof
+   * ensuring the minting address is allowed to mint.
+   *
+   * You only need to provide configuration data for the guards
+   * that are set up within the group your are minting from.
+   *
+   * @defaultValue `{}`
+   */
+  guards?: object; // TODO(loris)
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
@@ -262,6 +289,8 @@ export const mintFromCandyMachineBuilder = async (
     mintAuthority = metaplex.identity(),
     mint = Keypair.generate(),
     owner = metaplex.identity().publicKey,
+    group,
+    guards,
     token,
     programs,
   } = params;
@@ -361,7 +390,7 @@ export const mintFromCandyMachineBuilder = async (
       },
       {
         mintArgs: new Uint8Array([]), // TODO(loris)
-        label: null, // TODO(loris)
+        label: group ?? null,
       },
       candyGuardProgram.address
     );
