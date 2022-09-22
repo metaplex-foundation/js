@@ -397,7 +397,7 @@ export const mintFromCandyMachineBuilder = async (
       guardSettings,
       guards
     );
-    mintNftSigners = [payer, mint];
+    mintNftSigners = [payer, mint, ...parsedMintSettings.signers];
     mintNftInstruction = createMintFromGuardInstruction(
       {
         ...sharedMintAccounts,
@@ -410,6 +410,7 @@ export const mintFromCandyMachineBuilder = async (
       },
       candyGuardProgram.address
     );
+    mintNftInstruction.keys.push(...parsedMintSettings.accountMetas);
   } else {
     mintNftSigners = [payer, mint, mintAuthority];
     mintNftInstruction = createMintFromMachineInstruction(
