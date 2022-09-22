@@ -204,20 +204,17 @@ export class CandyMachineGuardsClient {
       const mintSettings = guardMintSettings[guard.name] ?? null;
       if (!guard.mintSettingsParser || !settings) return acc;
 
-      // TODO(loris): fail if missing settings and mint settings are not empty object.
-
-      const parsedSettings = guard.mintSettingsParser(mintSettings, settings);
-      acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
-
+      const parsedSettings = guard.mintSettingsParser(settings, mintSettings);
       const remainingAccounts = parsedSettings.remainingAccounts;
       const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
         ...account,
         pubkey: account.isSigner ? account.address.publicKey : account.address,
       }));
-      const signers = remainingAccounts
+      const signers: Signer[] = remainingAccounts
         .filter((account) => account.isSigner)
         .map((account) => account.address as Signer);
 
+      acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
       acc.accountMetas.push(...accountMetas);
       acc.signers.push(...signers);
       return acc;

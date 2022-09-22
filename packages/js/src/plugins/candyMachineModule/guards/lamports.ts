@@ -24,13 +24,13 @@ export const lamportsGuardManifest: CandyGuardManifest<LamportsGuardSettings> =
       (settings) => ({ ...settings, amount: lamports(settings.amount) }),
       (settings) => ({ ...settings, amount: settings.amount.basisPoints })
     ),
-    mintSettingsParser: (mintSettings, setting) => {
+    mintSettingsParser: (settings, mintSettings) => {
       return {
         arguments: Buffer.from([]),
         remainingAccounts: [
           {
             isSigner: false,
-            address: setting.destination,
+            address: settings.destination,
             isWritable: true,
           },
         ],

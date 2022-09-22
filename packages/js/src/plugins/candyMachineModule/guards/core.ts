@@ -12,8 +12,8 @@ export type CandyGuardManifest<
   settingsBytes: number; // Fixed.
   settingsSerializer: Serializer<Settings>;
   mintSettingsParser?: (
-    mintSettings: MintSettings,
-    setting: Settings
+    settings: Settings,
+    mintSettings: Option<MintSettings>
   ) => {
     arguments: Buffer;
     remainingAccounts: (
