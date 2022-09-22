@@ -1,5 +1,5 @@
 import { NftWithToken } from '@/plugins/nftModule';
-import { PublicKey, Serializer } from '@/types';
+import { PublicKey, Serializer, Signer } from '@/types';
 import { Option } from '@/utils';
 import { Buffer } from 'buffer';
 
@@ -15,8 +15,19 @@ export type CandyGuardManifest<
     mintSettings: MintSettings,
     setting: Settings
   ) => {
-    remainingAccounts: PublicKey[];
     arguments: Buffer;
+    remainingAccounts: (
+      | {
+          isSigner: false;
+          address: PublicKey;
+          isWritable: boolean;
+        }
+      | {
+          isSigner: true;
+          address: Signer;
+          isWritable: boolean;
+        }
+    )[];
   };
   onBeforeMint?: (setting: Settings) => Promise<void> | void;
   onAfterMint?: (nft: NftWithToken) => Promise<void> | void;
