@@ -10,12 +10,12 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, LazyListing, Listing, Purchase } from '../models';
+import { AuctionHouse, Bid, Listing, Purchase } from '../models';
+import { createListingBuilder, CreateListingBuilderContext } from './createListing';
 import {
-  createListingBuilder,
   executeSaleBuilder,
   ExecuteSaleBuilderContext,
-} from '@/plugins';
+} from './executeSale';
 
 // -----------------
 // Operation
@@ -122,18 +122,6 @@ export type DirectSellInput = {
   tokens?: SplTokenAmount;
 
   /**
-   * Prints receipt for listing and executed sale.
-   * The receipt holds information about the purchase and the listing,
-   * So it's important to print it if you want to use the `Purchase` or the `Listing` model
-   *
-   * The receipt printing is skipped for the Auctioneer Auction House
-   * Since it currently doesn't support it.
-   *
-   * @defaultValue `true`
-   */
-  printReceipt?: boolean;
-
-  /**
    * The address of the bookkeeper wallet responsible for the receipt.
    *
    * @defaultValue `metaplex.identity()`
@@ -213,22 +201,33 @@ export const directSellBuilder = async (
 ): Promise<TransactionBuilder<DirectSellBuilderContext>> => {
   // Data.
   const { bid, seller, tokenAccount, tokens, authority, ...rest } = params;
+  const printReceipt = true;
 
-  const listingBuilder = await createListingBuilder(metaplex, {
+  const listingBuilder: TransactionBuilder<CreateListingBuilderContext> = await createListingBuilder(metaplex, {
     mintAccount: bid.asset.mint.address,
     price: bid.price,
     seller,
     authority,
     tokenAccount,
     tokens,
+    printReceipt,
     ...rest,
   });
   const listingContext = listingBuilder.getContext();
 
-  const lazyListing: LazyListing = {
+  const listing = await metaplex
+    .auctionHouse()
+    .findListingByReceipt({
+      receiptAddress: listingContext.receipt as PublicKey,
+      auctionHouse: params.auctionHouse,
+    })
+    .run();
+
+  /*const lazyListing: Listing = {
     model: 'listing',
-    lazy: true,
+    lazy: false,
     auctionHouse: params.auctionHouse,
+    asset: seller.asset,
     tradeStateAddress: listingContext.sellerTradeState,
     bookkeeperAddress: listingContext.bookkeeper,
     sellerAddress: listingContext.seller,
@@ -236,25 +235,27 @@ export const directSellBuilder = async (
     receiptAddress: listingContext.receipt,
     purchaseReceiptAddress: null,
     price: bid.price,
-    tokens: bid.tokens.basisPoints,
+    tokens: bid.tokens,
+
     createdAt: now(),
     canceledAt: null,
-  };
+  };*/
 
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
     await executeSaleBuilder(metaplex, {
       bid,
-      auctionHouse: params.auctionHouse,
-      listing: lazyListing as Listing,
+      listing,
+      printReceipt,
       ...rest,
     });
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
     .setContext({
-      listing: lazyListing as Listing,
+      listing,
       purchase: {
         model: 'purchase',
-        lazy: true,
+        lazy: false,
+        asset: bid.asset,
         auctionHouse: params.auctionHouse,
         buyerAddress: saleBuilder.getContext().buyer,
         sellerAddress: saleBuilder.getContext().seller,
@@ -262,10 +263,10 @@ export const directSellBuilder = async (
         bookkeeperAddress: saleBuilder.getContext().bookkeeper,
         receiptAddress: saleBuilder.getContext().receipt,
         price: bid.price,
-        tokens: saleBuilder.getContext().tokens.basisPoints,
+        tokens: saleBuilder.getContext().tokens,
         createdAt: now(),
       } as Purchase,
     })
-    .add(listingContext)
+    .add(listingBuilder)
     .add(saleBuilder);
 };

@@ -11,13 +11,9 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, LazyBid, Listing, Purchase } from '../models';
-import {
-  createBidBuilder,
-  CreateBidBuilderContext,
-  executeSaleBuilder,
-  ExecuteSaleBuilderContext,
-} from '@/plugins';
+import { AuctionHouse, Bid, Listing, Purchase } from '../models';
+import {createBidBuilder} from './createBid';
+import {executeSaleBuilder, ExecuteSaleBuilderContext} from './executeSale';
 
 // -----------------
 // Operation
@@ -224,7 +220,6 @@ export const directBuyBuilder = async (
     tokenAccount,
     tokens,
     authority,
-    confirmOptions,
     ...rest
   } = params;
 
@@ -239,58 +234,46 @@ export const directBuyBuilder = async (
   });
   const createBidBuilderContext = bidBuilder.getContext();
 
-  const lazyBid = {
+  const bid = {
     model: 'bid',
-    lazy: true,
+    lazy: false,
+    isPublic: false,
     auctionHouse,
     asset: listing.asset,
+    buyerAddress: createBidBuilderContext.buyer,
+    canceledAt: null,
+    price: listing.price,
+    receiptAddress: createBidBuilderContext.receipt,
+    tokens: createBidBuilderContext.tokens,
     tradeStateAddress: createBidBuilderContext.buyerTradeState,
     bookkeeperAddress: createBidBuilderContext.bookkeeper,
-    tokenAddress: createBidBuilderContext.tokenAccount,
-    buyerAddress: createBidBuilderContext.buyer,
-    metadataAddress: createBidBuilderContext.metadata,
-    receiptAddress: createBidBuilderContext.receipt,
     purchaseReceiptAddress: null,
-    isPublic: Boolean(createBidBuilderContext.tokenAccount),
-    price: listing.price,
-    tokens: createBidBuilderContext.tokens.basisPoints,
     createdAt: now(),
-    canceledAt: null,
-  };
+  } as Bid;
 
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
     await executeSaleBuilder(metaplex, {
       auctionHouse,
-      bid: {
-        model: 'bid',
-        lazy: true,
-        auctionHouse,
-        asset: listing.asset,
-        buyerAddress: createBidBuilderContext.buyer,
-        canceledAt: null,
-        price: listing.price,
-        receiptAddress: createBidBuilderContext.receipt,
-        tokens: createBidBuilderContext.tokens.basisPoints,
-        tradeStateAddress: createBidBuilderContext.buyerTradeState,
-      } as Bid,
+      bid,
       listing,
       ...rest,
     });
 
   return TransactionBuilder.make<DirectBuyBuilderContext>()
     .setContext({
-      bid: lazyBid as Bid,
+      bid,
       purchase: {
-        model: 'purchase',
-        lazy: true,
         auctionHouse,
+        model: 'purchase',
+        lazy: false,
+        asset: listing.asset,
         buyerAddress: saleBuilder.getContext().buyer,
         sellerAddress: saleBuilder.getContext().seller,
         metadataAddress: saleBuilder.getContext().metadata,
         bookkeeperAddress: saleBuilder.getContext().bookkeeper,
         receiptAddress: saleBuilder.getContext().receipt,
         price: listing.price,
-        tokens: saleBuilder.getContext().tokens.basisPoints,
+        tokens: saleBuilder.getContext().tokens,
         createdAt: now(),
       } as Purchase,
     })
