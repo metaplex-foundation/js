@@ -46,12 +46,14 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
   });
 
   // When we mint an NFT from the candy machine using the mint authority.
+  const owner = Keypair.generate().publicKey;
   const { nft } = await mx
     .candyMachines()
     .mint({
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       mintAuthority: candyMachineAuthority,
+      owner,
     })
     .run();
 
@@ -60,7 +62,7 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner: mx.identity().publicKey,
+    owner,
   });
 });
 
@@ -208,8 +210,64 @@ test("[candyMachineModule] it throws a bot tax error if minting succeeded but we
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
 });
 
-test.skip('[candyMachineModule] it can mint from a Candy Guard with groups', async (t) => {
-  //
+test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t) => {
+  // Given a loaded Candy Machine with some two guard groups: GROUP1 and GROUP2,
+  // Such that GROUP1 is mintable and GROUP2 is not yet.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      lamports: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+    groups: [
+      {
+        label: 'GROUP1',
+        guards: {
+          liveDate: {
+            date: toDateTime(now().subn(3600 * 24)), // Yesterday.
+          },
+        },
+      },
+      {
+        label: 'GROUP2',
+        guards: {
+          liveDate: {
+            date: toDateTime(now().subn(3600 * 24)), // Tomorrow.
+          },
+        },
+      },
+    ],
+  });
+
+  // When we mint an NFT from this candy machine using GROUP1.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      group: 'GROUP1',
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+  });
 });
 
 test.skip('[candyMachineModule] it cannot mint using the default guards if the Candy Guard has groups', async (t) => {
