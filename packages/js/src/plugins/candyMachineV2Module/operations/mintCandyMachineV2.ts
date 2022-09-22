@@ -12,10 +12,7 @@ import {
   createMintNftInstruction,
   createSetCollectionDuringMintInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   ConfirmOptions,
   Keypair,
@@ -31,7 +28,6 @@ import {
   NftWithToken,
 } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
 import { CandyMachineV2BotTaxError } from '../errors';
@@ -161,9 +157,6 @@ export type MintCandyMachineV2Input = {
 
   /** The address of the SPL Token program to override if necessary. */
   tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
 
   /** The address of the Token Metadata program to override if necessary. */
   tokenMetadataProgram?: PublicKey;
@@ -310,7 +303,6 @@ export const mintCandyMachineV2Builder = async (
     newMint = Keypair.generate(),
     newOwner = metaplex.identity().publicKey,
     newToken,
-    associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID,
     tokenMetadataProgram = TOKEN_PROGRAM_ID,
     candyMachineProgram = CandyMachineV2Program.publicKey,
   } = params;
@@ -377,11 +369,10 @@ export const mintCandyMachineV2Builder = async (
   if (candyMachine.whitelistMintSettings) {
     const whitelistToken =
       params.whitelistToken ??
-      findAssociatedTokenAccountPda(
-        candyMachine.whitelistMintSettings.mint,
-        payer.publicKey,
-        associatedTokenProgram
-      );
+      metaplex.tokens().pdas().associatedTokenAccount({
+        mint: candyMachine.whitelistMintSettings.mint,
+        owner: payer.publicKey,
+      });
 
     mintNftInstruction.keys.push(
       {
@@ -405,11 +396,10 @@ export const mintCandyMachineV2Builder = async (
   if (candyMachine.tokenMintAddress) {
     const payerToken =
       params.payerToken ??
-      findAssociatedTokenAccountPda(
-        candyMachine.tokenMintAddress,
-        payer.publicKey,
-        associatedTokenProgram
-      );
+      metaplex.tokens().pdas().associatedTokenAccount({
+        mint: candyMachine.tokenMintAddress,
+        owner: payer.publicKey,
+      });
 
     mintNftInstruction.keys.push(
       {

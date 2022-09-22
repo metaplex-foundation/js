@@ -13,7 +13,6 @@ import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { toOriginalEditionAccount } from '../accounts';
 import {
   assertNftWithToken,
@@ -330,10 +329,11 @@ export const printNewEditionBuilder = async (
     params.originalTokenAccountOwner ?? metaplex.identity();
   const originalTokenAccount =
     params.originalTokenAccount ??
-    findAssociatedTokenAccountPda(
-      originalMint,
-      originalTokenAccountOwner.publicKey
-    );
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: originalMint,
+      owner: originalTokenAccountOwner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make<PrintNewEditionBuilderContext>()

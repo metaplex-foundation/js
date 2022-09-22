@@ -10,7 +10,6 @@ import { TransactionBuilder } from '@/utils';
 import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { findMasterEditionV2Pda } from '../pdas';
 
 // -----------------
@@ -150,12 +149,19 @@ export const freezeDelegatedNftBuilder = (
     programs,
   } = params;
 
+  // Programs.
   const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
+  // PDAs.
   const editionAddress = findMasterEditionV2Pda(mintAddress);
   const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: tokenOwner,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
     instruction: createFreezeDelegatedAccountInstruction(

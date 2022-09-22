@@ -18,7 +18,6 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { assertSft, Sft, SftWithToken } from '../models';
 import { findMetadataPda } from '../pdas';
 
@@ -560,7 +559,11 @@ const createMintAndTokenForSftBuilder = async (
 
   const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
   const associatedTokenAddress = params.tokenOwner
-    ? findAssociatedTokenAccountPda(mintAddress, params.tokenOwner)
+    ? metaplex.tokens().pdas().associatedTokenAccount({
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        programs,
+      })
     : null;
   const tokenAddress = params.tokenAddress
     ? toPublicKey(params.tokenAddress)

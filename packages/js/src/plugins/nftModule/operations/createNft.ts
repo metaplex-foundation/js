@@ -1,5 +1,4 @@
 import { Metaplex } from '@/Metaplex';
-import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
 import {
   BigNumber,
   CreatorInput,
@@ -282,12 +281,17 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       tokenOwner = metaplex.identity().publicKey,
       tokenAddress: tokenSigner,
       confirmOptions,
+      programs,
     } = operation.input;
 
     const mintAddress = useExistingMint ?? useNewMint.publicKey;
     const tokenAddress = tokenSigner
       ? toPublicKey(tokenSigner)
-      : findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+      : metaplex.tokens().pdas().associatedTokenAccount({
+          mint: mintAddress,
+          owner: tokenOwner,
+          programs,
+        });
     const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
     const tokenExists = tokenAccount.exists;
 

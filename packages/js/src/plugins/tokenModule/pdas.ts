@@ -5,7 +5,10 @@ import {
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.tokens().pdas().associatedTokenAccount(...)` instead.
+ */
 export const findAssociatedTokenAccountPda = (
   mint: PublicKey,
   owner: PublicKey,
