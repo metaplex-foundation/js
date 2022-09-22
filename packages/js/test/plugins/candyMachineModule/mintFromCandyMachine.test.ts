@@ -50,15 +50,17 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
     tokenStandard: TokenStandard.NonFungible,
     isMutable: true,
     primarySaleHappened: true,
-    updateAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
+    updateAuthorityAddress: spokSamePubkey(
+      collection.updateAuthority.publicKey
+    ),
     creators: [
       {
-        address: spokSamePubkey(candyMachine.address),
+        address: spokSamePubkey(candyMachine.address), // TODO(loris): creator PDA.
         verified: true,
         share: 0,
       },
       {
-        address: spokSamePubkey(mx.identity().publicKey),
+        address: spokSamePubkey(candyMachineAuthority.publicKey),
         verified: false,
         share: 100,
       },
