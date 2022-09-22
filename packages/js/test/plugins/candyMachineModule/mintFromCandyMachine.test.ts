@@ -7,6 +7,7 @@ import {
   sol,
   toBigNumber,
   toDateTime,
+  token,
 } from '@/index';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
@@ -16,6 +17,7 @@ import {
   assertThrows,
   killStuckProcess,
   metaplex,
+  spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
@@ -23,7 +25,7 @@ import { createCandyMachine } from './helpers';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] it can mint from a Candy Machine directly as the mint authority', async (t) => {
+test('[candyMachineModule] it can mint from a Candy Machine directly as the mint authority', async (t) => {
   // Given a loaded Candy Machine with a mint authority.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
@@ -49,57 +51,13 @@ test.only('[candyMachineModule] it can mint from a Candy Machine directly as the
     })
     .run();
 
-  // Then an NFT was created with the right data.
-  spok(t, nft, {
-    $topic: 'Minted NFT',
-    model: 'nft',
-    name: 'Degen #1',
-    symbol: 'CANDY',
-    uri: 'https://example.com/degen/1',
-    sellerFeeBasisPoints: 123,
-    tokenStandard: TokenStandard.NonFungible,
-    isMutable: true,
-    primarySaleHappened: true,
-    updateAuthorityAddress: spokSamePubkey(
-      collection.updateAuthority.publicKey
-    ),
-    creators: [
-      {
-        address: spokSamePubkey(
-          mx.candyMachines().pdas().authority({
-            candyMachine: candyMachine.address,
-          })
-        ),
-        verified: true,
-        share: 0,
-      },
-      {
-        address: spokSamePubkey(candyMachineAuthority.publicKey),
-        verified: false,
-        share: 100,
-      },
-    ],
-    edition: {
-      model: 'nftEdition',
-      isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
-      maxSupply: spokSameBignum(toBigNumber(0)),
-    },
-  } as Specifications<Nft>);
-
-  // And the Candy Machine data was updated.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
-  spok(t, updatedCandyMachine, {
-    $topic: 'Update Candy Machine',
-    itemsAvailable: spokSameBignum(toBigNumber(2)),
-    itemsMinted: spokSameBignum(toBigNumber(1)),
-    itemsRemaining: spokSameBignum(toBigNumber(1)),
-  } as Specifications<CandyMachine>);
-  t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
-  t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+  });
 });
 
 test('[candyMachineModule] it cannot mint from a Candy Machine directly if not the mint authority', async (t) => {
@@ -153,57 +111,13 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
     })
     .run();
 
-  // Then an NFT was created with the right data.
-  spok(t, nft, {
-    $topic: 'Minted NFT',
-    model: 'nft',
-    name: 'Degen #1',
-    symbol: 'CANDY',
-    uri: 'https://example.com/degen/1',
-    sellerFeeBasisPoints: 123,
-    tokenStandard: TokenStandard.NonFungible,
-    isMutable: true,
-    primarySaleHappened: true,
-    updateAuthorityAddress: spokSamePubkey(
-      collection.updateAuthority.publicKey
-    ),
-    creators: [
-      {
-        address: spokSamePubkey(
-          mx.candyMachines().pdas().authority({
-            candyMachine: candyMachine.address,
-          })
-        ),
-        verified: true,
-        share: 0,
-      },
-      {
-        address: spokSamePubkey(mx.identity().publicKey),
-        verified: false,
-        share: 100,
-      },
-    ],
-    edition: {
-      model: 'nftEdition',
-      isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
-      maxSupply: spokSameBignum(toBigNumber(0)),
-    },
-  } as Specifications<Nft>);
-
-  // And the Candy Machine data was updated.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
-  spok(t, updatedCandyMachine, {
-    $topic: 'Update Candy Machine',
-    itemsAvailable: spokSameBignum(toBigNumber(2)),
-    itemsMinted: spokSameBignum(toBigNumber(1)),
-    itemsRemaining: spokSameBignum(toBigNumber(1)),
-  } as Specifications<CandyMachine>);
-  t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
-  t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+  });
 });
 
 test.skip('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
@@ -236,21 +150,13 @@ test.skip('[candyMachineModule] it can mint from a Candy Guard with some guards'
     })
     .run();
 
-  // Then an NFT was created with the right data.
-  spok(t, nft, {
-    $topic: 'Minted NFT',
-    model: 'nft',
-    name: 'Degen #1',
-  } as Specifications<Nft>);
-
-  // And the Candy Machine data was updated.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
-  t.equal(updatedCandyMachine.itemsMinted.toNumber(), 1);
-  t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
-  t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+  });
 });
 
 test.skip("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
@@ -285,8 +191,7 @@ const assertMintingWasSuccessful = async (
   }
 ) => {
   const candyMachine = input.candyMachine;
-  const mintedIndex =
-    input.mintedIndex ?? candyMachine.itemsMinted.toNumber() - 1;
+  const mintedIndex = input.mintedIndex ?? candyMachine.itemsMinted.toNumber();
   const expectedItemMinted = candyMachine.items[mintedIndex];
 
   // Then an NFT was created with the right data.
@@ -312,9 +217,9 @@ const assertMintingWasSuccessful = async (
         share: 0,
       },
       ...candyMachine.creators.map((creator) => ({
-        ...creator,
         address: spokSamePubkey(creator.address),
         verified: false,
+        share: creator.share,
       })),
     ],
     edition: {
@@ -322,6 +227,12 @@ const assertMintingWasSuccessful = async (
       isOriginal: true,
       supply: spokSameBignum(toBigNumber(0)),
       maxSupply: spokSameBignum(candyMachine.maxEditionSupply),
+    },
+    token: {
+      model: 'token',
+      ownerAddress: spokSamePubkey(input.owner),
+      mintAddress: spokSamePubkey(input.nft.address),
+      amount: spokSameAmount(token(1, 0, candyMachine.symbol)),
     },
   } as Specifications<Nft>);
 
