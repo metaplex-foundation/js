@@ -134,3 +134,57 @@ export class CandyMachineBotTaxError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class MintingRequiresGroupLabelError extends CandyMachineV3Error {
+  constructor(availableGroups: string[], options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'minting_requires_group_label',
+      title: 'Minting Requires Group Label',
+      problem:
+        "You're trying to mint an NFT from a Candy Machine that has groups of guards " +
+        'but no group label was provided to identity which group we should mint from.',
+      solution:
+        'Please provide the label of the group you wish to mint from via the `group` parameter. ' +
+        `The available groups are [${availableGroups.join(', ')}]`,
+    });
+  }
+}
+
+/** @group Errors */
+export class MintingMustNotUseGroupError extends CandyMachineV3Error {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'minting_must_not_use_group',
+      title: 'Minting Must Not Use Group',
+      problem:
+        "You're trying to mint an NFT from a Candy Machine that has no groups of guards " +
+        'yet you provided the label of a specific group to mint from.',
+      solution:
+        'Please set the `group` parameter to `null` or remove it altogether.',
+    });
+  }
+}
+
+/** @group Errors */
+export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
+  constructor(
+    providedGroup: string,
+    availableGroups: string[],
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'minting_group_selected_does_not_exist',
+      title: 'Minting Group Selected Does Not Exist',
+      problem:
+        `You're trying to mint an NFT from a Candy Machine using a specific group labelled [${providedGroup}]` +
+        'but this group of guards does not exists on the Candy Machine.',
+      solution:
+        'Please provide the label of a group that exists on the Candy Machine. ' +
+        `The available groups are [${availableGroups.join(', ')}]`,
+    });
+  }
+}

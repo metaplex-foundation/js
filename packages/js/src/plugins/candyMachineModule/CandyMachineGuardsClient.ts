@@ -6,12 +6,17 @@ import {
   serialize,
   Signer,
 } from '@/types';
-import { assert, Option, padEmptyChars, removeEmptyChars } from '@/utils';
+import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
 import * as beet from '@metaplex-foundation/beet';
 import { AccountMeta } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
-import { UnregisteredCandyGuardError } from './errors';
+import {
+  MintingGroupSelectedDoesNotExistError,
+  MintingMustNotUseGroupError,
+  MintingRequiresGroupLabelError,
+  UnregisteredCandyGuardError,
+} from './errors';
 import {
   CandyGuardManifest,
   CandyGuardsMintSettings,
@@ -158,16 +163,23 @@ export class CandyMachineGuardsClient {
     groups: { label: string; guards: T }[] = [],
     label: Option<string>
   ): T {
-    if (!label) {
-      // TODO(loris): proper Metaplex errors.
-      assert(groups.length === 0, 'Group label is required');
+    if (groups.length === 0) {
+      if (!!label) {
+        throw new MintingMustNotUseGroupError();
+      }
+
       return guards;
     }
 
-    // TODO(loris): proper Metaplex errors.
-    assert(groups.length > 0, 'Group label must be null');
+    const availableGroups = groups.map((group) => group.label);
+    if (!label) {
+      throw new MintingRequiresGroupLabelError(availableGroups);
+    }
+
     const activeGroup = groups.find((group) => group.label === label);
-    assert(!!activeGroup, 'Group label does not match any group');
+    if (!activeGroup) {
+      throw new MintingGroupSelectedDoesNotExistError(label, availableGroups);
+    }
 
     const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
       Object.entries(activeGroup.guards).filter(([_, v]) => v != null)
