@@ -88,5 +88,6 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
     itemsMinted: spokSameBignum(toBigNumber(1)),
     itemsRemaining: spokSameBignum(toBigNumber(1)),
   } as Specifications<CandyMachine>);
-  t.ok(updatedCandyMachine.items[0].minted);
+  t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
+  t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
 });
