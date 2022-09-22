@@ -12,6 +12,7 @@ import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import { UnregisteredCandyGuardError } from './errors';
 import {
   CandyGuardManifest,
+  CandyGuardsMintSettings,
   CandyGuardsSettings,
   DefaultCandyGuardSettings,
 } from './guards';
@@ -24,17 +25,17 @@ import { CandyGuardProgram } from './programs';
  * @group Module
  */
 export class CandyMachineGuardsClient {
-  readonly guards: CandyGuardManifest<any>[] = [];
+  readonly guards: CandyGuardManifest<any, any>[] = [];
 
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** TODO */
-  register(...guard: CandyGuardManifest<any>[]) {
+  register(...guard: CandyGuardManifest<any, any>[]) {
     this.guards.push(...guard);
   }
 
   /** TODO */
-  get(name: string): CandyGuardManifest<any> {
+  get(name: string): CandyGuardManifest<any, any> {
     const guard = this.guards.find((guard) => guard.name === name);
 
     if (!guard) {
@@ -45,14 +46,14 @@ export class CandyMachineGuardsClient {
   }
 
   /** TODO */
-  all(): CandyGuardManifest<any>[] {
+  all(): CandyGuardManifest<any, any>[] {
     return this.guards;
   }
 
   /** TODO */
   forProgram(
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): CandyGuardManifest<any>[] {
+  ): CandyGuardManifest<any, any>[] {
     const candyGuardProgram =
       typeof program === 'object' && 'availableGuards' in program
         ? program
@@ -148,12 +149,28 @@ export class CandyMachineGuardsClient {
   }
 
   /** TODO */
-  serializeMintArguments() {
-    // TODO
-  }
+  parseMintSettings<
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    MintSettings extends CandyGuardsMintSettings = {}
+  >(
+    guardSettings: Partial<Settings>,
+    guardMintSettings: MintSettings,
+    program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
+  ): { remainingAccounts: PublicKey[]; arguments: Buffer } {
+    const availableGuards = this.forProgram(program);
+    const initialAccumulator = {
+      remainingAccounts: [] as PublicKey[],
+      arguments: Buffer.from([]),
+    };
 
-  /** TODO */
-  serializeMintRemainingAccounts() {
-    // TODO
+    return availableGuards.reduce((acc, guard) => {
+      if (!guard.mintSettingsParser) return acc;
+      const settings = guardSettings[guard.name] ?? null;
+      const mintSettings = guardMintSettings[guard.name] ?? null;
+      const parsedSettings = guard.mintSettingsParser(mintSettings, settings);
+      acc.remainingAccounts.push(...parsedSettings.remainingAccounts);
+      acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
+      return acc;
+    }, initialAccumulator);
   }
 }

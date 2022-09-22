@@ -1,20 +1,25 @@
 import { NftWithToken } from '@/plugins/nftModule';
-import { Serializer } from '@/types';
+import { PublicKey, Serializer } from '@/types';
 import { Option } from '@/utils';
+import { Buffer } from 'buffer';
 
 /** TODO */
 export type CandyGuardManifest<
   Settings extends object,
-  MintArgs extends Array<unknown> = [],
-  MintRemainingAccounts extends Array<unknown> = []
+  MintSettings extends object = {}
 > = {
   name: string;
   settingsBytes: number; // Fixed.
   settingsSerializer: Serializer<Settings>;
-  mintArgsSerializer?: Serializer<MintArgs>;
-  mintRemainingAccountsSerializer?: Serializer<MintRemainingAccounts>;
-  onBeforeMint?: (setting: Settings) => Promise<void>;
-  onAfterMint?: (nft: NftWithToken) => Promise<void>;
+  mintSettingsParser?: (
+    mintSettings: MintSettings,
+    setting: Settings
+  ) => {
+    remainingAccounts: PublicKey[];
+    arguments: Buffer;
+  };
+  onBeforeMint?: (setting: Settings) => Promise<void> | void;
+  onAfterMint?: (nft: NftWithToken) => Promise<void> | void;
 };
 
 /** TODO */
@@ -24,8 +29,5 @@ export type CandyGuardsSettings = {
 
 /** TODO */
 export type CandyGuardsMintSettings = {
-  [name: string]: Option<{
-    args?: Array<unknown>;
-    remainingAccounts?: Array<unknown>;
-  }>;
+  [name: string]: Option<object>;
 };

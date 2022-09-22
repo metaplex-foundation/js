@@ -70,9 +70,10 @@ export type MintFromCandyMachineInput = {
    *
    * TODO: This includes ...
    */
-  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'> & {
-    candyGuard: null | { address: PublicKey };
-  };
+  candyMachine: Pick<
+    CandyMachine,
+    'address' | 'collectionMintAddress' | 'candyGuard'
+  >;
 
   /**
    * The address of the update authority of the Collection NFT
@@ -294,6 +295,10 @@ export const mintFromCandyMachineBuilder = async (
     token,
     programs,
   } = params;
+
+  // Validation.
+  // TODO(loris): Ensure group label is valid.
+  // TODO(loris): Ensure mint authority is valid.
 
   // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
