@@ -4,6 +4,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
+  assertThrows,
   killStuckProcess,
   metaplex,
   spokSameBignum,
@@ -90,4 +91,61 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
   } as Specifications<CandyMachine>);
   t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
   t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
+});
+
+test('[candyMachineModule] it cannot mint from a Candy Machine directly if not the mint authority', async (t) => {
+  // Given a loaded Candy Machine with a mint authority.
+  const mx = await metaplex();
+  const candyMachineAuthority = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    authority: candyMachineAuthority,
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
+
+  // When we try to mint an NFT using another mint authority.
+  const wrongMintAuthority = Keypair.generate();
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      mintAuthority: wrongMintAuthority,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /A has_one constraint was violated/);
+});
+
+test.skip('[candyMachineModule] it can mint from a Candy Guard with no guards', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
+  //
+});
+
+test.skip("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] it can mint from a Candy Guard with groups', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] it cannot mint using the default guards if the Candy Guard has groups', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] it cannot mint using a labelled group if the Candy Guard has no groups', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] it cannot mint from a Candy Guard with groups if the provided group label does not exist', async (t) => {
+  //
 });
