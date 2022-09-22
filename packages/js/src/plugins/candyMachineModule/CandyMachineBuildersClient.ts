@@ -11,6 +11,8 @@ import {
   DeleteCandyMachineBuilderParams,
   insertCandyMachineItemsBuilder,
   InsertCandyMachineItemsBuilderParams,
+  mintFromCandyMachineBuilder,
+  MintFromCandyMachineBuilderParams,
   unwrapCandyGuardBuilder,
   UnwrapCandyGuardBuilderParams,
   updateCandyGuardBuilder,
@@ -58,6 +60,11 @@ export class CandyMachineBuildersClient {
   /** {@inheritDoc insertCandyMachineItemsBuilder} */
   insertItems(input: InsertCandyMachineItemsBuilderParams) {
     return insertCandyMachineItemsBuilder(this.metaplex, input);
+  }
+
+  /** {@inheritDoc mintFromCandyMachineBuilder} */
+  mint(input: MintFromCandyMachineBuilderParams) {
+    return mintFromCandyMachineBuilder(this.metaplex, input);
   }
 
   /** {@inheritDoc unwrapCandyGuardBuilder} */

@@ -271,11 +271,7 @@ export const mintFromCandyMachineBuilder = async (
   } = params;
 
   // Programs.
-  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
-  const associatedTokenProgram = metaplex
-    .programs()
-    .getAssociatedToken(programs);
 
   // PDAs.
   const authorityPda = metaplex.candyMachines().pdas().authority({
@@ -331,6 +327,7 @@ export const mintFromCandyMachineBuilder = async (
     });
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
+  // Mint instruction.
   const hasCandyGuard = false; // TODO(loris)
   const mintNftInstruction = createMintFromMachineInstruction(
     {

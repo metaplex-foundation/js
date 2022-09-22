@@ -24,6 +24,8 @@ import {
   findCandyMachineByAddressOperation,
   InsertCandyMachineItemsInput,
   insertCandyMachineItemsOperation,
+  MintFromCandyMachineInput,
+  mintFromCandyMachineOperation,
   UnwrapCandyGuardInput,
   unwrapCandyGuardOperation,
   UpdateCandyGuardInput,
@@ -214,6 +216,13 @@ export class CandyMachineClient {
       : this.findCandyGuardByAddress<T>(input);
 
     return task as Task<M>;
+  }
+
+  /** {@inheritDoc mintFromCandyMachineOperation} */
+  mint(input: MintFromCandyMachineInput) {
+    return this.metaplex
+      .operations()
+      .getTask(mintFromCandyMachineOperation(input));
   }
 
   /** {@inheritDoc unwrapCandyGuardOperation} */

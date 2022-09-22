@@ -132,7 +132,7 @@ export type InsertCandyMachineItemsOutput = {
  * @group Operations
  * @category Handlers
  */
-export const InsertCandyMachineItemsOperationHandler: OperationHandler<InsertCandyMachineItemsOperation> =
+export const insertCandyMachineItemsOperationHandler: OperationHandler<InsertCandyMachineItemsOperation> =
   {
     async handle(
       operation: InsertCandyMachineItemsOperation,
