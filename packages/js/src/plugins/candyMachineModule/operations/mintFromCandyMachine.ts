@@ -324,10 +324,6 @@ export const mintFromCandyMachineBuilder = async <
     programs,
   } = params;
 
-  // Validation.
-  // TODO(loris): Ensure group label is valid.
-  // TODO(loris): Ensure mint authority is valid.
-
   // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
@@ -440,6 +436,7 @@ export const mintFromCandyMachineBuilder = async <
     );
     mintNftInstruction.keys.push(...parsedMintSettings.accountMetas);
   } else {
+    // TODO(loris): Ensure mint authority is valid.
     mintNftSigners = [payer, mint, mintAuthority];
     mintNftInstruction = createMintFromMachineInstruction(
       {
