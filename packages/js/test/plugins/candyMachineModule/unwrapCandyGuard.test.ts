@@ -11,7 +11,7 @@ test('[candyMachineModule] it can unwrap a Candy Machine from Candy Guard', asyn
   // Given a Candy Machine with a Candy Guard.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority: candyMachineAuthority,
   });
   t.notEqual(candyMachine.candyGuard, null);

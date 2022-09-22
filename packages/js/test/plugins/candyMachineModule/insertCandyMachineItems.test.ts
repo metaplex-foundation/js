@@ -15,7 +15,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   // Given an existing Candy Machine with a capacity of 100 items.
   const mx = await metaplex();
   const authority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority,
     itemsAvailable: toBigNumber(100),
   });
@@ -60,7 +60,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
 test('[candyMachineModule] it uses the names and URIs as suffixes when adding items to a candy machine', async (t) => {
   // Given an existing Candy Machine with prefixes for the names and URIs.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(9), // Numbers go from 1 to 9.
     itemSettings: {
       type: 'configLines',
@@ -108,7 +108,7 @@ test('[candyMachineModule] it uses the names and URIs as suffixes when adding it
 test('[candyMachineModule] it cannot add items to a candy machine with hidden settings', async (t) => {
   // Given a Candy Machine with hidden settings.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(10),
     itemSettings: {
       type: 'hidden',
@@ -137,7 +137,7 @@ test('[candyMachineModule] it cannot add items to a candy machine with hidden se
 test('[candyMachineModule] it cannot add items that would make the candy machine exceed the maximum capacity', async (t) => {
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
   });
 
@@ -161,7 +161,7 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
 test('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -186,7 +186,7 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
   // Given a Candy Machine with a name limit of 10 characters
   // and a URI limit of 50 characters.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemSettings: {
       type: 'configLines',
       prefixName: '',
@@ -245,7 +245,7 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
 test('[candyMachineModule] it can add items to a custom offset and override existing items', async (t) => {
   // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(3),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },

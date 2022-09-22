@@ -44,7 +44,7 @@ export const createCandyMachine = async (
     candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
   }
 
-  return candyMachine;
+  return { candyMachine, collection };
 };
 
 export const createCandyGuard = async (

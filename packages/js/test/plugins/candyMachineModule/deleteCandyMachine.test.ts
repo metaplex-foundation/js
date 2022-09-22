@@ -10,7 +10,7 @@ test('[candyMachineModule] it can delete a Candy Machine', async (t) => {
   // Given an existing Candy Machine with a Candy Guard.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority: candyMachineAuthority,
   });
   assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');
@@ -35,7 +35,7 @@ test('[candyMachineModule] it can delete a Candy Machine with its Candy Guard', 
   // Given an existing Candy Machine with a Candy Guard.
   const mx = await metaplex();
   const candyMachineAuthority = Keypair.generate();
-  const candyMachine = await createCandyMachine(mx, {
+  const { candyMachine } = await createCandyMachine(mx, {
     authority: candyMachineAuthority,
   });
   assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');

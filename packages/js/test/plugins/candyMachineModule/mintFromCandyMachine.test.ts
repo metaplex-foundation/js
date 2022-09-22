@@ -1,5 +1,6 @@
 import { CandyMachine, Nft, toBigNumber } from '@/index';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
@@ -12,10 +13,13 @@ import { createCandyMachine } from './helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can mint from candy machine', async (t) => {
-  // Given an existing Candy Machine with 2 items.
+test('[candyMachineModule] it can mint from a Candy Machine directly as the mint authority', async (t) => {
+  // Given a loaded Candy Machine with a mint authority.
   const mx = await metaplex();
-  const candyMachine = await createCandyMachine(mx, {
+  const candyMachineAuthority = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    authority: candyMachineAuthority,
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
@@ -25,11 +29,14 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
     ],
   });
 
-  // When we mint an NFT from the candy machine.
-  const { nft } = await mx.candyMachines().mint({ candyMachine }).run();
-  const updatedCandyMachine = await mx
+  // When we mint an NFT from the candy machine using the mint authority.
+  const { nft } = await mx
     .candyMachines()
-    .refresh(candyMachine)
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      mintAuthority: candyMachineAuthority,
+    })
     .run();
 
   // Then an NFT was created with the right data.
@@ -46,9 +53,7 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
     updateAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
     creators: [
       {
-        address: spokSamePubkey(
-          findCandyMachineCreatorPda(candyMachine.address)
-        ),
+        address: spokSamePubkey(candyMachine.address),
         verified: true,
         share: 0,
       },
@@ -67,6 +72,10 @@ test('[candyMachineModule] it can mint from candy machine', async (t) => {
   } as Specifications<Nft>);
 
   // And the Candy Machine data was updated.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
   spok(t, updatedCandyMachine, {
     $topic: 'Update Candy Machine',
     itemsAvailable: spokSameBignum(toBigNumber(2)),
