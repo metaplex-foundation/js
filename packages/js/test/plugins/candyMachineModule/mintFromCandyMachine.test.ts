@@ -1,5 +1,8 @@
 import {
   CandyMachine,
+  isEqualToAmount,
+  isGreaterThanAmount,
+  isLessThanAmount,
   Metaplex,
   Nft,
   NftWithToken,
@@ -15,6 +18,7 @@ import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
 import {
   assertThrows,
+  createWallet,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -123,6 +127,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
 test('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
   // Given a loaded Candy Machine with some guards.
   const mx = await metaplex();
+  const payer = await createWallet(mx, 10);
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
@@ -147,6 +152,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
     .mint({
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
     })
     .run();
 
@@ -157,10 +163,48 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
     nft,
     owner: mx.identity().publicKey,
   });
+
+  // And the treasury received SOLs.
+  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
+  t.true(isEqualToAmount(treasuryBalance, sol(1)), 'treasury received SOLs');
+
+  // And the payer lost SOLs.
+  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
+  t.true(isLessThanAmount(payerBalance, sol(9)), 'payer lost SOLs');
+  t.true(isGreaterThanAmount(payerBalance, sol(8)), 'payer lost SOLs');
 });
 
-test.skip("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
-  //
+test.only("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
+  // Given a loaded Candy Machine with a bot tax guard and a live date in the future.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      liveDate: {
+        date: toDateTime(now().addn(3600 * 24)), // Tomorrow.
+      },
+    },
+  });
+
+  // When we try to mint an NFT using another mint authority.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /TODO/);
 });
 
 test.skip('[candyMachineModule] it can mint from a Candy Guard with groups', async (t) => {
