@@ -180,7 +180,7 @@ export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
       key: 'minting_group_selected_does_not_exist',
       title: 'Minting Group Selected Does Not Exist',
       problem:
-        `You're trying to mint an NFT from a Candy Machine using a specific group labelled [${providedGroup}]` +
+        `You're trying to mint an NFT from a Candy Machine using a specific group labelled [${providedGroup}] ` +
         'but this group of guards does not exists on the Candy Machine.',
       solution:
         'Please provide the label of a group that exists on the Candy Machine. ' +

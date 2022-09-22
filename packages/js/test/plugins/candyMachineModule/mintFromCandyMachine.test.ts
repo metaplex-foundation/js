@@ -270,7 +270,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
   });
 });
 
-test.only('[candyMachineModule] it cannot mint using the default guards if the Candy Guard has groups', async (t) => {
+test('[candyMachineModule] it cannot mint using the default guards if the Candy Guard has groups', async (t) => {
   // Given a loaded Candy Machine with guard groups.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -316,16 +316,89 @@ test.only('[candyMachineModule] it cannot mint using the default guards if the C
     })
     .run();
 
-  // Then we expect a Box Tax error.
-  await assertThrows(t, promise, /Candy Machine Bot Tax/);
+  // Then we expect an error.
+  await assertThrows(t, promise, /Minting Requires Group Label/);
 });
 
-test.skip('[candyMachineModule] it cannot mint using a labelled group if the Candy Guard has no groups', async (t) => {
-  //
+test('[candyMachineModule] it cannot mint using a labelled group if the Candy Guard has no groups', async (t) => {
+  // Given a loaded Candy Machine with no guard groups.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+    },
+  });
+
+  // When we try to mint an NFT using a group that does not exist.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      group: 'GROUPX',
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Minting Must Not Use Group/);
 });
 
-test.skip('[candyMachineModule] it cannot mint from a Candy Guard with groups if the provided group label does not exist', async (t) => {
-  //
+test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the provided group label does not exist', async (t) => {
+  // Given a loaded Candy Machine with guard groups.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    authority: Keypair.generate(),
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+    },
+    groups: [
+      {
+        label: 'GROUP1',
+        guards: {
+          liveDate: {
+            date: toDateTime(now().subn(3600 * 24)), // Yesterday.
+          },
+        },
+      },
+      {
+        label: 'GROUP2',
+        guards: {
+          liveDate: {
+            date: toDateTime(now().subn(3600 * 24)), // Tomorrow.
+          },
+        },
+      },
+    ],
+  });
+
+  // When we try to mint an NFT using a group that does not exist.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      group: 'GROUP3',
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Minting Group Selected Does Not Exist/);
 });
 
 const assertMintingWasSuccessful = async (
