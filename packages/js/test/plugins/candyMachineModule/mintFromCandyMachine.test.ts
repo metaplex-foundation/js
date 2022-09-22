@@ -122,8 +122,79 @@ test('[candyMachineModule] it cannot mint from a Candy Machine directly if not t
   await assertThrows(t, promise, /A has_one constraint was violated/);
 });
 
-test.skip('[candyMachineModule] it can mint from a Candy Guard with no guards', async (t) => {
-  //
+test.only('[candyMachineModule] it can mint from a Candy Guard with no guards', async (t) => {
+  // Given a loaded Candy Machine with a Candy Guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    symbol: 'CANDY',
+    sellerFeeBasisPoints: 123,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
+
+  // When we mint an NFT from this candy machine.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then an NFT was created with the right data.
+  spok(t, nft, {
+    $topic: 'Minted NFT',
+    model: 'nft',
+    name: 'Degen #1',
+    symbol: 'CANDY',
+    uri: 'https://example.com/degen/1',
+    sellerFeeBasisPoints: 123,
+    tokenStandard: TokenStandard.NonFungible,
+    isMutable: true,
+    primarySaleHappened: true,
+    updateAuthorityAddress: spokSamePubkey(
+      collection.updateAuthority.publicKey
+    ),
+    creators: [
+      {
+        address: spokSamePubkey(
+          mx.candyMachines().pdas().authority({
+            candyMachine: candyMachine.address,
+          })
+        ),
+        verified: true,
+        share: 0,
+      },
+      {
+        address: spokSamePubkey(mx.identity().publicKey),
+        verified: false,
+        share: 100,
+      },
+    ],
+    edition: {
+      model: 'nftEdition',
+      isOriginal: true,
+      supply: spokSameBignum(toBigNumber(0)),
+      maxSupply: spokSameBignum(toBigNumber(0)),
+    },
+  } as Specifications<Nft>);
+
+  // And the Candy Machine data was updated.
+  const updatedCandyMachine = await mx
+    .candyMachines()
+    .refresh(candyMachine)
+    .run();
+  spok(t, updatedCandyMachine, {
+    $topic: 'Update Candy Machine',
+    itemsAvailable: spokSameBignum(toBigNumber(2)),
+    itemsMinted: spokSameBignum(toBigNumber(1)),
+    itemsRemaining: spokSameBignum(toBigNumber(1)),
+  } as Specifications<CandyMachine>);
+  t.true(updatedCandyMachine.items[0].minted, 'First item was minted');
+  t.false(updatedCandyMachine.items[1].minted, 'Second item was not minted');
 });
 
 test.skip('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {

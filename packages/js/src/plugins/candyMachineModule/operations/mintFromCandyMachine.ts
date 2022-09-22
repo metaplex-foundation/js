@@ -15,12 +15,13 @@ import { createMintInstruction as createMintFromGuardInstruction } from '@metapl
 import {
   ConfirmOptions,
   Keypair,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_SLOT_HASHES_PUBKEY,
+  TransactionInstruction,
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachine } from '../models';
-import { candyMachineProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -69,7 +70,9 @@ export type MintFromCandyMachineInput = {
    *
    * TODO: This includes ...
    */
-  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
+  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'> & {
+    candyGuard: null | { address: PublicKey };
+  };
 
   /**
    * The address of the update authority of the Collection NFT
@@ -264,7 +267,11 @@ export const mintFromCandyMachineBuilder = async (
   } = params;
 
   // Programs.
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   // PDAs.
   const authorityPda = metaplex.candyMachines().pdas().authority({
@@ -320,32 +327,55 @@ export const mintFromCandyMachineBuilder = async (
     });
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
-  // Mint instruction.
-  const hasCandyGuard = false; // TODO(loris)
-  const mintNftInstruction = createMintFromMachineInstruction(
-    {
-      candyMachine: candyMachine.address,
-      authorityPda,
-      mintAuthority: mintAuthority.publicKey,
-      payer: payer.publicKey,
-      nftMint: mint.publicKey,
-      nftMintAuthority: payer.publicKey,
-      nftMetadata,
-      nftMasterEdition,
-      collectionAuthorityRecord,
-      collectionMint: candyMachine.collectionMintAddress,
-      collectionUpdateAuthority,
-      collectionMetadata,
-      collectionMasterEdition,
-      tokenMetadataProgram: tokenMetadataProgram.address,
-      recentSlothashes: SYSVAR_SLOT_HASHES_PUBKEY,
-    },
-    candyMachineProgram.address
-  );
+  // Shared mint accounts
+  const sharedMintAccounts = {
+    candyMachine: candyMachine.address,
+    payer: payer.publicKey,
+    nftMetadata,
+    nftMint: mint.publicKey,
+    nftMintAuthority: payer.publicKey,
+    nftMasterEdition,
+    collectionAuthorityRecord,
+    collectionMint: candyMachine.collectionMintAddress,
+    collectionMetadata,
+    collectionMasterEdition,
+    collectionUpdateAuthority,
+    candyMachineProgram: candyMachineProgram.address,
+    tokenMetadataProgram: tokenMetadataProgram.address,
+    tokenProgram: tokenProgram.address,
+    systemProgram: systemProgram.address,
+    recentSlothashes: SYSVAR_SLOT_HASHES_PUBKEY,
+    instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
+  };
 
-  const mintNftSigners = hasCandyGuard
-    ? [payer, mint]
-    : [payer, mint, mintAuthority];
+  // Mint instruction.
+  let mintNftInstruction: TransactionInstruction;
+  let mintNftSigners: Signer[];
+  if (!!candyMachine.candyGuard) {
+    mintNftSigners = [payer, mint];
+    mintNftInstruction = createMintFromGuardInstruction(
+      {
+        ...sharedMintAccounts,
+        candyGuard: candyMachine.candyGuard.address,
+        candyMachineAuthorityPda: authorityPda,
+      },
+      {
+        mintArgs: new Uint8Array([]), // TODO(loris)
+        label: null, // TODO(loris)
+      },
+      candyGuardProgram.address
+    );
+  } else {
+    mintNftSigners = [payer, mint, mintAuthority];
+    mintNftInstruction = createMintFromMachineInstruction(
+      {
+        ...sharedMintAccounts,
+        authorityPda,
+        mintAuthority: mintAuthority.publicKey,
+      },
+      candyMachineProgram.address
+    );
+  }
 
   return (
     TransactionBuilder.make<MintFromCandyMachineBuilderContext>()
