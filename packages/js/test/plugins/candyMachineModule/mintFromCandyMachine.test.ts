@@ -174,10 +174,11 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
   t.true(isGreaterThanAmount(payerBalance, sol(8)), 'payer lost SOLs');
 });
 
-test.only("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
+test("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
   // Given a loaded Candy Machine with a bot tax guard and a live date in the future.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
+    authority: Keypair.generate(),
     itemsAvailable: toBigNumber(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -203,8 +204,8 @@ test.only("[candyMachineModule] it throws a bot tax error if minting succeeded b
     })
     .run();
 
-  // Then we expect an error.
-  await assertThrows(t, promise, /TODO/);
+  // Then we expect a Box Tax error.
+  await assertThrows(t, promise, /Candy Machine Bot Tax/);
 });
 
 test.skip('[candyMachineModule] it can mint from a Candy Guard with groups', async (t) => {
