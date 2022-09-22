@@ -290,8 +290,8 @@ export const mintFromCandyMachineBuilder = async (
     mintAuthority = metaplex.identity(),
     mint = Keypair.generate(),
     owner = metaplex.identity().publicKey,
-    group,
-    guards,
+    group = null,
+    guards = {},
     token,
     programs,
   } = params;
@@ -386,6 +386,17 @@ export const mintFromCandyMachineBuilder = async (
   let mintNftInstruction: TransactionInstruction;
   let mintNftSigners: Signer[];
   if (!!candyMachine.candyGuard) {
+    const candyGuard = candyMachine.candyGuard;
+    const guardClient = metaplex.candyMachines().guards();
+    const guardSettings = guardClient.resolveGroupSettings(
+      candyGuard.guards,
+      candyGuard.groups,
+      group
+    );
+    const parsedMintSettings = guardClient.parseMintSettings(
+      guardSettings,
+      guards
+    );
     mintNftSigners = [payer, mint];
     mintNftInstruction = createMintFromGuardInstruction(
       {
@@ -394,8 +405,8 @@ export const mintFromCandyMachineBuilder = async (
         candyMachineAuthorityPda: authorityPda,
       },
       {
-        mintArgs: new Uint8Array([]), // TODO(loris)
-        label: group ?? null,
+        mintArgs: parsedMintSettings.arguments,
+        label: group,
       },
       candyGuardProgram.address
     );

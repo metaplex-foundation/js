@@ -4,9 +4,11 @@ import {
   deserializeFeatureFlags,
   PublicKey,
   serialize,
+  Signer,
 } from '@/types';
-import { padEmptyChars, removeEmptyChars } from '@/utils';
+import { assert, Option, padEmptyChars, removeEmptyChars } from '@/utils';
 import * as beet from '@metaplex-foundation/beet';
+import { AccountMeta } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import { UnregisteredCandyGuardError } from './errors';
@@ -149,27 +151,62 @@ export class CandyMachineGuardsClient {
   }
 
   /** TODO */
+  resolveGroupSettings<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(
+    guards: T,
+    groups: { label: string; guards: T }[] = [],
+    label: Option<string>
+  ): T {
+    if (!label) {
+      // TODO(loris): proper Metaplex errors.
+      assert(groups.length === 0, 'Group label is required');
+      return guards;
+    }
+
+    // TODO(loris): proper Metaplex errors.
+    assert(groups.length > 0, 'Group label must be null');
+    const activeGroup = groups.find((group) => group.label === label);
+    assert(!!activeGroup, 'Group label does not match any group');
+
+    const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
+      Object.entries(activeGroup.guards).filter(([_, v]) => v != null)
+    ) as Partial<T>;
+
+    return {
+      ...guards,
+      ...activeGroupGuardsWithoutNullGuards,
+    };
+  }
+
+  /** TODO */
   parseMintSettings<
     Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
     MintSettings extends CandyGuardsMintSettings = {}
   >(
-    guardSettings: Partial<Settings>,
-    guardMintSettings: MintSettings,
+    guardSettings: Settings,
+    guardMintSettings: Partial<MintSettings>,
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): { remainingAccounts: PublicKey[]; arguments: Buffer } {
+  ): {
+    arguments: Buffer;
+    accountMetas: AccountMeta[];
+    signers: Signer[];
+  } {
     const availableGuards = this.forProgram(program);
     const initialAccumulator = {
-      remainingAccounts: [] as PublicKey[],
       arguments: Buffer.from([]),
+      accountMetas: [] as AccountMeta[],
+      signers: [] as Signer[],
     };
 
     return availableGuards.reduce((acc, guard) => {
       if (!guard.mintSettingsParser) return acc;
       const settings = guardSettings[guard.name] ?? null;
       const mintSettings = guardMintSettings[guard.name] ?? null;
+      // TODO(loris): fail if missing settings? Or push that to the guard?
       const parsedSettings = guard.mintSettingsParser(mintSettings, settings);
-      acc.remainingAccounts.push(...parsedSettings.remainingAccounts);
       acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
+      acc.remainingAccounts.push(...parsedSettings.remainingAccounts);
       return acc;
     }, initialAccumulator);
   }
