@@ -55,7 +55,11 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
     ),
     creators: [
       {
-        address: spokSamePubkey(candyMachine.address), // TODO(loris): creator PDA.
+        address: spokSamePubkey(
+          mx.candyMachines().pdas().authority({
+            candyMachine: candyMachine.address,
+          })
+        ),
         verified: true,
         share: 0,
       },
@@ -84,4 +88,5 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
     itemsMinted: spokSameBignum(toBigNumber(1)),
     itemsRemaining: spokSameBignum(toBigNumber(1)),
   } as Specifications<CandyMachine>);
+  t.ok(updatedCandyMachine.items[0].minted);
 });
