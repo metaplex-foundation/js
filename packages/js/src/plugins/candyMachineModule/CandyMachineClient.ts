@@ -5,7 +5,12 @@ import type { Commitment } from '@solana/web3.js';
 import { CandyMachineBuildersClient } from './CandyMachineBuildersClient';
 import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
 import { CandyMachinePdasClient } from './CandyMachinePdasClient';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
+import {
+  CandyGuardsMintSettings,
+  CandyGuardsSettings,
+  DefaultCandyGuardMintSettings,
+  DefaultCandyGuardSettings,
+} from './guards';
 import { CandyGuard, CandyMachine, isCandyMachine } from './models';
 import {
   CreateCandyGuardInput,
@@ -198,6 +203,16 @@ export class CandyMachineClient {
       .getTask(insertCandyMachineItemsOperation(input));
   }
 
+  /** {@inheritDoc mintFromCandyMachineOperation} */
+  mint<
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+  >(input: MintFromCandyMachineInput<Settings, MintSettings>) {
+    return this.metaplex
+      .operations()
+      .getTask(mintFromCandyMachineOperation<Settings, MintSettings>(input));
+  }
+
   /**
    * Helper method that refetches a given Candy Machine or Candy Guard.
    *
@@ -216,13 +231,6 @@ export class CandyMachineClient {
       : this.findCandyGuardByAddress<T>(input);
 
     return task as Task<M>;
-  }
-
-  /** {@inheritDoc mintFromCandyMachineOperation} */
-  mint(input: MintFromCandyMachineInput) {
-    return this.metaplex
-      .operations()
-      .getTask(mintFromCandyMachineOperation(input));
   }
 
   /** {@inheritDoc unwrapCandyGuardOperation} */

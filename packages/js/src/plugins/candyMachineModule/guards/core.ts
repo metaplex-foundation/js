@@ -29,8 +29,15 @@ export type CandyGuardManifest<
         }
     )[];
   };
-  onBeforeMint?: (setting: Settings) => Promise<void> | void;
-  onAfterMint?: (nft: NftWithToken) => Promise<void> | void;
+  onBeforeMint?: (
+    setting: Settings,
+    mintSettings: Option<MintSettings>
+  ) => Promise<void> | void;
+  onAfterMint?: (
+    nft: NftWithToken,
+    setting: Settings,
+    mintSettings: Option<MintSettings>
+  ) => Promise<void> | void;
 };
 
 /** TODO */

@@ -1,7 +1,7 @@
 import { Option } from '@/utils';
 import { AllowListGuardSettings } from './allowList';
 import { BotTaxGuardSettings } from './botTax';
-import { CandyGuardsSettings } from './core';
+import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
 import { EndSettingsGuardSettings } from './endSettings';
 import { GatekeeperGuardSettings } from './gatekeeper';
 import { LamportsGuardSettings } from './lamports';
@@ -24,6 +24,20 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   allowList: Option<AllowListGuardSettings>;
   mintLimit: Option<MintLimitGuardSettings>;
   nftPayment: Option<NftPaymentGuardSettings>;
+};
+
+export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
+  // botTax: no mint settings
+  // lamports: no mint settings
+  splToken: Option<{}>;
+  // liveDate: no mint settings
+  thirdPartySigner: Option<{}>;
+  whitelist: Option<{}>;
+  gatekeeper: Option<{}>;
+  // endSettings: no mint settings
+  allowList: Option<{}>;
+  mintLimit: Option<{}>;
+  nftPayment: Option<{}>;
 };
 
 /** @internal */

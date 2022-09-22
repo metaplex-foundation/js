@@ -6,7 +6,6 @@ import {
   Program,
   PublicKey,
   Signer,
-  useOperation,
   token as tokenAmount,
 } from '@/types';
 import { DisposableScope, Option, TransactionBuilder } from '@/utils';
@@ -22,6 +21,12 @@ import {
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachine } from '../models';
+import {
+  CandyGuardsMintSettings,
+  CandyGuardsSettings,
+  DefaultCandyGuardMintSettings,
+  DefaultCandyGuardSettings,
+} from '../guards';
 
 // -----------------
 // Operation
@@ -44,16 +49,27 @@ const Key = 'MintFromCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const mintFromCandyMachineOperation =
-  useOperation<MintFromCandyMachineOperation>(Key);
+export const mintFromCandyMachineOperation = <
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+>(
+  input: MintFromCandyMachineInput<Settings, MintSettings>
+): MintFromCandyMachineOperation<Settings, MintSettings> => ({
+  key: Key,
+  input,
+});
+mintFromCandyMachineOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type MintFromCandyMachineOperation = Operation<
+export type MintFromCandyMachineOperation<
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+> = Operation<
   typeof Key,
-  MintFromCandyMachineInput,
+  MintFromCandyMachineInput<Settings, MintSettings>,
   MintFromCandyMachineOutput
 >;
 
@@ -61,7 +77,10 @@ export type MintFromCandyMachineOperation = Operation<
  * @group Operations
  * @category Inputs
  */
-export type MintFromCandyMachineInput = {
+export type MintFromCandyMachineInput<
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+> = {
   /**
    * The Candy Machine to mint from.
    * We only need a subset of the `CandyMachine` model but we
@@ -71,7 +90,7 @@ export type MintFromCandyMachineInput = {
    * TODO: This includes ...
    */
   candyMachine: Pick<
-    CandyMachine,
+    CandyMachine<Settings>,
     'address' | 'collectionMintAddress' | 'candyGuard'
   >;
 
@@ -150,7 +169,7 @@ export type MintFromCandyMachineInput = {
    *
    * @defaultValue `{}`
    */
-  guards?: object; // TODO(loris)
+  guards?: Partial<MintSettings>;
 
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
@@ -183,12 +202,15 @@ export type MintFromCandyMachineOutput = {
  */
 export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCandyMachineOperation> =
   {
-    async handle(
-      operation: MintFromCandyMachineOperation,
+    async handle<
+      Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+      MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+    >(
+      operation: MintFromCandyMachineOperation<Settings, MintSettings>,
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<MintFromCandyMachineOutput> {
-      const builder = await mintFromCandyMachineBuilder(
+      const builder = await mintFromCandyMachineBuilder<Settings, MintSettings>(
         metaplex,
         operation.input
       );
@@ -229,8 +251,11 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
  * @group Transaction Builders
  * @category Inputs
  */
-export type MintFromCandyMachineBuilderParams = Omit<
-  MintFromCandyMachineInput,
+export type MintFromCandyMachineBuilderParams<
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+> = Omit<
+  MintFromCandyMachineInput<Settings, MintSettings>,
   'confirmOptions'
 > & {
   /** A key to distinguish the instruction that creates the mint account of the NFT. */
@@ -279,9 +304,12 @@ export type MintFromCandyMachineBuilderContext = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const mintFromCandyMachineBuilder = async (
+export const mintFromCandyMachineBuilder = async <
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+>(
   metaplex: Metaplex,
-  params: MintFromCandyMachineBuilderParams
+  params: MintFromCandyMachineBuilderParams<Settings, MintSettings>
 ): Promise<TransactionBuilder<MintFromCandyMachineBuilderContext>> => {
   const {
     candyMachine,

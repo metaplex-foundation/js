@@ -1,5 +1,10 @@
 import type { Metaplex } from '@/Metaplex';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from './guards';
+import {
+  CandyGuardsMintSettings,
+  CandyGuardsSettings,
+  DefaultCandyGuardMintSettings,
+  DefaultCandyGuardSettings,
+} from './guards';
 import {
   createCandyGuardBuilder,
   CreateCandyGuardBuilderParams,
@@ -63,7 +68,10 @@ export class CandyMachineBuildersClient {
   }
 
   /** {@inheritDoc mintFromCandyMachineBuilder} */
-  mint(input: MintFromCandyMachineBuilderParams) {
+  mint<
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+  >(input: MintFromCandyMachineBuilderParams<Settings, MintSettings>) {
     return mintFromCandyMachineBuilder(this.metaplex, input);
   }
 
