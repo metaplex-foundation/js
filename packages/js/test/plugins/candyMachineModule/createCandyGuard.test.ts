@@ -61,7 +61,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   const thirdPartySigner = Keypair.generate().publicKey;
   const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
-  const merkleRoot = Array(32).fill(42);
+  const merkleRoot = new Uint8Array(Array(32).fill(42));
   const nftPaymentCollection = Keypair.generate().publicKey;
   const { candyGuard } = await mx
     .candyMachines()
@@ -176,7 +176,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   // When we create a new Candy Guard with no guards.
   const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
-  const merkleRoot = Array(32).fill(42);
+  const merkleRoot = new Uint8Array(Array(32).fill(42));
   const { candyGuard } = await mx
     .candyMachines()
     .createCandyGuard<DefaultCandyGuardSettings>({
