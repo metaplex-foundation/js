@@ -24,6 +24,7 @@ import {
   CandyGuardsSettings,
   DefaultCandyGuardSettings,
 } from './guards';
+import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
 
 /**
@@ -171,10 +172,10 @@ export class CandyMachineGuardsClient {
   >(
     guards: T,
     groups: { label: string; guards: T }[] = [],
-    label: Option<string>
+    groupLabel: Option<string>
   ): T {
     if (groups.length === 0) {
-      if (!!label) {
+      if (!!groupLabel) {
         throw new MintingMustNotUseGroupError();
       }
 
@@ -182,13 +183,16 @@ export class CandyMachineGuardsClient {
     }
 
     const availableGroups = groups.map((group) => group.label);
-    if (!label) {
+    if (!groupLabel) {
       throw new MintingRequiresGroupLabelError(availableGroups);
     }
 
-    const activeGroup = groups.find((group) => group.label === label);
+    const activeGroup = groups.find((group) => group.label === groupLabel);
     if (!activeGroup) {
-      throw new MintingGroupSelectedDoesNotExistError(label, availableGroups);
+      throw new MintingGroupSelectedDoesNotExistError(
+        groupLabel,
+        availableGroups
+      );
     }
 
     const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
@@ -206,8 +210,11 @@ export class CandyMachineGuardsClient {
     Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
     MintSettings extends CandyGuardsMintSettings = {}
   >(
-    guardSettings: Settings,
+    candyMachine: PublicKey,
+    candyGuard: CandyGuard<Settings>,
+    payer: PublicKey,
     guardMintSettings: Partial<MintSettings>,
+    groupLabel: Option<string>,
     programs: Program[] = []
   ): {
     arguments: Buffer;
@@ -215,6 +222,11 @@ export class CandyMachineGuardsClient {
     signers: Signer[];
   } {
     const availableGuards = this.forCandyGuardProgram(programs);
+    const guardSettings = this.resolveGroupSettings(
+      candyGuard.guards,
+      candyGuard.groups,
+      groupLabel
+    );
     const initialAccumulator = {
       arguments: Buffer.from([]),
       accountMetas: [] as AccountMeta[],
@@ -230,6 +242,9 @@ export class CandyMachineGuardsClient {
         metaplex: this.metaplex,
         settings,
         mintSettings,
+        payer,
+        candyMachine,
+        candyGuard: candyGuard.address,
         programs,
       });
       const remainingAccounts = parsedSettings.remainingAccounts;

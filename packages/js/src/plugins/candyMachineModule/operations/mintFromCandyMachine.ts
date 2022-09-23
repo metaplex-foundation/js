@@ -434,16 +434,15 @@ export const mintFromCandyMachineBuilder = async <
   if (!!candyMachine.candyGuard) {
     const candyGuard = candyMachine.candyGuard;
     const guardClient = metaplex.candyMachines().guards();
-    const guardSettings = guardClient.resolveGroupSettings(
-      candyGuard.guards,
-      candyGuard.groups,
-      group
-    );
     const parsedMintSettings = guardClient.parseMintSettings(
-      guardSettings,
+      candyMachine.address,
+      candyGuard,
+      payer.publicKey,
       guards,
+      group,
       programs
     );
+
     mintNftSigners = [payer, mint, ...parsedMintSettings.signers];
     mintNftInstruction = createMintFromGuardInstruction(
       {

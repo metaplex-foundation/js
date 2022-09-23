@@ -16,6 +16,9 @@ export type CandyGuardManifest<
     metaplex: Metaplex;
     settings: Settings;
     mintSettings: Option<MintSettings>;
+    payer: PublicKey;
+    candyMachine: PublicKey;
+    candyGuard: PublicKey;
     programs: Program[];
   }) => {
     arguments: Buffer;

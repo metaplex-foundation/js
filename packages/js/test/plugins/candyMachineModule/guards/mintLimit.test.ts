@@ -10,8 +10,8 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] mintLimit guard: it allows TODO', async (t) => {
-  // Given a loaded Candy Machine with TODO.
+test.only('[candyMachineModule] mintLimit guard: it allows minting when the mint limit is not reached', async (t) => {
+  // Given a loaded Candy Machine with a mint limit of 5.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
@@ -20,7 +20,10 @@ test.skip('[candyMachineModule] mintLimit guard: it allows TODO', async (t) => {
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      TODO: {},
+      mintLimit: {
+        id: 1,
+        limit: 5,
+      },
     },
   });
 
@@ -42,13 +45,20 @@ test.skip('[candyMachineModule] mintLimit guard: it allows TODO', async (t) => {
     nft,
     owner: payer.publicKey,
   });
+
+  // And the mint limit PDA was incremented.
+  // TODO
 });
 
-test.skip('[candyMachineModule] mintLimit guard: it forbids TODO', async (t) => {
+test.skip('[candyMachineModule] mintLimit guard: it forbids minting when the mint limit is reached', async (t) => {
   //
 });
 
-test.skip('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
+test.skip('[candyMachineModule] mintLimit guard: the mint limit is local to each wallet', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax when trying to mint after the limit', async (t) => {
   // TODO
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
