@@ -54,7 +54,6 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
     "debug": "^4.3.4",
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
