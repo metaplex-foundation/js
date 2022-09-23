@@ -3,6 +3,7 @@ import {
   isEqualToAmount,
   PublicKey,
   sol,
+  subtractAmounts,
   toBigNumber,
 } from '@/index';
 import test from 'tape';
@@ -67,11 +68,53 @@ test('[candyMachineModule] mintLimit guard: it allows minting when the mint limi
   t.equal(toBigNumber(counterAccount.data, 'le').toNumber(), 1);
 });
 
-test.skip('[candyMachineModule] mintLimit guard: it forbids minting when the mint limit is reached', async (t) => {
-  //
+test('[candyMachineModule] mintLimit guard: it forbids minting when the mint limit is reached', async (t) => {
+  // Given a loaded Candy Machine with a mint limit of 1.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      mintLimit: {
+        id: 42,
+        limit: 1,
+      },
+    },
+  });
+
+  // And a payer already minted their NFT.
+  const payer = await createWallet(mx, 10);
+  await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // When that same payer tries to mint from the same Candy Machine again.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /The maximum number of allowed mints was reached/
+  );
 });
 
-test.only('[candyMachineModule] mintLimit guard: the mint limit is local to each wallet', async (t) => {
+test('[candyMachineModule] mintLimit guard: the mint limit is local to each wallet', async (t) => {
   // Given a loaded Candy Machine with a mint limit of 1.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -123,19 +166,57 @@ test.only('[candyMachineModule] mintLimit guard: the mint limit is local to each
   });
 });
 
-test.skip('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax when trying to mint after the limit', async (t) => {
-  // TODO
+test('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax when trying to mint after the limit', async (t) => {
+  // Given a loaded Candy Machine with a mint limit of 1 and a bot tax guard.
   const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      mintLimit: {
+        id: 42,
+        limit: 1,
+      },
+    },
+  });
+
+  // And a payer already minted their NFT.
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+  const payerBalanceAfterFirstMint = await mx.rpc().getBalance(payer.publicKey);
+
+  // When that same payer tries to mint from the same Candy Machine again.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
 
   // And the payer was charged a bot tax.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
+  const expectedBalance = subtractAmounts(payerBalanceAfterFirstMint, sol(0.1));
   t.true(
-    isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
+    isEqualToAmount(payerBalance, expectedBalance, sol(0.01)),
     'payer was charged a bot tax'
   );
 });
