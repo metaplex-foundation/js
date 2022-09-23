@@ -5,13 +5,19 @@ import {
   now,
   Operation,
   OperationHandler,
-  Pda,
   Signer,
   toPublicKey,
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, LazyListing, Listing, Purchase } from '../models';
+import {
+  AuctionHouse,
+  Bid,
+  LazyListing,
+  LazyPurchase,
+  Listing,
+  Purchase,
+} from '../models';
 import { NftWithToken, SftWithToken } from '../../nftModule/models';
 import {
   createListingBuilder,
@@ -19,6 +25,7 @@ import {
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { AuctioneerDirectSellNotSupportedError } from '../errors';
 
 // -----------------
 // Operation
@@ -139,8 +146,7 @@ export type DirectSellOutput = {
 export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
   {
     handle: async (operation: DirectSellOperation, metaplex: Metaplex) => {
-      const { auctionHouse } = operation.input;
-      const { receipt, listing, response } = await directSellBuilder(
+      const { lazyPurchase, listing, response } = await directSellBuilder(
         metaplex,
         operation.input
       ).then((buyBuilder) =>
@@ -149,10 +155,7 @@ export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
 
       const purchase = await metaplex
         .auctionHouse()
-        .findPurchaseByReceipt({
-          auctionHouse,
-          receiptAddress: receipt,
-        })
+        .loadPurchase({ lazyPurchase })
         .run();
 
       return { listing, purchase, response };
@@ -181,7 +184,7 @@ export type DirectSellBuilderParams = Omit<
 export type DirectSellBuilderContext = Omit<
   DirectSellOutput,
   'response' | 'purchase'
-> & { receipt: Pda };
+> & { lazyPurchase: LazyPurchase };
 
 /**
  * Creates a listing on a given asset and executes a sale on the created listing and given bid.
@@ -218,6 +221,10 @@ export const directSellBuilder = async (
       )
     : (asset as SftWithToken | NftWithToken).token.address;
   const printReceipt = true;
+
+  if (auctionHouse.hasAuctioneer) {
+    throw new AuctioneerDirectSellNotSupportedError();
+  }
 
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
     await createListingBuilder(metaplex, {
@@ -264,11 +271,30 @@ export const directSellBuilder = async (
       bookkeeper,
       ...rest,
     });
+  const {
+    receipt: saleReceipt,
+    metadata: saleMetadata,
+    buyer,
+  } = saleBuilder.getContext();
+
+  const lazyPurchase: LazyPurchase = {
+    auctionHouse,
+    model: 'purchase',
+    lazy: true,
+    buyerAddress: buyer,
+    sellerAddress: toPublicKey(seller),
+    metadataAddress: saleMetadata,
+    bookkeeperAddress: toPublicKey(bookkeeper),
+    receiptAddress: saleReceipt,
+    price: bid.price,
+    tokens: tokens.basisPoints,
+    createdAt: now(),
+  };
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
     .setContext({
       listing,
-      receipt: saleBuilder.getContext().receipt as Pda,
+      lazyPurchase,
     })
     .add(listingBuilder)
     .add(saleBuilder);

@@ -5,14 +5,22 @@ import {
   now,
   Operation,
   OperationHandler,
-  Pda,
   Signer,
+  toPublicKey,
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, LazyBid, Listing, Purchase } from '../models';
+import {
+  AuctionHouse,
+  Bid,
+  LazyBid,
+  LazyPurchase,
+  Listing,
+  Purchase,
+} from '../models';
 import { createBidBuilder } from './createBid';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
+import { AuctioneerDirectBuyNotSupportedError } from '../errors';
 
 // -----------------
 // Operation
@@ -64,6 +72,7 @@ export type DirectBuyInput = {
 
   /**
    * Creator of a bid.
+   * Should not be the same as seller who creates a Listing
    *
    * @defaultValue `metaplex.identity()`
    */
@@ -129,8 +138,7 @@ export type DirectBuyOutput = {
  */
 export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
   handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
-    const { auctionHouse } = operation.input;
-    const { receipt, bid, response } = await directBuyBuilder(
+    const { bid, response, lazyPurchase } = await directBuyBuilder(
       metaplex,
       operation.input
     ).then((buyBuilder) =>
@@ -139,10 +147,7 @@ export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
 
     const purchase = await metaplex
       .auctionHouse()
-      .findPurchaseByReceipt({
-        auctionHouse,
-        receiptAddress: receipt,
-      })
+      .loadPurchase({ lazyPurchase })
       .run();
 
     return { bid, purchase, response };
@@ -166,7 +171,7 @@ export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'>;
 export type DirectBuyBuilderContext = Omit<
   DirectBuyOutput,
   'response' | 'purchase'
-> & { receipt: Pda };
+> & { lazyPurchase: LazyPurchase };
 
 /**
  * Creates a bid on a given asset and executes a sale on the created bid and given listing.
@@ -196,6 +201,10 @@ export const directBuyBuilder = async (
   } = params;
   const { tokens, price, asset, sellerAddress } = listing;
   const printReceipt = true;
+
+  if (auctionHouse.hasAuctioneer) {
+    throw new AuctioneerDirectBuyNotSupportedError();
+  }
 
   const bidBuilder = await createBidBuilder(metaplex, {
     auctionHouse,
@@ -241,10 +250,26 @@ export const directBuyBuilder = async (
       ...rest,
     });
 
+  const { receipt: saleReceipt, metadata, seller } = saleBuilder.getContext();
+
+  const lazyPurchase: LazyPurchase = {
+    auctionHouse,
+    model: 'purchase',
+    lazy: true,
+    buyerAddress: toPublicKey(buyer),
+    sellerAddress: seller,
+    metadataAddress: metadata,
+    bookkeeperAddress: toPublicKey(bookkeeper),
+    receiptAddress: saleReceipt,
+    price: listing.price,
+    tokens: tokens.basisPoints,
+    createdAt: now(),
+  };
+
   return TransactionBuilder.make<DirectBuyBuilderContext>()
     .setContext({
       bid,
-      receipt: saleBuilder.getContext().receipt as Pda,
+      lazyPurchase,
     })
     .add(bidBuilder)
     .add(saleBuilder);

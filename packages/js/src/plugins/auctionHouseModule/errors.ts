@@ -72,6 +72,36 @@ export class AuctioneerPartialSaleNotSupportedError extends AuctionHouseError {
 }
 
 /** @group Errors */
+export class AuctioneerDirectBuyNotSupportedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'auctioneer_direct_buy_not_supported',
+      title: 'Auctioneer Direct Buy Is Not Supported',
+      problem:
+        'You are trying to execute a direct buy, but direct buy are not supported in Auctioneer.',
+      solution:
+        'Any Direct Sells must be executed against a bid created through the Auction House Sale.',
+    });
+  }
+}
+
+/** @group Errors */
+export class AuctioneerDirectSellNotSupportedError extends AuctionHouseError {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'auctioneer_direct_sell_not_supported',
+      title: 'Auctioneer Direct Sell Is Not Supported',
+      problem:
+        'You are trying to execute a direct sell, but direct sell are not supported in Auctioneer.',
+      solution:
+        'Any Direct Buys must be executed against a sale listed through the Auction House Sale.',
+    });
+  }
+}
+
+/** @group Errors */
 export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({

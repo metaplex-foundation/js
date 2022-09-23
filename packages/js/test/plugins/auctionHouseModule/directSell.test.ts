@@ -1,6 +1,7 @@
 import test, { Test } from 'tape';
 import { sol, token } from '@/types';
 import {
+  assertThrows,
   createNft,
   createWallet,
   killStuckProcess,
@@ -11,16 +12,17 @@ import {
 import { createAuctionHouse } from './helpers';
 import { findAssociatedTokenAccountPda, Purchase } from '@/plugins';
 import spok, { Specifications } from 'spok';
+import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] instant sale on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] instant sale on an Auction House with minimum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we put a public bid on that NFT for 1 SOL.
   const { bid } = await mx
@@ -29,12 +31,11 @@ test('[auctionHouseModule] instant sale on an Auction House', async (t: Test) =>
       auctionHouse,
       buyer,
       mintAccount: nft.address,
-      seller: mx.identity().publicKey,
       price: sol(1),
+      seller: mx.identity().publicKey,
     })
     .run();
 
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
@@ -63,4 +64,84 @@ test('[auctionHouseModule] instant sale on an Auction House', async (t: Test) =>
     $topic: 'Purchase',
     ...expectedPurchase,
   } as unknown as Specifications<Purchase>);
+});
+
+test('[auctionHouseModule] instant sale throw error on an Auction House with auctioneer', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+
+  const nft = await createNft(mx);
+  const auctioneerAuthority = Keypair.generate();
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
+
+  // And we put a public bid on that NFT for 1 SOL.
+  const { bid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: nft.address,
+      price: sol(1),
+      seller: mx.identity().publicKey,
+      auctioneerAuthority,
+    })
+    .run();
+
+  // Then we execute an Sell on the bid
+  const promise = mx
+    .auctionHouse()
+    .sell({ auctionHouse, bid, auctioneerAuthority })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /You are trying to execute a direct sell, but direct sell are not supported in Auctioneer./
+  );
+});
+
+test('[auctionHouseModule] direct sell on an Auction House with all params', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+  const seller = await createWallet(mx);
+
+  const nft = await createNft(mx, { tokenOwner: seller.publicKey });
+  const auctionHouse = await createAuctionHouse(mx, null, {
+    authority: seller,
+  });
+
+  // And we listed that NFT for 1 SOL.
+  const { bid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      seller: seller.publicKey,
+      mintAccount: nft.address,
+      price: sol(1),
+      printReceipt: true,
+      confirmOptions: { skipPreflight: true },
+    })
+    .run();
+
+  // When we execute direct buy with the given listing.
+  const { purchase } = await mx
+    .auctionHouse()
+    .sell({
+      auctionHouse,
+      authority: seller,
+      seller,
+      bid,
+      confirmOptions: { skipPreflight: true },
+    })
+    .run();
+
+  // Then we created and returned the new Purchase with appropriate values.
+  t.equal(
+    purchase.asset.token.ownerAddress.toBase58(),
+    buyer.publicKey.toBase58()
+  );
 });
