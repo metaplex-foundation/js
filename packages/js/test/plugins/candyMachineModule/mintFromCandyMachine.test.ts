@@ -12,6 +12,7 @@ import {
   toDateTime,
   token,
 } from '@/index';
+import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -25,7 +26,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { createCandyMachine } from './helpers';
+import { create32BitsHash, createCandyMachine } from './helpers';
 
 killStuckProcess();
 
@@ -520,8 +521,36 @@ test('[candyMachineModule] it cannot mint from a candy machine that has been ful
   await assertThrows(t, promise, /Candy machine is empty/);
 });
 
-test.skip('[candyMachineModule] it can mint from a candy machine using hidden settings', async (t) => {
-  //
+test('[candyMachineModule] it can mint from a candy machine using hidden settings', async (t) => {
+  // Given a loaded Candy Machine with hidden settings.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(100_000_000),
+    itemSettings: {
+      type: 'hidden',
+      name: 'Degen $ID+1$',
+      uri: 'https://example.com/degen/$ID+1$',
+      hash: create32BitsHash('some-file'),
+    },
+  });
+
+  // When we mint from it.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+  });
 });
 
 const assertMintingWasSuccessful = async (
@@ -537,14 +566,30 @@ const assertMintingWasSuccessful = async (
 ) => {
   const candyMachine = input.candyMachine;
   const mintedIndex = input.mintedIndex ?? candyMachine.itemsMinted.toNumber();
-  const expectedItemMinted = candyMachine.items[mintedIndex];
+
+  let expectedName: string;
+  let expectedUri: string;
+  if (candyMachine.itemSettings.type === 'hidden') {
+    expectedName = replaceCandyMachineItemPattern(
+      candyMachine.itemSettings.name,
+      mintedIndex
+    );
+    expectedUri = replaceCandyMachineItemPattern(
+      candyMachine.itemSettings.uri,
+      mintedIndex
+    );
+  } else {
+    const expectedItemMinted = candyMachine.items[mintedIndex];
+    expectedName = expectedItemMinted.name;
+    expectedUri = expectedItemMinted.uri;
+  }
 
   // Then an NFT was created with the right data.
   spok(t, input.nft, {
     $topic: 'Minted NFT',
     model: 'nft',
-    name: expectedItemMinted.name,
-    uri: expectedItemMinted.uri,
+    name: expectedName,
+    uri: expectedUri,
     symbol: candyMachine.symbol,
     sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
     tokenStandard: TokenStandard.NonFungible,
@@ -594,8 +639,11 @@ const assertMintingWasSuccessful = async (
     itemsMinted: spokSameBignum(expectedMinted),
     itemsRemaining: spokSameBignum(expectedRemaining),
   } as Specifications<CandyMachine>);
-  t.true(
-    updatedCandyMachine.items[mintedIndex].minted,
-    'Item was marked as minted'
-  );
+
+  if (candyMachine.itemSettings.type === 'configLines') {
+    t.true(
+      updatedCandyMachine.items[mintedIndex].minted,
+      'Item was marked as minted'
+    );
+  }
 };
