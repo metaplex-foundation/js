@@ -234,8 +234,9 @@ export class CandyMachineGuardsClient {
       });
       const remainingAccounts = parsedSettings.remainingAccounts;
       const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
-        ...account,
         pubkey: account.isSigner ? account.address.publicKey : account.address,
+        isSigner: account.isSigner,
+        isWritable: account.isWritable,
       }));
       const signers: Signer[] = remainingAccounts
         .filter((account) => account.isSigner)
