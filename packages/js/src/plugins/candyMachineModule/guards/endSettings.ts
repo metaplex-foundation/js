@@ -26,7 +26,7 @@ export type EndSettingsGuardSettings =
  */
 export type EndSettingsGuardSettingsAmount = {
   /** Differentiates the types of end settings. */
-  endSettingType: EndSettingType.Amount;
+  type: 'amount';
 
   /** The maximum number of items to mint. */
   number: BigNumber;
@@ -40,7 +40,7 @@ export type EndSettingsGuardSettingsAmount = {
  */
 export type EndSettingsGuardSettingsDate = {
   /** Differentiates the types of end settings. */
-  endSettingType: EndSettingType.Date;
+  type: 'date';
 
   /** The date after which the Candy Machine is closed. */
   date: DateTime;
@@ -56,19 +56,19 @@ export const endSettingsGuardManifest: CandyGuardManifest<EndSettingsGuardSettin
       (settings) =>
         settings.endSettingType === EndSettingType.Date
           ? {
-              endSettingType: EndSettingType.Date,
+              type: 'date',
               date: toDateTime(settings.number),
             }
           : {
-              endSettingType: EndSettingType.Amount,
+              type: 'amount',
               number: toBigNumber(settings.number),
             },
       (settings) => ({
-        ...settings,
-        number:
-          settings.endSettingType === EndSettingType.Date
-            ? settings.date
-            : settings.number,
+        endSettingType:
+          settings.type === 'date'
+            ? EndSettingType.Date
+            : EndSettingType.Amount,
+        number: settings.type === 'date' ? settings.date : settings.number,
       })
     ),
   };

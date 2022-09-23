@@ -20,7 +20,10 @@ test.skip('[candyMachineModule] endSettings guard: it allows TODO', async (t) =>
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      TODO: {},
+      endSettings: {
+        type: 'amount',
+        number: toBigNumber(1),
+      },
     },
   });
 

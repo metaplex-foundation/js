@@ -7,10 +7,7 @@ import {
   toDateTime,
   token,
 } from '@/index';
-import {
-  EndSettingType,
-  WhitelistTokenMode,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { WhitelistTokenMode } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -100,7 +97,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           expireOnUse: true,
         },
         endSettings: {
-          endSettingType: EndSettingType.Amount,
+          type: 'amount',
           number: toBigNumber(1000),
         },
         allowList: {
@@ -153,7 +150,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         expireOnUse: true,
       },
       endSettings: {
-        endSettingType: EndSettingType.Amount,
+        type: 'amount',
         number: spokSameBignum(1000),
       },
       allowList: {
@@ -191,7 +188,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
         },
         // Mint finished after 24h for all groups.
         endSettings: {
-          endSettingType: EndSettingType.Date,
+          type: 'date',
           date: toDateTime('2022-09-06T16:00:00.000Z'),
         },
       },
@@ -243,7 +240,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
         lastInstruction: false,
       },
       endSettings: {
-        endSettingType: EndSettingType.Date,
+        type: 'date',
         date: spokSameBignum(toDateTime('2022-09-06T16:00:00.000Z')),
       },
     },
