@@ -6,6 +6,7 @@ import {
   SolAmount,
 } from '@/types';
 import { Lamports, lamportsBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { Buffer } from 'buffer';
 import { CandyGuardManifest } from './core';
 
 /** TODO */

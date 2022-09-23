@@ -7,6 +7,7 @@ import {
   token,
 } from '@/types';
 import { SplToken, splTokenBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { Buffer } from 'buffer';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 

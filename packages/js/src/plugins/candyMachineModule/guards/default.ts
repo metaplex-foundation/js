@@ -1,5 +1,8 @@
 import { Option } from '@/utils';
-import { AllowListGuardSettings } from './allowList';
+import {
+  AllowListGuardMintSettings,
+  AllowListGuardSettings,
+} from './allowList';
 import { BotTaxGuardSettings } from './botTax';
 import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
 import { EndSettingsGuardSettings } from './endSettings';
@@ -38,7 +41,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   whitelist: Option<{}>; // TODO
   gatekeeper: Option<{}>; // TODO
   // endSettings: no mint settings // TODO
-  allowList: Option<{}>; // TODO
+  allowList: Option<AllowListGuardMintSettings>; // TODO
   mintLimit: Option<{}>; // TODO
   nftPayment: Option<{}>; // TODO
 };
