@@ -1,6 +1,5 @@
 import {
   isEqualToAmount,
-  isGreaterThanAmount,
   isLessThanAmount,
   now,
   sol,
@@ -123,7 +122,6 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
 test('[candyMachineModule] it can mint from a Candy Guard with some guards', async (t) => {
   // Given a loaded Candy Machine with some guards.
   const mx = await metaplex();
-  const payer = await createWallet(mx, 10);
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
@@ -148,7 +146,6 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
     .mint({
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
     })
     .run();
 
@@ -159,15 +156,6 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
     nft,
     owner: mx.identity().publicKey,
   });
-
-  // And the treasury received SOLs.
-  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
-  t.true(isEqualToAmount(treasuryBalance, sol(1)), 'treasury received SOLs');
-
-  // And the payer lost SOLs.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isLessThanAmount(payerBalance, sol(9)), 'payer lost SOLs');
-  t.true(isGreaterThanAmount(payerBalance, sol(8)), 'payer lost SOLs');
 });
 
 test("[candyMachineModule] it throws a bot tax error if minting succeeded but we couldn't find the mint NFT", async (t) => {
