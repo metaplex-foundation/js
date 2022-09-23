@@ -113,6 +113,15 @@ export type DirectBuyInput = {
    */
   bookkeeper?: Signer;
 
+  /**
+   * Prints the purchase receipt.
+   * The receipt holds information about the purchase,
+   * So it's important to print it if you want to use the `Purchase` model
+   *
+   * @defaultValue `true`
+   */
+  printReceipt?: boolean; // Default: true
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -138,12 +147,10 @@ export type DirectBuyOutput = {
  */
 export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
   handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
-    const { bid, response, lazyPurchase } = await directBuyBuilder(
+    const { bid, response, lazyPurchase } = await (await directBuyBuilder(
       metaplex,
       operation.input
-    ).then((buyBuilder) =>
-      buyBuilder.sendAndConfirm(metaplex, operation.input.confirmOptions)
-    );
+    )).sendAndConfirm(metaplex, operation.input.confirmOptions);
 
     const purchase = await metaplex
       .auctionHouse()
@@ -200,7 +207,8 @@ export const directBuyBuilder = async (
     ...rest
   } = params;
   const { tokens, price, asset, sellerAddress } = listing;
-  const printReceipt = true;
+  const printReceipt =
+    (params.printReceipt ?? true) && Boolean(listing.receiptAddress);
 
   if (auctionHouse.hasAuctioneer) {
     throw new AuctioneerDirectBuyNotSupportedError();
