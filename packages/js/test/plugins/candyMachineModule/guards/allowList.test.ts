@@ -10,7 +10,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] allowList guard: it allows TODO', async (t) => {
+test.only('[candyMachineModule] allowList guard: it allows TODO', async (t) => {
   // Given a loaded Candy Machine with TODO.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -20,7 +20,9 @@ test.skip('[candyMachineModule] allowList guard: it allows TODO', async (t) => {
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      TODO: {},
+      allowList: {
+        merkleRoot: [1], // TODO: generate a merkle root.
+      },
     },
   });
 
