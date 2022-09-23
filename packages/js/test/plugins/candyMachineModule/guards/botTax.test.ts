@@ -1,4 +1,5 @@
-import { sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
+import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import { createWallet, killStuckProcess, metaplex } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
@@ -40,4 +41,53 @@ test('[candyMachineModule] botTax guard: it does nothing if all conditions are v
     nft,
     owner: payer.publicKey,
   });
+});
+
+test('[candyMachineModule] botTax guard: it may charge a bot tax if the mint instruction is not the last one', async (t) => {
+  // Given a loaded Candy Machine with a botTax guard
+  // such that lastInstruction is set to true.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+    },
+  });
+
+  // When we try to add an instruction after the mint instruction.
+  const payer = await createWallet(mx, 10);
+  const mint = Keypair.generate();
+  const mintBuilder = await mx.candyMachines().builders().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    mint,
+  });
+  mintBuilder.add(
+    mx.tokens().builders().approveDelegateAuthority({
+      mintAddress: mint.publicKey,
+      owner: payer,
+      delegateAuthority: Keypair.generate().publicKey,
+    })
+  );
+  await mx.rpc().sendAndConfirmTransaction(mintBuilder);
+
+  // Then the NFT was not minted, even though the transaction was successful.
+  const metadataPda = mx.nfts().pdas().metadata({ mint: mint.publicKey });
+  const nftExists = await mx.rpc().accountExists(metadataPda);
+  t.false(nftExists, 'NFT was not minted');
+
+  // And the payer was charged a bot tax.
+  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
+  t.true(
+    isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
+    'payer was charged a bot tax'
+  );
 });
