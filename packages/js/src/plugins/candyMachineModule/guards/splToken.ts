@@ -58,6 +58,11 @@ export const splTokenGuardManifest: CandyGuardManifest<
           address: mintSettings.tokenOwner,
           isWritable: false,
         },
+        {
+          isSigner: false,
+          address: settings.destinationAta,
+          isWritable: true,
+        },
       ],
     };
   },
