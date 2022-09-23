@@ -1,4 +1,10 @@
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import {
+  assertAccountExists,
+  isEqualToAmount,
+  PublicKey,
+  sol,
+  toBigNumber,
+} from '@/index';
 import test from 'tape';
 import {
   assertThrows,
@@ -10,7 +16,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] mintLimit guard: it allows minting when the mint limit is not reached', async (t) => {
+test('[candyMachineModule] mintLimit guard: it allows minting when the mint limit is not reached', async (t) => {
   // Given a loaded Candy Machine with a mint limit of 5.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -47,7 +53,18 @@ test.only('[candyMachineModule] mintLimit guard: it allows minting when the mint
   });
 
   // And the mint limit PDA was incremented.
-  // TODO
+  const counterPda = mx
+    .candyMachines()
+    .pdas()
+    .mintLimitCounter({
+      id: 1,
+      user: payer.publicKey,
+      candyMachine: candyMachine.address,
+      candyGuard: candyMachine.candyGuard?.address as PublicKey,
+    });
+  const counterAccount = await mx.rpc().getAccount(counterPda);
+  assertAccountExists(counterAccount);
+  t.equal(toBigNumber(counterAccount.data, 'le').toNumber(), 1);
 });
 
 test.skip('[candyMachineModule] mintLimit guard: it forbids minting when the mint limit is reached', async (t) => {
