@@ -1,32 +1,25 @@
 import {
-  CandyMachine,
   isEqualToAmount,
   isGreaterThanAmount,
   isLessThanAmount,
-  Metaplex,
-  Nft,
-  NftWithToken,
   now,
   sol,
   toBigNumber,
   toDateTime,
-  token,
 } from '@/index';
-import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
-import { Keypair, PublicKey } from '@solana/web3.js';
-import spok, { Specifications } from 'spok';
-import test, { Test } from 'tape';
+import { Keypair } from '@solana/web3.js';
+import test from 'tape';
 import {
   assertThrows,
   createWallet,
   killStuckProcess,
   metaplex,
-  spokSameAmount,
-  spokSameBignum,
-  spokSamePubkey,
 } from '../../helpers';
-import { create32BitsHash, createCandyMachine } from './helpers';
+import {
+  assertMintingWasSuccessful,
+  create32BitsHash,
+  createCandyMachine,
+} from './helpers';
 
 killStuckProcess();
 
@@ -552,98 +545,3 @@ test('[candyMachineModule] it can mint from a candy machine using hidden setting
     owner: mx.identity().publicKey,
   });
 });
-
-const assertMintingWasSuccessful = async (
-  t: Test,
-  metaplex: Metaplex,
-  input: {
-    candyMachine: CandyMachine;
-    collectionUpdateAuthority: PublicKey;
-    nft: NftWithToken;
-    owner: PublicKey;
-    mintedIndex?: number;
-  }
-) => {
-  const candyMachine = input.candyMachine;
-  const mintedIndex = input.mintedIndex ?? candyMachine.itemsMinted.toNumber();
-
-  let expectedName: string;
-  let expectedUri: string;
-  if (candyMachine.itemSettings.type === 'hidden') {
-    expectedName = replaceCandyMachineItemPattern(
-      candyMachine.itemSettings.name,
-      mintedIndex
-    );
-    expectedUri = replaceCandyMachineItemPattern(
-      candyMachine.itemSettings.uri,
-      mintedIndex
-    );
-  } else {
-    const expectedItemMinted = candyMachine.items[mintedIndex];
-    expectedName = expectedItemMinted.name;
-    expectedUri = expectedItemMinted.uri;
-  }
-
-  // Then an NFT was created with the right data.
-  spok(t, input.nft, {
-    $topic: 'Minted NFT',
-    model: 'nft',
-    name: expectedName,
-    uri: expectedUri,
-    symbol: candyMachine.symbol,
-    sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
-    tokenStandard: TokenStandard.NonFungible,
-    isMutable: candyMachine.isMutable,
-    primarySaleHappened: true,
-    updateAuthorityAddress: spokSamePubkey(input.collectionUpdateAuthority),
-    creators: [
-      {
-        address: spokSamePubkey(
-          metaplex.candyMachines().pdas().authority({
-            candyMachine: candyMachine.address,
-          })
-        ),
-        verified: true,
-        share: 0,
-      },
-      ...candyMachine.creators.map((creator) => ({
-        address: spokSamePubkey(creator.address),
-        verified: false,
-        share: creator.share,
-      })),
-    ],
-    edition: {
-      model: 'nftEdition',
-      isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
-      maxSupply: spokSameBignum(candyMachine.maxEditionSupply),
-    },
-    token: {
-      model: 'token',
-      ownerAddress: spokSamePubkey(input.owner),
-      mintAddress: spokSamePubkey(input.nft.address),
-      amount: spokSameAmount(token(1, 0, candyMachine.symbol || 'Token')),
-    },
-  } as Specifications<Nft>);
-
-  // And the Candy Machine data was updated.
-  const expectedMinted = candyMachine.itemsMinted.addn(1);
-  const expectedRemaining = candyMachine.itemsAvailable.sub(expectedMinted);
-  const updatedCandyMachine = await metaplex
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
-  spok(t, updatedCandyMachine, {
-    $topic: 'Update Candy Machine',
-    itemsAvailable: spokSameBignum(candyMachine.itemsAvailable),
-    itemsMinted: spokSameBignum(expectedMinted),
-    itemsRemaining: spokSameBignum(expectedRemaining),
-  } as Specifications<CandyMachine>);
-
-  if (candyMachine.itemSettings.type === 'configLines') {
-    t.true(
-      updatedCandyMachine.items[mintedIndex].minted,
-      'Item was marked as minted'
-    );
-  }
-};
