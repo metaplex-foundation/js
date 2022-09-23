@@ -1,3 +1,5 @@
+import type { Metaplex } from '@/Metaplex';
+import type { MetaplexPlugin } from '@/types';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   approveTokenDelegateAuthorityOperation,
@@ -28,8 +30,6 @@ import {
   thawTokensOperationHandler,
 } from './operations';
 import { TokenClient } from './TokenClient';
-import type { MetaplexPlugin } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 /**
  * @group Plugins
  */

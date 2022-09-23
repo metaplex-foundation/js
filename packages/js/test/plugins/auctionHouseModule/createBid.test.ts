@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
+import { sol, token } from '@/types';
 import {
   assertThrows,
   metaplex,
@@ -12,8 +12,8 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
 import { Bid, findAssociatedTokenAccountPda, Pda } from '@/index';
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 
 killStuckProcess();
 

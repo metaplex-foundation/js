@@ -1,8 +1,6 @@
-import { Buffer } from 'buffer';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { TransferSolOutput } from '../systemModule';
-import { UninitializedDerivedIdentityError } from './errors';
+import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import {
   IdentitySigner,
@@ -11,7 +9,9 @@ import {
   Signer,
   SolAmount,
 } from '@/types';
+import { UninitializedDerivedIdentityError } from './errors';
 import { Task } from '@/utils';
+import { TransferSolOutput } from '../systemModule';
 
 /**
  * @group Modules

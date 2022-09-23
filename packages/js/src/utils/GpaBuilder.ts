@@ -1,14 +1,14 @@
-import { Buffer } from 'buffer';
 import {
   GetProgramAccountsConfig,
   GetProgramAccountsFilter,
   PublicKey,
 } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
-import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedAccount } from '@/types';
+import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 
 export type GpaSortCallback = (
   a: UnparsedAccount,

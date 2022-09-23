@@ -1,3 +1,5 @@
+import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import { assert, Option, removeEmptyChars } from '@/utils';
 import {
   TokenStandard,
   UseMethod,
@@ -6,8 +8,6 @@ import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
 import { findMetadataPda } from '../pdas';
 import { JsonMetadata } from './JsonMetadata';
-import { assert, Option, removeEmptyChars } from '@/utils';
-import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {

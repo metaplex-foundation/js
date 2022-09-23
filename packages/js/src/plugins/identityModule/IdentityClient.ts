@@ -1,6 +1,5 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { IdentityDriver } from './IdentityDriver';
 import { DriverNotProvidedError } from '@/errors';
 import {
   HasDriver,
@@ -9,6 +8,7 @@ import {
   KeypairSigner,
   Signer,
 } from '@/types';
+import { IdentityDriver } from './IdentityDriver';
 
 /**
  * @group Modules

@@ -1,10 +1,10 @@
+import type { Metaplex } from '@/Metaplex';
 import {
   createAccountBuilder,
   CreateAccountBuilderParams,
   transferSolBuilder,
   TransferSolBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders

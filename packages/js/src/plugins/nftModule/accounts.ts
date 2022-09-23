@@ -40,8 +40,9 @@ const originalOrPrintEditionAccountParser: AccountParser<OriginalOrPrintEditionA
         return MasterEditionV1.deserialize(data, offset);
       } else if (data?.[0] === Key.MasterEditionV2) {
         return MasterEditionV2.deserialize(data, offset);
+      } else {
+        return Edition.deserialize(data, offset);
       }
-      return Edition.deserialize(data, offset);
     },
   };
 
@@ -83,8 +84,9 @@ const originalEditionAccountParser: AccountParser<OriginalEditionAccountData> =
     deserialize: (data: Buffer, offset = 0) => {
       if (data?.[0] === Key.MasterEditionV1) {
         return MasterEditionV1.deserialize(data, offset);
+      } else {
+        return MasterEditionV2.deserialize(data, offset);
       }
-      return MasterEditionV2.deserialize(data, offset);
     },
   };
 

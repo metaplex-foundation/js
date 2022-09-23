@@ -19,7 +19,7 @@ test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Te
 
   // Then we get the right NFTs.
   t.same(
-    nfts.map((nftLocal) => nftLocal?.name),
+    nfts.map((nft) => nft?.name),
     ['NFT A', 'NFT B']
   );
   t.same(nfts[0]?.mintAddress, nftA.address);
@@ -43,7 +43,7 @@ test('[nftModule] it returns null when an NFT is not found in a mint list', asyn
 
   // Then we get null for mint not associated to any NFT.
   t.same(
-    nfts.map((nftLocal) => nftLocal?.name ?? null),
+    nfts.map((nft) => nft?.name ?? null),
     [null, 'Some NFT', null]
   );
 });

@@ -1,4 +1,5 @@
 import test from 'tape';
+import { sol } from '@/types';
 
 import {
   killStuckProcess,
@@ -7,7 +8,6 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol } from '@/types';
 import { LazyPurchase } from '@/plugins';
 
 killStuckProcess();

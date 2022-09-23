@@ -1,3 +1,4 @@
+import { NftWithToken } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import {
@@ -6,7 +7,6 @@ import {
   killStuckProcess,
   createSft,
 } from '../../helpers';
-import { NftWithToken } from '@/plugins';
 
 killStuckProcess();
 

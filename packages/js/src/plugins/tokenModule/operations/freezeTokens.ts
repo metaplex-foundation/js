@@ -1,9 +1,4 @@
-import { createFreezeAccountInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
-import { TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   KeypairSigner,
@@ -12,7 +7,12 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder } from '@/utils';
+import { createFreezeAccountInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation

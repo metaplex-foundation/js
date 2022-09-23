@@ -1,22 +1,6 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  SendOptions,
-  Signer as Web3Signer,
-  Transaction,
-  TransactionSignature,
-} from '@solana/web3.js';
-import {
-  getBytesFromMetaplexFiles,
-  MetaplexFile,
-  MetaplexFileTag,
-  StorageDriver,
-} from '../storageModule';
-import { KeypairIdentityDriver } from '../keypairIdentity';
 import { Metaplex } from '@/Metaplex';
 import {
   Amount,
@@ -34,6 +18,22 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
+import {
+  getBytesFromMetaplexFiles,
+  MetaplexFile,
+  MetaplexFileTag,
+  StorageDriver,
+} from '../storageModule';
+import { KeypairIdentityDriver } from '../keypairIdentity';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  SendOptions,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -42,7 +42,7 @@ import {
  * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
  * This method fixes this by ensure there is not double default in the imported package.
  */
-function removeDoubleDefault(pkg: any) {
+function _removeDoubleDefault(pkg: any) {
   if (
     pkg &&
     typeof pkg === 'object' &&
@@ -55,7 +55,7 @@ function removeDoubleDefault(pkg: any) {
   return pkg;
 }
 
-const BundlrPackage = removeDoubleDefault(_BundlrPackage);
+const BundlrPackage = _removeDoubleDefault(_BundlrPackage);
 
 export type BundlrOptions = {
   address?: string;
@@ -200,7 +200,7 @@ export class BundlrStorageDriver implements StorageDriver {
 
     // if in node use node bundlr, else use web bundlr
     // see: https://github.com/metaplex-foundation/js/issues/202
-    const isNode =
+    let isNode =
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
     let bundlr;
     if (isNode && isKeypairSigner(identity))
@@ -263,9 +263,9 @@ export class BundlrStorageDriver implements StorageDriver {
       sendTransaction: (
         transaction: Transaction,
         connection: Connection,
-        params: SendOptions & { signers?: Web3Signer[] } = {}
+        options: SendOptions & { signers?: Web3Signer[] } = {}
       ): Promise<TransactionSignature> => {
-        const { signers, ...sendOptions } = params;
+        const { signers, ...sendOptions } = options;
 
         if ('rpc' in this._metaplex) {
           return this._metaplex

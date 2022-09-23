@@ -1,6 +1,6 @@
-import { MetaplexFile, StorageDriver } from '../storageModule';
 import { Amount, BigNumber, lamports, toBigNumber } from '@/types';
 import { AssetNotFoundError } from '@/errors';
+import { MetaplexFile, StorageDriver } from '../storageModule';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
 const DEFAULT_COST_PER_BYTE = 1;
@@ -11,7 +11,7 @@ export type MockStorageOptions = {
 };
 
 export class MockStorageDriver implements StorageDriver {
-  private _cache: Record<string, MetaplexFile> = {};
+  private cache: Record<string, MetaplexFile> = {};
   public readonly baseUrl: string;
   public readonly costPerByte: BigNumber;
 
@@ -30,13 +30,13 @@ export class MockStorageDriver implements StorageDriver {
 
   async upload(file: MetaplexFile): Promise<string> {
     const uri = `${this.baseUrl}${file.uniqueName}`;
-    this._cache[uri] = file;
+    this.cache[uri] = file;
 
     return uri;
   }
 
   async download(uri: string): Promise<MetaplexFile> {
-    const file = this._cache[uri];
+    const file = this.cache[uri];
 
     if (!file) {
       throw new AssetNotFoundError(uri);

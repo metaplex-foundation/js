@@ -1,3 +1,10 @@
+import { Metaplex } from '@/Metaplex';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  useOperation,
+} from '@/types';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   parseCandyMachineCollectionAccount,
@@ -5,13 +12,6 @@ import {
 } from '../accounts';
 import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
 import { findCandyMachineCollectionPda } from '../pdas';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  useOperation,
-} from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

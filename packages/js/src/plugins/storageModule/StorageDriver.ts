@@ -1,6 +1,6 @@
 import { AbortSignal } from 'abort-controller';
-import { MetaplexFile } from './MetaplexFile';
 import { Amount } from '@/types';
+import { MetaplexFile } from './MetaplexFile';
 
 export type StorageDriver = {
   getUploadPrice: (bytes: number) => Promise<Amount>;

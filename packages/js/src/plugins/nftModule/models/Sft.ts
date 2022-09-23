@@ -1,8 +1,8 @@
+import { amount, Pda } from '@/types';
+import { assert } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
 import type { Mint, Token } from '../../tokenModule';
 import type { Metadata } from './Metadata';
-import { assert } from '@/utils';
-import { amount, Pda } from '@/types';
 
 /** @group Models */
 export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &
@@ -73,7 +73,7 @@ export const toSftWithToken = (
   token: Token
 ): SftWithToken => {
   const sft = toSft(metadata, mint);
-  const { currency } = sft.mint;
+  const currency = sft.mint.currency;
   return {
     ...sft,
     token: {

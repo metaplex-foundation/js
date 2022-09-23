@@ -1,7 +1,4 @@
 import { PublicKey } from '@solana/web3.js';
-import { PurchaseReceiptAccount } from '../accounts';
-import { NftWithToken, SftWithToken } from '../../nftModule';
-import { AuctionHouse } from './AuctionHouse';
 import {
   amount,
   BigNumber,
@@ -12,7 +9,10 @@ import {
   toBigNumber,
   toDateTime,
 } from '@/types';
+import { PurchaseReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
+import { AuctionHouse } from './AuctionHouse';
+import { NftWithToken, SftWithToken } from '../../nftModule';
 
 export type Purchase = Readonly<{
   /** A model identifier to distinguish models in the SDK. */

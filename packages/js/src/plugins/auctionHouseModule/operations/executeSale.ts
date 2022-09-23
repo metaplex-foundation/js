@@ -3,6 +3,8 @@ import {
   PublicKey,
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   AuctioneerExecuteSaleInstructionAccounts,
   createAuctioneerExecuteSaleInstruction,
@@ -11,7 +13,19 @@ import {
   createPrintPurchaseReceiptInstruction,
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
-
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  Pda,
+  lamports,
+  Signer,
+  SolAmount,
+  SplTokenAmount,
+  isSigner,
+  now,
+  amount,
+} from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
@@ -31,21 +45,6 @@ import {
   CanceledListingIsNotAllowedError,
   PartialPriceMismatchError,
 } from '../errors';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  Pda,
-  lamports,
-  Signer,
-  SolAmount,
-  SplTokenAmount,
-  amount,
-  isSigner,
-  now,
-} from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -479,7 +478,7 @@ export const executeSaleBuilder = (
         builder.add({
           instruction: createPrintPurchaseReceiptInstruction(
             {
-              purchaseReceipt,
+              purchaseReceipt: purchaseReceipt,
               listingReceipt: listing.receiptAddress as Pda,
               bidReceipt: bid.receiptAddress as Pda,
               bookkeeper: bookkeeper.publicKey,

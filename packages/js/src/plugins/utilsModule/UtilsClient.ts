@@ -23,8 +23,8 @@ export class UtilsClient {
 
   async estimate(
     bytes: number,
-    numberOfAccounts = 1,
-    numberOfTransactions = 1,
+    numberOfAccounts: number = 1,
+    numberOfTransactions: number = 1,
     useCache = true
   ): Promise<SolAmount> {
     const rent = await this.estimateRent(bytes, numberOfAccounts, useCache);
@@ -35,8 +35,8 @@ export class UtilsClient {
 
   async estimateRent(
     bytes: number,
-    numberOfAccounts = 1,
-    useCache = true
+    numberOfAccounts: number = 1,
+    useCache: boolean = true
   ): Promise<SolAmount> {
     if (
       !useCache ||
@@ -58,7 +58,7 @@ export class UtilsClient {
     return addAmounts(rentForAccounts, rentForBytes);
   }
 
-  estimateTransactionFee(numberOfTransactions = 1): SolAmount {
+  estimateTransactionFee(numberOfTransactions: number = 1): SolAmount {
     // TODO(loris): Improve with an RPC call to get the current transaction fee.
     return lamports(numberOfTransactions * TRANSACTION_FEE);
   }

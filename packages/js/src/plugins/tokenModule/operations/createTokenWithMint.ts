@@ -1,8 +1,4 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
-import { TokenWithMint } from '../models/Token';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   Operation,
@@ -12,7 +8,11 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
+import { TokenWithMint } from '../models/Token';
 
 // -----------------
 // Operation

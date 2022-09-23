@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
 import nacl from 'tweetnacl';
+import { Buffer } from 'buffer';
 import { amman } from '../../helpers';
 import {
   Metaplex,
@@ -55,7 +55,7 @@ export function create32BitsHash(
 
 export function create32BitsHashString(
   input: Buffer | string,
-  slice = 32
+  slice: number = 32
 ): string {
   const hash = nacl.hash(Buffer.from(input)).slice(0, slice / 2);
 

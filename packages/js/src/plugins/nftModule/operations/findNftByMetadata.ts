@@ -1,9 +1,9 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { toMetadataAccount } from '../accounts';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
 import { Metaplex } from '@/Metaplex';
 import { Operation, OperationHandler, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
+import { Commitment, PublicKey } from '@solana/web3.js';
+import { toMetadataAccount } from '../accounts';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
 
 // -----------------
 // Operation

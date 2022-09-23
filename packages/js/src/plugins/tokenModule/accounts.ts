@@ -1,15 +1,15 @@
 import {
-  RawAccount as SplTokenAccount,
-  AccountLayout as SplTokenAccountLayout,
-  RawMint as SplMintAccount,
-  MintLayout as SplMintAccountLayout,
-} from '@solana/spl-token';
-import {
   Account,
   AccountParser,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@/types';
+import {
+  RawAccount as SplTokenAccount,
+  AccountLayout as SplTokenAccountLayout,
+  RawMint as SplMintAccount,
+  MintLayout as SplMintAccountLayout,
+} from '@solana/spl-token';
 
 const mintAccountParser: AccountParser<SplMintAccount> = {
   name: 'MintAccount',

@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { AccountNotFoundError, UnexpectedAccountError } from '@/errors';
 
 export type Account<T> = {

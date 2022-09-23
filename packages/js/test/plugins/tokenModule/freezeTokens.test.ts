@@ -1,9 +1,9 @@
+import { token } from '@/index';
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
 import { refreshToken } from './helpers';
-import { token } from '@/index';
 
 killStuckProcess();
 

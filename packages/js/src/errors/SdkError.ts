@@ -1,10 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
+import { Cluster, Program, Currency } from '@/types';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
-import { Cluster, Program, Currency } from '@/types';
 
 /** @group Errors */
 export class SdkError extends MetaplexError {

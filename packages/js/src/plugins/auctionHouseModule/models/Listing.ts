@@ -1,8 +1,4 @@
 import { PublicKey } from '@solana/web3.js';
-import { ListingReceiptAccount } from '../accounts';
-import { NftWithToken, SftWithToken } from '../../nftModule';
-import { AuctionHouse } from './AuctionHouse';
-import { assert, Option } from '@/utils';
 import {
   amount,
   BigNumber,
@@ -15,6 +11,10 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
+import { ListingReceiptAccount } from '../accounts';
+import { NftWithToken, SftWithToken } from '../../nftModule';
+import { assert, Option } from '@/utils';
+import { AuctionHouse } from './AuctionHouse';
 
 /** @group Models */
 export type Listing = Readonly<{
@@ -127,7 +127,7 @@ export const toLazyListing = (
   return {
     model: 'listing',
     lazy: true,
-    auctionHouse,
+    auctionHouse: auctionHouse,
     tradeStateAddress: new Pda(
       account.data.tradeState,
       account.data.tradeStateBump

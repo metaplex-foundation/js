@@ -38,33 +38,33 @@ export type SignerHistogram = {
 
 export const getSignerHistogram = (signers: Signer[]) =>
   signers.reduce(
-    (signersLocal: SignerHistogram, signer: Signer) => {
-      const duplicateIndex = signersLocal.all.findIndex(({ publicKey }) =>
+    (signers: SignerHistogram, signer: Signer) => {
+      const duplicateIndex = signers.all.findIndex(({ publicKey }) =>
         publicKey.equals(signer.publicKey)
       );
-      const duplicate = signersLocal.all[duplicateIndex] ?? null;
+      const duplicate = signers.all[duplicateIndex] ?? null;
       const duplicateIsIdentity = duplicate
         ? isIdentitySigner(duplicate)
         : false;
       const signerIsIdentity = isIdentitySigner(signer);
 
       if (!duplicate) {
-        signersLocal.all.push(signer);
+        signers.all.push(signer);
         signerIsIdentity
-          ? signersLocal.identities.push(signer)
-          : signersLocal.keypairs.push(signer);
+          ? signers.identities.push(signer)
+          : signers.keypairs.push(signer);
       } else if (duplicateIsIdentity && !signerIsIdentity) {
         // Prefer keypair than identity signer as it requires less user interactions.
-        const duplicateIdentitiesIndex = signersLocal.identities.findIndex(
+        const duplicateIdentitiesIndex = signers.identities.findIndex(
           ({ publicKey }) => publicKey.equals(signer.publicKey)
         );
-        signersLocal.all.splice(duplicateIndex, 1);
-        signersLocal.identities.splice(duplicateIdentitiesIndex, 1);
-        signersLocal.all.push(signer);
-        signersLocal.keypairs.push(signer);
+        signers.all.splice(duplicateIndex, 1);
+        signers.identities.splice(duplicateIdentitiesIndex, 1);
+        signers.all.push(signer);
+        signers.keypairs.push(signer);
       }
 
-      return signersLocal;
+      return signers;
     },
     { all: [], keypairs: [], identities: [] }
   );

@@ -81,7 +81,7 @@ export class MetaplexError extends Error {
     return capitalizedSource + sourceDetails;
   }
 
-  toString(withName = true) {
+  toString(withName: boolean = true) {
     const logs =
       this.logs != null ? `\n\n[ Logs: ${this.logs.join(' |$> ')} ]` : '';
     const causedBy = this.cause ? `\n\nCaused By: ${this.cause}` : '';

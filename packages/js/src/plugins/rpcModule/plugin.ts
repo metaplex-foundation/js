@@ -1,6 +1,6 @@
-import { RpcClient } from './RpcClient';
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
+import { RpcClient } from './RpcClient';
 
 /** @group Plugins */
 export const rpcModule = (): MetaplexPlugin => ({

@@ -1,3 +1,13 @@
+import { NoInstructionsToSendError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
+import {
+  CreatorInput,
+  Operation,
+  OperationHandler,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Option, TransactionBuilder } from '@/utils';
 import {
   createUpdateMetadataAccountV2Instruction,
   UpdateMetadataAccountArgsV2,
@@ -8,16 +18,6 @@ import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
 import { findMetadataPda } from '../pdas';
-import { Option, TransactionBuilder } from '@/utils';
-import {
-  CreatorInput,
-  Operation,
-  OperationHandler,
-  Signer,
-  useOperation,
-} from '@/types';
-import { Metaplex } from '@/Metaplex';
-import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
 // Operation

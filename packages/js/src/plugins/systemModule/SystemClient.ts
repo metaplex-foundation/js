@@ -1,3 +1,4 @@
+import type { Metaplex } from '@/Metaplex';
 import {
   CreateAccountInput,
   createAccountOperation,
@@ -5,7 +6,6 @@ import {
   transferSolOperation,
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
-import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the System module.

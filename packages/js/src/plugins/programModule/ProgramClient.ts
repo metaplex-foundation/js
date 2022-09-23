@@ -8,8 +8,9 @@ import { GpaBuilder } from '@/utils';
  * @group Modules
  */
 export class ProgramClient {
-  protected programs: Program[] = [];
   constructor(protected readonly metaplex: Metaplex) {}
+
+  protected programs: Program[] = [];
 
   register(program: Program): void {
     this.programs.push(program);
@@ -33,8 +34,8 @@ export class ProgramClient {
     const programs = this.allForCurrentCluster();
     const program =
       typeof nameOrAddress === 'string'
-        ? programs.find(({ name }) => name === nameOrAddress)
-        : programs.find(({ address }) => address.equals(nameOrAddress));
+        ? programs.find((program) => program.name === nameOrAddress)
+        : programs.find((program) => program.address.equals(nameOrAddress));
 
     if (!program) {
       throw new ProgramNotRecognizedError(nameOrAddress, this.metaplex.cluster);

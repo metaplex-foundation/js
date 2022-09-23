@@ -1,9 +1,4 @@
-import { createApproveInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
-import { TransactionBuilder } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   KeypairSigner,
@@ -14,7 +9,12 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder } from '@/utils';
+import { createApproveInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../pdas';
+import { TokenProgram } from '../program';
 
 // -----------------
 // Operation

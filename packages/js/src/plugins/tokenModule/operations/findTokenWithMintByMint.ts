@@ -1,11 +1,11 @@
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { toMintAccount, toTokenAccount } from '../accounts';
 import { TokenAndMintDoNotMatchError } from '../errors';
 import { toMint } from '../models/Mint';
 import { findAssociatedTokenAccountPda } from '../pdas';
 import { TokenWithMint, toTokenWithMint } from '../models/Token';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

@@ -1,7 +1,4 @@
-import type {
-  Metaplex as Metaplex,
-  MetaplexPlugin,
-} from '@metaplex-foundation/js';
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js';
 import { NftStorageDriver, NftStorageDriverOptions } from './NftStorageDriver';
 
 export const nftStorage = (

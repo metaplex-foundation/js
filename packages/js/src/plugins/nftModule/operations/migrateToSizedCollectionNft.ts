@@ -1,8 +1,4 @@
-import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
   Operation,
@@ -10,7 +6,11 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder } from '@/utils';
+import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
 
 // -----------------
 // Operation

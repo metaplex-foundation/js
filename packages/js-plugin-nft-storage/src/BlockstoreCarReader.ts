@@ -10,7 +10,7 @@ export class BlockstoreCarReader {
   _roots: CID[];
   _blockstore: Blockstore;
 
-  constructor(roots: CID[], blockstore: Blockstore, version = 1) {
+  constructor(roots: CID[], blockstore: Blockstore, version: number = 1) {
     this._version = version;
     this._roots = roots;
     this._blockstore = blockstore;

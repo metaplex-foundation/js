@@ -1,3 +1,4 @@
+import { Nft, toBigNumber } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -7,7 +8,6 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
-import { Nft, toBigNumber } from '@/index';
 
 killStuckProcess();
 

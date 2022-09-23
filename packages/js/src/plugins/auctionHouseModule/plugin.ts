@@ -1,4 +1,6 @@
 import { cusper } from '@metaplex-foundation/mpl-auction-house';
+import type { Metaplex } from '@/Metaplex';
+import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
 import {
@@ -55,8 +57,6 @@ import {
   withdrawFromTreasuryAccountOperation,
   withdrawFromTreasuryAccountOperationHandler,
 } from './operations';
-import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({

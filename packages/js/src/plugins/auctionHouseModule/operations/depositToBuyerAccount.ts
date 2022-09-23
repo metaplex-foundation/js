@@ -1,14 +1,11 @@
 import { ConfirmOptions } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder } from '@/utils';
 import {
   createAuctioneerDepositInstruction,
   createDepositInstruction,
   DepositInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse } from '../models';
-import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
-import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   useOperation,
   Operation,
@@ -19,8 +16,11 @@ import {
   SolAmount,
   SplTokenAmount,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { AuctionHouse } from '../models';
+import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation

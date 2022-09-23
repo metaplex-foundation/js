@@ -1,5 +1,6 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
+import { Nft, Sft, token } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import {
@@ -10,7 +11,6 @@ import {
   assertThrows,
   createSft,
 } from '../../helpers';
-import { Nft, Sft, token } from '@/index';
 
 killStuckProcess();
 

@@ -1,6 +1,6 @@
 import type { Metaplex } from '../../Metaplex';
 
-// Low-level modules.:
+// Low-level modules.
 import { identityModule } from '../identityModule';
 import { storageModule } from '../storageModule';
 import { rpcModule } from '../rpcModule';

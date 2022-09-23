@@ -1,10 +1,10 @@
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-auction-house';
+import { Metaplex } from '@/Metaplex';
 import {
   BidReceiptGpaBuilder,
   ListingReceiptGpaBuilder,
   PurchaseReceiptGpaBuilder,
 } from './gpaBuilders';
-import { Metaplex } from '@/Metaplex';
 
 /** @group Programs */
 export const AuctionHouseProgram = {

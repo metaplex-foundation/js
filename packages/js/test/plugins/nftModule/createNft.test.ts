@@ -1,4 +1,14 @@
 import {
+  findEditionPda,
+  findMetadataPda,
+  Nft,
+  NftWithToken,
+  toBigNumber,
+  token,
+  toMetaplexFile,
+  TransactionBuilder,
+} from '@/index';
+import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
   UseMethod,
@@ -20,16 +30,6 @@ import {
   assertCollectionHasSize,
   assertRefreshedCollectionHasSize,
 } from './helpers';
-import {
-  findEditionPda,
-  findMetadataPda,
-  Nft,
-  NftWithToken,
-  toBigNumber,
-  token,
-  toMetaplexFile,
-  TransactionBuilder,
-} from '@/index';
 
 killStuckProcess();
 
@@ -248,7 +248,7 @@ test('[nftModule] it can create an NFT from an existing mint', async (t: Test) =
     .create({
       ...minimalInput(),
       useExistingMint: mint.address,
-      mintAuthority,
+      mintAuthority: mintAuthority,
       name: 'My NFT from an existing mint',
     })
     .run();

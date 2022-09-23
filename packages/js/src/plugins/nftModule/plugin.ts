@@ -1,3 +1,5 @@
+import type { Metaplex } from '@/Metaplex';
+import { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { cusper } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenMetadataGpaBuilder } from './gpaBuilders';
 import { NftClient } from './NftClient';
@@ -56,8 +58,6 @@ import {
   verifyNftCreatorOperationHandler,
 } from './operations';
 import { TokenMetadataProgram } from './program';
-import { ErrorWithLogs, MetaplexPlugin } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
@@ -68,8 +68,8 @@ export const nftModule = (): MetaplexPlugin => ({
       address: TokenMetadataProgram.publicKey,
       errorResolver: (error: ErrorWithLogs) =>
         cusper.errorFromProgramLogs(error.logs, false),
-      gpaResolver: (mx: Metaplex) =>
-        new TokenMetadataGpaBuilder(mx, TokenMetadataProgram.publicKey),
+      gpaResolver: (metaplex: Metaplex) =>
+        new TokenMetadataGpaBuilder(metaplex, TokenMetadataProgram.publicKey),
     });
 
     // Operations.

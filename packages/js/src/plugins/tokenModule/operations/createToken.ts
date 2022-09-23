@@ -1,3 +1,14 @@
+import { ExpectedSignerError } from '@/errors';
+import type { Metaplex } from '@/Metaplex';
+import {
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -9,17 +20,6 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../pdas';
 import { TokenProgram } from '../program';
 import { Token } from '../models/Token';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import {
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import type { Metaplex } from '@/Metaplex';
-import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation

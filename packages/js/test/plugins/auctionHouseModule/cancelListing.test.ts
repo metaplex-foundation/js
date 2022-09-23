@@ -1,5 +1,6 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
+import { sol } from '@/types';
 import {
   metaplex,
   killStuckProcess,
@@ -8,7 +9,6 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol } from '@/types';
 
 killStuckProcess();
 

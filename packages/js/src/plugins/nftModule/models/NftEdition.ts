@@ -1,3 +1,5 @@
+import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
+import { assert, Option } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
 import {
   isOriginalEditionAccount,
@@ -5,8 +7,6 @@ import {
   OriginalOrPrintEditionAccount,
   PrintEditionAccount,
 } from '../accounts';
-import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
-import { assert, Option } from '@/utils';
 
 /** @group Models */
 export type NftEdition = NftOriginalEdition | NftPrintEdition;

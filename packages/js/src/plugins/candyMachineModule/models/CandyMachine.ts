@@ -8,7 +8,6 @@ import {
   amount,
   Amount,
   BigNumber,
-  Creator,
   DateTime,
   lamports,
   SOL,
@@ -27,6 +26,7 @@ import {
   CandyMachineAccount,
   MaybeCandyMachineCollectionAccount,
 } from '../accounts';
+import { Creator } from '@/types';
 import { CandyMachineProgram } from '../program';
 import { Mint } from '@/plugins/tokenModule';
 
@@ -402,24 +402,17 @@ export const toCandyMachine = (
   const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
   const itemsMinted = toBigNumber(account.data.itemsRedeemed);
 
-  const { endSettings } = account.data.data;
-  const { hiddenSettings } = account.data.data;
-  const { whitelistMintSettings } = account.data.data;
-  const { gatekeeper } = account.data.data;
+  const endSettings = account.data.data.endSettings;
+  const hiddenSettings = account.data.data.hiddenSettings;
+  const whitelistMintSettings = account.data.data.whitelistMintSettings;
+  const gatekeeper = account.data.data.gatekeeper;
 
   const rawData = unparsedAccount.data;
   const itemsLoaded = hiddenSettings
     ? toBigNumber(0)
     : countCandyMachineItems(rawData);
   const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
-  const getEndSettings = (): Option<CandyMachineEndSettings> => {
-    if (!endSettings) return null;
-    const isDate = endSettings.endSettingType === EndSettingType.Date;
-    return {
-      endSettingType: isDate ? EndSettingType.Date : EndSettingType.Amount,
-      date: toDateTime(endSettings.number),
-    } as CandyMachineEndSettings;
-  };
+
   return {
     model: 'candyMachine',
     address: account.publicKey,
@@ -446,7 +439,17 @@ export const toCandyMachine = (
     itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
     itemsLoaded,
     isFullyLoaded: itemsAvailable.lte(itemsLoaded),
-    endSettings: getEndSettings(),
+    endSettings: endSettings
+      ? endSettings.endSettingType === EndSettingType.Date
+        ? {
+            endSettingType: EndSettingType.Date,
+            date: toDateTime(endSettings.number),
+          }
+        : {
+            endSettingType: EndSettingType.Amount,
+            number: toBigNumber(endSettings.number),
+          }
+      : null,
     hiddenSettings,
     whitelistMintSettings: whitelistMintSettings
       ? {
@@ -655,9 +658,9 @@ export const toCandyMachineInstructionData = (
   address: PublicKey,
   configs: CandyMachineConfigs
 ): CandyMachineInstructionData => {
-  const { endSettings } = configs;
-  const { whitelistMintSettings } = configs;
-  const { gatekeeper } = configs;
+  const endSettings = configs.endSettings;
+  const whitelistMintSettings = configs.whitelistMintSettings;
+  const gatekeeper = configs.gatekeeper;
 
   return {
     wallet: configs.wallet,

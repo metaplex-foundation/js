@@ -1,8 +1,8 @@
 import test, { Test } from 'tape';
-import { Keypair } from '@solana/web3.js';
+import { addAmounts, sol } from '@/types';
 import { metaplex, killStuckProcess, assertThrows } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { addAmounts, sol } from '@/types';
+import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 

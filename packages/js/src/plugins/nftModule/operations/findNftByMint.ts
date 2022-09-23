@@ -1,3 +1,6 @@
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   findAssociatedTokenAccountPda,
@@ -24,9 +27,6 @@ import {
   toSftWithToken,
 } from '../models';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-import { DisposableScope } from '@/utils';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

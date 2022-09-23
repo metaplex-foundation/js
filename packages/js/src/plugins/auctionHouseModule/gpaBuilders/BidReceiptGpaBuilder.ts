@@ -1,5 +1,5 @@
-import { PublicKey } from '@solana/web3.js';
 import { GpaBuilder } from '@/utils';
+import { PublicKey } from '@solana/web3.js';
 
 type AccountDiscriminator = [
   number,

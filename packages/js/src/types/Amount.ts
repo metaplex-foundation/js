@@ -1,7 +1,7 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
-import { BigNumber, BigNumberValues, toBigNumber } from './BigNumber';
 import { CurrencyMismatchError, UnexpectedCurrencyError } from '@/errors';
+import { BigNumber, BigNumberValues, toBigNumber } from './BigNumber';
 
 export type Amount<T extends Currency = Currency> = {
   basisPoints: BigNumber;
@@ -47,29 +47,29 @@ export const amount = <T extends Currency = Currency>(
   };
 };
 
-export const lamports = (lamportsArg: BigNumberValues): SolAmount => {
-  return amount(lamportsArg, SOL);
+export const lamports = (lamports: BigNumberValues): SolAmount => {
+  return amount(lamports, SOL);
 };
 
-export const sol = (solArg: number): SolAmount => {
-  return lamports(solArg * LAMPORTS_PER_SOL);
+export const sol = (sol: number): SolAmount => {
+  return lamports(sol * LAMPORTS_PER_SOL);
 };
 
-export const usd = (usdArg: number): UsdAmount => {
-  return amount(usdArg * 100, USD);
+export const usd = (usd: number): UsdAmount => {
+  return amount(usd * 100, USD);
 };
 
 export const token = (
-  amountArg: BigNumberValues,
-  decimals = 0,
-  symbol = 'Token'
+  amount: BigNumberValues,
+  decimals: number = 0,
+  symbol: string = 'Token'
 ): SplTokenAmount => {
-  if (typeof amountArg !== 'number') {
-    amountArg = toBigNumber(amountArg).toNumber();
+  if (typeof amount !== 'number') {
+    amount = toBigNumber(amount).toNumber();
   }
 
   return {
-    basisPoints: toBigNumber(amountArg * Math.pow(10, decimals)),
+    basisPoints: toBigNumber(amount * Math.pow(10, decimals)),
     currency: {
       symbol,
       decimals,

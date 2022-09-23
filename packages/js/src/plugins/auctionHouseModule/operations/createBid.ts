@@ -3,6 +3,8 @@ import {
   PublicKey,
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import {
   BuyInstructionAccounts,
   createAuctioneerBuyInstruction,
@@ -11,17 +13,6 @@ import {
   createPrintBidReceiptInstruction,
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { findMetadataPda } from '../../nftModule';
-import { AuctionHouse, Bid, LazyBid } from '../models';
-import {
-  findAuctioneerPda,
-  findAuctionHouseBuyerEscrowPda,
-  findAuctionHouseTradeStatePda,
-  findBidReceiptPda,
-} from '../pdas';
-import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   useOperation,
   Operation,
@@ -37,8 +28,17 @@ import {
   Pda,
   now,
 } from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
-import type { Metaplex } from '@/Metaplex';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findMetadataPda } from '../../nftModule';
+import { AuctionHouse, Bid, LazyBid } from '../models';
+import {
+  findAuctioneerPda,
+  findAuctionHouseBuyerEscrowPda,
+  findAuctionHouseTradeStatePda,
+  findBidReceiptPda,
+} from '../pdas';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -305,7 +305,7 @@ export const createBidBuilder = async (
   params: CreateBidBuilderParams
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
-  const { auctionHouse } = params;
+  const auctionHouse = params.auctionHouse;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative
@@ -458,8 +458,8 @@ export const createBidBuilder = async (
       })
 
       // Print the Bid Receipt.
-      .when(shouldPrintReceipt, (builderArg) =>
-        builderArg.add({
+      .when(shouldPrintReceipt, (builder) =>
+        builder.add({
           instruction: createPrintBidReceiptInstruction(
             {
               receipt,

@@ -1,9 +1,9 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import { AuctionHouse, Bid, toLazyBid } from '../models';
-import { toBidReceiptAccount } from '../accounts';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
 import { DisposableScope } from '@/utils';
+import { AuctionHouse, Bid, toLazyBid } from '../models';
+import { toBidReceiptAccount } from '../accounts';
 
 // -----------------
 // Operation

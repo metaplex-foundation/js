@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
-import { CandyMachineProgram } from './program';
+import { Buffer } from 'buffer';
 import { Pda } from '@/types';
+import { CandyMachineProgram } from './program';
 
 /** @group Pdas */
 export const findCandyMachineCreatorPda = (

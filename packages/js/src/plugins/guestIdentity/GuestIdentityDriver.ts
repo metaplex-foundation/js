@@ -1,6 +1,6 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { IdentityDriver } from '../identityModule';
 import { OperationUnauthorizedForGuestsError } from '@/errors';
+import { IdentityDriver } from '../identityModule';
 
 export class GuestIdentityDriver implements IdentityDriver {
   public readonly publicKey: PublicKey;

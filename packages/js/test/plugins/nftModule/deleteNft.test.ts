@@ -1,3 +1,4 @@
+import { findAssociatedTokenAccountPda } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import {
@@ -8,7 +9,6 @@ import {
   metaplex,
 } from '../../helpers';
 import { assertRefreshedCollectionHasSize } from './helpers';
-import { findAssociatedTokenAccountPda } from '@/plugins';
 
 killStuckProcess();
 
@@ -83,7 +83,7 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
   const updateAuthority = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: owner.publicKey,
-    updateAuthority,
+    updateAuthority: updateAuthority,
   });
 
   // When the update authority tries to delete the NFT.

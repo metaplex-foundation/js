@@ -1,3 +1,4 @@
+import type { Metaplex } from '@/Metaplex';
 import {
   approveTokenDelegateAuthorityBuilder,
   ApproveTokenDelegateAuthorityBuilderParams,
@@ -20,7 +21,6 @@ import {
   thawTokensBuilder,
   ThawTokensBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders

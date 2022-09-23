@@ -6,7 +6,7 @@ import {
   StorageDriver,
   lamports,
   Amount,
-  Metaplex as Metaplex,
+  Metaplex,
   Signer,
   isKeypairSigner,
 } from '@metaplex-foundation/js';

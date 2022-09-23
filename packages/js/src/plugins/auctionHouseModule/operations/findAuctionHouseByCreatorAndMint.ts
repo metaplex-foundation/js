@@ -1,8 +1,8 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
-import { findAuctionHousePda } from '../pdas';
-import { AuctionHouse } from '../models/AuctionHouse';
 import type { Metaplex } from '@/Metaplex';
 import { useOperation, Operation, OperationHandler } from '@/types';
+import { findAuctionHousePda } from '../pdas';
+import { AuctionHouse } from '../models/AuctionHouse';
 
 // -----------------
 // Operation

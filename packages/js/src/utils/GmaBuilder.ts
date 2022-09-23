@@ -1,7 +1,7 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
-import { chunk } from './common';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
+import { chunk } from './common';
 
 export type GmaBuilderOptions = {
   chunkSize?: number;
@@ -100,7 +100,7 @@ export class GmaBuilder {
     publicKeys: PublicKey[]
   ): Promise<UnparsedMaybeAccount[]> {
     const chunks = chunk(publicKeys, this.chunkSize);
-    const chunkPromises = chunks.map((_chunk) => this.getChunk(_chunk));
+    const chunkPromises = chunks.map((chunk) => this.getChunk(chunk));
     const resolvedChunks = await Promise.all(chunkPromises);
 
     return resolvedChunks.flat();

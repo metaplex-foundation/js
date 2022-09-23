@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { Key, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import { Buffer } from 'buffer';
 import { Metaplex } from '@/Metaplex';
 import { GpaBuilder, padEmptyChars } from '@/utils';
 import { toBigNumber } from '@/types';

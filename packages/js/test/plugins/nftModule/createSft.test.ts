@@ -1,3 +1,4 @@
+import { Sft, SftWithToken, token, toMetaplexFile } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -10,7 +11,6 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { Sft, SftWithToken, token, toMetaplexFile } from '@/index';
 
 killStuckProcess();
 
@@ -203,7 +203,7 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
     .createSft({
       ...minimalInput(),
       useExistingMint: mint.address,
-      mintAuthority,
+      mintAuthority: mintAuthority,
       name: 'My SFT from an existing mint',
       symbol: 'MYSFT',
       decimals: 9, // <- This will not be used on existing mints.

@@ -1,11 +1,11 @@
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { TransactionBuilder } from '@/utils';
 import { createRevokeUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
