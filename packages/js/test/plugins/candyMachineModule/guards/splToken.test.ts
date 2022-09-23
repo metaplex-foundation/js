@@ -1,4 +1,4 @@
-import { toBigNumber, token } from '@/index';
+import { isEqualToAmount, toBigNumber, token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
@@ -11,7 +11,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] splToken guard: it transfers tokens from the payer to the destination', async (t) => {
+test('[candyMachineModule] splToken guard: it transfers tokens from the payer to the destination', async (t) => {
   // Given a loaded Candy Machine with a splToken guard that requires 5 tokens.
   const mx = await metaplex();
   const treasuryAuthority = Keypair.generate();
@@ -20,6 +20,7 @@ test.only('[candyMachineModule] splToken guard: it transfers tokens from the pay
     .createTokenWithMint({
       mintAuthority: treasuryAuthority,
       owner: treasuryAuthority.publicKey,
+      initialSupply: token(100),
     })
     .run();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -70,13 +71,26 @@ test.only('[candyMachineModule] splToken guard: it transfers tokens from the pay
     owner: payer.publicKey,
   });
 
-  // // And the treasury received 5 tokens.
-  // const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
-  // t.true(isEqualToAmount(treasuryBalance, sol(1)), 'treasury received SOLs');
+  // And the treasury token received 5 tokens.
+  const updatedTokenTreasury = await mx
+    .tokens()
+    .findTokenByAddress({ address: tokenTreasury.address })
+    .run();
+  t.true(
+    isEqualToAmount(updatedTokenTreasury.amount, token(105)),
+    'treasury received tokens'
+  );
 
-  // // And the payer lost 5 tokens.
-  // const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  // t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
+  // And the payer lost 5 tokens.
+  const payerToken = await mx
+    .tokens()
+    .findTokenWithMintByMint({
+      mint: tokenTreasury.mint.address,
+      addressType: 'owner',
+      address: payer.publicKey,
+    })
+    .run();
+  t.true(isEqualToAmount(payerToken.amount, token(7)), 'payer lost tokens');
 });
 
 test.skip('[candyMachineModule] splToken guard: it fails if the payer does not have enough tokens', async (t) => {
