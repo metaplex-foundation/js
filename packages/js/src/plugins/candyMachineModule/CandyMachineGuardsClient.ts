@@ -2,6 +2,7 @@ import type { Metaplex } from '@/Metaplex';
 import {
   deserialize,
   deserializeFeatureFlags,
+  Program,
   PublicKey,
   serialize,
   Signer,
@@ -198,6 +199,7 @@ export class CandyMachineGuardsClient {
   >(
     guardSettings: Settings,
     guardMintSettings: Partial<MintSettings>,
+    programs: Program[] = [],
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): {
     arguments: Buffer;
@@ -216,7 +218,12 @@ export class CandyMachineGuardsClient {
       const mintSettings = guardMintSettings[guard.name] ?? null;
       if (!guard.mintSettingsParser || !settings) return acc;
 
-      const parsedSettings = guard.mintSettingsParser(settings, mintSettings);
+      const parsedSettings = guard.mintSettingsParser({
+        metaplex: this.metaplex,
+        settings,
+        mintSettings,
+        programs,
+      });
       const remainingAccounts = parsedSettings.remainingAccounts;
       const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
         ...account,

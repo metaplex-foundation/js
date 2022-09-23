@@ -55,21 +55,6 @@ export class CandyMachineIsFullError extends CandyMachineV3Error {
 }
 
 /** @group Errors */
-export class CandyMachineIsEmptyError extends CandyMachineV3Error {
-  constructor(itemsAvailable: BigNumber, options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'candy_machine_is_empty',
-      title: 'Candy Machine Is Empty',
-      problem:
-        `You're trying to mint from an empty candy machine. ` +
-        `All ${itemsAvailable} items have been minted.`,
-      solution: 'You can no longer mint from this Candy Machine.',
-    });
-  }
-}
-
-/** @group Errors */
 export class CandyMachineCannotAddAmountError extends CandyMachineV3Error {
   constructor(
     index: number,
@@ -185,6 +170,23 @@ export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
       solution:
         'Please provide the label of a group that exists on the Candy Machine. ' +
         `The available groups are [${availableGroups.join(', ')}]`,
+    });
+  }
+}
+
+/** @group Errors */
+export class GuardMitingSettingsMissingError extends CandyMachineV3Error {
+  constructor(guardName: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'guard_miting_settings_missing',
+      title: 'Guard Miting Settings Missing',
+      problem:
+        `The Candy Machine you are trying to mint from has the [${guardName}] guard enabled. ` +
+        'This guard requires you to provide some additional settings when minting which you did not provide.',
+      solution:
+        `Please provide some minting settings for the [${guardName}] guard ` +
+        `via the \`guards\` parameter like so: \`guards.${guardName} = {...}\`.`,
     });
   }
 }

@@ -2,7 +2,6 @@ import { CandyMachine, CandyMachineItem } from './models';
 import {
   CandyMachineItemTextTooLongError,
   CandyMachineCannotAddAmountError,
-  CandyMachineIsEmptyError,
   CandyMachineIsFullError,
 } from './errors';
 
@@ -15,14 +14,6 @@ export const assertNotFull = (
       index,
       candyMachine.itemsAvailable.toNumber()
     );
-  }
-};
-
-export const assertNotEmpty = (
-  candyMachine: Pick<CandyMachine, 'itemsRemaining' | 'itemsAvailable'>
-) => {
-  if (candyMachine.itemsRemaining.isZero()) {
-    throw new CandyMachineIsEmptyError(candyMachine.itemsAvailable);
   }
 };
 

@@ -441,7 +441,9 @@ export const mintFromCandyMachineBuilder = async <
     );
     const parsedMintSettings = guardClient.parseMintSettings(
       guardSettings,
-      guards
+      guards,
+      programs,
+      candyGuardProgram
     );
     mintNftSigners = [payer, mint, ...parsedMintSettings.signers];
     mintNftInstruction = createMintFromGuardInstruction(

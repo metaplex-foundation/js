@@ -1,3 +1,4 @@
+import { Metaplex, Program } from '@/index';
 import { NftWithToken } from '@/plugins/nftModule';
 import { PublicKey, Serializer, Signer } from '@/types';
 import { Option } from '@/utils';
@@ -11,10 +12,12 @@ export type CandyGuardManifest<
   name: string;
   settingsBytes: number; // Fixed.
   settingsSerializer: Serializer<Settings>;
-  mintSettingsParser?: (
-    settings: Settings,
-    mintSettings: Option<MintSettings>
-  ) => {
+  mintSettingsParser?: (input: {
+    metaplex: Metaplex;
+    settings: Settings;
+    mintSettings: Option<MintSettings>;
+    programs: Program[];
+  }) => {
     arguments: Buffer;
     remainingAccounts: (
       | {
