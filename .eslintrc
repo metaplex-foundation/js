@@ -25,11 +25,11 @@
     "import/no-default-export": "warn",
     "object-shorthand": "warn",
     "no-empty": "warn",
+    "no-nested-ternary": "warn",
     "no-unused-vars": "warn",
     "import/no-duplicates": "error",
     "no-restricted-globals": "off",
     "no-else-return": "error",
-    "no-nested-ternary": "error",
     "prefer-const": "warn",
     "no-console": ["warn", { "allow": ["warn", "error", "debug"] }],
     // COMPLEX RULES:

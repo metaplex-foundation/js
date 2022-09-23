@@ -92,23 +92,22 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         asset,
         tokens: amount(lazyBid.tokens, asset.mint.currency),
       };
-    } else {
-      const asset = await metaplex
-        .nfts()
-        .findByMetadata({
-          metadata: lazyBid.metadataAddress,
-          commitment,
-          loadJsonMetadata,
-        })
-        .run(scope);
-      scope.throwIfCanceled();
-
-      return {
-        ...bid,
-        isPublic: true,
-        asset,
-        tokens: amount(lazyBid.tokens, asset.mint.currency),
-      };
     }
+    const asset = await metaplex
+      .nfts()
+      .findByMetadata({
+        metadata: lazyBid.metadataAddress,
+        commitment,
+        loadJsonMetadata,
+      })
+      .run(scope);
+    scope.throwIfCanceled();
+
+    return {
+      ...bid,
+      isPublic: true,
+      asset,
+      tokens: amount(lazyBid.tokens, asset.mint.currency),
+    };
   },
 };

@@ -15,6 +15,7 @@ import {
   toDateTime,
   toOptionDateTime,
   UnparsedAccount,
+  Creator,
 } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import {
@@ -26,7 +27,6 @@ import {
   CandyMachineAccount,
   MaybeCandyMachineCollectionAccount,
 } from '../accounts';
-import { Creator } from '@/types';
 import { CandyMachineProgram } from '../program';
 import { Mint } from '@/plugins/tokenModule';
 

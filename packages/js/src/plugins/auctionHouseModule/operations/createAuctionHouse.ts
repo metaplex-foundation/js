@@ -15,7 +15,10 @@ import {
   toPublicKey,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import {
+  findAssociatedTokenAccountPda,
+  WRAPPED_SOL_MINT,
+} from '../../tokenModule';
 import {
   findAuctioneerPda,
   findAuctionHouseFeePda,
@@ -23,7 +26,6 @@ import {
   findAuctionHouseTreasuryPda,
 } from '../pdas';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { ExpectedSignerError } from '@/errors';
 import { AuctionHouse } from '../models/AuctionHouse';
