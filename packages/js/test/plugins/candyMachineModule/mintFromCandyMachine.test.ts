@@ -401,6 +401,129 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
   await assertThrows(t, promise, /Minting Group Selected Does Not Exist/);
 });
 
+test('[candyMachineModule] it can mint from a candy machine using an explicit payer', async (t) => {
+  // Given a loaded Candy Machine without a Candy Guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
+
+  // And an explicit payer with 10 SOL.
+  const payer = await createWallet(mx, 10);
+  t.ok(
+    isEqualToAmount(await mx.rpc().getBalance(payer.publicKey), sol(10)),
+    'payer has 10 SOL'
+  );
+
+  // When we mint from it using this payer.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey, // <- Note: the owner is still the identity.
+  });
+
+  // And the payer's balance has been reduced.
+  t.ok(
+    isLessThanAmount(await mx.rpc().getBalance(payer.publicKey), sol(10)),
+    'payer has less than 10 SOL'
+  );
+});
+
+test('[candyMachineModule] it cannot mint from an empty candy machine', async (t) => {
+  // Given an empty Candy Machine with no Candy Guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(0),
+  });
+
+  // When we try to mint from it.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Candy machine is empty/);
+});
+
+test.skip('[candyMachineModule] it cannot mint from a candy machine that is not fully loaded', async (t) => {
+  // Given a half-loaded Candy Machine with no Candy Guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(2),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+  });
+
+  // When we try to mint from it.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then we expect an error.
+  // TODO: Waiting on protocol to implement this.
+  await assertThrows(t, promise, /TODO/);
+});
+
+test('[candyMachineModule] it cannot mint from a candy machine that has been fully minted', async (t) => {
+  // Given a loaded Candy Machine with only one item and no Candy Guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+  });
+
+  // And given its only item has already been minted.
+  await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // When we try to mint from it again.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Candy machine is empty/);
+});
+
+test.skip('[candyMachineModule] it can mint from a candy machine using hidden settings', async (t) => {
+  //
+});
+
 const assertMintingWasSuccessful = async (
   t: Test,
   metaplex: Metaplex,
