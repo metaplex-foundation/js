@@ -207,10 +207,17 @@ export class CandyMachineClient {
   mint<
     Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
     MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
-  >(input: MintFromCandyMachineInput<Settings, MintSettings>) {
+  >(
+    input: MintFromCandyMachineInput<
+      Settings extends undefined ? DefaultCandyGuardSettings : Settings,
+      MintSettings extends undefined
+        ? DefaultCandyGuardMintSettings
+        : MintSettings
+    >
+  ) {
     return this.metaplex
       .operations()
-      .getTask(mintFromCandyMachineOperation<Settings, MintSettings>(input));
+      .getTask(mintFromCandyMachineOperation(input));
   }
 
   /**
