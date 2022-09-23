@@ -97,7 +97,7 @@ test('[candyMachineModule] lamports guard: it fails if the payer does not have e
 });
 
 test('[candyMachineModule] lamports guard with bot tax: it charges a bot tax if the payer does not have enough funds', async (t) => {
-  // Given a loaded Candy Machine with a lamports guard costing 5 SOLs.
+  // Given a loaded Candy Machine with a lamports guard costing 5 SOLs and a botTax guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
