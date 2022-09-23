@@ -1,4 +1,4 @@
-import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
+import { isEqualToAmount, sol, toBigNumber } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import { createWallet, killStuckProcess, metaplex } from '../../../helpers';
