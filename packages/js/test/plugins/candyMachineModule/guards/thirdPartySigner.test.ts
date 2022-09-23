@@ -11,7 +11,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] thirdPartySigner guard: it allows minting when the third party signer is provided', async (t) => {
+test('[candyMachineModule] thirdPartySigner guard: it allows minting when the third party signer is provided', async (t) => {
   // Given a loaded Candy Machine with a third party signer guard.
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
