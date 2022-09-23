@@ -71,12 +71,21 @@ export class CandyMachineGuardsClient {
   }
 
   /** TODO */
+  forCandyGuardProgram(
+    programs: Program[] = []
+  ): CandyGuardManifest<any, any>[] {
+    const candyGuardProgram = this.metaplex.programs().getCandyGuard(programs);
+
+    return this.forProgram(candyGuardProgram);
+  }
+
+  /** TODO */
   serializeSettings<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     guards: Partial<T>,
     groups: { label: string; guards: Partial<T> }[] = [],
-    program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
+    programs: Program[] = []
   ): Buffer {
-    const availableGuards = this.forProgram(program);
+    const availableGuards = this.forCandyGuardProgram(programs);
     const serializeSet = (set: Partial<T>): Buffer => {
       return availableGuards.reduce((acc, guard) => {
         const value = set[guard.name] ?? null;
@@ -199,14 +208,13 @@ export class CandyMachineGuardsClient {
   >(
     guardSettings: Settings,
     guardMintSettings: Partial<MintSettings>,
-    programs: Program[] = [],
-    program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
+    programs: Program[] = []
   ): {
     arguments: Buffer;
     accountMetas: AccountMeta[];
     signers: Signer[];
   } {
-    const availableGuards = this.forProgram(program);
+    const availableGuards = this.forCandyGuardProgram(programs);
     const initialAccumulator = {
       arguments: Buffer.from([]),
       accountMetas: [] as AccountMeta[],

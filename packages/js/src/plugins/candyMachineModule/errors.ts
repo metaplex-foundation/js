@@ -1,4 +1,3 @@
-import { BigNumber } from '@/types';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,

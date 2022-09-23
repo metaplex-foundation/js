@@ -248,11 +248,7 @@ export const createCandyGuardBuilder = <
   const serializedSettings = metaplex
     .candyMachines()
     .guards()
-    .serializeSettings<T>(
-      params.guards,
-      params.groups ?? [],
-      candyGuardProgram
-    );
+    .serializeSettings<T>(params.guards, params.groups ?? [], programs);
   const discriminator = serializeDiscriminator(
     initializeInstructionDiscriminator
   );

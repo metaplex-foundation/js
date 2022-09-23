@@ -226,7 +226,7 @@ export const updateCandyGuardBuilder = <
   const serializedSettings = metaplex
     .candyMachines()
     .guards()
-    .serializeSettings<T>(guards, groups, candyGuardProgram);
+    .serializeSettings<T>(guards, groups, programs);
 
   const discriminator = serializeDiscriminator(updateInstructionDiscriminator);
   updateInstruction.data = Buffer.concat([discriminator, serializedSettings]);
