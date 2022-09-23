@@ -31,13 +31,13 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // lamports: no mint settings
   splToken: Option<SplTokenGuardMintSettings>;
   // liveDate: no mint settings
-  thirdPartySigner: Option<{}>;
-  whitelist: Option<{}>;
-  gatekeeper: Option<{}>;
-  // endSettings: no mint settings
-  allowList: Option<{}>;
-  mintLimit: Option<{}>;
-  nftPayment: Option<{}>;
+  thirdPartySigner: Option<{}>; // TODO
+  whitelist: Option<{}>; // TODO
+  gatekeeper: Option<{}>; // TODO
+  // endSettings: no mint settings // TODO
+  allowList: Option<{}>; // TODO
+  mintLimit: Option<{}>; // TODO
+  nftPayment: Option<{}>; // TODO
 };
 
 /** @internal */
