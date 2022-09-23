@@ -21,11 +21,11 @@ test.only('[candyMachineModule] allowList guard: it allows TODO', async (t) => {
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
   const allowList = [
+    payer.publicKey.toBase58(),
     'Ur1CbWSGsXCdedknRbJsEk7urwAvu1uddmQv51nAnXB',
     'GjwcWFQYzemBtpUoN5fMAP2FZviTtMRWCmrppGuTthJS',
     '2vjCrmEFiN9CLLhiqy8u1JPh48av8Zpzp3kNkdTtirYG',
     'AT8nPwujHAD14cLojTcB1qdBzA1VXnT6LVGuUd6Y73Cy',
-    payer.publicKey.toBase58(),
   ];
 
   // And given a loaded Candy Machine with the allow list guard.
