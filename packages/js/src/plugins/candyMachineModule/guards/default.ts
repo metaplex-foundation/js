@@ -9,7 +9,10 @@ import { LiveDateGuardSettings } from './liveDate';
 import { MintLimitGuardSettings } from './mintLimit';
 import { NftPaymentGuardSettings } from './nftPayment';
 import { SplTokenGuardMintSettings, SplTokenGuardSettings } from './splToken';
-import { ThirdPartySignerGuardSettings } from './thirdPartySigner';
+import {
+  ThirdPartySignerGuardMintSettings,
+  ThirdPartySignerGuardSettings,
+} from './thirdPartySigner';
 import { WhitelistGuardSettings } from './whitelist';
 
 export type DefaultCandyGuardSettings = CandyGuardsSettings & {
@@ -31,7 +34,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // lamports: no mint settings
   splToken: Option<SplTokenGuardMintSettings>;
   // liveDate: no mint settings
-  thirdPartySigner: Option<{}>; // TODO
+  thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>; // TODO
   whitelist: Option<{}>; // TODO
   gatekeeper: Option<{}>; // TODO
   // endSettings: no mint settings // TODO
