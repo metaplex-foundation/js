@@ -147,10 +147,9 @@ export type DirectBuyOutput = {
  */
 export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
   handle: async (operation: DirectBuyOperation, metaplex: Metaplex) => {
-    const { bid, response, lazyPurchase } = await (await directBuyBuilder(
-      metaplex,
-      operation.input
-    )).sendAndConfirm(metaplex, operation.input.confirmOptions);
+    const { bid, response, lazyPurchase } = await (
+      await directBuyBuilder(metaplex, operation.input)
+    ).sendAndConfirm(metaplex, operation.input.confirmOptions);
 
     const purchase = await metaplex
       .auctionHouse()
