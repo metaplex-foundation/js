@@ -34,7 +34,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // lamports: no mint settings
   splToken: Option<SplTokenGuardMintSettings>;
   // liveDate: no mint settings
-  thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>; // TODO
+  thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
   whitelist: Option<{}>; // TODO
   gatekeeper: Option<{}>; // TODO
   // endSettings: no mint settings // TODO

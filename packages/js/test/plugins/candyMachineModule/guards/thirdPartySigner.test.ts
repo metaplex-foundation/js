@@ -53,15 +53,81 @@ test('[candyMachineModule] thirdPartySigner guard: it allows minting when the th
   });
 });
 
-test.skip('[candyMachineModule] thirdPartySigner guard: it forbids minting when the third party signer is wrong', async (t) => {
-  //
+test('[candyMachineModule] thirdPartySigner guard: it forbids minting when the third party signer is wrong', async (t) => {
+  // Given a loaded Candy Machine with a third party signer guard.
+  const mx = await metaplex();
+  const thirdPartySigner = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      thirdPartySigner: {
+        signerKey: thirdPartySigner.publicKey,
+      },
+    },
+  });
+
+  // When we try to mint from it by providing the wrong third party signer.
+  const wrongThirdPartySigner = Keypair.generate();
+  const payer = await createWallet(mx, 10);
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        thirdPartySigner: {
+          signer: wrongThirdPartySigner,
+        },
+      },
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /A signature was required but not found/);
 });
 
-test.skip('[candyMachineModule] thirdPartySigner guard with bot tax: it charges a bot tax when trying to mint using the wrong third party signer', async (t) => {
-  // TODO
+test('[candyMachineModule] thirdPartySigner guard with bot tax: it charges a bot tax when trying to mint using the wrong third party signer', async (t) => {
+  // Given a loaded Candy Machine with a third party signer guard and a bot tax guard.
   const mx = await metaplex();
+  const thirdPartySigner = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      thirdPartySigner: {
+        signerKey: thirdPartySigner.publicKey,
+      },
+    },
+  });
+
+  // When we try to mint from it by providing the wrong third party signer.
+  const wrongThirdPartySigner = Keypair.generate();
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        thirdPartySigner: {
+          signer: wrongThirdPartySigner,
+        },
+      },
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
