@@ -42,7 +42,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   gatekeeper: Option<{}>; // TODO
   endSettings: Option<{}>; // TODO
   allowList: Option<AllowListGuardMintSettings>;
-  // mintLimit: no mint settings // TODO
+  // mintLimit: no mint settings
   nftPayment: Option<{}>; // TODO
 };
 
