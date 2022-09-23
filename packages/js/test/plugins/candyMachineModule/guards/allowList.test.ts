@@ -17,7 +17,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] allowList guard: it allows minting to wallets of a predefined list', async (t) => {
+test('[candyMachineModule] allowList guard: it allows minting from wallets of a predefined list', async (t) => {
   // Given the payer that will be minting is part of an allow list.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
