@@ -1,5 +1,4 @@
 import { isEqualToAmount, now, sol, toBigNumber, toDateTime } from '@/index';
-import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
   assertThrows,
@@ -45,7 +44,7 @@ test('[candyMachineModule] liveDate guard: it allows minting after the live date
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner: mx.identity().publicKey,
+    owner: payer.publicKey,
   });
 });
 

@@ -417,7 +417,7 @@ test('[candyMachineModule] it can mint from a candy machine using an explicit pa
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner: mx.identity().publicKey, // <- Note: the owner is still the identity.
+    owner: payer.publicKey,
   });
 
   // And the payer's balance has been reduced.

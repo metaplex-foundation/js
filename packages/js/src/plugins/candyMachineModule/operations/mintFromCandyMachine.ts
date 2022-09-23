@@ -41,7 +41,8 @@ const Key = 'MintFromCandyMachineOperation' as const;
  * const { nft } = await metaplex
  *   .candyMachines()
  *   .mint({
- *     // TODO
+ *     candyMachine,
+ *     collectionUpdateAuthority,
  *   })
  *   .run();
  * ```
@@ -87,7 +88,8 @@ export type MintFromCandyMachineInput<
    * need enough information regarding its settings to know how
    * to mint from it.
    *
-   * TODO: This includes ...
+   * This includes its address, the address of its Collection NFT and,
+   * optionally, the Candy Guard account associated with it.
    */
   candyMachine: Pick<
     CandyMachine<Settings>,
@@ -128,7 +130,9 @@ export type MintFromCandyMachineInput<
   /**
    * The owner of the minted NFT.
    *
-   * @defaultValue `metaplex.identity().publicKey`
+   * Defaults to the wallet that is paying for it, i.e. `payer`.
+   *
+   * @defaultValue `payer.publicKey`
    */
   owner?: PublicKey;
 
@@ -314,7 +318,8 @@ export type MintFromCandyMachineBuilderContext = Omit<
  *   .candyMachines()
  *   .builders()
  *   .mint({
- *     // TODO
+ *     candyMachine,
+ *     collectionUpdateAuthority,
  *   });
  * ```
  *
@@ -334,7 +339,7 @@ export const mintFromCandyMachineBuilder = async <
     payer = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     mint = Keypair.generate(),
-    owner = metaplex.identity().publicKey,
+    owner = payer.publicKey,
     group = null,
     guards = {},
     token,
