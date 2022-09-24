@@ -123,7 +123,6 @@ test('[auctionHouseModule] direct sell on an Auction House with all params', asy
       mintAccount: nft.address,
       price: sol(1),
       printReceipt: true,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 
@@ -135,7 +134,6 @@ test('[auctionHouseModule] direct sell on an Auction House with all params', asy
       authority: seller,
       seller,
       bid,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 

@@ -125,7 +125,6 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
       mintAccount: nft.address,
       price: sol(1),
       printReceipt: true,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 
@@ -137,7 +136,6 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
       authority: buyer,
       buyer,
       listing,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 
