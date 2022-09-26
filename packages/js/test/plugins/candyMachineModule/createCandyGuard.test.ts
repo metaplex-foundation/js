@@ -7,7 +7,6 @@ import {
   toDateTime,
   token,
 } from '@/index';
-import { WhitelistTokenMode } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -50,7 +49,7 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   });
 });
 
-test('[candyMachineModule] create candy guard with all guards', async (t) => {
+test.only('[candyMachineModule] create candy guard with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -63,6 +62,8 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = new Uint8Array(Array(32).fill(42));
   const nftPaymentCollection = Keypair.generate().publicKey;
+  const addressGate = Keypair.generate().publicKey;
+  const nftGateCollection = Keypair.generate().publicKey;
   const { candyGuard } = await mx
     .candyMachines()
     .createCandyGuard({
@@ -71,34 +72,31 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           lamports: sol(0.01),
           lastInstruction: false,
         },
-        lamports: {
+        solPayment: {
           amount: sol(1.5),
           destination: lamportDestination,
         },
-        splToken: {
+        tokenPayment: {
           amount: token(5),
           tokenMint,
           destinationAta: tokenDestination,
         },
-        liveDate: {
+        startDate: {
           date: toDateTime('2022-09-05T20:00:00.000Z'),
         },
         thirdPartySigner: {
           signerKey: thirdPartySigner,
         },
-        whitelist: {
+        tokenGate: {
           mint: whitelistMint,
-          presale: true,
-          discountPrice: sol(0.5),
-          mode: WhitelistTokenMode.BurnEveryTime,
+          burn: true,
         },
         gatekeeper: {
           gatekeeperNetwork,
           expireOnUse: true,
         },
-        endSettings: {
-          type: 'amount',
-          number: toBigNumber(1000),
+        endDate: {
+          date: toDateTime('2022-09-06T20:00:00.000Z'),
         },
         allowList: {
           merkleRoot,
@@ -110,6 +108,16 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         nftPayment: {
           burn: true,
           requiredCollection: nftPaymentCollection,
+        },
+        // TODO: rename to "redeemedAmount" when typo is fixed.
+        redemeedAmount: {
+          maximum: toBigNumber(100),
+        },
+        addressGate: {
+          address: addressGate,
+        },
+        nftGate: {
+          requiredCollection: nftGateCollection,
         },
       },
     })
@@ -124,34 +132,31 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         lamports: spokSameAmount(sol(0.01)),
         lastInstruction: false,
       },
-      lamports: {
+      solPayment: {
         amount: spokSameAmount(sol(1.5)),
         destination: spokSamePubkey(lamportDestination),
       },
-      splToken: {
+      tokenPayment: {
         amount: spokSameAmount(token(5)),
         tokenMint: spokSamePubkey(tokenMint),
         destinationAta: spokSamePubkey(tokenDestination),
       },
-      liveDate: {
+      startDate: {
         date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
       },
       thirdPartySigner: {
         signerKey: spokSamePubkey(thirdPartySigner),
       },
-      whitelist: {
+      tokenGate: {
         mint: spokSamePubkey(whitelistMint),
-        presale: true,
-        discountPrice: spokSameAmount(sol(0.5)),
-        mode: WhitelistTokenMode.BurnEveryTime,
+        burn: true,
       },
       gatekeeper: {
         gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
         expireOnUse: true,
       },
-      endSettings: {
-        type: 'amount',
-        number: spokSameBignum(1000),
+      endDate: {
+        date: spokSameBignum(toDateTime('2022-09-06T20:00:00.000Z')),
       },
       allowList: {
         merkleRoot,
@@ -163,6 +168,16 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       nftPayment: {
         burn: true,
         requiredCollection: spokSamePubkey(nftPaymentCollection),
+      },
+      // TODO: rename to "redeemedAmount" when typo is fixed.
+      redemeedAmount: {
+        maximum: spokSameBignum(100),
+      },
+      addressGate: {
+        address: spokSamePubkey(addressGate),
+      },
+      nftGate: {
+        requiredCollection: spokSamePubkey(nftGateCollection),
       },
     },
     groups: [],
