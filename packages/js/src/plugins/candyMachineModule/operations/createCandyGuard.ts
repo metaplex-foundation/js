@@ -35,8 +35,8 @@ const Key = 'CreateCandyGuardOperation' as const;
  *   .candyMachines()
  *   .createCandyGuard({
  *     guards: {
- *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
- *       lamports: { amount: sol(1.5), },
+ *       startDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
  *   })
@@ -203,8 +203,8 @@ export type CreateCandyGuardBuilderContext = Omit<
  *   .builders()
  *   .createCandyGuard({
  *     guards: {
- *       liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
- *       lamports: { amount: sol(1.5), },
+ *       startDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
  *   });

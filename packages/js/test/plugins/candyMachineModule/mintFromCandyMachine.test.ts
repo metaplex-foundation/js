@@ -130,10 +130,10 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      liveDate: {
+      startDate: {
         date: toDateTime(now().subn(3600 * 24)), // Yesterday.
       },
-      lamports: {
+      solPayment: {
         amount: sol(1),
         destination: treasury.publicKey,
       },
@@ -173,7 +173,7 @@ test("[candyMachineModule] it throws a bot tax error if minting succeeded but we
         lamports: sol(0.1),
         lastInstruction: true,
       },
-      liveDate: {
+      startDate: {
         date: toDateTime(now().addn(3600 * 24)), // Tomorrow.
       },
     },
@@ -208,7 +208,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
         lamports: sol(0.1),
         lastInstruction: true,
       },
-      lamports: {
+      solPayment: {
         amount: sol(1),
         destination: treasury.publicKey,
       },
@@ -217,7 +217,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
       {
         label: 'GROUP1',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Yesterday.
           },
         },
@@ -225,7 +225,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
       {
         label: 'GROUP2',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Tomorrow.
           },
         },
@@ -272,7 +272,7 @@ test('[candyMachineModule] it cannot mint using the default guards if the Candy 
       {
         label: 'GROUP1',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Yesterday.
           },
         },
@@ -280,7 +280,7 @@ test('[candyMachineModule] it cannot mint using the default guards if the Candy 
       {
         label: 'GROUP2',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Tomorrow.
           },
         },
@@ -353,7 +353,7 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
       {
         label: 'GROUP1',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Yesterday.
           },
         },
@@ -361,7 +361,7 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
       {
         label: 'GROUP2',
         guards: {
-          liveDate: {
+          startDate: {
             date: toDateTime(now().subn(3600 * 24)), // Tomorrow.
           },
         },

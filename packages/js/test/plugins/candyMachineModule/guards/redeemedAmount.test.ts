@@ -10,7 +10,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] authorityOnly guard: it allows TODO', async (t) => {
+test.skip('[candyMachineModule] redeemedAmount guard: it allows TODO', async (t) => {
   // Given a loaded Candy Machine with TODO.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -44,11 +44,11 @@ test.skip('[candyMachineModule] authorityOnly guard: it allows TODO', async (t) 
   });
 });
 
-test.skip('[candyMachineModule] authorityOnly guard: it forbids TODO', async (t) => {
+test.skip('[candyMachineModule] redeemedAmount guard: it forbids TODO', async (t) => {
   //
 });
 
-test.skip('[candyMachineModule] authorityOnly guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
+test.skip('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
   // TODO
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);

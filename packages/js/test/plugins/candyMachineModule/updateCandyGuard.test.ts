@@ -27,7 +27,7 @@ test('[candyMachineModule] it can update one guard', async (t) => {
   // And an existing Candy Guard with one guard.
   const candyGuard = await createCandyGuard(mx, {
     guards: {
-      liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
+      startDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
     },
   });
 
@@ -37,7 +37,7 @@ test('[candyMachineModule] it can update one guard', async (t) => {
     .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {
-        liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+        startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
       },
       groups: [],
     })
@@ -51,7 +51,7 @@ test('[candyMachineModule] it can update one guard', async (t) => {
     address: spokSamePubkey(candyGuard.address),
     guards: {
       ...emptyDefaultCandyGuardSettings,
-      liveDate: {
+      startDate: {
         date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
       },
     },
@@ -67,8 +67,8 @@ test('[candyMachineModule] it overrides all previous guards', async (t) => {
   const lamportDestinationA = Keypair.generate().publicKey;
   const candyGuard = await createCandyGuard(mx, {
     guards: {
-      liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
-      lamports: { amount: sol(1), destination: lamportDestinationA },
+      startDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
+      solPayment: { amount: sol(1), destination: lamportDestinationA },
     },
   });
 
@@ -79,7 +79,7 @@ test('[candyMachineModule] it overrides all previous guards', async (t) => {
     .updateCandyGuard({
       candyGuard: candyGuard.address,
       guards: {
-        lamports: {
+        solPayment: {
           amount: sol(2),
           destination: lamportDestinationB,
         },
@@ -97,8 +97,8 @@ test('[candyMachineModule] it overrides all previous guards', async (t) => {
     address: spokSamePubkey(candyGuard.address),
     guards: {
       ...emptyDefaultCandyGuardSettings,
-      liveDate: null,
-      lamports: {
+      startDate: null,
+      solPayment: {
         amount: spokSameAmount(sol(2)),
         destination: spokSamePubkey(lamportDestinationB),
       },
@@ -119,7 +119,7 @@ test('[candyMachineModule] it can update groups', async (t) => {
       {
         label: 'OLD',
         guards: {
-          liveDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
+          startDate: { date: toDateTime('2022-09-06T10:00:00.000Z') },
         },
       },
     ],
@@ -135,7 +135,7 @@ test('[candyMachineModule] it can update groups', async (t) => {
         {
           label: 'NEW',
           guards: {
-            liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+            startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
           },
         },
       ],
@@ -154,7 +154,7 @@ test('[candyMachineModule] it can update groups', async (t) => {
         label: 'NEW',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: {
+          startDate: {
             date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
           },
         },
@@ -177,15 +177,14 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
       {
         label: 'GUARD1',
         guards: {
-          liveDate: { date: null },
-          lamports: { amount: sol(1), destination: lamportDestination },
+          solPayment: { amount: sol(1), destination: lamportDestination },
         },
       },
       {
         label: 'GUARD2',
         guards: {
-          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-          splToken: {
+          startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          tokenPayment: {
             tokenMint: splTokenA,
             amount: token(375),
             destinationAta: tokenDestination,
@@ -195,8 +194,8 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
       {
         label: 'GUARD3',
         guards: {
-          liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-          lamports: { amount: sol(2), destination: lamportDestination },
+          startDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
+          solPayment: { amount: sol(2), destination: lamportDestination },
         },
       },
     ],
@@ -213,8 +212,7 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
         {
           label: 'GUARD1',
           guards: {
-            liveDate: { date: null },
-            lamports: {
+            solPayment: {
               amount: sol(2),
               destination: lamportDestination,
             },
@@ -223,8 +221,8 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
         {
           label: 'GUARD2',
           guards: {
-            liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-            splToken: {
+            startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+            tokenPayment: {
               tokenMint: splTokenB,
               amount: token(42),
               destinationAta: tokenDestination,
@@ -247,8 +245,7 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
         label: 'GUARD1',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: { date: null },
-          lamports: {
+          solPayment: {
             amount: spokSameAmount(sol(2)),
             destination: spokSamePubkey(lamportDestination),
           },
@@ -258,10 +255,10 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
         label: 'GUARD2',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: {
+          startDate: {
             date: spokSameBignum(toDateTime('2022-09-06T12:00:00.000Z')),
           },
-          splToken: {
+          tokenPayment: {
             tokenMint: spokSamePubkey(splTokenB),
             amount: spokSameAmount(token(42)),
             destinationAta: spokSamePubkey(tokenDestination),
@@ -283,24 +280,22 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
   const candyGuard = await createCandyGuard(mx, {
     guards: {
       botTax: { lamports: sol(0.01), lastInstruction: true },
-      // endSettings: {
-      //   endSettingType: EndSettingType.Date,
-      //   date: toDateTime('2022-09-06T10:00:00.000Z'),
-      // },
+      endDate: {
+        date: toDateTime('2022-09-06T10:00:00.000Z'),
+      },
     },
     groups: [
       {
         label: 'GUARD1',
         guards: {
-          liveDate: { date: null },
           lamports: { amount: sol(1), destination: lamportDestination },
         },
       },
       {
         label: 'GUARD2',
         guards: {
-          liveDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-          splToken: {
+          startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          tokenPayment: {
             tokenMint: splTokenA,
             amount: token(375),
             destinationAta: tokenDestination,
@@ -310,8 +305,8 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
       {
         label: 'GUARD3',
         guards: {
-          liveDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
-          lamports: { amount: sol(2), destination: lamportDestination },
+          startDate: { date: toDateTime('2022-09-06T13:00:00.000Z') },
+          solPayment: { amount: sol(2), destination: lamportDestination },
         },
       },
     ],

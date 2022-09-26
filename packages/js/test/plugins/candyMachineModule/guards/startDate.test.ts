@@ -1,5 +1,4 @@
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
-import { Keypair } from '@solana/web3.js';
+import { isEqualToAmount, now, sol, toBigNumber, toDateTime } from '@/index';
 import test from 'tape';
 import {
   assertThrows,
@@ -11,10 +10,11 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] lamports guard: it transfers SOL from the payer to the destination', async (t) => {
-  // Given a loaded Candy Machine with a lamports guard.
+const SECONDS_IN_A_DAY = 24 * 60 * 60;
+
+test('[candyMachineModule] startDate guard: it allows minting after the live date', async (t) => {
+  // Given a loaded Candy Machine with a live date in the past.
   const mx = await metaplex();
-  const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
@@ -22,23 +22,20 @@ test('[candyMachineModule] lamports guard: it transfers SOL from the payer to th
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      lamports: {
-        amount: sol(1),
-        destination: treasury.publicKey,
+      startDate: {
+        date: toDateTime(now().subn(SECONDS_IN_A_DAY)), // Yesterday.
       },
     },
   });
 
-  // When we mint for another owner using an explicit payer.
+  // When we mint from it.
   const payer = await createWallet(mx, 10);
-  const owner = Keypair.generate().publicKey;
   const { nft } = await mx
     .candyMachines()
     .mint({
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
-      owner,
     })
     .run();
 
@@ -47,22 +44,13 @@ test('[candyMachineModule] lamports guard: it transfers SOL from the payer to th
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner,
+    owner: payer.publicKey,
   });
-
-  // And the treasury received SOLs.
-  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
-  t.true(isEqualToAmount(treasuryBalance, sol(1)), 'treasury received SOLs');
-
-  // And the payer lost SOLs.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
 });
 
-test('[candyMachineModule] lamports guard: it fails if the payer does not have enough funds', async (t) => {
-  // Given a loaded Candy Machine with a lamports guard costing 5 SOLs.
+test('[candyMachineModule] startDate guard: it forbids minting before the live date', async (t) => {
+  // Given a loaded Candy Machine with a live date in the future.
   const mx = await metaplex();
-  const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
@@ -70,15 +58,14 @@ test('[candyMachineModule] lamports guard: it fails if the payer does not have e
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      lamports: {
-        amount: sol(5),
-        destination: treasury.publicKey,
+      startDate: {
+        date: toDateTime(now().addn(SECONDS_IN_A_DAY)), // Tomorrow.
       },
     },
   });
 
-  // When we mint from it using a payer that only has 4 SOL.
-  const payer = await createWallet(mx, 4);
+  // When we try to mint from it.
+  const payer = await createWallet(mx, 10);
   const promise = mx
     .candyMachines()
     .mint({
@@ -89,17 +76,12 @@ test('[candyMachineModule] lamports guard: it fails if the payer does not have e
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough SOL to pay for the mint/);
-
-  // And the payer didn't loose any SOL.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, sol(4)), 'payer did not lose SOLs');
+  await assertThrows(t, promise, /Mint is not live/);
 });
 
-test('[candyMachineModule] lamports guard with bot tax: it charges a bot tax if the payer does not have enough funds', async (t) => {
-  // Given a loaded Candy Machine with a lamports guard costing 5 SOLs and a botTax guard.
+test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax when trying to mint before the live date', async (t) => {
+  // Given a loaded Candy Machine with a live date in the future and a bot tax.
   const mx = await metaplex();
-  const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     items: [
@@ -111,15 +93,14 @@ test('[candyMachineModule] lamports guard with bot tax: it charges a bot tax if 
         lamports: sol(0.1),
         lastInstruction: true,
       },
-      lamports: {
-        amount: sol(5),
-        destination: treasury.publicKey,
+      startDate: {
+        date: toDateTime(now().addn(SECONDS_IN_A_DAY)), // Tomorrow.
       },
     },
   });
 
-  // When we mint from it using a payer that only has 4 SOL.
-  const payer = await createWallet(mx, 4);
+  // When we try to mint from it.
+  const payer = await createWallet(mx, 10);
   const promise = mx
     .candyMachines()
     .mint({
@@ -135,7 +116,7 @@ test('[candyMachineModule] lamports guard with bot tax: it charges a bot tax if 
   // And the payer was charged a bot tax.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
   t.true(
-    isEqualToAmount(payerBalance, sol(3.9), sol(0.01)),
+    isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
     'payer was charged a bot tax'
   );
 });

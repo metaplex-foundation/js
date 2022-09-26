@@ -49,7 +49,7 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   });
 });
 
-test.only('[candyMachineModule] create candy guard with all guards', async (t) => {
+test('[candyMachineModule] create candy guard with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -189,7 +189,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   const mx = await metaplex();
 
   // When we create a new Candy Guard with no guards.
-  // const whitelistMint = Keypair.generate().publicKey;
+  const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = new Uint8Array(Array(32).fill(42));
   const { candyGuard } = await mx
@@ -202,8 +202,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           lastInstruction: false,
         },
         // Mint finished after 24h for all groups.
-        endSettings: {
-          type: 'date',
+        endDate: {
           date: toDateTime('2022-09-06T16:00:00.000Z'),
         },
       },
@@ -212,8 +211,11 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           // First group for VIPs.
           label: 'VIP',
           guards: {
-            liveDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
-            lamports: { amount: sol(1), destination: mx.identity().publicKey },
+            startDate: { date: toDateTime('2022-09-05T16:00:00.000Z') },
+            solPayment: {
+              amount: sol(1),
+              destination: mx.identity().publicKey,
+            },
             allowList: { merkleRoot },
           },
         },
@@ -221,22 +223,26 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           // Second group for whitelist token holders.
           label: 'WLIST',
           guards: {
-            liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
-            lamports: { amount: sol(2), destination: mx.identity().publicKey },
-            // whitelist: {
-            //   mint: whitelistMint,
-            //   presale: true,
-            //   discountPrice: null,
-            //   mode: WhitelistTokenMode.BurnEveryTime,
-            // },
+            liveDstartDateate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
+            solPayment: {
+              amount: sol(2),
+              destination: mx.identity().publicKey,
+            },
+            tokenGate: {
+              mint: whitelistMint,
+              burn: true,
+            },
           },
         },
         {
           // Third group for the public.
           label: 'PUBLIC',
           guards: {
-            liveDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
-            lamports: { amount: sol(3), destination: mx.identity().publicKey },
+            startDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+            solPayment: {
+              amount: sol(3),
+              destination: mx.identity().publicKey,
+            },
             gatekeeper: { gatekeeperNetwork, expireOnUse: false },
           },
         },
@@ -254,8 +260,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
         lamports: spokSameAmount(sol(0.01)),
         lastInstruction: false,
       },
-      endSettings: {
-        type: 'date',
+      endDate: {
         date: spokSameBignum(toDateTime('2022-09-06T16:00:00.000Z')),
       },
     },
@@ -264,10 +269,10 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
         label: 'VIP',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: {
+          startDate: {
             date: spokSameBignum(toDateTime('2022-09-05T16:00:00.000Z')),
           },
-          lamports: {
+          solPayment: {
             amount: spokSameAmount(sol(1)),
             destination: spokSamePubkey(mx.identity().publicKey),
           },
@@ -278,29 +283,27 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
         label: 'WLIST',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: {
+          startDate: {
             date: spokSameBignum(toDateTime('2022-09-05T18:00:00.000Z')),
           },
-          lamports: {
+          solPayment: {
             amount: spokSameAmount(sol(2)),
             destination: spokSamePubkey(mx.identity().publicKey),
           },
-          // whitelist: {
-          //   mint: spokSamePubkey(whitelistMint),
-          //   presale: true,
-          //   discountPrice: null,
-          //   mode: WhitelistTokenMode.BurnEveryTime,
-          // },
+          tokenGate: {
+            mint: spokSamePubkey(whitelistMint),
+            burn: true,
+          },
         },
       },
       {
         label: 'PUBLIC',
         guards: {
           ...emptyDefaultCandyGuardSettings,
-          liveDate: {
+          startDate: {
             date: spokSameBignum(toDateTime('2022-09-05T20:00:00.000Z')),
           },
-          lamports: {
+          solPayment: {
             amount: spokSameAmount(sol(3)),
             destination: spokSamePubkey(mx.identity().publicKey),
           },

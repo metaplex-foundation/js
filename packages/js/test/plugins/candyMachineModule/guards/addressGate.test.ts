@@ -10,7 +10,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] endSettings guard: it allows TODO', async (t) => {
+test.skip('[candyMachineModule] addressGate guard: it allows TODO', async (t) => {
   // Given a loaded Candy Machine with TODO.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -20,10 +20,7 @@ test.skip('[candyMachineModule] endSettings guard: it allows TODO', async (t) =>
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      endSettings: {
-        type: 'amount',
-        number: toBigNumber(1),
-      },
+      TODO: {},
     },
   });
 
@@ -47,11 +44,11 @@ test.skip('[candyMachineModule] endSettings guard: it allows TODO', async (t) =>
   });
 });
 
-test.skip('[candyMachineModule] endSettings guard: it forbids TODO', async (t) => {
+test.skip('[candyMachineModule] addressGate guard: it forbids TODO', async (t) => {
   //
 });
 
-test.skip('[candyMachineModule] endSettings guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
+test.skip('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
   // TODO
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);

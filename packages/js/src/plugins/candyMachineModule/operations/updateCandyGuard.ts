@@ -37,8 +37,8 @@ const Key = 'UpdateCandyGuardOperation' as const;
  *   .updateCandyGuard({
  *     candyGuard: candyGuard.address,
  *     guards: {
- *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
- *       lamports: { amount: sol(2), },
+ *       startDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
  *     groups: [],
@@ -181,8 +181,8 @@ export type UpdateCandyGuardBuilderParams<
  *   .updateCandyGuard({
  *     candyGuard: candyGuard.address,
  *     guards: {
- *       liveDate: { date: toDateTime('2022-09-05T22:00:00.000Z') },
- *       lamports: { amount: sol(2), },
+ *       startDate: { date: toDateTime('2022-09-05T20:00:00.000Z') },
+ *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
  *     groups: [],

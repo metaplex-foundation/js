@@ -515,15 +515,15 @@ test('[candyMachineModule] it can update the guards of a candy machine', async (
       {
         label: 'OLD1',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
-          lamports: { amount: sol(2), destination: treasuryA },
+          startDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+          solPayment: { amount: sol(2), destination: treasuryA },
         },
       },
       {
         label: 'OLD2',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
-          lamports: { amount: sol(4), destination: treasuryA },
+          startDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+          solPayment: { amount: sol(4), destination: treasuryA },
         },
       },
     ],
@@ -542,19 +542,16 @@ test('[candyMachineModule] it can update the guards of a candy machine', async (
         {
           label: 'NEW1',
           guards: {
-            liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
-            lamports: { amount: sol(1), destination: treasuryB },
-            // endSettings: {
-            //   endSettingType: EndSettingType.Date,
-            //   date: toDateTime('2022-09-15T12:00:00.000Z'),
-            // },
+            startDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
+            solPayment: { amount: sol(1), destination: treasuryB },
+            endDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
           },
         },
         {
           label: 'NEW2',
           guards: {
-            liveDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
-            lamports: { amount: sol(3), destination: treasuryB },
+            startDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
+            solPayment: { amount: sol(3), destination: treasuryB },
           },
         },
       ],
@@ -581,27 +578,26 @@ test('[candyMachineModule] it can update the guards of a candy machine', async (
           label: 'NEW1',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-15T10:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(1)),
               destination: spokSamePubkey(treasuryB),
             },
-            // endSettings: {
-            //   endSettingType: EndSettingType.Date,
-            //   date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
-            // },
+            endDate: {
+              date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+            },
           },
         },
         {
           label: 'NEW2',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(3)),
               destination: spokSamePubkey(treasuryB),
             },
@@ -624,15 +620,15 @@ test('[candyMachineModule] updating part of the Candy Guard data does not overri
       {
         label: 'GROUP1',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
-          lamports: { amount: sol(2), destination: treasury },
+          startDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+          solPayment: { amount: sol(2), destination: treasury },
         },
       },
       {
         label: 'GROUP2',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
-          lamports: { amount: sol(4), destination: treasury },
+          startDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+          solPayment: { amount: sol(4), destination: treasury },
         },
       },
     ],
@@ -669,10 +665,10 @@ test('[candyMachineModule] updating part of the Candy Guard data does not overri
           label: 'GROUP1',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-13T10:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(2)),
               destination: spokSamePubkey(treasury),
             },
@@ -682,10 +678,10 @@ test('[candyMachineModule] updating part of the Candy Guard data does not overri
           label: 'GROUP2',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-13T12:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(4)),
               destination: spokSamePubkey(treasury),
             },
@@ -708,15 +704,15 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
       {
         label: 'OLD1',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
-          lamports: { amount: sol(2), destination: treasuryA },
+          startDate: { date: toDateTime('2022-09-13T10:00:00.000Z') },
+          solPayment: { amount: sol(2), destination: treasuryA },
         },
       },
       {
         label: 'OLD2',
         guards: {
-          liveDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
-          lamports: { amount: sol(4), destination: treasuryA },
+          startDate: { date: toDateTime('2022-09-13T12:00:00.000Z') },
+          solPayment: { amount: sol(4), destination: treasuryA },
         },
       },
     ],
@@ -737,19 +733,16 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
         {
           label: 'NEW1',
           guards: {
-            liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
-            lamports: { amount: sol(1), destination: treasuryB },
-            // endSettings: {
-            //   endSettingType: EndSettingType.Date,
-            //   date: toDateTime('2022-09-15T12:00:00.000Z'),
-            // },
+            startDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
+            solPayment: { amount: sol(1), destination: treasuryB },
+            endDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
           },
         },
         {
           label: 'NEW2',
           guards: {
-            liveDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
-            lamports: { amount: sol(3), destination: treasuryB },
+            startDate: { date: toDateTime('2022-09-15T12:00:00.000Z') },
+            solPayment: { amount: sol(3), destination: treasuryB },
           },
         },
       ],
@@ -776,27 +769,26 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
           label: 'NEW1',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-15T10:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(1)),
               destination: spokSamePubkey(treasuryB),
             },
-            // endSettings: {
-            //   endSettingType: EndSettingType.Date,
-            //   date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
-            // },
+            endDate: {
+              date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+            },
           },
         },
         {
           label: 'NEW2',
           guards: {
             ...emptyDefaultCandyGuardSettings,
-            liveDate: {
+            startDate: {
               date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
             },
-            lamports: {
+            solPayment: {
               amount: spokSameAmount(sol(3)),
               destination: spokSamePubkey(treasuryB),
             },

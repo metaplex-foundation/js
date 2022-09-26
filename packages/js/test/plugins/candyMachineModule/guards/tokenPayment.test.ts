@@ -11,8 +11,8 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test('[candyMachineModule] splToken guard: it transfers tokens from the payer to the destination', async (t) => {
-  // Given a loaded Candy Machine with a splToken guard that requires 5 tokens.
+test('[candyMachineModule] tokenPayment guard: it transfers tokens from the payer to the destination', async (t) => {
+  // Given a loaded Candy Machine with a tokenPayment guard that requires 5 tokens.
   const mx = await metaplex();
   const treasuryAuthority = Keypair.generate();
   const { token: tokenTreasury } = await mx
@@ -30,7 +30,7 @@ test('[candyMachineModule] splToken guard: it transfers tokens from the payer to
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      splToken: {
+      tokenPayment: {
         amount: token(5),
         tokenMint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
@@ -58,7 +58,7 @@ test('[candyMachineModule] splToken guard: it transfers tokens from the payer to
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
       guards: {
-        splToken: { tokenOwner: payer },
+        tokenPayment: { tokenOwner: payer },
       },
     })
     .run();
@@ -93,8 +93,8 @@ test('[candyMachineModule] splToken guard: it transfers tokens from the payer to
   t.true(isEqualToAmount(payerToken.amount, token(7)), 'payer lost tokens');
 });
 
-test('[candyMachineModule] splToken guard: it fails if the payer does not have enough tokens', async (t) => {
-  // Given a loaded Candy Machine with a splToken guard that requires 5 tokens.
+test('[candyMachineModule] tokenPayment guard: it fails if the payer does not have enough tokens', async (t) => {
+  // Given a loaded Candy Machine with a tokenPayment guard that requires 5 tokens.
   const mx = await metaplex();
   const treasuryAuthority = Keypair.generate();
   const { token: tokenTreasury } = await mx
@@ -111,7 +111,7 @@ test('[candyMachineModule] splToken guard: it fails if the payer does not have e
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      splToken: {
+      tokenPayment: {
         amount: token(5),
         tokenMint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
@@ -139,7 +139,7 @@ test('[candyMachineModule] splToken guard: it fails if the payer does not have e
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
       guards: {
-        splToken: { tokenOwner: payer },
+        tokenPayment: { tokenOwner: payer },
       },
     })
     .run();
@@ -148,8 +148,8 @@ test('[candyMachineModule] splToken guard: it fails if the payer does not have e
   await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
 });
 
-test('[candyMachineModule] splToken guard with bot tax: it charges a bot tax if the payer does not have enough tokens', async (t) => {
-  // Given a loaded Candy Machine with a splToken guard that requires 5 tokens and a botTax guard.
+test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax if the payer does not have enough tokens', async (t) => {
+  // Given a loaded Candy Machine with a tokenPayment guard that requires 5 tokens and a botTax guard.
   const mx = await metaplex();
   const treasuryAuthority = Keypair.generate();
   const { token: tokenTreasury } = await mx
@@ -170,7 +170,7 @@ test('[candyMachineModule] splToken guard with bot tax: it charges a bot tax if 
         lamports: sol(0.1),
         lastInstruction: true,
       },
-      splToken: {
+      tokenPayment: {
         amount: token(5),
         tokenMint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
@@ -198,7 +198,7 @@ test('[candyMachineModule] splToken guard with bot tax: it charges a bot tax if 
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
       guards: {
-        splToken: { tokenOwner: payer },
+        tokenPayment: { tokenOwner: payer },
       },
     })
     .run();
@@ -214,8 +214,8 @@ test('[candyMachineModule] splToken guard with bot tax: it charges a bot tax if 
   );
 });
 
-test('[candyMachineModule] splToken guard: it fails if no mint settings are provided', async (t) => {
-  // Given a loaded Candy Machine with a splToken guard.
+test('[candyMachineModule] tokenPayment guard: it fails if no mint settings are provided', async (t) => {
+  // Given a loaded Candy Machine with a tokenPayment guard.
   const mx = await metaplex();
   const treasuryAuthority = Keypair.generate();
   const { token: tokenTreasury } = await mx
@@ -232,7 +232,7 @@ test('[candyMachineModule] splToken guard: it fails if no mint settings are prov
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
     ],
     guards: {
-      splToken: {
+      tokenPayment: {
         amount: token(5),
         tokenMint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
@@ -241,7 +241,7 @@ test('[candyMachineModule] splToken guard: it fails if no mint settings are prov
   });
 
   // When we try to mint from it without providing
-  // any mint settings for the splToken guard.
+  // any mint settings for the tokenPayment guard.
   const promise = mx
     .candyMachines()
     .mint({
@@ -254,6 +254,6 @@ test('[candyMachineModule] splToken guard: it fails if no mint settings are prov
   await assertThrows(
     t,
     promise,
-    /Please provide some minting settings for the \[splToken\] guard/
+    /Please provide some minting settings for the \[tokenPayment\] guard/
   );
 });
