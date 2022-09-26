@@ -43,11 +43,18 @@ export const deserializeCandyMachineHiddenSection = (
   const itemsLoadedMapSize = Math.floor(itemsAvailable / 8) + 1;
   offset += itemsLoadedMapSize;
 
-  // Items left to mint.
+  // Items left to mint for random order only.
   const itemsLeftToMint = beet
     .uniformFixedSizeArray(beet.u32, itemsAvailable)
     .read(buffer, offset)
     .slice(0, itemsRemaining);
+
+  // Helper function to figure out if an item has been minted.
+  const itemsMinted = itemsAvailable - itemsRemaining;
+  const isMinted = (index: number): boolean =>
+    configLineSettings.isSequential
+      ? index < itemsMinted
+      : !itemsLeftToMint.includes(index);
 
   // Parse config lines.
   const items: CandyMachineItem[] = [];
@@ -74,7 +81,7 @@ export const deserializeCandyMachineHiddenSection = (
 
     items.push({
       index,
-      minted: !itemsLeftToMint.includes(index),
+      minted: isMinted(index),
       name: prefixName + removeEmptyChars(name),
       uri: prefixUri + removeEmptyChars(uri),
     });

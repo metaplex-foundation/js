@@ -18,6 +18,7 @@ import {
   assertMintingWasSuccessful,
   create32BitsHash,
   createCandyMachine,
+  SEQUENTIAL_ITEM_SETTINGS,
 } from './helpers';
 
 killStuckProcess();
@@ -504,5 +505,40 @@ test('[candyMachineModule] it can mint from a candy machine using hidden setting
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
     owner: mx.identity().publicKey,
+  });
+});
+
+test('[candyMachineModule] it can mint from a candy machine sequentially', async (t) => {
+  // Given a loaded Candy Machine with 16 items to mint sequentially.
+  const mx = await metaplex();
+  const itemsAvailable = 16;
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(itemsAvailable),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: Array(itemsAvailable)
+      .fill({})
+      .map((_, i) => ({
+        name: `Degen #${i + 1}`,
+        uri: `https://example.com/degen/${i + 1}`,
+      })),
+  });
+
+  // When we mint from it.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+    mintedIndex: 0,
   });
 });
