@@ -25,10 +25,19 @@ import {
   isSigner,
   now,
   amount,
+  isBigNumber,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
+import {
+  AuctionHouse,
+  Bid,
+  Listing,
+  LazyPurchase,
+  Purchase,
+  LazyBid,
+  isBid,
+} from '../models';
 import {
   findAuctionHouseBuyerEscrowPda,
   findAuctionHouseProgramAsSignerPda,
@@ -40,7 +49,7 @@ import {
   AuctioneerAuthorityRequiredError,
   AuctioneerPartialSaleNotSupportedError,
   BidAndListingHaveDifferentAuctionHousesError,
-  BidAndListingHaveDifferentMintsError,
+  BidAndListingHaveDifferentMetadataError,
   CanceledBidIsNotAllowedError,
   CanceledListingIsNotAllowedError,
   PartialPriceMismatchError,
@@ -90,16 +99,9 @@ export type ExecuteSaleInput = {
    *
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
-  bid: Pick<
-    Bid,
-    | 'asset'
-    | 'auctionHouse'
-    | 'buyerAddress'
-    | 'canceledAt'
-    | 'price'
-    | 'receiptAddress'
-    | 'tokens'
-    | 'tradeStateAddress'
+  bid: Omit<
+    LazyBid | Bid,
+    'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt' | 'isPublic'
   >;
 
   /**
@@ -301,16 +303,24 @@ export const executeSaleBuilder = (
     treasuryAccountAddress,
   } = auctionHouse;
 
-  const isPartialSale = bid.tokens.basisPoints < listing.tokens.basisPoints;
+  const bidMetadataAddress = isBid(bid)
+    ? bid.asset.metadataAddress
+    : (bid as LazyBid).metadataAddress;
+  const buyerTokensBasisPoints = isBigNumber(bid.tokens)
+    ? bid.tokens
+    : bid.tokens.basisPoints;
+
+  const isPartialSale = buyerTokensBasisPoints < listing.tokens.basisPoints;
+  const tokenSize = isPartialSale ? buyerTokensBasisPoints : listing.tokens.basisPoints
+
   // Use full size of listing & price when finding trade state PDA for the partial sale.
-  const { tokens, price } = isPartialSale ? listing : bid;
-  const { price: buyerPrice, tokens: buyerTokensSize } = bid;
+  const { price } = isPartialSale ? listing : bid;
 
   if (!listing.auctionHouse.address.equals(bid.auctionHouse.address)) {
     throw new BidAndListingHaveDifferentAuctionHousesError();
   }
-  if (!listing.asset.address.equals(bid.asset.address)) {
-    throw new BidAndListingHaveDifferentMintsError();
+  if (!listing.asset.metadataAddress.equals(bidMetadataAddress)) {
+    throw new BidAndListingHaveDifferentMetadataError();
   }
   if (bid.canceledAt) {
     throw new CanceledBidIsNotAllowedError();
@@ -325,9 +335,11 @@ export const executeSaleBuilder = (
     throw new AuctioneerPartialSaleNotSupportedError();
   }
   if (isPartialSale) {
-    const listingPricePerToken = price.basisPoints.div(tokens.basisPoints);
-    const buyerPricePerToken = buyerPrice.basisPoints.div(
-      buyerTokensSize.basisPoints
+    const listingPricePerToken = price.basisPoints.div(
+      listing.tokens.basisPoints
+    );
+    const buyerPricePerToken = bid.price.basisPoints.div(
+      buyerTokensBasisPoints
     );
 
     if (!listingPricePerToken.eq(buyerPricePerToken)) {
@@ -360,7 +372,7 @@ export const executeSaleBuilder = (
     treasuryMint.address,
     asset.address,
     lamports(0).basisPoints,
-    tokens.basisPoints,
+    tokenSize,
     asset.token.address
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
@@ -390,14 +402,16 @@ export const executeSaleBuilder = (
     freeTradeStateBump: freeTradeState.bump,
     escrowPaymentBump: escrowPayment.bump,
     programAsSignerBump: programAsSigner.bump,
-    buyerPrice: price.basisPoints,
-    tokenSize: tokens.basisPoints,
+    buyerPrice: bid.price.basisPoints,
+    tokenSize,
   };
 
   // Execute Sale Instruction
   const partialSaleArgs: ExecutePartialSaleInstructionArgs = {
     ...args,
-    partialOrderSize: bid.tokens.basisPoints,
+    buyerPrice: listing.price.basisPoints,
+    tokenSize: listing.tokens.basisPoints,
+    partialOrderSize: buyerTokensBasisPoints,
     partialOrderPrice: bid.price.basisPoints,
   };
 

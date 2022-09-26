@@ -13,14 +13,13 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctionHouse,
   Bid,
-  LazyBid,
   LazyPurchase,
   Listing,
   Purchase,
 } from '../models';
 import { createBidBuilder } from './createBid';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { AuctioneerDirectBuyNotSupportedError } from '../errors';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -120,7 +119,7 @@ export type DirectBuyInput = {
    *
    * @defaultValue `true`
    */
-  printReceipt?: boolean; // Default: true
+  printReceipt?: boolean;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -186,7 +185,7 @@ export type DirectBuyBuilderContext = Omit<
  * const transactionBuilder = metaplex
  *   .auctionHouse()
  *   .builders()
- *   .directBuyBuilder({ auctionHouse, listing })
+ *   .buy({ auctionHouse, listing, buyer })
  * ```
  *
  * @group Transaction Builders
@@ -199,22 +198,25 @@ export const directBuyBuilder = async (
   // Data.
   const {
     auctionHouse,
+    auctioneerAuthority,
     listing,
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
     ...rest
   } = params;
+  const { hasAuctioneer } = auctionHouse;
   const { tokens, price, asset, sellerAddress } = listing;
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(listing.receiptAddress);
 
-  if (auctionHouse.hasAuctioneer) {
-    throw new AuctioneerDirectBuyNotSupportedError();
+  if (hasAuctioneer && !auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
   }
 
   const bidBuilder = await createBidBuilder(metaplex, {
     auctionHouse,
+    auctioneerAuthority,
     authority,
     tokens,
     price,
@@ -227,29 +229,27 @@ export const directBuyBuilder = async (
   });
   const { receipt, buyerTradeState } = bidBuilder.getContext();
 
-  const lazyBid: LazyBid = {
+  const bid: Bid = {
     model: 'bid',
-    lazy: true,
+    lazy: false,
     auctionHouse,
+    asset,
     tradeStateAddress: buyerTradeState,
     bookkeeperAddress: bookkeeper.publicKey,
     buyerAddress: buyer.publicKey,
-    metadataAddress: asset.metadataAddress,
-    tokenAddress: asset.token.address,
     receiptAddress: receipt,
     purchaseReceiptAddress: null,
     price,
-    tokens: tokens.basisPoints,
+    tokens,
     isPublic: false,
     canceledAt: null,
     createdAt: now(),
   };
 
-  const bid = await metaplex.auctionHouse().loadBid({ lazyBid }).run();
-
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
     await executeSaleBuilder(metaplex, {
       auctionHouse,
+      auctioneerAuthority,
       bid,
       listing,
       printReceipt,

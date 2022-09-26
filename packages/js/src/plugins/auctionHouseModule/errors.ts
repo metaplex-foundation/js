@@ -72,36 +72,6 @@ export class AuctioneerPartialSaleNotSupportedError extends AuctionHouseError {
 }
 
 /** @group Errors */
-export class AuctioneerDirectBuyNotSupportedError extends AuctionHouseError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'auctioneer_direct_buy_not_supported',
-      title: 'Auctioneer Direct Buy Is Not Supported',
-      problem:
-        'You are trying to execute a direct buy, but direct buy are not supported in Auctioneer.',
-      solution:
-        'Any Direct Sells must be executed against a bid created through the Auction House Sale.',
-    });
-  }
-}
-
-/** @group Errors */
-export class AuctioneerDirectSellNotSupportedError extends AuctionHouseError {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'auctioneer_direct_sell_not_supported',
-      title: 'Auctioneer Direct Sell Is Not Supported',
-      problem:
-        'You are trying to execute a direct sell, but direct sell are not supported in Auctioneer.',
-      solution:
-        'Any Direct Buys must be executed against a sale listed through the Auction House Sale.',
-    });
-  }
-}
-
-/** @group Errors */
 export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
@@ -118,17 +88,17 @@ export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseEr
 }
 
 /** @group Errors */
-export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
+export class BidAndListingHaveDifferentMetadataError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'bid_and_listing_have_different_mints',
-      title: 'Bid And Listing Have Different Mints',
+      key: 'bid_and_listing_have_different_metadata',
+      title: 'Bid And Listing Have Different Metadata',
       problem:
-        'You are trying to execute a sale using a Bid and a Listing that have different mint addresses.',
+        'You are trying to execute a sale using a Bid and a Listing that have different metadata addresses.',
       solution:
         'Please provide a Bid and a Listing on the same asset in order to execute the sale. ' +
-        'They should have the same "asset.address".',
+        'They should have the same "asset.metadataAddress".',
     });
   }
 }

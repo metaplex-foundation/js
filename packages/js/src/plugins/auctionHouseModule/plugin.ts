@@ -4,8 +4,6 @@ import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import { AuctionHouseProgram } from './program';
 import {
-  directBuyOperation,
-  directBuyOperationHandler,
   cancelBidOperation,
   cancelBidOperationHandler,
   cancelListingOperation,
@@ -18,6 +16,10 @@ import {
   createListingOperationHandler,
   depositToBuyerAccountOperation,
   depositToBuyerAccountOperationHandler,
+  directBuyOperation,
+  directBuyOperationHandler,
+  directSellOperation,
+  directSellOperationHandler,
   executeSaleOperation,
   executeSaleOperationHandler,
   findAuctionHouseByAddressOperation,
@@ -44,8 +46,6 @@ import {
   findPurchasesByPublicKeyFieldOperationHandler,
   getBuyerBalanceOperation,
   getBuyerBalanceOperationHandler,
-  directSellOperation,
-  directSellOperationHandler,
   loadBidOperation,
   loadBidOperationHandler,
   loadListingOperation,

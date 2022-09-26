@@ -3,9 +3,6 @@ import { Task } from '@/utils';
 import { AuctionHouse, Bid, Listing, Purchase } from './models';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
-  DirectBuyInput,
-  DirectBuyOutput,
-  directBuyOperation,
   CancelBidInput,
   cancelBidOperation,
   CancelBidOutput,
@@ -24,6 +21,12 @@ import {
   DepositToBuyerAccountInput,
   depositToBuyerAccountOperation,
   DepositToBuyerAccountOutput,
+  DirectBuyInput,
+  directBuyOperation,
+  DirectBuyOutput,
+  DirectSellInput,
+  directSellOperation,
+  DirectSellOutput,
   ExecuteSaleInput,
   executeSaleOperation,
   ExecuteSaleOutput,
@@ -71,11 +74,6 @@ import {
   withdrawFromTreasuryAccountOperation,
   WithdrawFromTreasuryAccountOutput,
 } from './operations';
-import {
-  DirectSellInput,
-  directSellOperation,
-  DirectSellOutput,
-} from '@/plugins/auctionHouseModule/operations/directSell';
 
 /**
  * This is a client for the Auction House module.
@@ -249,11 +247,6 @@ export class AuctionHouseClient {
       .getTask(getBuyerBalanceOperation(options));
   }
 
-  /** {@inheritDoc saleOperation} */
-  sell(options: DirectSellInput): Task<DirectSellOutput> {
-    return this.metaplex.operations().getTask(directSellOperation(options));
-  }
-
   /** {@inheritDoc createListingOperation} */
   list(input: CreateListingInput): Task<CreateListingOutput> {
     return this.metaplex.operations().getTask(createListingOperation(input));
@@ -272,6 +265,11 @@ export class AuctionHouseClient {
   /** {@inheritDoc loadPurchaseOperation} */
   loadPurchase(options: LoadPurchaseInput): Task<Purchase> {
     return this.metaplex.operations().getTask(loadPurchaseOperation(options));
+  }
+
+  /** {@inheritDoc saleOperation} */
+  sell(options: DirectSellInput): Task<DirectSellOutput> {
+    return this.metaplex.operations().getTask(directSellOperation(options));
   }
 
   /** {@inheritDoc updateAuctionHouseOperation} */

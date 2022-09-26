@@ -40,7 +40,6 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
     .buy({
       auctionHouse,
       listing,
-      buyer,
     })
     .run();
 
@@ -107,7 +106,7 @@ test('[auctionHouseModule] direct buy throws on an Auction House with auctioneer
   );
 });
 
-test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
+test('[auctionHouseModule] buy on an Auction House with maximum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -136,12 +135,32 @@ test('[auctionHouseModule] buy on an Auction House', async (t: Test) => {
       authority: buyer,
       buyer,
       listing,
+      bookkeeper: buyer,
+      printReceipt: true,
     })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.
-  t.equal(
-    purchase.asset.token.ownerAddress.toBase58(),
-    buyer.publicKey.toBase58()
-  );
+  const expectedPurchase = {
+    price: spokSameAmount(sol(1)),
+    tokens: spokSameAmount(token(1)),
+    buyerAddress: spokSamePubkey(buyer.publicKey),
+    sellerAddress: spokSamePubkey(mx.identity().publicKey),
+    bookkeeperAddress: spokSamePubkey(buyer.publicKey),
+    auctionHouse: {
+      address: spokSamePubkey(auctionHouse.address),
+    },
+    asset: {
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
+        ownerAddress: spokSamePubkey(buyer.publicKey),
+      },
+    },
+    receiptAddress: spok.defined,
+  };
+  spok(t, purchase, {
+    $topic: 'Purchase',
+    ...expectedPurchase,
+  } as unknown as Specifications<Purchase>);
 });

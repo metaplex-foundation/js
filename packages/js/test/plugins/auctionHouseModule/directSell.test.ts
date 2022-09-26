@@ -102,7 +102,7 @@ test('[auctionHouseModule] instant sale throw error on an Auction House with auc
   );
 });
 
-test('[auctionHouseModule] direct sell on an Auction House with all params', async (t: Test) => {
+test('[auctionHouseModule] direct sell on an Auction House with maximum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -134,12 +134,32 @@ test('[auctionHouseModule] direct sell on an Auction House with all params', asy
       authority: seller,
       seller,
       bid,
+      bookkeeper: seller,
+      printReceipt: true,
     })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.
-  t.equal(
-    purchase.asset.token.ownerAddress.toBase58(),
-    buyer.publicKey.toBase58()
-  );
+  const expectedPurchase = {
+    price: spokSameAmount(sol(1)),
+    tokens: spokSameAmount(token(1)),
+    buyerAddress: spokSamePubkey(buyer.publicKey),
+    sellerAddress: spokSamePubkey(seller.publicKey),
+    bookkeeperAddress: spokSamePubkey(seller.publicKey),
+    auctionHouse: {
+      address: spokSamePubkey(auctionHouse.address),
+    },
+    asset: {
+      address: spokSamePubkey(nft.address),
+      token: {
+        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
+        ownerAddress: spokSamePubkey(buyer.publicKey),
+      },
+    },
+    receiptAddress: spok.defined,
+  };
+  spok(t, purchase, {
+    $topic: 'Purchase',
+    ...expectedPurchase,
+  } as unknown as Specifications<Purchase>);
 });

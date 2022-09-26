@@ -18,14 +18,14 @@ import {
   Listing,
   Purchase,
 } from '../models';
-import { NftWithToken, SftWithToken } from '../../nftModule/models';
+import { isNftWithToken, isSftWithToken, NftWithToken, SftWithToken } from '../../nftModule/models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctioneerDirectSellNotSupportedError } from '../errors';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
 // Operation
@@ -92,17 +92,9 @@ export type DirectSellInput = {
    *
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
-  bid: Pick<
+   bid: Omit<
     Bid,
-    | 'asset'
-    | 'auctionHouse'
-    | 'buyerAddress'
-    | 'canceledAt'
-    | 'price'
-    | 'receiptAddress'
-    | 'tokens'
-    | 'tradeStateAddress'
-    | 'isPublic'
+    'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
   >;
 
   /**
@@ -127,7 +119,7 @@ export type DirectSellInput = {
    *
    * @defaultValue `true`
    */
-  printReceipt?: boolean; // Default: true
+  printReceipt?: boolean;
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -200,7 +192,7 @@ export type DirectSellBuilderContext = Omit<
  * const transactionBuilder = metaplex
  *   .auctionHouse()
  *   .builders()
- *   .directSellBuilder({ auctionHouse, bid })
+ *   .sell({ auctionHouse, bid, seller })
  * ```
  *
  * @group Transaction Builders
@@ -213,24 +205,27 @@ export const directSellBuilder = async (
   // Data.
   const {
     auctionHouse,
+    auctioneerAuthority,
     bid,
     seller = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
     ...rest
   } = params;
+  const { hasAuctioneer } = auctionHouse;
   const { tokens, price, buyerAddress, isPublic, asset } = bid;
+
   const tokenAccount = isPublic
     ? findAssociatedTokenAccountPda(
-        asset.mint.address,
+        asset.address,
         toPublicKey(buyerAddress)
       )
     : (asset as SftWithToken | NftWithToken).token.address;
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(bid.receiptAddress);
 
-  if (auctionHouse.hasAuctioneer) {
-    throw new AuctioneerDirectSellNotSupportedError();
+  if (hasAuctioneer && !auctioneerAuthority) {
+    throw new AuctioneerAuthorityRequiredError();
   }
 
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
@@ -238,6 +233,7 @@ export const directSellBuilder = async (
       mintAccount: asset.mint.address,
       price: price,
       auctionHouse,
+      auctioneerAuthority,
       seller,
       authority,
       tokenAccount,
@@ -246,32 +242,39 @@ export const directSellBuilder = async (
       bookkeeper,
       ...rest,
     });
-  const { receipt, metadata, sellerTradeState } = listingBuilder.getContext();
+  const { receipt, sellerTradeState } = listingBuilder.getContext();
 
-  const lazyListing: LazyListing = {
+  let listingAsset: NftWithToken | SftWithToken;
+
+  if (isNftWithToken(asset) || isSftWithToken(asset)) {
+    listingAsset = asset;
+  } else {
+    // Load asset token if the bid was public and there is no token data in the asset model.
+    const asssetTokenAddress = findAssociatedTokenAccountPda(asset.address, toPublicKey(seller));
+
+    listingAsset = await metaplex.nfts().findByToken({ token: asssetTokenAddress }).run();
+  }
+
+  const listing: Listing = {
     model: 'listing',
-    lazy: true,
+    lazy: false,
     auctionHouse,
+    asset: listingAsset,
     tradeStateAddress: sellerTradeState,
     bookkeeperAddress: toPublicKey(bookkeeper),
     sellerAddress: toPublicKey(seller),
-    metadataAddress: metadata,
     receiptAddress: receipt,
     purchaseReceiptAddress: null,
     price,
-    tokens: tokens.basisPoints,
+    tokens: tokens,
     createdAt: now(),
     canceledAt: null,
   };
 
-  const listing = await metaplex
-    .auctionHouse()
-    .loadListing({ lazyListing })
-    .run();
-
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
     await executeSaleBuilder(metaplex, {
       auctionHouse,
+      auctioneerAuthority,
       bid,
       listing,
       printReceipt,
