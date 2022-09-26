@@ -19,7 +19,7 @@ export type SolPaymentGuardSettings = {
 };
 
 /** @internal */
-export const lamportsGuardManifest: CandyGuardManifest<SolPaymentGuardSettings> =
+export const solPaymentGuardManifest: CandyGuardManifest<SolPaymentGuardSettings> =
   {
     name: 'solPayment',
     settingsBytes: 40,

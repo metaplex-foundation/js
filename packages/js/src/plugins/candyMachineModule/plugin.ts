@@ -3,17 +3,20 @@ import { MetaplexPlugin, Program } from '@/types';
 import { ProgramClient } from '../programModule';
 import { CandyMachineClient } from './CandyMachineClient';
 import {
+  addressGateGuardManifest,
   allowListGuardManifest,
   botTaxGuardManifest,
-  endSettingsGuardManifest,
+  endDateGuardManifest,
   gatekeeperGuardManifest,
-  lamportsGuardManifest,
-  liveDateGuardManifest,
   mintLimitGuardManifest,
+  nftGateGuardManifest,
   nftPaymentGuardManifest,
-  splTokenGuardManifest,
+  redeemedAmountGuardManifest,
+  solPaymentGuardManifest,
+  startDateGuardManifest,
   thirdPartySignerGuardManifest,
-  whitelistGuardManifest,
+  tokenGateGuardManifest,
+  tokenPaymentGuardManifest,
 } from './guards';
 import {
   createCandyGuardOperation,
@@ -76,16 +79,19 @@ export const candyMachineModule = (): MetaplexPlugin => ({
 
     // Default Guards.
     client.guards().register(botTaxGuardManifest);
-    client.guards().register(lamportsGuardManifest);
-    client.guards().register(splTokenGuardManifest);
-    client.guards().register(liveDateGuardManifest);
+    client.guards().register(solPaymentGuardManifest);
+    client.guards().register(tokenPaymentGuardManifest);
+    client.guards().register(startDateGuardManifest);
     client.guards().register(thirdPartySignerGuardManifest);
-    client.guards().register(whitelistGuardManifest);
+    client.guards().register(tokenGateGuardManifest);
     client.guards().register(gatekeeperGuardManifest);
-    client.guards().register(endSettingsGuardManifest);
+    client.guards().register(endDateGuardManifest);
     client.guards().register(allowListGuardManifest);
     client.guards().register(mintLimitGuardManifest);
     client.guards().register(nftPaymentGuardManifest);
+    client.guards().register(redeemedAmountGuardManifest);
+    client.guards().register(addressGateGuardManifest);
+    client.guards().register(nftGateGuardManifest);
 
     // Operations.
     const op = metaplex.operations();

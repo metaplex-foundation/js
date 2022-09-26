@@ -1,30 +1,16 @@
-import {
-  BigNumber,
-  createSerializerFromBeet,
-  DateTime,
-  mapSerializer,
-  toBigNumber,
-  toDateTime,
-} from '@/types';
-import {
-  EndSettings,
-  endSettingsBeet,
-  EndSettingType,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { createSerializerFromBeet, mapSerializer } from '@/types';
 import { CandyGuardManifest } from './core';
 
 /** TODO */
-export type EndSettingsGuardSettings =
-  | EndSettingsGuardSettingsAmount
-  | EndSettingsGuardSettingsDate;
+export type TokenBurnGuardSettings = TokenBurn;
 
 /** @internal */
-export const endSettingsGuardManifest: CandyGuardManifest<EndSettingsGuardSettings> =
+export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
   {
-    name: 'endSettings',
-    settingsBytes: 9,
-    settingsSerializer: mapSerializer<EndSettings, EndSettingsGuardSettings>(
-      createSerializerFromBeet(endSettingsBeet),
+    name: 'tokenBurn',
+    settingsBytes: 0, // TODO
+    settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
+      createSerializerFromBeet(tokenBurnBeet),
       (settings) => settings,
       (settings) => settings
     ),

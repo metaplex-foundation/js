@@ -27,7 +27,7 @@ export type TokenPaymentGuardMintSettings = {
 };
 
 /** @internal */
-export const splTokenGuardManifest: CandyGuardManifest<
+export const tokenPaymentGuardManifest: CandyGuardManifest<
   TokenPaymentGuardSettings,
   TokenPaymentGuardMintSettings
 > = {

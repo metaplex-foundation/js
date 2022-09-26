@@ -1,4 +1,4 @@
-import { createSerializerFromBeet, mapSerializer } from '@/types';
+import { createSerializerFromBeet } from '@/types';
 import { NftGate, nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
@@ -6,9 +6,8 @@ import { CandyGuardManifest } from './core';
 export type NftGateGuardSettings = NftGate;
 
 /** @internal */
-export const endSettingsGuardManifest: CandyGuardManifest<NftGateGuardSettings> =
-  {
-    name: 'nftGate',
-    settingsBytes: 9,
-    settingsSerializer: createSerializerFromBeet(nftGateBeet),
-  };
+export const nftGateGuardManifest: CandyGuardManifest<NftGateGuardSettings> = {
+  name: 'nftGate',
+  settingsBytes: 32,
+  settingsSerializer: createSerializerFromBeet(nftGateBeet),
+};

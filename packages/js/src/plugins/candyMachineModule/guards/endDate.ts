@@ -13,13 +13,12 @@ export type EndDateGuardSettings = {
 };
 
 /** @internal */
-export const endSettingsGuardManifest: CandyGuardManifest<EndDateGuardSettings> =
-  {
-    name: 'endSettings',
-    settingsBytes: 8,
-    settingsSerializer: mapSerializer<EndDate, EndDateGuardSettings>(
-      createSerializerFromBeet(endDateBeet),
-      (settings) => ({ date: toDateTime(settings.date) }),
-      (settings) => settings
-    ),
-  };
+export const endDateGuardManifest: CandyGuardManifest<EndDateGuardSettings> = {
+  name: 'endDate',
+  settingsBytes: 8,
+  settingsSerializer: mapSerializer<EndDate, EndDateGuardSettings>(
+    createSerializerFromBeet(endDateBeet),
+    (settings) => ({ date: toDateTime(settings.date) }),
+    (settings) => settings
+  ),
+};

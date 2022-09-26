@@ -9,7 +9,7 @@ export type TokenGateGuardSettings = {
 };
 
 /** @internal */
-export const whitelistGuardManifest: CandyGuardManifest<TokenGateGuardSettings> =
+export const tokenGateGuardManifest: CandyGuardManifest<TokenGateGuardSettings> =
   {
     name: 'tokenGate',
     settingsBytes: 33,

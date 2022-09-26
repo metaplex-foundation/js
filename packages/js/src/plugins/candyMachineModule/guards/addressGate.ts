@@ -9,7 +9,7 @@ import { CandyGuardManifest } from './core';
 export type AddressGateGuardSettings = AddressGate;
 
 /** @internal */
-export const endSettingsGuardManifest: CandyGuardManifest<AddressGateGuardSettings> =
+export const addressGateGuardManifest: CandyGuardManifest<AddressGateGuardSettings> =
   {
     name: 'addressGate',
     settingsBytes: 32,

@@ -16,7 +16,7 @@ export type RedeemedAmountGuardSettings = {
 };
 
 /** @internal */
-export const endSettingsGuardManifest: CandyGuardManifest<RedeemedAmountGuardSettings> =
+export const redeemedAmountGuardManifest: CandyGuardManifest<RedeemedAmountGuardSettings> =
   {
     name: 'redeemedAmount',
     settingsBytes: 8,
