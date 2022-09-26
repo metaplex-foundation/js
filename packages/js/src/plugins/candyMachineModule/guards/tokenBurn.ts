@@ -18,7 +18,6 @@ export type TokenBurnGuardSettings = {
 /** TODO */
 export type TokenBurnGuardMintSettings = {
   tokenBurnAuthority?: Signer;
-  tokenAccount?: PublicKey;
 };
 
 /** @internal */
@@ -41,13 +40,11 @@ export const tokenBurnGuardManifest: CandyGuardManifest<
     programs,
   }) => {
     const tokenBurnAuthority = mintSettings?.tokenBurnAuthority ?? payer;
-    const tokenAccount =
-      mintSettings?.tokenAccount ??
-      metaplex.tokens().pdas().associatedTokenAccount({
-        mint: settings.mint,
-        owner: payer.publicKey,
-        programs,
-      });
+    const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: settings.mint,
+      owner: payer.publicKey,
+      programs,
+    });
 
     return {
       arguments: Buffer.from([]),
@@ -60,7 +57,7 @@ export const tokenBurnGuardManifest: CandyGuardManifest<
         {
           isSigner: false,
           address: settings.mint,
-          isWritable: false,
+          isWritable: true,
         },
         {
           isSigner: true,
