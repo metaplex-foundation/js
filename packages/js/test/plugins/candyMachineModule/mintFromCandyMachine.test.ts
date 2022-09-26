@@ -418,7 +418,7 @@ test('[candyMachineModule] it cannot mint from an empty candy machine', async (t
   await assertThrows(t, promise, /Candy machine is empty/);
 });
 
-test.skip('[candyMachineModule] it cannot mint from a candy machine that is not fully loaded', async (t) => {
+test('[candyMachineModule] it cannot mint from a candy machine that is not fully loaded', async (t) => {
   // Given a half-loaded Candy Machine with no Candy Guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -437,8 +437,11 @@ test.skip('[candyMachineModule] it cannot mint from a candy machine that is not 
     .run();
 
   // Then we expect an error.
-  // TODO: Waiting on protocol to implement this.
-  await assertThrows(t, promise, /TODO/);
+  await assertThrows(
+    t,
+    promise,
+    /Not all config lines were added to the candy machine/
+  );
 });
 
 test('[candyMachineModule] it cannot mint from a candy machine that has been fully minted', async (t) => {
