@@ -5,7 +5,6 @@ import {
   toBigNumber,
   toDateTime,
 } from '@/index';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -545,10 +544,10 @@ test('[candyMachineModule] it can update the guards of a candy machine', async (
           guards: {
             liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
             lamports: { amount: sol(1), destination: treasuryB },
-            endSettings: {
-              endSettingType: EndSettingType.Date,
-              date: toDateTime('2022-09-15T12:00:00.000Z'),
-            },
+            // endSettings: {
+            //   endSettingType: EndSettingType.Date,
+            //   date: toDateTime('2022-09-15T12:00:00.000Z'),
+            // },
           },
         },
         {
@@ -589,10 +588,10 @@ test('[candyMachineModule] it can update the guards of a candy machine', async (
               amount: spokSameAmount(sol(1)),
               destination: spokSamePubkey(treasuryB),
             },
-            endSettings: {
-              endSettingType: EndSettingType.Date,
-              date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
-            },
+            // endSettings: {
+            //   endSettingType: EndSettingType.Date,
+            //   date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+            // },
           },
         },
         {
@@ -740,10 +739,10 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
           guards: {
             liveDate: { date: toDateTime('2022-09-15T10:00:00.000Z') },
             lamports: { amount: sol(1), destination: treasuryB },
-            endSettings: {
-              endSettingType: EndSettingType.Date,
-              date: toDateTime('2022-09-15T12:00:00.000Z'),
-            },
+            // endSettings: {
+            //   endSettingType: EndSettingType.Date,
+            //   date: toDateTime('2022-09-15T12:00:00.000Z'),
+            // },
           },
         },
         {
@@ -784,10 +783,10 @@ test('[candyMachineModule] it can update the guards of a candy machine when pass
               amount: spokSameAmount(sol(1)),
               destination: spokSamePubkey(treasuryB),
             },
-            endSettings: {
-              endSettingType: EndSettingType.Date,
-              date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
-            },
+            // endSettings: {
+            //   endSettingType: EndSettingType.Date,
+            //   date: spokSameBignum(toDateTime('2022-09-15T12:00:00.000Z')),
+            // },
           },
         },
         {

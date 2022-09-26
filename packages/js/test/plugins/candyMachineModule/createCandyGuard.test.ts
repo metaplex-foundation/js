@@ -189,7 +189,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   const mx = await metaplex();
 
   // When we create a new Candy Guard with no guards.
-  const whitelistMint = Keypair.generate().publicKey;
+  // const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = new Uint8Array(Array(32).fill(42));
   const { candyGuard } = await mx
@@ -223,12 +223,12 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           guards: {
             liveDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
             lamports: { amount: sol(2), destination: mx.identity().publicKey },
-            whitelist: {
-              mint: whitelistMint,
-              presale: true,
-              discountPrice: null,
-              mode: WhitelistTokenMode.BurnEveryTime,
-            },
+            // whitelist: {
+            //   mint: whitelistMint,
+            //   presale: true,
+            //   discountPrice: null,
+            //   mode: WhitelistTokenMode.BurnEveryTime,
+            // },
           },
         },
         {
@@ -285,12 +285,12 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
             amount: spokSameAmount(sol(2)),
             destination: spokSamePubkey(mx.identity().publicKey),
           },
-          whitelist: {
-            mint: spokSamePubkey(whitelistMint),
-            presale: true,
-            discountPrice: null,
-            mode: WhitelistTokenMode.BurnEveryTime,
-          },
+          // whitelist: {
+          //   mint: spokSamePubkey(whitelistMint),
+          //   presale: true,
+          //   discountPrice: null,
+          //   mode: WhitelistTokenMode.BurnEveryTime,
+          // },
         },
       },
       {

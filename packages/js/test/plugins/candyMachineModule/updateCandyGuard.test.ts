@@ -6,7 +6,6 @@ import {
   toDateTime,
   token,
 } from '@/index';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -284,10 +283,10 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
   const candyGuard = await createCandyGuard(mx, {
     guards: {
       botTax: { lamports: sol(0.01), lastInstruction: true },
-      endSettings: {
-        endSettingType: EndSettingType.Date,
-        date: toDateTime('2022-09-06T10:00:00.000Z'),
-      },
+      // endSettings: {
+      //   endSettingType: EndSettingType.Date,
+      //   date: toDateTime('2022-09-06T10:00:00.000Z'),
+      // },
     },
     groups: [
       {
