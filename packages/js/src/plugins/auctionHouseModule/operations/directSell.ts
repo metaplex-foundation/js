@@ -171,7 +171,8 @@ export type DirectSellBuilderParams = Omit<
   DirectSellInput,
   'confirmOptions'
 > & {
-  instructionKey?: string;
+  createListingInstructionKey?: string;
+  executeSaleInstructionKey?: string;
 };
 
 /**
@@ -209,7 +210,8 @@ export const directSellBuilder = async (
     seller = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
-    ...rest
+    createListingInstructionKey,
+    executeSaleInstructionKey,
   } = params;
   const { hasAuctioneer } = auctionHouse;
   const { tokens, price, buyerAddress, isPublic, asset } = bid;
@@ -239,7 +241,7 @@ export const directSellBuilder = async (
       tokens,
       printReceipt,
       bookkeeper,
-      ...rest,
+      instructionKey: createListingInstructionKey,
     });
   const { receipt, sellerTradeState } = listingBuilder.getContext();
 
@@ -278,7 +280,7 @@ export const directSellBuilder = async (
       listing,
       printReceipt,
       bookkeeper,
-      ...rest,
+      instructionKey: executeSaleInstructionKey
     });
   const {
     receipt: receiptAddress,

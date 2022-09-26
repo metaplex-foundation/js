@@ -167,7 +167,10 @@ export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
  * @group Transaction Builders
  * @category Inputs
  */
-export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'>;
+export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'> & {
+  createBidInstructionKey?: string;
+  executeSaleInstructionKey?: string;
+};
 
 /**
  * @group Transaction Builders
@@ -203,14 +206,16 @@ export const directBuyBuilder = async (
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
-    ...rest
+    createBidInstructionKey,
+    executeSaleInstructionKey,
   } = params;
-  const { hasAuctioneer } = auctionHouse;
+
   const { tokens, price, asset, sellerAddress } = listing;
+
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(listing.receiptAddress);
 
-  if (hasAuctioneer && !auctioneerAuthority) {
+  if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
   }
 
@@ -225,7 +230,7 @@ export const directBuyBuilder = async (
     buyer,
     printReceipt,
     bookkeeper,
-    ...rest,
+    instructionKey: createBidInstructionKey,
   });
   const { receipt, buyerTradeState } = bidBuilder.getContext();
 
@@ -254,7 +259,7 @@ export const directBuyBuilder = async (
       listing,
       printReceipt,
       bookkeeper,
-      ...rest,
+      instructionKey: executeSaleInstructionKey
     });
 
   const { receipt: receiptAddress } = saleBuilder.getContext();
