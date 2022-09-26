@@ -542,3 +542,42 @@ test('[candyMachineModule] it can mint from a candy machine sequentially', async
     mintedIndex: 0,
   });
 });
+
+test('[candyMachineModule] it can mint from a candy machine in a random order', async (t) => {
+  // Given a loaded Candy Machine with 16 items to mint in a random order.
+  const mx = await metaplex();
+  const itemsAvailable = 16;
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    withoutCandyGuard: true,
+    itemsAvailable: toBigNumber(itemsAvailable),
+    itemSettings: { ...SEQUENTIAL_ITEM_SETTINGS, isSequential: false },
+    items: Array(itemsAvailable)
+      .fill({})
+      .map((_, i) => ({
+        name: `Degen #${i + 1}`,
+        uri: `https://example.com/degen/${i + 1}`,
+      })),
+  });
+
+  // When we mint from it.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then the minted index can be any number between 0 and 15
+  // So we need to grab it from the minted NFT's name.
+  const mintedIndex = parseInt(nft.name.slice('Degen #'.length), 10) - 1;
+
+  // And we can assert minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: mx.identity().publicKey,
+    mintedIndex,
+  });
+});
