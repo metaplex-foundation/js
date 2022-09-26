@@ -1,7 +1,6 @@
 import test, { Test } from 'tape';
 import { sol, token } from '@/types';
 import {
-  assertThrows,
   createNft,
   createWallet,
   killStuckProcess,
