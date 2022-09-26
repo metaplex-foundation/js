@@ -1,19 +1,27 @@
-export default {};
+import {
+  createSerializerFromBeet,
+  mapSerializer,
+  PublicKey,
+  SplTokenAmount,
+  token,
+} from '@/types';
+import { TokenBurn, tokenBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 
-// import { createSerializerFromBeet, mapSerializer } from '@/types';
-// import { CandyGuardManifest } from './core';
+/** TODO */
+export type TokenBurnGuardSettings = {
+  amount: SplTokenAmount;
+  mint: PublicKey;
+};
 
-// /** TODO */
-// export type TokenBurnGuardSettings = TokenBurn;
-
-// /** @internal */
-// export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
-//   {
-//     name: 'tokenBurn',
-//     settingsBytes: 0, // TODO
-//     settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
-//       createSerializerFromBeet(tokenBurnBeet),
-//       (settings) => settings,
-//       (settings) => settings
-//     ),
-//   };
+/** @internal */
+export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
+  {
+    name: 'tokenBurn',
+    settingsBytes: 40,
+    settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
+      createSerializerFromBeet(tokenBurnBeet),
+      (settings) => ({ ...settings, amount: token(settings.amount) }),
+      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+    ),
+  };
