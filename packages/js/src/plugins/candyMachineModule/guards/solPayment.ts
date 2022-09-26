@@ -5,25 +5,28 @@ import {
   PublicKey,
   SolAmount,
 } from '@/types';
-import { Lamports, lamportsBeet } from '@metaplex-foundation/mpl-candy-guard';
+import {
+  SolPayment,
+  solPaymentBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
 import { Buffer } from 'buffer';
 import { CandyGuardManifest } from './core';
 
 /** TODO */
-export type LamportsGuardSettings = {
+export type SolPaymentGuardSettings = {
   amount: SolAmount;
   destination: PublicKey;
 };
 
 /** @internal */
-export const lamportsGuardManifest: CandyGuardManifest<LamportsGuardSettings> =
+export const lamportsGuardManifest: CandyGuardManifest<SolPaymentGuardSettings> =
   {
-    name: 'lamports',
+    name: 'solPayment',
     settingsBytes: 40,
-    settingsSerializer: mapSerializer<Lamports, LamportsGuardSettings>(
-      createSerializerFromBeet(lamportsBeet),
-      (settings) => ({ ...settings, amount: lamports(settings.amount) }),
-      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+    settingsSerializer: mapSerializer<SolPayment, SolPaymentGuardSettings>(
+      createSerializerFromBeet(solPaymentBeet),
+      (settings) => ({ ...settings, amount: lamports(settings.lamports) }),
+      (settings) => ({ ...settings, lamports: settings.amount.basisPoints })
     ),
     mintSettingsParser: ({ settings }) => {
       return {

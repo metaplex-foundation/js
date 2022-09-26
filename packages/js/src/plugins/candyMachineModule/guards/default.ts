@@ -5,13 +5,16 @@ import {
 } from './allowList';
 import { BotTaxGuardSettings } from './botTax';
 import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
-import { EndSettingsGuardSettings } from './endSettings';
+import { EndSettingsGuardSettings } from './endDate';
 import { GatekeeperGuardSettings } from './gatekeeper';
-import { LamportsGuardSettings } from './lamports';
-import { LiveDateGuardSettings } from './liveDate';
+import { SolPaymentGuardSettings } from './solPayment';
+import { LiveDateGuardSettings } from './startDate';
 import { MintLimitGuardSettings } from './mintLimit';
 import { NftPaymentGuardSettings } from './nftPayment';
-import { SplTokenGuardMintSettings, SplTokenGuardSettings } from './splToken';
+import {
+  TokenPaymentGuardMintSettings,
+  TokenPaymentGuardSettings,
+} from './tokenPayment';
 import {
   ThirdPartySignerGuardMintSettings,
   ThirdPartySignerGuardSettings,
@@ -20,8 +23,9 @@ import { WhitelistGuardSettings } from './whitelist';
 
 export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   botTax: Option<BotTaxGuardSettings>;
-  lamports: Option<LamportsGuardSettings>;
-  splToken: Option<SplTokenGuardSettings>;
+  solPayment: Option<SolPaymentGuardSettings>;
+  tokenPayment: Option<TokenPaymentGuardSettings>;
+
   liveDate: Option<LiveDateGuardSettings>;
   thirdPartySigner: Option<ThirdPartySignerGuardSettings>;
   whitelist: Option<WhitelistGuardSettings>;
@@ -34,8 +38,9 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
 
 export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // botTax: no mint settings
-  // lamports: no mint settings
-  splToken: Option<SplTokenGuardMintSettings>;
+  // solPayment: no mint settings
+  splToken: Option<TokenPaymentGuardMintSettings>;
+
   // liveDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
   whitelist: Option<{}>; // TODO
@@ -49,16 +54,19 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
 /** @internal */
 export const defaultCandyGuardNames: string[] = [
   'botTax',
-  'lamports',
-  'splToken',
-  'liveDate',
+  'solPayment',
+  'tokenPayment',
+  'startDate',
   'thirdPartySigner',
-  'whitelist',
+  'tokenGate',
   'gatekeeper',
-  'endSettings',
+  'endDate',
   'allowList',
   'mintLimit',
   'nftPayment',
+  'redeemedAmount',
+  'addressGate',
+  'nftGate',
 ];
 
 /** @internal */

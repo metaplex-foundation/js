@@ -4,7 +4,7 @@ export * from './core';
 export * from './default';
 export * from './endSettings';
 export * from './gatekeeper';
-export * from './lamports';
+export * from './solPayment';
 export * from './liveDate';
 export * from './mintLimit';
 export * from './nftPayment';

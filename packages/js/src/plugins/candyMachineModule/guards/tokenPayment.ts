@@ -6,38 +6,41 @@ import {
   SplTokenAmount,
   token,
 } from '@/types';
-import { SplToken, splTokenBeet } from '@metaplex-foundation/mpl-candy-guard';
+import {
+  TokenPayment,
+  tokenPaymentBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
 import { Buffer } from 'buffer';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /** TODO */
-export type SplTokenGuardSettings = {
+export type TokenPaymentGuardSettings = {
   amount: SplTokenAmount;
   tokenMint: PublicKey;
   destinationAta: PublicKey;
 };
 
 /** TODO */
-export type SplTokenGuardMintSettings = {
+export type TokenPaymentGuardMintSettings = {
   tokenOwner: Signer;
 };
 
 /** @internal */
 export const splTokenGuardManifest: CandyGuardManifest<
-  SplTokenGuardSettings,
-  SplTokenGuardMintSettings
+  TokenPaymentGuardSettings,
+  TokenPaymentGuardMintSettings
 > = {
-  name: 'splToken',
+  name: 'tokenPayment',
   settingsBytes: 72,
-  settingsSerializer: mapSerializer<SplToken, SplTokenGuardSettings>(
-    createSerializerFromBeet(splTokenBeet),
+  settingsSerializer: mapSerializer<TokenPayment, TokenPaymentGuardSettings>(
+    createSerializerFromBeet(tokenPaymentBeet),
     (settings) => ({ ...settings, amount: token(settings.amount) }),
     (settings) => ({ ...settings, amount: settings.amount.basisPoints })
   ),
   mintSettingsParser: ({ metaplex, settings, mintSettings, programs }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('splToken');
+      throw new GuardMitingSettingsMissingError('tokenPayment');
     }
 
     const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
