@@ -13,7 +13,11 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../../helpers';
-import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import {
+  assertMintingWasSuccessful,
+  createCandyMachine,
+  SEQUENTIAL_ITEM_SETTINGS,
+} from '../helpers';
 
 killStuckProcess();
 
@@ -22,6 +26,7 @@ test('[candyMachineModule] mintLimit guard: it allows minting when the mint limi
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -73,6 +78,7 @@ test('[candyMachineModule] mintLimit guard: it forbids minting when the mint lim
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -119,6 +125,7 @@ test('[candyMachineModule] mintLimit guard: the mint limit is local to each wall
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -171,6 +178,7 @@ test('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax wh
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },

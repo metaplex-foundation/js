@@ -1,5 +1,6 @@
 import {
   CandyMachine,
+  CandyMachineConfigLineSettings,
   CandyMachineItem,
   CreateCandyGuardInput,
   CreateCandyMachineInput,
@@ -21,6 +22,15 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
+
+export const SEQUENTIAL_ITEM_SETTINGS: CandyMachineConfigLineSettings = {
+  type: 'configLines',
+  prefixName: '',
+  nameLength: 32,
+  prefixUri: '',
+  uriLength: 200,
+  isSequential: true,
+};
 
 export const createCandyMachine = async (
   metaplex: Metaplex,
