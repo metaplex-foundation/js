@@ -1,4 +1,5 @@
 import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
   assertThrows,
@@ -10,25 +11,27 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] addressGate guard: it allows TODO', async (t) => {
-  // Given a loaded Candy Machine with TODO.
+test('[candyMachineModule] addressGate guard: it allows minting from a specific address only', async (t) => {
+  // Given a loaded Candy Machine with an addressGate guard.
   const mx = await metaplex();
+  const allowedAddress = await createWallet(mx, 10);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
-      TODO: {},
+      addressGate: {
+        address: allowedAddress.publicKey,
+      },
     },
   });
 
-  // When we mint from it.
-  const payer = await createWallet(mx, 10);
+  // When the allowed address mints from it.
   const { nft } = await mx
     .candyMachines()
     .mint({
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
+      payer: allowedAddress,
     })
     .run();
 
@@ -37,19 +40,67 @@ test.skip('[candyMachineModule] addressGate guard: it allows TODO', async (t) =>
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner: payer.publicKey,
+    owner: allowedAddress.publicKey,
   });
 });
 
-test.skip('[candyMachineModule] addressGate guard: it forbids TODO', async (t) => {
-  //
+test('[candyMachineModule] addressGate guard: it forbids minting from anyone else', async (t) => {
+  // Given a loaded Candy Machine with an addressGate guard.
+  const mx = await metaplex();
+  const allowedAddress = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      addressGate: {
+        address: allowedAddress.publicKey,
+      },
+    },
+  });
+
+  // When the another wallet tries to mint from it.
+  const payer = await createWallet(mx, 10);
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Address not authorized/);
 });
 
-test.skip('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
-  // TODO
+test('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax when trying to mint using the wrong address', async (t) => {
+  // Given a loaded Candy Machine with an addressGate guard and a bot tax guard.
   const mx = await metaplex();
+  const allowedAddress = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      addressGate: {
+        address: allowedAddress.publicKey,
+      },
+    },
+  });
+
+  // When the another wallet tries to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

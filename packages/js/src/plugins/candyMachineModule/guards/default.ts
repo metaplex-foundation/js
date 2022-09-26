@@ -61,7 +61,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // mintLimit: no mint settings
   nftPayment: Option<{}>; // TODO
   redeemedAmount: Option<{}>; // TODO
-  addressGate: Option<{}>; // TODO
+  // addressGate: no mint settings
   nftGate: Option<NftGateGuardMintSettings>;
   nftBurn: Option<{}>; // TODO
   tokenBurn: Option<{}>; // TODO
