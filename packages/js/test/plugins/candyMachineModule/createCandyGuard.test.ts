@@ -49,7 +49,7 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   });
 });
 
-test.only('[candyMachineModule] create candy guard with all guards', async (t) => {
+test('[candyMachineModule] create candy guard with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -158,7 +158,7 @@ test.only('[candyMachineModule] create candy guard with all guards', async (t) =
       },
       tokenGate: {
         mint: spokSamePubkey(tokenGateMint),
-        burn: true,
+        amount: spokSameAmount(token(5)),
       },
       gatekeeper: {
         gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
@@ -175,8 +175,8 @@ test.only('[candyMachineModule] create candy guard with all guards', async (t) =
         limit: 5,
       },
       nftPayment: {
-        burn: true,
         requiredCollection: spokSamePubkey(nftPaymentCollection),
+        destinationAta: spokSamePubkey(nftPaymentDestination),
       },
       redeemedAmount: {
         maximum: spokSameBignum(100),
@@ -186,6 +186,13 @@ test.only('[candyMachineModule] create candy guard with all guards', async (t) =
       },
       nftGate: {
         requiredCollection: spokSamePubkey(nftGateCollection),
+      },
+      nftBurn: {
+        requiredCollection: spokSamePubkey(nftBurnCollection),
+      },
+      tokenBurn: {
+        mint: spokSamePubkey(tokenBurnMint),
+        amount: spokSameAmount(token(1)),
       },
     },
     groups: [],
@@ -238,7 +245,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
             },
             tokenGate: {
               mint: tokenGateMint,
-              burn: true,
+              amount: token(1),
             },
           },
         },
