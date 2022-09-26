@@ -5,10 +5,9 @@ import {
 } from './allowList';
 import { BotTaxGuardSettings } from './botTax';
 import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
-import { EndSettingsGuardSettings } from './endDate';
+import { EndDateGuardSettings } from './endDate';
 import { GatekeeperGuardSettings } from './gatekeeper';
 import { SolPaymentGuardSettings } from './solPayment';
-import { LiveDateGuardSettings } from './startDate';
 import { MintLimitGuardSettings } from './mintLimit';
 import { NftPaymentGuardSettings } from './nftPayment';
 import {
@@ -19,18 +18,18 @@ import {
   ThirdPartySignerGuardMintSettings,
   ThirdPartySignerGuardSettings,
 } from './thirdPartySigner';
-import { WhitelistGuardSettings } from './whitelist';
+import { StartDateGuardSettings } from './startDate';
+import { TokenGateGuardSettings } from './tokenGate';
 
 export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   botTax: Option<BotTaxGuardSettings>;
   solPayment: Option<SolPaymentGuardSettings>;
   tokenPayment: Option<TokenPaymentGuardSettings>;
-
-  liveDate: Option<LiveDateGuardSettings>;
+  startDate: Option<StartDateGuardSettings>;
   thirdPartySigner: Option<ThirdPartySignerGuardSettings>;
-  whitelist: Option<WhitelistGuardSettings>;
+  tokenGate: Option<TokenGateGuardSettings>;
   gatekeeper: Option<GatekeeperGuardSettings>;
-  endSettings: Option<EndSettingsGuardSettings>;
+  endDate: Option<EndDateGuardSettings>;
   allowList: Option<AllowListGuardSettings>;
   mintLimit: Option<MintLimitGuardSettings>;
   nftPayment: Option<NftPaymentGuardSettings>;
@@ -40,12 +39,11 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // botTax: no mint settings
   // solPayment: no mint settings
   splToken: Option<TokenPaymentGuardMintSettings>;
-
   // liveDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
-  whitelist: Option<{}>; // TODO
+  tokenGate: Option<{}>; // TODO
   gatekeeper: Option<{}>; // TODO
-  endSettings: Option<{}>; // TODO
+  endDate: Option<{}>; // TODO
   allowList: Option<AllowListGuardMintSettings>;
   // mintLimit: no mint settings
   nftPayment: Option<{}>; // TODO

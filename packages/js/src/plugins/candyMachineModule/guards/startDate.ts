@@ -2,26 +2,24 @@ import {
   createSerializerFromBeet,
   DateTime,
   mapSerializer,
-  toOptionDateTime,
+  toDateTime,
 } from '@/types';
-import { Option } from '@/utils';
-import type { Beet } from '@metaplex-foundation/beet';
-import { LiveDate, liveDateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { StartDate, startDateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
 /** TODO */
-export type LiveDateGuardSettings = {
-  date: Option<DateTime>;
+export type StartDateGuardSettings = {
+  date: DateTime;
 };
 
 /** @internal */
-export const liveDateGuardManifest: CandyGuardManifest<LiveDateGuardSettings> =
+export const startDateGuardManifest: CandyGuardManifest<StartDateGuardSettings> =
   {
-    name: 'liveDate',
-    settingsBytes: 9,
-    settingsSerializer: mapSerializer<LiveDate, LiveDateGuardSettings>(
-      createSerializerFromBeet(liveDateBeet as Beet<LiveDate>),
-      (settings) => ({ date: toOptionDateTime(settings.date) }),
+    name: 'startDate',
+    settingsBytes: 8,
+    settingsSerializer: mapSerializer<StartDate, StartDateGuardSettings>(
+      createSerializerFromBeet(startDateBeet),
+      (settings) => ({ date: toDateTime(settings.date) }),
       (settings) => settings
     ),
   };
