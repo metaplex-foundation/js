@@ -5,8 +5,8 @@ import {
   toBigNumber,
 } from '@/types';
 import {
-  RedemeedAmount,
-  redemeedAmountBeet,
+  RedeemedAmount,
+  redeemedAmountBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
@@ -18,13 +18,13 @@ export type RedeemedAmountGuardSettings = {
 /** @internal */
 export const redeemedAmountGuardManifest: CandyGuardManifest<RedeemedAmountGuardSettings> =
   {
-    name: 'redemeedAmount', // TODO: Rename to "redeemedAmount" when typo fixed on the Program.
+    name: 'redeemedAmount',
     settingsBytes: 8,
     settingsSerializer: mapSerializer<
-      RedemeedAmount,
+      RedeemedAmount,
       RedeemedAmountGuardSettings
     >(
-      createSerializerFromBeet(redemeedAmountBeet),
+      createSerializerFromBeet(redeemedAmountBeet),
       (settings) => ({ maximum: toBigNumber(settings.maximum) }),
       (settings) => settings
     ),

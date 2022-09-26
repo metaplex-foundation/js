@@ -109,8 +109,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           burn: true,
           requiredCollection: nftPaymentCollection,
         },
-        // TODO: rename to "redeemedAmount" when typo is fixed.
-        redemeedAmount: {
+        redeemedAmount: {
           maximum: toBigNumber(100),
         },
         addressGate: {
@@ -169,8 +168,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         burn: true,
         requiredCollection: spokSamePubkey(nftPaymentCollection),
       },
-      // TODO: rename to "redeemedAmount" when typo is fixed.
-      redemeedAmount: {
+      redeemedAmount: {
         maximum: spokSameBignum(100),
       },
       addressGate: {
