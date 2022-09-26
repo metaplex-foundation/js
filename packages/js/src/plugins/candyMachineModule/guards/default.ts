@@ -1,4 +1,5 @@
 import { Option } from '@/utils';
+import { AddressGateGuardSettings } from './addressGate';
 import {
   AllowListGuardMintSettings,
   AllowListGuardSettings,
@@ -7,19 +8,21 @@ import { BotTaxGuardSettings } from './botTax';
 import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
 import { EndDateGuardSettings } from './endDate';
 import { GatekeeperGuardSettings } from './gatekeeper';
-import { SolPaymentGuardSettings } from './solPayment';
 import { MintLimitGuardSettings } from './mintLimit';
+import { NftGateGuardSettings } from './nftGate';
 import { NftPaymentGuardSettings } from './nftPayment';
-import {
-  TokenPaymentGuardMintSettings,
-  TokenPaymentGuardSettings,
-} from './tokenPayment';
+import { RedeemedAmountGuardSettings } from './redeemedAmount';
+import { SolPaymentGuardSettings } from './solPayment';
+import { StartDateGuardSettings } from './startDate';
 import {
   ThirdPartySignerGuardMintSettings,
   ThirdPartySignerGuardSettings,
 } from './thirdPartySigner';
-import { StartDateGuardSettings } from './startDate';
 import { TokenGateGuardSettings } from './tokenGate';
+import {
+  TokenPaymentGuardMintSettings,
+  TokenPaymentGuardSettings,
+} from './tokenPayment';
 
 export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   botTax: Option<BotTaxGuardSettings>;
@@ -33,13 +36,18 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   allowList: Option<AllowListGuardSettings>;
   mintLimit: Option<MintLimitGuardSettings>;
   nftPayment: Option<NftPaymentGuardSettings>;
+  redeemedAmount: Option<RedeemedAmountGuardSettings>;
+  addressGate: Option<AddressGateGuardSettings>;
+  nftGate: Option<NftGateGuardSettings>;
+  // nftBurn: Option<NftBurnGuardSettings>;
+  // tokenBurn: Option<TokenBurnGuardSettings>;
 };
 
 export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // botTax: no mint settings
   // solPayment: no mint settings
-  splToken: Option<TokenPaymentGuardMintSettings>;
-  // liveDate: no mint settings
+  tokenPayment: Option<TokenPaymentGuardMintSettings>;
+  // startDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
   tokenGate: Option<{}>; // TODO
   gatekeeper: Option<{}>; // TODO
@@ -47,6 +55,11 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   allowList: Option<AllowListGuardMintSettings>;
   // mintLimit: no mint settings
   nftPayment: Option<{}>; // TODO
+  redeemedAmount: Option<{}>; // TODO
+  addressGate: Option<{}>; // TODO
+  nftGate: Option<{}>; // TODO
+  // nftBurn: Option<{}>; // TODO
+  // tokenBurn: Option<{}>; // TODO
 };
 
 /** @internal */
@@ -65,6 +78,8 @@ export const defaultCandyGuardNames: string[] = [
   'redeemedAmount',
   'addressGate',
   'nftGate',
+  // 'nftBurn',
+  // 'tokenBurn',
 ];
 
 /** @internal */
