@@ -88,17 +88,17 @@ export class BidAndListingHaveDifferentAuctionHousesError extends AuctionHouseEr
 }
 
 /** @group Errors */
-export class BidAndListingHaveDifferentMetadataError extends AuctionHouseError {
+export class BidAndListingHaveDifferentMintsError extends AuctionHouseError {
   constructor(options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'bid_and_listing_have_different_metadata',
-      title: 'Bid And Listing Have Different Metadata',
+      key: 'bid_and_listing_have_different_mints',
+      title: 'Bid And Listing Have Different Mints',
       problem:
-        'You are trying to execute a sale using a Bid and a Listing that have different metadata addresses.',
+        'You are trying to execute a sale using a Bid and a Listing that have different mint addresses.',
       solution:
         'Please provide a Bid and a Listing on the same asset in order to execute the sale. ' +
-        'They should have the same "asset.metadataAddress".',
+        'They should have the same "asset.address".',
     });
   }
 }
