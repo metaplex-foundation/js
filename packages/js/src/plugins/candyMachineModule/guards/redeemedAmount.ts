@@ -18,7 +18,7 @@ export type RedeemedAmountGuardSettings = {
 /** @internal */
 export const redeemedAmountGuardManifest: CandyGuardManifest<RedeemedAmountGuardSettings> =
   {
-    name: 'redeemedAmount',
+    name: 'redemeedAmount', // TODO: Rename to "redeemedAmount" when typo fixed on the Program.
     settingsBytes: 8,
     settingsSerializer: mapSerializer<
       RedemeedAmount,

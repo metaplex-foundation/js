@@ -75,7 +75,7 @@ export const defaultCandyGuardNames: string[] = [
   'allowList',
   'mintLimit',
   'nftPayment',
-  'redeemedAmount',
+  'redemeedAmount', // TODO: Rename to "redeemedAmount" when typo fixed on the Program.
   'addressGate',
   'nftGate',
   // 'nftBurn',
