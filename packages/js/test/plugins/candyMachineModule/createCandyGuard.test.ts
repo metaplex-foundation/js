@@ -49,7 +49,7 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   });
 });
 
-test('[candyMachineModule] create candy guard with all guards', async (t) => {
+test.only('[candyMachineModule] create candy guard with all guards', async (t) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -58,12 +58,15 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   const tokenMint = Keypair.generate().publicKey;
   const tokenDestination = Keypair.generate().publicKey;
   const thirdPartySigner = Keypair.generate().publicKey;
-  const whitelistMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = new Uint8Array(Array(32).fill(42));
+  const tokenGateMint = Keypair.generate().publicKey;
+  const tokenBurnMint = Keypair.generate().publicKey;
   const nftPaymentCollection = Keypair.generate().publicKey;
-  const addressGate = Keypair.generate().publicKey;
+  const nftPaymentDestination = Keypair.generate().publicKey;
   const nftGateCollection = Keypair.generate().publicKey;
+  const nftBurnCollection = Keypair.generate().publicKey;
+  const addressGate = Keypair.generate().publicKey;
   const { candyGuard } = await mx
     .candyMachines()
     .createCandyGuard({
@@ -88,8 +91,8 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           signerKey: thirdPartySigner,
         },
         tokenGate: {
-          mint: whitelistMint,
-          burn: true,
+          mint: tokenGateMint,
+          amount: token(5),
         },
         gatekeeper: {
           gatekeeperNetwork,
@@ -106,8 +109,8 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           limit: 5,
         },
         nftPayment: {
-          burn: true,
           requiredCollection: nftPaymentCollection,
+          destinationAta: nftPaymentDestination,
         },
         redeemedAmount: {
           maximum: toBigNumber(100),
@@ -117,6 +120,13 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         },
         nftGate: {
           requiredCollection: nftGateCollection,
+        },
+        nftBurn: {
+          requiredCollection: nftBurnCollection,
+        },
+        tokenBurn: {
+          mint: tokenBurnMint,
+          amount: token(1),
         },
       },
     })
@@ -147,7 +157,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         signerKey: spokSamePubkey(thirdPartySigner),
       },
       tokenGate: {
-        mint: spokSamePubkey(whitelistMint),
+        mint: spokSamePubkey(tokenGateMint),
         burn: true,
       },
       gatekeeper: {
@@ -187,7 +197,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
   const mx = await metaplex();
 
   // When we create a new Candy Guard with no guards.
-  const whitelistMint = Keypair.generate().publicKey;
+  const tokenGateMint = Keypair.generate().publicKey;
   const gatekeeperNetwork = Keypair.generate().publicKey;
   const merkleRoot = new Uint8Array(Array(32).fill(42));
   const { candyGuard } = await mx
@@ -227,7 +237,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
               destination: mx.identity().publicKey,
             },
             tokenGate: {
-              mint: whitelistMint,
+              mint: tokenGateMint,
               burn: true,
             },
           },
@@ -289,7 +299,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
             destination: spokSamePubkey(mx.identity().publicKey),
           },
           tokenGate: {
-            mint: spokSamePubkey(whitelistMint),
+            mint: spokSamePubkey(tokenGateMint),
             burn: true,
           },
         },
