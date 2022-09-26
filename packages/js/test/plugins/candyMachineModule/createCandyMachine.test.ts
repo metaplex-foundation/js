@@ -206,7 +206,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
           lamports: spokSameAmount(sol(0.01)),
           lastInstruction: false,
         },
-        lamports: {
+        solPayment: {
           amount: spokSameAmount(sol(1.5)),
           destination: spokSamePubkey(treasury),
         },
