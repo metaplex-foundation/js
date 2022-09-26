@@ -39,6 +39,7 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
     .buy({
       auctionHouse,
       listing,
+      buyer,
     })
     .run();
 
