@@ -6,7 +6,6 @@ import {
   token,
 } from '@/types';
 import { TokenGate, tokenGateBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /** TODO */
@@ -17,7 +16,7 @@ export type TokenGateGuardSettings = {
 
 /** TODO */
 export type TokenGateGuardMintSettings = {
-  tokenAccount: PublicKey;
+  tokenAccount?: PublicKey;
 };
 
 /** @internal */
@@ -32,17 +31,27 @@ export const tokenGateGuardManifest: CandyGuardManifest<
     (settings) => ({ ...settings, amount: token(settings.amount) }),
     (settings) => ({ ...settings, amount: settings.amount.basisPoints })
   ),
-  mintSettingsParser: ({ mintSettings }) => {
-    if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('tokenGate');
-    }
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    mintSettings,
+    payer,
+    programs,
+  }) => {
+    const tokenAccount =
+      mintSettings?.tokenAccount ??
+      metaplex.tokens().pdas().associatedTokenAccount({
+        mint: settings.mint,
+        owner: payer,
+        programs,
+      });
 
     return {
       arguments: Buffer.from([]),
       remainingAccounts: [
         {
           isSigner: false,
-          address: mintSettings.tokenAccount,
+          address: tokenAccount,
           isWritable: false,
         },
       ],
