@@ -10,11 +10,8 @@ test('[candyMachineModule] botTax guard: it does nothing if all conditions are v
   // Given a loaded Candy Machine with a botTax guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -48,11 +45,8 @@ test('[candyMachineModule] botTax guard: it may charge a bot tax if the mint ins
   // such that lastInstruction is set to true.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),

@@ -24,11 +24,8 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     })
     .run();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
         amount: token(5),
@@ -105,11 +102,8 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
     })
     .run();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
         amount: token(5),
@@ -160,11 +154,8 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
     })
     .run();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -226,11 +217,8 @@ test('[candyMachineModule] tokenPayment guard: it fails if no mint settings are 
     })
     .run();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
         amount: token(5),
