@@ -307,7 +307,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           },
           tokenGate: {
             mint: spokSamePubkey(tokenGateMint),
-            burn: true,
+            amount: spokSameAmount(token(1)),
           },
         },
       },
