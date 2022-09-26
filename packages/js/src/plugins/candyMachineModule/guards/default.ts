@@ -9,7 +9,7 @@ import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
 import { EndDateGuardSettings } from './endDate';
 import { GatekeeperGuardSettings } from './gatekeeper';
 import { MintLimitGuardSettings } from './mintLimit';
-import { NftBurnGuardSettings } from './nftBurn';
+import { NftBurnGuardMintSettings, NftBurnGuardSettings } from './nftBurn';
 import { NftGateGuardMintSettings, NftGateGuardSettings } from './nftGate';
 import {
   NftPaymentGuardMintSettings,
@@ -66,7 +66,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   redeemedAmount: Option<{}>; // TODO
   // addressGate: no mint settings
   nftGate: Option<NftGateGuardMintSettings>;
-  nftBurn: Option<{}>; // TODO
+  nftBurn: Option<NftBurnGuardMintSettings>; // TODO
   tokenBurn: Option<{}>; // TODO
 };
 
