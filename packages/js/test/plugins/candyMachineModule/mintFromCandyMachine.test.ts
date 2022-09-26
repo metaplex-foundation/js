@@ -29,13 +29,10 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
     authority: candyMachineAuthority,
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigNumber(1),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
   // When we mint an NFT from the candy machine using the mint authority.
@@ -66,11 +63,8 @@ test('[candyMachineModule] it cannot mint from a Candy Machine directly if not t
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
     authority: candyMachineAuthority,
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
   // When we try to mint an NFT using another mint authority.
@@ -92,13 +86,10 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
   // Given a loaded Candy Machine with a Candy Guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigNumber(1),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
   // When we mint an NFT from this candy machine.
@@ -124,11 +115,8 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
         date: toDateTime(now().subn(3600 * 24)), // Yesterday.
@@ -163,11 +151,8 @@ test("[candyMachineModule] it throws a bot tax error if minting succeeded but we
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -198,11 +183,8 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -257,11 +239,8 @@ test('[candyMachineModule] it cannot mint using the default guards if the Candy 
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -306,11 +285,8 @@ test('[candyMachineModule] it cannot mint using a labelled group if the Candy Gu
   // Given a loaded Candy Machine with no guard groups.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -338,11 +314,8 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -388,11 +361,8 @@ test('[candyMachineModule] it can mint from a candy machine using an explicit pa
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
   // And an explicit payer with 10 SOL.
