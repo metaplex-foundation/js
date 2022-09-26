@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         node: ["16.x", "18.x"]
-        solana: ["1.14.2"]
+        solana: ["1.10.34"]
 
     steps:
     - name: Git checkout
