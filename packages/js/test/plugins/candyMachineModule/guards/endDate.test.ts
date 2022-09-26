@@ -16,11 +16,8 @@ test.skip('[candyMachineModule] endDate guard: it allows TODO', async (t) => {
   // Given a loaded Candy Machine with TODO.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       endDate: {
         date: toDateTime(now().addn(SECONDS_IN_A_DAY)), // Tomorrow.

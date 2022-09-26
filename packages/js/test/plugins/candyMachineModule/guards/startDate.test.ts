@@ -16,11 +16,8 @@ test('[candyMachineModule] startDate guard: it allows minting after the live dat
   // Given a loaded Candy Machine with a live date in the past.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
         date: toDateTime(now().subn(SECONDS_IN_A_DAY)), // Yesterday.
@@ -52,11 +49,8 @@ test('[candyMachineModule] startDate guard: it forbids minting before the live d
   // Given a loaded Candy Machine with a live date in the future.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
         date: toDateTime(now().addn(SECONDS_IN_A_DAY)), // Tomorrow.
@@ -83,11 +77,8 @@ test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax wh
   // Given a loaded Candy Machine with a live date in the future and a bot tax.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),

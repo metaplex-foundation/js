@@ -16,11 +16,8 @@ test('[candyMachineModule] thirdPartySigner guard: it allows minting when the th
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {
         signerKey: thirdPartySigner.publicKey,
@@ -58,11 +55,8 @@ test('[candyMachineModule] thirdPartySigner guard: it forbids minting when the t
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {
         signerKey: thirdPartySigner.publicKey,
@@ -96,11 +90,8 @@ test('[candyMachineModule] thirdPartySigner guard with bot tax: it charges a bot
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -145,11 +136,8 @@ test('[candyMachineModule] thirdPartySigner guard: minting settings must be prov
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {
         signerKey: thirdPartySigner.publicKey,

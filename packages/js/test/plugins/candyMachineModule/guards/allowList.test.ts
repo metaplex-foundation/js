@@ -31,11 +31,8 @@ test('[candyMachineModule] allowList guard: it allows minting from wallets of a 
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
         merkleRoot: getMerkleRoot(allowList),
@@ -79,11 +76,8 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
         merkleRoot: getMerkleRoot(allowList),
@@ -121,11 +115,8 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
         merkleRoot: getMerkleRoot(allowList),
@@ -167,11 +158,8 @@ test('[candyMachineModule] allowList guard with bot tax: it charges a bot tax wh
 
   // And given a loaded Candy Machine with a allow list guard and a box tax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
         lamports: sol(0.1),
@@ -214,11 +202,8 @@ test('[candyMachineModule] allowList guard: minting settings must be provided', 
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
-    items: [
-      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-    ],
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
         merkleRoot: getMerkleRoot([
