@@ -67,7 +67,7 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
   } as unknown as Specifications<Purchase>);
 });
 
-test('[auctionHouseModule] direct buy throws on an Auction House with auctioneer', async (t: Test) => {
+test('[auctionHouseModule] buy on an Auction House with auctioneer with auctioneer', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -88,22 +88,19 @@ test('[auctionHouseModule] direct buy throws on an Auction House with auctioneer
     .run();
 
   // When we execute direct buy with the given listing.
-  const promise = mx
+  const { purchase } = await mx
     .auctionHouse()
     .buy({
       auctionHouse,
+      auctioneerAuthority,
       listing,
       buyer,
-      auctioneerAuthority,
+      price: sol(1),
     })
     .run();
 
-  // Then we expect an error.
-  await assertThrows(
-    t,
-    promise,
-    /You are trying to execute a direct buy, but direct buy are not supported in Auctioneer./
-  );
+  // Then we created and returned the new Purchase
+  t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 });
 
 test('[auctionHouseModule] buy on an Auction House with maximum input', async (t: Test) => {

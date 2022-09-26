@@ -136,7 +136,7 @@ export type CreateBidInput = {
    *
    * @defaultValue 0 SOLs or tokens.
    */
-  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
+  price?: SolAmount | SplTokenAmount;
 
   /**
    * The number of tokens to bid for.

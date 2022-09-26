@@ -16,7 +16,7 @@ import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] instant sale on an Auction House with minimum input', async (t: Test) => {
+test('[auctionHouseModule] sell on an Auction House with minimum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -66,7 +66,7 @@ test('[auctionHouseModule] instant sale on an Auction House with minimum input',
   } as unknown as Specifications<Purchase>);
 });
 
-test('[auctionHouseModule] instant sale throw error on an Auction House with auctioneer', async (t: Test) => {
+test('[auctionHouseModule] sell on an Auction House with auctioneer', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -89,20 +89,16 @@ test('[auctionHouseModule] instant sale throw error on an Auction House with auc
     .run();
 
   // Then we execute an Sell on the bid
-  const promise = mx
+  const { purchase } = await mx
     .auctionHouse()
     .sell({ auctionHouse, bid, auctioneerAuthority })
     .run();
 
-  // Then we expect an error.
-  await assertThrows(
-    t,
-    promise,
-    /You are trying to execute a direct sell, but direct sell are not supported in Auctioneer./
-  );
+  // Then we created and returned the new Purchase
+  t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 });
 
-test('[auctionHouseModule] direct sell on an Auction House with maximum input', async (t: Test) => {
+test('[auctionHouseModule] sell on an Auction House with maximum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);

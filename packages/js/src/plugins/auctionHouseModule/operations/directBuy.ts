@@ -6,17 +6,13 @@ import {
   Operation,
   OperationHandler,
   Signer,
+  SolAmount,
+  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  AuctionHouse,
-  Bid,
-  LazyPurchase,
-  Listing,
-  Purchase,
-} from '../models';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
 import { createBidBuilder } from './createBid';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import { AuctioneerAuthorityRequiredError } from '../errors';
@@ -96,6 +92,13 @@ export type DirectBuyInput = {
     | 'tradeStateAddress'
     | 'receiptAddress'
   >;
+
+    /**
+   * The buyer's price.
+   *
+   * @defaultValue `listing.price`.
+   */
+  price?: SolAmount | SplTokenAmount;
 
   /**
    * The Auctioneer authority key.
@@ -203,6 +206,7 @@ export const directBuyBuilder = async (
     auctionHouse,
     auctioneerAuthority,
     listing,
+    price = listing.price,
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
@@ -210,7 +214,7 @@ export const directBuyBuilder = async (
     executeSaleInstructionKey,
   } = params;
 
-  const { tokens, price, asset, sellerAddress } = listing;
+  const { tokens, asset, sellerAddress } = listing;
 
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(listing.receiptAddress);
@@ -259,7 +263,7 @@ export const directBuyBuilder = async (
       listing,
       printReceipt,
       bookkeeper,
-      instructionKey: executeSaleInstructionKey
+      instructionKey: executeSaleInstructionKey,
     });
 
   const { receipt: receiptAddress } = saleBuilder.getContext();

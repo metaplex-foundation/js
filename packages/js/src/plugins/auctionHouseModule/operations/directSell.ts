@@ -10,14 +10,13 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
 import {
-  AuctionHouse,
-  Bid,
-  LazyPurchase,
-  Listing,
-  Purchase,
-} from '../models';
-import { isNftWithToken, isSftWithToken, NftWithToken, SftWithToken } from '../../nftModule/models';
+  isNftWithToken,
+  isSftWithToken,
+  NftWithToken,
+  SftWithToken,
+} from '../../nftModule/models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
@@ -91,10 +90,7 @@ export type DirectSellInput = {
    *
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
-   bid: Omit<
-    Bid,
-    'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
-  >;
+  bid: Omit<Bid, 'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'>;
 
   /**
    * The Auctioneer authority key.
@@ -217,10 +213,7 @@ export const directSellBuilder = async (
   const { tokens, price, buyerAddress, isPublic, asset } = bid;
 
   const tokenAccount = isPublic
-    ? findAssociatedTokenAccountPda(
-        asset.address,
-        toPublicKey(buyerAddress)
-      )
+    ? findAssociatedTokenAccountPda(asset.address, toPublicKey(buyerAddress))
     : (asset as SftWithToken | NftWithToken).token.address;
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(bid.receiptAddress);
@@ -251,9 +244,15 @@ export const directSellBuilder = async (
     listingAsset = asset;
   } else {
     // Load asset token if the bid was public and there is no token data in the asset model.
-    const asssetTokenAddress = findAssociatedTokenAccountPda(asset.address, toPublicKey(seller));
+    const asssetTokenAddress = findAssociatedTokenAccountPda(
+      asset.address,
+      toPublicKey(seller)
+    );
 
-    listingAsset = await metaplex.nfts().findByToken({ token: asssetTokenAddress }).run();
+    listingAsset = await metaplex
+      .nfts()
+      .findByToken({ token: asssetTokenAddress })
+      .run();
   }
 
   const listing: Listing = {
@@ -280,11 +279,9 @@ export const directSellBuilder = async (
       listing,
       printReceipt,
       bookkeeper,
-      instructionKey: executeSaleInstructionKey
+      instructionKey: executeSaleInstructionKey,
     });
-  const {
-    receipt: receiptAddress,
-  } = saleBuilder.getContext();
+  const { receipt: receiptAddress } = saleBuilder.getContext();
 
   const lazyPurchase: LazyPurchase = {
     auctionHouse,
