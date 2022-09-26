@@ -13,7 +13,6 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctionHouse,
   Bid,
-  LazyListing,
   LazyPurchase,
   Listing,
   Purchase,
@@ -282,20 +281,18 @@ export const directSellBuilder = async (
       ...rest,
     });
   const {
-    receipt: saleReceipt,
-    metadata: saleMetadata,
-    buyer,
+    receipt: receiptAddress,
   } = saleBuilder.getContext();
 
   const lazyPurchase: LazyPurchase = {
     auctionHouse,
     model: 'purchase',
     lazy: true,
-    buyerAddress: buyer,
+    buyerAddress,
     sellerAddress: toPublicKey(seller),
-    metadataAddress: saleMetadata,
+    metadataAddress: asset.metadataAddress,
     bookkeeperAddress: toPublicKey(bookkeeper),
-    receiptAddress: saleReceipt,
+    receiptAddress,
     price: bid.price,
     tokens: tokens.basisPoints,
     createdAt: now(),

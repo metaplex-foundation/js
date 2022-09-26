@@ -257,17 +257,17 @@ export const directBuyBuilder = async (
       ...rest,
     });
 
-  const { receipt: saleReceipt, metadata, seller } = saleBuilder.getContext();
+  const { receipt: receiptAddress } = saleBuilder.getContext();
 
   const lazyPurchase: LazyPurchase = {
     auctionHouse,
     model: 'purchase',
     lazy: true,
     buyerAddress: toPublicKey(buyer),
-    sellerAddress: seller,
-    metadataAddress: metadata,
+    sellerAddress,
+    metadataAddress: asset.metadataAddress,
     bookkeeperAddress: toPublicKey(bookkeeper),
-    receiptAddress: saleReceipt,
+    receiptAddress,
     price: listing.price,
     tokens: tokens.basisPoints,
     createdAt: now(),
