@@ -93,7 +93,7 @@ export type DirectBuyInput = {
     | 'receiptAddress'
   >;
 
-    /**
+  /**
    * The buyer's price.
    *
    * @defaultValue `listing.price`.
