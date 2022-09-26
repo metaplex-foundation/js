@@ -223,7 +223,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           // Second group for whitelist token holders.
           label: 'WLIST',
           guards: {
-            liveDstartDateate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
+            startDate: { date: toDateTime('2022-09-05T18:00:00.000Z') },
             solPayment: {
               amount: sol(2),
               destination: mx.identity().publicKey,
