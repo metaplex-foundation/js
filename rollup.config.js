@@ -28,9 +28,13 @@ const createConfig = (build, options) => {
     globals = {},
     dependenciesToExcludeInBundle = [],
     dependenciesToDedupes = [],
+    additionalExternals = [],
   } = options;
 
-  const allDependencies = Object.keys(pkg.dependencies);
+  const allDependencies = [
+    ...Object.keys(pkg.dependencies),
+    ...additionalExternals,
+  ];
   const external = allDependencies.filter((dependency) => {
     return !bundle || dependenciesToExcludeInBundle.includes(dependency);
   });
