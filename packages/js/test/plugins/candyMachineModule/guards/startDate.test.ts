@@ -12,8 +12,8 @@ killStuckProcess();
 
 const SECONDS_IN_A_DAY = 24 * 60 * 60;
 
-test('[candyMachineModule] startDate guard: it allows minting after the live date', async (t) => {
-  // Given a loaded Candy Machine with a live date in the past.
+test('[candyMachineModule] startDate guard: it allows minting after the start date', async (t) => {
+  // Given a loaded Candy Machine with a start date in the past.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
@@ -45,8 +45,8 @@ test('[candyMachineModule] startDate guard: it allows minting after the live dat
   });
 });
 
-test('[candyMachineModule] startDate guard: it forbids minting before the live date', async (t) => {
-  // Given a loaded Candy Machine with a live date in the future.
+test('[candyMachineModule] startDate guard: it forbids minting before the start date', async (t) => {
+  // Given a loaded Candy Machine with a start date in the future.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
@@ -73,8 +73,8 @@ test('[candyMachineModule] startDate guard: it forbids minting before the live d
   await assertThrows(t, promise, /Mint is not live/);
 });
 
-test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax when trying to mint before the live date', async (t) => {
-  // Given a loaded Candy Machine with a live date in the future and a bot tax.
+test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax when trying to mint before the start date', async (t) => {
+  // Given a loaded Candy Machine with a start date in the future and a bot tax.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),

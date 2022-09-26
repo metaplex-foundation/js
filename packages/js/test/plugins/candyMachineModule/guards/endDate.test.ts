@@ -12,8 +12,8 @@ killStuckProcess();
 
 const SECONDS_IN_A_DAY = 24 * 60 * 60;
 
-test.skip('[candyMachineModule] endDate guard: it allows TODO', async (t) => {
-  // Given a loaded Candy Machine with TODO.
+test('[candyMachineModule] endDate guard: it allows minting before the end date', async (t) => {
+  // Given a loaded Candy Machine with an end date in the future.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
@@ -45,15 +45,61 @@ test.skip('[candyMachineModule] endDate guard: it allows TODO', async (t) => {
   });
 });
 
-test.skip('[candyMachineModule] endDate guard: it forbids TODO', async (t) => {
-  //
+test('[candyMachineModule] endDate guard: it forbids minting after the end date', async (t) => {
+  // Given a loaded Candy Machine with an end date in the past.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      endDate: {
+        date: toDateTime(now().subn(SECONDS_IN_A_DAY)), // Yesterday.
+      },
+    },
+  });
+
+  // When we try to mint from it.
+  const payer = await createWallet(mx, 10);
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Current time is after the set end date/);
 });
 
-test.skip('[candyMachineModule] endDate guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
-  // TODO
+test('[candyMachineModule] endDate guard with bot tax: it charges a bot tax when trying to mint after the end date', async (t) => {
+  // Given a loaded Candy Machine with an end date in the past and a bot tax.
   const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      endDate: {
+        date: toDateTime(now().subn(SECONDS_IN_A_DAY)), // Yesterday.
+      },
+    },
+  });
+
+  // When we try to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
