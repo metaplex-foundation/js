@@ -43,7 +43,7 @@ export const tokenGateGuardManifest: CandyGuardManifest<
         {
           isSigner: false,
           address: mintSettings.tokenAccount,
-          isWritable: true,
+          isWritable: false,
         },
       ],
     };
