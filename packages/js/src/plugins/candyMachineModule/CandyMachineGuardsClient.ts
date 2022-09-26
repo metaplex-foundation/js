@@ -212,7 +212,7 @@ export class CandyMachineGuardsClient {
   >(
     candyMachine: PublicKey,
     candyGuard: CandyGuard<Settings>,
-    payer: PublicKey,
+    payer: Signer,
     guardMintSettings: Partial<MintSettings>,
     groupLabel: Option<string>,
     programs: Program[] = []

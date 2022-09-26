@@ -16,7 +16,7 @@ export type CandyGuardManifest<
     metaplex: Metaplex;
     settings: Settings;
     mintSettings: Option<MintSettings>;
-    payer: PublicKey;
+    payer: Signer;
     candyMachine: PublicKey;
     candyGuard: PublicKey;
     programs: Program[];

@@ -22,7 +22,10 @@ import {
   ThirdPartySignerGuardMintSettings,
   ThirdPartySignerGuardSettings,
 } from './thirdPartySigner';
-import { TokenBurnGuardSettings } from './tokenBurn';
+import {
+  TokenBurnGuardMintSettings,
+  TokenBurnGuardSettings,
+} from './tokenBurn';
 import {
   TokenGateGuardMintSettings,
   TokenGateGuardSettings,
@@ -67,7 +70,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // addressGate: no mint settings
   nftGate: Option<NftGateGuardMintSettings>;
   nftBurn: Option<NftBurnGuardMintSettings>;
-  tokenBurn: Option<{}>; // TODO
+  tokenBurn: Option<TokenBurnGuardMintSettings>;
 };
 
 /** @internal */

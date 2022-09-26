@@ -22,7 +22,7 @@ export const mintLimitGuardManifest: CandyGuardManifest<MintLimitGuardSettings> 
     }) => {
       const counterPda = metaplex.candyMachines().pdas().mintLimitCounter({
         id: settings.id,
-        user: payer,
+        user: payer.publicKey,
         candyMachine,
         candyGuard,
         programs,

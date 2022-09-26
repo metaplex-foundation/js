@@ -29,7 +29,7 @@ export const nftGateGuardManifest: CandyGuardManifest<
       mintSettings.tokenAccount ??
       metaplex.tokens().pdas().associatedTokenAccount({
         mint: mintSettings.mint,
-        owner: payer,
+        owner: payer.publicKey,
         programs,
       });
 
