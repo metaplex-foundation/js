@@ -134,6 +134,7 @@ test('[auctionHouseModule] buy on an Auction House with maximum input', async (t
       listing,
       bookkeeper: buyer,
       printReceipt: true,
+      price: sol(1),
     })
     .run();
 
