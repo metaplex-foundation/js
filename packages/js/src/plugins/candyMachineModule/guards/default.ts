@@ -36,7 +36,7 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   allowList: Option<AllowListGuardSettings>;
   mintLimit: Option<MintLimitGuardSettings>;
   nftPayment: Option<NftPaymentGuardSettings>;
-  redeemedAmount: Option<RedeemedAmountGuardSettings>;
+  redemeedAmount: Option<RedeemedAmountGuardSettings>; // TODO: Rename to "redeemedAmount" when typo fixed on the Program.
   addressGate: Option<AddressGateGuardSettings>;
   nftGate: Option<NftGateGuardSettings>;
   // nftBurn: Option<NftBurnGuardSettings>;

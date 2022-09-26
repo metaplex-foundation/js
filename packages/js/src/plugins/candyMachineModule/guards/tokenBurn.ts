@@ -1,17 +1,19 @@
-import { createSerializerFromBeet, mapSerializer } from '@/types';
-import { CandyGuardManifest } from './core';
+export default {};
 
-/** TODO */
-export type TokenBurnGuardSettings = TokenBurn;
+// import { createSerializerFromBeet, mapSerializer } from '@/types';
+// import { CandyGuardManifest } from './core';
 
-/** @internal */
-export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
-  {
-    name: 'tokenBurn',
-    settingsBytes: 0, // TODO
-    settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
-      createSerializerFromBeet(tokenBurnBeet),
-      (settings) => settings,
-      (settings) => settings
-    ),
-  };
+// /** TODO */
+// export type TokenBurnGuardSettings = TokenBurn;
+
+// /** @internal */
+// export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
+//   {
+//     name: 'tokenBurn',
+//     settingsBytes: 0, // TODO
+//     settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
+//       createSerializerFromBeet(tokenBurnBeet),
+//       (settings) => settings,
+//       (settings) => settings
+//     ),
+//   };

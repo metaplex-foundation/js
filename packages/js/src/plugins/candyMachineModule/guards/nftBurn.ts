@@ -1,16 +1,18 @@
-import { createSerializerFromBeet, mapSerializer } from '@/types';
-import { CandyGuardManifest } from './core';
+export default {};
 
-/** TODO */
-export type NftBurnGuardSettings = NftBurn;
+// import { createSerializerFromBeet, mapSerializer } from '@/types';
+// import { CandyGuardManifest } from './core';
 
-/** @internal */
-export const nftBurnGuardManifest: CandyGuardManifest<NftBurnGuardSettings> = {
-  name: 'nftBurn',
-  settingsBytes: 0, // TODO
-  settingsSerializer: mapSerializer<NftBurn, NftBurnGuardSettings>(
-    createSerializerFromBeet(nftBurnBeet),
-    (settings) => settings,
-    (settings) => settings
-  ),
-};
+// /** TODO */
+// export type NftBurnGuardSettings = NftBurn;
+
+// /** @internal */
+// export const nftBurnGuardManifest: CandyGuardManifest<NftBurnGuardSettings> = {
+//   name: 'nftBurn',
+//   settingsBytes: 0, // TODO
+//   settingsSerializer: mapSerializer<NftBurn, NftBurnGuardSettings>(
+//     createSerializerFromBeet(nftBurnBeet),
+//     (settings) => settings,
+//     (settings) => settings
+//   ),
+// };
