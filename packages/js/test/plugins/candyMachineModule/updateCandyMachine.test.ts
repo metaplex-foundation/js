@@ -859,7 +859,7 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
     },
     guards: {
       botTax: { lamports: sol(0.01), lastInstruction: true },
-      lamports: { amount: sol(1), destination: treasuryA },
+      solPayment: { amount: sol(1), destination: treasuryA },
     },
   });
 
@@ -887,7 +887,7 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
       },
       guards: {
         botTax: { lamports: sol(0.02), lastInstruction: false },
-        lamports: { amount: sol(2), destination: treasuryB },
+        solPayment: { amount: sol(2), destination: treasuryB },
       },
     })
     .run();
@@ -912,7 +912,7 @@ test('[candyMachineModule] it can update data, authorities, collection and guard
       guards: {
         ...emptyDefaultCandyGuardSettings,
         botTax: { lamports: spokSameAmount(sol(0.02)), lastInstruction: false },
-        lamports: {
+        solPayment: {
           amount: spokSameAmount(sol(2)),
           destination: spokSamePubkey(treasuryB),
         },
