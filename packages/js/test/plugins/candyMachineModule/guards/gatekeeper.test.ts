@@ -2,11 +2,13 @@ import {
   DateTime,
   isEqualToAmount,
   Metaplex,
+  now,
   Pda,
   PublicKey,
   Signer,
   sol,
   toBigNumber,
+  toDateTime,
   TransactionBuilder,
 } from '@/index';
 import { Keypair } from '@solana/web3.js';
@@ -22,6 +24,8 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import { addGatekeeper, issueVanilla } from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
+
+const SECONDS_IN_A_DAY = 24 * 60 * 60;
 
 test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
   // Given a Gatekeeper Network.
@@ -50,7 +54,7 @@ test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper 
     },
   });
 
-  // When that payer mints from the Candy Machine using its CIVIC pass.
+  // When that payer mints from the Candy Machine using its valid token.
   const { nft } = await mx
     .candyMachines()
     .mint({
@@ -118,16 +122,119 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
   await assertThrows(t, promise, /Gateway token is not valid/);
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it allows minting using gateway tokens that expire when there are still valid', async (t) => {
+test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tokens that expire when there are still valid', async (t) => {
+  // Given a Gatekeeper Network.
+  const mx = await metaplex();
+  const { gatekeeperNetwork, gatekeeperAuthority } =
+    await createGatekeeperNetwork(mx);
+
+  // And a payer with a valid gateway Token Account from that network
+  // that has not yet expired.
+  const payer = await createWallet(mx, 10);
+  const gatewayTokenAccount = await issueGatewayToken(
+    mx,
+    gatekeeperNetwork.publicKey,
+    gatekeeperAuthority,
+    payer,
+    toDateTime(now().addn(SECONDS_IN_A_DAY)) // Tomorrow.
+  );
+
+  // And a loaded Candy Machine with a gatekeeper guard on that network.
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      gatekeeper: {
+        network: gatekeeperNetwork.publicKey,
+        expireOnUse: false,
+      },
+    },
+  });
+
+  // When that payer mints from the Candy Machine using its non-expired token.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: gatewayTokenAccount,
+        },
+      },
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: payer.publicKey,
+  });
+});
+
+test.skip('[candyMachineModule] gatekeeper guard: it forbids minting using gateway tokens that have expired', async (t) => {
   //
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it forbits minting using gateway tokens that have expired', async (t) => {
-  //
-});
+test.only('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
+  // Given a Gatekeeper Network.
+  const mx = await metaplex();
+  const { gatekeeperNetwork, gatekeeperAuthority } =
+    await createGatekeeperNetwork(mx);
 
-test.skip('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
-  //
+  // And a payer with a valid gateway Token Account from that network
+  // that is set to expire tomorrow.
+  const payer = await createWallet(mx, 10);
+  const tomorrowDateTime = toDateTime(now().addn(SECONDS_IN_A_DAY));
+  const gatewayTokenAccount = await issueGatewayToken(
+    mx,
+    gatekeeperNetwork.publicKey,
+    gatekeeperAuthority,
+    payer,
+    tomorrowDateTime
+  );
+
+  // And a loaded Candy Machine with a gatekeeper guard
+  // that mark tokens as expire after using them.
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      gatekeeper: {
+        network: gatekeeperNetwork.publicKey,
+        expireOnUse: true,
+      },
+    },
+  });
+
+  // When that payer mints from the Candy Machine using its token.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: gatewayTokenAccount,
+        },
+      },
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: payer.publicKey,
+  });
+
+  // And the gateway token is now expired.
+  // TODO
 });
 
 test.skip('[candyMachineModule] gatekeeper guard: it fails if the expire account is needed and not provided (maybe)', async (t) => {
