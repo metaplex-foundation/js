@@ -74,6 +74,10 @@ test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper 
   });
 });
 
+test.skip('[candyMachineModule] gatekeeper guard: it defaults to calculating the gateway token PDA for us', async (t) => {
+  //
+});
+
 test('[candyMachineModule] gatekeeper guard: it forbids minting when providing the wrong token', async (t) => {
   // Given a loaded Candy Machine with a gatekeeper guard.
   const mx = await metaplex();
@@ -107,6 +111,22 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
 
   // Then we expect an error.
   await assertThrows(t, promise, /Gateway token is not valid/);
+});
+
+test.skip('[candyMachineModule] gatekeeper guard: it allows minting using gateway tokens that expire when there are still valid', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] gatekeeper guard: it forbits minting using gateway tokens that have expired', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] gatekeeper guard: it fails if the expire account is needed and not provided (maybe)', async (t) => {
+  //
 });
 
 test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax when trying to mint using the wrong token', async (t) => {
