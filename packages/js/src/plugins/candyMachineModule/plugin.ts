@@ -52,7 +52,7 @@ import {
   CandyGuardProgram,
   candyMachineProgram,
   defaultCandyGuardProgram,
-  gatewayProgram,
+  gatekeeperProgram,
 } from './programs';
 
 /** @group Plugins */
@@ -81,7 +81,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     };
 
     // Gateway Program.
-    metaplex.programs().register(gatewayProgram);
+    metaplex.programs().register(gatekeeperProgram);
 
     // Default Guards.
     client.guards().register(botTaxGuardManifest);

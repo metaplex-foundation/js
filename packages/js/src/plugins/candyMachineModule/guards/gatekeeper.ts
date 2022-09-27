@@ -11,7 +11,8 @@ export type GatekeeperGuardSettings = Gatekeeper;
 
 /** TODO */
 export type GatekeeperGuardMintSettings = {
-  gatewayTokenAccount: PublicKey;
+  tokenAccount: PublicKey;
+  expireAccount?: PublicKey;
 };
 
 /** @internal */
@@ -22,13 +23,7 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
   name: 'gatekeeper',
   settingsBytes: 33,
   settingsSerializer: createSerializerFromBeet(gatekeeperBeet),
-  mintSettingsParser: ({
-    metaplex,
-    settings,
-    mintSettings,
-    payer,
-    programs,
-  }) => {
+  mintSettingsParser: ({ metaplex, settings, mintSettings, programs }) => {
     if (!mintSettings) {
       throw new GuardMitingSettingsMissingError('gatekeeper');
     }
@@ -36,10 +31,28 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
     const remainingAccounts: CandyGuardsMintRemainingAccount[] = [
       {
         isSigner: false,
-        address: tokenAccount,
+        address: mintSettings.tokenAccount,
         isWritable: true,
       },
     ];
+
+    if (settings.expireOnUse) {
+      if (!mintSettings.expireAccount) {
+        // TODO: Custom error.
+        throw new Error('expireAccount is required when minting');
+      }
+
+      remainingAccounts.push({
+        isSigner: false,
+        address: metaplex.programs().get('GatekeeperProgram', programs).address,
+        isWritable: false,
+      });
+      remainingAccounts.push({
+        isSigner: false,
+        address: mintSettings.expireAccount,
+        isWritable: true,
+      });
+    }
 
     return {
       arguments: Buffer.from([]),
