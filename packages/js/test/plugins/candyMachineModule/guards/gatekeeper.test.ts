@@ -1,5 +1,13 @@
-import { isEqualToAmount, PublicKey, sol, toBigNumber } from '@/index';
+import {
+  isEqualToAmount,
+  Pda,
+  PublicKey,
+  sol,
+  toBigNumber,
+  TransactionBuilder,
+} from '@/index';
 import { Keypair } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import test from 'tape';
 import {
   assertThrows,
@@ -8,29 +16,70 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import { addGatekeeper, issueVanilla } from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
 
-const CIVIC_NETWORK = new PublicKey(
-  'ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6'
-);
-
-test.skip('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
-  // Given a loaded Candy Machine with a gatekeeper guard.
+test.only('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
+  // Given a Gatekeeper Network.
   const mx = await metaplex();
+  const GATEWAY_PROGRAM = new PublicKey(
+    'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs'
+  );
+  const gatekeeperAuthority = await createWallet(mx, 10);
+  const gatekeeperNetwork = Keypair.generate();
+  const gatekeeperAccount = Pda.find(GATEWAY_PROGRAM, [
+    gatekeeperAuthority.publicKey.toBuffer(),
+    gatekeeperNetwork.publicKey.toBuffer(),
+    Buffer.from('gatekeeper'),
+  ]);
+  const addGatekeeperTx = TransactionBuilder.make().add({
+    instruction: addGatekeeper(
+      gatekeeperAuthority.publicKey,
+      gatekeeperAccount,
+      gatekeeperAuthority.publicKey,
+      gatekeeperNetwork.publicKey
+    ),
+    signers: [gatekeeperAuthority, gatekeeperNetwork],
+  });
+  await addGatekeeperTx.sendAndConfirm(mx);
+
+  // And a payer with a valid gateway Token Account from that network.
+  const payer = await createWallet(mx, 10);
+  const seeds = [0, 0, 0, 0, 0, 0, 0, 0];
+  const gatewayTokenAccount = Pda.find(GATEWAY_PROGRAM, [
+    payer.publicKey.toBuffer(),
+    Buffer.from('gateway'),
+    Buffer.from(seeds),
+    gatekeeperNetwork.publicKey.toBuffer(),
+  ]);
+  const issueVanillaTx = TransactionBuilder.make().add({
+    instruction: issueVanilla(
+      gatewayTokenAccount,
+      payer.publicKey,
+      gatekeeperAccount,
+      payer.publicKey,
+      gatekeeperAuthority.publicKey,
+      gatekeeperNetwork.publicKey,
+      Buffer.from(seeds)
+    ),
+    signers: [payer, gatekeeperAuthority],
+  });
+  await issueVanillaTx.sendAndConfirm(mx);
+
+  // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
-        network: CIVIC_NETWORK,
+        network: gatekeeperNetwork.publicKey,
         expireOnUse: false,
       },
     },
   });
 
-  // When we mint from it.
-  const payer = await createWallet(mx, 10);
+  // When that payer mints from the Candy Machine using its CIVIC pass.
   const { nft } = await mx
     .candyMachines()
     .mint({
@@ -39,7 +88,7 @@ test.skip('[candyMachineModule] gatekeeper guard: it allows minting via a gateke
       payer,
       guards: {
         gatekeeper: {
-          tokenAccount: CIVIC_NETWORK,
+          tokenAccount: gatewayTokenAccount,
         },
       },
     })
@@ -62,7 +111,7 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
-        network: CIVIC_NETWORK,
+        network: Keypair.generate().publicKey,
         expireOnUse: false,
       },
     },
@@ -101,7 +150,7 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
         lastInstruction: true,
       },
       gatekeeper: {
-        network: CIVIC_NETWORK,
+        network: Keypair.generate().publicKey,
         expireOnUse: false,
       },
     },
@@ -143,7 +192,7 @@ test('[candyMachineModule] gatekeeper guard: it fails if no mint settings are pr
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
-        network: CIVIC_NETWORK,
+        network: Keypair.generate().publicKey,
         expireOnUse: false,
       },
     },

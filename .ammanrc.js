@@ -21,6 +21,7 @@ const programIds = {
   auctionHouse: 'hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk',
   candyMachineCore: 'CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR',
   candyGuard: 'CnDYGRdU51FsSyLnVgSd19MCFxA4YHT5h3nacvCKMPUJ',
+  gateway: 'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs',
 };
 
 const programs = [
@@ -48,6 +49,11 @@ const programs = [
     label: 'Candy Guard',
     programId: programIds.candyGuard,
     deployPath: localDeployPath('mpl_candy_guard'),
+  },
+  {
+    label: 'Gateway',
+    programId: programIds.gateway,
+    deployPath: localDeployPath('solana_gateway_program'),
   },
 ];
 
