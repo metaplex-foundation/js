@@ -33,10 +33,7 @@ import {
   TokenGateGuardMintSettings,
   TokenGateGuardSettings,
 } from './tokenGate';
-import {
-  TokenPaymentGuardMintSettings,
-  TokenPaymentGuardSettings,
-} from './tokenPayment';
+import { TokenPaymentGuardSettings } from './tokenPayment';
 
 /**
  * The settings for all default Candy Machine guards.
@@ -66,7 +63,7 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
 export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // botTax: no mint settings
   // solPayment: no mint settings
-  tokenPayment: Option<TokenPaymentGuardMintSettings>;
+  // tokenPayment: no mint settings
   // startDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
   tokenGate: Option<TokenGateGuardMintSettings>;
