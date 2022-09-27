@@ -1,10 +1,16 @@
 import { createSerializerFromBeet, PublicKey } from '@/types';
-import { NftBurn, nftBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { nftBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The nftBurn guard ...
+ * The nftBurn guard restricts the mint to holders of a predefined
+ * NFT Collection and burns the holder's NFT when minting.
+ *
+ * This means the mint address of the NFT to burn must be
+ * passed when minting. This guard alone does not limit how many
+ * times a holder can mint. A holder can mint as many times
+ * as they have NFTs of the collection to burn.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -13,7 +19,10 @@ import { CandyGuardManifest } from './core';
  * @see {@link NftBurnGuardMintSettings} for more
  * information on the mint settings of this guard.
  */
-export type NftBurnGuardSettings = NftBurn;
+export type NftBurnGuardSettings = {
+  /** The mint address of the required NFT Collection. */
+  requiredCollection: PublicKey;
+};
 
 /**
  * The settings for the nftBurn guard that could
@@ -23,8 +32,21 @@ export type NftBurnGuardSettings = NftBurn;
  * information on the nftBurn guard itself.
  */
 export type NftBurnGuardMintSettings = {
+  /**
+   * The mint address of the NFT to burn.
+   * This must be part of the required collection and must
+   * belong to the payer.
+   */
   mint: PublicKey;
-  tokenAccount?: PublicKey; // Defaults to ATA.
+
+  /**
+   * The token account linking the NFT with its owner.
+   *
+   * @defaultValue
+   * Defaults to the associated token address using the
+   * mint address of the NFT and the payer's address.
+   */
+  tokenAccount?: PublicKey;
 };
 
 /** @internal */

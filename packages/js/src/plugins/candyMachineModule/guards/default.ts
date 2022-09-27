@@ -38,7 +38,9 @@ import {
   TokenPaymentGuardSettings,
 } from './tokenPayment';
 
-/** TODO */
+/**
+ * The settings for all default Candy Machine guards.
+ */
 export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   botTax: Option<BotTaxGuardSettings>;
   solPayment: Option<SolPaymentGuardSettings>;
@@ -58,7 +60,9 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   tokenBurn: Option<TokenBurnGuardSettings>;
 };
 
-/** TODO */
+/**
+ * The mint settings for all default Candy Machine guards.
+ */
 export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // botTax: no mint settings
   // solPayment: no mint settings

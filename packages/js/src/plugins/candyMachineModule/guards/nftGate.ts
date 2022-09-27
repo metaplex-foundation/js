@@ -1,10 +1,14 @@
 import { createSerializerFromBeet, PublicKey } from '@/types';
-import { NftGate, nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The nftGate guard ...
+ * The nftGate guard restricts minting to holders
+ * of a specified NFT collection.
+ *
+ * This means the mint address of an NFT from this
+ * collection must be passed when minting.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -13,7 +17,10 @@ import { CandyGuardManifest } from './core';
  * @see {@link NftGateGuardMintSettings} for more
  * information on the mint settings of this guard.
  */
-export type NftGateGuardSettings = NftGate;
+export type NftGateGuardSettings = {
+  /** The mint address of the required NFT Collection. */
+  requiredCollection: PublicKey;
+};
 
 /**
  * The settings for the nftGate guard that could
@@ -23,8 +30,20 @@ export type NftGateGuardSettings = NftGate;
  * information on the nftGate guard itself.
  */
 export type NftGateGuardMintSettings = {
+  /**
+   * The mint address of an NFT from the required
+   * collection that belongs to the payer.
+   */
   mint: PublicKey;
-  tokenAccount?: PublicKey; // Defaults to ATA.
+
+  /**
+   * The token account linking the NFT with its owner.
+   *
+   * @defaultValue
+   * Defaults to the associated token address using the
+   * mint address of the NFT and the payer's address.
+   */
+  tokenAccount?: PublicKey;
 };
 
 /** @internal */
