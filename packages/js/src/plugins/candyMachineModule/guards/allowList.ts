@@ -6,7 +6,31 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The allowList guard ...
+ * The allowList guard validates the minting wallet against
+ * a predefined list of wallets.
+ *
+ * Instead of passing the entire list of wallets as settings,
+ * this guard accepts the Root of a Merkle Tree created from
+ * this allow list. The program can then validate that the minting
+ * wallet is part of the allow list by requiring a Merkle Proof.
+ * Minting will fail if either the minting address is not part of
+ * the merkle tree or if no Merkle Proof is specified.
+ *
+ * You may use the `getMerkleRoot` and `getMerkleProof` helper
+ * functions provided by the SDK to help you set up this guard.
+ * Here is an example.
+ *
+ * ```ts
+ * import { getMerkleProof, getMerkleRoot } from '@metaplex-foundation/js';
+ * const allowList = [
+ *   'Ur1CbWSGsXCdedknRbJsEk7urwAvu1uddmQv51nAnXB',
+ *   'GjwcWFQYzemBtpUoN5fMAP2FZviTtMRWCmrppGuTthJS',
+ *   'AT8nPwujHAD14cLojTcB1qdBzA1VXnT6LVGuUd6Y73Cy',
+ * ];
+ * const merkleRoot = getMerkleRoot(allowList);
+ * const validMerkleProof = getMerkleProof(allowList, 'Ur1CbWSGsXCdedknRbJsEk7urwAvu1uddmQv51nAnXB');
+ * const invalidMerkleProof = getMerkleProof(allowList, 'invalid-address');
+ * ```
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -16,6 +40,10 @@ import { CandyGuardManifest } from './core';
  * information on the mint settings of this guard.
  */
 export type AllowListGuardSettings = {
+  /**
+   * The Root of the Merkle Tree representing the allow list.
+   * You may use the `getMerkleRoot` helper function to generate this.
+   */
   merkleRoot: Uint8Array;
 };
 
@@ -27,6 +55,11 @@ export type AllowListGuardSettings = {
  * information on the allowList guard itself.
  */
 export type AllowListGuardMintSettings = {
+  /**
+   * The Proof that the minting wallet is part of the
+   * Merkle Tree-based allow list. You may use the
+   * `getMerkleProof` helper function to generate this.
+   */
   merkleProof: Uint8Array[];
 };
 
