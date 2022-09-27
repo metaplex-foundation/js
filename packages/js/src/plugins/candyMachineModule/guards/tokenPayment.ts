@@ -15,7 +15,13 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The tokenPayment guard ...
+ * The tokenPayment guard allows minting by charging the
+ * payer a specific amount of tokens from a certain mint acount.
+ * The tokens will be transfered to a predefined destination.
+ *
+ * This guard alone does not limit how many times a holder
+ * can mint. A holder can mint as many times as they have
+ * the required amount of tokens to pay with.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -25,8 +31,13 @@ import { CandyGuardManifest } from './core';
  * information on the mint settings of this guard.
  */
 export type TokenPaymentGuardSettings = {
-  amount: SplTokenAmount;
+  /** The mint address of the required tokens. */
   tokenMint: PublicKey;
+
+  /** The amount of tokens required to mint an NFT. */
+  amount: SplTokenAmount;
+
+  /** The associated token address to send the tokens to. */
   destinationAta: PublicKey;
 };
 
@@ -38,6 +49,12 @@ export type TokenPaymentGuardSettings = {
  * information on the tokenPayment guard itself.
  */
 export type TokenPaymentGuardMintSettings = {
+  /**
+   * The payer of the required tokens.
+   *
+   * @defaultValue
+   * Defaults to the minting wallet.
+   */
   tokenOwner: Signer; // TODO: Default to payer.
 };
 
