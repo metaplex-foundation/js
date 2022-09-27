@@ -4,15 +4,23 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the nftBurn guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The nftBurn guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link NftBurnGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type NftBurnGuardSettings = NftBurn;
 
 /**
  * The settings for the nftBurn guard that could
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link NftBurnGuardSettings} for more
+ * information on the nftBurn guard itself.
  */
 export type NftBurnGuardMintSettings = {
   mint: PublicKey;

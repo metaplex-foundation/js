@@ -15,9 +15,14 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the tokenPayment guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The tokenPayment guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link TokenPaymentGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type TokenPaymentGuardSettings = {
   amount: SplTokenAmount;
@@ -28,9 +33,12 @@ export type TokenPaymentGuardSettings = {
 /**
  * The settings for the tokenPayment guard that could
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link TokenPaymentGuardSettings} for more
+ * information on the tokenPayment guard itself.
  */
 export type TokenPaymentGuardMintSettings = {
-  tokenOwner: Signer;
+  tokenOwner: Signer; // TODO: Default to payer.
 };
 
 /** @internal */

@@ -6,15 +6,23 @@ import {
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the nftPayment guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The nftPayment guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link NftPaymentGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type NftPaymentGuardSettings = NftPayment;
 
 /**
  * The settings for the nftPayment guard that could
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link NftPaymentGuardSettings} for more
+ * information on the nftPayment guard itself.
  */
 export type NftPaymentGuardMintSettings = {};
 

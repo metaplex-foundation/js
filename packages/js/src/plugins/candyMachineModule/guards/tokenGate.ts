@@ -9,9 +9,14 @@ import { TokenGate, tokenGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the tokenGate guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The tokenGate guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link TokenGateGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type TokenGateGuardSettings = {
   mint: PublicKey;
@@ -21,6 +26,9 @@ export type TokenGateGuardSettings = {
 /**
  * The settings for the tokenGate guard that could
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link TokenGateGuardSettings} for more
+ * information on the tokenGate guard itself.
  */
 export type TokenGateGuardMintSettings = {
   tokenAccount?: PublicKey;

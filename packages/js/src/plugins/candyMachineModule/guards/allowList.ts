@@ -6,9 +6,14 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the allowList guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The allowList guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link AllowListGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type AllowListGuardSettings = {
   merkleRoot: Uint8Array;
@@ -17,6 +22,9 @@ export type AllowListGuardSettings = {
 /**
  * The settings for the allowList guard that could
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link AllowListGuardSettings} for more
+ * information on the allowList guard itself.
  */
 export type AllowListGuardMintSettings = {
   merkleProof: Uint8Array[];

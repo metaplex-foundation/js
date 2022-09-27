@@ -6,9 +6,11 @@ import {
 import { CandyGuardManifest } from './core';
 
 /**
- * The settings for the addressGate guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The addressGate guard ...
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
  */
 export type AddressGateGuardSettings = AddressGate;
 
