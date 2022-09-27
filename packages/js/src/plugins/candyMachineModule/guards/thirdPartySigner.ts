@@ -1,4 +1,4 @@
-import { createSerializerFromBeet, Signer } from '@/types';
+import { createSerializerFromBeet, PublicKey, Signer } from '@/types';
 import {
   ThirdPartySigner,
   thirdPartySignerBeet,
@@ -8,7 +8,12 @@ import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
- * The thirdPartySigner guard ...
+ * The thirdPartySigner guard requires a predefined
+ * address to sign the mint transaction. The signer will need
+ * to be passed within the mint settings of this guard.
+ *
+ * This allows for more centralized mints where every single
+ * mint transaction has to go through a specific signer.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -17,7 +22,13 @@ import { CandyGuardManifest } from './core';
  * @see {@link ThirdPartySignerGuardMintSettings} for more
  * information on the mint settings of this guard.
  */
-export type ThirdPartySignerGuardSettings = ThirdPartySigner;
+export type ThirdPartySignerGuardSettings = {
+  /**
+   * The address of the signer that will
+   * need to sign each mint transaction.
+   */
+  signerKey: PublicKey;
+};
 
 /**
  * The settings for the thirdPartySigner guard that could
@@ -27,6 +38,7 @@ export type ThirdPartySignerGuardSettings = ThirdPartySigner;
  * information on the thirdPartySigner guard itself.
  */
 export type ThirdPartySignerGuardMintSettings = {
+  /** The required third party signer. */
   signer: Signer;
 };
 
