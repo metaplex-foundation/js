@@ -6,22 +6,32 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../../helpers';
-import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import {
+  assertMintingWasSuccessful,
+  createCandyMachine,
+  SEQUENTIAL_ITEM_SETTINGS,
+} from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] redeemedAmount guard: it allows TODO', async (t) => {
-  // Given a loaded Candy Machine with TODO.
+test('[candyMachineModule] redeemedAmount guard: it allows minting until a threshold of NFTs have been redeemed', async (t) => {
+  // Given a loaded Candy Machine with a redeemedAmount guard with a threshold of 1 NFT.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
-    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    ],
     guards: {
-      TODO: {},
+      redeemedAmount: {
+        maximum: toBigNumber(1),
+      },
     },
   });
 
-  // When we mint from it.
+  // When we mint its first item.
   const payer = await createWallet(mx, 10);
   const { nft } = await mx
     .candyMachines()
@@ -41,15 +51,94 @@ test.skip('[candyMachineModule] redeemedAmount guard: it allows TODO', async (t)
   });
 });
 
-test.skip('[candyMachineModule] redeemedAmount guard: it forbids TODO', async (t) => {
-  //
+test('[candyMachineModule] redeemedAmount guard: it forbids minting once the redeemed threshold has been reached', async (t) => {
+  // Given a loaded Candy Machine with a redeemedAmount guard with a threshold of 1 NFT.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    ],
+    guards: {
+      redeemedAmount: {
+        maximum: toBigNumber(1),
+      },
+    },
+  });
+
+  // And assuming its first item has already been minted.
+  await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer: await createWallet(mx, 10),
+    })
+    .run();
+
+  // When we try to mint its second item.
+  const payer = await createWallet(mx, 10);
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /Current redemeed items is at the set maximum amount/
+  );
 });
 
-test.skip('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
-  // TODO
+test('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot tax when trying to mint once the threshold has been reached', async (t) => {
+  // Given a loaded Candy Machine with a bot tax guard
+  // and a redeemedAmount guard with a threshold of 1 NFT.
   const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+    ],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      redeemedAmount: {
+        maximum: toBigNumber(1),
+      },
+    },
+  });
+
+  // And assuming its first item has already been minted.
+  await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer: await createWallet(mx, 10),
+    })
+    .run();
+
+  // When we try to mint its second item.
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
