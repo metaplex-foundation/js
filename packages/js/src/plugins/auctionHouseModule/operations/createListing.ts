@@ -407,6 +407,7 @@ export const createListingBuilder = (
     key.pubkey.equals(signer.publicKey)
   );
   sellInstruction.keys[signerKeyIndex].isSigner = true;
+  sellInstruction.keys[signerKeyIndex].isWritable = true;
 
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug

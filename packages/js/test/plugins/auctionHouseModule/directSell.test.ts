@@ -101,9 +101,9 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
-  const authority = await createWallet(mx);
-  const bookkeeper = await createWallet(mx);
   const seller = await createWallet(mx);
+  const authority = Keypair.generate();
+  const bookkeeper = Keypair.generate();
 
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
   const auctionHouse = await createAuctionHouse(mx, null, {
