@@ -79,22 +79,27 @@ test.skip('[candyMachineModule] gatekeeper guard: it defaults to calculating the
 });
 
 test('[candyMachineModule] gatekeeper guard: it forbids minting when providing the wrong token', async (t) => {
-  // Given a loaded Candy Machine with a gatekeeper guard.
+  // Given a Gatekeeper Network.
   const mx = await metaplex();
+  const { gatekeeperNetwork } = await createGatekeeperNetwork(mx);
+
+  // And a payer without a valid gateway Token Account from that network.
+  const payer = await createWallet(mx, 10);
+  const wrongToken = Keypair.generate().publicKey;
+
+  // Given a loaded Candy Machine with a gatekeeper guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
-        network: Keypair.generate().publicKey,
+        network: gatekeeperNetwork.publicKey,
         expireOnUse: false,
       },
     },
   });
 
-  // When we try to mint from it with the wrong token.
-  const payer = await createWallet(mx, 10);
-  const wrongTokenAccount = Keypair.generate().publicKey;
+  // When the payer tries to mint from it with the wrong token.
   const promise = mx
     .candyMachines()
     .mint({
@@ -103,7 +108,7 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
       payer,
       guards: {
         gatekeeper: {
-          tokenAccount: wrongTokenAccount,
+          tokenAccount: wrongToken,
         },
       },
     })
@@ -130,8 +135,15 @@ test.skip('[candyMachineModule] gatekeeper guard: it fails if the expire account
 });
 
 test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax when trying to mint using the wrong token', async (t) => {
-  // Given a loaded Candy Machine with a gatekeeper guard and a botTax guard.
+  // Given a Gatekeeper Network.
   const mx = await metaplex();
+  const { gatekeeperNetwork } = await createGatekeeperNetwork(mx);
+
+  // And a payer without a valid gateway Token Account from that network.
+  const payer = await createWallet(mx, 10);
+  const wrongToken = Keypair.generate().publicKey;
+
+  // Given a loaded Candy Machine with a gatekeeper guard and a botTax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -141,15 +153,13 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
         lastInstruction: true,
       },
       gatekeeper: {
-        network: Keypair.generate().publicKey,
+        network: gatekeeperNetwork.publicKey,
         expireOnUse: false,
       },
     },
   });
 
-  // When we try to mint from it with the wrong token.
-  const payer = await createWallet(mx, 10);
-  const wrongTokenAccount = Keypair.generate().publicKey;
+  // When the payer tries to mint from it with the wrong token.
   const promise = mx
     .candyMachines()
     .mint({
@@ -158,7 +168,7 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
       payer,
       guards: {
         gatekeeper: {
-          tokenAccount: wrongTokenAccount,
+          tokenAccount: wrongToken,
         },
       },
     })
