@@ -12,9 +12,18 @@ import { Buffer } from 'buffer';
 import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 
 /**
- * The settings for the gatekeeper guard that should
- * be provided when creating and/or updating
- * a Candy Machine or a Candy Guard directly.
+ * The gatekeeper guard checks whether the minting wallet
+ * has a valid Gateway Token from a specified Gateway Network.
+ *
+ * In most cases, this token will be obtain after completing a
+ * captcha challenge but any Gateway Network may be used.
+ *
+ * This object defines the settings that should be
+ * provided when creating and/or updating a Candy
+ * Machine if you wish to enable this guard.
+ *
+ * @see {@link GatekeeperGuardMintSettings} for more
+ * information on the mint settings of this guard.
  */
 export type GatekeeperGuardSettings = {
   /**
@@ -41,8 +50,11 @@ export type GatekeeperGuardSettings = {
 };
 
 /**
- * The settings for the gatekeeper guard that could
+ * The settings for the gatekeeper guard that may
  * be provided when minting from the Candy Machine.
+ *
+ * @see {@link GatekeeperGuardSettings} for more
+ * information on the gatekeeper guard itself.
  */
 export type GatekeeperGuardMintSettings = {
   /**
