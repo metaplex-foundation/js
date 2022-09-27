@@ -373,11 +373,11 @@ export const createBidBuilder = async (
 
   // Sell Instruction.
   let buyInstruction = tokenAccount
-  ? createBuyInstruction({ ...accounts, tokenAccount }, args)
-  : createPublicBuyInstruction(
-      { ...accounts, tokenAccount: buyerTokenAccount },
-      args
-    );
+    ? createBuyInstruction({ ...accounts, tokenAccount }, args)
+    : createPublicBuyInstruction(
+        { ...accounts, tokenAccount: buyerTokenAccount },
+        args
+      );
 
   if (params.auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
@@ -412,10 +412,12 @@ export const createBidBuilder = async (
 
   // Update the accounts to be signers since it's not covered properly by MPL due to its dynamic nature.
   buySigners.forEach((signer) => {
-    const signerKeyIndex = buyInstruction.keys.findIndex(({pubkey}) => pubkey.equals(signer.publicKey))
+    const signerKeyIndex = buyInstruction.keys.findIndex(({ pubkey }) =>
+      pubkey.equals(signer.publicKey)
+    );
 
     buyInstruction.keys[signerKeyIndex].isSigner = true;
-  })
+  });
 
   // Receipt.
   // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug

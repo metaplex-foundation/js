@@ -10,19 +10,14 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  AuctionHouse,
-  LazyPurchase,
-  Listing,
-  PrivateBid,
-  Purchase,
-} from '../models';
+import { AuctionHouse, Listing, PrivateBid, Purchase } from '../models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import { AuctioneerAuthorityRequiredError } from '../errors';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
 
 // -----------------
 // Operation
@@ -143,18 +138,10 @@ export type DirectSellOutput = {
  */
 export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
   {
-    handle: async (operation: DirectSellOperation, metaplex: Metaplex) => {
-      const { lazyPurchase, listing, response } = await (
+    handle: async (operation: DirectSellOperation, metaplex: Metaplex) =>
+      await (
         await directSellBuilder(metaplex, operation.input)
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
-
-      const purchase = await metaplex
-        .auctionHouse()
-        .loadPurchase({ lazyPurchase })
-        .run();
-
-      return { purchase, listing, response };
-    },
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions),
   };
 
 // -----------------
@@ -177,10 +164,7 @@ export type DirectSellBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type DirectSellBuilderContext = Omit<
-  DirectSellOutput,
-  'response' | 'purchase'
-> & { lazyPurchase: LazyPurchase };
+export type DirectSellBuilderContext = Omit<DirectSellOutput, 'response'>;
 
 /**
  * Creates a listing on a given asset and executes a sale on the created listing and given bid.
@@ -265,24 +249,37 @@ export const directSellBuilder = async (
     });
   const { receipt: receiptAddress } = saleBuilder.getContext();
 
-  const lazyPurchase: LazyPurchase = {
+  const buyerTokenAccount = findAssociatedTokenAccountPda(
+    asset.address,
+    buyerAddress
+  );
+  const purchasedAsset = {
+    ...asset,
+    token: {
+      ...asset.token,
+      address: buyerTokenAccount,
+      ownerAddress: buyerAddress,
+    },
+  };
+
+  const purchase: Purchase = {
     auctionHouse,
     model: 'purchase',
-    lazy: true,
+    lazy: false,
+    asset: purchasedAsset,
     buyerAddress,
     sellerAddress: toPublicKey(seller),
-    metadataAddress: asset.metadataAddress,
     bookkeeperAddress: toPublicKey(bookkeeper),
     receiptAddress,
     price: bid.price,
-    tokens: tokens.basisPoints,
+    tokens,
     createdAt: now(),
   };
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
     .setContext({
       listing,
-      lazyPurchase,
+      purchase,
     })
     .add(listingBuilder)
     .add(saleBuilder);
