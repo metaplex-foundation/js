@@ -7,6 +7,7 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import type { Signer } from '@/types';
+import { getSignerHistogram } from '@/types/Signer';
 import type { Metaplex } from '@/Metaplex';
 import { SendAndConfirmTransactionResponse } from '..';
 
@@ -174,10 +175,19 @@ export class TransactionBuilder<C extends object = object> {
     return this.when(!condition, callback);
   }
 
-  toTransaction(): Transaction {
+  toTransaction({
+    recentBlockhash = null,
+  }: { recentBlockhash?: Blockhash | null } = {}): Transaction {
     const tx = new Transaction(this.getTransactionOptions());
     tx.add(...this.getInstructions());
     tx.feePayer = this.getFeePayer();
+
+    if (recentBlockhash) {
+      tx.recentBlockhash = recentBlockhash;
+
+      const { keypairs } = getSignerHistogram(this.getSigners());
+      if (keypairs.length > 0) tx.partialSign(...keypairs);
+    }
 
     return tx;
   }
