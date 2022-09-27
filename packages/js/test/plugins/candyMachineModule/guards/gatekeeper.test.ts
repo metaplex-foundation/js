@@ -1,4 +1,4 @@
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, PublicKey, sol, toBigNumber } from '@/index';
 import test from 'tape';
 import {
   assertThrows,
@@ -10,14 +10,21 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
+const CIVIC_NETWORK = new PublicKey(
+  'ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6'
+);
+
 test.skip('[candyMachineModule] gatekeeper guard: it allows TODO', async (t) => {
-  // Given a loaded Candy Machine with TODO.
+  // Given a loaded Candy Machine with a gatekeeper guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
-      TODO: {},
+      gatekeeper: {
+        network: CIVIC_NETWORK,
+        expireOnUse: false,
+      },
     },
   });
 
@@ -29,6 +36,11 @@ test.skip('[candyMachineModule] gatekeeper guard: it allows TODO', async (t) => 
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: CIVIC_NETWORK,
+        },
+      },
     })
     .run();
 
@@ -62,14 +74,17 @@ test.skip('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot 
   );
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it fails if no mint settings are provided', async (t) => {
+test('[candyMachineModule] gatekeeper guard: it fails if no mint settings are provided', async (t) => {
   // Given a loaded Candy Machine with a gatekeeper guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
-      //
+      gatekeeper: {
+        network: CIVIC_NETWORK,
+        expireOnUse: false,
+      },
     },
   });
 

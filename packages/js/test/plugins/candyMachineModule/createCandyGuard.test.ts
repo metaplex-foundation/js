@@ -95,7 +95,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
           amount: token(5),
         },
         gatekeeper: {
-          gatekeeperNetwork,
+          network: gatekeeperNetwork,
           expireOnUse: true,
         },
         endDate: {
@@ -161,7 +161,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         amount: spokSameAmount(token(5)),
       },
       gatekeeper: {
-        gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
+        network: spokSamePubkey(gatekeeperNetwork),
         expireOnUse: true,
       },
       endDate: {
@@ -258,7 +258,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
               amount: sol(3),
               destination: mx.identity().publicKey,
             },
-            gatekeeper: { gatekeeperNetwork, expireOnUse: false },
+            gatekeeper: { network: gatekeeperNetwork, expireOnUse: false },
           },
         },
       ],
@@ -323,7 +323,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
             destination: spokSamePubkey(mx.identity().publicKey),
           },
           gatekeeper: {
-            gatekeeperNetwork: spokSamePubkey(gatekeeperNetwork),
+            network: spokSamePubkey(gatekeeperNetwork),
             expireOnUse: false,
           },
         },
