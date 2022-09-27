@@ -2,7 +2,6 @@ import {
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
-  Signer,
   SplTokenAmount,
   token,
 } from '@/types';
@@ -25,9 +24,6 @@ import { CandyGuardManifest } from './core';
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
  * Machine if you wish to enable this guard.
- *
- * @see {@link TokenPaymentGuardMintSettings} for more
- * information on the mint settings of this guard.
  */
 export type TokenPaymentGuardSettings = {
   /** The mint address of the required tokens. */
@@ -40,68 +36,48 @@ export type TokenPaymentGuardSettings = {
   destinationAta: PublicKey;
 };
 
-/**
- * The settings for the tokenPayment guard that could
- * be provided when minting from the Candy Machine.
- *
- * @see {@link TokenPaymentGuardSettings} for more
- * information on the tokenPayment guard itself.
- */
-export type TokenPaymentGuardMintSettings = {
-  /**
-   * The payer of the required tokens.
-   *
-   * @defaultValue
-   * Defaults to the minting wallet.
-   */
-  tokenOwner?: Signer;
-};
-
 /** @internal */
-export const tokenPaymentGuardManifest: CandyGuardManifest<
-  TokenPaymentGuardSettings,
-  TokenPaymentGuardMintSettings
-> = {
-  name: 'tokenPayment',
-  settingsBytes: 72,
-  settingsSerializer: mapSerializer<TokenPayment, TokenPaymentGuardSettings>(
-    createSerializerFromBeet(tokenPaymentBeet),
-    (settings) => ({ ...settings, amount: token(settings.amount) }),
-    (settings) => ({ ...settings, amount: settings.amount.basisPoints })
-  ),
-  mintSettingsParser: ({
-    metaplex,
-    settings,
-    mintSettings,
-    payer,
-    programs,
-  }) => {
-    const tokenOwner = mintSettings?.tokenOwner ?? payer;
-    const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
-      mint: settings.tokenMint,
-      owner: tokenOwner.publicKey,
+export const tokenPaymentGuardManifest: CandyGuardManifest<TokenPaymentGuardSettings> =
+  {
+    name: 'tokenPayment',
+    settingsBytes: 72,
+    settingsSerializer: mapSerializer<TokenPayment, TokenPaymentGuardSettings>(
+      createSerializerFromBeet(tokenPaymentBeet),
+      (settings) => ({ ...settings, amount: token(settings.amount) }),
+      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+    ),
+    mintSettingsParser: ({
+      metaplex,
+      settings,
+      mintSettings,
+      payer,
       programs,
-    });
+    }) => {
+      const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
+        mint: settings.tokenMint,
+        owner: payer.publicKey,
+        programs,
+      });
 
-    return {
-      arguments: Buffer.from([]),
-      remainingAccounts: [
-        {
-          isSigner: false,
-          address: tokenAddress,
-          isWritable: true,
-        },
-        {
-          isSigner: true,
-          address: tokenOwner,
-          isWritable: false,
-        },
-        {
-          isSigner: false,
-          address: settings.destinationAta,
-          isWritable: true,
-        },
-      ],
-    };
-  },
-};
+      return {
+        arguments: Buffer.from([]),
+        remainingAccounts: [
+          {
+            isSigner: false,
+            address: tokenAddress,
+            isWritable: true,
+          },
+          {
+            isSigner: true,
+            address: payer,
+            isWritable: false,
+          },
+          {
+            isSigner: false,
+            address: settings.destinationAta,
+            isWritable: true,
+          },
+        ],
+      };
+    },
+  };
