@@ -1,13 +1,19 @@
-import { createSerializerFromBeet, PublicKey } from '@/types';
+import { createSerializerFromBeet, mapSerializer, PublicKey } from '@/types';
 import {
   Gatekeeper,
   gatekeeperBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import {
+  GatekeeperGuardRequiresExpireAccountError,
+  GuardMitingSettingsMissingError,
+} from '../errors';
 import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 
 /** TODO */
-export type GatekeeperGuardSettings = Gatekeeper;
+export type GatekeeperGuardSettings = {
+  network: PublicKey;
+  expireOnUse: boolean;
+};
 
 /** TODO */
 export type GatekeeperGuardMintSettings = {
@@ -22,7 +28,11 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
 > = {
   name: 'gatekeeper',
   settingsBytes: 33,
-  settingsSerializer: createSerializerFromBeet(gatekeeperBeet),
+  settingsSerializer: mapSerializer<Gatekeeper, GatekeeperGuardSettings>(
+    createSerializerFromBeet(gatekeeperBeet),
+    (settings) => ({ ...settings, network: settings.gatekeeperNetwork }),
+    (settings) => ({ ...settings, gatekeeperNetwork: settings.network })
+  ),
   mintSettingsParser: ({ metaplex, settings, mintSettings, programs }) => {
     if (!mintSettings) {
       throw new GuardMitingSettingsMissingError('gatekeeper');
@@ -38,8 +48,7 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
 
     if (settings.expireOnUse) {
       if (!mintSettings.expireAccount) {
-        // TODO: Custom error.
-        throw new Error('expireAccount is required when minting');
+        throw new GatekeeperGuardRequiresExpireAccountError();
       }
 
       remainingAccounts.push({
