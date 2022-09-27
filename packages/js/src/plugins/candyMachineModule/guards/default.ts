@@ -7,7 +7,10 @@ import {
 import { BotTaxGuardSettings } from './botTax';
 import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
 import { EndDateGuardSettings } from './endDate';
-import { GatekeeperGuardSettings } from './gatekeeper';
+import {
+  GatekeeperGuardMintSettings,
+  GatekeeperGuardSettings,
+} from './gatekeeper';
 import { MintLimitGuardSettings } from './mintLimit';
 import { NftBurnGuardMintSettings, NftBurnGuardSettings } from './nftBurn';
 import { NftGateGuardMintSettings, NftGateGuardSettings } from './nftGate';
@@ -61,7 +64,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // startDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
   tokenGate: Option<TokenGateGuardMintSettings>;
-  gatekeeper: Option<{}>; // TODO
+  gatekeeper: Option<GatekeeperGuardMintSettings>;
   // endDate: no mint settings
   allowList: Option<AllowListGuardMintSettings>;
   // mintLimit: no mint settings

@@ -189,20 +189,3 @@ export class GuardMitingSettingsMissingError extends CandyMachineV3Error {
     });
   }
 }
-
-/** @group Errors */
-export class GatekeeperGuardRequiresExpireAccountError extends CandyMachineV3Error {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'gatekeeper_guard_requires_expire_account',
-      title: 'Gatekeeper Guard Requires Expire Account',
-      problem:
-        'The Candy Machine has the gatekeeper guard enabled with the `expireOnUse` ' +
-        'option set to `true` but no `expireAccount` was providing when minting. ',
-      solution:
-        'Please provide the `expireAccount` parameter as part of the ' +
-        'minting settings of the gatekeeper guard.',
-    });
-  }
-}

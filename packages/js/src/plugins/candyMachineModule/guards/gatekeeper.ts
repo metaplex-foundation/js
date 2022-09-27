@@ -1,12 +1,15 @@
-import { createSerializerFromBeet, mapSerializer, PublicKey } from '@/types';
+import {
+  createSerializerFromBeet,
+  mapSerializer,
+  Pda,
+  PublicKey,
+} from '@/types';
 import {
   Gatekeeper,
   gatekeeperBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import {
-  GatekeeperGuardRequiresExpireAccountError,
-  GuardMitingSettingsMissingError,
-} from '../errors';
+import { Buffer } from 'buffer';
+import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 
 /** TODO */
@@ -18,7 +21,6 @@ export type GatekeeperGuardSettings = {
 /** TODO */
 export type GatekeeperGuardMintSettings = {
   tokenAccount: PublicKey;
-  expireAccount?: PublicKey;
 };
 
 /** @internal */
@@ -47,18 +49,20 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
     ];
 
     if (settings.expireOnUse) {
-      if (!mintSettings.expireAccount) {
-        throw new GatekeeperGuardRequiresExpireAccountError();
-      }
+      const gatewayProgram = metaplex.programs().getGateway(programs);
+      const expireAccount = Pda.find(gatewayProgram.address, [
+        settings.network.toBuffer(),
+        Buffer.from('expire'),
+      ]);
 
       remainingAccounts.push({
         isSigner: false,
-        address: metaplex.programs().getGateway(programs).address,
+        address: gatewayProgram.address,
         isWritable: false,
       });
       remainingAccounts.push({
         isSigner: false,
-        address: mintSettings.expireAccount,
+        address: expireAccount,
         isWritable: false,
       });
     }
