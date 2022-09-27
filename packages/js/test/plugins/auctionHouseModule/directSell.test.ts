@@ -103,7 +103,6 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
   const buyer = await createWallet(mx);
   const seller = await createWallet(mx);
   const authority = Keypair.generate();
-  const bookkeeper = Keypair.generate();
 
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
   const auctionHouse = await createAuctionHouse(mx, null, {
@@ -130,7 +129,6 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
       auctionHouse,
       authority,
       seller,
-      bookkeeper,
       bid: bid as PrivateBid,
       printReceipt: true,
     })
@@ -142,7 +140,7 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     tokens: spokSameAmount(token(1)),
     buyerAddress: spokSamePubkey(buyer.publicKey),
     sellerAddress: spokSamePubkey(seller.publicKey),
-    bookkeeperAddress: spokSamePubkey(bookkeeper.publicKey),
+    bookkeeperAddress: spokSamePubkey(mx.identity().publicKey),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
