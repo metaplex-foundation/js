@@ -1,4 +1,5 @@
 import { isEqualToAmount, PublicKey, sol, toBigNumber } from '@/index';
+import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
   assertThrows,
@@ -14,7 +15,7 @@ const CIVIC_NETWORK = new PublicKey(
   'ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6'
 );
 
-test.skip('[candyMachineModule] gatekeeper guard: it allows TODO', async (t) => {
+test.skip('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
   // Given a loaded Candy Machine with a gatekeeper guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -53,15 +54,75 @@ test.skip('[candyMachineModule] gatekeeper guard: it allows TODO', async (t) => 
   });
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it forbids TODO', async (t) => {
-  //
+test('[candyMachineModule] gatekeeper guard: it forbids minting when providing the wrong token', async (t) => {
+  // Given a loaded Candy Machine with a gatekeeper guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      gatekeeper: {
+        network: CIVIC_NETWORK,
+        expireOnUse: false,
+      },
+    },
+  });
+
+  // When we try to mint from it with the wrong token.
+  const payer = await createWallet(mx, 10);
+  const wrongTokenAccount = Keypair.generate().publicKey;
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: wrongTokenAccount,
+        },
+      },
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Gateway token is not valid/);
 });
 
-test.skip('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax when trying to TODO', async (t) => {
-  // TODO
+test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax when trying to mint using the wrong token', async (t) => {
+  // Given a loaded Candy Machine with a gatekeeper guard and a botTax guard.
   const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      gatekeeper: {
+        network: CIVIC_NETWORK,
+        expireOnUse: false,
+      },
+    },
+  });
+
+  // When we try to mint from it with the wrong token.
   const payer = await createWallet(mx, 10);
-  const promise = (async () => {})();
+  const wrongTokenAccount = Keypair.generate().publicKey;
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: wrongTokenAccount,
+        },
+      },
+    })
+    .run();
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
