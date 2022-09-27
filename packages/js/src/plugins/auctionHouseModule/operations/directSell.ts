@@ -11,18 +11,12 @@ import {
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
-import {
-  isNftWithToken,
-  isSftWithToken,
-  NftWithToken,
-  SftWithToken,
-} from '../../nftModule/models';
+import { NftWithToken, SftWithToken } from '../../nftModule/models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 
 // -----------------
@@ -90,7 +84,12 @@ export type DirectSellInput = {
    *
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
-  bid: Omit<Bid, 'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'>;
+  bid: Omit<
+    Bid,
+    'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
+  > & {
+    asset: SftWithToken | NftWithToken;
+  };
 
   /**
    * The Auctioneer authority key.
@@ -151,7 +150,7 @@ export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
         .loadPurchase({ lazyPurchase })
         .run();
 
-      return { listing, purchase, response };
+      return { purchase, listing, response };
     },
   };
 
@@ -210,11 +209,8 @@ export const directSellBuilder = async (
     executeSaleInstructionKey,
   } = params;
   const { hasAuctioneer } = auctionHouse;
-  const { tokens, price, buyerAddress, isPublic, asset } = bid;
+  const { tokens, price, buyerAddress, asset } = bid;
 
-  const tokenAccount = isPublic
-    ? findAssociatedTokenAccountPda(asset.address, toPublicKey(buyerAddress))
-    : (asset as SftWithToken | NftWithToken).token.address;
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(bid.receiptAddress);
 
@@ -230,7 +226,7 @@ export const directSellBuilder = async (
       auctioneerAuthority,
       seller,
       authority,
-      tokenAccount,
+      tokenAccount: asset.token.address,
       tokens,
       printReceipt,
       bookkeeper,
@@ -238,28 +234,11 @@ export const directSellBuilder = async (
     });
   const { receipt, sellerTradeState } = listingBuilder.getContext();
 
-  let listingAsset: NftWithToken | SftWithToken;
-
-  if (isNftWithToken(asset) || isSftWithToken(asset)) {
-    listingAsset = asset;
-  } else {
-    // Load asset token if the bid was public and there is no token data in the asset model.
-    const asssetTokenAddress = findAssociatedTokenAccountPda(
-      asset.address,
-      toPublicKey(seller)
-    );
-
-    listingAsset = await metaplex
-      .nfts()
-      .findByToken({ token: asssetTokenAddress })
-      .run();
-  }
-
   const listing: Listing = {
     model: 'listing',
     lazy: false,
     auctionHouse,
-    asset: listingAsset,
+    asset,
     tradeStateAddress: sellerTradeState,
     bookkeeperAddress: toPublicKey(bookkeeper),
     sellerAddress: toPublicKey(seller),

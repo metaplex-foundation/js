@@ -158,7 +158,7 @@ export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
       .loadPurchase({ lazyPurchase })
       .run();
 
-    return { bid, purchase, response };
+    return { purchase, bid, response };
   },
 };
 
@@ -214,10 +214,9 @@ export const directBuyBuilder = async (
     executeSaleInstructionKey,
   } = params;
 
-  const { tokens, asset, sellerAddress } = listing;
+  const { tokens, asset, sellerAddress, receiptAddress } = listing;
 
-  const printReceipt =
-    (params.printReceipt ?? true) && Boolean(listing.receiptAddress);
+  const printReceipt = (params.printReceipt ?? true) && Boolean(receiptAddress);
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -266,7 +265,7 @@ export const directBuyBuilder = async (
       instructionKey: executeSaleInstructionKey,
     });
 
-  const { receipt: receiptAddress } = saleBuilder.getContext();
+  const { receipt: purchaseReceiptAddress } = saleBuilder.getContext();
 
   const lazyPurchase: LazyPurchase = {
     auctionHouse,
@@ -276,7 +275,7 @@ export const directBuyBuilder = async (
     sellerAddress,
     metadataAddress: asset.metadataAddress,
     bookkeeperAddress: toPublicKey(bookkeeper),
-    receiptAddress,
+    receiptAddress: purchaseReceiptAddress,
     price: listing.price,
     tokens: tokens.basisPoints,
     createdAt: now(),

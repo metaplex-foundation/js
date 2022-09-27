@@ -23,7 +23,7 @@ test('[auctionHouseModule] sell on an Auction House with minimum input', async (
   const nft = await createNft(mx);
   const auctionHouse = await createAuctionHouse(mx);
 
-  // And we put a public bid on that NFT for 1 SOL.
+  // And we put a private bid on that NFT for 1 SOL.
   const { bid } = await mx
     .auctionHouse()
     .bid({
@@ -74,7 +74,7 @@ test('[auctionHouseModule] sell on an Auction House with auctioneer', async (t: 
   const auctioneerAuthority = Keypair.generate();
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
-  // And we put a public bid on that NFT for 1 SOL.
+  // And we put a private bid on that NFT for 1 SOL.
   const { bid } = await mx
     .auctionHouse()
     .bid({
