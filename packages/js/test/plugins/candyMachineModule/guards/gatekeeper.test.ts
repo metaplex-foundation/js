@@ -1,4 +1,5 @@
 import {
+  assertAccountExists,
   DateTime,
   isEqualToAmount,
   Metaplex,
@@ -27,6 +28,7 @@ import {
   addFeatureToNetwork,
   NetworkFeature,
   UserTokenExpiry,
+  GatewayTokenData,
 } from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
@@ -185,7 +187,7 @@ test.skip('[candyMachineModule] gatekeeper guard: it forbids minting using gatew
   //
 });
 
-test.only('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
+test('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
   // Given a Gatekeeper Network.
   const mx = await metaplex();
   const { gatekeeperNetwork, gatekeeperAuthority } =
@@ -202,6 +204,9 @@ test.only('[candyMachineModule] gatekeeper guard: it may immediately mark gatewa
     payer,
     tomorrowDateTime
   );
+  const gatewayTokenData = await getGatewayTokenData(mx, gatewayTokenAccount);
+  t.true(!!gatewayTokenData.expiry, 'Gateway token expires');
+  t.equals(gatewayTokenData.expiry?.toNumber(), tomorrowDateTime.toNumber());
 
   // And a loaded Candy Machine with a gatekeeper guard
   // that mark tokens as expire after using them.
@@ -240,7 +245,16 @@ test.only('[candyMachineModule] gatekeeper guard: it may immediately mark gatewa
   });
 
   // And the gateway token is now expired.
-  // TODO
+  const updatedGatewayTokenData = await getGatewayTokenData(
+    mx,
+    gatewayTokenAccount
+  );
+  t.true(!!updatedGatewayTokenData.expiry, 'Gateway token expires');
+  const updateExpiry = updatedGatewayTokenData.expiry?.toNumber() as number;
+  t.true(
+    updateExpiry < tomorrowDateTime.toNumber(),
+    'Gateway token expiry date was shortened'
+  );
 });
 
 test.skip('[candyMachineModule] gatekeeper guard: it fails if the expire account is needed and not provided (maybe)', async (t) => {
@@ -412,4 +426,14 @@ const issueGatewayToken = async (
   await issueVanillaTx.sendAndConfirm(mx);
 
   return gatewayTokenAccount;
+};
+
+const getGatewayTokenData = async (
+  mx: Metaplex,
+  gatewayTokenAccount: PublicKey
+): Promise<GatewayTokenData> => {
+  const account = await mx.rpc().getAccount(gatewayTokenAccount);
+  assertAccountExists(account);
+
+  return GatewayTokenData.fromAccount(account.data);
 };
