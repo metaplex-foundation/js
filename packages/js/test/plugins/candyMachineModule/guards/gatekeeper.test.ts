@@ -86,8 +86,50 @@ test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper 
   });
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it defaults to calculating the gateway token PDA for us', async (t) => {
-  //
+test('[candyMachineModule] gatekeeper guard: it defaults to calculating the gateway token PDA for us', async (t) => {
+  // Given a Gatekeeper Network.
+  const mx = await metaplex();
+  const { gatekeeperNetwork, gatekeeperAuthority } =
+    await createGatekeeperNetwork(mx);
+
+  // And a payer with a valid gateway Token Account from that network.
+  const payer = await createWallet(mx, 10);
+  await issueGatewayToken(
+    mx,
+    gatekeeperNetwork.publicKey,
+    gatekeeperAuthority,
+    payer
+  );
+
+  // And a loaded Candy Machine with a gatekeeper guard on that network.
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      gatekeeper: {
+        network: gatekeeperNetwork.publicKey,
+        expireOnUse: false,
+      },
+    },
+  });
+
+  // When that payer mints from the Candy Machine without passing in its valid token.
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then minting was still successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: payer.publicKey,
+  });
 });
 
 test('[candyMachineModule] gatekeeper guard: it forbids minting when providing the wrong token', async (t) => {
@@ -183,8 +225,51 @@ test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tok
   });
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it forbids minting using gateway tokens that have expired', async (t) => {
-  //
+test('[candyMachineModule] gatekeeper guard: it forbids minting using gateway tokens that have expired', async (t) => {
+  // Given a Gatekeeper Network.
+  const mx = await metaplex();
+  const { gatekeeperNetwork, gatekeeperAuthority } =
+    await createGatekeeperNetwork(mx);
+
+  // And a payer with a gateway Token Account from that network that has expired.
+  const payer = await createWallet(mx, 10);
+  const expiredGatewayTokenAccount = await issueGatewayToken(
+    mx,
+    gatekeeperNetwork.publicKey,
+    gatekeeperAuthority,
+    payer,
+    toDateTime(now().subn(SECONDS_IN_A_DAY)) // Yesterday.
+  );
+
+  // And a loaded Candy Machine with a gatekeeper guard on that network.
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      gatekeeper: {
+        network: gatekeeperNetwork.publicKey,
+        expireOnUse: false,
+      },
+    },
+  });
+
+  // When the payer tries to mint from the Candy Machine using its expired token.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        gatekeeper: {
+          tokenAccount: expiredGatewayTokenAccount,
+        },
+      },
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /Gateway token is not valid/);
 });
 
 test('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tokens as expired after using them', async (t) => {
@@ -257,10 +342,6 @@ test('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tok
   );
 });
 
-test.skip('[candyMachineModule] gatekeeper guard: it fails if the expire account is needed and not provided (maybe)', async (t) => {
-  //
-});
-
 test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax when trying to mint using the wrong token', async (t) => {
   // Given a Gatekeeper Network.
   const mx = await metaplex();
@@ -309,38 +390,6 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
   t.true(
     isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
     'payer was charged a bot tax'
-  );
-});
-
-test('[candyMachineModule] gatekeeper guard: it fails if no mint settings are provided', async (t) => {
-  // Given a loaded Candy Machine with a gatekeeper guard.
-  const mx = await metaplex();
-  const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
-    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
-    guards: {
-      gatekeeper: {
-        network: Keypair.generate().publicKey,
-        expireOnUse: false,
-      },
-    },
-  });
-
-  // When we try to mint from it without providing
-  // any mint settings for the gatekeeper guard.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    })
-    .run();
-
-  // Then we expect an error.
-  await assertThrows(
-    t,
-    promise,
-    /Please provide some minting settings for the \[gatekeeper\] guard/
   );
 });
 

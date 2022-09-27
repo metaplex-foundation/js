@@ -9,7 +9,6 @@ import {
   gatekeeperBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
 import { Buffer } from 'buffer';
-import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 
 /** TODO */
@@ -20,7 +19,7 @@ export type GatekeeperGuardSettings = {
 
 /** TODO */
 export type GatekeeperGuardMintSettings = {
-  tokenAccount: PublicKey;
+  tokenAccount?: PublicKey;
 };
 
 /** @internal */
@@ -35,21 +34,32 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
     (settings) => ({ ...settings, network: settings.gatekeeperNetwork }),
     (settings) => ({ ...settings, gatekeeperNetwork: settings.network })
   ),
-  mintSettingsParser: ({ metaplex, settings, mintSettings, programs }) => {
-    if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('gatekeeper');
-    }
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    mintSettings,
+    payer,
+    programs,
+  }) => {
+    const gatewayProgram = metaplex.programs().getGateway(programs);
+    const tokenAccount =
+      mintSettings?.tokenAccount ??
+      Pda.find(gatewayProgram.address, [
+        payer.publicKey.toBuffer(),
+        Buffer.from('gateway'),
+        Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]),
+        settings.network.toBuffer(),
+      ]);
 
     const remainingAccounts: CandyGuardsMintRemainingAccount[] = [
       {
         isSigner: false,
-        address: mintSettings.tokenAccount,
+        address: tokenAccount,
         isWritable: true,
       },
     ];
 
     if (settings.expireOnUse) {
-      const gatewayProgram = metaplex.programs().getGateway(programs);
       const expireAccount = Pda.find(gatewayProgram.address, [
         settings.network.toBuffer(),
         Buffer.from('expire'),
