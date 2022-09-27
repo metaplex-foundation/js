@@ -10,7 +10,7 @@ import { CandyGuardManifest } from './core';
  * This means the mint address of the NFT to burn must be
  * passed when minting. This guard alone does not limit how many
  * times a holder can mint. A holder can mint as many times
- * as they have NFTs of the collection to burn.
+ * as they have NFTs from the required collection to burn.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy

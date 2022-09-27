@@ -1,12 +1,16 @@
-import { createSerializerFromBeet } from '@/types';
-import {
-  NftPayment,
-  nftPaymentBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { createSerializerFromBeet, PublicKey } from '@/types';
+import { nftPaymentBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
 /**
- * The nftPayment guard ...
+ * The nftPayment guard allows minting by charging the
+ * payer an NFT from a specified NFT collection.
+ * The NFT will be transfered to a predefined destination.
+ *
+ * This means the mint address of the NFT to transfer must be
+ * passed when minting. This guard alone does not limit how many
+ * times a holder can mint. A holder can mint as many times
+ * as they have NFTs from the required collection to pay with.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -15,7 +19,13 @@ import { CandyGuardManifest } from './core';
  * @see {@link NftPaymentGuardMintSettings} for more
  * information on the mint settings of this guard.
  */
-export type NftPaymentGuardSettings = NftPayment;
+export type NftPaymentGuardSettings = {
+  /** TODO */
+  requiredCollection: PublicKey;
+
+  /** TODO */
+  destinationAta: PublicKey;
+};
 
 /**
  * The settings for the nftPayment guard that could
@@ -24,7 +34,9 @@ export type NftPaymentGuardSettings = NftPayment;
  * @see {@link NftPaymentGuardSettings} for more
  * information on the nftPayment guard itself.
  */
-export type NftPaymentGuardMintSettings = {};
+export type NftPaymentGuardMintSettings = {
+  /** TODO */
+};
 
 /** @internal */
 export const nftPaymentGuardManifest: CandyGuardManifest<
