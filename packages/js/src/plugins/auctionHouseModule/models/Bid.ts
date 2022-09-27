@@ -17,84 +17,97 @@ import { AuctionHouse } from './AuctionHouse';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 /** @group Models */
-export type Bid = Readonly<
-  {
-    /** A model identifier to distinguish models in the SDK. */
-    model: 'bid';
+export type Bid = Readonly<PublicBid | PrivateBid>;
 
+export type PublicBid = Readonly<
+  BaseBid & {
     /**
-     * Whether or not the asset was loaded.
-     * When this is `false`, it means the Bid includes asset model.
+     * The bid is public.
+     * This means that a bid can stay active beyond the end of an auction
+     * and be resolved if it meets the criteria for subsequent auctions of that token.
      */
-    lazy: false;
+    isPublic: true;
 
-    /** A model of the Auction House related to this bid. */
-    auctionHouse: AuctionHouse;
-
-    /** The address of the buyer's trade state account. */
-    tradeStateAddress: Pda;
-
-    /** The address of the buyer's wallet. */
-    buyerAddress: PublicKey;
-
-    /**
-     * The address of the bookkeeper account.
-     * It is responsible for signing a Bid Receipt Print.
-     */
-    bookkeeperAddress: Option<PublicKey>;
-
-    /**
-     * The address of the bid receipt account.
-     * This is the account that stores information about this bid.
-     * The Bid model is built on top of this account.
-     */
-    receiptAddress: Option<Pda>;
-
-    /**
-     * The address of the purchase receipt account.
-     * This is the account that stores information about the purchase related to this bid.
-     *
-     * ```ts
-     * const transactionBuilder = metaplex
-     *   .auctionHouse()
-     *   .builders()
-     *   .findPurchaseByReceipt({ auctionHouse, receiptAddress: purchaseReceiptAddress });
-     * ```
-     */
-    purchaseReceiptAddress: Option<PublicKey>;
-
-    /** The buyer's price. */
-    price: SolAmount | SplTokenAmount;
-
-    /** The number of tokens bid is for. */
-    tokens: SplTokenAmount;
-
-    /** The date of creation. */
-    createdAt: DateTime;
-
-    /** The date of cancellation. */
-    canceledAt: Option<DateTime>;
-  } & (
-    | {
-        /** The bid is not public, which means that it was created according to the listing. */
-        isPublic: false;
-
-        /** The Nft or Sft with the associated token account. */
-        asset: SftWithToken | NftWithToken;
-      }
-    | {
-        /**
-         * The bid is public.
-         * This means that a bid can stay active beyond the end of an auction
-         * and be resolved if it meets the criteria for subsequent auctions of that token.
-         */
-        isPublic: true;
-
-        /** The Nft or Sft related to the Bid. */
-        asset: Sft | Nft;
-      }
-  )
+    /** The Nft or Sft related to the Bid. */
+    asset: Sft | Nft;
+  }
 >;
+
+export type PrivateBid = Readonly<
+  BaseBid & {
+    /** The bid is not public, which means that it was created according to the listing. */
+    isPublic: false;
+
+    /** The Nft or Sft with the associated token account. */
+    asset: SftWithToken | NftWithToken;
+  }
+>;
+
+export type BaseBid = Readonly<{
+  /** A model identifier to distinguish models in the SDK. */
+  model: 'bid';
+
+  /**
+   * Whether or not the asset was loaded.
+   * When this is `false`, it means the Bid includes asset model.
+   */
+  lazy: false;
+
+  /** A model of the Auction House related to this bid. */
+  auctionHouse: AuctionHouse;
+
+  /** The address of the buyer's trade state account. */
+  tradeStateAddress: Pda;
+
+  /** The address of the buyer's wallet. */
+  buyerAddress: PublicKey;
+
+  /**
+   * The address of the bookkeeper account.
+   * It is responsible for signing a Bid Receipt Print.
+   */
+  bookkeeperAddress: Option<PublicKey>;
+
+  /**
+   * The address of the bid receipt account.
+   * This is the account that stores information about this bid.
+   * The Bid model is built on top of this account.
+   */
+  receiptAddress: Option<Pda>;
+
+  /**
+   * The address of the purchase receipt account.
+   * This is the account that stores information about the purchase related to this bid.
+   *
+   * ```ts
+   * const transactionBuilder = metaplex
+   *   .auctionHouse()
+   *   .builders()
+   *   .findPurchaseByReceipt({ auctionHouse, receiptAddress: purchaseReceiptAddress });
+   * ```
+   */
+  purchaseReceiptAddress: Option<PublicKey>;
+
+  /** The buyer's price. */
+  price: SolAmount | SplTokenAmount;
+
+  /** The number of tokens bid is for. */
+  tokens: SplTokenAmount;
+
+  /** The date of creation. */
+  createdAt: DateTime;
+
+  /** The date of cancellation. */
+  canceledAt: Option<DateTime>;
+}>;
+
+/** @group Model Helpers */
+export const isPrivateBid = (value: any): value is PrivateBid =>
+  typeof value === 'object' && value.model === 'bid' && !value.isPublic;
+
+/** @group Model Helpers */
+export const isPublicBid = (value: any): value is PublicBid =>
+  typeof value === 'object' && value.model === 'bid' && !value.isPublic;
 
 /** @group Model Helpers */
 export const isBid = (value: any): value is Bid =>

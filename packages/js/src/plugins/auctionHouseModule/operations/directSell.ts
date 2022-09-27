@@ -10,8 +10,13 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
-import { NftWithToken, SftWithToken } from '../../nftModule/models';
+import {
+  AuctionHouse,
+  LazyPurchase,
+  Listing,
+  PrivateBid,
+  Purchase,
+} from '../models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
@@ -85,11 +90,9 @@ export type DirectSellInput = {
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
   bid: Omit<
-    Bid,
+    PrivateBid,
     'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
-  > & {
-    asset: SftWithToken | NftWithToken;
-  };
+  >;
 
   /**
    * The Auctioneer authority key.

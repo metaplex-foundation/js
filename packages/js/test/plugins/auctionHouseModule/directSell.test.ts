@@ -9,7 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda, Purchase } from '@/plugins';
+import { findAssociatedTokenAccountPda, PrivateBid, Purchase } from '@/plugins';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 
@@ -38,7 +38,7 @@ test('[auctionHouseModule] sell on an Auction House with minimum input', async (
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, bid })
+    .sell({ auctionHouse, bid: bid as PrivateBid })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.
@@ -90,7 +90,7 @@ test('[auctionHouseModule] sell on an Auction House with auctioneer', async (t: 
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, bid, auctioneerAuthority })
+    .sell({ auctionHouse, auctioneerAuthority, bid: bid as PrivateBid })
     .run();
 
   // Then we created and returned the new Purchase
@@ -128,7 +128,7 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
       auctionHouse,
       authority: seller,
       seller,
-      bid,
+      bid: bid as PrivateBid,
       bookkeeper: seller,
       printReceipt: true,
     })
