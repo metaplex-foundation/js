@@ -25,12 +25,16 @@ const Key = 'FindCandyGuardsByAuthorityOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyGuardsByAuthorityOperation = <
+export const findCandyGuardsByAuthorityOperation =
+  _findCandyGuardsByAuthorityOperation;
+function _findCandyGuardsByAuthorityOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   input: FindCandyGuardsByAuthorityInput
-): FindCandyGuardsByAuthorityOperation<T> => ({ key: Key, input });
-findCandyGuardsByAuthorityOperation.key = Key;
+): FindCandyGuardsByAuthorityOperation<T> {
+  return { key: Key, input };
+}
+_findCandyGuardsByAuthorityOperation.key = Key;
 
 /**
  * @group Operations

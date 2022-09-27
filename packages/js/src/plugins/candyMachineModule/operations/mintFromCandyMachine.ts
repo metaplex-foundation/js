@@ -50,16 +50,16 @@ const Key = 'MintFromCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const mintFromCandyMachineOperation = <
+export const mintFromCandyMachineOperation = _mintFromCandyMachineOperation;
+function _mintFromCandyMachineOperation<
   Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
   MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
 >(
   input: MintFromCandyMachineInput<Settings, MintSettings>
-): MintFromCandyMachineOperation<Settings, MintSettings> => ({
-  key: Key,
-  input,
-});
-mintFromCandyMachineOperation.key = Key;
+): MintFromCandyMachineOperation<Settings, MintSettings> {
+  return { key: Key, input };
+}
+_mintFromCandyMachineOperation.key = Key;
 
 /**
  * @group Operations

@@ -60,12 +60,13 @@ const Key = 'CreateCandyMachineOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const createCandyMachineOperation = <
+export const createCandyMachineOperation = _createCandyMachineOperation;
+function _createCandyMachineOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
->(
-  input: CreateCandyMachineInput<T>
-): CreateCandyMachineOperation<T> => ({ key: Key, input });
-createCandyMachineOperation.key = Key;
+>(input: CreateCandyMachineInput<T>): CreateCandyMachineOperation<T> {
+  return { key: Key, input };
+}
+_createCandyMachineOperation.key = Key;
 
 /**
  * @group Operations

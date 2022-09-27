@@ -23,12 +23,14 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyGuardByAddressOperation = <
+export const findCandyGuardByAddressOperation =
+  _findCandyGuardByAddressOperation;
+function _findCandyGuardByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
->(
-  input: FindCandyGuardByAddressInput
-): FindCandyGuardByAddressOperation<T> => ({ key: Key, input });
-findCandyGuardByAddressOperation.key = Key;
+>(input: FindCandyGuardByAddressInput): FindCandyGuardByAddressOperation<T> {
+  return { key: Key, input };
+}
+_findCandyGuardByAddressOperation.key = Key;
 
 /**
  * @group Operations

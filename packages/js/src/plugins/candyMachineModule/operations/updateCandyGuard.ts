@@ -49,12 +49,13 @@ const Key = 'UpdateCandyGuardOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const updateCandyGuardOperation = <
+export const updateCandyGuardOperation = _updateCandyGuardOperation;
+function _updateCandyGuardOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
->(
-  input: UpdateCandyGuardInput<T>
-): UpdateCandyGuardOperation<T> => ({ key: Key, input });
-updateCandyGuardOperation.key = Key;
+>(input: UpdateCandyGuardInput<T>): UpdateCandyGuardOperation<T> {
+  return { key: Key, input };
+}
+_updateCandyGuardOperation.key = Key;
 
 /**
  * @group Operations

@@ -31,12 +31,16 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findCandyMachineByAddressOperation = <
+export const findCandyMachineByAddressOperation =
+  _findCandyMachineByAddressOperation;
+function _findCandyMachineByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   input: FindCandyMachineByAddressInput
-): FindCandyMachineByAddressOperation<T> => ({ key: Key, input });
-findCandyMachineByAddressOperation.key = Key;
+): FindCandyMachineByAddressOperation<T> {
+  return { key: Key, input };
+}
+_findCandyMachineByAddressOperation.key = Key;
 
 /**
  * @group Operations
