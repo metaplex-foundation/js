@@ -3,10 +3,17 @@ import { NftBurn, nftBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the nftBurn guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type NftBurnGuardSettings = NftBurn;
 
-/** TODO */
+/**
+ * The settings for the nftBurn guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type NftBurnGuardMintSettings = {
   mint: PublicKey;
   tokenAccount?: PublicKey; // Defaults to ATA.

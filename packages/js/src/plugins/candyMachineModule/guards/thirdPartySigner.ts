@@ -7,10 +7,17 @@ import { Buffer } from 'buffer';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the thirdPartySigner guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type ThirdPartySignerGuardSettings = ThirdPartySigner;
 
-/** TODO */
+/**
+ * The settings for the thirdPartySigner guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type ThirdPartySignerGuardMintSettings = {
   signer: Signer;
 };

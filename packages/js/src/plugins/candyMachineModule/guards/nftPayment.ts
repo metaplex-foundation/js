@@ -5,10 +5,17 @@ import {
 } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the nftPayment guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type NftPaymentGuardSettings = NftPayment;
 
-/** TODO */
+/**
+ * The settings for the nftPayment guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type NftPaymentGuardMintSettings = {};
 
 /** @internal */

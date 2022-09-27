@@ -3,10 +3,17 @@ import { NftGate, nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the nftGate guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type NftGateGuardSettings = NftGate;
 
-/** TODO */
+/**
+ * The settings for the nftGate guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type NftGateGuardMintSettings = {
   mint: PublicKey;
   tokenAccount?: PublicKey; // Defaults to ATA.

@@ -14,14 +14,21 @@ import { Buffer } from 'buffer';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the tokenPayment guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type TokenPaymentGuardSettings = {
   amount: SplTokenAmount;
   tokenMint: PublicKey;
   destinationAta: PublicKey;
 };
 
-/** TODO */
+/**
+ * The settings for the tokenPayment guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type TokenPaymentGuardMintSettings = {
   tokenOwner: Signer;
 };

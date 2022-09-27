@@ -3,7 +3,11 @@ import { MintLimit, mintLimitBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { Buffer } from 'buffer';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the mintLimit guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type MintLimitGuardSettings = MintLimit;
 
 /** @internal */

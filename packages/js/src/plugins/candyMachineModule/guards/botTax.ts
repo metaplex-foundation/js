@@ -7,7 +7,11 @@ import {
 import { BotTax, botTaxBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the botTax guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type BotTaxGuardSettings = {
   lamports: SolAmount;
   lastInstruction: boolean;

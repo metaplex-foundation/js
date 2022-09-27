@@ -9,13 +9,20 @@ import {
 import { TokenBurn, tokenBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
 
-/** TODO */
+/**
+ * The settings for the tokenBurn guard that should
+ * be provided when creating and/or updating
+ * a Candy Machine or a Candy Guard directly.
+ */
 export type TokenBurnGuardSettings = {
   amount: SplTokenAmount;
   mint: PublicKey;
 };
 
-/** TODO */
+/**
+ * The settings for the tokenBurn guard that could
+ * be provided when minting from the Candy Machine.
+ */
 export type TokenBurnGuardMintSettings = {
   tokenBurnAuthority?: Signer;
 };
