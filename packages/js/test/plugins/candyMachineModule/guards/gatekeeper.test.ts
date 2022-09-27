@@ -1,7 +1,10 @@
 import {
+  DateTime,
   isEqualToAmount,
+  Metaplex,
   Pda,
   PublicKey,
+  Signer,
   sol,
   toBigNumber,
   TransactionBuilder,
@@ -20,52 +23,20 @@ import { addGatekeeper, issueVanilla } from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
+test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper service', async (t) => {
   // Given a Gatekeeper Network.
   const mx = await metaplex();
-  const GATEWAY_PROGRAM = new PublicKey(
-    'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs'
-  );
-  const gatekeeperAuthority = await createWallet(mx, 10);
-  const gatekeeperNetwork = Keypair.generate();
-  const gatekeeperAccount = Pda.find(GATEWAY_PROGRAM, [
-    gatekeeperAuthority.publicKey.toBuffer(),
-    gatekeeperNetwork.publicKey.toBuffer(),
-    Buffer.from('gatekeeper'),
-  ]);
-  const addGatekeeperTx = TransactionBuilder.make().add({
-    instruction: addGatekeeper(
-      gatekeeperAuthority.publicKey,
-      gatekeeperAccount,
-      gatekeeperAuthority.publicKey,
-      gatekeeperNetwork.publicKey
-    ),
-    signers: [gatekeeperAuthority, gatekeeperNetwork],
-  });
-  await addGatekeeperTx.sendAndConfirm(mx);
+  const { gatekeeperNetwork, gatekeeperAuthority } =
+    await createGatekeeperNetwork(mx);
 
   // And a payer with a valid gateway Token Account from that network.
   const payer = await createWallet(mx, 10);
-  const seeds = [0, 0, 0, 0, 0, 0, 0, 0];
-  const gatewayTokenAccount = Pda.find(GATEWAY_PROGRAM, [
-    payer.publicKey.toBuffer(),
-    Buffer.from('gateway'),
-    Buffer.from(seeds),
-    gatekeeperNetwork.publicKey.toBuffer(),
-  ]);
-  const issueVanillaTx = TransactionBuilder.make().add({
-    instruction: issueVanilla(
-      gatewayTokenAccount,
-      payer.publicKey,
-      gatekeeperAccount,
-      payer.publicKey,
-      gatekeeperAuthority.publicKey,
-      gatekeeperNetwork.publicKey,
-      Buffer.from(seeds)
-    ),
-    signers: [payer, gatekeeperAuthority],
-  });
-  await issueVanillaTx.sendAndConfirm(mx);
+  const gatewayTokenAccount = await issueGatewayToken(
+    mx,
+    gatekeeperNetwork.publicKey,
+    gatekeeperAuthority,
+    payer
+  );
 
   // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -215,3 +186,71 @@ test('[candyMachineModule] gatekeeper guard: it fails if no mint settings are pr
     /Please provide some minting settings for the \[gatekeeper\] guard/
   );
 });
+
+const createGatekeeperNetwork = async (
+  mx: Metaplex
+): Promise<{
+  gatekeeperNetwork: Signer;
+  gatekeeperAuthority: Signer;
+}> => {
+  const gatewayProgram = mx.programs().getGateway();
+  const gatekeeperAuthority = await createWallet(mx, 10);
+  const gatekeeperNetwork = Keypair.generate();
+  const gatekeeperAccount = Pda.find(gatewayProgram.address, [
+    gatekeeperAuthority.publicKey.toBuffer(),
+    gatekeeperNetwork.publicKey.toBuffer(),
+    Buffer.from('gatekeeper'),
+  ]);
+
+  const addGatekeeperTx = TransactionBuilder.make().add({
+    instruction: addGatekeeper(
+      gatekeeperAuthority.publicKey,
+      gatekeeperAccount,
+      gatekeeperAuthority.publicKey,
+      gatekeeperNetwork.publicKey
+    ),
+    signers: [gatekeeperAuthority, gatekeeperNetwork],
+  });
+  await addGatekeeperTx.sendAndConfirm(mx);
+
+  return { gatekeeperNetwork, gatekeeperAuthority };
+};
+
+const issueGatewayToken = async (
+  mx: Metaplex,
+  gatekeeperNetwork: PublicKey,
+  gatekeeperAuthority: Signer,
+  payer: Signer,
+  expiryDate?: DateTime,
+  seeds = [0, 0, 0, 0, 0, 0, 0, 0]
+): Promise<PublicKey> => {
+  const gatewayProgram = mx.programs().getGateway();
+  const gatekeeperAccount = Pda.find(gatewayProgram.address, [
+    gatekeeperAuthority.publicKey.toBuffer(),
+    gatekeeperNetwork.toBuffer(),
+    Buffer.from('gatekeeper'),
+  ]);
+  const gatewayTokenAccount = Pda.find(gatewayProgram.address, [
+    payer.publicKey.toBuffer(),
+    Buffer.from('gateway'),
+    Buffer.from(seeds),
+    gatekeeperNetwork.toBuffer(),
+  ]);
+
+  const issueVanillaTx = TransactionBuilder.make().add({
+    instruction: issueVanilla(
+      gatewayTokenAccount,
+      payer.publicKey,
+      gatekeeperAccount,
+      payer.publicKey,
+      gatekeeperAuthority.publicKey,
+      gatekeeperNetwork,
+      Buffer.from(seeds),
+      expiryDate?.toNumber()
+    ),
+    signers: [payer, gatekeeperAuthority],
+  });
+  await issueVanillaTx.sendAndConfirm(mx);
+
+  return gatewayTokenAccount;
+};
