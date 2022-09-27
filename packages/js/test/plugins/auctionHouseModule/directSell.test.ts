@@ -101,11 +101,13 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
+  const authority = await createWallet(mx);
+  const bookkeeper = await createWallet(mx);
   const seller = await createWallet(mx);
 
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
   const auctionHouse = await createAuctionHouse(mx, null, {
-    authority: seller,
+    authority,
   });
 
   // And we listed that NFT for 1 SOL.
@@ -126,10 +128,10 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     .auctionHouse()
     .sell({
       auctionHouse,
-      authority: seller,
+      authority,
       seller,
+      bookkeeper,
       bid: bid as PrivateBid,
-      bookkeeper: seller,
       printReceipt: true,
     })
     .run();
@@ -140,7 +142,7 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     tokens: spokSameAmount(token(1)),
     buyerAddress: spokSamePubkey(buyer.publicKey),
     sellerAddress: spokSamePubkey(seller.publicKey),
-    bookkeeperAddress: spokSamePubkey(seller.publicKey),
+    bookkeeperAddress: spokSamePubkey(bookkeeper.publicKey),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
