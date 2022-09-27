@@ -42,7 +42,7 @@ export const defaultCandyGuardProgram: CandyGuardProgram = {
 };
 
 /** @group Programs */
-export const gatekeeperProgram: Program = {
-  name: 'GatekeeperProgram',
+export const gatewayProgram: Program = {
+  name: 'GatewayProgram',
   address: new PublicKey('gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs'),
 };

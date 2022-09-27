@@ -44,7 +44,7 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
 
       remainingAccounts.push({
         isSigner: false,
-        address: metaplex.programs().get('GatekeeperProgram', programs).address,
+        address: metaplex.programs().get('GatewayProgram', programs).address,
         isWritable: false,
       });
       remainingAccounts.push({
