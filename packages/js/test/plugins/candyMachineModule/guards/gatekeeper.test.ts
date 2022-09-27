@@ -21,7 +21,13 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { addGatekeeper, issueVanilla } from '@identity.com/solana-gateway-ts';
+import {
+  addGatekeeper,
+  issueVanilla,
+  addFeatureToNetwork,
+  NetworkFeature,
+  UserTokenExpiry,
+} from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
 
@@ -330,6 +336,7 @@ const createGatekeeperNetwork = async (
   gatekeeperNetwork: Signer;
   gatekeeperAuthority: Signer;
 }> => {
+  // Prepare the accounts.
   const gatewayProgram = mx.programs().getGateway();
   const gatekeeperAuthority = await createWallet(mx, 10);
   const gatekeeperNetwork = Keypair.generate();
@@ -339,6 +346,7 @@ const createGatekeeperNetwork = async (
     Buffer.from('gatekeeper'),
   ]);
 
+  // Create the gatekeeper network.
   const addGatekeeperTx = TransactionBuilder.make().add({
     instruction: addGatekeeper(
       gatekeeperAuthority.publicKey,
@@ -349,6 +357,20 @@ const createGatekeeperNetwork = async (
     signers: [gatekeeperAuthority, gatekeeperNetwork],
   });
   await addGatekeeperTx.sendAndConfirm(mx);
+
+  // Add the expire feature to the gatekeeper network.
+  const expireFeature = new NetworkFeature({
+    userTokenExpiry: new UserTokenExpiry({}),
+  });
+  const addExpireFeatureTx = TransactionBuilder.make().add({
+    instruction: await addFeatureToNetwork(
+      gatekeeperAuthority.publicKey,
+      gatekeeperNetwork.publicKey,
+      expireFeature
+    ),
+    signers: [gatekeeperAuthority, gatekeeperNetwork],
+  });
+  await addExpireFeatureTx.sendAndConfirm(mx);
 
   return { gatekeeperNetwork, gatekeeperAuthority };
 };
