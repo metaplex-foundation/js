@@ -1,4 +1,4 @@
-import { ErrorWithLogs, Program } from '@/types';
+import { ErrorWithLogs, Program, PublicKey } from '@/types';
 import { assert } from '@/utils';
 import {
   cusper as defaultCandyGuardCusper,
@@ -39,4 +39,10 @@ export const defaultCandyGuardProgram: CandyGuardProgram = {
   errorResolver: (error: ErrorWithLogs) =>
     defaultCandyGuardCusper.errorFromProgramLogs(error.logs, false),
   availableGuards: defaultCandyGuardNames,
+};
+
+/** @group Programs */
+export const gatewayProgram: Program = {
+  name: 'GatewayProgram',
+  address: new PublicKey('gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs'),
 };

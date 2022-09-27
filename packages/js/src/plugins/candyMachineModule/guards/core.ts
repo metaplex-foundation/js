@@ -22,18 +22,7 @@ export type CandyGuardManifest<
     programs: Program[];
   }) => {
     arguments: Buffer;
-    remainingAccounts: (
-      | {
-          isSigner: false;
-          address: PublicKey;
-          isWritable: boolean;
-        }
-      | {
-          isSigner: true;
-          address: Signer;
-          isWritable: boolean;
-        }
-    )[];
+    remainingAccounts: CandyGuardsMintRemainingAccount[];
   };
   onBeforeMint?: (
     setting: Settings,
@@ -55,3 +44,16 @@ export type CandyGuardsSettings = {
 export type CandyGuardsMintSettings = {
   [name: string]: Option<object>;
 };
+
+/** TODO */
+export type CandyGuardsMintRemainingAccount =
+  | {
+      isSigner: false;
+      address: PublicKey;
+      isWritable: boolean;
+    }
+  | {
+      isSigner: true;
+      address: Signer;
+      isWritable: boolean;
+    };

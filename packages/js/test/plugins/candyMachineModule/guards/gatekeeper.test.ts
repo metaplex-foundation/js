@@ -61,3 +61,32 @@ test.skip('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot 
     'payer was charged a bot tax'
   );
 });
+
+test.skip('[candyMachineModule] gatekeeper guard: it fails if no mint settings are provided', async (t) => {
+  // Given a loaded Candy Machine with a gatekeeper guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      //
+    },
+  });
+
+  // When we try to mint from it without providing
+  // any mint settings for the gatekeeper guard.
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /Please provide some minting settings for the \[gatekeeper\] guard/
+  );
+});
