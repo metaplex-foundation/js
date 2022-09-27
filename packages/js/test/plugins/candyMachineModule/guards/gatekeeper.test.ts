@@ -172,7 +172,7 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
   await assertThrows(t, promise, /Gateway token is not valid/);
 });
 
-test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tokens that expire when there are still valid', async (t) => {
+test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tokens that expire when they are still valid', async (t) => {
   // Given a Gatekeeper Network.
   const mx = await metaplex();
   const { gatekeeperNetwork, gatekeeperAuthority } =
