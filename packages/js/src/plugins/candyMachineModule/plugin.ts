@@ -82,6 +82,12 @@ export const candyMachineModule = (): MetaplexPlugin => ({
 
     // Gateway Program.
     metaplex.programs().register(gatewayProgram);
+    metaplex.programs().getGateway = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(gatewayProgram.name, programs);
+    };
 
     // Default Guards.
     client.guards().register(botTaxGuardManifest);
@@ -153,5 +159,6 @@ declare module '../programModule/ProgramClient' {
   interface ProgramClient {
     getCandyMachine(programs?: Program[]): Program;
     getCandyGuard<T extends CandyGuardProgram>(programs?: Program[]): T;
+    getGateway(programs?: Program[]): Program;
   }
 }

@@ -53,13 +53,13 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
 
       remainingAccounts.push({
         isSigner: false,
-        address: metaplex.programs().get('GatewayProgram', programs).address,
+        address: metaplex.programs().getGateway(programs).address,
         isWritable: false,
       });
       remainingAccounts.push({
         isSigner: false,
         address: mintSettings.expireAccount,
-        isWritable: true,
+        isWritable: false,
       });
     }
 
