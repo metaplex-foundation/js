@@ -11,7 +11,6 @@ import {
   tokenPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
 import { Buffer } from 'buffer';
-import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
@@ -55,7 +54,7 @@ export type TokenPaymentGuardMintSettings = {
    * @defaultValue
    * Defaults to the minting wallet.
    */
-  tokenOwner: Signer; // TODO: Default to payer.
+  tokenOwner?: Signer;
 };
 
 /** @internal */
@@ -70,14 +69,17 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<
     (settings) => ({ ...settings, amount: token(settings.amount) }),
     (settings) => ({ ...settings, amount: settings.amount.basisPoints })
   ),
-  mintSettingsParser: ({ metaplex, settings, mintSettings, programs }) => {
-    if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('tokenPayment');
-    }
-
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    mintSettings,
+    payer,
+    programs,
+  }) => {
+    const tokenOwner = mintSettings?.tokenOwner ?? payer;
     const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
       mint: settings.tokenMint,
-      owner: mintSettings.tokenOwner.publicKey,
+      owner: tokenOwner.publicKey,
       programs,
     });
 
@@ -91,7 +93,7 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<
         },
         {
           isSigner: true,
-          address: mintSettings.tokenOwner,
+          address: tokenOwner,
           isWritable: false,
         },
         {

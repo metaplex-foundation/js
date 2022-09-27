@@ -54,9 +54,6 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
-      guards: {
-        tokenPayment: { tokenOwner: payer },
-      },
     })
     .run();
 
@@ -88,6 +85,90 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     })
     .run();
   t.true(isEqualToAmount(payerToken.amount, token(7)), 'payer lost tokens');
+});
+
+test.only('[candyMachineModule] tokenPayment guard: it can use another wallet for paying the tokens', async (t) => {
+  // Given a loaded Candy Machine with a tokenPayment guard that requires 5 tokens.
+  const mx = await metaplex();
+  const treasuryAuthority = Keypair.generate();
+  const { token: tokenTreasury } = await mx
+    .tokens()
+    .createTokenWithMint({
+      mintAuthority: treasuryAuthority,
+      owner: treasuryAuthority.publicKey,
+      initialSupply: token(100),
+    })
+    .run();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      tokenPayment: {
+        amount: token(5),
+        tokenMint: tokenTreasury.mint.address,
+        destinationAta: tokenTreasury.address,
+      },
+    },
+  });
+
+  // And a specific token payer that has 12 of these tokens.
+  const tokenPayer = await createWallet(mx, 10);
+  const {} = await mx
+    .tokens()
+    .mint({
+      mintAddress: tokenTreasury.mint.address,
+      mintAuthority: treasuryAuthority,
+      toOwner: tokenPayer.publicKey,
+      amount: token(12),
+    })
+    .run();
+
+  // When we mint from it as another payer whilst providing that
+  // token payer in the mint settings of the tokenPayment guard.
+  const payer = await createWallet(mx, 10);
+  const { nft } = await mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+      guards: {
+        tokenPayment: { tokenOwner: tokenPayer },
+      },
+    })
+    .run();
+
+  // Then minting was successful.
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: payer.publicKey,
+  });
+
+  // And the treasury token received 5 tokens.
+  const updatedTokenTreasury = await mx
+    .tokens()
+    .findTokenByAddress({ address: tokenTreasury.address })
+    .run();
+  t.true(
+    isEqualToAmount(updatedTokenTreasury.amount, token(105)),
+    'treasury received tokens'
+  );
+
+  // And the token payer lost 5 tokens.
+  const tokensOfTokenPayer = await mx
+    .tokens()
+    .findTokenWithMintByMint({
+      mint: tokenTreasury.mint.address,
+      addressType: 'owner',
+      address: tokenPayer.publicKey,
+    })
+    .run();
+  t.true(
+    isEqualToAmount(tokensOfTokenPayer.amount, token(7)),
+    'token payer lost tokens'
+  );
 });
 
 test('[candyMachineModule] tokenPayment guard: it fails if the payer does not have enough tokens', async (t) => {
@@ -202,46 +283,5 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
   t.true(
     isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
     'payer was charged a bot tax'
-  );
-});
-
-test('[candyMachineModule] tokenPayment guard: it fails if no mint settings are provided', async (t) => {
-  // Given a loaded Candy Machine with a tokenPayment guard.
-  const mx = await metaplex();
-  const treasuryAuthority = Keypair.generate();
-  const { token: tokenTreasury } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: treasuryAuthority,
-      owner: treasuryAuthority.publicKey,
-    })
-    .run();
-  const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
-    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
-    guards: {
-      tokenPayment: {
-        amount: token(5),
-        tokenMint: tokenTreasury.mint.address,
-        destinationAta: tokenTreasury.address,
-      },
-    },
-  });
-
-  // When we try to mint from it without providing
-  // any mint settings for the tokenPayment guard.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    })
-    .run();
-
-  // Then we expect an error.
-  await assertThrows(
-    t,
-    promise,
-    /Please provide some minting settings for the \[tokenPayment\] guard/
   );
 });
