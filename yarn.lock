@@ -3106,10 +3106,10 @@
     "@solana/web3.js" "^1.35.1"
     bn.js "^5.2.0"
 
-"@metaplex-foundation/mpl-candy-guard@npm:@lorisleiva/mpl-candy-guard@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-guard/-/mpl-candy-guard-0.0.9.tgz#c0653fc6c39148dfe8df4cb705d4012ed0ac7fab"
-  integrity sha512-TUDdk7tY5cTTrNczUD6rEB1n2G5qIhCVG+GjgW5TkYKtAe9bfD5UWCihfGzeuIw37pdDLqf91D0RaJYlBByBvw==
+"@metaplex-foundation/mpl-candy-guard@npm:@lorisleiva/mpl-candy-guard@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-guard/-/mpl-candy-guard-0.0.10.tgz#9cd70389d710a4d076fe5b99fd2404430428b091"
+  integrity sha512-JpTjd3Z6FXZCWUFeIR0Gx6tv2pEuZ1Oz1UTH70N872USP0M9qOeFT7gxEBm6TyyGOcsfqfqcRPCDxF0BtcbTrQ==
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
@@ -3117,15 +3117,14 @@
     "@solana/web3.js" "^1.56.2"
     bn.js "^5.2.0"
 
-"@metaplex-foundation/mpl-candy-machine-core@npm:@lorisleiva/mpl-candy-machine-core@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-machine-core/-/mpl-candy-machine-core-0.0.8.tgz#de9c7fc464c8a0f1c3763c6c098ea90ff668cb9d"
-  integrity sha512-doDXy+dYWTi+cyfBX8ELwo4Yy7DN2fTH/yqsLdazBM4UN187TZJVM5bjpOxumPtkIY7WCzYiQI+sP1yZZZbLUQ==
+"@metaplex-foundation/mpl-candy-machine-core@npm:@lorisleiva/mpl-candy-machine-core@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-machine-core/-/mpl-candy-machine-core-0.0.10.tgz#d79dc89555a97b5107ce00a8244162ae376205de"
+  integrity sha512-AWDjQKBNgUDacnFRl2JyH5I8i4l+9ZrNaJ0nb+PynmjbHVpF5kAJGRyIRLmF7Nrh6NAsmHzFhPD8ct3Cv9YauQ==
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
     "@metaplex-foundation/cusper" "^0.0.2"
-    "@metaplex-foundation/mpl-candy-machine" "^4.6.0"
     "@solana/web3.js" "^1.56.2"
     bn.js "^5.2.0"
 
