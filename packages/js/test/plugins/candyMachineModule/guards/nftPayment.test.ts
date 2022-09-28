@@ -14,33 +14,33 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 killStuckProcess();
 
 test.only('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer to the destination', async (t) => {
-  // Given a payer that owns an NFT from a certain collection.
+  // Given a loaded Candy Machine with an nftPayment guard on a required collection.
   const mx = await metaplex();
-  const payer = await createWallet(mx, 10);
-  const nftGateCollectionAuthority = Keypair.generate();
-  const nftGateCollection = await createCollectionNft(mx, {
-    updateAuthority: nftGateCollectionAuthority,
-  });
-  const payerNft = await createNft(mx, {
-    tokenOwner: payer.publicKey,
-    collection: nftGateCollection.address,
-    collectionAuthority: nftGateCollectionAuthority,
-  });
-
-  // And a loaded Candy Machine with an nftPayment guard.
   const nftTreasury = Keypair.generate();
+  const requiredCollectionAuthority = Keypair.generate();
+  const requiredCollection = await createCollectionNft(mx, {
+    updateAuthority: requiredCollectionAuthority,
+  });
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
-        requiredCollection: nftGateCollection.address,
+        requiredCollection: requiredCollection.address,
         destination: nftTreasury.publicKey,
       },
     },
   });
 
-  // When we mint from it.
+  // And a payer that owns an NFT from that collection.
+  const payer = await createWallet(mx, 10);
+  const payerNft = await createNft(mx, {
+    tokenOwner: payer.publicKey,
+    collection: requiredCollection.address,
+    collectionAuthority: requiredCollectionAuthority,
+  });
+
+  // When the payer mints from it using its NFT to pay.
   const { nft } = await mx
     .candyMachines()
     .mint({
@@ -48,7 +48,7 @@ test.only('[candyMachineModule] nftPayment guard: it transfers an NFT from the p
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
       payer,
       guards: {
-        nftGate: {
+        nftPayment: {
           mint: payerNft.address,
         },
       },
@@ -62,6 +62,9 @@ test.only('[candyMachineModule] nftPayment guard: it transfers an NFT from the p
     nft,
     owner: payer.publicKey,
   });
+
+  // And the NFT now belongs to the NFT treasury.
+  // TODO
 });
 
 test.skip('[candyMachineModule] nftPayment guard: it allows minting when the NFT is not on an associated token account', async (t) => {
@@ -69,6 +72,10 @@ test.skip('[candyMachineModule] nftPayment guard: it allows minting when the NFT
 });
 
 test.skip('[candyMachineModule] nftPayment guard: it fails if the payer does not own the right NFT', async (t) => {
+  //
+});
+
+test.skip('[candyMachineModule] nftPayment guard: it fails if the payer tries to provide an NFT from an unverified collection', async (t) => {
   //
 });
 
