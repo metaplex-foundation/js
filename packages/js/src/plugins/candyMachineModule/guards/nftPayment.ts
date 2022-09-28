@@ -114,11 +114,6 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
           isWritable: false,
         },
         {
-          isSigner: true,
-          address: payer,
-          isWritable: false,
-        },
-        {
           isSigner: false,
           address: settings.destination,
           isWritable: false,

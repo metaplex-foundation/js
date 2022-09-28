@@ -45,7 +45,7 @@
     "@bundlr-network/client": "^0.7.14",
     "@metaplex-foundation/beet": "0.7.1",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
-    "@metaplex-foundation/mpl-candy-guard": "npm:@lorisleiva/mpl-candy-guard@^0.0.10",
+    "@metaplex-foundation/mpl-candy-guard": "npm:@lorisleiva/mpl-candy-guard@^0.0.11",
     "@metaplex-foundation/mpl-candy-machine": "^4.6.0",
     "@metaplex-foundation/mpl-candy-machine-core": "npm:@lorisleiva/mpl-candy-machine-core@^0.0.10",
     "@metaplex-foundation/mpl-token-metadata": "^2.2.4",

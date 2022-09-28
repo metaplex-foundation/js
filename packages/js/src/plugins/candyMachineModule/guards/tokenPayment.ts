@@ -46,13 +46,7 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<TokenPaymentGuardSett
       (settings) => ({ ...settings, amount: token(settings.amount) }),
       (settings) => ({ ...settings, amount: settings.amount.basisPoints })
     ),
-    mintSettingsParser: ({
-      metaplex,
-      settings,
-      mintSettings,
-      payer,
-      programs,
-    }) => {
+    mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
       const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
         mint: settings.tokenMint,
         owner: payer.publicKey,
@@ -66,11 +60,6 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<TokenPaymentGuardSett
             isSigner: false,
             address: tokenAddress,
             isWritable: true,
-          },
-          {
-            isSigner: true,
-            address: payer,
-            isWritable: false,
           },
           {
             isSigner: false,

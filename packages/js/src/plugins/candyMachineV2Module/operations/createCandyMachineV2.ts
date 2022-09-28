@@ -37,7 +37,6 @@ import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // -----------------
 // Operation

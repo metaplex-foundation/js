@@ -2,7 +2,6 @@ import {
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
-  Signer,
   SplTokenAmount,
   token,
 } from '@/types';
@@ -21,9 +20,6 @@ import { CandyGuardManifest } from './core';
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
  * Machine if you wish to enable this guard.
- *
- * @see {@link TokenBurnGuardMintSettings} for more
- * information on the mint settings of this guard.
  */
 export type TokenBurnGuardSettings = {
   /** The mint address of the required tokens. */
@@ -33,70 +29,37 @@ export type TokenBurnGuardSettings = {
   amount: SplTokenAmount;
 };
 
-/**
- * The settings for the tokenBurn guard that could
- * be provided when minting from the Candy Machine.
- *
- * @see {@link TokenBurnGuardSettings} for more
- * information on the tokenBurn guard itself.
- */
-export type TokenBurnGuardMintSettings = {
-  /**
-   * The authority that is allowed to burn tokens on behalf
-   * of its owner. This could be the owner directly or a delegate
-   * authority with the right amount of delegated tokens.
-   *
-   * @defaultValue
-   * Defaults to the minting wallet.
-   */
-  tokenBurnAuthority?: Signer;
-};
-
 /** @internal */
-export const tokenBurnGuardManifest: CandyGuardManifest<
-  TokenBurnGuardSettings,
-  TokenBurnGuardMintSettings
-> = {
-  name: 'tokenBurn',
-  settingsBytes: 40,
-  settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
-    createSerializerFromBeet(tokenBurnBeet),
-    (settings) => ({ ...settings, amount: token(settings.amount) }),
-    (settings) => ({ ...settings, amount: settings.amount.basisPoints })
-  ),
-  mintSettingsParser: ({
-    metaplex,
-    settings,
-    mintSettings,
-    payer,
-    programs,
-  }) => {
-    const tokenBurnAuthority = mintSettings?.tokenBurnAuthority ?? payer;
-    const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
-      mint: settings.mint,
-      owner: payer.publicKey,
-      programs,
-    });
+export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> =
+  {
+    name: 'tokenBurn',
+    settingsBytes: 40,
+    settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
+      createSerializerFromBeet(tokenBurnBeet),
+      (settings) => ({ ...settings, amount: token(settings.amount) }),
+      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+    ),
+    mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
+      const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
+        mint: settings.mint,
+        owner: payer.publicKey,
+        programs,
+      });
 
-    return {
-      arguments: Buffer.from([]),
-      remainingAccounts: [
-        {
-          isSigner: false,
-          address: tokenAccount,
-          isWritable: true,
-        },
-        {
-          isSigner: false,
-          address: settings.mint,
-          isWritable: true,
-        },
-        {
-          isSigner: true,
-          address: tokenBurnAuthority,
-          isWritable: false,
-        },
-      ],
-    };
-  },
-};
+      return {
+        arguments: Buffer.from([]),
+        remainingAccounts: [
+          {
+            isSigner: false,
+            address: tokenAccount,
+            isWritable: true,
+          },
+          {
+            isSigner: false,
+            address: settings.mint,
+            isWritable: true,
+          },
+        ],
+      };
+    },
+  };
