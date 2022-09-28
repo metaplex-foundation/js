@@ -1,5 +1,4 @@
 import { Metaplex, Program } from '@/index';
-import { NftWithToken } from '@/plugins/nftModule';
 import { PublicKey, Serializer, Signer } from '@/types';
 import { Option } from '@/utils';
 import { Buffer } from 'buffer';
