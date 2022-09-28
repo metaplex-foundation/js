@@ -77,6 +77,18 @@ export const findCandyMachineV2ByAddressOperationHandler: OperationHandler<FindC
         accounts[1]
       );
 
-      return toCandyMachineV2(account, unparsedAccount, collectionAccount);
+      const mint = account.data.tokenMint
+        ? await metaplex
+            .tokens()
+            .findMintByAddress({ address: account.data.tokenMint })
+            .run()
+        : null;
+
+      return toCandyMachineV2(
+        account,
+        unparsedAccount,
+        collectionAccount,
+        mint
+      );
     },
   };
