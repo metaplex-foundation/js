@@ -358,7 +358,8 @@ export const createCandyMachineV2Builder = async (
             mint: collectionMint,
             edition,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TOKEN_PROGRAM_ID,
+            tokenMetadataProgram: metaplex.programs().getTokenMetadata()
+              .address,
           }),
           signers: [authority],
           key: params.setCollectionInstructionKey ?? 'setCollection',
