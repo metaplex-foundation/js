@@ -176,7 +176,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       nftPayment: {
         requiredCollection: spokSamePubkey(nftPaymentCollection),
-        destinationAta: spokSamePubkey(nftPaymentDestination),
+        destination: spokSamePubkey(nftPaymentDestination),
       },
       redeemedAmount: {
         maximum: spokSameBignum(100),
