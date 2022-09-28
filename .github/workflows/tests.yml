@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         node: ["16.x", "18.x"]
-        solana: ["1.9.15"]
+        solana: ["1.10.34"]
 
     steps:
     - name: Git checkout
@@ -20,7 +20,7 @@ jobs:
 
     - name: Install Solana
       uses: ./.github/actions/install-solana
-      with: 
+      with:
         solana_version: ${{ matrix.solana }}
 
     - name: Setup Node.js ${{ matrix.node }}

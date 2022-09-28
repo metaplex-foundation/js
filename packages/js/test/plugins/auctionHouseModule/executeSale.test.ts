@@ -27,7 +27,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -102,7 +102,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with separate au
 
   const nft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx, null, {
+  const auctionHouse = await createAuctionHouse(mx, null, {
     authority,
   });
 
@@ -144,7 +144,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -205,7 +205,7 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL without receipt.
   const { listing } = await mx
@@ -247,7 +247,7 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -288,7 +288,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we listed that NFT.
   const { listing } = await mx
@@ -334,14 +334,10 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   const nft = await createNft(mx);
 
-  const { auctionHouse } = await createAuctionHouse(mx);
-  const { auctionHouse: buyerAuctionHouse } = await createAuctionHouse(
-    mx,
-    null,
-    {
-      authority: buyer,
-    }
-  );
+  const auctionHouse = await createAuctionHouse(mx);
+  const buyerAuctionHouse = await createAuctionHouse(mx, null, {
+    authority: buyer,
+  });
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -383,7 +379,7 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
 
   const firstNft = await createNft(mx);
   const secondNft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that First NFT for 1 SOL.
   const { listing } = await mx
@@ -442,7 +438,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
 
   // And we created a new Auction House using that treasury with NFT to sell.
   const treasuryMint = treasuryToken.mint.address;
-  const { auctionHouse } = await createAuctionHouse(mx, null, {
+  const auctionHouse = await createAuctionHouse(mx, null, {
     treasuryMint,
   });
   const nft = await createNft(mx);
@@ -476,7 +472,6 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
       auctionHouse,
       listing,
       bid,
-      confirmOptions: { skipPreflight: true },
     })
     .run();
 

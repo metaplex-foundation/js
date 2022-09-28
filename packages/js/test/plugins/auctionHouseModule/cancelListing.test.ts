@@ -17,7 +17,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
   const mx = await metaplex();
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -57,7 +57,7 @@ test('[auctionHouseModule] cancel a Listing on an Auctioneer Auction House', asy
 
   const nft = await createNft(mx);
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we list that NFT.
   const { listing } = await mx
@@ -86,7 +86,7 @@ test('[auctionHouseModule] it throws an error if executing a sale with a cancele
   const buyer = await createWallet(mx);
 
   const nft = await createNft(mx);
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
   const { listing } = await mx
@@ -139,7 +139,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const nft = await createNft(mx);
 
   const auctioneerAuthority = Keypair.generate();
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we listed that NFT.
   const { listing } = await mx

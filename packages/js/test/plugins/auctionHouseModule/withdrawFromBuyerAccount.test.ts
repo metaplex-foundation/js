@@ -15,8 +15,7 @@ killStuckProcess();
 test('[auctionHouseModule] withdraw from buyer account on an Auction House', async (t: Test) => {
   // Given we have an Auction House.
   const mx = await metaplex();
-
-  const { auctionHouse } = await createAuctionHouse(mx);
+  const auctionHouse = await createAuctionHouse(mx);
 
   // And deposit 1 SOL to the buyer's escrow account.
   await mx
@@ -63,8 +62,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House with 
   // Given we have an Auction House.
   const mx = await metaplex();
   const authority = await createWallet(mx);
-
-  const { auctionHouse } = await createAuctionHouse(mx, null, { authority });
+  const auctionHouse = await createAuctionHouse(mx, null, { authority });
 
   // And deposit 1 SOL to the buyer's escrow account.
   await mx
@@ -112,8 +110,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auctioneer Auction 
   // Given we have an Auctioneer Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we deposit 1 SOL.
   await mx
@@ -169,8 +166,7 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   // Given we have an Auction House.
   const mx = await metaplex();
   const auctioneerAuthority = Keypair.generate();
-
-  const { auctionHouse } = await createAuctionHouse(mx, auctioneerAuthority);
+  const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we don't provide auctioneer authority to withdrawFromBuyerAccount.
   const promise = mx

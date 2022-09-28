@@ -123,7 +123,7 @@ export type CreateListingInput = {
    * The mint account to create a listing for.
    * This is used to find the metadata.
    */
-  mintAccount: PublicKey; // Required for checking Metadata
+  mintAccount: PublicKey;
 
   /**
    * The token account address that's associated to the asset a listing created is for.
