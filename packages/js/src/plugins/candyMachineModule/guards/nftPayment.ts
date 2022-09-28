@@ -1,5 +1,6 @@
 import { createSerializerFromBeet, PublicKey } from '@/types';
 import { nftPaymentBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 
 /**
@@ -20,11 +21,11 @@ import { CandyGuardManifest } from './core';
  * information on the mint settings of this guard.
  */
 export type NftPaymentGuardSettings = {
-  /** TODO */
+  /** The mint address of the required NFT Collection. */
   requiredCollection: PublicKey;
 
-  /** TODO */
-  destinationAta: PublicKey;
+  /** The address of the account to send the NFTs to. */
+  destination: PublicKey;
 };
 
 /**
@@ -35,7 +36,21 @@ export type NftPaymentGuardSettings = {
  * information on the nftPayment guard itself.
  */
 export type NftPaymentGuardMintSettings = {
-  /** TODO */
+  /**
+   * The mint address of the NFT to pay with.
+   * This must be part of the required collection and must
+   * belong to the payer.
+   */
+  mint: PublicKey;
+
+  /**
+   * The token account linking the NFT with its owner.
+   *
+   * @defaultValue
+   * Defaults to the associated token address using the
+   * mint address of the NFT and the payer's address.
+   */
+  tokenAccount?: PublicKey;
 };
 
 /** @internal */
@@ -46,4 +61,38 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
   name: 'nftPayment',
   settingsBytes: 64,
   settingsSerializer: createSerializerFromBeet(nftPaymentBeet),
+  mintSettingsParser: ({ metaplex, mintSettings, payer, programs }) => {
+    if (!mintSettings) {
+      throw new GuardMitingSettingsMissingError('nftPayment');
+    }
+
+    const nftTokenAccount =
+      mintSettings.tokenAccount ??
+      metaplex.tokens().pdas().associatedTokenAccount({
+        mint: mintSettings.mint,
+        owner: payer.publicKey,
+        programs,
+      });
+
+    const nftTokenMetadata = metaplex.nfts().pdas().metadata({
+      mint: mintSettings.mint,
+      programs,
+    });
+
+    return {
+      arguments: Buffer.from([]),
+      remainingAccounts: [
+        {
+          isSigner: false,
+          address: nftTokenAccount,
+          isWritable: false,
+        },
+        {
+          isSigner: false,
+          address: nftTokenMetadata,
+          isWritable: false,
+        },
+      ],
+    };
+  },
 };

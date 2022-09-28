@@ -110,7 +110,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         },
         nftPayment: {
           requiredCollection: nftPaymentCollection,
-          destinationAta: nftPaymentDestination,
+          destination: nftPaymentDestination,
         },
         redeemedAmount: {
           maximum: toBigNumber(100),

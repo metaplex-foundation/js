@@ -13,7 +13,7 @@ import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer to the destination', async (t) => {
+test.only('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer to the destination', async (t) => {
   // Given a payer that owns an NFT from a certain collection.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
@@ -35,7 +35,7 @@ test.skip('[candyMachineModule] nftPayment guard: it transfers an NFT from the p
     guards: {
       nftPayment: {
         requiredCollection: nftGateCollection.address,
-        destinationAta: nftTreasury.publicKey,
+        destination: nftTreasury.publicKey,
       },
     },
   });
@@ -64,6 +64,10 @@ test.skip('[candyMachineModule] nftPayment guard: it transfers an NFT from the p
   });
 });
 
+test.skip('[candyMachineModule] nftPayment guard: it allows minting when the NFT is not on an associated token account', async (t) => {
+  //
+});
+
 test.skip('[candyMachineModule] nftPayment guard: it fails if the payer does not own the right NFT', async (t) => {
   //
 });
@@ -82,5 +86,38 @@ test.skip('[candyMachineModule] nftPayment guard with bot tax: it charges a bot 
   t.true(
     isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
     'payer was charged a bot tax'
+  );
+});
+
+test('[candyMachineModule] nftPayment guard: minting settings must be provided', async (t) => {
+  // Given a loaded Candy Machine with a third party signer guard.
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      nftPayment: {
+        requiredCollection: Keypair.generate().publicKey,
+        destination: Keypair.generate().publicKey,
+      },
+    },
+  });
+
+  // When we try to mint from it without providing the third party signer.
+  const payer = await createWallet(mx, 10);
+  const promise = mx
+    .candyMachines()
+    .mint({
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      payer,
+    })
+    .run();
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /Please provide some minting settings for the \[nftPayment\] guard/
   );
 });
