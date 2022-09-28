@@ -9,7 +9,6 @@ import {
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import {
@@ -279,6 +278,7 @@ export const updateCandyMachineV2Builder = (
     newAuthority,
     newCollection,
   } = params;
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata().address;
   const shouldUpdateAuthority =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
   const sameCollection =
@@ -346,7 +346,7 @@ export const updateCandyMachineV2Builder = (
             mint: collectionMint,
             edition,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TOKEN_PROGRAM_ID,
+            tokenMetadataProgram,
           }),
           signers: [payer, authority],
           key: params.setCollectionInstructionKey ?? 'setCollection',
@@ -373,7 +373,7 @@ export const updateCandyMachineV2Builder = (
             metadata,
             mint: collectionMint,
             collectionAuthorityRecord,
-            tokenMetadataProgram: TOKEN_PROGRAM_ID,
+            tokenMetadataProgram,
           }),
           signers: [authority],
           key: params.removeCollectionInstructionKey ?? 'removeCollection',
