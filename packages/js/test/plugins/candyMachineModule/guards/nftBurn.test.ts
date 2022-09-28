@@ -108,7 +108,7 @@ test('[candyMachineModule] nftBurn guard: it fails if there is not valid NFT to 
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Invalid NFT Collection Payment/);
+  await assertThrows(t, promise, /Invalid NFT collection/);
 });
 
 test('[candyMachineModule] nftBurn guard with bot tax: it charges a bot tax when trying to mint using the wrong NFT', async (t) => {

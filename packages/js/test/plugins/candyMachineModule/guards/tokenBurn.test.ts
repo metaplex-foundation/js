@@ -225,7 +225,7 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
+  await assertThrows(t, promise, /Not enough tokens on the account/);
 
   // And the payer still has one token.
   const refreshedPayerTokens = await mx

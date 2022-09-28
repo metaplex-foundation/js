@@ -133,7 +133,7 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
+  await assertThrows(t, promise, /Not enough tokens on the account/);
 });
 
 test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax if the payer does not have enough tokens', async (t) => {

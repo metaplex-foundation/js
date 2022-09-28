@@ -194,7 +194,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
+  await assertThrows(t, promise, /Not enough tokens on the account/);
 });
 
 test('[candyMachineModule] tokenGate guard: it forbids minting when the owner does not own enough tokens', async (t) => {
@@ -238,7 +238,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
+  await assertThrows(t, promise, /Not enough tokens on the account/);
 });
 
 test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax when trying to mint without the right amount of tokens', async (t) => {

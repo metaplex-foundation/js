@@ -164,7 +164,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer does
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough tokens to pay for this minting/);
+  await assertThrows(t, promise, /Missing NFT on the account/);
 });
 
 test('[candyMachineModule] nftGate guard: it forbids minting when the payer tries to provide an NFT from the wrong collection', async (t) => {
@@ -211,7 +211,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Invalid NFT Collection Payment/);
+  await assertThrows(t, promise, /Invalid NFT collection/);
 });
 
 test('[candyMachineModule] nftGate guard: it forbids minting when the payer tries to provide an NFT from an unverified collection', async (t) => {
@@ -254,7 +254,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
     .run();
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Invalid NFT Collection Payment/);
+  await assertThrows(t, promise, /Invalid NFT collection/);
 });
 
 test('[candyMachineModule] nftGate guard with bot tax: it charges a bot tax when trying to mint without owning the right NFT', async (t) => {
