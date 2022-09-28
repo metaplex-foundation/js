@@ -76,6 +76,13 @@ export type Bid = Readonly<
     canceledAt: Option<DateTime>;
   } & (
     | {
+        /** The bid is not public, which means that it was created according to the listing. */
+        isPublic: false;
+
+        /** The Nft or Sft with the associated token account. */
+        asset: SftWithToken | NftWithToken;
+      }
+    | {
         /**
          * The bid is public.
          * This means that a bid can stay active beyond the end of an auction
@@ -85,13 +92,6 @@ export type Bid = Readonly<
 
         /** The Nft or Sft related to the Bid. */
         asset: Sft | Nft;
-      }
-    | {
-        /** The bid is not public, which means that it was created according to the listing. */
-        isPublic: false;
-
-        /** The Nft or Sft with the associated token account. */
-        asset: SftWithToken | NftWithToken;
       }
   )
 >;
