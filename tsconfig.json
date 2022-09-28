@@ -9,7 +9,7 @@
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
     "paths": {
-      "@/*": ["packages/js/src/*"]
+      "@/*": ["packages/js-core-packages/js-core/src/*"]
     },
 
     "target": "es2019",

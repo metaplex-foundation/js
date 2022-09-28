@@ -1,0 +1,77 @@
+{
+  "name": "@metaplex-foundation/js-core",
+  "version": "0.15.0",
+  "sideEffects": false,
+  "module": "dist/esm/index.mjs",
+  "main": "dist/cjs/index.cjs",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
+  "files": [
+    "/dist/cjs",
+    "/dist/esm",
+    "/dist/types",
+    "/src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "description": "Metaplex JavaScript SDK",
+  "keywords": [
+    "nft",
+    "metaplex",
+    "solana",
+    "blockchain"
+  ],
+  "author": "Metaplex Maintainers <contact@metaplex.com>",
+  "homepage": "https://metaplex.com",
+  "repository": {
+    "url": "https://github.com/metaplex-foundation/js.git"
+  },
+  "scripts": {
+    "lint:test": "yarn eslint --ext js,ts,tsx src",
+    "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
+    "clean": "rimraf dist",    "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
+    "test": "tape dist/test/**/*.test.js && yarn test:exports",
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
+    "preversion": "yarn build",
+    "postversion": "git push --follow-tags"
+  },
+  "dependencies": {
+    "@bundlr-network/client": "^0.7.14",
+    "@metaplex-foundation/mpl-auction-house": "^2.1.1",
+    "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
+    "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/web3.js": "^1.47.3",
+    "abort-controller": "^3.0.0",
+    "bignumber.js": "^9.0.2",
+    "bn.js": "^5.2.0",
+    "bs58": "^5.0.0",
+    "buffer": "^6.0.3",
+    "debug": "^4.3.4",
+    "eventemitter3": "^4.0.7",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
+    "mime": "^3.0.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "engines": {
+    "node": ">=16.0"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ],
+  "typedoc": {
+    "entryPoint": "./src/index.ts",
+    "readmeFile": "./README.md",
+    "displayName": "js"
+  }
+}
