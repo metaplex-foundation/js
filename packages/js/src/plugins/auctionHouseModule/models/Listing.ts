@@ -12,7 +12,7 @@ import {
   toOptionDateTime,
 } from '@/types';
 import { ListingReceiptAccount } from '../accounts';
-import { NftWithToken, SftWithToken } from '../../nftModule';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 import { assert, Option } from '@/utils';
 import { AuctionHouse } from './AuctionHouse';
 
@@ -30,8 +30,8 @@ export type Listing = Readonly<{
   /** A model of the Auction House related to this listing. */
   auctionHouse: AuctionHouse;
 
-  /** The Nft or Sft with the associated token account. */
-  asset: NftWithToken | SftWithToken;
+  /** The Nft or Sft related to this listing. */
+  asset: Sft | Nft | NftWithToken | SftWithToken;
 
   /** The address of the seller's trade state account. */
   tradeStateAddress: Pda;

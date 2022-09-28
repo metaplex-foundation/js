@@ -1,25 +1,28 @@
-import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   CancelInstructionAccounts,
-  createCancelListingReceiptInstruction,
-  createCancelInstruction,
   createAuctioneerCancelInstruction,
+  createCancelInstruction,
+  createCancelListingReceiptInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import type { Metaplex } from '@/Metaplex';
 import {
-  useOperation,
+  isSigner,
   Operation,
   OperationHandler,
-  Signer,
-  isSigner,
   Pda,
+  Signer,
+  toPublicKey,
+  useOperation,
 } from '@/types';
+import { TransactionBuilder } from '@/utils';
+import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { isNftWithToken, isSftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Listing } from '../models';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAuctioneerPda } from '../pdas';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { AUCTIONEER_PRICE } from '../constants';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, Listing } from '../models';
+import { findAuctioneerPda } from '../pdas';
 
 // -----------------
 // Operation
@@ -176,9 +179,17 @@ export const cancelListingBuilder = (
 
   const buyerPrice = hasAuctioneer ? AUCTIONEER_PRICE : price.basisPoints;
 
+  const tokenAccount =
+    isNftWithToken(asset) || isSftWithToken(asset)
+      ? asset.token.address
+      : findAssociatedTokenAccountPda(
+          asset.address,
+          toPublicKey(sellerAddress)
+        );
+
   const accounts: CancelInstructionAccounts = {
     wallet: sellerAddress,
-    tokenAccount: asset.token.address,
+    tokenAccount,
     tokenMint: asset.address,
     authority: authorityAddress,
     auctionHouse: auctionHouseAddress,

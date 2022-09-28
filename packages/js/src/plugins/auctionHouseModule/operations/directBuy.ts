@@ -1,6 +1,6 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   now,
   Operation,
@@ -12,11 +12,11 @@ import {
   useOperation,
 } from '@/types';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, Listing, Purchase } from '../models';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
 import { createBidBuilder } from './createBid';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { isNftWithToken, isSftWithToken } from '../../nftModule';
 
 // -----------------
 // Operation
@@ -149,11 +149,23 @@ export type DirectBuyOutput = {
  * @category Handlers
  */
 export const directBuyOperationHandler: OperationHandler<DirectBuyOperation> = {
-  handle: async (operation: DirectBuyOperation, metaplex: Metaplex) =>
-    (await directBuyBuilder(metaplex, operation.input)).sendAndConfirm(
-      metaplex,
-      operation.input.confirmOptions
-    ),
+  handle: async (
+    operation: DirectBuyOperation,
+    metaplex: Metaplex,
+    scope: DisposableScope
+  ) => {
+    const { lazyPurchase, ...output } = await (
+      await directBuyBuilder(metaplex, operation.input)
+    ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+    return {
+      purchase: await metaplex
+        .auctionHouse()
+        .loadPurchase({ lazyPurchase })
+        .run(scope),
+      ...output,
+    };
+  },
 };
 
 // -----------------
@@ -173,7 +185,10 @@ export type DirectBuyBuilderParams = Omit<DirectBuyInput, 'confirmOptions'> & {
  * @group Transaction Builders
  * @category Contexts
  */
-export type DirectBuyBuilderContext = Omit<DirectBuyOutput, 'response'>;
+export type DirectBuyBuilderContext = Omit<
+  DirectBuyOutput,
+  'response' | 'purchase'
+> & { lazyPurchase: LazyPurchase };
 
 /**
  * Creates a bid on a given asset and executes a sale on the created bid and given listing.
@@ -232,7 +247,6 @@ export const directBuyBuilder = async (
     model: 'bid',
     lazy: false,
     auctionHouse,
-    asset,
     tradeStateAddress: buyerTradeState,
     bookkeeperAddress: bookkeeper.publicKey,
     buyerAddress: buyer.publicKey,
@@ -240,9 +254,17 @@ export const directBuyBuilder = async (
     purchaseReceiptAddress: null,
     price,
     tokens,
-    isPublic: false,
     canceledAt: null,
     createdAt: now(),
+    ...(isNftWithToken(asset) || isSftWithToken(asset)
+      ? {
+          asset,
+          isPublic: false,
+        }
+      : {
+          asset,
+          isPublic: true,
+        }),
   };
 
   const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
@@ -258,37 +280,24 @@ export const directBuyBuilder = async (
 
   const { receipt: purchaseReceiptAddress } = saleBuilder.getContext();
 
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
-    asset.address,
-    toPublicKey(buyer)
-  );
-  const purchasedAsset = {
-    ...asset,
-    token: {
-      ...asset.token,
-      address: buyerTokenAccount,
-      ownerAddress: toPublicKey(buyer),
-    },
-  };
-
-  const purchase: Purchase = {
+  const lazyPurchase: LazyPurchase = {
     auctionHouse,
     model: 'purchase',
-    lazy: false,
+    lazy: true,
     buyerAddress: toPublicKey(buyer),
     sellerAddress,
-    asset: purchasedAsset,
+    metadataAddress: asset.metadataAddress,
     bookkeeperAddress: toPublicKey(bookkeeper),
     receiptAddress: purchaseReceiptAddress,
     price: listing.price,
-    tokens,
+    tokens: tokens.basisPoints,
     createdAt: now(),
   };
 
   return TransactionBuilder.make<DirectBuyBuilderContext>()
     .setContext({
       bid,
-      purchase,
+      lazyPurchase,
     })
     .add(bidBuilder)
     .add(saleBuilder);

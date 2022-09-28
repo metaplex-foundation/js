@@ -1,11 +1,4 @@
 import {
-  ConfirmOptions,
-  PublicKey,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-} from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
-import {
   AuctioneerExecuteSaleInstructionAccounts,
   createAuctioneerExecuteSaleInstruction,
   createExecutePartialSaleInstruction,
@@ -14,28 +7,29 @@ import {
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
 import {
-  useOperation,
+  ConfirmOptions,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from '@solana/web3.js';
+import type { Metaplex } from '@/Metaplex';
+import {
+  amount,
+  isSigner,
+  lamports,
+  now,
   Operation,
   OperationHandler,
   Pda,
-  lamports,
   Signer,
   SolAmount,
   SplTokenAmount,
-  isSigner,
-  now,
-  amount,
+  toPublicKey,
+  useOperation,
 } from '@/types';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { isNftWithToken, isSftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
-import {
-  findAuctionHouseBuyerEscrowPda,
-  findAuctionHouseProgramAsSignerPda,
-  findAuctionHouseTradeStatePda,
-  findPurchaseReceiptPda,
-  findAuctioneerPda,
-} from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
   AuctioneerPartialSaleNotSupportedError,
@@ -45,6 +39,14 @@ import {
   CanceledListingIsNotAllowedError,
   PartialPriceMismatchError,
 } from '../errors';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
+import {
+  findAuctioneerPda,
+  findAuctionHouseBuyerEscrowPda,
+  findAuctionHouseProgramAsSignerPda,
+  findAuctionHouseTradeStatePda,
+  findPurchaseReceiptPda,
+} from '../pdas';
 
 // -----------------
 // Operation
@@ -343,6 +345,14 @@ export const executeSaleBuilder = (
   }
 
   // Accounts.
+  const tokenAccount =
+    isNftWithToken(asset) || isSftWithToken(asset)
+      ? asset.token.address
+      : findAssociatedTokenAccountPda(
+          asset.address,
+          toPublicKey(sellerAddress)
+        );
+
   const sellerPaymentReceiptAccount = isNative
     ? sellerAddress
     : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
@@ -361,14 +371,14 @@ export const executeSaleBuilder = (
     asset.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
-    asset.token.address
+    tokenAccount
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
 
   const accounts = {
     buyer: buyerAddress,
     seller: sellerAddress,
-    tokenAccount: asset.token.address,
+    tokenAccount,
     tokenMint: asset.address,
     metadata: asset.metadataAddress,
     treasuryMint: treasuryMint.address,

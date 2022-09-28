@@ -1,6 +1,5 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   now,
   Operation,
@@ -9,15 +8,17 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { isNftWithToken, isSftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Listing, PrivateBid, Purchase } from '../models';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 
 // -----------------
 // Operation
@@ -84,10 +85,7 @@ export type DirectSellInput = {
    *
    * This includes, its asset, auction house address, buyer, receipt address etc.
    */
-  bid: Omit<
-    PrivateBid,
-    'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
-  >;
+  bid: Omit<Bid, 'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'>;
 
   /**
    * The Auctioneer authority key.
@@ -138,10 +136,23 @@ export type DirectSellOutput = {
  */
 export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
   {
-    handle: async (operation: DirectSellOperation, metaplex: Metaplex) =>
-      await (
+    handle: async (
+      operation: DirectSellOperation,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ) => {
+      const { lazyPurchase, ...output } = await (
         await directSellBuilder(metaplex, operation.input)
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions),
+      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+
+      return {
+        purchase: await metaplex
+          .auctionHouse()
+          .loadPurchase({ lazyPurchase })
+          .run(scope),
+        ...output,
+      };
+    },
   };
 
 // -----------------
@@ -164,7 +175,10 @@ export type DirectSellBuilderParams = Omit<
  * @group Transaction Builders
  * @category Contexts
  */
-export type DirectSellBuilderContext = Omit<DirectSellOutput, 'response'>;
+export type DirectSellBuilderContext = Omit<
+  DirectSellOutput,
+  'response' | 'purchase'
+> & { lazyPurchase: LazyPurchase };
 
 /**
  * Creates a listing on a given asset and executes a sale on the created listing and given bid.
@@ -205,6 +219,11 @@ export const directSellBuilder = async (
     throw new AuctioneerAuthorityRequiredError();
   }
 
+  const tokenAccount =
+    isNftWithToken(asset) || isSftWithToken(asset)
+      ? asset.token.address
+      : findAssociatedTokenAccountPda(asset.address, toPublicKey(seller));
+
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
     await createListingBuilder(metaplex, {
       mintAccount: asset.mint.address,
@@ -213,7 +232,7 @@ export const directSellBuilder = async (
       auctioneerAuthority,
       seller,
       authority,
-      tokenAccount: asset.token.address,
+      tokenAccount,
       tokens,
       printReceipt,
       bookkeeper,
@@ -249,37 +268,24 @@ export const directSellBuilder = async (
     });
   const { receipt: receiptAddress } = saleBuilder.getContext();
 
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
-    asset.address,
-    buyerAddress
-  );
-  const purchasedAsset = {
-    ...asset,
-    token: {
-      ...asset.token,
-      address: buyerTokenAccount,
-      ownerAddress: buyerAddress,
-    },
-  };
-
-  const purchase: Purchase = {
+  const lazyPurchase: LazyPurchase = {
     auctionHouse,
     model: 'purchase',
-    lazy: false,
-    asset: purchasedAsset,
+    lazy: true,
+    metadataAddress: asset.metadataAddress,
     buyerAddress,
     sellerAddress: toPublicKey(seller),
     bookkeeperAddress: toPublicKey(bookkeeper),
     receiptAddress,
     price: bid.price,
-    tokens,
+    tokens: tokens.basisPoints,
     createdAt: now(),
   };
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
     .setContext({
       listing,
-      purchase,
+      lazyPurchase,
     })
     .add(listingBuilder)
     .add(saleBuilder);
