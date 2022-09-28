@@ -61,10 +61,20 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
   name: 'nftPayment',
   settingsBytes: 64,
   settingsSerializer: createSerializerFromBeet(nftPaymentBeet),
-  mintSettingsParser: ({ metaplex, mintSettings, payer, programs }) => {
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    mintSettings,
+    payer,
+    programs,
+  }) => {
     if (!mintSettings) {
       throw new GuardMitingSettingsMissingError('nftPayment');
     }
+
+    const associatedTokenProgram = metaplex
+      .programs()
+      .getAssociatedToken(programs);
 
     const nftTokenAccount =
       mintSettings.tokenAccount ??
@@ -74,8 +84,14 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
         programs,
       });
 
-    const nftTokenMetadata = metaplex.nfts().pdas().metadata({
+    const nftMetadata = metaplex.nfts().pdas().metadata({
       mint: mintSettings.mint,
+      programs,
+    });
+
+    const destinationAta = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintSettings.mint,
+      owner: settings.destination,
       programs,
     });
 
@@ -85,11 +101,36 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
         {
           isSigner: false,
           address: nftTokenAccount,
+          isWritable: true,
+        },
+        {
+          isSigner: false,
+          address: nftMetadata,
+          isWritable: true,
+        },
+        {
+          isSigner: false,
+          address: mintSettings.mint,
+          isWritable: false,
+        },
+        {
+          isSigner: true,
+          address: payer,
           isWritable: false,
         },
         {
           isSigner: false,
-          address: nftTokenMetadata,
+          address: settings.destination,
+          isWritable: false,
+        },
+        {
+          isSigner: false,
+          address: destinationAta,
+          isWritable: true,
+        },
+        {
+          isSigner: false,
+          address: associatedTokenProgram.address,
           isWritable: false,
         },
       ],
