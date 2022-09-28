@@ -458,7 +458,6 @@ export const mintFromCandyMachineBuilder = async <
     );
     mintNftInstruction.keys.push(...parsedMintSettings.accountMetas);
   } else {
-    // TODO(loris): Ensure mint authority is valid.
     mintNftSigners = [payer, mint, mintAuthority];
     mintNftInstruction = createMintFromMachineInstruction(
       {

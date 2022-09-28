@@ -28,7 +28,8 @@ import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
 
 /**
- * TODO
+ * This client enables us to register custom guards from
+ * custom Candy Guard programs and interact with them.
  *
  * @see {@link CandyGuardClient}
  * @group Module
@@ -38,12 +39,12 @@ export class CandyMachineGuardsClient {
 
   constructor(protected readonly metaplex: Metaplex) {}
 
-  /** TODO */
+  /** Registers one or many guards by providing their manifest. */
   register(...guard: CandyGuardManifest<any, any>[]) {
     this.guards.push(...guard);
   }
 
-  /** TODO */
+  /** Gets the manifest of a guard using its name. */
   get(name: string): CandyGuardManifest<any, any> {
     const guard = this.guards.find((guard) => guard.name === name);
 
@@ -54,12 +55,18 @@ export class CandyMachineGuardsClient {
     return guard;
   }
 
-  /** TODO */
+  /** Gets all registered guard manifests. */
   all(): CandyGuardManifest<any, any>[] {
     return this.guards;
   }
 
-  /** TODO */
+  /**
+   * Gets all guard manifests for a registered Candy Guard program.
+   *
+   * It fails if the manifest of any guard expected by the program
+   * is not registered. Manifests are returned in the order in which
+   * they are defined on the `availableGuards` property of the program.
+   */
   forProgram(
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
   ): CandyGuardManifest<any, any>[] {
@@ -71,7 +78,11 @@ export class CandyMachineGuardsClient {
     return candyGuardProgram.availableGuards.map((name) => this.get(name));
   }
 
-  /** TODO */
+  /**
+   * Gets all guard manifests for the registered Candy Guard program.
+   *
+   * @see {@link CandyMachineGuardsClient.forProgram}
+   */
   forCandyGuardProgram(
     programs: Program[] = []
   ): CandyGuardManifest<any, any>[] {
@@ -80,7 +91,7 @@ export class CandyMachineGuardsClient {
     return this.forProgram(candyGuardProgram);
   }
 
-  /** TODO */
+  /** Serializes the settings of all guards and groups. */
   serializeSettings<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     guards: Partial<T>,
     groups: { label: string; guards: Partial<T> }[] = [],
@@ -125,7 +136,7 @@ export class CandyMachineGuardsClient {
     return buffer;
   }
 
-  /** TODO */
+  /** Deserializes the settings of all guards and groups. */
   deserializeSettings<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
   >(
@@ -166,7 +177,13 @@ export class CandyMachineGuardsClient {
     return { guards, groups };
   }
 
-  /** TODO */
+  /**
+   * Resolves the set of settings that should be used when minting.
+   *
+   * If no group exists, the `guards` settings will be used.
+   * Otherwise, the `guards` settings will act as default settings and
+   * the settings of the selected group will override them.
+   */
   resolveGroupSettings<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
   >(
@@ -205,7 +222,10 @@ export class CandyMachineGuardsClient {
     };
   }
 
-  /** TODO */
+  /**
+   * Parses the arguments and remaining accounts of
+   * all relevant guards for the mint instruction.
+   */
   parseMintSettings<
     Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
     MintSettings extends CandyGuardsMintSettings = {}
