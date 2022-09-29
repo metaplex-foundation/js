@@ -133,9 +133,9 @@ export type DirectSellInput = {
   | {
       /**
        * The Token Account of an asset to sell.
-       * Public Bid doesn't contain a token, so it must be provided externally via this parameter.
+       * Not needed for private bid.
        */
-      sellerToken?: Option<Token>;
+      sellerToken?: null;
 
       /**
        * The Private Bid that is used in the sale.
