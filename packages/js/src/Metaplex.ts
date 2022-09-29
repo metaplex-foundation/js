@@ -1,9 +1,11 @@
-import { Connection } from '@solana/web3.js';
+import { Connection, Transaction } from '@solana/web3.js';
 import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
+import { TransactionBuilder } from '@/utils';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
+  onSignature?: (signature: string) => Promise<void>
 };
 
 export class Metaplex {
@@ -12,10 +14,16 @@ export class Metaplex {
 
   /** The cluster in which the connection endpoint belongs to. */
   public readonly cluster: Cluster;
+  
+  /** Callback when signature is generated */
+  public readonly onSignature?: (signature: string, transaction: Transaction | TransactionBuilder) => Promise<void>;
 
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
+    if (options.onSignature && typeof options.onSignature === 'function') {
+      this.onSignature = options.onSignature;
+    }
     this.use(corePlugins());
   }
 
