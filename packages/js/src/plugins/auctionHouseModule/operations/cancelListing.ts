@@ -11,14 +11,11 @@ import {
   OperationHandler,
   Pda,
   Signer,
-  toPublicKey,
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
-import { isNftWithToken, isSftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Listing } from '../models';
@@ -179,17 +176,9 @@ export const cancelListingBuilder = (
 
   const buyerPrice = hasAuctioneer ? AUCTIONEER_PRICE : price.basisPoints;
 
-  const tokenAccount =
-    isNftWithToken(asset) || isSftWithToken(asset)
-      ? asset.token.address
-      : findAssociatedTokenAccountPda(
-          asset.address,
-          toPublicKey(sellerAddress)
-        );
-
   const accounts: CancelInstructionAccounts = {
     wallet: sellerAddress,
-    tokenAccount,
+    tokenAccount: asset.token.address,
     tokenMint: asset.address,
     authority: authorityAddress,
     auctionHouse: auctionHouseAddress,

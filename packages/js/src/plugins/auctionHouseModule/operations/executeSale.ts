@@ -345,14 +345,6 @@ export const executeSaleBuilder = (
   }
 
   // Accounts.
-  const tokenAccount =
-    isNftWithToken(asset) || isSftWithToken(asset)
-      ? asset.token.address
-      : findAssociatedTokenAccountPda(
-          asset.address,
-          toPublicKey(sellerAddress)
-        );
-
   const sellerPaymentReceiptAccount = isNative
     ? sellerAddress
     : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
@@ -371,14 +363,14 @@ export const executeSaleBuilder = (
     asset.address,
     lamports(0).basisPoints,
     tokens.basisPoints,
-    tokenAccount
+    asset.token.address
   );
   const programAsSigner = findAuctionHouseProgramAsSignerPda();
 
   const accounts = {
     buyer: buyerAddress,
     seller: sellerAddress,
-    tokenAccount,
+    tokenAccount: asset.token.address,
     tokenMint: asset.address,
     metadata: asset.metadataAddress,
     treasuryMint: treasuryMint.address,

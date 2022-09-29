@@ -9,7 +9,6 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { NftWithToken } from '@/plugins';
 
 killStuckProcess();
 
@@ -31,7 +30,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
     .run();
 
   // The NFT will have delegated authority.
-  t.ok((listing.asset as NftWithToken).token.delegateAddress);
+  t.ok(listing.asset.token.delegateAddress);
 
   // When we cancel the given listing.
   await mx.auctionHouse().cancelListing({ auctionHouse, listing }).run();
@@ -44,7 +43,7 @@ test('[auctionHouseModule] cancel a Listing on an Auction House', async (t: Test
       auctionHouse,
     })
     .run();
-  t.false((canceledListing.asset as NftWithToken).token.delegateAddress);
+  t.false(canceledListing.asset.token.delegateAddress);
   t.ok(canceledListing.canceledAt);
 
   // And the trade state account no longer exists.

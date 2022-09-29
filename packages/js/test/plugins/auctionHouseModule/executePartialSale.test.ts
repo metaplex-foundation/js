@@ -9,7 +9,7 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { Keypair } from '@solana/web3.js';
-import { findAssociatedTokenAccountPda, SftWithToken } from '@/plugins';
+import { findAssociatedTokenAccountPda } from '@/plugins';
 
 killStuckProcess();
 
@@ -72,7 +72,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
   // And then the seller must have 2 Tokens on sale left.
   const sellerTokens = await mx
     .nfts()
-    .findByToken({ token: (listing.asset as SftWithToken).token.address })
+    .findByToken({ token: listing.asset.token.address })
     .run();
 
   t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 2);
@@ -158,7 +158,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
   // And then the seller must have 3 SFTs on sale left.
   const sellerTokens = await mx
     .nfts()
-    .findByToken({ token: (listing.asset as SftWithToken).token.address })
+    .findByToken({ token: listing.asset.token.address })
     .run();
 
   t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 3);
