@@ -8,7 +8,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, Token } from '../../tokenModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
