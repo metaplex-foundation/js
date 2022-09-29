@@ -9,13 +9,18 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { findAssociatedTokenAccountPda, Purchase } from '@/plugins';
+import {
+  findAssociatedTokenAccountPda,
+  PrivateBid,
+  PublicBid,
+  Purchase,
+} from '@/plugins';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
-test('[auctionHouseModule] sell on an Auction House with minimum input', async (t: Test) => {
+test('[auctionHouseModule] sell using private bid on an Auction House with minimum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -35,10 +40,12 @@ test('[auctionHouseModule] sell on an Auction House with minimum input', async (
     })
     .run();
 
+  const privateBid = bid as PrivateBid;
+
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, bid })
+    .sell({ auctionHouse, bid: privateBid })
     .run();
 
   // Then we created and returned the new Purchase with appropriate values.
@@ -65,7 +72,7 @@ test('[auctionHouseModule] sell on an Auction House with minimum input', async (
   } as unknown as Specifications<Purchase>);
 });
 
-test('[auctionHouseModule] sell on an Auction House with auctioneer', async (t: Test) => {
+test('[auctionHouseModule] sell using private bid on an Auction House with auctioneer', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -87,17 +94,19 @@ test('[auctionHouseModule] sell on an Auction House with auctioneer', async (t: 
     })
     .run();
 
+  const privateBid = bid as PrivateBid;
+
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, auctioneerAuthority, bid })
+    .sell({ auctionHouse, auctioneerAuthority, bid: privateBid })
     .run();
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 });
 
-test('[auctionHouseModule] sell on an Auction House with maximum input', async (t: Test) => {
+test('[auctionHouseModule] sell using private bid on an Auction House with maximum input', async (t: Test) => {
   // Given we have an Auction House and an NFT.
   const mx = await metaplex();
   const buyer = await createWallet(mx);
@@ -109,7 +118,7 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     authority,
   });
 
-  // And we listed that NFT for 1 SOL.
+  // And we put a private bid on that NFT for 1 SOL.
   const { bid } = await mx
     .auctionHouse()
     .bid({
@@ -122,6 +131,8 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     })
     .run();
 
+  const privateBid = bid as PrivateBid;
+
   // When we execute direct buy with the given listing.
   const { purchase } = await mx
     .auctionHouse()
@@ -129,7 +140,7 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
       auctionHouse,
       authority,
       seller,
-      bid,
+      bid: privateBid,
       printReceipt: true,
     })
     .run();
@@ -157,4 +168,35 @@ test('[auctionHouseModule] sell on an Auction House with maximum input', async (
     $topic: 'Purchase',
     ...expectedPurchase,
   } as unknown as Specifications<Purchase>);
+});
+
+test('[auctionHouseModule] sell using public bid on an Auction House with minimum input', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const buyer = await createWallet(mx);
+
+  const nft = await createNft(mx);
+  const auctionHouse = await createAuctionHouse(mx);
+
+  // And we put a private bid on that NFT for 1 SOL.
+  const { bid } = await mx
+    .auctionHouse()
+    .bid({
+      auctionHouse,
+      buyer,
+      mintAccount: nft.address,
+      price: sol(1),
+    })
+    .run();
+
+  const publicBid = bid as PublicBid;
+
+  // Then we execute an Sell on the bid by providing bid and nft token as external property
+  const { purchase } = await mx
+    .auctionHouse()
+    .sell({ auctionHouse, bid: publicBid, sellerToken: nft.token })
+    .run();
+
+  // Then we created and returned the new Purchase
+  t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 });

@@ -131,6 +131,19 @@ export const toBid = (
   };
 };
 
+/** @group Models */
+export type PublicBid = Bid & { isPublic: true; asset: Sft | Nft };
+
+/** @group Models */
+export type PrivateBid = Bid & {
+  isPublic: false;
+  asset: SftWithToken | NftWithToken;
+};
+
+/** @group Model Helpers */
+export const isPrivateBid = (value: any): value is PrivateBid =>
+  typeof value === 'object' && value.model === 'bid' && !value.isPublic;
+
 export type LazyBid = Omit<Bid, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{
     lazy: true;

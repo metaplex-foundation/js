@@ -408,6 +408,11 @@ export const createListingBuilder = (
   );
   sellInstruction.keys[signerKeyIndex].isSigner = true;
 
+  // Fixes cross-program invocation with unauthorized writable account
+  if (sellInstruction.keys[signerKeyIndex].pubkey.equals(toPublicKey(seller))) {
+    sellInstruction.keys[signerKeyIndex].isWritable = true;
+  }
+
   // Receipt.
   // Since createPrintListingReceiptInstruction can't deserialize createAuctioneerSellInstruction due to a bug
   // Don't print Auctioneer Sell receipt for the time being.

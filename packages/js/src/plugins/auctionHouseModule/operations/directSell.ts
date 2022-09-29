@@ -8,12 +8,18 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { isNftWithToken, isSftWithToken } from '../../nftModule';
+import { Option, TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findAssociatedTokenAccountPda, Token } from '../../tokenModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { AuctionHouse, Bid, Listing, Purchase } from '../models';
+import {
+  AuctionHouse,
+  isPrivateBid,
+  Listing,
+  PrivateBid,
+  PublicBid,
+  Purchase,
+} from '../models';
 import {
   createListingBuilder,
   CreateListingBuilderContext,
@@ -78,16 +84,6 @@ export type DirectSellInput = {
   seller?: PublicKey | Signer;
 
   /**
-   * The Bid that is used in the sale.
-   * We only need a subset of the `Bid` model but we
-   * need enough information regarding its settings to know how
-   * to execute the sale.
-   *
-   * This includes, its asset, auction house address, buyer, receipt address etc.
-   */
-  bid: Omit<Bid, 'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'>;
-
-  /**
    * The Auctioneer authority key.
    * It is required when Auction House has Auctioneer enabled.
    *
@@ -113,7 +109,48 @@ export type DirectSellInput = {
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
-};
+} & (
+  | {
+      /**
+       * The Token Account of an asset to sell.
+       * Public Bid doesn't contain a token, so it must be provided externally via this parameter.
+       */
+      sellerToken: Token;
+
+      /**
+       * The Public Bid that is used in the sale.
+       * We only need a subset of the `Bid` model but we
+       * need enough information regarding its settings to know how
+       * to execute the sale.
+       *
+       * This includes its auction house address, buyer, receipt address, etc.
+       */
+      bid: Omit<
+        PublicBid,
+        'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
+      >;
+    }
+  | {
+      /**
+       * The Token Account of an asset to sell.
+       * Public Bid doesn't contain a token, so it must be provided externally via this parameter.
+       */
+      sellerToken?: Option<Token>;
+
+      /**
+       * The Private Bid that is used in the sale.
+       * We only need a subset of the `Bid` model but we
+       * need enough information regarding its settings to know how
+       * to execute the sale.
+       *
+       * This includes its asset, auction house address, buyer, receipt address, etc.
+       */
+      bid: Omit<
+        PrivateBid,
+        'bookkeeperAddress' | 'purchaseReceiptAddress' | 'createdAt'
+      >;
+    }
+);
 
 /**
  * @group Operations
@@ -195,7 +232,7 @@ export const directSellBuilder = async (
     executeSaleInstructionKey,
   } = params;
   const { hasAuctioneer } = auctionHouse;
-  const { tokens, price, buyerAddress, asset } = bid;
+  const { tokens, price, buyerAddress } = bid;
 
   const printReceipt =
     (params.printReceipt ?? true) && Boolean(bid.receiptAddress);
@@ -204,10 +241,9 @@ export const directSellBuilder = async (
     throw new AuctioneerAuthorityRequiredError();
   }
 
-  const tokenAccount =
-    isNftWithToken(asset) || isSftWithToken(asset)
-      ? asset.token.address
-      : findAssociatedTokenAccountPda(asset.address, toPublicKey(seller));
+  const asset = isPrivateBid(bid)
+    ? bid.asset
+    : { ...bid.asset, token: params.sellerToken as Token };
 
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
     await createListingBuilder(metaplex, {
@@ -217,7 +253,7 @@ export const directSellBuilder = async (
       auctioneerAuthority,
       seller,
       authority,
-      tokenAccount,
+      tokenAccount: asset.token.address,
       tokens,
       printReceipt,
       bookkeeper,
