@@ -5,7 +5,7 @@ import { TransactionBuilder } from '@/utils';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
-  onSignature?: (signature: string) => Promise<void>
+  onSignature?: (signature: string, transaction: Transaction | TransactionBuilder) => Promise<void>;
 };
 
 export class Metaplex {

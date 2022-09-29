@@ -1,6 +1,6 @@
 {
   "name": "@zerodrop/metaplex-foundation-js",
-  "version": "0.15.1",
+  "version": "0.15.3",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
