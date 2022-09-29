@@ -30,7 +30,7 @@ export type Listing = Readonly<{
   /** A model of the Auction House related to this listing. */
   auctionHouse: AuctionHouse;
 
-  /** The Nft or Sft related to this listing. */
+  /** The Nft or Sft with the associated token account. */
   asset: NftWithToken | SftWithToken;
 
   /** The address of the seller's trade state account. */
