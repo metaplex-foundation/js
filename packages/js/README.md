@@ -430,9 +430,9 @@ The `findMintedNfts` method accepts the public key of a Candy Machine and return
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.candyMachinesV2().findMintedNfts(candyMachine).run();
-const nfts = await metaplex.candyMachinesV2().findMintedNfts(candyMachine, { version: 2 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.candyMachinesV2().findMintedNfts(candyMachine, { version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine }).run();
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 2 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
 ```
 
 Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.
