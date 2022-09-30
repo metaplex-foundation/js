@@ -16,7 +16,7 @@ export const toDateTime = (value: DateTimeValues): DateTime => {
   return new BN(value) as DateTime;
 };
 
-export const now = (): DateTime => toDateTime(new Date());
+export const now = (): DateTime => toDateTime(new Date(Date.now()));
 
 export const toOptionDateTime = (
   value: Option<DateTimeValues>
