@@ -441,3 +441,34 @@ test('[nftModule] it can unset the parent Collection of an NFT even when verifie
   // And the size of the collection NFT was decremented by 1.
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 0);
 });
+
+test('[nftModule] it does not try to remove a collection when the collection parameter is not provided', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with an unsized collection.
+  const collectionNft = await createNft(mx);
+  const nft = await createNft(mx, {
+    name: 'Original Name',
+    collection: collectionNft.address,
+    collectionAuthority: mx.identity(),
+    collectionIsSized: false,
+  });
+
+  // When we update the metadata of the NFT
+  // without providing the collection parameter.
+  await mx.nfts().update({ nftOrSft: nft, name: 'Updated Name' }).run();
+
+  // Then the NFT should have the updated name
+  // but its collection should still be the same.
+  const updatedNft = await mx.nfts().refresh(nft).run();
+  spok(t, updatedNft, {
+    $topic: 'Updated Nft',
+    model: 'nft',
+    name: 'Updated Name',
+    collection: {
+      address: spokSamePubkey(collectionNft.address),
+      verified: true,
+    },
+  } as unknown as Specifications<Nft>);
+});
