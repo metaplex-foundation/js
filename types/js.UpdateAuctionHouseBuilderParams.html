@@ -14,32 +14,85 @@
 <li><a href="../modules/js.html">js</a></li>
 <li><a href="js.UpdateAuctionHouseBuilderParams.html">UpdateAuctionHouseBuilderParams</a></li></ul>
 <h1>Type alias UpdateAuctionHouseBuilderParams</h1></div>
-<div class="tsd-signature">Update<wbr/>Auction<wbr/>House<wbr/>Builder<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>auctionHouse<span class="tsd-signature-symbol">: </span><a href="js.AuctionHouse.html" class="tsd-signature-type" data-tsd-kind="Type alias">AuctionHouse</a><span class="tsd-signature-symbol">; </span>sellerFeeBasisPoints<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>requiresSignOff<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>canChangeSalePrice<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>newAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>feeWithdrawalDestination<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>treasuryWithdrawalDestinationOwner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>auctioneerAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>auctioneerScopes<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AuthorityScope</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>instructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>delegateAuctioneerInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>updateAuctioneerInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+<div class="tsd-signature">Update<wbr/>Auction<wbr/>House<wbr/>Builder<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>auctionHouse<span class="tsd-signature-symbol">: </span><a href="js.AuctionHouse.html" class="tsd-signature-type" data-tsd-kind="Type alias">AuctionHouse</a><span class="tsd-signature-symbol">; </span>sellerFeeBasisPoints<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>auctioneerAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>requiresSignOff<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>canChangeSalePrice<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>auctioneerScopes<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AuthorityScope</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a><span class="tsd-signature-symbol">; </span>feeWithdrawalDestination<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>treasuryWithdrawalDestinationOwner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>newAuthority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">; </span>instructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>delegateAuctioneerInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>updateAuctioneerInstructionKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5>auction<wbr/>House<span class="tsd-signature-symbol">: </span><a href="js.AuctionHouse.html" class="tsd-signature-type" data-tsd-kind="Type alias">AuctionHouse</a></h5></li>
+<h5>auction<wbr/>House<span class="tsd-signature-symbol">: </span><a href="js.AuctionHouse.html" class="tsd-signature-type" data-tsd-kind="Type alias">AuctionHouse</a></h5>
+<div class="tsd-comment tsd-typography"><p>The Auction House model.
+We need the full model in order to compare the current data with
+the provided data to update. For instance, if you only want to
+update the <code>feeWithdrawalDestination</code>, we need to send an instruction that updates
+the data whilst keeping all other properties the same.</p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> seller<wbr/>Fee<wbr/>Basis<wbr/>Points<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> seller<wbr/>Fee<wbr/>Basis<wbr/>Points<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>The share of the sale the auction house takes on all NFTs as a fee.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.requiresSignOff</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> requires<wbr/>Sign<wbr/>Off<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> auctioneer<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Auctioneer authority key.
+It is required when Auction House is going to have Auctioneer enabled.</p>
+<p>Provide it if you want to delegate Auctioneer on the Auction House that doesn&#39;t have Auctioneer enabled.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.auctioneerAuthority</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> can<wbr/>Change<wbr/>Sale<wbr/>Price<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> requires<wbr/>Sign<wbr/>Off<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>This allows the centralised authority to gate which NFT can be listed, bought and sold.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.requiresSignOff</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> can<wbr/>Change<wbr/>Sale<wbr/>Price<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Is intended to be used with the Auction House that requires sign off.
+If the seller intentionally lists their NFT for a price of 0, a new FreeSellerTradeState is made.
+The Auction House can then change the price to match a matching Bid that is greater than 0.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.canChangeSalePrice</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> auctioneer<wbr/>Scopes<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AuthorityScope</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>The list of scopes available to the user in the Auctioneer.
+For example Bid, List, Execute Sale.</p>
+<p>Only takes place when Auction House has Auctioneer enabled.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.auctioneerScopes</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> new<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> payer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The Signer paying for the creation of all accounts
+required to create the Auction House.</p>
+
+<h3>Default Value</h3><p><code>metaplex.identity()</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> fee<wbr/>Withdrawal<wbr/>Destination<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="js.Signer.html" class="tsd-signature-type" data-tsd-kind="Type alias">Signer</a></h5>
+<div class="tsd-comment tsd-typography"><p>The Auction House authority.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.authority</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> treasury<wbr/>Withdrawal<wbr/>Destination<wbr/>Owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> fee<wbr/>Withdrawal<wbr/>Destination<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The account that is marked as a destination of withdrawal from the fee account.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.feeWithdrawalDestination</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> auctioneer<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> treasury<wbr/>Withdrawal<wbr/>Destination<wbr/>Owner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The account that is marked as the owner of treasury withdrawal destination.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.treasuryWithdrawalDestinationAddress</code></p>
+</div></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> auctioneer<wbr/>Scopes<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AuthorityScope</span><span class="tsd-signature-symbol">[]</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> new<wbr/>Authority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PublicKey</span></h5>
+<div class="tsd-comment tsd-typography"><p>The new Auction House authority if you want to change it.</p>
+
+<h3>Default Value</h3><p><code>auctionHouse.authority</code></p>
+</div></li>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
 <li class="tsd-parameter">
@@ -47,7 +100,7 @@
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> update<wbr/>Auctioneer<wbr/>Instruction<wbr/>Key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/357ff0d8/packages/js/src/plugins/auctionHouseModule/updateAuctionHouse.ts#L101">packages/js/src/plugins/auctionHouseModule/updateAuctionHouse.ts:101</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/metaplex-foundation/js/blob/b78afe20/packages/js/src/plugins/auctionHouseModule/operations/updateAuctionHouse.ts#L213">packages/js/src/plugins/auctionHouseModule/operations/updateAuctionHouse.ts:213</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -71,7 +124,7 @@
 <ul>
 <li class="tsd-kind-module"><a href="../modules/js_plugin_aws.html">js-<wbr/>plugin-<wbr/>aws -<wbr/> v0.1.3</a></li>
 <li class="tsd-kind-module"><a href="../modules/js_plugin_nft_storage.html">js-<wbr/>plugin-<wbr/>nft-<wbr/>storage -<wbr/> v0.1.1</a></li>
-<li class="current tsd-kind-module"><a href="../modules/js.html">js -<wbr/> v0.15.0</a></li></ul></li></ul></div></details></nav>
+<li class="current tsd-kind-module"><a href="../modules/js.html">js -<wbr/> v0.16.0</a></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">
 <ul>
 <li class="current tsd-kind-type-alias tsd-parent-kind-module"><a href="js.UpdateAuctionHouseBuilderParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Update<wbr/>Auction<wbr/>House<wbr/>Builder<wbr/>Params</span></a>
