@@ -267,7 +267,7 @@ export const updateNftBuilder = (
   const isRemovingVerifiedCollection =
     !!nftOrSft.collection &&
     !!nftOrSft.collection.verified &&
-    !params.collection;
+    params.collection === null;
   const isOverridingVerifiedCollection =
     !!nftOrSft.collection &&
     !!nftOrSft.collection.verified &&

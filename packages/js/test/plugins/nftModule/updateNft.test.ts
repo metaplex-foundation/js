@@ -452,6 +452,7 @@ test('[nftModule] it does not try to remove a collection when the collection par
     name: 'Original Name',
     collection: collectionNft.address,
     collectionAuthority: mx.identity(),
+    collectionIsSized: false,
   });
 
   // When we update the metadata of the NFT
