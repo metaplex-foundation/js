@@ -4,8 +4,8 @@ import type { Metaplex } from '../../Metaplex';
 import { identityModule } from '../identityModule';
 import { storageModule } from '../storageModule';
 import { rpcModule } from '../rpcModule';
-import { operationModule } from '../operationModule';
-import { programModule } from '../programModule';
+import { operationModule } from '../../../../js-plugin-operation-module/src';
+import { programModule } from '../../../../js-plugin-program-module/src';
 import { utilsModule } from '../utilsModule';
 
 // Default drivers.
