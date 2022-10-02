@@ -52,7 +52,7 @@ if (json.version !== version) {
   throw new Error('version incorrect');
 }
 
-// Execute "npm publish" to publish
-execSync(`npm pack --access public --registry=https://registry.npmjs.org/`);
+// use this for testing
+// execSync(`npm pack --access public --registry=https://registry.npmjs.org/`);
 
-// execSync(`npm publish --access public --registry=https://registry.npmjs.org/`);
+execSync(`npm publish --access public --registry=https://registry.npmjs.org/`);

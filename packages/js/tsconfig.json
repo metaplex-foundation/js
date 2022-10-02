@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "../js-plugin-bundlr/src/BundlrStorageDriver.ts"],
+  "include": ["src", "../js-plugin-bundlr-module/src/BundlrStorageDriver.ts"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",
