@@ -20,14 +20,14 @@
   "scripts": {
     "clean": "nx run-many --all --target=clean",
     "build": "nx run-many --all --target=build",
-    "test": "nx run-many --all --target=test --parallel=1",
+    "test": "nx run-many --all --target=test",
     "lint:test": "yarn workspaces run lint:test",
     "lint:fix": "yarn workspaces run lint:fix",
-    "format": "prettier --write packages/ ",
+    "format": "prettier --write packages/",
     "docs": "typedoc",
     "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
     "bump:version": "yarn changeset add",
-    "publish": "yarn changeset version",
+    "commit:version": "yarn changeset version",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop"
   },

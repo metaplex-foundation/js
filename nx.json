@@ -9,7 +9,7 @@
     }
   },
   "targetDependencies": {
-    "build": [
+    "test": [
       {
         "target": "build",
         "projects": "dependencies"
