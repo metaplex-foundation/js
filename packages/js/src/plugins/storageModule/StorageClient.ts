@@ -1,6 +1,6 @@
 import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
 import { Amount, HasDriver } from '@/types';
-import { fetch } from 'cross-fetch';
+import fetch from 'node-fetch';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
@@ -65,7 +65,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
       return driver.download(uri, options);
     }
 
-    const response = await fetch(uri, options as RequestInit);
+    const response = await fetch(uri, options);
     const buffer = await response.arrayBuffer();
 
     return toMetaplexFile(buffer, uri);
