@@ -13,9 +13,9 @@ import {
 } from '@/index';
 import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import { sha512 } from '@noble/hashes/sha512';
 import spok, { Specifications } from 'spok';
 import { Test } from 'tape';
-import nacl from 'tweetnacl';
 import {
   createCollectionNft,
   spokSameAmount,
@@ -99,7 +99,7 @@ export function create32BitsHashString(
   input: Buffer | string,
   slice: number = 32
 ): string {
-  const hash = nacl.hash(Buffer.from(input)).slice(0, slice / 2);
+  const hash = sha512(input).slice(0, slice / 2);
 
   return Buffer.from(hash).toString('hex');
 }

@@ -1,5 +1,6 @@
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import nacl from 'tweetnacl';
+import * as ed25519 from '@noble/ed25519';
+import { sha512 } from '@noble/hashes/sha512';
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -54,7 +55,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
         Buffer.from(message)
       );
 
-      const seeds = nacl.hash(signature).slice(0, 32);
+      const seeds = sha512(signature).slice(0, 32);
 
       this.derivedKeypair = Keypair.fromSeed(seeds);
     });
@@ -95,7 +96,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
-    return nacl.sign.detached(message, this.secretKey);
+    return ed25519.sync.sign(message, this.secretKey);
   }
 
   async signTransaction(transaction: Transaction): Promise<Transaction> {
@@ -113,11 +114,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   verifyMessage(message: Uint8Array, signature: Uint8Array): boolean {
-    return nacl.sign.detached.verify(
-      message,
-      signature,
-      this.publicKey.toBytes()
-    );
+    return ed25519.sync.verify(message, signature, this.publicKey.toBytes());
   }
 
   equals(that: Signer | PublicKey): boolean {
