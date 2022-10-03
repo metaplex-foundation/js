@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../../tokenModule';
@@ -51,6 +51,9 @@ export type FindNftByTokenInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

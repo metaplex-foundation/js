@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
   createUnverifyCollectionInstruction,
@@ -88,6 +94,9 @@ export type UnverifyNftCollectionInput = {
    */
   isDelegated?: boolean;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -158,7 +167,11 @@ export const unverifyNftCollectionBuilder = (
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
     payer = metaplex.identity(),
+    programs,
   } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
     metadata: findMetadataPda(mintAddress),
@@ -178,8 +191,14 @@ export const unverifyNftCollectionBuilder = (
   };
 
   const instruction = isSizedCollection
-    ? createUnverifySizedCollectionItemInstruction(accounts)
-    : createUnverifyCollectionInstruction(accounts);
+    ? createUnverifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createUnverifyCollectionInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      );
 
   return (
     TransactionBuilder.make()
@@ -187,7 +206,7 @@ export const unverifyNftCollectionBuilder = (
 
       // Unverify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'unverifyCollection',
       })

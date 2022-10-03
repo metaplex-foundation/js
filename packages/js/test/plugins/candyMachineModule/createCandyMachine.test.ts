@@ -1,23 +1,19 @@
 import {
   CandyMachine,
-  CandyMachineProgram,
-  CreateCandyMachineInput,
-  getCandyMachineUuidFromAddress,
+  candyMachineProgram,
+  defaultCandyGuardProgram,
+  emptyDefaultCandyGuardSettings,
   sol,
-  token,
   toBigNumber,
+  toDateTime,
 } from '@/index';
-import {
-  EndSettingType,
-  WhitelistMintMode,
-} from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
-  amman,
   assertThrows,
-  createNft,
+  createCollectionNft,
+  createWallet,
   killStuckProcess,
   metaplex,
   spokSameAmount,
@@ -28,327 +24,320 @@ import { create32BitsHash } from './helpers';
 
 killStuckProcess();
 
-async function init() {
+test('[candyMachineModule] create candy machine with minimum configuration', async (t) => {
+  // Given an existing Collection NFT.
   const mx = await metaplex();
-  const tc = amman.transactionChecker(mx.connection);
-  const client = mx.candyMachines();
-  const minimalInput: CreateCandyMachineInput = {
-    price: sol(1),
-    sellerFeeBasisPoints: 500,
-    itemsAvailable: toBigNumber(100),
-  };
+  const collectionNft = await createCollectionNft(mx);
 
-  return { mx, tc, client, minimalInput };
-}
-
-test('[candyMachineModule] create with minimal input', async (t) => {
-  // Given a Candy Machine client.
-  const { tc, mx, client } = await init();
-
-  // When we create that Candy Machine
-  const { response, candyMachine } = await client
+  // When we create a new Candy Machine with minimum configuration.
+  const { candyMachine, candyMachineSigner } = await mx
+    .candyMachines()
     .create({
-      price: sol(1.25),
-      sellerFeeBasisPoints: 500,
-      itemsAvailable: toBigNumber(100),
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
     })
     .run();
 
-  // Then we created the Candy Machine as configured
-  await tc.assertSuccess(t, response.signature);
+  // Then the following data was set on the Candy Machine account.
+  const candyGuardAddress = mx
+    .candyMachines()
+    .pdas()
+    .candyGuard({ base: candyMachineSigner.publicKey });
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
-    programAddress: spokSamePubkey(CandyMachineProgram.publicKey),
-    version: 2,
-    tokenMintAddress: null,
-    collectionMintAddress: null,
-    uuid: getCandyMachineUuidFromAddress(candyMachine.address),
-    price: spokSameAmount(sol(1.25)),
+    model: 'candyMachine',
+    accountInfo: {
+      owner: spokSamePubkey(candyMachineProgram.address),
+    },
+    address: spokSamePubkey(candyMachineSigner.publicKey),
+    authorityAddress: spokSamePubkey(mx.identity().publicKey),
+    mintAuthorityAddress: spokSamePubkey(candyGuardAddress),
+    collectionMintAddress: spokSamePubkey(collectionNft.address),
     symbol: '',
-    sellerFeeBasisPoints: 500,
+    sellerFeeBasisPoints: 333,
     isMutable: true,
-    retainAuthority: true,
-    goLiveDate: null,
     maxEditionSupply: spokSameBignum(0),
-    items: [],
-    itemsAvailable: spokSameBignum(100),
-    itemsMinted: spokSameBignum(0),
-    itemsRemaining: spokSameBignum(100),
-    itemsLoaded: spokSameBignum(0),
-    isFullyLoaded: false,
-    endSettings: null,
-    hiddenSettings: null,
-    whitelistMintSettings: null,
-    gatekeeper: null,
     creators: [
       {
-        address: mx.identity().publicKey,
-        verified: false,
+        address: spokSamePubkey(mx.identity().publicKey),
         share: 100,
       },
     ],
+    items: [],
+    itemsAvailable: spokSameBignum(5000),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(5000),
+    itemsLoaded: 0,
+    isFullyLoaded: false,
+    itemSettings: {
+      type: 'configLines',
+      prefixName: '',
+      nameLength: 32,
+      prefixUri: '',
+      uriLength: 200,
+      isSequential: false,
+    },
+    candyGuard: {
+      model: 'candyGuard',
+      accountInfo: {
+        owner: spokSamePubkey(defaultCandyGuardProgram.address),
+      },
+      address: spokSamePubkey(candyGuardAddress),
+      baseAddress: spokSamePubkey(candyMachineSigner.publicKey),
+      authorityAddress: spokSamePubkey(mx.identity().publicKey),
+      guards: emptyDefaultCandyGuardSettings,
+      groups: [],
+    },
   } as unknown as Specifications<CandyMachine>);
+  t.equal(candyMachine.featureFlags.length, 64);
+  t.ok(candyMachine.featureFlags.slice(0, 64).every((enabled) => !enabled));
 });
 
-test('[candyMachineModule] create with creators', async (t) => {
-  // Given a Candy Machine client and two creators.
-  const { tc, client, minimalInput } = await init();
-  const creatorA = Keypair.generate();
-  const creatorB = Keypair.generate();
-  const creators = [
-    {
-      address: creatorA.publicKey,
-      verified: false,
-      share: 50,
-    },
-    {
-      address: creatorB.publicKey,
-      verified: false,
-      share: 50,
-    },
-  ];
-
-  // When we create a Candy Machine and assign these creators.
-  const { response, candyMachine } = await client
-    .create({ ...minimalInput, creators })
-    .run();
-
-  // Then the creators where saved on the Candy Machine.
-  await tc.assertSuccess(t, response.signature);
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    creators,
+test('[candyMachineModule] create candy machine with maximum configuration', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionUpdateAuthority = await createWallet(mx);
+  const collectionNft = await createCollectionNft(mx, {
+    updateAuthority: collectionUpdateAuthority,
   });
-});
 
-test('[candyMachineModule] create with 0-decimal SPL token treasury', async (t) => {
-  // Given a Candy Machine client.
-  const { tc, mx, client, minimalInput } = await init();
-
-  // And a token account and its mint account.
-  const { token: tokenMint } = await mx.tokens().createTokenWithMint().run();
-
-  const amount = token(
-    100,
-    tokenMint.mint.decimals,
-    tokenMint.mint.currency.symbol
-  );
-
-  // When we create a Candy Machine with an SPL treasury.
-  const { response, candyMachine } = await client
+  // When we create a new Candy Machine with maximum configuration.
+  const candyMachineSigner = Keypair.generate();
+  const payer = await createWallet(mx);
+  const authority = Keypair.generate();
+  const creatorA = Keypair.generate().publicKey;
+  const creatorB = Keypair.generate().publicKey;
+  const treasury = Keypair.generate().publicKey;
+  const { candyMachine } = await mx
+    .candyMachines()
     .create({
-      ...minimalInput,
-      price: amount,
-      wallet: tokenMint.address,
-      tokenMint: tokenMint.mint.address,
-    })
-    .run();
-
-  // Then a Candy Machine was created with the SPL treasury as configured.
-  await tc.assertSuccess(t, response.signature);
-
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    walletAddress: spokSamePubkey(tokenMint.address),
-    tokenMintAddress: spokSamePubkey(tokenMint.mint.address),
-    price: spokSameAmount(amount),
-  } as unknown as Specifications<CandyMachine>);
-});
-
-test('[candyMachineModule] create with 9-decimal SPL token treasury', async (t) => {
-  // Given a Candy Machine client.
-  const { tc, mx, client, minimalInput } = await init();
-
-  // And a token account and its mint account.
-  const { token: tokenMint } = await mx
-    .tokens()
-    .createTokenWithMint({ decimals: 9 })
-    .run();
-
-  const amount = token(
-    1.25,
-    tokenMint.mint.decimals,
-    tokenMint.mint.currency.symbol
-  );
-
-  // When we create a Candy Machine with an SPL treasury.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      price: amount,
-      wallet: tokenMint.address,
-      tokenMint: tokenMint.mint.address,
-    })
-    .run();
-
-  // Then a Candy Machine was created with the SPL treasury as configured.
-  await tc.assertSuccess(t, response.signature);
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    walletAddress: spokSamePubkey(tokenMint.address),
-    tokenMintAddress: spokSamePubkey(tokenMint.mint.address),
-  } as unknown as Specifications<CandyMachine>);
-});
-
-test('[candyMachineModule] create with end settings', async (t) => {
-  // Given a Candy Machine client.
-  const { tc, client, minimalInput } = await init();
-
-  // When we create a Candy Machine with end settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      endSettings: {
-        endSettingType: EndSettingType.Amount,
-        number: toBigNumber(100),
+      candyMachine: candyMachineSigner,
+      payer,
+      authority,
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: collectionUpdateAuthority,
       },
+      sellerFeeBasisPoints: 333, // 3.33%
+      itemsAvailable: toBigNumber(5000),
+      itemSettings: {
+        type: 'configLines',
+        prefixName: 'My NFT Drop #$ID+1$',
+        nameLength: 0,
+        prefixUri: 'https://arweave.net/',
+        uriLength: 50,
+        isSequential: true,
+      },
+      symbol: 'MYNFT',
+      maxEditionSupply: toBigNumber(1),
+      isMutable: false,
+      creators: [
+        { address: creatorA, share: 50 },
+        { address: creatorB, share: 50 },
+      ],
+      guards: {
+        botTax: { lamports: sol(0.01), lastInstruction: false },
+        solPayment: { amount: sol(1.5), destination: treasury },
+      },
+      groups: [
+        {
+          label: 'GROUP1',
+          guards: { startDate: { date: toDateTime('2022-09-09T16:00:00Z') } },
+        },
+        {
+          label: 'GROUP2',
+          guards: { startDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
+        },
+        {
+          label: 'GROUP3',
+          guards: { startDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
+        },
+      ],
+      withoutCandyGuard: false,
     })
     .run();
 
-  // Then a Candy Machine was created with these end settings.
-  await tc.assertSuccess(t, response.signature);
+  // Then the following data was set on the Candy Machine account.
+  const candyGuardAddress = mx
+    .candyMachines()
+    .pdas()
+    .candyGuard({ base: candyMachineSigner.publicKey });
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachine',
-    endSettings: {
-      endSettingType: EndSettingType.Amount,
-      number: spokSameBignum(100),
-    },
-  } as unknown as Specifications<CandyMachine>);
-});
-
-test('[candyMachineModule] create with hidden settings', async (t) => {
-  // Given a Candy Machine client and a computed hash.
-  const { tc, client, minimalInput } = await init();
-
-  // When we create a Candy Machine with hidden settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      hiddenSettings: {
-        hash: create32BitsHash('cache-file'),
-        uri: 'https://example.com',
-        name: 'mint-name',
-      },
-    })
-    .run();
-
-  // Then a Candy Machine was created with these hidden settings.
-  await tc.assertSuccess(t, response.signature);
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    hiddenSettings: {
-      hash: create32BitsHash('cache-file'),
-      uri: 'https://example.com',
-      name: 'mint-name',
-    },
-  });
-});
-
-test('[candyMachineModule] try to create with invalid hidden settings', async (t) => {
-  // Given a Candy Machine client.
-  const { client, minimalInput } = await init();
-
-  // When we create a Candy Machine with invalid hidden settings.
-  const promise = client
-    .create({
-      ...minimalInput,
-      hiddenSettings: {
-        hash: [1, 2, 3], // <- Should be 32 bytes.
-        uri: 'https://example.com',
-        name: 'mint-name',
-      },
-    })
-    .run();
-
-  // Then it fails to create the Candy Machine.
-  await assertThrows(t, promise, /len.+3.+should match len.+32/i);
-});
-
-test('[candyMachineModule] create with gatekeeper settings', async (t) => {
-  // Given a Candy Machine client and a gatekeeper address.
-  const { tc, client, minimalInput } = await init();
-  const gatekeeper = Keypair.generate();
-
-  // When we create a Candy Machine with gatekeep settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      gatekeeper: {
-        network: gatekeeper.publicKey,
-        expireOnUse: true,
-      },
-    })
-    .run();
-
-  // Then a Candy Machine was created with these gatekeep settings.
-  await tc.assertSuccess(t, response.signature);
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    gatekeeper: {
-      network: gatekeeper.publicKey,
-      expireOnUse: true,
-    },
-  });
-});
-
-test('[candyMachineModule] create with whitelistMint settings', async (t) => {
-  // Given a Candy Machine client and a mint account.
-  const { tc, client, minimalInput } = await init();
-  const mint = Keypair.generate();
-
-  // When we create a Candy Machine with ...
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      whitelistMintSettings: {
-        mode: WhitelistMintMode.BurnEveryTime,
-        discountPrice: sol(0.5),
-        mint: mint.publicKey,
-        presale: false,
-      },
-    })
-    .run();
-
-  // Then a Candy Machine was created with ...
-  await tc.assertSuccess(t, response.signature);
-  console.log(candyMachine.whitelistMintSettings?.discountPrice);
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
-    model: 'candyMachine',
-    price: spokSameAmount(sol(1)),
-    whitelistMintSettings: {
-      mode: WhitelistMintMode.BurnEveryTime,
-      discountPrice: spokSameAmount(sol(0.5)),
-      mint: mint.publicKey,
-      presale: false,
-    },
-  } as unknown as Specifications<CandyMachine>);
-});
-
-test('[candyMachineModule] create with collection', async (t) => {
-  // Given a Candy Machine client.
-  const { mx, client, minimalInput } = await init();
-
-  // And a Collection NFT.
-  const collectionNft = await createNft(mx);
-
-  // When we create that Candy Machine
-  const { candyMachine } = await client
-    .create({
-      ...minimalInput,
-      collection: collectionNft.address,
-    })
-    .run();
-
-  // Then we created the Candy Machine as configured
-  spok(t, candyMachine, {
-    $topic: 'Candy Machine',
+    address: spokSamePubkey(candyMachineSigner.publicKey),
+    authorityAddress: spokSamePubkey(authority.publicKey),
+    mintAuthorityAddress: spokSamePubkey(candyGuardAddress),
     collectionMintAddress: spokSamePubkey(collectionNft.address),
+    symbol: 'MYNFT',
+    sellerFeeBasisPoints: 333,
+    isMutable: false,
+    maxEditionSupply: spokSameBignum(1),
+    creators: [
+      { address: spokSamePubkey(creatorA), share: 50 },
+      { address: spokSamePubkey(creatorB), share: 50 },
+    ],
+    items: [],
+    itemsAvailable: spokSameBignum(5000),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(5000),
+    itemsLoaded: 0,
+    isFullyLoaded: false,
+    itemSettings: {
+      type: 'configLines',
+      prefixName: 'My NFT Drop #$ID+1$',
+      nameLength: 0,
+      prefixUri: 'https://arweave.net/',
+      uriLength: 50,
+      isSequential: true,
+    },
+    candyGuard: {
+      model: 'candyGuard',
+      address: spokSamePubkey(candyGuardAddress),
+      baseAddress: spokSamePubkey(candyMachineSigner.publicKey),
+      authorityAddress: spokSamePubkey(authority.publicKey),
+      guards: {
+        ...emptyDefaultCandyGuardSettings,
+        botTax: {
+          lamports: spokSameAmount(sol(0.01)),
+          lastInstruction: false,
+        },
+        solPayment: {
+          amount: spokSameAmount(sol(1.5)),
+          destination: spokSamePubkey(treasury),
+        },
+      },
+      groups: [
+        {
+          label: 'GROUP1',
+          guards: {
+            startDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T16:00:00Z')),
+            },
+          },
+        },
+        {
+          label: 'GROUP2',
+          guards: {
+            startDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T18:00:00Z')),
+            },
+          },
+        },
+        {
+          label: 'GROUP3',
+          guards: {
+            startDate: {
+              date: spokSameBignum(toDateTime('2022-09-09T20:00:00Z')),
+            },
+          },
+        },
+      ],
+    },
+  } as unknown as Specifications<CandyMachine>);
+});
+
+test('[candyMachineModule] it fails to wrap a Candy Guard if the authority is provided as a public key', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine with a Candy Guard
+  // whilst passing the authority as a Public Key.
+  const promise = mx
+    .candyMachines()
+    .create({
+      authority: Keypair.generate().publicKey,
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
+    })
+    .run();
+
+  // Then we expect an error to be thrown.
+  await assertThrows(
+    t,
+    promise,
+    /Expected variable \[authority\] to be of type \[Signer\] but got \[PublicKey\]/
+  );
+});
+
+test('[candyMachineModule] create candy machine without a candy guard', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine without a Candy Guard.
+  const { candyMachine } = await mx
+    .candyMachines()
+    .create({
+      withoutCandyGuard: true,
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
+    })
+    .run();
+
+  // Then the Candy Machine has no associated Candy Guard account
+  // And its mint authority is the Candy Machine authority.
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    mintAuthorityAddress: spokSamePubkey(candyMachine.authorityAddress),
+    candyGuard: null,
+  });
+});
+
+test('[candyMachineModule] create candy machine with hidden settings', async (t) => {
+  // Given an existing Collection NFT.
+  const mx = await metaplex();
+  const collectionNft = await createCollectionNft(mx);
+
+  // When we create a new Candy Machine with hidden settings.
+  const hash = create32BitsHash('some-file');
+  const { candyMachine } = await mx
+    .candyMachines()
+    .create({
+      itemsAvailable: toBigNumber(5000),
+      sellerFeeBasisPoints: 333, // 3.33%
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: mx.identity(),
+      },
+      itemSettings: {
+        type: 'hidden',
+        name: 'My NFT Drop #$ID+1$',
+        uri: 'https://my-server.com/nft/$ID+1$.json',
+        hash,
+      },
+    })
+    .run();
+
+  // Then the following data was set on the Candy Machine account.
+  spok(t, candyMachine, {
+    $topic: 'Candy Machine',
+    model: 'candyMachine',
+    itemSettings: {
+      type: 'hidden',
+      name: 'My NFT Drop #$ID+1$',
+      uri: 'https://my-server.com/nft/$ID+1$.json',
+      hash,
+    },
+    items: [],
+    itemsAvailable: spokSameBignum(5000),
+    itemsMinted: spokSameBignum(0),
+    itemsRemaining: spokSameBignum(5000),
+    itemsLoaded: 0,
+    isFullyLoaded: true,
   } as unknown as Specifications<CandyMachine>);
 });

@@ -1,3 +1,5 @@
+import { MetaplexError } from '../errors';
+
 /**
  * Error indicating that an assertion failed.
  * @group Errors
@@ -38,3 +40,24 @@ assert.equal = function assertEqual<T>(
     throw new AssertionError((message ?? '') + ` ${actual} !== ${expected}`);
   }
 };
+
+/**
+ * Asserts that a given object contains the specified
+ * keys such that their values are defined.
+ */
+export function assertObjectHasDefinedKeys<
+  T extends object,
+  K extends keyof T = keyof T
+>(
+  input: T,
+  keys: K[],
+  onError: (missingKeys: K[]) => MetaplexError
+): asserts input is { [key in keyof T]: T[key] } & { [key in K]-?: T[key] } {
+  const missingKeys = keys.filter(
+    (property) => input?.[property] === undefined
+  );
+
+  if (missingKeys.length > 0) {
+    throw onError(missingKeys);
+  }
+}

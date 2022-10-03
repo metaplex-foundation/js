@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import {
   createVerifyCollectionInstruction,
@@ -88,6 +94,9 @@ export type VerifyNftCollectionInput = {
    */
   isDelegated?: boolean;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -158,7 +167,11 @@ export const verifyNftCollectionBuilder = (
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
     payer = metaplex.identity(),
+    programs,
   } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
     metadata: findMetadataPda(mintAddress),
@@ -172,8 +185,11 @@ export const verifyNftCollectionBuilder = (
   };
 
   const instruction = isSizedCollection
-    ? createVerifySizedCollectionItemInstruction(accounts)
-    : createVerifyCollectionInstruction(accounts);
+    ? createVerifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createVerifyCollectionInstruction(accounts, tokenMetadataProgram.address);
 
   if (isDelegated) {
     instruction.keys.push({
@@ -192,7 +208,7 @@ export const verifyNftCollectionBuilder = (
 
       // Verify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'verifyCollection',
       })

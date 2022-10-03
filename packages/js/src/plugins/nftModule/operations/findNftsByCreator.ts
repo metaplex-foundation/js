@@ -1,9 +1,9 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
+import { MetadataV1GpaBuilder } from '../gpaBuilders';
 import { Metadata, Nft, Sft } from '../models';
-import { TokenMetadataProgram } from '../program';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 
 // -----------------
@@ -62,6 +62,9 @@ export type FindNftsByCreatorInput = {
    */
   position?: number;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
@@ -83,9 +86,14 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByCreatorOutput> => {
-      const { creator, position = 1, commitment } = operation.input;
+      const { creator, position = 1, commitment, programs } = operation.input;
 
-      const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
+      const gpaBuilder = new MetadataV1GpaBuilder(
+        metaplex,
+        metaplex.programs().getTokenMetadata(programs).address
+      );
+
+      const mints = await gpaBuilder
         .selectMint()
         .whereCreator(position, creator)
         .getDataAsPublicKeys();
@@ -93,7 +101,10 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
 
       const nfts = await metaplex
         .operations()
-        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
+        .execute(
+          findNftsByMintListOperation({ mints, commitment, programs }),
+          scope
+        );
       scope.throwIfCanceled();
 
       return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);

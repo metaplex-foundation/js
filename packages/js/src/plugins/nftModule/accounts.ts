@@ -8,10 +8,11 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
   Account,
-  AccountParser,
+  SolitaType,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@/types';
+import { NotYetImplementedError } from '@/errors';
 
 /** @group Accounts */
 export type MetadataAccount = Account<Metadata>;
@@ -32,7 +33,7 @@ export type OriginalOrPrintEditionAccountData =
 export type OriginalOrPrintEditionAccount =
   Account<OriginalOrPrintEditionAccountData>;
 
-const originalOrPrintEditionAccountParser: AccountParser<OriginalOrPrintEditionAccountData> =
+const originalOrPrintEditionAccountParser: SolitaType<OriginalOrPrintEditionAccountData> =
   {
     name: 'MasterEditionV1 | MasterEditionV2 | Edition',
     deserialize: (data: Buffer, offset = 0) => {
@@ -43,6 +44,9 @@ const originalOrPrintEditionAccountParser: AccountParser<OriginalOrPrintEditionA
       } else {
         return Edition.deserialize(data, offset);
       }
+    },
+    fromArgs() {
+      throw new NotYetImplementedError();
     },
   };
 
@@ -78,17 +82,19 @@ export type OriginalEditionAccountData = MasterEditionV1 | MasterEditionV2;
 /** @group Accounts */
 export type OriginalEditionAccount = Account<OriginalEditionAccountData>;
 
-const originalEditionAccountParser: AccountParser<OriginalEditionAccountData> =
-  {
-    name: 'MasterEditionV1 | MasterEditionV2',
-    deserialize: (data: Buffer, offset = 0) => {
-      if (data?.[0] === Key.MasterEditionV1) {
-        return MasterEditionV1.deserialize(data, offset);
-      } else {
-        return MasterEditionV2.deserialize(data, offset);
-      }
-    },
-  };
+const originalEditionAccountParser: SolitaType<OriginalEditionAccountData> = {
+  name: 'MasterEditionV1 | MasterEditionV2',
+  deserialize: (data: Buffer, offset = 0) => {
+    if (data?.[0] === Key.MasterEditionV1) {
+      return MasterEditionV1.deserialize(data, offset);
+    } else {
+      return MasterEditionV2.deserialize(data, offset);
+    }
+  },
+  fromArgs() {
+    throw new NotYetImplementedError();
+  },
+};
 
 /** @group Account Helpers */
 export const parseOriginalEditionAccount =

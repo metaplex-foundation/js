@@ -4,6 +4,7 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   SplTokenAmount,
   token,
@@ -13,8 +14,6 @@ import { TransactionBuilder } from '@/utils';
 import { createApproveInstruction } from '@solana/spl-token';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../pdas';
-import { TokenProgram } from '../program';
 
 // -----------------
 // Operation
@@ -95,8 +94,8 @@ export type ApproveTokenDelegateAuthorityInput = {
    */
   multiSigners?: KeypairSigner[];
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -171,15 +170,21 @@ export const approveTokenDelegateAuthorityBuilder = (
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
 
   const [ownerPublicKey, signers] = isSigner(owner)
     ? [owner.publicKey, [owner]]
     : [owner, multiSigners];
 
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, ownerPublicKey);
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: ownerPublicKey,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
     instruction: createApproveInstruction(
@@ -188,7 +193,7 @@ export const approveTokenDelegateAuthorityBuilder = (
       ownerPublicKey,
       amount.basisPoints.toNumber(),
       multiSigners,
-      tokenProgram
+      tokenProgram.address
     ),
     signers,
     key: params.instructionKey ?? 'approveDelegateAuthority',

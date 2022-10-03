@@ -1,4 +1,4 @@
-import { findAssociatedTokenAccountPda, token } from '@/index';
+import { token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { killStuckProcess, metaplex } from '../../helpers';
@@ -116,10 +116,10 @@ test('[tokenModule] it can send tokens to an non-existing associated token accou
 
   // And an owner that does not have an associated token account for that mint yet.
   const toOwner = Keypair.generate().publicKey;
-  const toAssociatedToken = findAssociatedTokenAccountPda(
-    mint.address,
-    toOwner
-  );
+  const toAssociatedToken = mx.tokens().pdas().associatedTokenAccount({
+    mint: mint.address,
+    owner: toOwner,
+  });
   const toAssociatedTokenAccount = await mx.rpc().getAccount(toAssociatedToken);
   t.false(toAssociatedTokenAccount.exists, 'toToken account does not exist');
 

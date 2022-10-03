@@ -13,25 +13,28 @@ export class ProgramClient {
   protected programs: Program[] = [];
 
   register(program: Program): void {
-    this.programs.push(program);
+    this.programs.unshift(program);
   }
 
-  all(): Program[] {
-    return this.programs;
+  all(overrides: Program[] = []): Program[] {
+    return [...overrides, ...this.programs];
   }
 
-  allForCluster(cluster: Cluster): Program[] {
-    return this.programs.filter((program) => {
+  allForCluster(cluster: Cluster, overrides: Program[] = []): Program[] {
+    return this.all(overrides).filter((program) => {
       return program.clusterFilter?.(cluster) ?? true;
     });
   }
 
-  allForCurrentCluster(): Program[] {
-    return this.allForCluster(this.metaplex.cluster);
+  allForCurrentCluster(overrides: Program[] = []): Program[] {
+    return this.allForCluster(this.metaplex.cluster, overrides);
   }
 
-  get(nameOrAddress: string | PublicKey): Program {
-    const programs = this.allForCurrentCluster();
+  get<T extends Program = Program>(
+    nameOrAddress: string | PublicKey,
+    overrides: Program[] = []
+  ): T {
+    const programs = this.allForCurrentCluster(overrides);
     const program =
       typeof nameOrAddress === 'string'
         ? programs.find((program) => program.name === nameOrAddress)
@@ -41,13 +44,14 @@ export class ProgramClient {
       throw new ProgramNotRecognizedError(nameOrAddress, this.metaplex.cluster);
     }
 
-    return program;
+    return program as T;
   }
 
   public getGpaBuilder<T extends GpaBuilder>(
-    nameOrAddress: string | PublicKey
+    nameOrAddress: string | PublicKey,
+    overrides: Program[] = []
   ): T {
-    const program = this.get(nameOrAddress);
+    const program = this.get(nameOrAddress, overrides);
 
     if (!program.gpaResolver) {
       throw new MissingGpaBuilderError(program);

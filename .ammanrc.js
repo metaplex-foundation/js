@@ -19,6 +19,9 @@ const programIds = {
   fixedPriceSaleToken: 'SaLeTjyUa5wXHnGuewUSyJ5JWZaHwz3TxqUntCE9czo',
   candyMachine: 'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ',
   auctionHouse: 'hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk',
+  candyMachineCore: 'CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR',
+  candyGuard: 'CnDYGRdU51FsSyLnVgSd19MCFxA4YHT5h3nacvCKMPUJ',
+  gateway: 'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs',
 };
 
 const programs = [
@@ -36,6 +39,21 @@ const programs = [
     label: 'Auction House',
     programId: programIds.auctionHouse,
     deployPath: localDeployPath('mpl_auction_house'),
+  },
+  {
+    label: 'Candy Machine V3',
+    programId: programIds.candyMachineCore,
+    deployPath: localDeployPath('mpl_candy_machine_core'),
+  },
+  {
+    label: 'Candy Guard',
+    programId: programIds.candyGuard,
+    deployPath: localDeployPath('mpl_candy_guard'),
+  },
+  {
+    label: 'Gateway',
+    programId: programIds.gateway,
+    deployPath: localDeployPath('solana_gateway_program'),
   },
 ];
 

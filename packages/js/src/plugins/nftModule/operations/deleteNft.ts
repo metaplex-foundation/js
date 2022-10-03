@@ -1,10 +1,15 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createBurnNftInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
 
 // -----------------
@@ -72,8 +77,8 @@ export type DeleteNftInput = {
    */
   collection?: PublicKey;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey; // Defaults to Token Program.
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -139,25 +144,37 @@ export const deleteNftBuilder = (
     owner = metaplex.identity(),
     ownerTokenAccount,
     collection,
-    tokenProgram = TokenProgram.publicKey,
+    programs,
   } = params;
+
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const metadata = findMetadataPda(mintAddress);
   const edition = findMasterEditionV2Pda(mintAddress);
   const tokenAddress =
     ownerTokenAccount ??
-    findAssociatedTokenAccountPda(mintAddress, owner.publicKey);
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: owner.publicKey,
+      programs,
+    });
 
   return TransactionBuilder.make().add({
-    instruction: createBurnNftInstruction({
-      metadata,
-      owner: owner.publicKey,
-      mint: mintAddress,
-      tokenAccount: tokenAddress,
-      masterEditionAccount: edition,
-      splTokenProgram: tokenProgram,
-      collectionMetadata: collection ? findMetadataPda(collection) : undefined,
-    }),
+    instruction: createBurnNftInstruction(
+      {
+        metadata,
+        owner: owner.publicKey,
+        mint: mintAddress,
+        tokenAccount: tokenAddress,
+        masterEditionAccount: edition,
+        splTokenProgram: tokenProgram.address,
+        collectionMetadata: collection
+          ? findMetadataPda(collection)
+          : undefined,
+      },
+      tokenMetadataProgram.address
+    ),
     signers: [owner],
     key: params.instructionKey ?? 'deleteNft',
   });

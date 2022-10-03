@@ -3,6 +3,7 @@ import {
   BigNumber,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   toBigNumber,
   token,
@@ -12,7 +13,6 @@ import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { toOriginalEditionAccount } from '../accounts';
 import {
   assertNftWithToken,
@@ -124,11 +124,8 @@ export type PrintNewEditionInput = {
    */
   payer?: Signer;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -276,10 +273,12 @@ export const printNewEditionBuilder = async (
     newOwner = metaplex.identity().publicKey,
     newTokenAccount,
     payer = metaplex.identity(),
-    tokenProgram,
-    associatedTokenProgram,
+    programs,
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   // Original NFT.
   const originalMetadataAddress = findMetadataPda(originalMint);
@@ -315,8 +314,7 @@ export const printNewEditionBuilder = async (
       owner: newOwner,
       token: newTokenAccount,
       payer,
-      tokenProgram,
-      associatedTokenProgram,
+      programs,
       createMintAccountInstructionKey: params.createMintAccountInstructionKey,
       initializeMintInstructionKey: params.initializeMintInstructionKey,
       createAssociatedTokenAccountInstructionKey:
@@ -331,10 +329,11 @@ export const printNewEditionBuilder = async (
     params.originalTokenAccountOwner ?? metaplex.identity();
   const originalTokenAccount =
     params.originalTokenAccount ??
-    findAssociatedTokenAccountPda(
-      originalMint,
-      originalTokenAccountOwner.publicKey
-    );
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: originalMint,
+      owner: originalTokenAccountOwner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make<PrintNewEditionBuilderContext>()
@@ -358,7 +357,8 @@ export const printNewEditionBuilder = async (
             tokenAccountOwner: originalTokenAccountOwner.publicKey,
             tokenAccount: originalTokenAccount,
           },
-          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } },
+          tokenMetadataProgram.address
         ),
         signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
         key: printNewEditionInstructionKey,
