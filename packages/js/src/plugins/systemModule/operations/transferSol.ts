@@ -1,4 +1,5 @@
 import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
   assertSol,
@@ -10,7 +11,6 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation

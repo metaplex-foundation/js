@@ -1,3 +1,9 @@
+import { Buffer } from 'buffer';
+import {
+  TokenPayment,
+  tokenPaymentBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
@@ -5,12 +11,6 @@ import {
   SplTokenAmount,
   token,
 } from '@/types';
-import {
-  TokenPayment,
-  tokenPaymentBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
-import { Buffer } from 'buffer';
-import { CandyGuardManifest } from './core';
 
 /**
  * The tokenPayment guard allows minting by charging the

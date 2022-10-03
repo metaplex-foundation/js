@@ -14,8 +14,6 @@ import { OperationHandlerMissingError } from '@/errors';
  * @group Modules
  */
 export class OperationClient {
-  constructor(protected readonly metaplex: Metaplex) {}
-
   /**
    * Maps the name of an operation with its operation handler.
    * Whilst the types on the Map are relatively loose, we ensure
@@ -25,6 +23,7 @@ export class OperationClient {
     string,
     OperationHandler<any, any, any, any>
   > = new Map();
+  constructor(protected readonly metaplex: Metaplex) {}
 
   register<
     T extends Operation<K, I, O>,

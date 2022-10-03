@@ -1,10 +1,11 @@
 import { ConfirmOptions } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   createWithdrawFromTreasuryInstruction,
   WithdrawFromTreasuryInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse } from '../models';
+import { findAuctionHouseTreasuryPda } from '../pdas';
 import {
   useOperation,
   Operation,
@@ -13,9 +14,8 @@ import {
   SolAmount,
   SplTokenAmount,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse } from '../models';
-import { findAuctionHouseTreasuryPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -178,7 +178,7 @@ export const withdrawFromTreasuryAccountBuilder = (
     authority: auctionHouse.authorityAddress,
     treasuryWithdrawalDestination:
       auctionHouse.treasuryWithdrawalDestinationAddress,
-    auctionHouseTreasury: auctionHouseTreasury,
+    auctionHouseTreasury,
     auctionHouse: auctionHouse.address,
   };
 

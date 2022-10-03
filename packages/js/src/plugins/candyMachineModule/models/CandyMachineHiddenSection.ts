@@ -1,9 +1,9 @@
-import { deserializeFeatureFlags, toBigNumber } from '@/types';
-import { assert, removeEmptyChars } from '@/utils';
 import * as beet from '@metaplex-foundation/beet';
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
 import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
+import { assert, removeEmptyChars } from '@/utils';
+import { deserializeFeatureFlags, toBigNumber } from '@/types';
 
 /** @internal */
 export type CandyMachineHiddenSection = {
@@ -19,15 +19,15 @@ export const deserializeCandyMachineHiddenSection = (
   itemsAvailable: number,
   itemsRemaining: number,
   configLineSettings: CandyMachineConfigLineSettings,
-  offset: number = 0
+  offset = 0
 ): CandyMachineHiddenSection => {
   // Items loaded.
   const itemsLoaded = beet.u32.read(buffer, offset);
   offset += 4;
 
   // Raw config lines.
-  const nameLength = configLineSettings.nameLength;
-  const uriLength = configLineSettings.uriLength;
+  const { nameLength } = configLineSettings;
+  const { uriLength } = configLineSettings;
   const configLineSize = nameLength + uriLength;
   const configLinesSize = configLineSize * itemsAvailable;
   const rawConfigLines = buffer.slice(offset, offset + configLinesSize);

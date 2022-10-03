@@ -1,13 +1,4 @@
 import {
-  CandyMachineV2,
-  CandyMachineV2Program,
-  CreateCandyMachineV2Input,
-  getCandyMachineV2UuidFromAddress,
-  sol,
-  toBigNumber,
-  token,
-} from '@/index';
-import {
   EndSettingType,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
@@ -25,6 +16,15 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { create32BitsHash } from './helpers';
+import {
+  CandyMachineV2,
+  CandyMachineV2Program,
+  CreateCandyMachineV2Input,
+  getCandyMachineV2UuidFromAddress,
+  sol,
+  toBigNumber,
+  token,
+} from '@/index';
 
 killStuckProcess();
 

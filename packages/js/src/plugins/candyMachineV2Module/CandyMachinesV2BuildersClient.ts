@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   createCandyMachineV2Builder,
   CreateCandyMachineV2BuilderParams,
@@ -11,6 +10,7 @@ import {
   updateCandyMachineV2Builder,
   UpdateCandyMachineV2BuilderParams,
 } from './operations';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders

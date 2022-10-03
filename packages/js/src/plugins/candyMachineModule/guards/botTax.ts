@@ -1,11 +1,11 @@
+import { BotTax, botTaxBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   lamports,
   mapSerializer,
   SolAmount,
 } from '@/types';
-import { BotTax, botTaxBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The botTax guard charges a penalty for invalid transactions

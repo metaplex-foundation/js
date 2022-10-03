@@ -1,0 +1,181 @@
+// .eslintrc file (no extension)
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [],
+  "plugins": [
+    "sort-class-members",
+    "@typescript-eslint",
+    "markdown",
+    "json",
+    "prettier",
+    "import"
+  ],
+  "settings": {
+    // Adding new import aliases require a change in tsconfig.json, .eslintrc, jest.config.ts and webpack.resolve.ts files
+    "import/internal-regex": "^@(assets|hooks|consts|UI|components|services|utils|APIs|providers|localTypes|localTypes|config)/"
+  },
+  "rules": {
+    // TYPESCRIPT RULES:
+    "@typescript-eslint/no-inferrable-types": "warn",
+    "@typescript-eslint/no-unused-expressions": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-shadow": "off",
+    // GENERAL RULES:
+    "prefer-arrow-callback": "warn",
+    "import/no-default-export": "warn",
+    "object-shorthand": "warn",
+    "no-empty": "warn",
+    "no-nested-ternary": "warn",
+    "no-unused-vars": "warn",
+    "import/no-duplicates": "error",
+    "no-restricted-globals": "off",
+    "no-else-return": "error",
+    "prefer-const": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error", "debug"] }],
+    // COMPLEX RULES:
+    "prefer-destructuring": [
+      "warn",
+      {
+        "VariableDeclarator": {
+          "array": false,
+          "object": true
+        },
+        "AssignmentExpression": {
+          "array": false,
+          "object": false
+        }
+      },
+      {
+        "enforceForRenamedProperties": false
+      }
+    ],
+    "import/order": [
+      "warn",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ]
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "lodash",
+            "message": "Import [module] from lodash/[module] instead"
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@material-ui/*/*/*", "!@material-ui/core/test-utils/*"],
+            "message": "usage of material-ui private modules not allowed."
+          },
+          {
+            "group": ["@mui/*/*/*", "!@mui/material/test-utils/*"],
+            "message": "usage of mui private modules not allowed."
+          }
+        ]
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
+      },
+      {
+        "selector": "enumMember",
+        "format": ["UPPER_CASE"]
+      },
+      {
+        "selector": "classProperty",
+        "format": ["camelCase"],
+        "modifiers": ["private"],
+        "leadingUnderscore": "require"
+      }
+    ],
+    "sort-class-members/sort-class-members": [
+      "warn",
+      {
+        "order": [
+          "[properties]",
+          "constructor",
+          "[accessor-pairs]",
+          "[getters]",
+          "[setters]",
+          "[arrow-function-properties]",
+          "[methods]"
+        ],
+        "accessorPairPositioning": "getThenSet"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      // 2. Enable the Markdown processor for all .md files.
+      "files": ["**/*.md"],
+      "processor": "markdown/markdown"
+    },
+    {
+      "files": ["**/*.tsx"],
+      // "extends": ["react-app", "plugin:react/recommended"],
+      "rules": {
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "variable",
+            "format": ["camelCase", "PascalCase", "UPPER_CASE"]
+          },
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"]
+          },
+          {
+            "selector": "function",
+            "format": ["camelCase", "PascalCase"]
+          },
+          {
+            "selector": "interface",
+            "format": ["PascalCase"],
+            "custom": {
+              "regex": "^I[A-Z]",
+              "match": false
+            }
+          },
+          {
+            "selector": "enumMember",
+            "format": ["UPPER_CASE"]
+          },
+          {
+            "selector": "classProperty",
+            "format": ["camelCase"],
+            "modifiers": ["private"],
+            "leadingUnderscore": "require"
+          }
+        ]
+      }
+    }
+  ]
+}

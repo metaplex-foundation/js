@@ -1,6 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { toPublicKey } from '@/types';
-import { Task } from '@/utils';
 import type { PublicKey } from '@solana/web3.js';
 import { CandyMachinesV2BuildersClient } from './CandyMachinesV2BuildersClient';
 import { CandyMachineV2 } from './models';
@@ -22,6 +19,9 @@ import {
   UpdateCandyMachineV2Input,
   updateCandyMachineV2Operation,
 } from './operations';
+import { Task } from '@/utils';
+import { toPublicKey } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the Candy Machine module.

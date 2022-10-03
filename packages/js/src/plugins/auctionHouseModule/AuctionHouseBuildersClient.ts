@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   cancelBidBuilder,
   CancelBidBuilderParams,
@@ -33,6 +32,7 @@ import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
 } from './operations/updateAuctionHouse';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders

@@ -1,4 +1,3 @@
-import { Nft } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -10,6 +9,7 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
+import { Nft } from '@/index';
 
 killStuckProcess();
 

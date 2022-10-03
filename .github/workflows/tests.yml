@@ -17,6 +17,11 @@ jobs:
     steps:
     - name: Git checkout
       uses: actions/checkout@v3
+      with:
+          fetch-depth: 0
+          
+    - name: Set nx SHA's
+      uses: nrwl/nx-set-shas@v2
 
     - name: Install Solana
       uses: ./.github/actions/install-solana
@@ -33,7 +38,7 @@ jobs:
       run: yarn install --frozen-lockfile
 
     - name: Build
-      run: yarn build
+      run: npx nx affected --target=build
 
     - name: Start local validator using Amman
       run: yarn amman:start

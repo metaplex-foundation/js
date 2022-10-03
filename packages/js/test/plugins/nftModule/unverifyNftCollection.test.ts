@@ -1,4 +1,3 @@
-import { Nft } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -10,6 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { assertRefreshedCollectionHasSize } from './helpers';
+import { Nft } from '@/index';
 
 killStuckProcess();
 

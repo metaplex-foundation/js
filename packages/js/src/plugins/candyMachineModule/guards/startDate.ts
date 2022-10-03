@@ -1,11 +1,11 @@
+import { StartDate, startDateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   DateTime,
   mapSerializer,
   toDateTime,
 } from '@/types';
-import { StartDate, startDateBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The startDate guard determines the start date of the mint.

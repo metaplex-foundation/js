@@ -34,6 +34,8 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
+    "lint:test": "yarn eslint --ext js,ts,tsx src",
+    "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
     "test": "tape dist/test/**/*.test.js && yarn test:exports",
@@ -57,7 +59,7 @@
     "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
+    "cross-fetch": "3.0.6",
     "debug": "^4.3.4",
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",

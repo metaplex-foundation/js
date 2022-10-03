@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
 import { CandyMachinesV2Client } from './CandyMachinesV2Client';
 import {
   createCandyMachineV2Operation,
@@ -19,6 +17,8 @@ import {
   updateCandyMachineV2Operation,
   updateCandyMachineV2OperationHandler,
 } from './operations';
+import type { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const candyMachineV2Module = (): MetaplexPlugin => ({

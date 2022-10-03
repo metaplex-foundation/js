@@ -8,9 +8,8 @@ import { GpaBuilder } from '@/utils';
  * @group Modules
  */
 export class ProgramClient {
-  constructor(protected readonly metaplex: Metaplex) {}
-
   protected programs: Program[] = [];
+  constructor(protected readonly metaplex: Metaplex) {}
 
   register(program: Program): void {
     this.programs.unshift(program);

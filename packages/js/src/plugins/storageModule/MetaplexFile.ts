@@ -30,7 +30,7 @@ export const toMetaplexFile = (
   options: MetaplexFileOptions = {}
 ): MetaplexFile => ({
   buffer: parseMetaplexFileContent(content),
-  fileName: fileName,
+  fileName,
   displayName: options.displayName ?? fileName,
   uniqueName: options.uniqueName ?? randomStr(),
   contentType: options.contentType ?? getContentType(fileName),
@@ -49,7 +49,7 @@ export const toMetaplexFileFromBrowser = async (
 
 export const toMetaplexFileFromJson = <T extends object = object>(
   json: T,
-  fileName: string = 'inline.json',
+  fileName = 'inline.json',
   options: MetaplexFileOptions = {}
 ): MetaplexFile => {
   let jsonString;

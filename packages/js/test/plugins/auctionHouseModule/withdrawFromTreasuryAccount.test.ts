@@ -1,7 +1,7 @@
 import test, { Test } from 'tape';
-import { sol, toPublicKey } from '@/types';
 import { metaplex, killStuckProcess, createWallet } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { sol, toPublicKey } from '@/types';
 
 killStuckProcess();
 

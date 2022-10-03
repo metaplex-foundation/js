@@ -39,8 +39,8 @@ export const assertAllItemConstraints = (
     return;
   }
 
-  const nameLength = candyMachine.itemSettings.nameLength;
-  const uriLength = candyMachine.itemSettings.uriLength;
+  const { nameLength } = candyMachine.itemSettings;
+  const { uriLength } = candyMachine.itemSettings;
 
   for (let i = 0; i < items.length; i++) {
     if (items[i].name.length > nameLength) {

@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin, Program } from '@/types';
 import { ProgramClient } from '../programModule';
 import { CandyMachineClient } from './CandyMachineClient';
 import {
@@ -54,6 +52,8 @@ import {
   defaultCandyGuardProgram,
   gatewayProgram,
 } from './programs';
+import { MetaplexPlugin, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({

@@ -1,3 +1,11 @@
+import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import {
+  findMetadataPda,
+  findProgramAsBurnerPda,
+  findUseAuthorityRecordPda,
+} from '../pdas';
 import { ExpectedSignerError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -10,14 +18,6 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  findMetadataPda,
-  findProgramAsBurnerPda,
-  findUseAuthorityRecordPda,
-} from '../pdas';
 
 // -----------------
 // Operation

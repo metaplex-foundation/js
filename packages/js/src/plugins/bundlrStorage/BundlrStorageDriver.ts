@@ -1,6 +1,22 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  SendOptions,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
+import {
+  getBytesFromMetaplexFiles,
+  MetaplexFile,
+  MetaplexFileTag,
+  StorageDriver,
+} from '../storageModule';
+import { KeypairIdentityDriver } from '../keypairIdentity';
 import { Metaplex } from '@/Metaplex';
 import {
   Amount,
@@ -18,22 +34,6 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
-import {
-  getBytesFromMetaplexFiles,
-  MetaplexFile,
-  MetaplexFileTag,
-  StorageDriver,
-} from '../storageModule';
-import { KeypairIdentityDriver } from '../keypairIdentity';
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  SendOptions,
-  Signer as Web3Signer,
-  Transaction,
-  TransactionSignature,
-} from '@solana/web3.js';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -200,7 +200,7 @@ export class BundlrStorageDriver implements StorageDriver {
 
     // if in node use node bundlr, else use web bundlr
     // see: https://github.com/metaplex-foundation/js/issues/202
-    let isNode =
+    const isNode =
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
     let bundlr;
     if (isNode && isKeypairSigner(identity))

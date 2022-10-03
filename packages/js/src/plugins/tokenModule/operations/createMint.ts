@@ -1,4 +1,8 @@
-import type { Metaplex } from '@/Metaplex';
+import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Mint } from '../models/Mint';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -6,11 +10,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Mint } from '../models/Mint';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

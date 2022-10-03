@@ -1,10 +1,10 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Program } from '@/types';
-import { GpaBuilder } from '@/utils';
 import { CandyGuard as MplCandyGuard } from '@metaplex-foundation/mpl-candy-guard';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard, toCandyGuard } from '../models';
+import { GpaBuilder } from '@/utils';
+import { Operation, OperationHandler, Program } from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

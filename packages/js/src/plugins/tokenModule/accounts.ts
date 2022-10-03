@@ -1,3 +1,9 @@
+import {
+  AccountLayout as SplTokenAccountLayout,
+  MintLayout as SplMintAccountLayout,
+  RawAccount as SplTokenAccount,
+  RawMint as SplMintAccount,
+} from '@solana/spl-token';
 import { NotYetImplementedError } from '@/errors';
 import {
   Account,
@@ -5,12 +11,6 @@ import {
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@/types';
-import {
-  AccountLayout as SplTokenAccountLayout,
-  MintLayout as SplMintAccountLayout,
-  RawAccount as SplTokenAccount,
-  RawMint as SplMintAccount,
-} from '@solana/spl-token';
 
 const mintAccountParser: SolitaType<SplMintAccount> = {
   name: 'MintAccount',

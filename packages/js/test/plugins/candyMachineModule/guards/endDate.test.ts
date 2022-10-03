@@ -1,4 +1,3 @@
-import { isEqualToAmount, now, sol, toBigNumber, toDateTime } from '@/index';
 import test from 'tape';
 import {
   assertThrows,
@@ -7,6 +6,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import { isEqualToAmount, now, sol, toBigNumber, toDateTime } from '@/index';
 
 killStuckProcess();
 

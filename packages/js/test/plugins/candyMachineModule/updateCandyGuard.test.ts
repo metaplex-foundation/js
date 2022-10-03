@@ -1,11 +1,3 @@
-import {
-  CandyGuard,
-  DefaultCandyGuardSettings,
-  emptyDefaultCandyGuardSettings,
-  sol,
-  toDateTime,
-  token,
-} from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -17,6 +9,14 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createCandyGuard } from './helpers';
+import {
+  CandyGuard,
+  DefaultCandyGuardSettings,
+  emptyDefaultCandyGuardSettings,
+  sol,
+  toDateTime,
+  token,
+} from '@/index';
 
 killStuckProcess();
 

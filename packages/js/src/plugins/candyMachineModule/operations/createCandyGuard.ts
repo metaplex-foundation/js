@@ -1,13 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  Operation,
-  OperationHandler,
-  Pda,
-  Program,
-  serializeDiscriminator,
-  Signer,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   createInitializeInstruction,
   initializeInstructionDiscriminator,
@@ -20,6 +10,16 @@ import {
   emptyDefaultCandyGuardSettings,
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  Pda,
+  Program,
+  serializeDiscriminator,
+  Signer,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -220,7 +220,7 @@ export const createCandyGuardBuilder = <
   metaplex: Metaplex,
   params: CreateCandyGuardBuilderParams<T>
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  const programs = params.programs;
+  const { programs } = params;
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;

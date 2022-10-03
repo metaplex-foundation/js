@@ -1,5 +1,6 @@
 import test, { Test } from 'tape';
-import { sol, token } from '@/types';
+import spok, { Specifications } from 'spok';
+import { Keypair } from '@solana/web3.js';
 import {
   createNft,
   createWallet,
@@ -9,14 +10,13 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { sol, token } from '@/types';
 import {
   findAssociatedTokenAccountPda,
   PrivateBid,
   PublicBid,
   Purchase,
 } from '@/plugins';
-import spok, { Specifications } from 'spok';
-import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 

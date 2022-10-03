@@ -1,12 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  Operation,
-  OperationHandler,
-  Program,
-  serializeDiscriminator,
-  Signer,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import {
   createUpdateInstruction,
   updateInstructionDiscriminator,
@@ -18,6 +9,15 @@ import {
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
 } from '../guards';
+import { TransactionBuilder } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  serializeDiscriminator,
+  Signer,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

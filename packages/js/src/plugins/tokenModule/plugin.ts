@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import type { MetaplexPlugin, Program } from '@/types';
 import { ProgramClient } from '../programModule';
 import {
   approveTokenDelegateAuthorityOperation,
@@ -31,6 +29,8 @@ import {
 } from './operations';
 import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
+import type { MetaplexPlugin, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 /**
  * @group Plugins
  */

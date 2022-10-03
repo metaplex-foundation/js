@@ -1,16 +1,6 @@
-import type { Metaplex } from '@/Metaplex';
-import {
-  deserialize,
-  deserializeFeatureFlags,
-  Program,
-  PublicKey,
-  serialize,
-  Signer,
-} from '@/types';
-import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
+import { Buffer } from 'buffer';
 import * as beet from '@metaplex-foundation/beet';
 import { AccountMeta } from '@solana/web3.js';
-import { Buffer } from 'buffer';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
   MintingGroupSelectedDoesNotExistError,
@@ -26,6 +16,16 @@ import {
 } from './guards';
 import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
+import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
+import {
+  deserialize,
+  deserializeFeatureFlags,
+  Program,
+  PublicKey,
+  serialize,
+  Signer,
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client enables us to register custom guards from
@@ -267,7 +267,7 @@ export class CandyMachineGuardsClient {
         candyGuard: candyGuard.address,
         programs,
       });
-      const remainingAccounts = parsedSettings.remainingAccounts;
+      const { remainingAccounts } = parsedSettings;
       const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
         pubkey: account.isSigner ? account.address.publicKey : account.address,
         isSigner: account.isSigner,

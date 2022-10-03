@@ -1,3 +1,11 @@
+import {
+  ACCOUNT_SIZE,
+  createAssociatedTokenAccountInstruction,
+  createInitializeAccountInstruction,
+} from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Token } from '../models/Token';
 import { ExpectedSignerError } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -10,14 +18,6 @@ import {
   useOperation,
 } from '@/types';
 import { DisposableScope, TransactionBuilder } from '@/utils';
-import {
-  ACCOUNT_SIZE,
-  createAssociatedTokenAccountInstruction,
-  createInitializeAccountInstruction,
-} from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Token } from '../models/Token';
 
 // -----------------
 // Operation
