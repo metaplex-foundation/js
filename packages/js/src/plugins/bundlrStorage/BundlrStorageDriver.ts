@@ -270,7 +270,7 @@ export class BundlrStorageDriver implements StorageDriver {
         if ('rpc' in this._metaplex) {
           return this._metaplex
             .rpc()
-            .sendTransaction(transaction, signers, sendOptions);
+            .sendTransaction(transaction, sendOptions, signers);
         }
 
         return connection.sendTransaction(
