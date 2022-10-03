@@ -52,7 +52,7 @@ export class NftStorageDriver implements StorageDriver {
     return this;
   }
 
-  async getUploadPrice(_bytes: number): Promise<Amount> {
+  async getUploadPrice(): Promise<Amount> {
     return lamports(0);
   }
 

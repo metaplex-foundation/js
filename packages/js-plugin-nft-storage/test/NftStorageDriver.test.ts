@@ -83,7 +83,7 @@ test('[nftStorage] it can keep track of upload progress', async (t: Test) => {
   // And a progress callback that counts the stored chunks.
   let chunkCounter = 0;
   const driver = mx.storage().driver() as NftStorageDriver;
-  driver.onProgress((_size: number) => chunkCounter++);
+  driver.onProgress(() => chunkCounter++);
 
   // When we upload some asset with a size of 3 chunks.
   const MAX_CHUNK_SIZE = 10_000_000;
