@@ -3,7 +3,6 @@ import type { Signer } from '@/types';
 import {
   BlockhashWithExpiryBlockHeight,
   ConfirmOptions,
-  PublicKey,
   SignaturePubkeyPair,
   Transaction,
   TransactionInstruction,
@@ -143,8 +142,8 @@ export class TransactionBuilder<C extends object = object> {
     return this;
   }
 
-  getFeePayer(): PublicKey | undefined {
-    return this.feePayer?.publicKey;
+  getFeePayer(): Signer | undefined {
+    return this.feePayer;
   }
 
   setContext(context: C): TransactionBuilder<C> {
@@ -184,8 +183,7 @@ export class TransactionBuilder<C extends object = object> {
     }
 
     const transaction = new Transaction({
-      // TODO(loris): Fee payer should return a Signer and be added to the signers by default.
-      feePayer: this.getFeePayer() ?? metaplex.rpc().getDefaultFeePayer(),
+      feePayer: this.getFeePayer()?.publicKey,
       signatures: options.signatures,
       blockhash: options.blockhashWithExpiryBlockHeight.blockhash,
       lastValidBlockHeight:

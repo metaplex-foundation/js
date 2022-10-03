@@ -49,7 +49,7 @@ export type SendAndConfirmTransactionResponse = {
  * @group Modules
  */
 export class RpcClient {
-  protected defaultFeePayer?: PublicKey;
+  protected defaultFeePayer?: Signer;
 
   constructor(protected readonly metaplex: Metaplex) {}
 
@@ -80,6 +80,12 @@ export class RpcClient {
     if ('records' in transaction) {
       signers = [...transaction.getSigners(), ...signers];
       transaction = await transaction.toTransaction(this.metaplex);
+    }
+
+    const defaultFeePayer = this.getDefaultFeePayer();
+    if (!transaction.feePayer && defaultFeePayer) {
+      transaction.feePayer = defaultFeePayer.publicKey;
+      signers = [defaultFeePayer, ...signers];
     }
 
     transaction = await this.signTransaction(transaction, signers);
@@ -258,19 +264,19 @@ export class RpcClient {
     return `https://explorer.solana.com/tx/${signature}${clusterParam}`;
   }
 
-  setDefaultFeePayer(payer: PublicKey) {
+  setDefaultFeePayer(payer: Signer) {
     this.defaultFeePayer = payer;
 
     return this;
   }
 
-  getDefaultFeePayer(): PublicKey | undefined {
+  getDefaultFeePayer(): Signer | undefined {
     if (this.defaultFeePayer) {
       return this.defaultFeePayer;
     }
 
-    const identity = this.metaplex.identity().publicKey;
-    return identity.equals(PublicKey.default) ? undefined : identity;
+    const identity = this.metaplex.identity();
+    return identity.publicKey.equals(PublicKey.default) ? undefined : identity;
   }
 
   protected getUnparsedMaybeAccount(
