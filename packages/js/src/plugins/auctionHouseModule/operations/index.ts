@@ -4,6 +4,8 @@ export * from './createAuctionHouse';
 export * from './createBid';
 export * from './createListing';
 export * from './depositToBuyerAccount';
+export * from './directBuy';
+export * from './directSell';
 export * from './executeSale';
 export * from './findAuctionHouseByAddress';
 export * from './findAuctionHouseByCreatorAndMint';
