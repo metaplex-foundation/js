@@ -46,12 +46,7 @@ export type SendAndConfirmTransactionResponse = {
 export class RpcClient {
   protected defaultFeePayer?: PublicKey;
 
-  constructor(protected readonly metaplex: Metaplex) {
-    const identity = metaplex.identity().publicKey;
-    if (!identity.equals(PublicKey.default)) {
-      this.setDefaultFeePayer(identity);
-    }
-  }
+  constructor(protected readonly metaplex: Metaplex) {}
 
   async sendTransaction(
     transaction: Transaction | TransactionBuilder,
@@ -251,7 +246,12 @@ export class RpcClient {
   }
 
   getDefaultFeePayer(): PublicKey | undefined {
-    return this.defaultFeePayer;
+    if (this.defaultFeePayer) {
+      return this.defaultFeePayer;
+    }
+
+    const identity = this.metaplex.identity().publicKey;
+    return identity.equals(PublicKey.default) ? undefined : identity;
   }
 
   protected getUnparsedMaybeAccount(
