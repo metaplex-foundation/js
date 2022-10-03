@@ -125,7 +125,7 @@ export const deleteCandyMachineV2Builder = (
   params: DeleteCandyMachineV2BuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
-  const {candyMachine} = params;
+  const { candyMachine } = params;
 
   const deleteInstruction = createWithdrawFundsInstruction({
     candyMachine: candyMachine.address,

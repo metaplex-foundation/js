@@ -305,7 +305,7 @@ export const createBidBuilder = async (
   params: CreateBidBuilderParams
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
-  const {auctionHouse} = params;
+  const { auctionHouse } = params;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative

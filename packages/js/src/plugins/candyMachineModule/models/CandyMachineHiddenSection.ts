@@ -26,8 +26,8 @@ export const deserializeCandyMachineHiddenSection = (
   offset += 4;
 
   // Raw config lines.
-  const {nameLength} = configLineSettings;
-  const {uriLength} = configLineSettings;
+  const { nameLength } = configLineSettings;
+  const { uriLength } = configLineSettings;
   const configLineSize = nameLength + uriLength;
   const configLinesSize = configLineSize * itemsAvailable;
   const rawConfigLines = buffer.slice(offset, offset + configLinesSize);

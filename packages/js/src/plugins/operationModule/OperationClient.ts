@@ -19,14 +19,11 @@ export class OperationClient {
    * Whilst the types on the Map are relatively loose, we ensure
    * operations match with their handlers when registering them.
    */
-protected operationHandlers: Map<
+  protected operationHandlers: Map<
     string,
     OperationHandler<any, any, any, any>
   > = new Map();
-constructor(protected readonly metaplex: Metaplex) {}
-
-  
-  
+  constructor(protected readonly metaplex: Metaplex) {}
 
   register<
     T extends Operation<K, I, O>,

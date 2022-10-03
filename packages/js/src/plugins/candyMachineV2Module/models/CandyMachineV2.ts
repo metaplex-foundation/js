@@ -25,7 +25,8 @@ import {
   toDateTime,
   toOptionDateTime,
   UnparsedAccount,
- Creator } from '@/types';
+  Creator,
+} from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { Mint } from '@/plugins/tokenModule';
 
@@ -403,10 +404,10 @@ export const toCandyMachineV2 = (
   const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
   const itemsMinted = toBigNumber(account.data.itemsRedeemed);
 
-  const {endSettings} = account.data.data;
-  const {hiddenSettings} = account.data.data;
-  const {whitelistMintSettings} = account.data.data;
-  const {gatekeeper} = account.data.data;
+  const { endSettings } = account.data.data;
+  const { hiddenSettings } = account.data.data;
+  const { whitelistMintSettings } = account.data.data;
+  const { gatekeeper } = account.data.data;
 
   const rawData = unparsedAccount.data;
   const itemsLoaded = hiddenSettings
@@ -660,9 +661,9 @@ export const toCandyMachineV2InstructionData = (
   address: PublicKey,
   configs: CandyMachineV2Configs
 ): CandyMachineV2InstructionData => {
-  const {endSettings} = configs;
-  const {whitelistMintSettings} = configs;
-  const {gatekeeper} = configs;
+  const { endSettings } = configs;
+  const { whitelistMintSettings } = configs;
+  const { gatekeeper } = configs;
 
   return {
     wallet: configs.wallet,

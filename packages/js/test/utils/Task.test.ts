@@ -228,7 +228,7 @@ test('[Task] it can return nested tasks recursively', async (t: Test) => {
 const useHistoryWithNamedTasks = (tasks: Task<any>[]) => {
   const history: { name: string; status: string }[] = [];
   tasks.forEach((task) => {
-    const {name} = task.getContext<{ name: string }>();
+    const { name } = task.getContext<{ name: string }>();
     task.onStatusChange((status) => history.push({ name, status }));
   });
 
