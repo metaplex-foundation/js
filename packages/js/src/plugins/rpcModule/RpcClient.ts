@@ -23,7 +23,6 @@ import {
   AccountInfo,
   Blockhash,
   BlockhashWithExpiryBlockHeight,
-  BlockheightBasedTransactionConfirmationStrategy,
   Commitment,
   ConfirmOptions,
   GetLatestBlockhashConfig,
@@ -102,13 +101,14 @@ export class RpcClient {
   }
 
   async confirmTransaction(
-    strategy: BlockheightBasedTransactionConfirmationStrategy,
+    signature: TransactionSignature,
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
     commitment?: Commitment
   ): Promise<ConfirmTransactionResponse> {
     let rpcResponse: ConfirmTransactionResponse;
     try {
       rpcResponse = await this.metaplex.connection.confirmTransaction(
-        strategy,
+        { signature, ...blockhashWithExpiryBlockHeight },
         commitment
       );
     } catch (error) {
@@ -143,8 +143,10 @@ export class RpcClient {
       confirmOptions,
       signers
     );
+
     const confirmResponse = await this.confirmTransaction(
-      { signature, ...blockhashWithExpiryBlockHeight },
+      signature,
+      blockhashWithExpiryBlockHeight,
       confirmOptions?.commitment
     );
 
@@ -203,14 +205,15 @@ export class RpcClient {
   ): Promise<SendAndConfirmTransactionResponse> {
     assertSol(amount);
 
-    const blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();
     const signature = await this.metaplex.connection.requestAirdrop(
       publicKey,
       amount.basisPoints.toNumber()
     );
 
+    const blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();
     const confirmResponse = await this.confirmTransaction(
-      { signature, ...blockhashWithExpiryBlockHeight },
+      signature,
+      blockhashWithExpiryBlockHeight,
       commitment
     );
 
