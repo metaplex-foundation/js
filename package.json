@@ -46,7 +46,6 @@
     "@nrwl/js": "^14.7.5",
     "@nrwl/linter": "14.7.5",
     "@nrwl/workspace": "14.7.5",
-    "@nx-tools/nx-docker": "^3.0.0",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-json": "^4.1.0",
