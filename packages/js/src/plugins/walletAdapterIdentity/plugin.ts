@@ -1,9 +1,9 @@
-import { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
 import {
   WalletAdapterIdentityDriver,
   WalletAdapter,
 } from './WalletAdapterIdentityDriver';
+import { Metaplex } from '@/Metaplex';
+import { MetaplexPlugin } from '@/types';
 
 export const walletAdapterIdentity = (
   walletAdapter: WalletAdapter

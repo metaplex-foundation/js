@@ -1,4 +1,3 @@
-import { NftWithToken } from '@/index';
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -9,6 +8,7 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../helpers';
+import { NftWithToken } from '@/index';
 
 killStuckProcess();
 

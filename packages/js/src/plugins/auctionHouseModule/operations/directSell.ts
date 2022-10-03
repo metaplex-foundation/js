@@ -1,14 +1,4 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import {
-  now,
-  Operation,
-  OperationHandler,
-  Signer,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findAssociatedTokenAccountPda, Token } from '../../tokenModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
@@ -25,6 +15,16 @@ import {
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
+import { TransactionBuilder } from '@/utils';
+import {
+  now,
+  Operation,
+  OperationHandler,
+  Signer,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -248,7 +248,7 @@ export const directSellBuilder = async (
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
     await createListingBuilder(metaplex, {
       mintAccount: asset.mint.address,
-      price: price,
+      price,
       auctionHouse,
       auctioneerAuthority,
       seller,
@@ -272,7 +272,7 @@ export const directSellBuilder = async (
     receiptAddress: receipt,
     purchaseReceiptAddress: null,
     price,
-    tokens: tokens,
+    tokens,
     createdAt: now(),
     canceledAt: null,
   };

@@ -1,5 +1,8 @@
 import { Creator } from '@metaplex-foundation/mpl-token-metadata';
-import { assert } from '@/utils';
+import {
+  ConfigLine,
+  EndSettingType,
+} from '@metaplex-foundation/mpl-candy-machine';
 import {
   MAX_CREATOR_LIMIT,
   MAX_NAME_LENGTH,
@@ -15,10 +18,7 @@ import {
   CandyMachineV2IsFullError,
   CandyMachineV2NotLiveError,
 } from './errors';
-import {
-  ConfigLine,
-  EndSettingType,
-} from '@metaplex-foundation/mpl-candy-machine';
+import { assert } from '@/utils';
 import { BigNumber, now, Signer, toBigNumber } from '@/types';
 
 export const assertName = (name: string) => {
@@ -115,7 +115,7 @@ export const assertCandyMachineV2IsLive = (
 export const assertCandyMachineV2HasNotEnded = (
   candyMachine: Pick<CandyMachineV2, 'endSettings' | 'itemsMinted'>
 ) => {
-  const endSettings = candyMachine.endSettings;
+  const {endSettings} = candyMachine;
 
   if (!endSettings) {
     return;

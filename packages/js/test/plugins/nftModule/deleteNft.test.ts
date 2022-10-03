@@ -82,7 +82,7 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
   const updateAuthority = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: owner.publicKey,
-    updateAuthority: updateAuthority,
+    updateAuthority,
   });
 
   // When the update authority tries to delete the NFT.

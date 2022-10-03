@@ -1,7 +1,7 @@
-import { createSerializerFromBeet, PublicKey } from '@/types';
 import { nftPaymentBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
+import { createSerializerFromBeet, PublicKey } from '@/types';
 
 /**
  * The nftPayment guard allows minting by charging the

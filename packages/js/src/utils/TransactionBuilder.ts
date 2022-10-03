@@ -6,9 +6,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '..';
 import type { Signer } from '@/types';
 import type { Metaplex } from '@/Metaplex';
-import { SendAndConfirmTransactionResponse } from '..';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -80,7 +80,7 @@ export class TransactionBuilder<C extends object = object> {
 
   splitUsingKey(
     key: string,
-    include: boolean = true
+    include = true
   ): [TransactionBuilder, TransactionBuilder] {
     const firstBuilder = new TransactionBuilder(this.transactionOptions);
     const secondBuilder = new TransactionBuilder(this.transactionOptions);

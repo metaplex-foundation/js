@@ -1,10 +1,10 @@
+import test from 'tape';
+import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
+import { createCandyMachineV2 } from './helpers';
 import {
   MAX_NAME_LENGTH,
   MAX_URI_LENGTH,
 } from '@/plugins/candyMachineV2Module/constants';
-import test from 'tape';
-import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
-import { createCandyMachineV2 } from './helpers';
 import { toBigNumber } from '@/index';
 
 killStuckProcess();

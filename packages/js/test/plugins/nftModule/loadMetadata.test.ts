@@ -1,6 +1,13 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
 import {
+  metaplex,
+  createNft,
+  killStuckProcess,
+  spokSamePubkey,
+  createSft,
+} from '../../helpers';
+import {
   Metadata,
   Metaplex,
   Nft,
@@ -8,13 +15,6 @@ import {
   toMetadata,
   toMetadataAccount,
 } from '@/index';
-import {
-  metaplex,
-  createNft,
-  killStuckProcess,
-  spokSamePubkey,
-  createSft,
-} from '../../helpers';
 
 killStuckProcess();
 

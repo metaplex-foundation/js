@@ -1,3 +1,14 @@
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import spok, { Specifications } from 'spok';
+import { Test } from 'tape';
+import nacl from 'tweetnacl';
+import {
+  createCollectionNft,
+  spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
+} from '../../helpers';
+import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
 import {
   CandyMachine,
   CandyMachineConfigLineSettings,
@@ -11,17 +22,6 @@ import {
   toBigNumber,
   token,
 } from '@/index';
-import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
-import spok, { Specifications } from 'spok';
-import { Test } from 'tape';
-import nacl from 'tweetnacl';
-import {
-  createCollectionNft,
-  spokSameAmount,
-  spokSameBignum,
-  spokSamePubkey,
-} from '../../helpers';
 
 export const SEQUENTIAL_ITEM_SETTINGS: CandyMachineConfigLineSettings = {
   type: 'configLines',
@@ -97,7 +97,7 @@ export function create32BitsHash(
 
 export function create32BitsHashString(
   input: Buffer | string,
-  slice: number = 32
+  slice = 32
 ): string {
   const hash = nacl.hash(Buffer.from(input)).slice(0, slice / 2);
 
@@ -115,7 +115,7 @@ export const assertMintingWasSuccessful = async (
     mintedIndex?: number;
   }
 ) => {
-  const candyMachine = input.candyMachine;
+  const {candyMachine} = input;
   const mintedIndex = input.mintedIndex ?? candyMachine.itemsMinted.toNumber();
 
   let expectedName: string;

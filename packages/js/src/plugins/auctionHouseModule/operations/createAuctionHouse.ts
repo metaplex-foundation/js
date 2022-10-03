@@ -4,17 +4,6 @@ import {
   createCreateAuctionHouseInstruction,
   createDelegateAuctioneerInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import type { Metaplex } from '@/Metaplex';
-import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  Pda,
-  isSigner,
-  toPublicKey,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   findAssociatedTokenAccountPda,
   WRAPPED_SOL_MINT,
@@ -27,8 +16,19 @@ import {
 } from '../pdas';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
-import { ExpectedSignerError } from '@/errors';
 import { AuctionHouse } from '../models/AuctionHouse';
+import { ExpectedSignerError } from '@/errors';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  useOperation,
+  Operation,
+  Signer,
+  OperationHandler,
+  Pda,
+  isSigner,
+  toPublicKey,
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

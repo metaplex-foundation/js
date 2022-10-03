@@ -1,4 +1,3 @@
-import { Option } from '@/utils';
 import { AddressGateGuardSettings } from './addressGate';
 import {
   AllowListGuardMintSettings,
@@ -31,6 +30,7 @@ import {
   TokenGateGuardSettings,
 } from './tokenGate';
 import { TokenPaymentGuardSettings } from './tokenPayment';
+import { Option } from '@/utils';
 
 /**
  * The settings for all default Candy Machine guards.

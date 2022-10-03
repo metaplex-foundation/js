@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   ApproveTokenDelegateAuthorityInput,
   approveTokenDelegateAuthorityOperation,
@@ -29,6 +28,7 @@ import {
 } from './operations';
 import { TokenBuildersClient } from './TokenBuildersClient';
 import { TokenPdasClient } from './TokenPdasClient';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the Token module.

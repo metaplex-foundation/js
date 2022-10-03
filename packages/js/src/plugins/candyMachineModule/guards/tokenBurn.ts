@@ -1,3 +1,5 @@
+import { TokenBurn, tokenBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
@@ -5,8 +7,6 @@ import {
   SplTokenAmount,
   token,
 } from '@/types';
-import { TokenBurn, tokenBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The tokenBurn guard restricts minting to token holders

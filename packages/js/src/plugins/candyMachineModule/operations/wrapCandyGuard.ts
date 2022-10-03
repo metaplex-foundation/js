@@ -1,3 +1,6 @@
+import { createWrapInstruction } from '@metaplex-foundation/mpl-candy-guard';
+import { ConfirmOptions } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
@@ -8,9 +11,6 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { createWrapInstruction } from '@metaplex-foundation/mpl-candy-guard';
-import { ConfirmOptions } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation

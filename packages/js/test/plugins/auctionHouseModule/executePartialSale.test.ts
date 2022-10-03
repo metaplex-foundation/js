@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { sol, token } from '@/types';
+import { Keypair } from '@solana/web3.js';
 import {
   metaplex,
   killStuckProcess,
@@ -8,7 +8,7 @@ import {
   assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Keypair } from '@solana/web3.js';
+import { sol, token } from '@/types';
 import { findAssociatedTokenAccountPda } from '@/plugins';
 
 killStuckProcess();

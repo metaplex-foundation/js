@@ -1,3 +1,6 @@
+import { createApproveInstruction } from '@solana/spl-token';
+import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   isSigner,
@@ -11,9 +14,6 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder } from '@/utils';
-import { createApproveInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 
 // -----------------
 // Operation

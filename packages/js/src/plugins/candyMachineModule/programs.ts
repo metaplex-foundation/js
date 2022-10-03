@@ -1,5 +1,3 @@
-import { ErrorWithLogs, Program, PublicKey } from '@/types';
-import { assert } from '@/utils';
 import {
   cusper as defaultCandyGuardCusper,
   PROGRAM_ID as DEFAULT_CANDY_GUARD_PROGRAM_ID,
@@ -9,6 +7,8 @@ import {
   PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { defaultCandyGuardNames } from './guards';
+import { assert } from '@/utils';
+import { ErrorWithLogs, Program, PublicKey } from '@/types';
 
 /** @group Programs */
 export const candyMachineProgram: Program = {

@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { addAmounts, sol } from '@/types';
+import { Keypair } from '@solana/web3.js';
 import {
   metaplex,
   killStuckProcess,
@@ -7,8 +7,8 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { addAmounts, sol } from '@/types';
 import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
-import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 
@@ -27,7 +27,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
     .run();
 
   // Then buyer's escrow account has SOL in it
-  let buyerEscrow = findAuctionHouseBuyerEscrowPda(
+  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     mx.identity().publicKey
   );
@@ -74,7 +74,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House with 
     .run();
 
   // Then buyer's escrow account has SOL in it
-  let buyerEscrow = findAuctionHouseBuyerEscrowPda(
+  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
     auctionHouse.address,
     mx.identity().publicKey
   );

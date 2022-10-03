@@ -1,11 +1,11 @@
+import { EndDate, endDateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   DateTime,
   mapSerializer,
   toDateTime,
 } from '@/types';
-import { EndDate, endDateBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The endDate guard is used to specify a date to end the mint.

@@ -1,7 +1,7 @@
 import test from 'tape';
+import { Keypair } from '@solana/web3.js';
 import { createCollectionNft, killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachineV2 } from './helpers';
-import { Keypair } from '@solana/web3.js';
 import { token } from '@/index';
 
 killStuckProcess();
@@ -92,21 +92,21 @@ test('[candyMachineV2Module] find all candy machines correctly parses token mint
 
   const candyMachineResults = await Promise.all([
     createCandyMachineV2(mx, {
-      authority: authority,
+      authority,
       tokenMint: token1.mint.address,
       price: amount1,
       wallet: token1.address,
       collection: collection1.address,
     }),
     createCandyMachineV2(mx, {
-      authority: authority,
+      authority,
       tokenMint: token2_3.mint.address,
       price: amount2,
       wallet: token2_3.address,
       collection: collection2.address,
     }),
     createCandyMachineV2(mx, {
-      authority: authority,
+      authority,
       tokenMint: token2_3.mint.address,
       price: amount2,
       wallet: token2_3.address,

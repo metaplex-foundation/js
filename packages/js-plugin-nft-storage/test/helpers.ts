@@ -35,7 +35,7 @@ export const metaplex = async (options: MetaplexTestOptions = {}) => {
 
 export const createWallet = async (
   mx: Metaplex,
-  solsToAirdrop: number = 100
+  solsToAirdrop = 100
 ): Promise<KeypairSigner> => {
   const wallet = Keypair.generate();
   await mx.rpc().airdrop(wallet.publicKey, sol(solsToAirdrop));

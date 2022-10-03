@@ -1,4 +1,12 @@
-import { Metaplex } from '@/Metaplex';
+import {
+  createCreateMetadataAccountV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertSft, Sft, SftWithToken } from '../models';
+import { findMetadataPda } from '../pdas';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   Creator,
   CreatorInput,
@@ -11,15 +19,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import {
-  createCreateMetadataAccountV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertSft, Sft, SftWithToken } from '../models';
-import { findMetadataPda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

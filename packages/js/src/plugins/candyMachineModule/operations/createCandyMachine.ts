@@ -1,10 +1,15 @@
-import { ExpectedSignerError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
+import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import { ConfirmOptions, Keypair } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '@/plugins/nftModule';
+  CandyMachine,
+  CandyMachineConfigLineSettings,
+  CandyMachineHiddenSettings,
+  toCandyMachineData,
+} from '../models';
+import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
+import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   BigNumber,
   Creator,
@@ -17,18 +22,13 @@ import {
   toBigNumber,
   toPublicKey,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
-import { ConfirmOptions, Keypair } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
-  CandyMachine,
-  CandyMachineConfigLineSettings,
-  CandyMachineHiddenSettings,
-  toCandyMachineData,
-} from '../models';
-import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
+  findCollectionAuthorityRecordPda,
+  findMasterEditionV2Pda,
+  findMetadataPda,
+} from '@/plugins/nftModule';
+import { Metaplex } from '@/Metaplex';
+import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation

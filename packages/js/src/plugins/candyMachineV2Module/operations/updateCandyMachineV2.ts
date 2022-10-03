@@ -1,7 +1,3 @@
-import { NoInstructionsToSendError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
 import {
   CandyMachineData,
   createRemoveCollectionInstruction,
@@ -24,6 +20,10 @@ import {
   toCandyMachineV2InstructionData,
 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
+import { Option, TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex } from '@/Metaplex';
+import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------
 // Operation

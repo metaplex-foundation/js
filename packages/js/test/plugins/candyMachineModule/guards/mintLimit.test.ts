@@ -1,11 +1,3 @@
-import {
-  assertAccountExists,
-  isEqualToAmount,
-  PublicKey,
-  sol,
-  subtractAmounts,
-  toBigNumber,
-} from '@/index';
 import test from 'tape';
 import {
   assertThrows,
@@ -18,6 +10,14 @@ import {
   createCandyMachine,
   SEQUENTIAL_ITEM_SETTINGS,
 } from '../helpers';
+import {
+  assertAccountExists,
+  isEqualToAmount,
+  PublicKey,
+  sol,
+  subtractAmounts,
+  toBigNumber,
+} from '@/index';
 
 killStuckProcess();
 

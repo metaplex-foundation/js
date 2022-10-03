@@ -35,7 +35,7 @@ export function parseCandyMachineV2Items(
 export function getCandyMachineV2AccountSizeFromData(data: CandyMachineData) {
   if (data.hiddenSettings != null) {
     return CONFIG_ARRAY_START;
-  } else {
+  } 
     const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
     return Math.ceil(
       CONFIG_ARRAY_START +
@@ -44,7 +44,7 @@ export function getCandyMachineV2AccountSizeFromData(data: CandyMachineData) {
         8 +
         2 * (itemsAvailable / 8 + 1)
     );
-  }
+  
 }
 
 export const getCandyMachineV2UuidFromAddress = (

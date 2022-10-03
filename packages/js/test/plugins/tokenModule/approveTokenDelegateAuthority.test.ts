@@ -1,4 +1,3 @@
-import { Token, token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -10,6 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { refreshToken } from './helpers';
+import { Token, token } from '@/index';
 
 killStuckProcess();
 

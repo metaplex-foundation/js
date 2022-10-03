@@ -5,6 +5,16 @@ import {
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
+  countCandyMachineV2Items,
+  getCandyMachineV2UuidFromAddress,
+  parseCandyMachineV2Items,
+} from '../helpers';
+import {
+  CandyMachineV2Account,
+  MaybeCandyMachineV2CollectionAccount,
+} from '../accounts';
+import { CandyMachineV2Program } from '../program';
+import {
   amount,
   Amount,
   BigNumber,
@@ -15,19 +25,8 @@ import {
   toDateTime,
   toOptionDateTime,
   UnparsedAccount,
-} from '@/types';
+ Creator } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import {
-  countCandyMachineV2Items,
-  getCandyMachineV2UuidFromAddress,
-  parseCandyMachineV2Items,
-} from '../helpers';
-import {
-  CandyMachineV2Account,
-  MaybeCandyMachineV2CollectionAccount,
-} from '../accounts';
-import { Creator } from '@/types';
-import { CandyMachineV2Program } from '../program';
 import { Mint } from '@/plugins/tokenModule';
 
 // -----------------
@@ -404,10 +403,10 @@ export const toCandyMachineV2 = (
   const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
   const itemsMinted = toBigNumber(account.data.itemsRedeemed);
 
-  const endSettings = account.data.data.endSettings;
-  const hiddenSettings = account.data.data.hiddenSettings;
-  const whitelistMintSettings = account.data.data.whitelistMintSettings;
-  const gatekeeper = account.data.data.gatekeeper;
+  const {endSettings} = account.data.data;
+  const {hiddenSettings} = account.data.data;
+  const {whitelistMintSettings} = account.data.data;
+  const {gatekeeper} = account.data.data;
 
   const rawData = unparsedAccount.data;
   const itemsLoaded = hiddenSettings
@@ -661,9 +660,9 @@ export const toCandyMachineV2InstructionData = (
   address: PublicKey,
   configs: CandyMachineV2Configs
 ): CandyMachineV2InstructionData => {
-  const endSettings = configs.endSettings;
-  const whitelistMintSettings = configs.whitelistMintSettings;
-  const gatekeeper = configs.gatekeeper;
+  const {endSettings} = configs;
+  const {whitelistMintSettings} = configs;
+  const {gatekeeper} = configs;
 
   return {
     wallet: configs.wallet,

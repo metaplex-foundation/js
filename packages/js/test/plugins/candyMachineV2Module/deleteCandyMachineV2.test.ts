@@ -6,8 +6,8 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../helpers';
-import { findCandyMachineV2CollectionPda } from '@/plugins';
 import { createCandyMachineV2 } from './helpers';
+import { findCandyMachineV2CollectionPda } from '@/plugins';
 
 killStuckProcess();
 

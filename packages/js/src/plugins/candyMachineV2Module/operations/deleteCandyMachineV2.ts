@@ -1,11 +1,11 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -125,7 +125,7 @@ export const deleteCandyMachineV2Builder = (
   params: DeleteCandyMachineV2BuilderParams
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
-  const candyMachine = params.candyMachine;
+  const {candyMachine} = params;
 
   const deleteInstruction = createWithdrawFundsInstruction({
     candyMachine: candyMachine.address,

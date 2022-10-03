@@ -1,11 +1,3 @@
-import {
-  isEqualToAmount,
-  isLessThanAmount,
-  now,
-  sol,
-  toBigNumber,
-  toDateTime,
-} from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
@@ -20,6 +12,14 @@ import {
   createCandyMachine,
   SEQUENTIAL_ITEM_SETTINGS,
 } from './helpers';
+import {
+  isEqualToAmount,
+  isLessThanAmount,
+  now,
+  sol,
+  toBigNumber,
+  toDateTime,
+} from '@/index';
 
 killStuckProcess();
 

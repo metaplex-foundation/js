@@ -1,12 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  Operation,
-  OperationHandler,
-  Program,
-  Signer,
-  useOperation,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -16,6 +7,15 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachine, CandyMachineItem } from '../models';
+import { TransactionBuilder } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -180,10 +180,10 @@ export const insertCandyMachineItemsBuilder = (
   metaplex: Metaplex,
   params: InsertCandyMachineItemsBuilderParams
 ): TransactionBuilder => {
-  const programs = params.programs;
+  const {programs} = params;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
-  const items = params.items;
+  const {items} = params;
 
   assertNotFull(params.candyMachine, index);
   assertCanAdd(params.candyMachine, index, items.length);

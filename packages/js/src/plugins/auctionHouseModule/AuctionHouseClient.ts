@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import { Task } from '@/utils';
 import { AuctionHouse, Bid, Listing, Purchase } from './models';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
@@ -74,6 +72,8 @@ import {
   withdrawFromTreasuryAccountOperation,
   WithdrawFromTreasuryAccountOutput,
 } from './operations';
+import { Task } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the Auction House module.

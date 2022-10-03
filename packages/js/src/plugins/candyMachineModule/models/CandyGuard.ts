@@ -1,4 +1,9 @@
-import { Metaplex } from '@/Metaplex';
+import {
+  CandyGuard as MplCandyGuard,
+  candyGuardBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { CANDY_GUARD_DATA } from '../constants';
+import { CandyGuardsSettings } from '../guards';
 import {
   AccountInfo,
   assertModel,
@@ -11,12 +16,7 @@ import {
   toAccountInfo,
   UnparsedAccount,
 } from '@/types';
-import {
-  CandyGuard as MplCandyGuard,
-  candyGuardBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
-import { CANDY_GUARD_DATA } from '../constants';
-import { CandyGuardsSettings } from '../guards';
+import { Metaplex } from '@/Metaplex';
 
 /** @group Models */
 export type CandyGuard<T extends CandyGuardsSettings> = Model<'candyGuard'> & {

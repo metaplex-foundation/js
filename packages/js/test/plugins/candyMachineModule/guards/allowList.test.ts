@@ -1,10 +1,3 @@
-import {
-  getMerkleProof,
-  getMerkleRoot,
-  isEqualToAmount,
-  sol,
-  toBigNumber,
-} from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
@@ -14,6 +7,13 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import {
+  getMerkleProof,
+  getMerkleRoot,
+  isEqualToAmount,
+  sol,
+  toBigNumber,
+} from '@/index';
 
 killStuckProcess();
 

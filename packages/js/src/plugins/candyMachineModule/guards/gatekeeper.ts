@@ -1,15 +1,15 @@
+import { Buffer } from 'buffer';
+import {
+  Gatekeeper,
+  gatekeeperBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
   Pda,
   PublicKey,
 } from '@/types';
-import {
-  Gatekeeper,
-  gatekeeperBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
-import { Buffer } from 'buffer';
-import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
 
 /**
  * The gatekeeper guard checks whether the minting wallet

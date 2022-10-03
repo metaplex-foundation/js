@@ -6,10 +6,6 @@ import {
   createUpdateAuctionHouseInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import isEqual from 'lodash.isequal';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, Signer, OperationHandler } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { NoInstructionsToSendError } from '@/errors';
 import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -19,6 +15,10 @@ import {
 import { TreasuryDestinationOwnerRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
+import { NoInstructionsToSendError } from '@/errors';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { useOperation, Operation, Signer, OperationHandler } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -238,7 +238,7 @@ export const updateAuctionHouseBuilder = (
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
-  const auctionHouse = params.auctionHouse;
+  const {auctionHouse} = params;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;

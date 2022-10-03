@@ -1,7 +1,7 @@
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { KeypairSigner } from '@/types';
 import { IdentityDriver } from '../identityModule';
+import { KeypairSigner } from '@/types';
 
 export class KeypairIdentityDriver implements IdentityDriver, KeypairSigner {
   public readonly keypair: Keypair;

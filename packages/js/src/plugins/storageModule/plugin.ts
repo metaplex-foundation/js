@@ -1,6 +1,6 @@
+import { StorageClient } from './StorageClient';
 import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
-import { StorageClient } from './StorageClient';
 
 /** @group Plugins */
 export const storageModule = (): MetaplexPlugin => ({
