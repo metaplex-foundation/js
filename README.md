@@ -92,6 +92,8 @@ And the following model, either returned or used by the above methods.
 
 - [The `Nft` model](#the-nft-model)
 
+You may also be interested in browsing [the API References of that module](https://metaplex-foundation.github.io/js/classes/js.NftClient.html).
+
 ### findByMint
 
 The `findByMint` method accepts a `mintAddress` public key and returns [an `Nft` object](#the-nft-model).
@@ -232,7 +234,7 @@ Note that `MetaplexFile`s can be created in various different ways based on wher
 
 ### create
 
-The `create` method accepts [a variety of parameters](packages/js/src/plugins/nftModule/operations/createNft.ts) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
+The `create` method accepts [a variety of parameters](https://metaplex-foundation.github.io/js/types/js.CreateNftInput.html) that define the on-chain data of the NFT. The only parameters required are its `name`, its `sellerFeeBasisPoints` — i.e. royalties — and the `uri` pointing to its JSON metadata — remember that you can use `uploadMetadata` to get that URI. All other parameters are optional as the SDK will do its best to provide sensible default values.
 
 Here's how you can create a new NFT with minimum configuration.
 
@@ -254,16 +256,16 @@ Additionally, since no other optional parameters were provided, it will do its b
 - It will also default to setting the identity as the first and only creator with a 100% share.
 - It will default to making the NFT mutable — meaning the update authority will be able to update it later on.
 
-If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](packages/js/src/plugins/nftModule/operations/createNft.ts) accepted by the `create` method.
+If some of these default parameters are not suitable for your use case, you may provide them explicitly when creating the NFT. [Here is the exhaustive list of parameters](https://metaplex-foundation.github.io/js/types/js.CreateNftInput.html) accepted by the `create` method.
 
 ### update
 
-The `update` method accepts an `Nft` object and a set of parameters to update on the NFT. It then returns a new `Nft` object representing the updated NFT.
+The `update` method accepts an `Nft` object and a set of parameters to update on the NFT.
 
 For instance, here is how you would change the on-chain name of an NFT.
 
 ```ts
-const { nft: updatedNft } = await metaplex
+await metaplex
     .nfts()
     .update({ 
         nftOrSft: nft,
@@ -272,7 +274,11 @@ const { nft: updatedNft } = await metaplex
     .run();
 ```
 
-Anything that you don’t provide in the parameters will stay unchanged.
+Anything that you don’t provide in the parameters will stay unchanged. Note that it will not fetch the updated NFT in order to avoid the extra HTTP call if you don't need it. If you do need to refresh the NFT instance to access the latest data, you may do that using the `refresh` operation.
+
+```ts
+const updatedNft = await metaplex.nfts().refresh(nft).run();
+```
 
 If you’d like to change the JSON metadata of the NFT, you’d first need to upload a new metadata object using the `uploadMetadata` method and then use the provided URI to update the NFT.
 
@@ -286,7 +292,7 @@ const { uri: newUri } = await metaplex
     })
     .run();
 
-const { nft: updatedNft } = await metaplex
+await metaplex
     .nfts()
     .update({ 
         nftOrSft: nft,
@@ -411,7 +417,7 @@ Additionally, The SDK may sometimes return a `Metadata` instead of an `Nft` obje
 You may obtain an `Nft` object from a `Metadata` object by using [the `load` method](#load) explained above,
 
 ## Candy Machines
-The Candy Machine module can be accessed via `metaplex.candyMachines()` and provides the following documented methods.
+The Candy Machine module can be accessed via `metaplex.candyMachinesV2()` and provides the following documented methods.
 
 - [`findMintedNfts(candyMachine, options)`](#findMintedNfts)
 
@@ -424,9 +430,9 @@ The `findMintedNfts` method accepts the public key of a Candy Machine and return
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine }).run();
-const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine, version: 2 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.candyMachines().findMintedNfts({ candyMachine, version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine }).run();
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 2 }).run(); // Equivalent to the previous line.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
 ```
 
 Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.

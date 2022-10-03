@@ -1,43 +1,34 @@
+import { ExpectedSignerError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
-import {
-  assertSameCurrencies,
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  SOL,
-  toBigNumber,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import {
-  DisposableScope,
-  Option,
-  RequiredKeys,
-  TransactionBuilder,
-} from '@/utils';
-import {
-  createInitializeCandyMachineInstruction,
-  createSetCollectionInstruction,
-  Creator,
-} from '@metaplex-foundation/mpl-candy-machine';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-  TokenMetadataProgram,
-} from '../../nftModule';
+} from '@/plugins/nftModule';
+import {
+  BigNumber,
+  Creator,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Program,
+  PublicKey,
+  Signer,
+  toBigNumber,
+  toPublicKey,
+} from '@/types';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
+import { ConfirmOptions, Keypair } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
   CandyMachine,
-  CandyMachineConfigs,
-  toCandyMachineInstructionData,
-} from '../models/CandyMachine';
-import { ExpectedSignerError } from '@/errors';
-import { getCandyMachineAccountSizeFromData } from '../helpers';
-import { findCandyMachineCollectionPda } from '../pdas';
-import { CandyMachineProgram } from '../program';
+  CandyMachineConfigLineSettings,
+  CandyMachineHiddenSettings,
+  toCandyMachineData,
+} from '../models';
+import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
 
 // -----------------
 // Operation
@@ -46,36 +37,56 @@ import { CandyMachineProgram } from '../program';
 const Key = 'CreateCandyMachineOperation' as const;
 
 /**
- * Creates a brand new Candy Machine.
+ * Creates a brand new Candy Machine with the provided settings.
+ *
+ * Unless the `withoutCandyGuard` option is set to `true`, a
+ * Candy Guard will be created with the given guards and
+ * immediately linked to the Candy Machine.
  *
  * ```ts
- * const { candyMachine } = await metaplex
- *   .candyMachines()
- *   .create({
- *     sellerFeeBasisPoints: 500, // 5% royalties
- *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
- *   })
- *   .run();
+ *  const { candyMachine } = await metaplex
+ *    .candyMachines()
+ *    .create({
+ *      itemsAvailable: toBigNumber(5000),
+ *      sellerFeeBasisPoints: 333, // 3.33%
+ *      collection: {
+ *        address: collectionNft.address,
+ *        updateAuthority: collectionUpdateAuthority,
+ *      },
+ *    })
+ *    .run();
  * ```
  *
  * @group Operations
  * @category Constructors
  */
-export const createCandyMachineOperation =
-  useOperation<CreateCandyMachineOperation>(Key);
+export const createCandyMachineOperation = _createCandyMachineOperation;
+function _createCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(input: CreateCandyMachineInput<T>): CreateCandyMachineOperation<T> {
+  return { key: Key, input };
+}
+_createCandyMachineOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type CreateCandyMachineOperation = Operation<
+export type CreateCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
-  CreateCandyMachineInput,
-  CreateCandyMachineOutput
+  CreateCandyMachineInput<T>,
+  CreateCandyMachineOutput<T>
 >;
 
-export type CreateCandyMachineInputWithoutConfigs = {
+/**
+ * @group Operations
+ * @category Inputs
+ */
+export type CreateCandyMachineInput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /**
    * The Candy Machine to create as a Signer.
    * This expects a brand new Keypair with no associated account.
@@ -93,25 +104,183 @@ export type CreateCandyMachineInputWithoutConfigs = {
   payer?: Signer;
 
   /**
-   * The authority that will be allowed to update the Candy Machine.
-   * Upon creation, passing the authority's public key is enough to set it.
-   * However, when also passing a `collection` to this operation,
-   * this authority will need to be passed as a Signer so the relevant
-   * instruction can be signed.
+   * Refers to the authority that is allowed to manage the Candy Machine.
+   * This includes updating its data, authorities, inserting items, etc.
+   *
+   * By default, it is required as a Signer in order to create and wrap its
+   * Candy Guard. However, when `withoutCandyGuard` is set to `true`, it
+   * may be provided as a PublicKey instead.
    *
    * @defaultValue `metaplex.identity()`
    */
-  authority?: Signer | PublicKey; // Defaults to mx.identity().
+  authority?: PublicKey | Signer;
 
   /**
-   * The mint address of the Collection NFT that all NFTs minted from
-   * this Candy Machine should be part of.
-   * When provided, the `authority` parameter will need to be passed as a `Signer`.
-   * When `null`, minted NFTs won't be part of a collection.
+   * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
+   * This must include its address and the update authority as a Signer.
    *
-   * @defaultValue `null`
+   * @example
+   * If you do not have a Collection NFT yet, you can create one using
+   * the `create` method of the NFT module and setting `isCollection` to `true`.
+   *
+   * ```ts
+   * const { nft } = await metaplex.
+   *   .nfts()
+   *   .create({ isCollection: true, name: 'My Collection', ... })
+   *   .run();
+   * ```
+   *
+   * You can now use `nft.address` as the address of the collection and
+   * provide the update authority as a signer, which by default, should
+   * be `metaplex.identity()`.
    */
-  collection?: Option<PublicKey>;
+  collection: {
+    address: PublicKey;
+    updateAuthority: Signer;
+  };
+
+  /**
+   * The royalties that should be set on minted NFTs in basis points.
+   *
+   * @example
+   * ```ts
+   * { sellerFeeBasisPoints: 250 } // For 2.5% royalties.
+   * ```
+   */
+  sellerFeeBasisPoints: number;
+
+  /**
+   * The total number of items availble in the Candy Machine, minted or not.
+   *
+   * @example
+   * ```ts
+   * { itemsAvailable: toBigNumber(1000) } // For 1000 items.
+   * ```
+   */
+  itemsAvailable: BigNumber;
+
+  /**
+   * Settings related to the Candy Machine's items.
+   *
+   * These can either be inserted manually within the Candy Machine or
+   * they can be infered from a set of hidden settings.
+   *
+   * - If `type` is `hidden`, the Candy Machine is using hidden settings.
+   * - If `type` is `configLines`, the Candy Machine is using config line settings.
+   *
+   * @defaultValue
+   * Defaults to using `configLines` settings with:
+   * - No prefixes.
+   * - A length of 32 for the name.
+   * - A length of 200 for the URI.
+   * - Random mint ordering.
+   *
+   * ```ts
+   * {
+   *   itemSettings: {
+   *     type: 'configLines',
+   *     prefixName: '',
+   *     nameLength: 32,
+   *     prefixUri: '',
+   *     uriLength: 200,
+   *     isSequential: false,
+   *   }
+   * }
+   * ```
+   *
+   * @see {@link CandyMachineHiddenSettings}
+   * @see {@link CandyMachineConfigLineSettings}
+   */
+  itemSettings?: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
+
+  /**
+   * The symbol to use when minting NFTs (e.g. "MYPROJECT")
+   *
+   * This can be any string up to 10 bytes and can be made optional
+   * by providing an empty string.
+   *
+   * @defaultValue `""`
+   */
+  symbol?: string;
+
+  /**
+   * The maximum number of editions that can be printed from the
+   * minted NFTs.
+   *
+   * For most use cases, you'd want to set this to `0` to prevent
+   * minted NFTs to be printed multiple times.
+   *
+   * Note that you cannot set this to `null` which means unlimited editions
+   * are not supported by the Candy Machine program.
+   *
+   * @defaultValue `toBigNumber(0)`
+   */
+  maxEditionSupply?: BigNumber;
+
+  /**
+   * Whether the minted NFTs should be mutable or not.
+   *
+   * We recommend setting this to `true` unless you have a specific reason.
+   * You can always make NFTs immutable in the future but you cannot make
+   * immutable NFTs mutable ever again.
+   *
+   * @defaultValue `true`
+   */
+  isMutable?: boolean;
+
+  /**
+   * Array of creators that should be set on minted NFTs.
+   *
+   * @see {@link Creator}
+   *
+   * @defaultValue
+   * Defaults to using the `authority` parameter as the only creator.
+   *
+   * ```ts
+   * [{ address: authority, share: 100 }]
+   * ```
+   */
+  creators?: Omit<Creator, 'verified'>[];
+
+  /**
+   * The settings of all guards we wish to activate.
+   *
+   * Any guard not provided or set to `null` will be disabled.
+   *
+   * This parameter is ignored if `withoutCandyGuard` is set to `true`.
+   *
+   * @defaultValue `{}`, i.e. no guards are activated.
+   */
+  guards?: Partial<T>;
+
+  /**
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * For each group, any guard not provided or set to `null` will be disabled.
+   *
+   * This parameter is ignored if `withoutCandyGuard` is set to `true`.
+   *
+   * @defaultValue `[]`, i.e. no groups are created.
+   */
+  groups?: { label: string; guards: Partial<T> }[];
+
+  /**
+   * Whether to skip the part of this operation that creates a Candy Guard
+   * for the new Candy Machine. When set to `true`, no Candy Guard will be
+   * created for the Candy Machine.
+   *
+   * @defaultValue `false`
+   */
+  withoutCandyGuard?: boolean;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -119,39 +288,19 @@ export type CreateCandyMachineInputWithoutConfigs = {
 
 /**
  * @group Operations
- * @category Inputs
- */
-export type CreateCandyMachineInput = CreateCandyMachineInputWithoutConfigs &
-  RequiredKeys<
-    Partial<CandyMachineConfigs>,
-    'price' | 'sellerFeeBasisPoints' | 'itemsAvailable'
-  >;
-
-/**
- * @group Operations
  * @category Outputs
  */
-export type CreateCandyMachineOutput = {
+export type CreateCandyMachineOutput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
-  /** The created Candy Machine. */
-  candyMachine: CandyMachine;
+  /** The Candy Machine that was created. */
+  candyMachine: CandyMachine<T>;
 
-  /** The create Candy Machine's account as a Signer. */
+  /** The created Candy Machine has a Signer. */
   candyMachineSigner: Signer;
-
-  /** The account that ended up paying for the Candy Machine as a Signer. */
-  payer: Signer;
-
-  /** The created Candy Machine's wallet. */
-  wallet: PublicKey;
-
-  /** The created Candy Machine's authority. */
-  authority: PublicKey;
-
-  /** The created Candy Machine's creators. */
-  creators: Creator[];
 };
 
 /**
@@ -160,11 +309,11 @@ export type CreateCandyMachineOutput = {
  */
 export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMachineOperation> =
   {
-    async handle(
-      operation: CreateCandyMachineOperation,
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: CreateCandyMachineOperation<T>,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<CreateCandyMachineOutput> {
+    ): Promise<CreateCandyMachineOutput<T>> {
       const builder = await createCandyMachineBuilder(
         metaplex,
         operation.input
@@ -179,8 +328,9 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
 
       const candyMachine = await metaplex
         .candyMachines()
-        .findByAddress({ address: output.candyMachineSigner.publicKey })
-        .run(scope);
+        .findByAddress<T>({ address: output.candyMachineSigner.publicKey })
+        .run();
+      scope.throwIfCanceled();
 
       return { ...output, candyMachine };
     },
@@ -194,18 +344,17 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type CreateCandyMachineBuilderParams = Omit<
-  CreateCandyMachineInput,
-  'confirmOptions'
-> & {
-  /** A key to distinguish the instruction that creates the account. */
-  createAccountInstructionKey?: string;
+export type CreateCandyMachineBuilderParams<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<CreateCandyMachineInput<T>, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that creates the Candy Machine account. */
+  createCandyMachineAccountInstructionKey?: string;
 
-  /** A key to distinguish the instruction that initializes the Candy Machine. */
+  /** A key to distinguish the instruction that initializes the Candy Machine account. */
   initializeCandyMachineInstructionKey?: string;
 
-  /** A key to distinguish the instruction that sets the collection. */
-  setCollectionInstructionKey?: string;
+  /** A key to distinguish the instruction that wraps the Candy Machine in a Candy Guard. */
+  wrapCandyGuardInstructionKey?: string;
 };
 
 /**
@@ -218,150 +367,165 @@ export type CreateCandyMachineBuilderContext = Omit<
 >;
 
 /**
- * Creates a brand new Candy Machine.
+
+ * Creates a brand new Candy Machine with the provided settings.
+ *
+ * Unless the `withoutCandyGuard` option is set to `true`, a
+ * Candy Guard will be created with the given guards and
+ * immediately linked to the Candy Machine.
  *
  * ```ts
- * const transactionBuilder = await metaplex
- *   .candyMachines()
- *   .builders()
- *   .create({
- *     sellerFeeBasisPoints: 500, // 5% royalties
- *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
- *   });
+ *  const transactionBuilder = await metaplex
+ *    .candyMachines()
+ *    .builders()
+ *    .create({
+ *      itemsAvailable: toBigNumber(5000),
+ *      sellerFeeBasisPoints: 333, // 3.33%
+ *      collection: {
+ *        address: collectionNft.address,
+ *        updateAuthority: collectionUpdateAuthority,
+ *      },
+ *    });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const createCandyMachineBuilder = async (
+export const createCandyMachineBuilder = async <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: CreateCandyMachineBuilderParams
+  params: CreateCandyMachineBuilderParams<T>
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
-  const candyMachine = params.candyMachine ?? Keypair.generate();
-  const payer: Signer = params.payer ?? metaplex.identity();
-  const authority = params.authority ?? metaplex.identity();
-  const collection: PublicKey | null = params.collection ?? null;
+  // Input.
+  const {
+    payer = metaplex.identity(),
+    candyMachine = Keypair.generate(),
+    authority = metaplex.identity(),
+    collection,
+    sellerFeeBasisPoints,
+    itemsAvailable,
+    symbol = '',
+    maxEditionSupply = toBigNumber(0),
+    isMutable = true,
+    withoutCandyGuard = false,
+    programs,
+  } = params;
+  const creators = params.creators ?? [
+    { address: toPublicKey(authority), share: 100 },
+  ];
+  const itemSettings = params.itemSettings ?? {
+    type: 'configLines',
+    prefixName: '',
+    nameLength: 32,
+    prefixUri: '',
+    uriLength: 200,
+    isSequential: false,
+  };
 
-  const { data, wallet, tokenMint } = toCandyMachineInstructionData(
-    candyMachine.publicKey,
-    {
-      ...params,
-      wallet: params.wallet ?? metaplex.identity().publicKey,
-      tokenMint: params.tokenMint ?? null,
-      symbol: params.symbol ?? '',
-      maxEditionSupply: params.maxEditionSupply ?? toBigNumber(0),
-      isMutable: params.isMutable ?? true,
-      retainAuthority: params.retainAuthority ?? true,
-      goLiveDate: params.goLiveDate ?? null,
-      endSettings: params.endSettings ?? null,
-      creators: params.creators ?? [
-        {
-          address: metaplex.identity().publicKey,
-          share: 100,
-          verified: false,
-        },
-      ],
-      hiddenSettings: params.hiddenSettings ?? null,
-      whitelistMintSettings: params.whitelistMintSettings ?? null,
-      gatekeeper: params.gatekeeper ?? null,
-    }
+  // PDAs.
+  const authorityPda = metaplex
+    .candyMachines()
+    .pdas()
+    .authority({ candyMachine: candyMachine.publicKey, programs });
+  const collectionMetadata = findMetadataPda(collection.address);
+  const collectionMasterEdition = findMasterEditionV2Pda(collection.address);
+  const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
+    collection.address,
+    authorityPda
   );
 
-  const initializeInstruction = createInitializeCandyMachineInstruction(
-    {
-      candyMachine: candyMachine.publicKey,
-      wallet,
-      authority: toPublicKey(authority),
-      payer: payer.publicKey,
-    },
-    { data }
-  );
+  // Programs.
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  if (tokenMint) {
-    initializeInstruction.keys.push({
-      pubkey: tokenMint,
-      isWritable: false,
-      isSigner: false,
-    });
-  } else {
-    assertSameCurrencies(params.price, SOL);
+  const candyMachineData = toCandyMachineData({
+    itemsAvailable,
+    symbol,
+    sellerFeeBasisPoints,
+    maxEditionSupply,
+    isMutable,
+    creators,
+    itemSettings,
+  });
+
+  const builder = TransactionBuilder.make<CreateCandyMachineBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({ candyMachineSigner: candyMachine });
+
+  let mintAuthority = toPublicKey(authority);
+  if (!withoutCandyGuard) {
+    const createCandyGuard = metaplex
+      .candyMachines()
+      .builders()
+      .createCandyGuard<T>({
+        base: candyMachine,
+        payer,
+        authority: toPublicKey(authority),
+        guards: params.guards ?? {},
+        groups: params.groups,
+        programs,
+      });
+
+    const { candyGuardAddress } = createCandyGuard.getContext();
+    mintAuthority = candyGuardAddress;
+    builder.add(createCandyGuard);
   }
 
-  return (
-    TransactionBuilder.make<CreateCandyMachineBuilderContext>()
-      .setFeePayer(payer)
-      .setContext({
-        candyMachineSigner: candyMachine,
-        payer,
-        wallet,
-        authority: toPublicKey(authority),
-        creators: data.creators,
-      })
+  return builder
+    .add(
+      await metaplex
+        .system()
+        .builders()
+        .createAccount({
+          space: getCandyMachineSize(candyMachineData),
+          payer,
+          newAccount: candyMachine,
+          program: candyMachineProgram.address,
+        })
+    )
 
-      // Create an empty account for the candy machine.
-      .add(
-        await metaplex
-          .system()
-          .builders()
-          .createAccount({
-            payer,
-            newAccount: candyMachine,
-            space: getCandyMachineAccountSizeFromData(data),
-            program: CandyMachineProgram.publicKey,
-            instructionKey:
-              params.createAccountInstructionKey ?? 'createAccount',
-          })
-      )
+    .add({
+      instruction: createInitializeInstruction(
+        {
+          candyMachine: candyMachine.publicKey,
+          authorityPda,
+          authority: toPublicKey(authority),
+          payer: payer.publicKey,
+          collectionMetadata,
+          collectionMint: collection.address,
+          collectionMasterEdition,
+          collectionUpdateAuthority: collection.updateAuthority.publicKey,
+          collectionAuthorityRecord,
+          tokenMetadataProgram: tokenMetadataProgram.address,
+        },
+        { data: candyMachineData },
+        candyMachineProgram.address
+      ),
+      signers: [payer, candyMachine, collection.updateAuthority],
+      key:
+        params.initializeCandyMachineInstructionKey ?? 'initializeCandyMachine',
+    })
 
-      // Initialize the candy machine account.
-      .add({
-        instruction: initializeInstruction,
-        signers: [candyMachine, payer],
-        key:
-          params.initializeCandyMachineInstructionKey ??
-          'initializeCandyMachine',
-      })
-
-      // Set the collection.
-      .when(!!collection, (builder) => {
-        if (!isSigner(authority)) {
-          throw new ExpectedSignerError('authority', 'PublicKey', {
-            problemSuffix:
-              'You are trying to create a Candy Machine with a Collection NFT. ' +
-              'In order for the Collection NFT to be set successfully, you must provide the authority as a Signer.',
-            solution:
-              'Please provide the "authority" parameter as a Signer if you want to set the Collection NFT upon creation. ' +
-              'Alternatively, you may remove the "collection" parameter to create a Candy Machine without an associated Collection NFT.',
-          });
-        }
-
-        const collectionMint = collection as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const edition = findMasterEditionV2Pda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
-          candyMachine.publicKey
-        );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
-
-        return builder.add({
-          instruction: createSetCollectionInstruction({
-            candyMachine: candyMachine.publicKey,
-            authority: toPublicKey(authority),
-            collectionPda,
-            payer: payer.publicKey,
-            metadata,
-            mint: collectionMint,
-            edition,
-            collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
-          }),
-          signers: [authority],
-          key: params.setCollectionInstructionKey ?? 'setCollection',
+    .when(!withoutCandyGuard, (builder) => {
+      if (!isSigner(authority)) {
+        throw new ExpectedSignerError('authority', 'PublicKey', {
+          problemSuffix:
+            'In order to create a Candy Machine with an associated ' +
+            'Candy Guard you must provide the authority as a Signer.',
         });
-      })
-  );
+      }
+
+      return builder.add(
+        metaplex.candyMachines().builders().wrapCandyGuard({
+          candyMachine: candyMachine.publicKey,
+          candyMachineAuthority: authority,
+          candyGuard: mintAuthority,
+          candyGuardAuthority: authority,
+          payer,
+          programs,
+          wrapCandyGuardInstructionKey: params.wrapCandyGuardInstructionKey,
+        })
+      );
+    });
 };

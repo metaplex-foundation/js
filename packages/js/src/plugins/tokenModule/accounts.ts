@@ -1,22 +1,26 @@
+import { NotYetImplementedError } from '@/errors';
 import {
   Account,
-  AccountParser,
+  SolitaType,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@/types';
 import {
-  RawAccount as SplTokenAccount,
   AccountLayout as SplTokenAccountLayout,
-  RawMint as SplMintAccount,
   MintLayout as SplMintAccountLayout,
+  RawAccount as SplTokenAccount,
+  RawMint as SplMintAccount,
 } from '@solana/spl-token';
 
-const mintAccountParser: AccountParser<SplMintAccount> = {
+const mintAccountParser: SolitaType<SplMintAccount> = {
   name: 'MintAccount',
   deserialize: (data: Buffer, offset?: number) => {
     const span = SplMintAccountLayout.getSpan(data, offset);
     const decoded = SplMintAccountLayout.decode(data, offset);
     return [decoded, span];
+  },
+  fromArgs() {
+    throw new NotYetImplementedError();
   },
 };
 
@@ -30,12 +34,15 @@ export const parseMintAccount = getAccountParsingFunction(mintAccountParser);
 export const toMintAccount =
   getAccountParsingAndAssertingFunction(mintAccountParser);
 
-const tokenAccountParser: AccountParser<SplTokenAccount> = {
+const tokenAccountParser: SolitaType<SplTokenAccount> = {
   name: 'TokenAccount',
   deserialize: (data: Buffer, offset?: number) => {
     const span = SplTokenAccountLayout.getSpan(data, offset);
     const decoded = SplTokenAccountLayout.decode(data, offset);
     return [decoded, span];
+  },
+  fromArgs() {
+    throw new NotYetImplementedError();
   },
 };
 

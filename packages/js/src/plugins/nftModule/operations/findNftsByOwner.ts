@@ -1,8 +1,8 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
-import { TokenProgram } from '../../tokenModule';
+import { TokenGpaBuilder } from '../../tokenModule';
 import { Metadata, Nft, Sft } from '../models';
 import { findNftsByMintListOperation } from './findNftsByMintList';
 
@@ -46,6 +46,9 @@ export type FindNftsByOwnerInput = {
   /** The address of the owner. */
   owner: PublicKey;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
@@ -67,9 +70,10 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
       metaplex: Metaplex,
       scope: DisposableScope
     ): Promise<FindNftsByOwnerOutput> => {
-      const { owner, commitment } = operation.input;
+      const { owner, commitment, programs } = operation.input;
 
-      const mints = await TokenProgram.tokenAccounts(metaplex)
+      const tokenProgram = metaplex.programs().getToken(programs);
+      const mints = await new TokenGpaBuilder(metaplex, tokenProgram.address)
         .selectMint()
         .whereOwner(owner)
         .whereAmount(1)

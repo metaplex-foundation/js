@@ -1,10 +1,10 @@
 import { Metaplex } from '@/Metaplex';
-import { findAssociatedTokenAccountPda } from '@/plugins/tokenModule';
 import {
   BigNumber,
   CreatorInput,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   token,
   toPublicKey,
@@ -234,11 +234,8 @@ export type CreateNftInput = {
    */
   collectionIsSized?: boolean;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -284,12 +281,17 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       tokenOwner = metaplex.identity().publicKey,
       tokenAddress: tokenSigner,
       confirmOptions,
+      programs,
     } = operation.input;
 
     const mintAddress = useExistingMint ?? useNewMint.publicKey;
     const tokenAddress = tokenSigner
       ? toPublicKey(tokenSigner)
-      : findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+      : metaplex.tokens().pdas().associatedTokenAccount({
+          mint: mintAddress,
+          owner: tokenOwner,
+          programs,
+        });
     const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
     const tokenExists = tokenAccount.exists;
 
@@ -393,7 +395,10 @@ export const createNftBuilder = async (
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
+    programs,
   } = params;
+
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const sftBuilder = await metaplex
     .nfts()
@@ -442,7 +447,8 @@ export const createNftBuilder = async (
             createMasterEditionArgs: {
               maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
             },
-          }
+          },
+          tokenMetadataProgram.address
         ),
         signers: [payer, mintAuthority, updateAuthority],
         key: params.createMasterEditionInstructionKey ?? 'createMasterEdition',

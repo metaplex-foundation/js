@@ -44,6 +44,8 @@ export type SendAndConfirmTransactionResponse = {
  * @group Modules
  */
 export class RpcClient {
+  protected defaultFeePayer?: PublicKey;
+
   constructor(protected readonly metaplex: Metaplex) {}
 
   async sendTransaction(
@@ -166,8 +168,9 @@ export class RpcClient {
     );
 
     return accounts.map(({ pubkey, account }) => ({
-      publicKey: pubkey,
       ...account,
+      publicKey: pubkey,
+      lamports: lamports(account.lamports),
     }));
   }
 
@@ -237,9 +240,18 @@ export class RpcClient {
     return `https://explorer.solana.com/tx/${signature}${clusterParam}`;
   }
 
-  protected getDefaultFeePayer(): PublicKey | undefined {
-    const identity = this.metaplex.identity().publicKey;
+  setDefaultFeePayer(payer: PublicKey) {
+    this.defaultFeePayer = payer;
 
+    return this;
+  }
+
+  getDefaultFeePayer(): PublicKey | undefined {
+    if (this.defaultFeePayer) {
+      return this.defaultFeePayer;
+    }
+
+    const identity = this.metaplex.identity().publicKey;
     return identity.equals(PublicKey.default) ? undefined : identity;
   }
 
@@ -251,7 +263,12 @@ export class RpcClient {
       return { publicKey, exists: false };
     }
 
-    return { publicKey, exists: true, ...accountInfo };
+    return {
+      ...accountInfo,
+      publicKey,
+      exists: true,
+      lamports: lamports(accountInfo.lamports),
+    };
   }
 
   protected parseProgramError(

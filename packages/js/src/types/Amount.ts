@@ -190,6 +190,12 @@ export const divideAmount = <T extends Currency>(
   return amount(left.basisPoints.divn(divisor), left.currency);
 };
 
+export const absoluteAmount = <T extends Currency>(
+  value: Amount<T>
+): Amount<T> => {
+  return amount(value.basisPoints.abs(), value.currency);
+};
+
 export const compareAmounts = <T extends Currency>(
   left: Amount<T>,
   right: Amount<T>
@@ -201,8 +207,17 @@ export const compareAmounts = <T extends Currency>(
 
 export const isEqualToAmount = <T extends Currency>(
   left: Amount<T>,
-  right: Amount<T>
-): boolean => compareAmounts(left, right) === 0;
+  right: Amount<T>,
+  tolerance?: Amount<T>
+): boolean => {
+  tolerance = tolerance ?? amount(0, left.currency);
+  assertSameCurrencies(left, right, 'isEqualToAmount');
+  assertSameCurrencies(left, tolerance, 'isEqualToAmount');
+
+  const delta = absoluteAmount(subtractAmounts(left, right));
+
+  return isLessThanOrEqualToAmount(delta, tolerance);
+};
 
 export const isLessThanAmount = <T extends Currency>(
   left: Amount<T>,

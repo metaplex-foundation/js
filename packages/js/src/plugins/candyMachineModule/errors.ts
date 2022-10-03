@@ -3,29 +3,41 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@/errors';
-import { CandyMachineItem, CandyMachineEndSettings } from './models';
-import { BigNumber, DateTime, formatDateTime } from '@/types';
-import { Option } from '@/utils';
-import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 
 /** @group Errors */
-export class CandyMachineError extends MetaplexError {
+export class CandyMachineV3Error extends MetaplexError {
   constructor(input: MetaplexErrorInputWithoutSource) {
     super({
       ...input,
-      key: `plugin.candy_machine.${input.key}`,
-      title: `Candy Machine > ${input.title}`,
+      key: `plugin.candy_machine_v3.${input.key}`,
+      title: `Candy Machine V3 > ${input.title}`,
       source: 'plugin',
-      sourceDetails: 'Candy Machine',
+      sourceDetails: 'Candy Machine V3',
     });
   }
 }
 
 /** @group Errors */
-export class CandyMachineIsFullError extends CandyMachineError {
+export class UnregisteredCandyGuardError extends CandyMachineV3Error {
+  constructor(name: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'unregistered_candy_guard',
+      title: 'Unregistered Candy Guard',
+      problem:
+        `The SDK is trying to access a custom Candy Guard named [${name}] ` +
+        `but that guard was not registered in the SDK`,
+      solution:
+        'Register your custom guard by calling the `metaplex.candyMachines().guards().register()` method.',
+    });
+  }
+}
+
+/** @group Errors */
+export class CandyMachineIsFullError extends CandyMachineV3Error {
   constructor(
-    assetIndex: BigNumber,
-    itemsAvailable: BigNumber,
+    index: number,
+    itemsAvailable: number,
     options?: MetaplexErrorOptions
   ) {
     super({
@@ -33,111 +45,59 @@ export class CandyMachineIsFullError extends CandyMachineError {
       key: 'candy_machine_is_full',
       title: 'Candy Machine Is Full',
       problem:
-        `Trying to add asset number ${assetIndex.addn(1)}, but ` +
-        `candy machine only can hold ${itemsAvailable} assets.`,
+        `You are trying to add an item at index ${index} to a Candy Machine that ` +
+        `can only hold a maximum of ${itemsAvailable} items.`,
       solution:
-        'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
+        'Limit number of items you are adding or create a Candy Machine that can hold more of them.',
     });
   }
 }
 
 /** @group Errors */
-export class CandyMachineIsEmptyError extends CandyMachineError {
-  constructor(itemsAvailable: BigNumber, options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'candy_machine_is_empty',
-      title: 'Candy Machine Is Empty',
-      problem:
-        `You're trying to mint from an empty candy machine. ` +
-        `All ${itemsAvailable} items have been minted.`,
-      solution: 'You can no longer mint from this Candy Machine.',
-    });
-  }
-}
-
-/** @group Errors */
-export class CandyMachineCannotAddAmountError extends CandyMachineError {
+export class CandyMachineCannotAddAmountError extends CandyMachineV3Error {
   constructor(
-    index: BigNumber,
+    index: number,
     amount: number,
-    itemsAvailable: BigNumber,
+    itemsAvailable: number,
     options?: MetaplexErrorOptions
   ) {
     super({
       options,
       key: 'candy_machine_cannot_add_amount',
       title: 'Candy Machine Cannot Add Amount',
-      problem: `Trying to add ${amount} assets to candy machine that already has ${index} assets and can only hold ${itemsAvailable} assets.`,
+      problem:
+        `You are trying to add ${amount} items to candy machine starting at index ${index} ` +
+        ` but it can only hold a maximum of ${itemsAvailable} items.`,
       solution:
-        'Limit number of assets you are adding or create a new Candy Machine that can hold more.',
+        'Limit number of assets you are adding or create a Candy Machine that can hold more of them.',
     });
   }
 }
 
 /** @group Errors */
-export class CandyMachineAddItemConstraintsViolatedError extends CandyMachineError {
+export class CandyMachineItemTextTooLongError extends CandyMachineV3Error {
   constructor(
-    index: BigNumber,
-    item: CandyMachineItem,
+    index: number,
+    type: 'name' | 'uri',
+    text: string,
+    limit: number,
     options?: MetaplexErrorOptions
   ) {
     super({
       options,
-      key: 'candy_machine_add_item_constraints_violated',
-      title: 'Candy Machine Add Item Constraints Violated',
-      problem: `Trying to add an asset with name "${item.name}" and uri: "${item.uri}" to candy machine at index ${index} that violates constraints.`,
-      solution: 'Fix the name or URI of this asset and try again.',
-    });
-  }
-}
-
-/** @group Errors */
-export class CandyMachineNotLiveError extends CandyMachineError {
-  constructor(goLiveDate: Option<DateTime>, options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'candy_machine_not_live',
-      title: 'Candy Machine Not Live',
+      key: 'candy_machine_item_text_too_long',
+      title: 'Candy Machine Item Text Too Long',
       problem:
-        `You're trying to mint from a Candy Machine which is not live yet. ` +
-        (goLiveDate
-          ? `It will go live on ${formatDateTime(goLiveDate)}.`
-          : `Its live date has not been set yet.`),
-      solution:
-        'You need to wait until the Candy Machine is live to mint from it. ' +
-        'If this is your Candy Machine, use "metaplex.candyMachines().update(...)" to set the live date. ' +
-        'Note that the authority of the Candy Machine can mint regardless of the live date.',
+        `You are trying to add an item to a Candy Machine but its ${type} is too long. ` +
+        `The item settings define the ${type} limit as ${limit} characters but the following ` +
+        `content was provided [${text}] for the item at index ${index}`,
+      solution: `Reduce the size of the ${type} for the item at index ${index}.`,
     });
   }
 }
 
 /** @group Errors */
-export class CandyMachineEndedError extends CandyMachineError {
-  constructor(
-    endSetting: CandyMachineEndSettings,
-    options?: MetaplexErrorOptions
-  ) {
-    const endSettingType =
-      endSetting.endSettingType === EndSettingType.Amount ? 'Amount' : 'Date';
-    const endSettingExplanation =
-      endSetting.endSettingType === EndSettingType.Amount
-        ? `All ${endSetting.number} items have been minted.`
-        : `It ended on ${formatDateTime(endSetting.date)}.`;
-    super({
-      options,
-      key: 'candy_machine_ended',
-      title: 'Candy Machine Ended',
-      problem:
-        `The end condition [${endSettingType}] of this Candy Machine has been reached. ` +
-        endSettingExplanation,
-      solution: 'You can no longer mint from this Candy Machine.',
-    });
-  }
-}
-
-/** @group Errors */
-export class CandyMachineBotTaxError extends CandyMachineError {
+export class CandyMachineBotTaxError extends CandyMachineV3Error {
   constructor(
     explorerLink: string,
     cause: Error,
@@ -155,6 +115,77 @@ export class CandyMachineBotTaxError extends CandyMachineError {
       solution:
         `Ensure you can mint from the Candy Machine. ` +
         `You may want to check the transaction logs for more details: [${explorerLink}].`,
+    });
+  }
+}
+
+/** @group Errors */
+export class MintingRequiresGroupLabelError extends CandyMachineV3Error {
+  constructor(availableGroups: string[], options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'minting_requires_group_label',
+      title: 'Minting Requires Group Label',
+      problem:
+        "You're trying to mint an NFT from a Candy Machine that has groups of guards " +
+        'but no group label was provided to identity which group we should mint from.',
+      solution:
+        'Please provide the label of the group you wish to mint from via the `group` parameter. ' +
+        `The available groups are [${availableGroups.join(', ')}]`,
+    });
+  }
+}
+
+/** @group Errors */
+export class MintingMustNotUseGroupError extends CandyMachineV3Error {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'minting_must_not_use_group',
+      title: 'Minting Must Not Use Group',
+      problem:
+        "You're trying to mint an NFT from a Candy Machine that has no groups of guards " +
+        'yet you provided the label of a specific group to mint from.',
+      solution:
+        'Please set the `group` parameter to `null` or remove it altogether.',
+    });
+  }
+}
+
+/** @group Errors */
+export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
+  constructor(
+    providedGroup: string,
+    availableGroups: string[],
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'minting_group_selected_does_not_exist',
+      title: 'Minting Group Selected Does Not Exist',
+      problem:
+        `You're trying to mint an NFT from a Candy Machine using a specific group labelled [${providedGroup}] ` +
+        'but this group of guards does not exists on the Candy Machine.',
+      solution:
+        'Please provide the label of a group that exists on the Candy Machine. ' +
+        `The available groups are [${availableGroups.join(', ')}]`,
+    });
+  }
+}
+
+/** @group Errors */
+export class GuardMitingSettingsMissingError extends CandyMachineV3Error {
+  constructor(guardName: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'guard_miting_settings_missing',
+      title: 'Guard Miting Settings Missing',
+      problem:
+        `The Candy Machine you are trying to mint from has the [${guardName}] guard enabled. ` +
+        'This guard requires you to provide some additional settings when minting which you did not provide.',
+      solution:
+        `Please provide some minting settings for the [${guardName}] guard ` +
+        `via the \`guards\` parameter like so: \`guards.${guardName} = {...}\`.`,
     });
   }
 }

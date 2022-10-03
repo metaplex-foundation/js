@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createRevokeCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
@@ -56,6 +62,9 @@ export type RevokeNftCollectionAuthorityInput = {
    * collection authority itself (i.e. revoking its own rights).
    */
   revokeAuthority?: Signer;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -124,20 +133,26 @@ export const revokeNftCollectionAuthorityBuilder = (
     mintAddress,
     collectionAuthority,
     revokeAuthority = metaplex.identity(),
+    programs,
   } = params;
+
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
   const metadata = findMetadataPda(mintAddress);
   const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
     mintAddress,
     collectionAuthority
   );
 
-  const instruction = createRevokeCollectionAuthorityInstruction({
-    collectionAuthorityRecord,
-    delegateAuthority: collectionAuthority,
-    revokeAuthority: revokeAuthority.publicKey,
-    metadata,
-    mint: mintAddress,
-  });
+  const instruction = createRevokeCollectionAuthorityInstruction(
+    {
+      collectionAuthorityRecord,
+      delegateAuthority: collectionAuthority,
+      revokeAuthority: revokeAuthority.publicKey,
+      metadata,
+      mint: mintAddress,
+    },
+    tokenMetadataProgram.address
+  );
 
   // Temporary fix. The Shank macro wrongfully ask for the delegateAuthority to be a signer.
   // https://github.com/metaplex-foundation/metaplex-program-library/pull/639

@@ -3,6 +3,7 @@ import {
   BigNumber,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   useOperation,
 } from '@/types';
@@ -80,6 +81,9 @@ export type MigrateToSizedCollectionNftInput = {
    */
   isDelegated?: boolean;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -150,7 +154,10 @@ export const migrateToSizedCollectionNftBuilder = (
     collectionAuthority = metaplex.identity(),
     size,
     isDelegated = false,
+    programs,
   } = params;
+
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()
@@ -169,7 +176,8 @@ export const migrateToSizedCollectionNftBuilder = (
                 )
               : undefined,
           },
-          { setCollectionSizeArgs: { size } }
+          { setCollectionSizeArgs: { size } },
+          tokenMetadataProgram.address
         ),
         signers: [collectionAuthority],
         key: params.instructionKey ?? 'setCollectionSize',

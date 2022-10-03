@@ -3,6 +3,7 @@ import pkg from './package.json';
 
 export default createConfigs({
   pkg,
+  additionalExternals: ['@noble/hashes/sha3'],
   builds: [
     {
       dir: 'dist/esm',

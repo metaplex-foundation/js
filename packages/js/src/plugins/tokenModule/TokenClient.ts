@@ -28,6 +28,7 @@ import {
   thawTokensOperation,
 } from './operations';
 import { TokenBuildersClient } from './TokenBuildersClient';
+import { TokenPdasClient } from './TokenPdasClient';
 
 /**
  * This is a client for the Token module.
@@ -65,6 +66,17 @@ export class TokenClient {
    */
   builders() {
     return new TokenBuildersClient(this.metaplex);
+  }
+
+  /**
+   * You may use the `pdas()` client to build PDAs related to this module.
+   *
+   * ```ts
+   * const pdasClient = metaplex.tokens().pdas();
+   * ```
+   */
+  pdas() {
+    return new TokenPdasClient(this.metaplex);
   }
 
   // -----------------

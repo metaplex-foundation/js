@@ -1,4 +1,3 @@
-import { findAssociatedTokenAccountPda } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import {
@@ -92,10 +91,10 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
     .delete({
       mintAddress: nft.address,
       owner: updateAuthority,
-      ownerTokenAccount: findAssociatedTokenAccountPda(
-        nft.mint.address,
-        owner.publicKey
-      ),
+      ownerTokenAccount: mx.tokens().pdas().associatedTokenAccount({
+        mint: nft.mint.address,
+        owner: owner.publicKey,
+      }),
     })
     .run();
 

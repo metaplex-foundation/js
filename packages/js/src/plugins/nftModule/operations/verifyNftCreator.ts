@@ -1,5 +1,11 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
 import { TransactionBuilder } from '@/utils';
 import { createSignMetadataInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
@@ -52,6 +58,9 @@ export type VerifyNftCreatorInput = {
    * @defaultValue `metaplex.identity()`
    */
   creator?: Signer;
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -116,17 +125,23 @@ export const verifyNftCreatorBuilder = (
   metaplex: Metaplex,
   params: VerifyNftCreatorBuilderParams
 ): TransactionBuilder => {
-  const { mintAddress, creator = metaplex.identity() } = params;
+  const { mintAddress, creator = metaplex.identity(), programs } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()
 
       // Verify the creator.
       .add({
-        instruction: createSignMetadataInstruction({
-          metadata: findMetadataPda(mintAddress),
-          creator: creator.publicKey,
-        }),
+        instruction: createSignMetadataInstruction(
+          {
+            metadata: findMetadataPda(mintAddress),
+            creator: creator.publicKey,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [creator],
         key: params.instructionKey ?? 'verifyCreator',
       })

@@ -3,6 +3,7 @@ import {
   isSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   SplTokenAmount,
   toPublicKey,
@@ -114,11 +115,8 @@ export type CreateTokenWithMintInput = {
    */
   payer?: Signer;
 
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
@@ -244,8 +242,7 @@ export const createTokenWithMintBuilder = async (
     owner = metaplex.identity().publicKey,
     token,
     payer = metaplex.identity(),
-    tokenProgram,
-    associatedTokenProgram,
+    programs,
   } = params;
 
   const createMintBuilder = await metaplex
@@ -257,7 +254,7 @@ export const createTokenWithMintBuilder = async (
       payer,
       mintAuthority: toPublicKey(mintAuthority),
       freezeAuthority,
-      tokenProgram,
+      programs,
       createAccountInstructionKey:
         params.createMintAccountInstructionKey ?? 'createMintAccount',
       initializeMintInstructionKey:
@@ -272,8 +269,7 @@ export const createTokenWithMintBuilder = async (
       owner,
       token,
       payer,
-      tokenProgram,
-      associatedTokenProgram,
+      programs,
       createAssociatedTokenAccountInstructionKey:
         params.createAssociatedTokenAccountInstructionKey ??
         'createAssociatedTokenAccount',
@@ -310,7 +306,7 @@ export const createTokenWithMintBuilder = async (
           toToken: tokenAddress,
           amount: initialSupply,
           mintAuthority,
-          tokenProgram,
+          programs,
           mintTokensInstructionKey:
             params.mintTokensInstructionKey ?? 'mintTokens',
         })

@@ -1,38 +1,30 @@
-import { PublicKey } from '@solana/web3.js';
-import {
-  CandyMachineData,
-  EndSettingType,
-  WhitelistMintMode,
-} from '@metaplex-foundation/mpl-candy-machine';
-import {
-  amount,
-  Amount,
-  BigNumber,
-  DateTime,
-  lamports,
-  SOL,
-  toBigNumber,
-  toDateTime,
-  toOptionDateTime,
-  UnparsedAccount,
-  Creator,
-} from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import {
-  countCandyMachineItems,
-  getCandyMachineUuidFromAddress,
-  parseCandyMachineItems,
-} from '../helpers';
+  AccountInfo,
+  assertModel,
+  BigNumber,
+  createSerializerFromSolitaType,
+  Creator,
+  deserializeAccount,
+  deserializeFeatureFlags,
+  FeatureFlags,
+  isModel,
+  Model,
+  PublicKey,
+  toAccountInfo,
+  toBigNumber,
+  UnparsedAccount,
+} from '@/types';
+import { CandyMachineItem } from './CandyMachineItem';
 import {
-  CandyMachineAccount,
-  MaybeCandyMachineCollectionAccount,
-} from '../accounts';
-import { CandyMachineProgram } from '../program';
-import { Mint } from '@/plugins/tokenModule';
-
-// -----------------
-// Model
-// -----------------
+  CandyMachine as MplCandyMachine,
+  candyMachineBeet,
+  CandyMachineData,
+} from '@metaplex-foundation/mpl-candy-machine-core';
+import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
+import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyGuard } from './CandyGuard';
 
 /**
  * This model contains all the relevant information about a Candy Machine.
@@ -41,59 +33,34 @@ import { Mint } from '@/plugins/tokenModule';
  *
  * @group Models
  */
-export type CandyMachine = {
-  /** A model identifier to distinguish models in the SDK. */
-  readonly model: 'candyMachine';
-
+export type CandyMachine<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Model<'candyMachine'> & {
   /** The address of the Candy Machine account. */
   readonly address: PublicKey;
 
-  /** The address of program that owns the Candy Machine account. */
-  readonly programAddress: PublicKey;
+  /** Blockchain data of the Candy Machine account. */
+  readonly accountInfo: AccountInfo;
 
-  /** Whether this Candy Machine was created from v1 or v2. */
-  readonly version: 1 | 2;
-
-  /** The address of the authority that is allowed to manage this Candy Machine. */
+  /**
+   * Refers to the authority that is allowed to manage the Candy Machine.
+   * This includes updating its data, authorities, inserting items, etc.
+   */
   readonly authorityAddress: PublicKey;
 
   /**
-   * The address of the wallet receiving the payments for minting NFTs.
-   * If the Candy Machine accepts payments in SOL, this is the SOL treasury account.
-   * Otherwise, this is the token account associated with the treasury Mint.
+   * Refers to the only authority that is allowed to mint from
+   * this Candy Machine. This will refer to the address of the Candy
+   * Guard associated with the Candy Machine if any.
    */
-  readonly walletAddress: PublicKey;
-
-  /**
-   * The address of the Mint account of the SPL Token that should be used
-   * to accept payments for minting NFTs. When `null`, it means the
-   * Candy Machine account accepts payments in SOL.
-   */
-  readonly tokenMintAddress: Option<PublicKey>;
+  readonly mintAuthorityAddress: PublicKey;
 
   /**
    * The mint address of the collection NFT that should be associated with
-   * minting NFTs. When `null`, it means NFTs will not be part of a
+   * minted NFTs. When `null`, it means NFTs will not be part of a
    * collection when minted.
    */
-  readonly collectionMintAddress: Option<PublicKey>;
-
-  /**
-   * A 6-character long unique identifier for the Candy Machine.
-   * This usually is the first 6 characters of the address.
-   * This is more of an internal field used by the program
-   * and you typically shouldn't need it.
-   */
-  readonly uuid: string;
-
-  /**
-   * The price of minting an NFT.
-   *
-   * If the Candy Machine uses no treasury mint (i.e. the `tokenMintAddress`
-   * is `null`), this amount will be in SOL. Otherwise, its currency will
-   * match the currency of the treasury mint.
-   */
-  readonly price: Amount;
+  readonly collectionMintAddress: PublicKey;
 
   /**
    * The symbol to use when minting NFTs (e.g. "MYPROJECT")
@@ -119,26 +86,6 @@ export type CandyMachine = {
   readonly isMutable: boolean;
 
   /**
-   * Wheter the minted NFTs should use the Candy Machine authority
-   * as their update authority.
-   *
-   * We strongly recommend setting this to `true` unless you have a
-   * specific reason. When set to `false`, the update authority will
-   * be given to the address that minted the NFT and you will no longer
-   * be able to update the minted NFTs in the future.
-   */
-  readonly retainAuthority: boolean;
-
-  /**
-   * The timestamp of when the Candy Machine will be live.
-   *
-   * If this is `null` or if the timestamp refers to a time in the
-   * future, no one will be able to mint NFTs from the Candy Machine
-   * (except its authority that can bypass this live date).
-   */
-  readonly goLiveDate: Option<DateTime>;
-
-  /**
    * The maximum number of editions that can be printed from the
    * minted NFTs.
    *
@@ -149,6 +96,15 @@ export type CandyMachine = {
    * are not supported by the Candy Machine program.
    */
   readonly maxEditionSupply: BigNumber;
+
+  /**
+   * Array of creators that should be set on minted NFTs.
+   * creators can only verify NFTs after they have been minted.
+   * Thus, all the provided creators will have `verified` set to `false`.
+   *
+   * @see {@link Creator}
+   */
+  readonly creators: Omit<Creator, 'verified'>[];
 
   /**
    * The parsed items that are loaded in the Candy Machine.
@@ -175,12 +131,12 @@ export type CandyMachine = {
 
   /**
    * The number of items that have been inserted in the Candy Machine by
-   * its authority. If this number if lower than the number of items
+   * its update authority. If this number if lower than the number of items
    * available, the Candy Machine is not ready and cannot be minted from.
    *
    * This field is irrelevant if the Candy Machine is using hidden settings.
    */
-  readonly itemsLoaded: BigNumber;
+  readonly itemsLoaded: number;
 
   /**
    * Whether all items in the Candy Machine have been inserted by
@@ -191,94 +147,35 @@ export type CandyMachine = {
   readonly isFullyLoaded: boolean;
 
   /**
-   * An optional constraint defining when the Candy Machine will end.
-   * If this is `null`, the Candy Machine will end when there are
-   * no more items to mint from (i.e. `itemsRemaining` is `0`).
+   * Settings related to the Candy Machine's items.
+   *
+   * These can either be inserted manually within the Candy Machine or
+   * they can be infered from a set of hidden settings.
+   *
+   * - If `type` is `hidden`, the Candy Machine is using hidden settings.
+   * - If `type` is `configLines`, the Candy Machine is using config line settings.
+   *
+   * @see {@link CandyMachineHiddenSettings}
+   * @see {@link CandyMachineConfigLineSettings}
    */
-  readonly endSettings: Option<CandyMachineEndSettings>;
-
-  /** {@inheritDoc CandyMachineHiddenSettings} */
-  readonly hiddenSettings: Option<CandyMachineHiddenSettings>;
-
-  /** {@inheritDoc CandyMachineWhitelistMintSettings} */
-  readonly whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
-
-  /** {@inheritDoc CandyMachineGatekeeper} */
-  readonly gatekeeper: Option<CandyMachineGatekeeper>;
-
-  /** {@inheritDoc Creator} */
-  readonly creators: Creator[];
-};
-
-/**
- * Represent an item inside a Candy Machine that has been or
- * will eventually be minted into an NFT.
- *
- * It only contains the name and the URI of the NFT to be as
- * the rest of the day will be shared by all NFTs and lives
- * in the Candy Machine configurations (e.g. `symbol`, `creators`, etc).
- *
- * @group Models
- */
-export type CandyMachineItem = {
-  /** The name of the NFT to be. */
-  readonly name: string;
+  readonly itemSettings:
+    | CandyMachineHiddenSettings
+    | CandyMachineConfigLineSettings;
 
   /**
-   * The URI of the NFT to be,
-   * pointing to some off-chain JSON Metadata.
+   * This array of booleans is used to keep track of which
+   * new features have been enabled on the Candy Machine.
    */
-  readonly uri: string;
+  readonly featureFlags: FeatureFlags;
+
+  /**
+   * The Candy Guard associted with the Candy Machine if any.
+   */
+  readonly candyGuard: Option<CandyGuard<T>>;
 };
 
 /**
- * End Settings provides a mechanism to stop the mint if a certain condition is
- * met without interaction.
- *
- * This type is a union type differentiated by the `endSettingType` field.
- * It can have one of the following values:
- *
- * - {@link CandyMachineEndSettingsAmount} if `endSettingType` is `EndSettingType.Amount`. \
- *   It ends a Candy Machine after a certain amount of items have been minted.
- * - {@link CandyMachineEndSettingsDate} if `endSettingType` is `EndSettingType.Date`. \
- *   It ends a Candy Machine after a certain date.
- *
- * @group Models
- */
-export type CandyMachineEndSettings =
-  | CandyMachineEndSettingsAmount
-  | CandyMachineEndSettingsDate;
-
-/**
- * The "Amount" end setting allows us to end a Candy Machine
- * after a certain amount of items have been minted.
- *
- * @group Models
- */
-export type CandyMachineEndSettingsAmount = {
-  /** Differentiates the types of end settings. */
-  readonly endSettingType: EndSettingType.Amount;
-
-  /** The maximum number of items to mint. */
-  readonly number: BigNumber;
-};
-
-/**
- * The "Date" end setting allows us to end a Candy Machine
- * after a given date and time.
- *
- * @group Models
- */
-export type CandyMachineEndSettingsDate = {
-  /** Differentiates the types of end settings. */
-  readonly endSettingType: EndSettingType.Date;
-
-  /** The date after which the Candy Machine is closed. */
-  readonly date: DateTime;
-};
-
-/**
- * An optional setting that makes items in the Candy Machine hidden by
+ * Settings that makes items in the Candy Machine hidden by
  * providing a single URI for all minted NFTs and the hash of a file that
  * maps mint number to actual NFT URIs.
  *
@@ -303,14 +200,24 @@ export type CandyMachineEndSettingsDate = {
  * @group Models
  */
 export type CandyMachineHiddenSettings = {
+  /** Identifier used to distinguish the various types of item settings. */
+  readonly type: 'hidden';
+
   /**
    * The base name for all minted NFTs.
-   * The number of the mint will be appended to this name.
+   *
+   * You can use the following variables in the name:
+   * - `$ID$`: The index of the item (starting at 0).
+   * - `$ID+1$`: The number of the item (starting at 1).
    */
   readonly name: string;
 
   /**
    * The URI shared by all minted NFTs.
+   *
+   * You can use the following variables in the URI:
+   * - `$ID$`: The index of the item (starting at 0).
+   * - `$ID+1$`: The number of the item (starting at 1).
    */
   readonly uri: string;
 
@@ -323,375 +230,202 @@ export type CandyMachineHiddenSettings = {
 };
 
 /**
- * Whitelist settings provide a variety of different use cases and revolve
- * around the idea of using custom SPL tokens to offer special rights to token
- * holders. How these SPL tokens are distributed is up to you.
+ * A set of settings that aim to reduce the size of the Candy Machine
+ * whilst allowing items to be manually inserted for more flexibility.
  *
- * For example, you can offer a discount to token holders, you can allow token
- * holders to mint NFTs before everyone else, or a combination of both.
+ * This introduces `name` and `uri` prefixes that will be used for each
+ * item inserted.
  *
- * @group Models
- */
-export type CandyMachineWhitelistMintSettings = {
-  /**
-   * Determines how the whitelist token is used.
-   * - `WhitelistMintMode.BurnEveryTime`: a whitelist token is burned every time an NFT is mint.
-   * - `WhitelistMintMode.NeverBurn`: whitelist tokens are kept after minting.
-   */
-  readonly mode: WhitelistMintMode;
-
-  /** The mint address of the whitelist token. */
-  readonly mint: PublicKey;
-
-  /** Indicates whether whitelist token holders can mint before the live date. */
-  readonly presale: boolean;
-
-  /**
-   * The updated price for whitelist token holders.
-   * When provided, this `discountPrice` will be used instead of the original `price`
-   * for whitelist token holders only. When `null`, everybody will pay the original `price`.
-   */
-  readonly discountPrice: Option<Amount>;
-};
-
-/**
- * Gatekeeper settings allow us to protect ourselves against malicious actors such as bots.
- * Whilst the Candy Machine program itself has some protection mechanisms against bots,
- * you may want to add extra protection to ensure only humand can mint from your project.
+ * @example
+ * For instance, say all inserted items will have the following structure,
+ * where zeros represent the dynamic part of the name and URI:
+ * - name: "My NFT Project #0000"
+ * - uri: "https://arweave.net/00000000000000000000"
  *
- * To enable gatekeeper settings, you must provide the address of a Gatekeeper Network
- * which usually encapsulates multiple gatekeeper providers and is responsible for
- * validating the legitimacy of the minting actor.
+ * Then we can use the following prefixes:
+ * - prefixName: "My NFT Project #"
+ * - prefixUri: "https://arweave.net/"
+ *
+ * And the following lengths:
+ * - nameLength: 4 (assuming we'll never have more than 9999 items)
+ * - uriLength: 20
+ *
+ * We could even go one step further and set the `nameLength` to zero by
+ * relying on template variables in the name prefix:
+ * - prefixName: "My NFT Project #$ID+1$"
+ * - nameLength: 0
+ *
+ * Now, the program will automatically append the item number to the
+ * name of each minted NFT.
  *
  * @group Models
  */
-export type CandyMachineGatekeeper = {
-  /** The address of your desired Gatekeeper Network. */
-  readonly network: PublicKey;
+export type CandyMachineConfigLineSettings = {
+  /** Identifier used to distinguish the various types of item settings. */
+  readonly type: 'configLines';
 
-  /** Whether or not a new challenge should be required after each use. */
-  readonly expireOnUse: boolean;
+  /**
+   * The prefix of the name of each item.
+   *
+   * The following template variables can be used:
+   * - `$ID$`: The index of the item (starting at 0).
+   * - `$ID+1$`: The number of the item (starting at 1).
+   */
+  readonly prefixName: string;
+
+  /**
+   * The maximum length to use for the name of inserted items
+   * excluding the length of the prefix.
+   *
+   * For instance, if the name prefix is "My NFT Project #" and we want to
+   * add item numbers up to 9999, we would set this value to 4.
+   */
+  readonly nameLength: number;
+
+  /**
+   * The prefix of the URI of each item.
+   *
+   * The following template variables can be used:
+   * - `$ID$`: The index of the item (starting at 0).
+   * - `$ID+1$`: The number of the item (starting at 1).
+   */
+  readonly prefixUri: string;
+
+  /**
+   * The maximum length to use for the URI of inserted items
+   * excluding the length of the prefix.
+   *
+   * For instance, if the URI prefix is "https://arweave.net/" and we assume
+   * Arweave identifiers are 20 characters long max, we would set this value to 20.
+   */
+  readonly uriLength: number;
+
+  /**
+   * Indicates whether to use a sequential index generator or not.
+   * When set to `true`, NFTs will be minted sequentially.
+   * When set to `false`, NFTs will be minted in a random order.
+   */
+  readonly isSequential: boolean;
 };
 
-// -----------------
-// Program to Model
-// -----------------
+/** @group Model Helpers */
+export const isCandyMachine = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  value: any
+): value is CandyMachine<T> => isModel('candyMachine', value);
 
 /** @group Model Helpers */
-export const isCandyMachine = (value: any): value is CandyMachine =>
-  typeof value === 'object' && value.model === 'candyMachine';
-
-/** @group Model Helpers */
-export function assertCandyMachine(value: any): asserts value is CandyMachine {
-  assert(isCandyMachine(value), 'Expected CandyMachine type');
+export function assertCandyMachine<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(value: any): asserts value is CandyMachine<T> {
+  assertModel(isCandyMachine(value), `Expected CandyMachine model`);
 }
 
 /** @group Model Helpers */
-export const toCandyMachine = (
-  account: CandyMachineAccount,
-  unparsedAccount: UnparsedAccount,
-  collectionAccount: MaybeCandyMachineCollectionAccount | null,
-  mint: Mint | null
-): CandyMachine => {
-  assert(
-    mint === null ||
-      (account.data.tokenMint !== null &&
-        mint.address.equals(account.data.tokenMint))
+export const toCandyMachine = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  account: UnparsedAccount,
+  candyGuard: Option<CandyGuard<T>> = null
+): CandyMachine<T> => {
+  const serializer = createSerializerFromSolitaType(
+    MplCandyMachine,
+    candyMachineBeet.description
   );
+  const parsedAccount = deserializeAccount(account, serializer);
 
-  const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
-  const itemsMinted = toBigNumber(account.data.itemsRedeemed);
+  const itemsAvailable = toBigNumber(parsedAccount.data.data.itemsAvailable);
+  const itemsMinted = toBigNumber(parsedAccount.data.itemsRedeemed);
+  const itemsRemaining = toBigNumber(itemsAvailable.sub(itemsMinted));
 
-  const endSettings = account.data.data.endSettings;
-  const hiddenSettings = account.data.data.hiddenSettings;
-  const whitelistMintSettings = account.data.data.whitelistMintSettings;
-  const gatekeeper = account.data.data.gatekeeper;
+  let items: CandyMachineItem[] = [];
+  let itemsLoaded = 0;
+  let isFullyLoaded = true;
 
-  const rawData = unparsedAccount.data;
-  const itemsLoaded = hiddenSettings
-    ? toBigNumber(0)
-    : countCandyMachineItems(rawData);
-  const items = hiddenSettings ? [] : parseCandyMachineItems(rawData);
+  const hiddenSettings = parsedAccount.data.data.hiddenSettings;
+  const configLineSettings = parsedAccount.data.data.configLineSettings;
+  let itemSettings: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
+  if (hiddenSettings) {
+    itemSettings = { ...hiddenSettings, type: 'hidden' };
+  } else {
+    assert(
+      !!configLineSettings,
+      'Expected either hidden or config line settings'
+    );
+    itemSettings = { ...configLineSettings, type: 'configLines' };
+    const hiddenSection = deserializeCandyMachineHiddenSection(
+      account.data,
+      itemsAvailable.toNumber(),
+      itemsRemaining.toNumber(),
+      itemSettings,
+      CANDY_MACHINE_HIDDEN_SECTION
+    );
+
+    items = hiddenSection.items;
+    itemsLoaded = hiddenSection.itemsLoaded;
+    isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
+  }
 
   return {
     model: 'candyMachine',
     address: account.publicKey,
-    programAddress: account.owner,
-    version: account.owner.equals(CandyMachineProgram.publicKey) ? 2 : 1,
-    authorityAddress: account.data.authority,
-    walletAddress: account.data.wallet,
-    tokenMintAddress: account.data.tokenMint,
-    collectionMintAddress:
-      collectionAccount && collectionAccount.exists
-        ? collectionAccount.data.mint
-        : null,
-    uuid: account.data.data.uuid,
-    price: amount(account.data.data.price, mint ? mint.currency : SOL),
-    symbol: removeEmptyChars(account.data.data.symbol),
-    sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
-    isMutable: account.data.data.isMutable,
-    retainAuthority: account.data.data.retainAuthority,
-    goLiveDate: toOptionDateTime(account.data.data.goLiveDate),
-    maxEditionSupply: toBigNumber(account.data.data.maxSupply),
+    accountInfo: toAccountInfo(account),
+    authorityAddress: parsedAccount.data.authority,
+    mintAuthorityAddress: parsedAccount.data.mintAuthority,
+    collectionMintAddress: parsedAccount.data.collectionMint,
+    symbol: removeEmptyChars(parsedAccount.data.data.symbol),
+    sellerFeeBasisPoints: parsedAccount.data.data.sellerFeeBasisPoints,
+    isMutable: parsedAccount.data.data.isMutable,
+    maxEditionSupply: toBigNumber(parsedAccount.data.data.maxSupply),
+    creators: parsedAccount.data.data.creators.map(
+      (creator): Creator => ({ ...creator, share: creator.percentageShare })
+    ),
     items,
     itemsAvailable,
     itemsMinted,
-    itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
+    itemsRemaining,
     itemsLoaded,
-    isFullyLoaded: itemsAvailable.lte(itemsLoaded),
-    endSettings: endSettings
-      ? endSettings.endSettingType === EndSettingType.Date
-        ? {
-            endSettingType: EndSettingType.Date,
-            date: toDateTime(endSettings.number),
-          }
-        : {
-            endSettingType: EndSettingType.Amount,
-            number: toBigNumber(endSettings.number),
-          }
-      : null,
-    hiddenSettings,
-    whitelistMintSettings: whitelistMintSettings
-      ? {
-          ...whitelistMintSettings,
-          discountPrice: whitelistMintSettings.discountPrice
-            ? lamports(whitelistMintSettings.discountPrice)
-            : null,
-        }
-      : null,
-    gatekeeper: gatekeeper
-      ? {
-          ...gatekeeper,
-          network: gatekeeper.gatekeeperNetwork,
-        }
-      : null,
-    creators: account.data.data.creators,
+    isFullyLoaded,
+    itemSettings,
+    featureFlags: deserializeFeatureFlags(
+      toBigNumber(parsedAccount.data.features).toBuffer('le', 8),
+      64
+    )[0],
+    candyGuard,
   };
 };
 
-// -----------------
-// Model to Configs
-// -----------------
-
-/**
- * This object provides a common interface for the configurations required
- * to create or update Candy Machines.
- *
- * @group Models
- */
-export type CandyMachineConfigs = {
-  /**
-   * The address of the wallet receiving the payments for minting NFTs.
-   * If the Candy Machine accepts payments in SOL, this is the SOL treasury account.
-   * Otherwise, this is the token account associated with the treasury Mint.
-   *
-   * @defaultValue `metaplex.identity().publicKey`
-   */
-  wallet: PublicKey;
-
-  /**
-   * The address of the Mint account of the SPL Token that should be used
-   * to accept payments for minting NFTs. When `null`, it means the
-   * Candy Machine account accepts payments in SOL.
-   */
-  tokenMint: Option<PublicKey>;
-
-  /**
-   * The price of minting an NFT.
-   *
-   * If the Candy Machine uses no treasury mint (i.e. the `tokenMintAddress`
-   * is `null`), this amount will be in SOL. Otherwise, its currency will
-   * match the currency of the treasury mint.
-   *
-   * @example
-   * ```ts
-   * { price: sol(1.5) } // For 1.5 SOL.
-   * { price: token(320, 2, MYTOKEN) } // For 3.2 MYTOKEN which is a 2-decimal token.
-   * ```
-   */
-  price: Amount;
-
-  /**
-   * The royalties that should be set on minted NFTs in basis points
-   *
-   * @example
-   * ```ts
-   * { sellerFeeBasisPoints: 250 } // For 2.5% royalties.
-   * ```
-   */
-  sellerFeeBasisPoints: number;
-
-  /**
-   * The total number of items availble in the Candy Machine, minted or not.
-   *
-   * @example
-   * ```ts
-   * { itemsAvailable: toBigNumber(1000) } // For 1000 items.
-   * ```
-   */
-  itemsAvailable: BigNumber;
-
-  /**
-   * The symbol to use when minting NFTs (e.g. "MYPROJECT")
-   *
-   * This can be any string up to 10 bytes and can be made optional
-   * by providing an empty string.
-   *
-   * @defaultValue `""`
-   */
-  symbol: string;
-
-  /**
-   * The maximum number of editions that can be printed from the
-   * minted NFTs.
-   *
-   * For most use cases, you'd want to set this to `0` to prevent
-   * minted NFTs to be printed multiple times.
-   *
-   * Note that you cannot set this to `null` which means unlimited editions
-   * are not supported by the Candy Machine program.
-   *
-   * @defaultValue `toBigNumber(0)`
-   */
-  maxEditionSupply: BigNumber;
-
-  /**
-   * Whether the minted NFTs should be mutable or not.
-   *
-   * We recommend setting this to `true` unless you have a specific reason.
-   * You can always make NFTs immutable in the future but you cannot make
-   * immutable NFTs mutable ever again.
-   *
-   * @defaultValue `true`
-   */
-  isMutable: boolean;
-
-  /**
-   * Wheter the minted NFTs should use the Candy Machine authority
-   * as their update authority.
-   *
-   * We strongly recommend setting this to `true` unless you have a
-   * specific reason. When set to `false`, the update authority will
-   * be given to the address that minted the NFT and you will no longer
-   * be able to update the minted NFTs in the future.
-   *
-   * @defaultValue `true`
-   */
-  retainAuthority: boolean;
-
-  /**
-   * The timestamp of when the Candy Machine will be live.
-   *
-   * If this is `null` or if the timestamp refers to a time in the
-   * future, no one will be able to mint NFTs from the Candy Machine
-   * (except its authority that can bypass this live date).
-   *
-   * @defaultValue `null`
-   */
-  goLiveDate: Option<DateTime>;
-
-  /**
-   * An optional constraint defining when the Candy Machine will end.
-   * If this is `null`, the Candy Machine will end when there are
-   * no more items to mint from (i.e. `itemsRemaining` is `0`).
-   *
-   * @defaultValue `null`
-   */
-  endSettings: Option<CandyMachineEndSettings>;
-
-  /**
-   * {@inheritDoc CandyMachineHiddenSettings}
-   * @defaultValue `null`
-   */
-  hiddenSettings: Option<CandyMachineHiddenSettings>;
-
-  /**
-   * {@inheritDoc CandyMachineWhitelistMintSettings}
-   * @defaultValue `null`
-   */
-  whitelistMintSettings: Option<CandyMachineWhitelistMintSettings>;
-
-  /**
-   * {@inheritDoc CandyMachineGatekeeper}
-   * @defaultValue `null`
-   */
-  gatekeeper: Option<CandyMachineGatekeeper>;
-
-  /**
-   * {@inheritDoc Creator}
-   * @defaultValue
-   * ```ts
-   * [{
-   *   address: metaplex.identity().publicKey,
-   *   share: 100,
-   *   verified: false,
-   * }]
-   * ```
-   */
-  creators: Creator[];
-};
-
-/** @group Model Helpers */
-export const toCandyMachineConfigs = (
-  candyMachine: CandyMachine
-): CandyMachineConfigs => {
+export const toCandyMachineData = (
+  candyMachine: Pick<
+    CandyMachine,
+    | 'itemsAvailable'
+    | 'symbol'
+    | 'sellerFeeBasisPoints'
+    | 'maxEditionSupply'
+    | 'isMutable'
+    | 'creators'
+    | 'itemSettings'
+  >
+): CandyMachineData => {
   return {
-    wallet: candyMachine.walletAddress,
-    tokenMint: candyMachine.tokenMintAddress,
-    ...candyMachine,
-  };
-};
-
-// -----------------
-// Configs to Program
-// -----------------
-
-/** @group Models */
-export type CandyMachineInstructionData = {
-  wallet: PublicKey;
-  tokenMint: Option<PublicKey>;
-  data: CandyMachineData;
-};
-
-/** @group Model Helpers */
-export const toCandyMachineInstructionData = (
-  address: PublicKey,
-  configs: CandyMachineConfigs
-): CandyMachineInstructionData => {
-  const endSettings = configs.endSettings;
-  const whitelistMintSettings = configs.whitelistMintSettings;
-  const gatekeeper = configs.gatekeeper;
-
-  return {
-    wallet: configs.wallet,
-    tokenMint: configs.tokenMint,
-    data: {
-      ...configs,
-      uuid: getCandyMachineUuidFromAddress(address),
-      price: configs.price.basisPoints,
-      maxSupply: configs.maxEditionSupply,
-      endSettings: endSettings
-        ? {
-            ...endSettings,
-            number:
-              endSettings.endSettingType === EndSettingType.Date
-                ? endSettings.date
-                : endSettings.number,
-          }
+    itemsAvailable: candyMachine.itemsAvailable,
+    symbol: candyMachine.symbol,
+    sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
+    maxSupply: candyMachine.maxEditionSupply,
+    isMutable: candyMachine.isMutable,
+    creators: candyMachine.creators.map((creator) => ({
+      ...creator,
+      verified: false,
+      percentageShare: creator.share,
+    })),
+    configLineSettings:
+      candyMachine.itemSettings.type === 'configLines'
+        ? candyMachine.itemSettings
         : null,
-      whitelistMintSettings: whitelistMintSettings
-        ? {
-            ...whitelistMintSettings,
-            discountPrice:
-              whitelistMintSettings.discountPrice?.basisPoints ?? null,
-          }
+    hiddenSettings:
+      candyMachine.itemSettings.type === 'hidden'
+        ? candyMachine.itemSettings
         : null,
-      gatekeeper: gatekeeper
-        ? {
-            ...gatekeeper,
-            gatekeeperNetwork: gatekeeper.network,
-          }
-        : null,
-    },
   };
 };

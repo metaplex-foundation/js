@@ -143,6 +143,15 @@ test('[Amount] it can compare amounts together', (t: Test) => {
   t.end();
 });
 
+test('[Amount] it can compare amounts together with a tolerance', (t: Test) => {
+  t.false(isEqualToAmount(sol(1.5), sol(1.6)));
+  t.false(isEqualToAmount(sol(1.5), sol(1.6), sol(0.01)));
+  t.true(isEqualToAmount(sol(1.5), sol(1.6), sol(0.1)));
+  t.true(isEqualToAmount(sol(1.5), sol(1.6), sol(0.2)));
+
+  t.end();
+});
+
 test('[Amount] it returns a new instance when running operations', (t: Test) => {
   const a = sol(1.5);
   const b = lamports(4200000000); // 4.2 SOL

@@ -1,10 +1,9 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { toMintAccount, toTokenAccount } from '../accounts';
 import { TokenAndMintDoNotMatchError } from '../errors';
 import { toMint } from '../models/Mint';
-import { findAssociatedTokenAccountPda } from '../pdas';
 import { TokenWithMint, toTokenWithMint } from '../models/Token';
 
 // -----------------
@@ -67,6 +66,9 @@ export type FindTokenWithMintByMintInput = {
    */
   addressType: 'owner' | 'token';
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
@@ -81,10 +83,15 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
       operation: FindTokenWithMintByMintOperation,
       metaplex: Metaplex
     ): Promise<TokenWithMint> => {
-      const { mint, address, addressType, commitment } = operation.input;
+      const { mint, address, addressType, commitment, programs } =
+        operation.input;
       const tokenAddress =
         addressType === 'owner'
-          ? findAssociatedTokenAccountPda(mint, address)
+          ? metaplex.tokens().pdas().associatedTokenAccount({
+              mint,
+              owner: address,
+              programs,
+            })
           : address;
 
       const accounts = await metaplex

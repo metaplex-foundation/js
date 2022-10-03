@@ -136,7 +136,7 @@ export type CreateBidInput = {
    *
    * @defaultValue 0 SOLs or tokens.
    */
-  price?: SolAmount | SplTokenAmount; // Default: 0 SOLs or tokens.
+  price?: SolAmount | SplTokenAmount;
 
   /**
    * The number of tokens to bid for.
@@ -372,7 +372,13 @@ export const createBidBuilder = async (
   };
 
   // Sell Instruction.
-  let buyInstruction;
+  let buyInstruction = tokenAccount
+    ? createBuyInstruction({ ...accounts, tokenAccount }, args)
+    : createPublicBuyInstruction(
+        { ...accounts, tokenAccount: buyerTokenAccount },
+        args
+      );
+
   if (params.auctioneerAuthority) {
     const ahAuctioneerPda = findAuctioneerPda(
       auctionHouse.address,
@@ -397,19 +403,21 @@ export const createBidBuilder = async (
           },
           args
         );
-  } else {
-    buyInstruction = tokenAccount
-      ? createBuyInstruction({ ...accounts, tokenAccount }, args)
-      : createPublicBuyInstruction(
-          { ...accounts, tokenAccount: buyerTokenAccount },
-          args
-        );
   }
 
   // Signers.
   const buySigners = [buyer, authority, params.auctioneerAuthority].filter(
     isSigner
   );
+
+  // Update the accounts to be signers since it's not covered properly by MPL due to its dynamic nature.
+  buySigners.forEach((signer) => {
+    const signerKeyIndex = buyInstruction.keys.findIndex(({ pubkey }) =>
+      pubkey.equals(signer.publicKey)
+    );
+
+    buyInstruction.keys[signerKeyIndex].isSigner = true;
+  });
 
   // Receipt.
   // Since createPrintBidReceiptInstruction can't deserialize createAuctioneerBuyInstruction due to a bug

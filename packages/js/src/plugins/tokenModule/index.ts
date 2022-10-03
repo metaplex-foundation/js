@@ -9,3 +9,4 @@ export * from './plugin';
 export * from './program';
 export * from './TokenBuildersClient';
 export * from './TokenClient';
+export * from './TokenPdasClient';

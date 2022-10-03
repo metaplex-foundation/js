@@ -90,3 +90,17 @@ export const walk = (
     });
   }
 };
+
+export const removeUndefinedAttributes = <
+  T extends {
+    [key: string]: any;
+  }
+>(
+  object: T
+): { [key in keyof T]-?: T[key] } =>
+  Object.keys(object).reduce((acc, key: keyof T) => {
+    if (object[key] !== undefined) {
+      acc[key] = object[key];
+    }
+    return acc;
+  }, {} as { [key in keyof T]-?: T[key] });

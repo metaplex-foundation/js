@@ -110,7 +110,7 @@ test('[nftModule] it cannot print when the maxSupply is zero', async (t: Test) =
     .run();
 
   // Then we should get an error.
-  await assertThrows(t, promise, /Maximum editions printed already/);
+  await assertThrows(t, promise, /Edition Number greater than max supply/);
 });
 
 const isPrintOfOriginal = (

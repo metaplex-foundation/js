@@ -4,6 +4,7 @@ import {
   isSigner,
   Operation,
   OperationHandler,
+  Program,
   Signer,
   toPublicKey,
   useOperation,
@@ -12,7 +13,6 @@ import { TransactionBuilder } from '@/utils';
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import {
   findMetadataPda,
   findProgramAsBurnerPda,
@@ -85,6 +85,9 @@ export type UseNftInput = {
    */
   useAuthority?: Signer;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** A set of options to configure how the transaction is sent and confirmed. */
   confirmOptions?: ConfirmOptions;
 };
@@ -149,7 +152,11 @@ export const useNftBuilder = (
     numberOfUses = 1,
     owner = metaplex.identity(),
     useAuthority,
+    programs,
   } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   if (!isSigner(owner) && !useAuthority) {
     throw new ExpectedSignerError('owner', 'PublicKey', {
@@ -162,7 +169,15 @@ export const useNftBuilder = (
   const metadata = findMetadataPda(mintAddress);
   const tokenAccount =
     params.ownerTokenAccount ??
-    findAssociatedTokenAccountPda(mintAddress, toPublicKey(owner));
+    metaplex
+      .tokens()
+      .pdas()
+      .associatedTokenAccount({
+        mint: mintAddress,
+        owner: toPublicKey(owner),
+        programs,
+      });
+
   const useAuthorityRecord = useAuthority
     ? findUseAuthorityRecordPda(mintAddress, useAuthority.publicKey)
     : undefined;
@@ -185,7 +200,8 @@ export const useNftBuilder = (
             useAuthorityRecord,
             burner: useAuthorityRecord ? programAsBurner : undefined,
           },
-          { utilizeArgs: { numberOfUses } }
+          { utilizeArgs: { numberOfUses } },
+          tokenMetadataProgram.address
         ),
         signers: [owner, useAuthority].filter(isSigner),
         key: params.instructionKey ?? 'utilizeNft',

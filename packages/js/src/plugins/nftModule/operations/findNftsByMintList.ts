@@ -1,5 +1,5 @@
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { DisposableScope, GmaBuilder } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
@@ -45,6 +45,9 @@ export type FindNftsByMintListOperation = Operation<
 export type FindNftsByMintListInput = {
   /** The addresses of all mint accounts we want to fetch. */
   mints: PublicKey[];
+
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
 
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;

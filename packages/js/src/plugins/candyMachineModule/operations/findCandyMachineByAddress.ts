@@ -3,15 +3,14 @@ import {
   assertAccountExists,
   Operation,
   OperationHandler,
-  useOperation,
+  Program,
+  PublicKey,
 } from '@/types';
-import { Commitment, PublicKey } from '@solana/web3.js';
-import {
-  parseCandyMachineCollectionAccount,
-  toCandyMachineAccount,
-} from '../accounts';
-import { CandyMachine, toCandyMachine } from '../models/CandyMachine';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { DisposableScope } from '@/utils';
+import { Commitment } from '@solana/web3.js';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
+import { assertCandyGuardProgram } from '../programs';
 
 // -----------------
 // Operation
@@ -23,23 +22,36 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * Find an existing Candy Machine by its address.
  *
  * ```ts
- * const candyMachine = await metaplex.candyMachines().findbyAddress({ address }).run();
+ * const candyMachine = await metaplex
+ *   .candyMachines()
+ *   .findbyAddress({ address })
+ *   .run();
  * ```
  *
  * @group Operations
  * @category Constructors
  */
 export const findCandyMachineByAddressOperation =
-  useOperation<FindCandyMachineByAddressOperation>(Key);
+  _findCandyMachineByAddressOperation;
+function _findCandyMachineByAddressOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  input: FindCandyMachineByAddressInput
+): FindCandyMachineByAddressOperation<T> {
+  return { key: Key, input };
+}
+_findCandyMachineByAddressOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type FindCandyMachineByAddressOperation = Operation<
+export type FindCandyMachineByAddressOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<
   typeof Key,
   FindCandyMachineByAddressInput,
-  CandyMachine
+  FindCandyMachineByAddressOutput<T>
 >;
 
 /**
@@ -50,9 +62,20 @@ export type FindCandyMachineByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+
   /** The level of commitment desired when querying the blockchain. */
   commitment?: Commitment;
 };
+
+/**
+ * @group Operations
+ * @category Outputs
+ */
+export type FindCandyMachineByAddressOutput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = CandyMachine<T>;
 
 /**
  * @group Operations
@@ -60,28 +83,65 @@ export type FindCandyMachineByAddressInput = {
  */
 export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
   {
-    handle: async (
-      operation: FindCandyMachineByAddressOperation,
-      metaplex: Metaplex
-    ) => {
-      const { address, commitment } = operation.input;
-      const collectionPda = findCandyMachineCollectionPda(address);
-      const accounts = await metaplex
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: FindCandyMachineByAddressOperation<T>,
+      metaplex: Metaplex,
+      scope: DisposableScope
+    ): Promise<FindCandyMachineByAddressOutput<T>> {
+      const { address, commitment, programs } = operation.input;
+      const potentialCandyGuardAddress = metaplex
+        .candyMachines()
+        .pdas()
+        .candyGuard({ base: address, programs });
+      const [candyMachineAccount, potentialCandyGuardAccount] = await metaplex
         .rpc()
-        .getMultipleAccounts([address, collectionPda], commitment);
+        .getMultipleAccounts([address, potentialCandyGuardAddress], commitment);
+      scope.throwIfCanceled();
 
-      const unparsedAccount = accounts[0];
-      assertAccountExists(unparsedAccount);
-      const account = toCandyMachineAccount(unparsedAccount);
-      const collectionAccount = parseCandyMachineCollectionAccount(accounts[1]);
+      assertAccountExists(candyMachineAccount, 'CandyMachine');
+      const candyMachine = toCandyMachine<T>(candyMachineAccount);
+      const mintAuthority = candyMachine.mintAuthorityAddress;
 
-      const mint = account.data.tokenMint
-        ? await metaplex
-            .tokens()
-            .findMintByAddress({ address: account.data.tokenMint })
-            .run()
-        : null;
+      // Optimisation that tries to load both the Candy Machine
+      // And the Candy Guard in one RPC call assuming the Candy
+      // Machine's address is the base address of the Candy Guard.
+      if (
+        potentialCandyGuardAccount.exists &&
+        potentialCandyGuardAccount.publicKey.equals(mintAuthority)
+      ) {
+        return {
+          ...candyMachine,
+          candyGuard: toCandyGuard<T>(potentialCandyGuardAccount, metaplex),
+        };
+      }
 
-      return toCandyMachine(account, unparsedAccount, collectionAccount, mint);
+      // If the Candy Machine's mint authority is not a PDA,
+      // it cannot have an associated Candy Guard.
+      if (PublicKey.isOnCurve(mintAuthority)) {
+        return candyMachine;
+      }
+
+      // Fetch the content of the mint authority PDA.
+      const mintAuthorityAccount = await metaplex
+        .rpc()
+        .getAccount(mintAuthority, commitment);
+      scope.throwIfCanceled();
+
+      try {
+        // Identity the program owner as a Candy Guard program
+        // and parse the Candy Guard accordingly.
+        assertAccountExists(mintAuthorityAccount);
+        const program = metaplex.programs().get(mintAuthorityAccount.owner);
+        assertCandyGuardProgram(program);
+
+        return {
+          ...candyMachine,
+          candyGuard: toCandyGuard<T>(mintAuthorityAccount, metaplex),
+        };
+      } catch (error) {
+        // If anything goes wrong, assume there is no Candy Guard
+        // attached to this Candy Machine.
+        return candyMachine;
+      }
     },
   };
