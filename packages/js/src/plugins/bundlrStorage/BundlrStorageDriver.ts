@@ -114,10 +114,9 @@ export class BundlrStorageDriver implements StorageDriver {
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const { status, data } = await bundlr.uploader.upload(
-        file.buffer,
-        getMetaplexFileTagsWithContentType(file)
-      );
+      const { status, data } = await bundlr.uploader.upload(file.buffer, {
+        tags: getMetaplexFileTagsWithContentType(file),
+      });
 
       if (status >= 300) {
         throw new AssetUploadFailedError(status);
