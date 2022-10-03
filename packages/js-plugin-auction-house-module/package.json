@@ -1,6 +1,6 @@
 {
-  "name": "@metaplex-foundation/js-plugin-aws",
-  "version": "0.1.3",
+  "name": "@metaplex-foundation/js-plugin-auction-house-module",
+  "version": "0.15.0",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -26,9 +26,7 @@
     "nft",
     "metaplex",
     "solana",
-    "blockchain",
-    "plugin",
-    "aws"
+    "blockchain"
   ],
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "homepage": "https://metaplex.com",
@@ -40,13 +38,29 @@
     "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
-    "test": "tape dist/test/**/*.test.js",
-    "preversion": "yarn build && yarn test",
+    "test": "tape dist/test/**/*.test.js && yarn test:exports",
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
+    "preversion": "yarn build",
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.54.1",
-    "@metaplex-foundation/js": "*"
+    "@bundlr-network/client": "^0.7.14",
+    "@metaplex-foundation/mpl-auction-house": "^2.1.1",
+    "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
+    "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/web3.js": "^1.47.3",
+    "abort-controller": "^3.0.0",
+    "bignumber.js": "^9.0.2",
+    "bn.js": "^5.2.0",
+    "bs58": "^5.0.0",
+    "buffer": "^6.0.3",
+    "debug": "^4.3.4",
+    "eventemitter3": "^4.0.7",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
+    "mime": "^3.0.0",
+    "tweetnacl": "^1.0.3"
   },
   "engines": {
     "node": ">=16.0"
@@ -59,6 +73,6 @@
   "typedoc": {
     "entryPoint": "./src/index.ts",
     "readmeFile": "./README.md",
-    "displayName": "js-plugin-aws"
+    "displayName": "js"
   }
 }
