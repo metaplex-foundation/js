@@ -44,7 +44,7 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@bundlr-network/client": "^0.7.14",
+    "@bundlr-network/client": "^0.8.8",
     "@metaplex-foundation/beet": "0.7.1",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-guard": "npm:@lorisleiva/mpl-candy-guard@^0.0.12",
