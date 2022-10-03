@@ -5,7 +5,6 @@
   "plugins": [
     "sort-class-members",
     "@typescript-eslint",
-    "markdown",
     "json",
     "prettier",
     "import"
