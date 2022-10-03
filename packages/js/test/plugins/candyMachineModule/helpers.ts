@@ -115,7 +115,7 @@ export const assertMintingWasSuccessful = async (
     mintedIndex?: number;
   }
 ) => {
-  const {candyMachine} = input;
+  const { candyMachine } = input;
   const mintedIndex = input.mintedIndex ?? candyMachine.itemsMinted.toNumber();
 
   let expectedName: string;

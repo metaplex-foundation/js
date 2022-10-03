@@ -220,7 +220,7 @@ export const createCandyGuardBuilder = <
   metaplex: Metaplex,
   params: CreateCandyGuardBuilderParams<T>
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  const {programs} = params;
+  const { programs } = params;
   const base = params.base ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;

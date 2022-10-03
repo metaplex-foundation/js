@@ -180,10 +180,10 @@ export const insertCandyMachineItemsBuilder = (
   metaplex: Metaplex,
   params: InsertCandyMachineItemsBuilderParams
 ): TransactionBuilder => {
-  const {programs} = params;
+  const { programs } = params;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
-  const {items} = params;
+  const { items } = params;
 
   assertNotFull(params.candyMachine, index);
   assertCanAdd(params.candyMachine, index, items.length);

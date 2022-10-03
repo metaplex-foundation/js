@@ -496,7 +496,7 @@ const updateCandyMachineCollectionBuilder = <
     throw onMissingInputError(['collection.currentCollectionAddress']);
   }
 
-  const {programs} = params;
+  const { programs } = params;
   const candyMachineAddress = toPublicKey(params.candyMachine);
   const authorityPda = metaplex
     .candyMachines()

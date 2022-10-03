@@ -115,7 +115,7 @@ export const assertCandyMachineV2IsLive = (
 export const assertCandyMachineV2HasNotEnded = (
   candyMachine: Pick<CandyMachineV2, 'endSettings' | 'itemsMinted'>
 ) => {
-  const {endSettings} = candyMachine;
+  const { endSettings } = candyMachine;
 
   if (!endSettings) {
     return;

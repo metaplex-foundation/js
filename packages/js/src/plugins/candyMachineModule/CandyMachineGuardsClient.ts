@@ -267,7 +267,7 @@ export class CandyMachineGuardsClient {
         candyGuard: candyGuard.address,
         programs,
       });
-      const {remainingAccounts} = parsedSettings;
+      const { remainingAccounts } = parsedSettings;
       const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
         pubkey: account.isSigner ? account.address.publicKey : account.address,
         isSigner: account.isSigner,

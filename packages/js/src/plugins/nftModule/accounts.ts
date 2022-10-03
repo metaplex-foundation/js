@@ -86,9 +86,8 @@ const originalEditionAccountParser: SolitaType<OriginalEditionAccountData> = {
   deserialize: (data: Buffer, offset = 0) => {
     if (data?.[0] === Key.MasterEditionV1) {
       return MasterEditionV1.deserialize(data, offset);
-    } 
-      return MasterEditionV2.deserialize(data, offset);
-    
+    }
+    return MasterEditionV2.deserialize(data, offset);
   },
   fromArgs() {
     throw new NotYetImplementedError();

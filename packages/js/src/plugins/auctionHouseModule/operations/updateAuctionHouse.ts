@@ -238,7 +238,7 @@ export const updateAuctionHouseBuilder = (
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
-  const {auctionHouse} = params;
+  const { auctionHouse } = params;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
   let treasuryWithdrawalDestination: PublicKey;

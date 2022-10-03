@@ -160,7 +160,7 @@ export const insertItemsToCandyMachineV2Builder = (
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
-  const {items} = params;
+  const { items } = params;
   assertNotFull(params.candyMachine, index);
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllConfigLineConstraints(items);

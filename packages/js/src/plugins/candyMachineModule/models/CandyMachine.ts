@@ -343,8 +343,8 @@ export const toCandyMachine = <
   let itemsLoaded = 0;
   let isFullyLoaded = true;
 
-  const {hiddenSettings} = parsedAccount.data.data;
-  const {configLineSettings} = parsedAccount.data.data;
+  const { hiddenSettings } = parsedAccount.data.data;
+  const { configLineSettings } = parsedAccount.data.data;
   let itemSettings: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
   if (hiddenSettings) {
     itemSettings = { ...hiddenSettings, type: 'hidden' };

@@ -58,7 +58,7 @@ export async function toEncodedCar(
 ): Promise<EncodedCar> {
   await blockstore.put(block.cid, block.bytes);
   const car = new BlockstoreCarReader([block.cid], blockstore);
-  const {cid} = block;
+  const { cid } = block;
 
   return { car, cid };
 }

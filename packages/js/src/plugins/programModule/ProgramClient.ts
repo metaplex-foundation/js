@@ -9,9 +9,7 @@ import { GpaBuilder } from '@/utils';
  */
 export class ProgramClient {
   protected programs: Program[] = [];
-constructor(protected readonly metaplex: Metaplex) {}
-
-  
+  constructor(protected readonly metaplex: Metaplex) {}
 
   register(program: Program): void {
     this.programs.unshift(program);

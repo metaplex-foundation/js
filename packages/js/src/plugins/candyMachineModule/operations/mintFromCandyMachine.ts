@@ -236,7 +236,7 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
           })
           .run(scope)) as NftWithToken;
       } catch (error) {
-        const {candyGuard} = operation.input.candyMachine;
+        const { candyGuard } = operation.input.candyMachine;
         if (!candyGuard) {
           throw error;
         }
@@ -432,7 +432,7 @@ export const mintFromCandyMachineBuilder = async <
   let mintNftInstruction: TransactionInstruction;
   let mintNftSigners: Signer[];
   if (!!candyMachine.candyGuard) {
-    const {candyGuard} = candyMachine;
+    const { candyGuard } = candyMachine;
     const guardClient = metaplex.candyMachines().guards();
     const parsedMintSettings = guardClient.parseMintSettings(
       candyMachine.address,
