@@ -7,7 +7,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '..';
+import { SendAndConfirmTransactionResponse } from '../plugins/rpcModule';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -18,9 +18,6 @@ export type InstructionWithSigners = {
 type TransactionOptions = {
   /** Additional signatures. */
   signatures?: Array<SignaturePubkeyPair>;
-
-  /** A recent blockhash and its block height. */
-  blockhashWithExpiryBlockHeight?: BlockhashWithExpiryBlockHeight;
 };
 
 export class TransactionBuilder<C extends object = object> {
@@ -170,24 +167,17 @@ export class TransactionBuilder<C extends object = object> {
     return this.when(!condition, callback);
   }
 
-  async toTransaction(
-    metaplex: Metaplex,
+  toTransaction(
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
     options: TransactionOptions = {}
-  ): Promise<Transaction> {
+  ): Transaction {
     options = { ...this.getTransactionOptions(), ...options };
-
-    if (!options.blockhashWithExpiryBlockHeight) {
-      options.blockhashWithExpiryBlockHeight = await metaplex
-        .rpc()
-        .getLatestBlockhash();
-    }
 
     const transaction = new Transaction({
       feePayer: this.getFeePayer()?.publicKey,
       signatures: options.signatures,
-      blockhash: options.blockhashWithExpiryBlockHeight.blockhash,
-      lastValidBlockHeight:
-        options.blockhashWithExpiryBlockHeight.lastValidBlockHeight,
+      blockhash: blockhashWithExpiryBlockHeight.blockhash,
+      lastValidBlockHeight: blockhashWithExpiryBlockHeight.lastValidBlockHeight,
     });
 
     transaction.add(...this.getInstructions());

@@ -52,6 +52,36 @@ export class RpcClient {
 
   constructor(protected readonly metaplex: Metaplex) {}
 
+  protected async prepareTransaction(
+    transaction: Transaction | TransactionBuilder,
+    signers: Signer[]
+  ): Promise<{
+    transaction: Transaction;
+    signers: Signer[];
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight;
+  }> {
+    let blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight;
+    if (
+      !('records' in transaction) &&
+      transaction.recentBlockhash &&
+      transaction.lastValidBlockHeight
+    ) {
+      blockhashWithExpiryBlockHeight = {
+        blockhash: transaction.recentBlockhash,
+        lastValidBlockHeight: transaction.lastValidBlockHeight,
+      };
+    } else {
+      blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();
+    }
+
+    if ('records' in transaction) {
+      signers = [...transaction.getSigners(), ...signers];
+      transaction = transaction.toTransaction(blockhashWithExpiryBlockHeight);
+    }
+
+    return { transaction, signers, blockhashWithExpiryBlockHeight };
+  }
+
   async signTransaction(
     transaction: Transaction,
     signers: Signer[]
@@ -76,10 +106,9 @@ export class RpcClient {
     sendOptions: SendOptions = {},
     signers: Signer[] = []
   ): Promise<TransactionSignature> {
-    if ('records' in transaction) {
-      signers = [...transaction.getSigners(), ...signers];
-      transaction = await transaction.toTransaction(this.metaplex);
-    }
+    const prepared = await this.prepareTransaction(transaction, signers);
+    transaction = prepared.transaction;
+    signers = prepared.signers;
 
     const defaultFeePayer = this.getDefaultFeePayer();
     if (!transaction.feePayer && defaultFeePayer) {
@@ -127,16 +156,10 @@ export class RpcClient {
     confirmOptions?: ConfirmOptions,
     signers: Signer[] = []
   ): Promise<SendAndConfirmTransactionResponse> {
-    if ('records' in transaction) {
-      signers = [...transaction.getSigners(), ...signers];
-      transaction = await transaction.toTransaction(this.metaplex);
-    }
-
-    const { recentBlockhash, lastValidBlockHeight } = transaction;
-    const blockhashWithExpiryBlockHeight =
-      recentBlockhash && lastValidBlockHeight
-        ? { blockhash: recentBlockhash, lastValidBlockHeight }
-        : await this.getLatestBlockhash();
+    const prepared = await this.prepareTransaction(transaction, signers);
+    const { blockhashWithExpiryBlockHeight } = prepared;
+    transaction = prepared.transaction;
+    signers = prepared.signers;
 
     const signature = await this.sendTransaction(
       transaction,
