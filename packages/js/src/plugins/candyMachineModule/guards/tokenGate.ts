@@ -1,3 +1,5 @@
+import { TokenGate, tokenGateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
@@ -5,8 +7,6 @@ import {
   SplTokenAmount,
   token,
 } from '@/types';
-import { TokenGate, tokenGateBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The tokenGate guard restricts minting to token holders

@@ -57,7 +57,7 @@ export function create32BitsHash(
 
 export function create32BitsHashString(
   input: Buffer | string,
-  slice: number = 32
+  slice = 32
 ): string {
   const hash = sha512(input).slice(0, slice / 2);
 

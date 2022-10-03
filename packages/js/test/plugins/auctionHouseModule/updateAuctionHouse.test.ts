@@ -1,6 +1,7 @@
 import test, { Test } from 'tape';
 import spok from 'spok';
 import { Keypair } from '@solana/web3.js';
+import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 import {
   metaplex,
   spokSamePubkey,
@@ -8,6 +9,7 @@ import {
   assertThrows,
   createWallet,
 } from '../../helpers';
+import { createAuctionHouse } from './helpers';
 import {
   findAssociatedTokenAccountPda,
   findAuctioneerPda,
@@ -15,8 +17,6 @@ import {
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from '@/index';
-import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
-import { createAuctionHouse } from './helpers';
 import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
@@ -38,7 +38,7 @@ test('[auctionHouseModule] it updates all fields of an Auction House', async (t:
     .auctionHouse()
     .create({
       sellerFeeBasisPoints: 200,
-      treasuryMint: treasuryMint,
+      treasuryMint,
       treasuryWithdrawalDestinationOwner: treasuryOwner,
     })
     .run();

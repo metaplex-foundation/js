@@ -1,7 +1,7 @@
-import { createSerializerFromBeet, PublicKey } from '@/types';
 import { nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
+import { createSerializerFromBeet, PublicKey } from '@/types';
 
 /**
  * The nftGate guard restricts minting to holders

@@ -1,21 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  assertSameCurrencies,
-  isSigner,
-  Operation,
-  OperationHandler,
-  Signer,
-  SOL,
-  toBigNumber,
-  toPublicKey,
-  useOperation,
-} from '@/types';
-import {
-  DisposableScope,
-  Option,
-  RequiredKeys,
-  TransactionBuilder,
-} from '@/utils';
 import {
   createInitializeCandyMachineInstruction,
   createSetCollectionInstruction,
@@ -33,10 +15,28 @@ import {
   CandyMachineV2Configs,
   toCandyMachineV2InstructionData,
 } from '../models';
-import { ExpectedSignerError } from '@/errors';
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
+import { ExpectedSignerError } from '@/errors';
+import {
+  DisposableScope,
+  Option,
+  RequiredKeys,
+  TransactionBuilder,
+} from '@/utils';
+import {
+  assertSameCurrencies,
+  isSigner,
+  Operation,
+  OperationHandler,
+  Signer,
+  SOL,
+  toBigNumber,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

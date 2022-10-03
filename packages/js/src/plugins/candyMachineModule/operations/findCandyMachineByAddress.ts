@@ -1,4 +1,8 @@
-import { Metaplex } from '@/Metaplex';
+import { Commitment } from '@solana/web3.js';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
+import { assertCandyGuardProgram } from '../programs';
+import { DisposableScope } from '@/utils';
 import {
   assertAccountExists,
   Operation,
@@ -6,11 +10,7 @@ import {
   Program,
   PublicKey,
 } from '@/types';
-import { DisposableScope } from '@/utils';
-import { Commitment } from '@solana/web3.js';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
-import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
-import { assertCandyGuardProgram } from '../programs';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

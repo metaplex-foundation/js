@@ -1,3 +1,21 @@
+import { Buffer } from 'buffer';
+import { Keypair } from '@solana/web3.js';
+import test from 'tape';
+import {
+  addGatekeeper,
+  issueVanilla,
+  addFeatureToNetwork,
+  NetworkFeature,
+  UserTokenExpiry,
+  GatewayTokenData,
+} from '@identity.com/solana-gateway-ts';
+import {
+  assertThrows,
+  createWallet,
+  killStuckProcess,
+  metaplex,
+} from '../../../helpers';
+import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import {
   assertAccountExists,
   DateTime,
@@ -12,24 +30,6 @@ import {
   toDateTime,
   TransactionBuilder,
 } from '@/index';
-import { Keypair } from '@solana/web3.js';
-import { Buffer } from 'buffer';
-import test from 'tape';
-import {
-  assertThrows,
-  createWallet,
-  killStuckProcess,
-  metaplex,
-} from '../../../helpers';
-import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import {
-  addGatekeeper,
-  issueVanilla,
-  addFeatureToNetwork,
-  NetworkFeature,
-  UserTokenExpiry,
-  GatewayTokenData,
-} from '@identity.com/solana-gateway-ts';
 
 killStuckProcess();
 

@@ -1,7 +1,3 @@
-import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import * as ed25519 from '@noble/ed25519';
-import { sha512 } from '@noble/hashes/sha512';
-import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import {
   IdentitySigner,
@@ -10,9 +6,13 @@ import {
   Signer,
   SolAmount,
 } from '@/types';
-import { UninitializedDerivedIdentityError } from './errors';
 import { Task } from '@/utils';
+import * as ed25519 from '@noble/ed25519';
+import { sha512 } from '@noble/hashes/sha512';
+import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { TransferSolOutput } from '../systemModule';
+import { UninitializedDerivedIdentityError } from './errors';
 
 /**
  * @group Modules

@@ -1,9 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
-import { Pda } from '@/types';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
+import { Pda } from '@/types';
 
 /**
  * @group Pdas

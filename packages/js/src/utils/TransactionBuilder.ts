@@ -73,7 +73,7 @@ export class TransactionBuilder<C extends object = object> {
 
   splitUsingKey(
     key: string,
-    include: boolean = true
+    include = true
   ): [TransactionBuilder, TransactionBuilder] {
     const firstBuilder = new TransactionBuilder(this.transactionOptions);
     const secondBuilder = new TransactionBuilder(this.transactionOptions);

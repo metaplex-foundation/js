@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@2.1.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [
+    [
+      "@metaplex-foundation/js-plugin-aws",
+      "@metaplex-foundation/js-plugin-nft-storage",
+      "@metaplex-foundation/js"
+    ]
+  ],
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}

@@ -1,12 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  Operation,
-  OperationHandler,
-  Program,
-  Signer,
-  useOperation,
-} from '@/types';
-import { TransactionBuilder } from '@/utils';
 import {
   createUnverifyCollectionInstruction,
   createUnverifySizedCollectionItemInstruction,
@@ -18,6 +9,15 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
+import { TransactionBuilder } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  Signer,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

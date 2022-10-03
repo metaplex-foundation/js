@@ -1,9 +1,9 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Program, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../../tokenModule';
 import { NftWithToken, SftWithToken } from '../models';
+import { Metaplex } from '@/Metaplex';
+import { Operation, OperationHandler, Program, useOperation } from '@/types';
+import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation

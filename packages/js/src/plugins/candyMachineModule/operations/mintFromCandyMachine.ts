@@ -1,14 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import { NftWithToken } from '@/plugins/nftModule';
-import {
-  Operation,
-  OperationHandler,
-  Program,
-  PublicKey,
-  Signer,
-  token as tokenAmount,
-} from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import { createMintInstruction as createMintFromMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { createMintInstruction as createMintFromGuardInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import {
@@ -27,6 +16,17 @@ import {
   DefaultCandyGuardMintSettings,
   DefaultCandyGuardSettings,
 } from '../guards';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  Program,
+  PublicKey,
+  Signer,
+  token as tokenAmount,
+} from '@/types';
+import { NftWithToken } from '@/plugins/nftModule';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -236,7 +236,7 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
           })
           .run(scope)) as NftWithToken;
       } catch (error) {
-        const candyGuard = operation.input.candyMachine.candyGuard;
+        const { candyGuard } = operation.input.candyMachine;
         if (!candyGuard) {
           throw error;
         }
@@ -432,7 +432,7 @@ export const mintFromCandyMachineBuilder = async <
   let mintNftInstruction: TransactionInstruction;
   let mintNftSigners: Signer[];
   if (!!candyMachine.candyGuard) {
-    const candyGuard = candyMachine.candyGuard;
+    const { candyGuard } = candyMachine;
     const guardClient = metaplex.candyMachines().guards();
     const parsedMintSettings = guardClient.parseMintSettings(
       candyMachine.address,

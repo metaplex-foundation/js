@@ -1,6 +1,10 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse, Bid, Listing, Purchase } from '../models';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { createBidBuilder } from './createBid';
+import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
 import {
   now,
   Operation,
@@ -11,12 +15,8 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid, Listing, Purchase } from '../models';
-import { createBidBuilder } from './createBid';
-import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

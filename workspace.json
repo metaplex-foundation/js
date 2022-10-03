@@ -1,0 +1,237 @@
+{
+  "version": 2,
+  "projects": {
+    "packages/js": {
+      "root": "packages/js",
+      "projectType": "library",
+      "sourceRoot": "packages/js/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "packages/js"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js build"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js clean"],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js",
+            "commands": ["yarn workspace @metaplex-foundation/js test"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-aws": {
+      "root": "packages/js-plugin-aws",
+      "sourceRoot": "packages/js-plugin-aws/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "packages/js-plugin-aws"
+          }
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-aws build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-aws clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-aws {args.ver} {args.tag}"
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-aws/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-aws",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-aws test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-plugin-nft-storage": {
+      "root": "packages/js-plugin-nft-storage",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-nft-storage/src",
+      "targets": {
+        "prebuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "cwd": "packages/js-plugin-nft-storage"
+          }
+        },
+        "publish": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-nft-storage {args.ver} {args.tag}"
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-storage build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-nft-storage clean"
+            ],
+            "parallel": false
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-nft-storage/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-nft-storage",
+            "commands": [
+              "rm -rf ./dist/packages/js-plugin-nft-storage",
+              "yarn workspace @metaplex-foundation/js-plugin-nft-storage test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    }
+  }
+}

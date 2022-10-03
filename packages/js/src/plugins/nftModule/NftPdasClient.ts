@@ -1,6 +1,6 @@
+import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
-import { Buffer } from 'buffer';
 
 /**
  * This client allows you to build PDAs related to the NFT module.

@@ -1,14 +1,14 @@
 import {
+  RedeemedAmount,
+  redeemedAmountBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
+import {
   BigNumber,
   createSerializerFromBeet,
   mapSerializer,
   toBigNumber,
 } from '@/types';
-import {
-  RedeemedAmount,
-  redeemedAmountBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
 
 /**
  * The redeemedAmount guard forbids minting when the

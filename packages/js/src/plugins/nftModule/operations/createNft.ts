@@ -1,4 +1,12 @@
-import { Metaplex } from '@/Metaplex';
+import {
+  createCreateMasterEditionV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertNftWithToken, NftWithToken } from '../models';
+import { findMasterEditionV2Pda } from '../pdas';
+import { DisposableScope, Option, TransactionBuilder } from '@/utils';
 import {
   BigNumber,
   CreatorInput,
@@ -10,15 +18,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import {
-  createCreateMasterEditionV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertNftWithToken, NftWithToken } from '../models';
-import { findMasterEditionV2Pda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

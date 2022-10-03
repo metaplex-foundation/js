@@ -1,3 +1,20 @@
+import {
+  CandyMachineData,
+  createSetAuthorityInstruction,
+  createSetCollectionInstruction,
+  createSetMintAuthorityInstruction,
+  createUpdateInstruction as createUpdateCandyMachineInstruction,
+} from '@metaplex-foundation/mpl-candy-machine-core';
+import { ConfirmOptions } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import {
+  CandyMachine,
+  CandyMachineConfigLineSettings,
+  CandyMachineHiddenSettings,
+  isCandyMachine,
+  toCandyMachineData,
+} from '../models';
 import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -21,23 +38,6 @@ import {
   removeUndefinedAttributes,
   TransactionBuilder,
 } from '@/utils';
-import {
-  CandyMachineData,
-  createSetAuthorityInstruction,
-  createSetCollectionInstruction,
-  createSetMintAuthorityInstruction,
-  createUpdateInstruction as createUpdateCandyMachineInstruction,
-} from '@metaplex-foundation/mpl-candy-machine-core';
-import { ConfirmOptions } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
-import {
-  CandyMachine,
-  CandyMachineConfigLineSettings,
-  CandyMachineHiddenSettings,
-  isCandyMachine,
-  toCandyMachineData,
-} from '../models';
 
 // -----------------
 // Operation
@@ -496,7 +496,7 @@ const updateCandyMachineCollectionBuilder = <
     throw onMissingInputError(['collection.currentCollectionAddress']);
   }
 
-  const programs = params.programs;
+  const { programs } = params;
   const candyMachineAddress = toPublicKey(params.candyMachine);
   const authorityPda = metaplex
     .candyMachines()

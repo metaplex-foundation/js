@@ -1,3 +1,9 @@
+import { Buffer } from 'buffer';
+import {
+  SolPayment,
+  solPaymentBeet,
+} from '@metaplex-foundation/mpl-candy-guard';
+import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   lamports,
@@ -5,12 +11,6 @@ import {
   PublicKey,
   SolAmount,
 } from '@/types';
-import {
-  SolPayment,
-  solPaymentBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
-import { Buffer } from 'buffer';
-import { CandyGuardManifest } from './core';
 
 /**
  * The solPayment guard is used to charge an

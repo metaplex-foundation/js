@@ -1,13 +1,3 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  assertAccountExists,
-  Operation,
-  OperationHandler,
-  Signer,
-  token,
-  useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import {
   createMintNftInstruction,
   createSetCollectionDuringMintInstruction,
@@ -36,6 +26,16 @@ import {
   findCandyMachineV2CreatorPda,
 } from '../pdas';
 import { CandyMachineV2Program } from '../program';
+import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  assertAccountExists,
+  Operation,
+  OperationHandler,
+  Signer,
+  token,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -352,7 +352,7 @@ export const mintCandyMachineV2Builder = async (
   const mintNftInstruction = createMintNftInstruction(
     {
       candyMachine: candyMachine.address,
-      candyMachineCreator: candyMachineCreator,
+      candyMachineCreator,
       payer: payer.publicKey,
       wallet: candyMachine.walletAddress,
       metadata: newMetadata,

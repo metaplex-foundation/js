@@ -1,4 +1,3 @@
-import { CandyMachineV2, sol, toBigNumber, toDateTime } from '@/index';
 import {
   EndSettingType,
   WhitelistMintMode,
@@ -16,6 +15,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { create32BitsHash, createCandyMachineV2 } from './helpers';
+import { CandyMachineV2, sol, toBigNumber, toDateTime } from '@/index';
 
 killStuckProcess();
 

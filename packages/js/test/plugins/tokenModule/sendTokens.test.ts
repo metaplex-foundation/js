@@ -1,8 +1,8 @@
-import { token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { killStuckProcess, metaplex } from '../../helpers';
 import { assertRefreshedTokenHasAmount, assertTokenHasAmount } from './helpers';
+import { token } from '@/index';
 
 killStuckProcess();
 
@@ -13,7 +13,7 @@ test('[tokenModule] it can send tokens to an existing token account', async (t: 
     .tokens()
     .createTokenWithMint({ initialSupply: token(100) })
     .run();
-  const mint = fromToken.mint;
+  const { mint } = fromToken;
   assertTokenHasAmount(t, fromToken, token(100));
 
   // And an existing token account to send tokens to.
@@ -46,7 +46,7 @@ test('[tokenModule] it can send tokens to an existing associated token account',
     .tokens()
     .createTokenWithMint({ initialSupply: token(100) })
     .run();
-  const mint = fromToken.mint;
+  const { mint } = fromToken;
   assertTokenHasAmount(t, fromToken, token(100));
 
   // And an existing associated token account to send tokens to.
@@ -75,7 +75,7 @@ test('[tokenModule] it can send tokens to an non-existing token account', async 
     .tokens()
     .createTokenWithMint({ initialSupply: token(100) })
     .run();
-  const mint = fromToken.mint;
+  const { mint } = fromToken;
   assertTokenHasAmount(t, fromToken, token(100));
 
   // And an token account to send tokens to that does not exist.
@@ -111,7 +111,7 @@ test('[tokenModule] it can send tokens to an non-existing associated token accou
     .tokens()
     .createTokenWithMint({ initialSupply: token(100) })
     .run();
-  const mint = fromToken.mint;
+  const { mint } = fromToken;
   assertTokenHasAmount(t, fromToken, token(100));
 
   // And an owner that does not have an associated token account for that mint yet.

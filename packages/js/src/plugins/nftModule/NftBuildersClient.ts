@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   approveNftCollectionAuthorityBuilder,
   ApproveNftCollectionAuthorityBuilderParams,
@@ -35,6 +34,7 @@ import {
   verifyNftCreatorBuilder,
   VerifyNftCreatorBuilderParams,
 } from './operations';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client allows you to access the underlying Transaction Builders

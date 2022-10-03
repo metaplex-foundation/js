@@ -1,4 +1,13 @@
-import { assert, Option, removeEmptyChars } from '@/utils';
+import {
+  CandyMachine as MplCandyMachine,
+  candyMachineBeet,
+  CandyMachineData,
+} from '@metaplex-foundation/mpl-candy-machine-core';
+import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
+import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
+import { CandyMachineItem } from './CandyMachineItem';
+import { CandyGuard } from './CandyGuard';
 import {
   AccountInfo,
   assertModel,
@@ -15,16 +24,7 @@ import {
   toBigNumber,
   UnparsedAccount,
 } from '@/types';
-import { CandyMachineItem } from './CandyMachineItem';
-import {
-  CandyMachine as MplCandyMachine,
-  candyMachineBeet,
-  CandyMachineData,
-} from '@metaplex-foundation/mpl-candy-machine-core';
-import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
-import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
-import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
-import { CandyGuard } from './CandyGuard';
+import { assert, Option, removeEmptyChars } from '@/utils';
 
 /**
  * This model contains all the relevant information about a Candy Machine.
@@ -343,8 +343,8 @@ export const toCandyMachine = <
   let itemsLoaded = 0;
   let isFullyLoaded = true;
 
-  const hiddenSettings = parsedAccount.data.data.hiddenSettings;
-  const configLineSettings = parsedAccount.data.data.configLineSettings;
+  const { hiddenSettings } = parsedAccount.data.data;
+  const { configLineSettings } = parsedAccount.data.data;
   let itemSettings: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
   if (hiddenSettings) {
     itemSettings = { ...hiddenSettings, type: 'hidden' };

@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import type { MetaplexPlugin, Program } from '@/types';
 import { SystemProgram } from '@solana/web3.js';
 import { ProgramClient } from '../programModule';
 import {
@@ -9,6 +7,8 @@ import {
   transferSolOperationHandler,
 } from './operations';
 import { SystemClient } from './SystemClient';
+import type { MetaplexPlugin, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * @group Plugins

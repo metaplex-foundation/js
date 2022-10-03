@@ -1,4 +1,3 @@
-import { toBigNumber } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
@@ -8,6 +7,7 @@ import {
   metaplex,
 } from '../../helpers';
 import { create32BitsHash, createCandyMachine } from './helpers';
+import { toBigNumber } from '@/index';
 
 killStuckProcess();
 

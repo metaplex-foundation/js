@@ -1,12 +1,3 @@
-import {
-  CandyGuard,
-  DefaultCandyGuardSettings,
-  emptyDefaultCandyGuardSettings,
-  sol,
-  toBigNumber,
-  toDateTime,
-  token,
-} from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
@@ -18,6 +9,15 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
+import {
+  CandyGuard,
+  DefaultCandyGuardSettings,
+  emptyDefaultCandyGuardSettings,
+  sol,
+  toBigNumber,
+  toDateTime,
+  token,
+} from '@/index';
 
 killStuckProcess();
 

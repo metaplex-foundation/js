@@ -1,8 +1,3 @@
-import { UnreachableCaseError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import { Mint, toMint, toMintAccount } from '@/plugins/tokenModule';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, zipMap } from '@/utils';
 import { Commitment, PublicKey } from '@solana/web3.js';
 import {
   CandyMachineV2Account,
@@ -13,6 +8,11 @@ import { CandyMachineV2GpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
+import { DisposableScope, zipMap } from '@/utils';
+import { Operation, OperationHandler, useOperation } from '@/types';
+import { Mint, toMint, toMintAccount } from '@/plugins/tokenModule';
+import { Metaplex } from '@/Metaplex';
+import { UnreachableCaseError } from '@/errors';
 
 // -----------------
 // Operation
