@@ -1,3 +1,14 @@
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import { sha512 } from '@noble/hashes/sha512';
+import spok, { Specifications } from 'spok';
+import { Test } from 'tape';
+import {
+  createCollectionNft,
+  spokSameAmount,
+  spokSameBignum,
+  spokSamePubkey,
+} from '../../helpers';
+import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
 import {
   CandyMachine,
   CandyMachineConfigLineSettings,
@@ -11,17 +22,6 @@ import {
   toBigNumber,
   token,
 } from '@/index';
-import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
-import { sha512 } from '@noble/hashes/sha512';
-import spok, { Specifications } from 'spok';
-import { Test } from 'tape';
-import {
-  createCollectionNft,
-  spokSameAmount,
-  spokSameBignum,
-  spokSamePubkey,
-} from '../../helpers';
 
 export const SEQUENTIAL_ITEM_SETTINGS: CandyMachineConfigLineSettings = {
   type: 'configLines',

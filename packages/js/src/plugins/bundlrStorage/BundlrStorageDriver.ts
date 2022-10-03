@@ -42,6 +42,7 @@ import {
  * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
  * This method fixes this by ensure there is not double default in the imported package.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _removeDoubleDefault(pkg: any) {
   if (
     pkg &&

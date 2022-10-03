@@ -1,5 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
-import type { Signer } from '@/types';
 import {
   BlockhashWithExpiryBlockHeight,
   ConfirmOptions,
@@ -8,6 +6,8 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../plugins/rpcModule';
+import type { Metaplex } from '@/Metaplex';
+import type { Signer } from '@/types';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -22,16 +22,16 @@ type TransactionOptions = {
 
 export class TransactionBuilder<C extends object = object> {
   /** The list of all instructions and their respective signers. */
-  private records: InstructionWithSigners[] = [];
+  protected records: InstructionWithSigners[] = [];
 
   /** Options used when building the transaction. */
-  private transactionOptions: TransactionOptions;
+  protected transactionOptions: TransactionOptions;
 
   /** The signer to use to pay for transaction fees. */
-  private feePayer: Signer | undefined = undefined;
+  protected feePayer: Signer | undefined = undefined;
 
   /** Any additional context gathered when creating the transaction builder. */
-  private context: C = {} as C;
+  protected context: C = {} as C;
 
   constructor(transactionOptions: TransactionOptions = {}) {
     this.transactionOptions = transactionOptions;

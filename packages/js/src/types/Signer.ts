@@ -50,9 +50,11 @@ export const getSignerHistogram = (signers: Signer[]) =>
 
       if (!duplicate) {
         signers.all.push(signer);
-        signerIsIdentity
-          ? signers.identities.push(signer)
-          : signers.keypairs.push(signer);
+        if (signerIsIdentity) {
+          signers.identities.push(signer);
+        } else {
+          signers.keypairs.push(signer);
+        }
       } else if (duplicateIsIdentity && !signerIsIdentity) {
         // Prefer keypair than identity signer as it requires less user interactions.
         const duplicateIdentitiesIndex = signers.identities.findIndex(

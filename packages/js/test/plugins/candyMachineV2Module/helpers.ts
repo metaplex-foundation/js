@@ -1,3 +1,6 @@
+import { Buffer } from 'buffer';
+import { sha512 } from '@noble/hashes/sha512';
+import { amman } from '../../helpers';
 import {
   CandyMachineV2Item,
   CreateCandyMachineV2Input,
@@ -5,9 +8,6 @@ import {
   sol,
   toBigNumber,
 } from '@/index';
-import { sha512 } from '@noble/hashes/sha512';
-import { Buffer } from 'buffer';
-import { amman } from '../../helpers';
 
 export async function createCandyMachineV2(
   mx: Metaplex,
@@ -15,7 +15,7 @@ export async function createCandyMachineV2(
     items?: CandyMachineV2Item[];
   } = {}
 ) {
-  let { candyMachine, response } = await mx
+  const candyMachineOutput = await mx
     .candyMachinesV2()
     .create({
       price: sol(1),
@@ -24,6 +24,9 @@ export async function createCandyMachineV2(
       ...input,
     })
     .run();
+
+  let { candyMachine } = candyMachineOutput;
+  const { response } = candyMachineOutput;
 
   if (input.items) {
     await mx

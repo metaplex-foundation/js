@@ -82,7 +82,7 @@ const createConfig = (build, options) => {
       ...(bundle ? [json(), nodePolyfills()] : []),
       ...(minified ? [terser()] : []),
     ],
-    onwarn: function (warning, rollupWarn) {
+    onwarn(warning, rollupWarn) {
       rollupWarn(warning);
       if (!bundle && warning.code === 'CIRCULAR_DEPENDENCY') {
         const msg =
