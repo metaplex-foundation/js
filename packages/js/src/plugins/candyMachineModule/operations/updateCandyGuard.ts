@@ -50,6 +50,7 @@ const Key = 'UpdateCandyGuardOperation' as const;
  * @category Constructors
  */
 export const updateCandyGuardOperation = _updateCandyGuardOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _updateCandyGuardOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(input: UpdateCandyGuardInput<T>): UpdateCandyGuardOperation<T> {

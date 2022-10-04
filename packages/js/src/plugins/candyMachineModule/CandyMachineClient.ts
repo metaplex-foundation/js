@@ -78,7 +78,7 @@ import type { Metaplex } from '@/Metaplex';
  * @group Modules
  */
 export class CandyMachineClient {
-  private readonly guardsClient: CandyMachineGuardsClient;
+  protected readonly guardsClient: CandyMachineGuardsClient;
 
   constructor(readonly metaplex: Metaplex) {
     this.guardsClient = new CandyMachineGuardsClient(metaplex);

@@ -27,6 +27,7 @@ const Key = 'FindCandyGuardsByAuthorityOperation' as const;
  */
 export const findCandyGuardsByAuthorityOperation =
   _findCandyGuardsByAuthorityOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _findCandyGuardsByAuthorityOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(

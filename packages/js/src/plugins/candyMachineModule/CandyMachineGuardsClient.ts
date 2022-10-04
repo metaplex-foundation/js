@@ -213,7 +213,7 @@ export class CandyMachineGuardsClient {
     }
 
     const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
-      Object.entries(activeGroup.guards).filter(([_, v]) => v != null)
+      Object.entries(activeGroup.guards).filter(([, v]) => v != null)
     ) as Partial<T>;
 
     return {

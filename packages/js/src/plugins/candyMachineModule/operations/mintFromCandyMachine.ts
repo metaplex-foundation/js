@@ -51,6 +51,7 @@ const Key = 'MintFromCandyMachineOperation' as const;
  * @category Constructors
  */
 export const mintFromCandyMachineOperation = _mintFromCandyMachineOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _mintFromCandyMachineOperation<
   Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
   MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings

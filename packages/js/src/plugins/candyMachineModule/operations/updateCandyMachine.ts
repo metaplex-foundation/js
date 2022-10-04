@@ -34,7 +34,6 @@ import {
 } from '@/types';
 import {
   assertObjectHasDefinedKeys,
-  DisposableScope,
   removeUndefinedAttributes,
   TransactionBuilder,
 } from '@/utils';
@@ -63,6 +62,7 @@ const Key = 'UpdateCandyMachineOperation' as const;
  * @category Constructors
  */
 export const updateCandyMachineOperation = _updateCandyMachineOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _updateCandyMachineOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(input: UpdateCandyMachineInput<T>): UpdateCandyMachineOperation<T> {
@@ -311,8 +311,7 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
   {
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: UpdateCandyMachineOperation<T>,
-      metaplex: Metaplex,
-      scope: DisposableScope
+      metaplex: Metaplex
     ): Promise<UpdateCandyMachineOutput> {
       const builder = updateCandyMachineBuilder(metaplex, operation.input);
 
