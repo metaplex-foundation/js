@@ -239,6 +239,7 @@ export const createTokenWithMintBuilder = async (
   params: CreateTokenWithMintBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     decimals = 0,
     initialSupply,

@@ -254,6 +254,7 @@ export const createAuctionHouseBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const canChangeSalePrice = params.canChangeSalePrice ?? false;
   const requiresSignOff = params.requiresSignOff ?? canChangeSalePrice;
 

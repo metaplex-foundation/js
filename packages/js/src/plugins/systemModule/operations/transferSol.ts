@@ -146,6 +146,7 @@ export const transferSolBuilder = (
   params: TransferSolBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     from = metaplex.identity(),
     to,

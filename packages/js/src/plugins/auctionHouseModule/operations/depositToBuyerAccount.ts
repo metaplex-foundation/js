@@ -179,6 +179,7 @@ export const depositToBuyerAccountBuilder = (
   params: DepositToBuyerAccountBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   // Data.
   const {
     auctionHouse,

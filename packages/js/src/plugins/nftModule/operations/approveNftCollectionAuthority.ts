@@ -144,6 +144,7 @@ export const approveNftCollectionAuthorityBuilder = (
   params: ApproveNftCollectionAuthorityBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     collectionAuthority,

@@ -140,6 +140,7 @@ export const deleteNftBuilder = (
   params: DeleteNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     owner = metaplex.identity(),

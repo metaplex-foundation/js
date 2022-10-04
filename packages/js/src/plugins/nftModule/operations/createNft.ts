@@ -395,6 +395,7 @@ export const createNftBuilder = async (
   params: CreateNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     useNewMint = Keypair.generate(),
     payer = metaplex.identity(),

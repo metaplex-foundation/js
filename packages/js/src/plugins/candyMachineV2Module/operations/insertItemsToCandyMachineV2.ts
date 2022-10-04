@@ -159,6 +159,7 @@ export const insertItemsToCandyMachineV2Builder = (
   params: InsertItemsToCandyMachineV2BuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const { items } = params;

@@ -125,6 +125,7 @@ export const deleteCandyMachineV2Builder = (
   params: DeleteCandyMachineV2BuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const { candyMachine } = params;
 

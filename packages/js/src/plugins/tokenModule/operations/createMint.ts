@@ -186,6 +186,7 @@ export const createMintBuilder = async (
   params: CreateMintBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateMintBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     decimals = 0,
     mint = Keypair.generate(),

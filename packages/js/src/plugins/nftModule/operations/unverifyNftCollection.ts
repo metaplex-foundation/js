@@ -161,6 +161,7 @@ export const unverifyNftCollectionBuilder = (
   params: UnverifyNftCollectionBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     collectionMintAddress,

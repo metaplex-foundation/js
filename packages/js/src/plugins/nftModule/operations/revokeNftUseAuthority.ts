@@ -138,6 +138,7 @@ export const revokeNftUseAuthorityBuilder = (
   params: RevokeNftUseAuthorityBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { mintAddress, user, owner = metaplex.identity(), programs } = params;
 
   // Programs.

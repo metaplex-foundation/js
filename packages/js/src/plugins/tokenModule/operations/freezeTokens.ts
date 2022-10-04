@@ -143,6 +143,7 @@ export const freezeTokensBuilder = (
   params: FreezeTokensBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     tokenOwner = metaplex.identity().publicKey,

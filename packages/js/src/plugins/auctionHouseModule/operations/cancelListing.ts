@@ -153,6 +153,7 @@ export const cancelListingBuilder = (
   params: CancelListingBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelListingBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse, auctioneerAuthority, listing } = params;
 
   // Data.

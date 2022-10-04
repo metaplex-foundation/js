@@ -181,6 +181,7 @@ export const createTokenBuilder = async (
   params: CreateTokenBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mint,
     owner = metaplex.identity().publicKey,
@@ -301,6 +302,7 @@ export const createTokenIfMissingBuilder = async (
   params: CreateTokenIfMissingBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mint,
     owner = metaplex.identity().publicKey,

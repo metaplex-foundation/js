@@ -271,6 +271,7 @@ export const updateCandyMachineV2Builder = (
   params: UpdateCandyMachineV2BuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyMachine,
     authority = metaplex.identity(),

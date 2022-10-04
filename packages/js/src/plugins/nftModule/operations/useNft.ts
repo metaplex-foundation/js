@@ -148,6 +148,7 @@ export const useNftBuilder = (
   params: UseNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     numberOfUses = 1,

@@ -143,6 +143,7 @@ export const thawTokensBuilder = (
   params: ThawTokensBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     tokenOwner = metaplex.identity().publicKey,

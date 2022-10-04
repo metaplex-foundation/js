@@ -261,6 +261,7 @@ export const updateNftBuilder = (
   params: UpdateNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { nftOrSft, updateAuthority = metaplex.identity(), programs } = params;
 
   // Programs.

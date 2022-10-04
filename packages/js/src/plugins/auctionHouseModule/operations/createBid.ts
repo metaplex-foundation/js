@@ -311,6 +311,7 @@ export const createBidBuilder = async (
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse } = params;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;

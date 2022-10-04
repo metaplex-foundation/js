@@ -294,6 +294,7 @@ export const executeSaleBuilder = (
   params: ExecuteSaleBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
   const { sellerAddress, asset } = listing;
   const { buyerAddress } = bid;

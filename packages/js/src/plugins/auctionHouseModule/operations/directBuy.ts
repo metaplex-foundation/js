@@ -194,6 +194,7 @@ export const directBuyBuilder = async (
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<DirectBuyBuilderContext>> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     auctioneerAuthority,

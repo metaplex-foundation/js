@@ -318,6 +318,7 @@ export const createListingBuilder = (
   params: CreateListingBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateListingBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     auctioneerAuthority,

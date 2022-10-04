@@ -142,6 +142,7 @@ export const freezeDelegatedNftBuilder = (
   params: FreezeDelegatedNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     delegateAuthority,

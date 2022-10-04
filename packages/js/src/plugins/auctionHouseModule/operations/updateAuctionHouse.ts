@@ -241,6 +241,7 @@ export const updateAuctionHouseBuilder = (
   params: UpdateAuctionHouseBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();
   const { auctionHouse } = params;

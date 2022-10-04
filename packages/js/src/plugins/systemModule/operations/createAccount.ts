@@ -159,6 +159,7 @@ export const createAccountBuilder = async (
   params: CreateAccountBuilderParams,
   options: TransactionBuilderOptions
 ): Promise<TransactionBuilder<CreateAccountBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     space,
     payer = metaplex.identity(),

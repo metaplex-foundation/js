@@ -183,6 +183,7 @@ export const withdrawFromBuyerAccountBuilder = (
   params: WithdrawFromBuyerAccountBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromBuyerAccountBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     auctioneerAuthority,

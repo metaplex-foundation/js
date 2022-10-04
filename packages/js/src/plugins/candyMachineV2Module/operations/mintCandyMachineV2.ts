@@ -296,6 +296,7 @@ export const mintCandyMachineV2Builder = async (
   metaplex: Metaplex,
   params: MintCandyMachineV2BuilderParams
 ): Promise<TransactionBuilder<MintCandyMachineV2BuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyMachine,
     payer = metaplex.identity(),

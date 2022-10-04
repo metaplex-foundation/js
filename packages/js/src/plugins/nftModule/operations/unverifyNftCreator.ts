@@ -126,6 +126,7 @@ export const unverifyNftCreatorBuilder = (
   params: UnverifyNftCreatorBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { mintAddress, creator = metaplex.identity(), programs } = params;
 
   // Programs.

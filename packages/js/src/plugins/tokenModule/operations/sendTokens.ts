@@ -243,6 +243,7 @@ export const sendTokensBuilder = async (
   params: SendTokensBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     amount,

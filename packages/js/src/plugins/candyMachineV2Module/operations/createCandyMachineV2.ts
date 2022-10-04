@@ -240,6 +240,7 @@ export const createCandyMachineV2Builder = async (
   params: CreateCandyMachineV2BuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateCandyMachineV2BuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const candyMachine = params.candyMachine ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity();

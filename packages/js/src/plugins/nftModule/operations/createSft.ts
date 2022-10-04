@@ -425,6 +425,7 @@ export const createSftBuilder = async (
   params: CreateSftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateSftBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     payer = metaplex.identity(),
     useNewMint = Keypair.generate(),

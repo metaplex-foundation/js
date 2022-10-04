@@ -271,6 +271,7 @@ export const printNewEditionBuilder = async (
   params: PrintNewEditionBuilderParams,
   options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     originalMint,
     newMint = Keypair.generate(),
