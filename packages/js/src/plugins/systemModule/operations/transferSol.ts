@@ -10,7 +10,7 @@ import {
   SolAmount,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { TransactionBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -102,8 +102,7 @@ export const transferSolOperationHandler: OperationHandler<TransferSolOperation>
   {
     async handle(
       operation: TransferSolOperation,
-      metaplex: Metaplex,
-      scope: DisposableScope
+      metaplex: Metaplex
     ): Promise<TransferSolOutput> {
       const builder = transferSolBuilder(metaplex, operation.input);
       return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);

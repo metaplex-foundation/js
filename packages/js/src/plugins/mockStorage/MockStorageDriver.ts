@@ -11,7 +11,7 @@ export type MockStorageOptions = {
 };
 
 export class MockStorageDriver implements StorageDriver {
-  private cache: Record<string, MetaplexFile> = {};
+  protected cache: Record<string, MetaplexFile> = {};
   public readonly baseUrl: string;
   public readonly costPerByte: BigNumber;
 
