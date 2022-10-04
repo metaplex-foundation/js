@@ -68,7 +68,7 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
     handle: async (
       operation: FindNftsByUpdateAuthorityOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByUpdateAuthorityOutput> => {
       const { updateAuthority, commitment, programs } = operation.input;
 

@@ -8,7 +8,7 @@ import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
 import { findMetadataPda } from '../pdas';
-import { Option, TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
   Operation,
@@ -258,7 +258,8 @@ export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
  */
 export const updateNftBuilder = (
   metaplex: Metaplex,
-  params: UpdateNftBuilderParams
+  params: UpdateNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { nftOrSft, updateAuthority = metaplex.identity(), programs } = params;
 

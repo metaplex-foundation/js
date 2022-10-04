@@ -11,7 +11,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -141,7 +141,8 @@ export type RevokeTokenDelegateAuthorityBuilderParams = Omit<
  */
 export const revokeTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
-  params: RevokeTokenDelegateAuthorityBuilderParams
+  params: RevokeTokenDelegateAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

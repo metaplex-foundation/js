@@ -18,7 +18,7 @@ import {
   isSigner,
   Pda,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -150,7 +150,8 @@ export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
  * @category Constructors
  */
 export const cancelListingBuilder = (
-  params: CancelListingBuilderParams
+  params: CancelListingBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelListingBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, listing } = params;
 

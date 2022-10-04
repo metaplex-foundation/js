@@ -68,7 +68,7 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
     handle: async (
       operation: FindNftsByMintListOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByMintListOutput> => {
       const { mints, commitment } = operation.input;
       const metadataPdas = mints.map((mint) => findMetadataPda(mint));

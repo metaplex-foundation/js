@@ -16,7 +16,11 @@ import { TreasuryDestinationOwnerRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { NoInstructionsToSendError } from '@/errors';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import { useOperation, Operation, Signer, OperationHandler } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -173,7 +177,7 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
     async handle(
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) {
       const { auctionHouse, auctioneerAuthority, confirmOptions } =
         operation.input;
@@ -234,7 +238,8 @@ export type UpdateAuctionHouseBuilderParams = Omit<
  */
 export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
-  params: UpdateAuctionHouseBuilderParams
+  params: UpdateAuctionHouseBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const payer = params.payer ?? metaplex.identity();

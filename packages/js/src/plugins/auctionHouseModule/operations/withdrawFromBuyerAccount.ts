@@ -21,7 +21,7 @@ import {
   SplTokenAmount,
   SolAmount,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -180,7 +180,8 @@ export type WithdrawFromBuyerAccountBuilderContext = Omit<
  */
 export const withdrawFromBuyerAccountBuilder = (
   metaplex: Metaplex,
-  params: WithdrawFromBuyerAccountBuilderParams
+  params: WithdrawFromBuyerAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromBuyerAccountBuilderContext> => {
   const {
     auctionHouse,

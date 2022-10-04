@@ -2,7 +2,7 @@ import { createRemoveCreatorVerificationInstruction } from '@metaplex-foundation
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -123,7 +123,8 @@ export type UnverifyNftCreatorBuilderParams = Omit<
  */
 export const unverifyNftCreatorBuilder = (
   metaplex: Metaplex,
-  params: UnverifyNftCreatorBuilderParams
+  params: UnverifyNftCreatorBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { mintAddress, creator = metaplex.identity(), programs } = params;
 

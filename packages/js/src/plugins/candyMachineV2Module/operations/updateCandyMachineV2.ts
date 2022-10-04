@@ -20,7 +20,7 @@ import {
   toCandyMachineV2InstructionData,
 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { Option, TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
@@ -268,7 +268,8 @@ export type UpdateCandyMachineV2BuilderParams = {
  */
 export const updateCandyMachineV2Builder = (
   metaplex: Metaplex,
-  params: UpdateCandyMachineV2BuilderParams
+  params: UpdateCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     candyMachine,

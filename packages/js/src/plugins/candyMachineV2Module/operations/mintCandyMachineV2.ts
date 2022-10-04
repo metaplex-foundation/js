@@ -194,7 +194,7 @@ export const mintCandyMachineV2OperationHandler: OperationHandler<MintCandyMachi
     async handle(
       operation: MintCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<MintCandyMachineV2Output> {
       assertCanMintCandyMachineV2(
         operation.input.candyMachine,

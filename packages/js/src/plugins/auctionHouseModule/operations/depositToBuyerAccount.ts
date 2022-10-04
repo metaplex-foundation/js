@@ -19,7 +19,7 @@ import {
   SolAmount,
   SplTokenAmount,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -176,7 +176,8 @@ export type DepositToBuyerAccountBuilderContext = Omit<
  */
 export const depositToBuyerAccountBuilder = (
   metaplex: Metaplex,
-  params: DepositToBuyerAccountBuilderParams
+  params: DepositToBuyerAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
   // Data.
   const {

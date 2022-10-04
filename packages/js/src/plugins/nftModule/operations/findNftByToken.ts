@@ -74,7 +74,7 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
     handle: async (
       operation: FindNftByTokenOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByTokenOutput> => {
       const token = toTokenAccount(
         await metaplex.rpc().getAccount(operation.input.token)

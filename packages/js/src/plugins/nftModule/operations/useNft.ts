@@ -17,7 +17,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -145,7 +145,8 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
  */
 export const useNftBuilder = (
   metaplex: Metaplex,
-  params: UseNftBuilderParams
+  params: UseNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

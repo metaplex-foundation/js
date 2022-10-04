@@ -74,7 +74,7 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
     handle: async (
       operation: UploadMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<UploadMetadataOutput> => {
       const rawMetadata = operation.input;
       const files = getAssetsFromJsonMetadata(rawMetadata);

@@ -6,7 +6,12 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, Sft, SftWithToken } from '../models';
 import { findMetadataPda } from '../pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   Creator,
   CreatorInput,
@@ -298,7 +303,7 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
   handle: async (
     operation: CreateSftOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ) => {
     const {
       useNewMint = Keypair.generate(),
@@ -417,7 +422,8 @@ export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
  */
 export const createSftBuilder = async (
   metaplex: Metaplex,
-  params: CreateSftBuilderParams
+  params: CreateSftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateSftBuilderContext>> => {
   const {
     payer = metaplex.identity(),

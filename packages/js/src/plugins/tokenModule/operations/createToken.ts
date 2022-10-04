@@ -17,7 +17,11 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 
 // -----------------
 // Operation
@@ -111,7 +115,7 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
     async handle(
       operation: CreateTokenOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateTokenOutput> {
       const builder = await createTokenBuilder(metaplex, operation.input);
       scope.throwIfCanceled();
@@ -174,7 +178,8 @@ export type CreateTokenBuilderContext = {
  */
 export const createTokenBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenBuilderParams
+  params: CreateTokenBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {
     mint,
@@ -293,7 +298,8 @@ export type CreateTokenIfMissingBuilderParams = Omit<
  */
 export const createTokenIfMissingBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenIfMissingBuilderParams
+  params: CreateTokenIfMissingBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
   const {
     mint,

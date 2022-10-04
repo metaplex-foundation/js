@@ -68,7 +68,7 @@ export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTrad
     handle: async (
       operation: FindBidByTradeStateOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { tradeStateAddress } = operation.input;
 

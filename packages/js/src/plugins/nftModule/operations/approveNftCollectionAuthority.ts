@@ -2,7 +2,7 @@ import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundatio
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -141,7 +141,8 @@ export type ApproveNftCollectionAuthorityBuilderParams = Omit<
  */
 export const approveNftCollectionAuthorityBuilder = (
   metaplex: Metaplex,
-  params: ApproveNftCollectionAuthorityBuilderParams
+  params: ApproveNftCollectionAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

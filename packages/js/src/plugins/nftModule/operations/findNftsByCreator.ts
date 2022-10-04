@@ -84,7 +84,7 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
     handle: async (
       operation: FindNftsByCreatorOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByCreatorOutput> => {
       const { creator, position = 1, commitment, programs } = operation.input;
 

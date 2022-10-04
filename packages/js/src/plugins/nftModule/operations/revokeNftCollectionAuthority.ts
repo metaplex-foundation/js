@@ -2,7 +2,7 @@ import { createRevokeCollectionAuthorityInstruction } from '@metaplex-foundation
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -127,7 +127,8 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
  */
 export const revokeNftCollectionAuthorityBuilder = (
   metaplex: Metaplex,
-  params: RevokeNftCollectionAuthorityBuilderParams
+  params: RevokeNftCollectionAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

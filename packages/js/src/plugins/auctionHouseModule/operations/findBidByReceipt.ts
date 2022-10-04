@@ -72,7 +72,7 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
     handle: async (
       operation: FindBidByReceiptOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { receiptAddress, auctionHouse, commitment } = operation.input;
 

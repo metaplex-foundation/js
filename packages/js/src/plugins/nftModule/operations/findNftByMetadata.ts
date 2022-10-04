@@ -100,7 +100,7 @@ export const findNftByMetadataOperationHandler: OperationHandler<FindNftByMetada
     handle: async (
       operation: FindNftByMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByMetadataOutput> => {
       const metadata = toMetadataAccount(
         await metaplex.rpc().getAccount(operation.input.metadata)

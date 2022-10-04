@@ -13,7 +13,11 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 
 // -----------------
 // Operation
@@ -130,7 +134,7 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
     async handle(
       operation: MintTokensOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<MintTokensOutput> {
       const {
         mintAddress,
@@ -214,7 +218,8 @@ export type MintTokensBuilderParams = Omit<
  */
 export const mintTokensBuilder = async (
   metaplex: Metaplex,
-  params: MintTokensBuilderParams
+  params: MintTokensBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder> => {
   const {
     mintAddress,

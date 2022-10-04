@@ -11,7 +11,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -140,7 +140,8 @@ export type ThawTokensBuilderParams = Omit<
  */
 export const thawTokensBuilder = (
   metaplex: Metaplex,
-  params: ThawTokensBuilderParams
+  params: ThawTokensBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

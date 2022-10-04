@@ -6,7 +6,12 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
 import { findMasterEditionV2Pda } from '../pdas';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   BigNumber,
   CreatorInput,
@@ -273,7 +278,7 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
   handle: async (
     operation: CreateNftOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ) => {
     const {
       useNewMint = Keypair.generate(),
@@ -387,7 +392,8 @@ export type CreateNftBuilderContext = Omit<CreateNftOutput, 'response' | 'nft'>;
  */
 export const createNftBuilder = async (
   metaplex: Metaplex,
-  params: CreateNftBuilderParams
+  params: CreateNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateNftBuilderContext>> => {
   const {
     useNewMint = Keypair.generate(),

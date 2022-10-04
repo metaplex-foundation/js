@@ -9,7 +9,7 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -158,7 +158,8 @@ export type VerifyNftCollectionBuilderParams = Omit<
  */
 export const verifyNftCollectionBuilder = (
   metaplex: Metaplex,
-  params: VerifyNftCollectionBuilderParams
+  params: VerifyNftCollectionBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

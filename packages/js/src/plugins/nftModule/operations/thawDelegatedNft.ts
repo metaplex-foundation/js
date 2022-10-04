@@ -2,7 +2,7 @@ import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMasterEditionV2Pda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -139,7 +139,8 @@ export type ThawDelegatedNftBuilderParams = Omit<
  */
 export const thawDelegatedNftBuilder = (
   metaplex: Metaplex,
-  params: ThawDelegatedNftBuilderParams
+  params: ThawDelegatedNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

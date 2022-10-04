@@ -68,7 +68,7 @@ export const findListingByTradeStateOperationHandler: OperationHandler<FindListi
     handle: async (
       operation: FindListingByTradeStateOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { tradeStateAddress } = operation.input;
 

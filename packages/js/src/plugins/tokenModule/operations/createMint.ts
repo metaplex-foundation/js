@@ -2,7 +2,12 @@ import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -118,7 +123,7 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
     async handle(
       operation: CreateMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateMintOutput> {
       const builder = await createMintBuilder(metaplex, operation.input);
       scope.throwIfCanceled();
@@ -178,7 +183,8 @@ export type CreateMintBuilderContext = Omit<
  */
 export const createMintBuilder = async (
   metaplex: Metaplex,
-  params: CreateMintBuilderParams
+  params: CreateMintBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateMintBuilderContext>> => {
   const {
     decimals = 0,

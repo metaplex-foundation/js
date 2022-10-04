@@ -6,7 +6,7 @@ import {
   findProgramAsBurnerPda,
   findUseAuthorityRecordPda,
 } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -156,7 +156,8 @@ export type ApproveNftUseAuthorityBuilderParams = Omit<
  */
 export const approveNftUseAuthorityBuilder = (
   metaplex: Metaplex,
-  params: ApproveNftUseAuthorityBuilderParams
+  params: ApproveNftUseAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

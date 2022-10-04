@@ -43,7 +43,12 @@ import {
   now,
   amount,
 } from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import {
+  TransactionBuilder,
+  Option,
+  DisposableScope,
+  TransactionBuilderOptions,
+} from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -210,7 +215,7 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
     async handle(
       operation: ExecuteSaleOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<ExecuteSaleOutput> {
       const { auctionHouse } = operation.input;
 
@@ -286,7 +291,8 @@ export type ExecuteSaleBuilderContext = Omit<
  */
 export const executeSaleBuilder = (
   metaplex: Metaplex,
-  params: ExecuteSaleBuilderParams
+  params: ExecuteSaleBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
   const { sellerAddress, asset } = listing;

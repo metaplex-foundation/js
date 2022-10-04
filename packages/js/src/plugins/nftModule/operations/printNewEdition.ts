@@ -13,7 +13,11 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../pdas';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   BigNumber,
   Operation,
@@ -167,7 +171,7 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
     handle: async (
       operation: PrintNewEditionOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const originalEditionAccount = await metaplex
         .rpc()
@@ -264,7 +268,8 @@ export type PrintNewEditionBuilderContext = Omit<
  */
 export const printNewEditionBuilder = async (
   metaplex: Metaplex,
-  params: PrintNewEditionBuilderParams
+  params: PrintNewEditionBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
   const {
     originalMint,

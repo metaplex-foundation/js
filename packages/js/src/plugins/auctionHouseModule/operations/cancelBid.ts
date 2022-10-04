@@ -19,7 +19,7 @@ import {
   toPublicKey,
   Pda,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
 
@@ -156,7 +156,8 @@ export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
  * @category Constructors
  */
 export const cancelBidBuilder = (
-  params: CancelBidBuilderParams
+  params: CancelBidBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelBidBuilderContext> => {
   const { auctionHouse, auctioneerAuthority, bid } = params;
 

@@ -2,7 +2,7 @@ import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mp
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMasterEditionV2Pda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -139,7 +139,8 @@ export type FreezeDelegatedNftBuilderParams = Omit<
  */
 export const freezeDelegatedNftBuilder = (
   metaplex: Metaplex,
-  params: FreezeDelegatedNftBuilderParams
+  params: FreezeDelegatedNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

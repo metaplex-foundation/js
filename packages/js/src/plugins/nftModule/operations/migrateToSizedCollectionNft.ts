@@ -2,7 +2,7 @@ import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-tok
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   Operation,
@@ -147,7 +147,8 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
  */
 export const migrateToSizedCollectionNftBuilder = (
   metaplex: Metaplex,
-  params: MigrateToSizedCollectionNftBuilderParams
+  params: MigrateToSizedCollectionNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

@@ -71,7 +71,7 @@ export const findPurchaseByTradeStateOperationHandler: OperationHandler<FindPurc
     handle: async (
       operation: FindPurchaseByTradeStateOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { sellerTradeState, buyerTradeState } = operation.input;
 

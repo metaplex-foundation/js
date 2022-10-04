@@ -71,7 +71,7 @@ export const findMintedNftsByCandyMachineV2OperationHandler: OperationHandler<Fi
     handle: async (
       operation: FindMintedNftsByCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { candyMachine, version = 2, commitment } = operation.input;
       const firstCreator =

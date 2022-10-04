@@ -64,7 +64,7 @@ export const loadListingOperationHandler: OperationHandler<LoadListingOperation>
     handle: async (
       operation: LoadListingOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const {
         lazyListing,

@@ -68,7 +68,7 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
     handle: async (
       operation: FindAuctionHouseByAddressOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { address, auctioneerAuthority, commitment } = operation.input;
       const auctioneerPda = auctioneerAuthority

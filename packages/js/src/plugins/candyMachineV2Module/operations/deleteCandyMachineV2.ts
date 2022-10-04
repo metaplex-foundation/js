@@ -3,7 +3,7 @@ import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import { Operation, OperationHandler, Signer, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
 
@@ -122,7 +122,8 @@ export type DeleteCandyMachineV2BuilderParams = Omit<
  */
 export const deleteCandyMachineV2Builder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineV2BuilderParams
+  params: DeleteCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const { candyMachine } = params;

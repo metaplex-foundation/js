@@ -18,7 +18,11 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { AuctionHouse } from '../models/AuctionHouse';
 import { ExpectedSignerError } from '@/errors';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   useOperation,
   Operation,
@@ -188,7 +192,7 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
     async handle(
       operation: CreateAuctionHouseOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateAuctionHouseOutput> {
       const output = await createAuctionHouseBuilder(
         metaplex,
@@ -246,7 +250,8 @@ export type CreateAuctionHouseBuilderContext = Omit<
  */
 export const createAuctionHouseBuilder = (
   metaplex: Metaplex,
-  params: CreateAuctionHouseBuilderParams
+  params: CreateAuctionHouseBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateAuctionHouseBuilderContext> => {
   // Data.
   const canChangeSalePrice = params.canChangeSalePrice ?? false;

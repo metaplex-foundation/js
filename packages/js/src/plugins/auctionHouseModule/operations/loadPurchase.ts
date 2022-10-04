@@ -64,7 +64,7 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
     handle: async (
       operation: LoadPurchaseOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const {
         lazyPurchase,

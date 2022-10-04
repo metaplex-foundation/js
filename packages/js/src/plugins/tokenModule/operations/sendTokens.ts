@@ -13,7 +13,11 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 
 // -----------------
 // Operation
@@ -152,7 +156,7 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
     async handle(
       operation: SendTokensOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<SendTokensOutput> {
       const {
         mintAddress,
@@ -236,7 +240,8 @@ export type SendTokensBuilderParams = Omit<
  */
 export const sendTokensBuilder = async (
   metaplex: Metaplex,
-  params: SendTokensBuilderParams
+  params: SendTokensBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder> => {
   const {
     mintAddress,

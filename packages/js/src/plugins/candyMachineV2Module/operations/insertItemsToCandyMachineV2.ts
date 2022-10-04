@@ -7,7 +7,7 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachineV2, CandyMachineV2Item } from '../models';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   Operation,
@@ -156,7 +156,8 @@ export type InsertItemsToCandyMachineV2BuilderParams = Omit<
  */
 export const insertItemsToCandyMachineV2Builder = (
   metaplex: Metaplex,
-  params: InsertItemsToCandyMachineV2BuilderParams
+  params: InsertItemsToCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;

@@ -15,7 +15,7 @@ import {
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   now,
   Operation,
@@ -218,7 +218,8 @@ export type DirectSellBuilderContext = Omit<DirectSellOutput, 'response'>;
  */
 export const directSellBuilder = async (
   metaplex: Metaplex,
-  params: DirectSellBuilderParams
+  params: DirectSellBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<DirectSellBuilderContext>> => {
   // Data.
   const {

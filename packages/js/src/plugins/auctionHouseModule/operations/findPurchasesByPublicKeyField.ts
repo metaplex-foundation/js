@@ -98,7 +98,7 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
     handle: async (
       operation: FindPurchasesByPublicKeyFieldOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindPurchasesByPublicKeyFieldOutput> => {
       const { auctionHouse, type, publicKey, commitment } = operation.input;
       const accounts = AuctionHouseProgram.purchaseAccounts(

@@ -2,7 +2,7 @@ import { createBurnNftInstruction } from '@metaplex-foundation/mpl-token-metadat
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -137,7 +137,8 @@ export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
  */
 export const deleteNftBuilder = (
   metaplex: Metaplex,
-  params: DeleteNftBuilderParams
+  params: DeleteNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     mintAddress,

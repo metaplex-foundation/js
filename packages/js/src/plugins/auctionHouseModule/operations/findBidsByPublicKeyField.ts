@@ -87,7 +87,7 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
     handle: async (
       operation: FindBidsByPublicKeyFieldOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindBidsByPublicKeyFieldOutput> => {
       const { auctionHouse, type, publicKey, commitment } = operation.input;
       const accounts = AuctionHouseProgram.bidAccounts(metaplex).mergeConfig({

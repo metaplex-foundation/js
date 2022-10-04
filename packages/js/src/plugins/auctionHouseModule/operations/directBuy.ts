@@ -15,7 +15,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -190,7 +190,8 @@ export type DirectBuyBuilderContext = Omit<DirectBuyOutput, 'response'>;
  */
 export const directBuyBuilder = async (
   metaplex: Metaplex,
-  params: DirectBuyBuilderParams
+  params: DirectBuyBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<DirectBuyBuilderContext>> => {
   // Data.
   const {

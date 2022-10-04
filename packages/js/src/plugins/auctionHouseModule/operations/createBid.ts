@@ -37,7 +37,12 @@ import {
   Pda,
   now,
 } from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import {
+  TransactionBuilder,
+  Option,
+  DisposableScope,
+  TransactionBuilderOptions,
+} from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -217,7 +222,7 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
     operation: CreateBidOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ): Promise<CreateBidOutput> {
     const { auctionHouse, confirmOptions } = operation.input;
 
@@ -302,7 +307,8 @@ export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response' | 'bid'>;
  */
 export const createBidBuilder = async (
   metaplex: Metaplex,
-  params: CreateBidBuilderParams
+  params: CreateBidBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
   const { auctionHouse } = params;

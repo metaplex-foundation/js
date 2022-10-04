@@ -83,7 +83,7 @@ export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandl
     handle: async (
       operation: FindCandyMachinesV2ByPublicKeyFieldOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CandyMachineV2[]> => {
       const { type, publicKey, commitment } = operation.input;
       const accounts = CandyMachineV2Program.accounts(metaplex).mergeConfig({

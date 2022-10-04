@@ -78,7 +78,7 @@ export class OperationClient {
 
   protected getOperationScope(
     options: OperationOptions,
-    scope: DisposableScope
+    scope: OperationScope
   ): OperationScope {
     if (!!options.commitment && !options.confirmOptions) {
       options.confirmOptions = { commitment: options.commitment };

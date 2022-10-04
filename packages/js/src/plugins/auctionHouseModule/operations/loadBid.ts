@@ -59,7 +59,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   handle: async (
     operation: LoadBidOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ) => {
     const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
 

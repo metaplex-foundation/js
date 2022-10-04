@@ -121,7 +121,7 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
     handle: async (
       operation: FindNftByMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByMintOutput> => {
       const {
         mintAddress,

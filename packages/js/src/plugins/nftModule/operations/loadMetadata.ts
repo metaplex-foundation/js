@@ -98,7 +98,7 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
     handle: async (
       operation: LoadMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<LoadMetadataOutput> => {
       const { metadata, loadJsonMetadata = true } = operation.input;
 

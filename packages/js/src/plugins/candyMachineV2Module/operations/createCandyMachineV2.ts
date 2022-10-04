@@ -24,6 +24,7 @@ import {
   Option,
   RequiredKeys,
   TransactionBuilder,
+  TransactionBuilderOptions,
 } from '@/utils';
 import {
   assertSameCurrencies,
@@ -163,7 +164,7 @@ export const createCandyMachineV2OperationHandler: OperationHandler<CreateCandyM
     async handle(
       operation: CreateCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateCandyMachineV2Output> {
       const builder = await createCandyMachineV2Builder(
         metaplex,
@@ -236,7 +237,8 @@ export type CreateCandyMachineV2BuilderContext = Omit<
  */
 export const createCandyMachineV2Builder = async (
   metaplex: Metaplex,
-  params: CreateCandyMachineV2BuilderParams
+  params: CreateCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateCandyMachineV2BuilderContext>> => {
   const candyMachine = params.candyMachine ?? Keypair.generate();
   const payer: Signer = params.payer ?? metaplex.identity();

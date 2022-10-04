@@ -23,7 +23,12 @@ import {
   AuctioneerAuthorityRequiredError,
   CreateListingRequiresSignerError,
 } from '../errors';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
+import {
+  TransactionBuilder,
+  Option,
+  DisposableScope,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   useOperation,
   Operation,
@@ -222,7 +227,7 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
     async handle(
       operation: CreateListingOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateListingOutput> {
       const { auctionHouse, confirmOptions } = operation.input;
 
@@ -310,7 +315,8 @@ export type CreateListingBuilderContext = Omit<
  */
 export const createListingBuilder = (
   metaplex: Metaplex,
-  params: CreateListingBuilderParams
+  params: CreateListingBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateListingBuilderContext> => {
   const {
     auctionHouse,

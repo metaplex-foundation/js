@@ -2,7 +2,12 @@ import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
 import { TokenWithMint } from '../models/Token';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import {
+  DisposableScope,
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 import {
   isSigner,
   Operation,
@@ -149,7 +154,7 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
     async handle(
       operation: CreateTokenWithMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateTokenWithMintOutput> {
       const builder = await createTokenWithMintBuilder(
         metaplex,
@@ -231,7 +236,8 @@ export type CreateTokenWithMintBuilderContext = {
  */
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenWithMintBuilderParams
+  params: CreateTokenWithMintBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
   const {
     decimals = 0,

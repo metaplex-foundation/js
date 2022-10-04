@@ -6,7 +6,7 @@ import {
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
 import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   useOperation,
   Operation,
@@ -155,7 +155,8 @@ export type WithdrawFromFeeAccountBuilderContext = Omit<
  */
 export const withdrawFromFeeAccountBuilder = (
   metaplex: Metaplex,
-  params: WithdrawFromFeeAccountBuilderParams
+  params: WithdrawFromFeeAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromFeeAccountBuilderContext> => {
   // Data.
   const {

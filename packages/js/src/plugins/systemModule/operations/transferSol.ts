@@ -10,7 +10,7 @@ import {
   SolAmount,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -143,7 +143,8 @@ export type TransferSolBuilderParams = Omit<
  */
 export const transferSolBuilder = (
   metaplex: Metaplex,
-  params: TransferSolBuilderParams
+  params: TransferSolBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const {
     from = metaplex.identity(),
