@@ -1,11 +1,11 @@
 import { Buffer } from 'buffer';
-import nacl from 'tweetnacl';
+import { sha512 } from '@noble/hashes/sha512';
 import { amman } from '../../helpers';
 import {
-  Metaplex,
-  CreateCandyMachineV2Input,
-  sol,
   CandyMachineV2Item,
+  CreateCandyMachineV2Input,
+  Metaplex,
+  sol,
   toBigNumber,
 } from '@/index';
 
@@ -15,7 +15,7 @@ export async function createCandyMachineV2(
     items?: CandyMachineV2Item[];
   } = {}
 ) {
-  let { candyMachine, response } = await mx
+  const candyMachineOutput = await mx
     .candyMachinesV2()
     .create({
       price: sol(1),
@@ -24,6 +24,9 @@ export async function createCandyMachineV2(
       ...input,
     })
     .run();
+
+  let { candyMachine } = candyMachineOutput;
+  const { response } = candyMachineOutput;
 
   if (input.items) {
     await mx
@@ -59,7 +62,7 @@ export function create32BitsHashString(
   input: Buffer | string,
   slice = 32
 ): string {
-  const hash = nacl.hash(Buffer.from(input)).slice(0, slice / 2);
+  const hash = sha512(input).slice(0, slice / 2);
 
   return Buffer.from(hash).toString('hex');
 }

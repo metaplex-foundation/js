@@ -1,4 +1,3 @@
-import { AbortSignal } from 'abort-controller';
 import EventEmitterPackage from 'eventemitter3';
 import type EventEmitter from 'eventemitter3';
 

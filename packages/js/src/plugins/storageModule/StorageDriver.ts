@@ -1,4 +1,4 @@
-import { AbortSignal } from 'abort-controller';
+import { RequestInit } from 'node-fetch';
 import { MetaplexFile } from './MetaplexFile';
 import { Amount } from '@/types';
 
@@ -12,6 +12,4 @@ export type StorageDriver = {
   ) => Promise<MetaplexFile>;
 };
 
-export type StorageDownloadOptions = Omit<RequestInit, 'signal'> & {
-  signal?: AbortSignal | null;
-};
+export type StorageDownloadOptions = RequestInit;

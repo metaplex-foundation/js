@@ -2,8 +2,10 @@ import { Buffer } from 'buffer';
 import {
   AccountInfo,
   Blockhash,
+  BlockhashWithExpiryBlockHeight,
   Commitment,
   ConfirmOptions,
+  GetLatestBlockhashConfig,
   GetProgramAccountsConfig,
   PublicKey,
   RpcResponseAndContext,
@@ -12,19 +14,6 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import {
-  getSignerHistogram,
-  Signer,
-  UnparsedAccount,
-  UnparsedMaybeAccount,
-  isErrorWithLogs,
-  Program,
-  lamports,
-  assertSol,
-  SolAmount,
-} from '@/types';
-import { TransactionBuilder, zipMap } from '@/utils';
 import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
@@ -33,51 +22,101 @@ import {
   ParsedProgramError,
   UnknownProgramError,
 } from '@/errors';
+import type { Metaplex } from '@/Metaplex';
+import {
+  assertSol,
+  getSignerHistogram,
+  isErrorWithLogs,
+  lamports,
+  Program,
+  Signer,
+  SolAmount,
+  UnparsedAccount,
+  UnparsedMaybeAccount,
+} from '@/types';
+import { TransactionBuilder, zipMap } from '@/utils';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {
   signature: TransactionSignature;
   confirmResponse: ConfirmTransactionResponse;
+  blockhash: Blockhash;
+  lastValidBlockHeight: number;
 };
 
 /**
  * @group Modules
  */
 export class RpcClient {
-  protected defaultFeePayer?: PublicKey;
+  protected defaultFeePayer?: Signer;
 
   constructor(protected readonly metaplex: Metaplex) {}
 
-  async sendTransaction(
+  protected async prepareTransaction(
     transaction: Transaction | TransactionBuilder,
-    signers: Signer[] = [],
-    sendOptions: SendOptions = {}
-  ): Promise<TransactionSignature> {
-    if (transaction instanceof TransactionBuilder) {
-      signers = [...transaction.getSigners(), ...signers];
-      transaction = transaction.toTransaction();
-    }
-
-    transaction.feePayer ??= this.getDefaultFeePayer();
-    transaction.recentBlockhash ??= await this.getLatestBlockhash();
-
+    signers: Signer[]
+  ): Promise<{
+    transaction: Transaction;
+    signers: Signer[];
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight;
+  }> {
+    let blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight;
     if (
-      transaction.feePayer &&
-      this.metaplex.identity().equals(transaction.feePayer)
+      !('records' in transaction) &&
+      transaction.recentBlockhash &&
+      transaction.lastValidBlockHeight
     ) {
-      signers = [this.metaplex.identity(), ...signers];
+      blockhashWithExpiryBlockHeight = {
+        blockhash: transaction.recentBlockhash,
+        lastValidBlockHeight: transaction.lastValidBlockHeight,
+      };
+    } else {
+      blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();
     }
 
+    if ('records' in transaction) {
+      signers = [...transaction.getSigners(), ...signers];
+      transaction = transaction.toTransaction(blockhashWithExpiryBlockHeight);
+    }
+
+    return { transaction, signers, blockhashWithExpiryBlockHeight };
+  }
+
+  async signTransaction(
+    transaction: Transaction,
+    signers: Signer[]
+  ): Promise<Transaction> {
     const { keypairs, identities } = getSignerHistogram(signers);
 
+    // Keypair signers.
     if (keypairs.length > 0) {
       transaction.partialSign(...keypairs);
     }
 
+    // Identity signers.
     for (let i = 0; i < identities.length; i++) {
       await identities[i].signTransaction(transaction);
     }
 
+    return transaction;
+  }
+
+  async sendTransaction(
+    transaction: Transaction | TransactionBuilder,
+    sendOptions: SendOptions = {},
+    signers: Signer[] = []
+  ): Promise<TransactionSignature> {
+    const prepared = await this.prepareTransaction(transaction, signers);
+    transaction = prepared.transaction;
+    signers = prepared.signers;
+
+    const defaultFeePayer = this.getDefaultFeePayer();
+    if (!transaction.feePayer && defaultFeePayer) {
+      transaction.feePayer = defaultFeePayer.publicKey;
+      signers = [defaultFeePayer, ...signers];
+    }
+
+    transaction = await this.signTransaction(transaction, signers);
     const rawTransaction = transaction.serialize();
 
     try {
@@ -92,12 +131,13 @@ export class RpcClient {
 
   async confirmTransaction(
     signature: TransactionSignature,
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
     commitment?: Commitment
   ): Promise<ConfirmTransactionResponse> {
     let rpcResponse: ConfirmTransactionResponse;
     try {
       rpcResponse = await this.metaplex.connection.confirmTransaction(
-        signature,
+        { signature, ...blockhashWithExpiryBlockHeight },
         commitment
       );
     } catch (error) {
@@ -113,20 +153,27 @@ export class RpcClient {
 
   async sendAndConfirmTransaction(
     transaction: Transaction | TransactionBuilder,
-    signers?: Signer[],
-    confirmOptions?: ConfirmOptions
+    confirmOptions?: ConfirmOptions,
+    signers: Signer[] = []
   ): Promise<SendAndConfirmTransactionResponse> {
+    const prepared = await this.prepareTransaction(transaction, signers);
+    const { blockhashWithExpiryBlockHeight } = prepared;
+    transaction = prepared.transaction;
+    signers = prepared.signers;
+
     const signature = await this.sendTransaction(
       transaction,
-      signers,
-      confirmOptions
+      confirmOptions,
+      signers
     );
+
     const confirmResponse = await this.confirmTransaction(
       signature,
+      blockhashWithExpiryBlockHeight,
       confirmOptions?.commitment
     );
 
-    return { signature, confirmResponse };
+    return { signature, confirmResponse, ...blockhashWithExpiryBlockHeight };
   }
 
   async getAccount(publicKey: PublicKey, commitment?: Commitment) {
@@ -186,12 +233,14 @@ export class RpcClient {
       amount.basisPoints.toNumber()
     );
 
+    const blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();
     const confirmResponse = await this.confirmTransaction(
       signature,
+      blockhashWithExpiryBlockHeight,
       commitment
     );
 
-    return { signature, confirmResponse };
+    return { signature, confirmResponse, ...blockhashWithExpiryBlockHeight };
   }
 
   async getBalance(
@@ -216,9 +265,10 @@ export class RpcClient {
     return lamports(rent);
   }
 
-  async getLatestBlockhash(): Promise<Blockhash> {
-    return (await this.metaplex.connection.getLatestBlockhash('finalized'))
-      .blockhash;
+  async getLatestBlockhash(
+    commitmentOrConfig: Commitment | GetLatestBlockhashConfig = 'finalized'
+  ): Promise<BlockhashWithExpiryBlockHeight> {
+    return this.metaplex.connection.getLatestBlockhash(commitmentOrConfig);
   }
 
   getSolanaExporerUrl(signature: string): string {
@@ -240,19 +290,19 @@ export class RpcClient {
     return `https://explorer.solana.com/tx/${signature}${clusterParam}`;
   }
 
-  setDefaultFeePayer(payer: PublicKey) {
+  setDefaultFeePayer(payer: Signer) {
     this.defaultFeePayer = payer;
 
     return this;
   }
 
-  getDefaultFeePayer(): PublicKey | undefined {
+  getDefaultFeePayer(): Signer | undefined {
     if (this.defaultFeePayer) {
       return this.defaultFeePayer;
     }
 
-    const identity = this.metaplex.identity().publicKey;
-    return identity.equals(PublicKey.default) ? undefined : identity;
+    const identity = this.metaplex.identity();
+    return identity.publicKey.equals(PublicKey.default) ? undefined : identity;
   }
 
   protected getUnparsedMaybeAccount(

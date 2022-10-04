@@ -15,7 +15,7 @@ export class AwsStorageDriver implements StorageDriver {
     this.bucketName = bucketName;
   }
 
-  async getUploadPrice(_bytes: number): Promise<Amount> {
+  async getUploadPrice(): Promise<Amount> {
     return lamports(0);
   }
 

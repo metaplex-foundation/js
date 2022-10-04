@@ -1,5 +1,4 @@
 import test, { Test } from 'tape';
-import AbortController from 'abort-controller';
 import { Task } from '@/index';
 
 test('[Task] it can succeed with an asynchronous callback', async (t: Test) => {

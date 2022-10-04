@@ -33,6 +33,7 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  */
 export const findCandyMachineByAddressOperation =
   _findCandyMachineByAddressOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _findCandyMachineByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(

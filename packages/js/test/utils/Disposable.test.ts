@@ -1,5 +1,4 @@
 import test, { Test } from 'tape';
-import { AbortController } from 'abort-controller';
 import { Disposable } from '@/index';
 
 test('[Disposable] it can cancel callbacks', async (t: Test) => {

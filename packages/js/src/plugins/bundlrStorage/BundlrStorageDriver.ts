@@ -42,6 +42,7 @@ import {
  * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
  * This method fixes this by ensure there is not double default in the imported package.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _removeDoubleDefault(pkg: any) {
   if (
     pkg &&
@@ -113,10 +114,9 @@ export class BundlrStorageDriver implements StorageDriver {
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const { status, data } = await bundlr.uploader.upload(
-        file.buffer,
-        getMetaplexFileTagsWithContentType(file)
-      );
+      const { status, data } = await bundlr.uploader.upload(file.buffer, {
+        tags: getMetaplexFileTagsWithContentType(file),
+      });
 
       if (status >= 300) {
         throw new AssetUploadFailedError(status);
@@ -270,7 +270,7 @@ export class BundlrStorageDriver implements StorageDriver {
         if ('rpc' in this._metaplex) {
           return this._metaplex
             .rpc()
-            .sendTransaction(transaction, signers, sendOptions);
+            .sendTransaction(transaction, sendOptions, signers);
         }
 
         return connection.sendTransaction(

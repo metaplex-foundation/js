@@ -442,6 +442,7 @@ export const toCandyMachineV2 = (
     itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
     itemsLoaded,
     isFullyLoaded: itemsAvailable.lte(itemsLoaded),
+    // eslint-disable-next-line no-nested-ternary
     endSettings: endSettings
       ? endSettings.endSettingType === EndSettingType.Date
         ? {

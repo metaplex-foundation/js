@@ -61,6 +61,7 @@ const Key = 'CreateCandyMachineOperation' as const;
  * @category Constructors
  */
 export const createCandyMachineOperation = _createCandyMachineOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _createCandyMachineOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(input: CreateCandyMachineInput<T>): CreateCandyMachineOperation<T> {

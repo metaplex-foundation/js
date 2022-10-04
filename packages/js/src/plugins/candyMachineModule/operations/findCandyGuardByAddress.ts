@@ -25,6 +25,7 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  */
 export const findCandyGuardByAddressOperation =
   _findCandyGuardByAddressOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _findCandyGuardByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(input: FindCandyGuardByAddressInput): FindCandyGuardByAddressOperation<T> {
