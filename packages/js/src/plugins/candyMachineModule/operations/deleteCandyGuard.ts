@@ -1,16 +1,15 @@
 import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-guard';
-import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -64,19 +63,6 @@ export type DeleteCandyGuardInput = {
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
-
-  /**
-   * The Signer that should pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -96,12 +82,14 @@ export const deleteCandyGuardOperationHandler: OperationHandler<DeleteCandyGuard
   {
     async handle(
       operation: DeleteCandyGuardOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<DeleteCandyGuardOutput> {
-      return deleteCandyGuardBuilder(metaplex, operation.input).sendAndConfirm(
+      return deleteCandyGuardBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -139,14 +127,11 @@ export type DeleteCandyGuardBuilderParams = Omit<
  */
 export const deleteCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: DeleteCandyGuardBuilderParams
+  params: DeleteCandyGuardBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const {
-    candyGuard,
-    authority = metaplex.identity(),
-    payer = metaplex.identity(),
-    programs,
-  } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { candyGuard, authority = metaplex.identity() } = params;
 
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
 

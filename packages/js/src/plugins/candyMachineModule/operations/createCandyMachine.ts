@@ -1,5 +1,5 @@
 import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
-import { ConfirmOptions, Keypair } from '@solana/web3.js';
+import { Keypair } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
@@ -9,24 +9,19 @@ import {
   toCandyMachineData,
 } from '../models';
 import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   Creator,
   isSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
   Signer,
   toBigNumber,
   toPublicKey,
 } from '@/types';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '@/plugins/nftModule';
 import { Metaplex } from '@/Metaplex';
 import { ExpectedSignerError } from '@/errors';
 
@@ -95,14 +90,6 @@ export type CreateCandyMachineInput<
    * @defaultValue `Keypair.generate()`
    */
   candyMachine?: Signer;
-
-  /**
-   * The Signer that should pay for the creation of the Candy Machine.
-   * This includes both storage fees and the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /**
    * Refers to the authority that is allowed to manage the Candy Machine.
@@ -279,12 +266,6 @@ export type CreateCandyMachineInput<
    * @defaultValue `false`
    */
   withoutCandyGuard?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -313,24 +294,27 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: CreateCandyMachineOperation<T>,
       metaplex: Metaplex,
-      scope: DisposableScope
-    ): Promise<CreateCandyMachineOutput<T>> {
+      scope: OperationScope
+    ) {
       const builder = await createCandyMachineBuilder(
         metaplex,
-        operation.input
+        operation.input,
+        scope
       );
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
       const candyMachine = await metaplex
         .candyMachines()
-        .findByAddress<T>({ address: output.candyMachineSigner.publicKey })
-        .run();
+        .findByAddress<T>(
+          { address: output.candyMachineSigner.publicKey },
+          scope
+        );
       scope.throwIfCanceled();
 
       return { ...output, candyMachine };
@@ -396,11 +380,12 @@ export const createCandyMachineBuilder = async <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   metaplex: Metaplex,
-  params: CreateCandyMachineBuilderParams<T>
+  params: CreateCandyMachineBuilderParams<T>,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateCandyMachineBuilderContext>> => {
   // Input.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
-    payer = metaplex.identity(),
     candyMachine = Keypair.generate(),
     authority = metaplex.identity(),
     collection,
@@ -410,7 +395,6 @@ export const createCandyMachineBuilder = async <
     maxEditionSupply = toBigNumber(0),
     isMutable = true,
     withoutCandyGuard = false,
-    programs,
   } = params;
   const creators = params.creators ?? [
     { address: toPublicKey(authority), share: 100 },
@@ -425,16 +409,26 @@ export const createCandyMachineBuilder = async <
   };
 
   // PDAs.
-  const authorityPda = metaplex
-    .candyMachines()
+  const authorityPda = metaplex.candyMachines().pdas().authority({
+    candyMachine: candyMachine.publicKey,
+    programs,
+  });
+  const collectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: collection.address,
+    programs,
+  });
+  const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: collection.address,
+    programs,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
     .pdas()
-    .authority({ candyMachine: candyMachine.publicKey, programs });
-  const collectionMetadata = findMetadataPda(collection.address);
-  const collectionMasterEdition = findMasterEditionV2Pda(collection.address);
-  const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-    collection.address,
-    authorityPda
-  );
+    .collectionAuthorityRecord({
+      mint: collection.address,
+      collectionAuthority: authorityPda,
+      programs,
+    });
 
   // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
@@ -459,14 +453,15 @@ export const createCandyMachineBuilder = async <
     const createCandyGuard = metaplex
       .candyMachines()
       .builders()
-      .createCandyGuard<T>({
-        base: candyMachine,
-        payer,
-        authority: toPublicKey(authority),
-        guards: params.guards ?? {},
-        groups: params.groups,
-        programs,
-      });
+      .createCandyGuard<T>(
+        {
+          base: candyMachine,
+          authority: toPublicKey(authority),
+          guards: params.guards ?? {},
+          groups: params.groups,
+        },
+        { programs, payer }
+      );
 
     const { candyGuardAddress } = createCandyGuard.getContext();
     mintAuthority = candyGuardAddress;
@@ -518,15 +513,16 @@ export const createCandyMachineBuilder = async <
       }
 
       return builder.add(
-        metaplex.candyMachines().builders().wrapCandyGuard({
-          candyMachine: candyMachine.publicKey,
-          candyMachineAuthority: authority,
-          candyGuard: mintAuthority,
-          candyGuardAuthority: authority,
-          payer,
-          programs,
-          wrapCandyGuardInstructionKey: params.wrapCandyGuardInstructionKey,
-        })
+        metaplex.candyMachines().builders().wrapCandyGuard(
+          {
+            candyMachine: candyMachine.publicKey,
+            candyMachineAuthority: authority,
+            candyGuard: mintAuthority,
+            candyGuardAuthority: authority,
+            wrapCandyGuardInstructionKey: params.wrapCandyGuardInstructionKey,
+          },
+          { payer, programs }
+        )
       );
     });
 };

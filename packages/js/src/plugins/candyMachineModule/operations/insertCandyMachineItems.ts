@@ -1,5 +1,4 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
-import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   assertAllItemConstraints,
@@ -7,11 +6,11 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachine, CandyMachineItem } from '../models';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -111,12 +110,6 @@ export type InsertCandyMachineItemsInput = {
    * @defaultValue `candyMachine.itemsLoaded`
    */
   index?: number;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -136,12 +129,14 @@ export const insertCandyMachineItemsOperationHandler: OperationHandler<InsertCan
   {
     async handle(
       operation: InsertCandyMachineItemsOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<InsertCandyMachineItemsOutput> {
       return insertCandyMachineItemsBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -178,9 +173,10 @@ export type InsertCandyMachineItemsBuilderParams = Omit<
  */
 export const insertCandyMachineItemsBuilder = (
   metaplex: Metaplex,
-  params: InsertCandyMachineItemsBuilderParams
+  params: InsertCandyMachineItemsBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const { programs } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const { items } = params;
@@ -192,16 +188,18 @@ export const insertCandyMachineItemsBuilder = (
   // Programs.
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
-  return TransactionBuilder.make().add({
-    instruction: createAddConfigLinesInstruction(
-      {
-        candyMachine: params.candyMachine.address,
-        authority: authority.publicKey,
-      },
-      { index, configLines: items },
-      candyMachineProgram.address
-    ),
-    signers: [authority],
-    key: params.instructionKey ?? 'insertItems',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createAddConfigLinesInstruction(
+        {
+          candyMachine: params.candyMachine.address,
+          authority: authority.publicKey,
+        },
+        { index, configLines: items },
+        candyMachineProgram.address
+      ),
+      signers: [authority],
+      key: params.instructionKey ?? 'insertItems',
+    });
 };

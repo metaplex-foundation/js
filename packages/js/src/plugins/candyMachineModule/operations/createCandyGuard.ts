@@ -10,7 +10,7 @@ import {
   emptyDefaultCandyGuardSettings,
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -212,9 +212,9 @@ export const createCandyGuardBuilder = <
 >(
   metaplex: Metaplex,
   params: CreateCandyGuardBuilderParams<T>,
-  scope: OperationScope
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  const { programs, payer } = scope;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const base = params.base ?? Keypair.generate();
   const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);

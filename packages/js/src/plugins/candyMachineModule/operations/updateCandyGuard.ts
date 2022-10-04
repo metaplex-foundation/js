@@ -2,18 +2,18 @@ import {
   createUpdateInstruction,
   updateInstructionDiscriminator,
 } from '@metaplex-foundation/mpl-candy-guard';
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyGuardsSettings,
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
 } from '../guards';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   serializeDiscriminator,
   Signer,
 } from '@/types';
@@ -110,23 +110,6 @@ export type UpdateCandyGuardInput<
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
-
-  /**
-   * The Signer that should pay for any changes in the
-   * Candy Guard account size. This includes receiving
-   * lamports if the account size decreases.
-   *
-   * This account will also pay for the transaction fee by default.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -146,12 +129,14 @@ export const updateCandyGuardOperationHandler: OperationHandler<UpdateCandyGuard
   {
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: UpdateCandyGuardOperation<T>,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UpdateCandyGuardOutput> {
       return updateCandyGuardBuilder<T>(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -198,15 +183,15 @@ export const updateCandyGuardBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   metaplex: Metaplex,
-  params: UpdateCandyGuardBuilderParams<T>
+  params: UpdateCandyGuardBuilderParams<T>,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyGuard,
     guards,
     groups,
-    payer = metaplex.identity(),
     authority = metaplex.identity(),
-    programs,
   } = params;
 
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
