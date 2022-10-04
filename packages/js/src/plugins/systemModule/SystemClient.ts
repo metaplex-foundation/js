@@ -6,6 +6,7 @@ import {
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
 import type { Metaplex } from '@/Metaplex';
+import { OperationOptions } from '@/types';
 
 /**
  * This is a client for the System module.
@@ -45,12 +46,16 @@ export class SystemClient {
   }
 
   /** {@inheritDoc createAccountOperation} */
-  createAccount(input: CreateAccountInput) {
-    return this.metaplex.operations().getTask(createAccountOperation(input));
+  createAccount(input: CreateAccountInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(createAccountOperation(input), options);
   }
 
   /** {@inheritDoc transferSolOperation} */
-  transferSol(input: TransferSolInput) {
-    return this.metaplex.operations().getTask(transferSolOperation(input));
+  transferSol(input: TransferSolInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(transferSolOperation(input), options);
   }
 }

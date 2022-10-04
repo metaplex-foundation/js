@@ -21,6 +21,7 @@ import {
   ThawTokensBuilderParams,
 } from './operations';
 import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilderOptions } from '@/utils';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -37,23 +38,35 @@ export class TokenBuildersClient {
   // -----------------
 
   /** {@inheritDoc createMintBuilder} */
-  createMint(input: CreateMintBuilderParams) {
-    return createMintBuilder(this.metaplex, input);
+  createMint(
+    input: CreateMintBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createMintBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createTokenBuilder} */
-  createToken(input: CreateTokenBuilderParams) {
-    return createTokenBuilder(this.metaplex, input);
+  createToken(
+    input: CreateTokenBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createTokenBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createTokenIfMissingBuilder} @internal */
-  createTokenIfMissing(input: CreateTokenIfMissingBuilderParams) {
-    return createTokenIfMissingBuilder(this.metaplex, input);
+  createTokenIfMissing(
+    input: CreateTokenIfMissingBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createTokenIfMissingBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createTokenWithMintBuilder} */
-  createTokenWithMint(input: CreateTokenWithMintBuilderParams) {
-    return createTokenWithMintBuilder(this.metaplex, input);
+  createTokenWithMint(
+    input: CreateTokenWithMintBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createTokenWithMintBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -61,23 +74,26 @@ export class TokenBuildersClient {
   // -----------------
 
   /** {@inheritDoc mintTokensBuilder} */
-  mint(input: MintTokensBuilderParams) {
-    return mintTokensBuilder(this.metaplex, input);
+  mint(input: MintTokensBuilderParams, options?: TransactionBuilderOptions) {
+    return mintTokensBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc sendTokensBuilder} */
-  send(input: SendTokensBuilderParams) {
-    return sendTokensBuilder(this.metaplex, input);
+  send(input: SendTokensBuilderParams, options?: TransactionBuilderOptions) {
+    return sendTokensBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc freezeTokensBuilder} */
-  freeze(input: FreezeTokensBuilderParams) {
-    return freezeTokensBuilder(this.metaplex, input);
+  freeze(
+    input: FreezeTokensBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return freezeTokensBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc thawTokensBuilder} */
-  thaw(input: ThawTokensBuilderParams) {
-    return thawTokensBuilder(this.metaplex, input);
+  thaw(input: ThawTokensBuilderParams, options?: TransactionBuilderOptions) {
+    return thawTokensBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -85,12 +101,18 @@ export class TokenBuildersClient {
   // -----------------
 
   /** {@inheritDoc approveTokenDelegateAuthorityBuilder} */
-  approveDelegateAuthority(input: ApproveTokenDelegateAuthorityBuilderParams) {
-    return approveTokenDelegateAuthorityBuilder(this.metaplex, input);
+  approveDelegateAuthority(
+    input: ApproveTokenDelegateAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return approveTokenDelegateAuthorityBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc revokeTokenDelegateAuthorityBuilder} */
-  revokeDelegateAuthority(input: RevokeTokenDelegateAuthorityBuilderParams) {
-    return revokeTokenDelegateAuthorityBuilder(this.metaplex, input);
+  revokeDelegateAuthority(
+    input: RevokeTokenDelegateAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return revokeTokenDelegateAuthorityBuilder(this.metaplex, input, options);
   }
 }

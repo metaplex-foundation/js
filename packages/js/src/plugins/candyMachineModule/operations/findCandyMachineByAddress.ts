@@ -1,13 +1,11 @@
-import { Commitment } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
 import { assertCandyGuardProgram } from '../programs';
-import { DisposableScope } from '@/utils';
 import {
   assertAccountExists,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -58,12 +56,6 @@ export type FindCandyMachineByAddressOperation<
 export type FindCandyMachineByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -75,9 +67,10 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: FindCandyMachineByAddressOperation<T>,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) {
-      const { address, commitment, programs } = operation.input;
+      const { address } = operation.input;
+      const { commitment, programs } = scope;
       const potentialCandyGuardAddress = metaplex
         .candyMachines()
         .pdas()
