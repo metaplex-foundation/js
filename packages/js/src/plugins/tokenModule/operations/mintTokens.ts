@@ -1,5 +1,5 @@
 import { createMintToInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -7,17 +7,13 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
-import {
-  DisposableScope,
-  TransactionBuilder,
-  TransactionBuilderOptions,
-} from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -100,20 +96,6 @@ export type MintTokensInput = {
    * @defaultValue `[]`
    */
   multiSigners?: KeypairSigner[];
-
-  /**
-   * The Signer paying for the new token account if it does not
-   * already exist. This is also used to pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -136,11 +118,11 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<MintTokensOutput> {
+      const { programs, confirmOptions } = scope;
       const {
         mintAddress,
         toOwner = metaplex.identity().publicKey,
         toToken,
-        programs,
       } = operation.input;
 
       const destination =
@@ -156,13 +138,14 @@ export const mintTokensOperationHandler: OperationHandler<MintTokensOperation> =
         .accountExists(destinationAddress);
       scope.throwIfCanceled();
 
-      const builder = await mintTokensBuilder(metaplex, {
-        ...operation.input,
-        toTokenExists: destinationAccountExists,
-      });
+      const builder = await mintTokensBuilder(
+        metaplex,
+        { ...operation.input, toTokenExists: destinationAccountExists },
+        scope
+      );
       scope.throwIfCanceled();
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      return builder.sendAndConfirm(metaplex, confirmOptions);
     },
   };
 
@@ -230,8 +213,6 @@ export const mintTokensBuilder = async (
     toTokenExists = true,
     mintAuthority = metaplex.identity(),
     multiSigners = [],
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   const [mintAuthorityPublicKey, signers] = isSigner(mintAuthority)
@@ -255,15 +236,17 @@ export const mintTokensBuilder = async (
         await metaplex
           .tokens()
           .builders()
-          .createTokenIfMissing({
-            ...params,
-            mint: mintAddress,
-            owner: toOwner,
-            token: toToken,
-            tokenExists: toTokenExists,
-            payer,
-            tokenVariable: 'toToken',
-          })
+          .createTokenIfMissing(
+            {
+              ...params,
+              mint: mintAddress,
+              owner: toOwner,
+              token: toToken,
+              tokenExists: toTokenExists,
+              tokenVariable: 'toToken',
+            },
+            { payer, programs }
+          )
       )
 
       // Mint tokens.

@@ -5,6 +5,7 @@ import {
   assertSol,
   Operation,
   OperationHandler,
+  OperationScope,
   Program,
   Signer,
   SolAmount,
@@ -102,10 +103,11 @@ export const transferSolOperationHandler: OperationHandler<TransferSolOperation>
   {
     async handle(
       operation: TransferSolOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<TransferSolOutput> {
-      const builder = transferSolBuilder(metaplex, operation.input);
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      const builder = transferSolBuilder(metaplex, operation.input, scope);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -147,26 +149,21 @@ export const transferSolBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const {
-    from = metaplex.identity(),
-    to,
-    amount,
-    basePubkey,
-    seed,
-    programs,
-  } = params;
+  const { from = metaplex.identity(), to, amount, basePubkey, seed } = params;
 
   assertSol(amount);
 
-  return TransactionBuilder.make().add({
-    instruction: SystemProgram.transfer({
-      fromPubkey: from.publicKey,
-      toPubkey: to,
-      lamports: amount.basisPoints.toNumber(),
-      ...(basePubkey ? { basePubkey, seed } : {}),
-      programId: metaplex.programs().getSystem(programs).address,
-    }),
-    signers: [from],
-    key: params.instructionKey ?? 'transferSol',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: SystemProgram.transfer({
+        fromPubkey: from.publicKey,
+        toPubkey: to,
+        lamports: amount.basisPoints.toNumber(),
+        ...(basePubkey ? { basePubkey, seed } : {}),
+        programId: metaplex.programs().getSystem(programs).address,
+      }),
+      signers: [from],
+      key: params.instructionKey ?? 'transferSol',
+    });
 };

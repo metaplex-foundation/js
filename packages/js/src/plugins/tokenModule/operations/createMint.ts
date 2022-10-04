@@ -1,17 +1,12 @@
 import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
-import {
-  DisposableScope,
-  Option,
-  TransactionBuilder,
-  TransactionBuilderOptions,
-} from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -65,14 +60,6 @@ export type CreateMintInput = {
   mint?: Signer;
 
   /**
-   * The Signer paying for the new mint account and
-   * for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The address of the authority that is allowed
    * to mint new tokens to token accounts.
    *
@@ -88,12 +75,6 @@ export type CreateMintInput = {
    * `mintAuthority` parameter.
    */
   freezeAuthority?: Option<PublicKey>;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -125,19 +106,18 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<CreateMintOutput> {
-      const builder = await createMintBuilder(metaplex, operation.input);
+      const builder = await createMintBuilder(metaplex, operation.input, scope);
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
       const mint = await metaplex
         .tokens()
-        .findMintByAddress({ address: output.mintSigner.publicKey })
-        .run(scope);
+        .findMintByAddress({ address: output.mintSigner.publicKey }, scope);
 
       return { ...output, mint };
     },
@@ -190,10 +170,8 @@ export const createMintBuilder = async (
   const {
     decimals = 0,
     mint = Keypair.generate(),
-    payer = metaplex.identity(),
     mintAuthority = metaplex.identity().publicKey,
     freezeAuthority = mintAuthority,
-    programs,
   } = params;
 
   const tokenProgram = metaplex.programs().getToken(programs);
@@ -208,14 +186,16 @@ export const createMintBuilder = async (
         await metaplex
           .system()
           .builders()
-          .createAccount({
-            payer,
-            newAccount: mint,
-            space: MINT_SIZE,
-            program: tokenProgram.address,
-            instructionKey:
-              params.createAccountInstructionKey ?? 'createAccount',
-          })
+          .createAccount(
+            {
+              newAccount: mint,
+              space: MINT_SIZE,
+              program: tokenProgram.address,
+              instructionKey:
+                params.createAccountInstructionKey ?? 'createAccount',
+            },
+            { payer, programs }
+          )
       )
 
       // Initialize the mint.

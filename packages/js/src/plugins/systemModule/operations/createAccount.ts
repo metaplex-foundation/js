@@ -10,11 +10,7 @@ import {
   SolAmount,
   useOperation,
 } from '@/types';
-import {
-  DisposableScope,
-  TransactionBuilder,
-  TransactionBuilderOptions,
-} from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -157,12 +153,11 @@ export type CreateAccountBuilderContext = Omit<CreateAccountOutput, 'response'>;
 export const createAccountBuilder = async (
   metaplex: Metaplex,
   params: CreateAccountBuilderParams,
-  options: TransactionBuilderOptions
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateAccountBuilderContext>> => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     space,
-    payer = metaplex.identity(),
     newAccount = Keypair.generate(),
     program = SystemProgram.programId,
   } = params;

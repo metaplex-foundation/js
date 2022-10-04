@@ -1,5 +1,5 @@
 import { createRevokeInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -7,7 +7,7 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -76,12 +76,6 @@ export type RevokeTokenDelegateAuthorityInput = {
    * @defaultValue `[]`
    */
   multiSigners?: KeypairSigner[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -101,12 +95,14 @@ export const revokeTokenDelegateAuthorityOperationHandler: OperationHandler<Revo
   {
     handle: async (
       operation: RevokeTokenDelegateAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<RevokeTokenDelegateAuthorityOutput> => {
       return revokeTokenDelegateAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -150,7 +146,6 @@ export const revokeTokenDelegateAuthorityBuilder = (
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],
-    programs,
   } = params;
 
   const [ownerPublicKey, signers] = isSigner(owner)
@@ -166,14 +161,16 @@ export const revokeTokenDelegateAuthorityBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createRevokeInstruction(
-      tokenAccount,
-      ownerPublicKey,
-      multiSigners,
-      tokenProgram.address
-    ),
-    signers,
-    key: params.instructionKey ?? 'revokeDelegateAuthority',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createRevokeInstruction(
+        tokenAccount,
+        ownerPublicKey,
+        multiSigners,
+        tokenProgram.address
+      ),
+      signers,
+      key: params.instructionKey ?? 'revokeDelegateAuthority',
+    });
 };

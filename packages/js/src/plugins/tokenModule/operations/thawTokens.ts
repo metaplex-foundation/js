@@ -1,5 +1,5 @@
 import { createThawAccountInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -7,7 +7,7 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -78,12 +78,6 @@ export type ThawTokensInput = {
    * @defaultValue `[]`
    */
   multiSigners?: KeypairSigner[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -103,11 +97,12 @@ export const thawTokensOperationHandler: OperationHandler<ThawTokensOperation> =
   {
     async handle(
       operation: ThawTokensOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<ThawTokensOutput> {
-      return thawTokensBuilder(metaplex, operation.input).sendAndConfirm(
+      return thawTokensBuilder(metaplex, operation.input, scope).sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
     },
   };
@@ -150,7 +145,6 @@ export const thawTokensBuilder = (
     tokenAddress,
     multiSigners = [],
     freezeAuthority,
-    programs,
   } = params;
 
   const [authorityPublicKey, signers] = isSigner(freezeAuthority)
@@ -166,15 +160,17 @@ export const thawTokensBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createThawAccountInstruction(
-      tokenAddressOrAta,
-      mintAddress,
-      authorityPublicKey,
-      multiSigners,
-      tokenProgram.address
-    ),
-    signers,
-    key: params.instructionKey ?? 'thawTokens',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createThawAccountInstruction(
+        tokenAddressOrAta,
+        mintAddress,
+        authorityPublicKey,
+        multiSigners,
+        tokenProgram.address
+      ),
+      signers,
+      key: params.instructionKey ?? 'thawTokens',
+    });
 };
