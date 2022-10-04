@@ -1,4 +1,3 @@
-import type { Commitment } from '@solana/web3.js';
 import { CandyMachineBuildersClient } from './CandyMachineBuildersClient';
 import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
 import { CandyMachinePdasClient } from './CandyMachinePdasClient';
@@ -37,8 +36,7 @@ import {
   WrapCandyGuardInput,
   wrapCandyGuardOperation,
 } from './operations';
-import { Task } from '@/utils';
-import { toPublicKey } from '@/types';
+import { OperationOptions, toPublicKey } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
 /**
@@ -123,59 +121,66 @@ export class CandyMachineClient {
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: CreateCandyMachineInput<
       T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    >,
+    options?: OperationOptions
   ) {
     return this.metaplex
       .operations()
-      .getTask(createCandyMachineOperation(input));
+      .execute(createCandyMachineOperation(input), options);
   }
 
   /** {@inheritDoc createCandyGuardOperation} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: CreateCandyGuardInput<
       T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    >,
+    options?: OperationOptions
   ) {
-    return this.metaplex.operations().getTask(createCandyGuardOperation(input));
+    return this.metaplex
+      .operations()
+      .execute(createCandyGuardOperation(input), options);
   }
 
   /** {@inheritDoc deleteCandyMachineOperation} */
-  delete(input: DeleteCandyMachineInput) {
+  delete(input: DeleteCandyMachineInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(deleteCandyMachineOperation(input));
+      .execute(deleteCandyMachineOperation(input), options);
   }
 
   /** {@inheritDoc deleteCandyGuardOperation} */
-  deleteCandyGuard(input: DeleteCandyGuardInput) {
-    return this.metaplex.operations().getTask(deleteCandyGuardOperation(input));
+  deleteCandyGuard(input: DeleteCandyGuardInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(deleteCandyGuardOperation(input), options);
   }
 
   /** {@inheritDoc findCandyGuardsByAuthorityOperation} */
   findAllCandyGuardsByAuthority<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
-  >(input: FindCandyGuardsByAuthorityInput) {
+  >(input: FindCandyGuardsByAuthorityInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardsByAuthorityOperation<T>(input));
+      .execute(findCandyGuardsByAuthorityOperation<T>(input), options);
   }
 
   /** {@inheritDoc findCandyMachineByAddressOperation} */
   findByAddress<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: FindCandyMachineByAddressInput
+    input: FindCandyMachineByAddressInput,
+    options?: OperationOptions
   ) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachineByAddressOperation<T>(input));
+      .execute(findCandyMachineByAddressOperation<T>(input), options);
   }
 
   /** {@inheritDoc findCandyGuardByAddressOperation} */
   findCandyGuardByAddress<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
-  >(input: FindCandyGuardByAddressInput) {
+  >(input: FindCandyGuardByAddressInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(findCandyGuardByAddressOperation<T>(input));
+      .execute(findCandyGuardByAddressOperation<T>(input), options);
   }
 
   /**
@@ -191,16 +196,16 @@ export class CandyMachineClient {
    */
   findCandyGuardByBaseAddress<
     T extends CandyGuardsSettings = DefaultCandyGuardSettings
-  >(input: FindCandyGuardByAddressInput) {
+  >(input: FindCandyGuardByAddressInput, options?: OperationOptions) {
     const address = this.pdas().candyGuard({ base: input.address });
-    return this.findCandyGuardByAddress<T>({ ...input, address });
+    return this.findCandyGuardByAddress<T>({ ...input, address }, options);
   }
 
   /** {@inheritDoc insertCandyMachineItemsOperation} */
-  insertItems(input: InsertCandyMachineItemsInput) {
+  insertItems(input: InsertCandyMachineItemsInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(insertCandyMachineItemsOperation(input));
+      .execute(insertCandyMachineItemsOperation(input), options);
   }
 
   /** {@inheritDoc mintFromCandyMachineOperation} */
@@ -213,11 +218,12 @@ export class CandyMachineClient {
       MintSettings extends undefined
         ? DefaultCandyGuardMintSettings
         : MintSettings
-    >
+    >,
+    options?: OperationOptions
   ) {
     return this.metaplex
       .operations()
-      .getTask(mintFromCandyMachineOperation(input));
+      .execute(mintFromCandyMachineOperation(input), options);
   }
 
   /**
@@ -228,45 +234,53 @@ export class CandyMachineClient {
    * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
    * ```
    */
-  refresh<
+  async refresh<
     T extends CandyGuardsSettings,
     M extends CandyMachine<T> | CandyGuard<T>
-  >(model: M, commitment?: Commitment): Task<M> {
-    const input = { address: toPublicKey(model), commitment };
-    const task = isCandyMachine(model)
-      ? this.findByAddress<T>(input)
-      : this.findCandyGuardByAddress<T>(input);
+  >(model: M, options?: OperationOptions): Promise<M> {
+    const input = { address: toPublicKey(model) };
+    const refreshedModel = isCandyMachine(model)
+      ? await this.findByAddress<T>(input, options)
+      : await this.findCandyGuardByAddress<T>(input, options);
 
-    return task as Task<M>;
+    return refreshedModel as M;
   }
 
   /** {@inheritDoc unwrapCandyGuardOperation} */
-  unwrapCandyGuard(input: UnwrapCandyGuardInput) {
-    return this.metaplex.operations().getTask(unwrapCandyGuardOperation(input));
+  unwrapCandyGuard(input: UnwrapCandyGuardInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(unwrapCandyGuardOperation(input), options);
   }
 
   /** {@inheritDoc updateCandyMachineOperation} */
   update<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: UpdateCandyMachineInput<
       T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    >,
+    options?: OperationOptions
   ) {
     return this.metaplex
       .operations()
-      .getTask(updateCandyMachineOperation(input));
+      .execute(updateCandyMachineOperation(input), options);
   }
 
   /** {@inheritDoc updateCandyGuardOperation} */
   updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
     input: UpdateCandyGuardInput<
       T extends undefined ? DefaultCandyGuardSettings : T
-    >
+    >,
+    options?: OperationOptions
   ) {
-    return this.metaplex.operations().getTask(updateCandyGuardOperation(input));
+    return this.metaplex
+      .operations()
+      .execute(updateCandyGuardOperation(input), options);
   }
 
   /** {@inheritDoc wrapCandyGuardOperation} */
-  wrapCandyGuard(input: WrapCandyGuardInput) {
-    return this.metaplex.operations().getTask(wrapCandyGuardOperation(input));
+  wrapCandyGuard(input: WrapCandyGuardInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(wrapCandyGuardOperation(input), options);
   }
 }

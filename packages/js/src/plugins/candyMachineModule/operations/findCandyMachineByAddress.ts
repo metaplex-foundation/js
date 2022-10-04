@@ -49,11 +49,7 @@ _findCandyMachineByAddressOperation.key = Key;
  */
 export type FindCandyMachineByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Operation<
-  typeof Key,
-  FindCandyMachineByAddressInput,
-  FindCandyMachineByAddressOutput<T>
->;
+> = Operation<typeof Key, FindCandyMachineByAddressInput, CandyMachine<T>>;
 
 /**
  * @group Operations
@@ -72,14 +68,6 @@ export type FindCandyMachineByAddressInput = {
 
 /**
  * @group Operations
- * @category Outputs
- */
-export type FindCandyMachineByAddressOutput<
-  T extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = CandyMachine<T>;
-
-/**
- * @group Operations
  * @category Handlers
  */
 export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCandyMachineByAddressOperation> =
@@ -88,7 +76,7 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
       operation: FindCandyMachineByAddressOperation<T>,
       metaplex: Metaplex,
       scope: DisposableScope
-    ): Promise<FindCandyMachineByAddressOutput<T>> {
+    ) {
       const { address, commitment, programs } = operation.input;
       const potentialCandyGuardAddress = metaplex
         .candyMachines()
