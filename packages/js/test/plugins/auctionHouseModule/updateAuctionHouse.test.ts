@@ -36,7 +36,10 @@ test('[auctionHouseModule] it updates all fields of an Auction House', async (t:
     });
 
   const originalCreator = mx.identity().publicKey;
-  const originalAddress = findAuctionHousePda(originalCreator, treasuryMint);
+  const originalAddress = mx.auctionHouse().pdas().auctionHouse({
+    creator: originalCreator,
+    treasuryMint,
+  });
   spok(t, originalAuctionHouse, {
     $topic: 'Original AuctionHouse',
     address: spokSamePubkey(originalAddress),
@@ -45,9 +48,11 @@ test('[auctionHouseModule] it updates all fields of an Auction House', async (t:
     treasuryMint: {
       address: spokSamePubkey(treasuryMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: originalAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(originalAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: originalAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(originalCreator),
     treasuryWithdrawalDestinationAddress: spokSamePubkey(treasuryToken.address),
@@ -80,15 +85,20 @@ test('[auctionHouseModule] it updates all fields of an Auction House', async (t:
     treasuryMint: {
       address: spokSamePubkey(treasuryMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(originalAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: originalAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(originalAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: originalAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(
       newFeeWithdrawalDestination
     ),
     treasuryWithdrawalDestinationAddress: spokSamePubkey(
-      findAssociatedTokenAccountPda(treasuryMint, newTreasuryOwner)
+      mx.tokens().pdas().associatedTokenAccount({
+        mint: treasuryMint,
+        owner: newTreasuryOwner,
+      })
     ),
     sellerFeeBasisPoints: 300,
     requiresSignOff: true,

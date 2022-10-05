@@ -14,8 +14,7 @@ test('[nftModule] it can fetch all NFTs from a provided mint list', async (t: Te
   // When we fetch these NFTs by mint addresses.
   const nfts = (await mx
     .nfts()
-    .findAllByMintList({ mints: [nftA.address, nftB.address] })
-    .run()) as Metadata[];
+    .findAllByMintList({ mints: [nftA.address, nftB.address] })) as Metadata[];
 
   // Then we get the right NFTs.
   t.same(

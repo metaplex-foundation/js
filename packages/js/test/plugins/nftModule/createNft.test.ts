@@ -131,35 +131,37 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   const otherCreator = Keypair.generate();
 
   // When we create a new NFT with minimum configuration.
-  const { nft } = await mx.nfts().create({
-    uri,
-    name: 'On-chain NFT name',
-    symbol: 'MYNFT',
-    sellerFeeBasisPoints: 456,
-    isMutable: true,
-    maxSupply: toBigNumber(123),
-    useNewMint: mint,
-    payer,
-    mintAuthority,
-    updateAuthority,
-    tokenOwner: owner.publicKey,
-    collection: collection.publicKey,
-    uses: {
-      useMethod: UseMethod.Burn,
-      remaining: 0,
-      total: 1000,
+  const { nft } = await mx.nfts().create(
+    {
+      uri,
+      name: 'On-chain NFT name',
+      symbol: 'MYNFT',
+      sellerFeeBasisPoints: 456,
+      isMutable: true,
+      maxSupply: toBigNumber(123),
+      useNewMint: mint,
+      mintAuthority,
+      updateAuthority,
+      tokenOwner: owner.publicKey,
+      collection: collection.publicKey,
+      uses: {
+        useMethod: UseMethod.Burn,
+        remaining: 0,
+        total: 1000,
+      },
+      creators: [
+        {
+          address: updateAuthority.publicKey,
+          share: 60,
+        },
+        {
+          address: otherCreator.publicKey,
+          share: 40,
+        },
+      ],
     },
-    creators: [
-      {
-        address: updateAuthority.publicKey,
-        share: 60,
-      },
-      {
-        address: otherCreator.publicKey,
-        share: 40,
-      },
-    ],
-  });
+    { payer }
+  );
 
   // Then we created and retrieved the new NFT and it has appropriate defaults.
   spok(t, nft, {
@@ -270,7 +272,7 @@ test('[nftModule] it can make another signer wallet pay for the storage and tran
   t.equal(await mx.connection.getBalance(payer.publicKey), 1000000000);
 
   // When we create a new NFT using that account as a payer.
-  const { nft } = await mx.nfts().create({ ...minimalInput(), payer });
+  const { nft } = await mx.nfts().create(minimalInput(), { payer });
 
   // Then the payer has less lamports than it used to.
   t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
@@ -456,11 +458,10 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
       await mx
         .tokens()
         .builders()
-        .createTokenWithMint({
-          initialSupply: token(1),
-          mint,
-          payer: mx.identity(),
-        })
+        .createTokenWithMint(
+          { initialSupply: token(1), mint },
+          { payer: mx.identity() }
+        )
     )
     .add({
       instruction: createCreateMetadataAccountV2Instruction(

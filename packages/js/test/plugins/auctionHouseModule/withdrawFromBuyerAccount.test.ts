@@ -8,7 +8,6 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { addAmounts, sol } from '@/types';
-import { findAuctionHouseBuyerEscrowPda } from '@/plugins';
 
 killStuckProcess();
 
@@ -24,10 +23,10 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
   });
 
   // Then buyer's escrow account has SOL in it
-  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    mx.identity().publicKey
-  );
+  const buyerEscrow = mx.auctionHouse().pdas().buyerEscrow({
+    auctionHouse: auctionHouse.address,
+    buyer: mx.identity().publicKey,
+  });
 
   let buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
   const minimumRentExempt = await mx.rpc().getRent(0);
@@ -64,11 +63,11 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House with 
     amount: sol(1),
   });
 
-  // Then buyer's escrow account has SOL in it
-  const buyerEscrow = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    mx.identity().publicKey
-  );
+  // Then buyer's escrow account has SOL in it.
+  const buyerEscrow = mx.auctionHouse().pdas().buyerEscrow({
+    auctionHouse: auctionHouse.address,
+    buyer: mx.identity().publicKey,
+  });
 
   let buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
   const minimumRentExempt = await mx.rpc().getRent(0);

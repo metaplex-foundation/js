@@ -20,13 +20,10 @@ test('[nftModule] it can fetch an NFT by its mint address', async (t: Test) => {
   });
 
   // When we fetch that NFT using its mint address and its token address.
-  const fetchedNft = (await mx
-    .nfts()
-    .findByMint({
-      mintAddress: nft.address,
-      tokenAddress: nft.token.address,
-    })
-    .run()) as NftWithToken;
+  const fetchedNft = (await mx.nfts().findByMint({
+    mintAddress: nft.address,
+    tokenAddress: nft.token.address,
+  })) as NftWithToken;
 
   // Then we get the right NFT.
   t.same(fetchedNft.name, nft.name);

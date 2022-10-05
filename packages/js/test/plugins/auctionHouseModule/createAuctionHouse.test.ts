@@ -25,7 +25,10 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   // Then we created and returned the new Auction House and it has appropriate defaults.
   const expectedCreator = mx.identity().publicKey;
   const expectedMint = WRAPPED_SOL_MINT;
-  const expectedAddress = findAuctionHousePda(expectedCreator, expectedMint);
+  const expectedAddress = mx.auctionHouse().pdas().auctionHouse({
+    creator: expectedCreator,
+    treasuryMint: expectedMint,
+  });
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
     creatorAddress: spokSamePubkey(expectedCreator),
@@ -33,9 +36,11 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
     treasuryMint: {
       address: spokSamePubkey(expectedMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: expectedAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(expectedAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: expectedAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
     treasuryWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
@@ -67,23 +72,25 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const authority = mx.identity();
   const feeWithdrawalDestination = Keypair.generate();
   const treasuryWithdrawalDestinationOwner = Keypair.generate();
-  const { auctionHouse } = await mx.auctionHouse().create({
-    sellerFeeBasisPoints: 200,
-    requiresSignOff: true,
-    canChangeSalePrice: true,
-    treasuryMint,
-    payer: authority,
-    authority: authority.publicKey,
-    feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
-    treasuryWithdrawalDestinationOwner:
-      treasuryWithdrawalDestinationOwner.publicKey,
-  });
+  const { auctionHouse } = await mx.auctionHouse().create(
+    {
+      sellerFeeBasisPoints: 200,
+      requiresSignOff: true,
+      canChangeSalePrice: true,
+      treasuryMint,
+      authority: authority.publicKey,
+      feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
+      treasuryWithdrawalDestinationOwner:
+        treasuryWithdrawalDestinationOwner.publicKey,
+    },
+    { payer: authority }
+  );
 
   // Then the created Auction House has the expected configuration.
-  const expectedAddress = findAuctionHousePda(
-    authority.publicKey,
-    treasuryMint
-  );
+  const expectedAddress = mx.auctionHouse().pdas().auctionHouse({
+    creator: authority.publicKey,
+    treasuryMint,
+  });
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
     creatorAddress: spokSamePubkey(authority.publicKey),
@@ -91,9 +98,11 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
     treasuryMint: {
       address: spokSamePubkey(treasuryMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: expectedAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(expectedAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: expectedAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(
       feeWithdrawalDestination.publicKey
@@ -151,10 +160,9 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
   });
 
   // Then the new Auction House has Auctioneer attached.
-  const ahAuctioneerPda = metaplex.auctionHouse().pdas().auctioneer({
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
     auctionHouse: auctionHouse.address,
     auctioneerAuthority: auctioneerAuthority.publicKey,
-    programs,
   });
   spok(t, auctionHouse, {
     hasAuctioneer: true,

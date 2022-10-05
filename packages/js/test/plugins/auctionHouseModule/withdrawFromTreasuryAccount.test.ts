@@ -9,10 +9,12 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   // Given we have an Auction House with fee that equals 10% and an NFT.
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  const auctionHouse = await createAuctionHouse(mx, null, {
-    sellerFeeBasisPoints: 1000,
-    payer,
-  });
+  const auctionHouse = await createAuctionHouse(
+    mx,
+    null,
+    { sellerFeeBasisPoints: 1000 },
+    { payer }
+  );
 
   // And withdrawal destination has 100 SOL.
   const originalTreasuryWithdrawalDestinationBalance = await mx
@@ -28,11 +30,9 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   await mx.rpc().airdrop(auctionHouse.treasuryAccountAddress, sol(2));
 
   // When we withdraw 1 SOL from treasury account.
-  await mx.auctionHouse().withdrawFromTreasuryAccount({
-    auctionHouse,
-    payer,
-    amount: sol(1),
-  });
+  await mx
+    .auctionHouse()
+    .withdrawFromTreasuryAccount({ auctionHouse, amount: sol(1) }, { payer });
 
   // Then treasury account has 1 SOL in it.
   const treasuryBalance = await mx
