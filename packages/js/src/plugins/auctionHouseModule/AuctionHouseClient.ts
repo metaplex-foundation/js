@@ -57,6 +57,7 @@ import {
   WithdrawFromTreasuryAccountInput,
   withdrawFromTreasuryAccountOperation,
 } from './operations';
+import { AuctionHousePdasClient } from './AuctionHousePdasClient';
 import type { Metaplex } from '@/Metaplex';
 import { OperationOptions } from '@/types';
 
@@ -103,6 +104,17 @@ export class AuctionHouseClient {
    */
   builders() {
     return new AuctionHouseBuildersClient(this.metaplex);
+  }
+
+  /**
+   * You may use the `pdas()` client to build PDAs related to this module.
+   *
+   * ```ts
+   * const pdasClient = metaplex.auctionHouse().pdas();
+   * ```
+   */
+  pdas() {
+    return new AuctionHousePdasClient(this.metaplex);
   }
 
   /** {@inheritDoc createBidOperation} */

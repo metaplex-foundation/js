@@ -93,6 +93,7 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
       const accounts = AuctionHouseProgram.bidAccounts(metaplex).mergeConfig({
         commitment,
       });
+      // return new BidReceiptGpaBuilder(metaplex, this.publicKey);
 
       let bidQuery: BidReceiptGpaBuilder = accounts.whereAuctionHouse(
         auctionHouse.address

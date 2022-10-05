@@ -90,6 +90,7 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
       scope: OperationScope
     ): Promise<FindListingsByPublicKeyFieldOutput> => {
       const { auctionHouse, type, publicKey, commitment } = operation.input;
+      // return new ListingReceiptGpaBuilder(metaplex, this.publicKey);
       const accounts = AuctionHouseProgram.listingAccounts(
         metaplex
       ).mergeConfig({
