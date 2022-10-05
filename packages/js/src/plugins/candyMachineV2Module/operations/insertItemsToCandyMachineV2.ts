@@ -1,5 +1,4 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   assertAllConfigLineConstraints,
@@ -12,6 +11,7 @@ import {
   BigNumber,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -95,9 +95,6 @@ export type InsertItemsToCandyMachineV2Input = {
    * @defaultValue `candyMachine.itemsLoaded`
    */
   index?: BigNumber;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -117,12 +114,14 @@ export const InsertItemsToCandyMachineV2OperationHandler: OperationHandler<Inser
   {
     async handle(
       operation: InsertItemsToCandyMachineV2Operation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<InsertItemsToCandyMachineV2Output> {
       return insertItemsToCandyMachineV2Builder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -159,7 +158,7 @@ export const insertItemsToCandyMachineV2Builder = (
   params: InsertItemsToCandyMachineV2BuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const { items } = params;
@@ -167,15 +166,17 @@ export const insertItemsToCandyMachineV2Builder = (
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllConfigLineConstraints(items);
 
-  return TransactionBuilder.make().add({
-    instruction: createAddConfigLinesInstruction(
-      {
-        candyMachine: params.candyMachine.address,
-        authority: authority.publicKey,
-      },
-      { index: index.toNumber(), configLines: items }
-    ),
-    signers: [authority],
-    key: params.instructionKey ?? 'insertItems',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createAddConfigLinesInstruction(
+        {
+          candyMachine: params.candyMachine.address,
+          authority: authority.publicKey,
+        },
+        { index: index.toNumber(), configLines: items }
+      ),
+      signers: [authority],
+      key: params.instructionKey ?? 'insertItems',
+    });
 };

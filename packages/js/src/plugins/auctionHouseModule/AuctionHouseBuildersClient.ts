@@ -60,7 +60,7 @@ export class AuctionHouseBuildersClient {
     input: CancelBidBuilderParams,
     options?: TransactionBuilderOptions
   ) {
-    return cancelBidBuilder(input, options);
+    return cancelBidBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc cancelListingBuilder} */
@@ -68,7 +68,7 @@ export class AuctionHouseBuildersClient {
     input: CancelListingBuilderParams,
     options?: TransactionBuilderOptions
   ) {
-    return cancelListingBuilder(input, options);
+    return cancelListingBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createAuctionHouseBuilder} */

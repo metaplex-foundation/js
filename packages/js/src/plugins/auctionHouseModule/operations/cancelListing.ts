@@ -1,24 +1,25 @@
-import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import {
   CancelInstructionAccounts,
-  createCancelListingReceiptInstruction,
-  createCancelInstruction,
   createAuctioneerCancelInstruction,
+  createCancelInstruction,
+  createCancelListingReceiptInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Listing } from '../models';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_PRICE } from '../constants';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, Listing } from '../models';
+import { findAuctioneerPda } from '../pdas';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  useOperation,
+  isSigner,
   Operation,
   OperationHandler,
-  Signer,
-  isSigner,
+  OperationScope,
   Pda,
+  Signer,
+  useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -88,9 +89,6 @@ export type CancelListingInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -108,10 +106,14 @@ export type CancelListingOutput = {
  */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
   {
-    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
-      cancelListingBuilder(operation.input).sendAndConfirm(
+    handle: async (
+      operation: CancelListingOperation,
+      metaplex: Metaplex,
+      scope: OperationScope
+    ) =>
+      cancelListingBuilder(metaplex, operation.input, scope).sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       ),
   };
 
@@ -150,6 +152,7 @@ export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
  * @category Constructors
  */
 export const cancelListingBuilder = (
+  metaplex: Metaplex,
   params: CancelListingBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelListingBuilderContext> => {

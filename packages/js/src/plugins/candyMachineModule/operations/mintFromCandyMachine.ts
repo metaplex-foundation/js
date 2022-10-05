@@ -215,13 +215,13 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
 
       let nft: NftWithToken;
       try {
-        nft = (await metaplex
-          .nfts()
-          .findByMint({
+        nft = (await metaplex.nfts().findByMint(
+          {
             mintAddress: output.mintSigner.publicKey,
             tokenAddress: output.tokenAddress,
-          })
-          .run(scope)) as NftWithToken;
+          },
+          scope
+        )) as NftWithToken;
       } catch (error) {
         const { candyGuard } = operation.input.candyMachine;
         if (!candyGuard) {

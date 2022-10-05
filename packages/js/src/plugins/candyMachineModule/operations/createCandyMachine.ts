@@ -473,12 +473,14 @@ export const createCandyMachineBuilder = async <
       await metaplex
         .system()
         .builders()
-        .createAccount({
-          space: getCandyMachineSize(candyMachineData),
-          payer,
-          newAccount: candyMachine,
-          program: candyMachineProgram.address,
-        })
+        .createAccount(
+          {
+            space: getCandyMachineSize(candyMachineData),
+            newAccount: candyMachine,
+            program: candyMachineProgram.address,
+          },
+          { payer, programs }
+        )
     )
 
     .add({

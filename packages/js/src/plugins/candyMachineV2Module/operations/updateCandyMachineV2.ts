@@ -5,13 +5,8 @@ import {
   createUpdateAuthorityInstruction,
   createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyMachineV2,
@@ -21,7 +16,13 @@ import {
 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
@@ -86,14 +87,6 @@ export type UpdateCandyMachineV2Input = Partial<CandyMachineV2Configs> & {
   authority?: Signer;
 
   /**
-   * The Signer that should pay for any required account storage.
-   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The new Candy Machine authority.
    *
    * @defaultValue Defaults to not being updated.
@@ -107,9 +100,6 @@ export type UpdateCandyMachineV2Input = Partial<CandyMachineV2Configs> & {
    * @defaultValue Defaults to not being updated.
    */
   newCollection?: Option<PublicKey>;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -129,15 +119,14 @@ export const updateCandyMachineV2OperationHandler: OperationHandler<UpdateCandyM
   {
     async handle(
       operation: UpdateCandyMachineV2Operation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UpdateCandyMachineV2Output> {
       const {
         candyMachine,
         authority = metaplex.identity(),
-        payer = metaplex.identity(),
         newAuthority,
         newCollection,
-        confirmOptions,
         ...updatableFields
       } = operation.input;
 
@@ -159,20 +148,25 @@ export const updateCandyMachineV2OperationHandler: OperationHandler<UpdateCandyM
         instructionDataWithoutChanges
       );
 
-      const builder = updateCandyMachineV2Builder(metaplex, {
-        candyMachine,
-        authority,
-        payer,
-        newData: shouldUpdateData ? { ...data, wallet, tokenMint } : undefined,
-        newCollection,
-        newAuthority,
-      });
+      const builder = updateCandyMachineV2Builder(
+        metaplex,
+        {
+          candyMachine,
+          authority,
+          newData: shouldUpdateData
+            ? { ...data, wallet, tokenMint }
+            : undefined,
+          newCollection,
+          newAuthority,
+        },
+        scope
+      );
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      return builder.sendAndConfirm(metaplex, confirmOptions);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -275,12 +269,13 @@ export const updateCandyMachineV2Builder = (
   const {
     candyMachine,
     authority = metaplex.identity(),
-    payer = metaplex.identity(),
     newData,
     newAuthority,
     newCollection,
   } = params;
-  const tokenMetadataProgram = metaplex.programs().getTokenMetadata().address;
+  const tokenMetadataProgram = metaplex
+    .programs()
+    .getTokenMetadata(programs).address;
   const shouldUpdateAuthority =
     !!newAuthority && !newAuthority.equals(authority.publicKey);
   const sameCollection =
@@ -295,6 +290,7 @@ export const updateCandyMachineV2Builder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Update data.
       .when(!!newData, (builder) => {
@@ -328,15 +324,25 @@ export const updateCandyMachineV2Builder = (
       // Set or update collection.
       .when(shouldUpdateCollection, (builder) => {
         const collectionMint = newCollection as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const edition = findMasterEditionV2Pda(collectionMint);
+        const metadata = metaplex.nfts().pdas().metadata({
+          mint: collectionMint,
+          programs,
+        });
+        const edition = metaplex.nfts().pdas().masterEdition({
+          mint: collectionMint,
+          programs,
+        });
         const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.address
         );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
+        const collectionAuthorityRecord = metaplex
+          .nfts()
+          .pdas()
+          .collectionAuthorityRecord({
+            mint: collectionMint,
+            collectionAuthority: collectionPda,
+            programs,
+          });
 
         return builder.add({
           instruction: createSetCollectionInstruction({
@@ -358,14 +364,21 @@ export const updateCandyMachineV2Builder = (
       // Remove collection.
       .when(shouldRemoveCollection, (builder) => {
         const collectionMint = candyMachine.collectionMintAddress as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
+        const metadata = metaplex.nfts().pdas().metadata({
+          mint: collectionMint,
+          programs,
+        });
         const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.address
         );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
+        const collectionAuthorityRecord = metaplex
+          .nfts()
+          .pdas()
+          .collectionAuthorityRecord({
+            mint: collectionMint,
+            collectionAuthority: collectionPda,
+            programs,
+          });
 
         return builder.add({
           instruction: createRemoveCollectionInstruction({

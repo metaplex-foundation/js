@@ -1,4 +1,4 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
   CandyMachineV2Account,
   parseCandyMachineV2Account,
@@ -8,8 +8,13 @@ import { CandyMachineV2GpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { DisposableScope, zipMap } from '@/utils';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import { zipMap } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Mint, toMint, toMintAccount } from '@/plugins/tokenModule';
 import { Metaplex } from '@/Metaplex';
 import { UnreachableCaseError } from '@/errors';
@@ -69,9 +74,6 @@ export type FindCandyMachinesV2ByPublicKeyFieldInput = {
 
   /** The publicKey to filter Candy Machine by. */
   publicKey: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -85,7 +87,8 @@ export const findCandyMachinesV2ByPublicKeyFieldOperationHandler: OperationHandl
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<CandyMachineV2[]> => {
-      const { type, publicKey, commitment } = operation.input;
+      const { commitment } = scope;
+      const { type, publicKey } = operation.input;
       const accounts = CandyMachineV2Program.accounts(metaplex).mergeConfig({
         commitment,
       });

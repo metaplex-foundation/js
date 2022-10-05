@@ -1,27 +1,27 @@
-import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import {
   CancelInstructionAccounts,
+  createAuctioneerCancelInstruction,
   createCancelBidReceiptInstruction,
   createCancelInstruction,
-  createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { AuctionHouse, Bid } from '../models';
 import { findAuctioneerPda } from '../pdas';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  useOperation,
+  isSigner,
   Operation,
   OperationHandler,
-  Signer,
-  isSigner,
-  toPublicKey,
+  OperationScope,
   Pda,
+  Signer,
+  toPublicKey,
+  useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import type { Metaplex } from '@/Metaplex';
 import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -98,9 +98,6 @@ export type CancelBidInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -117,10 +114,14 @@ export type CancelBidOutput = {
  * @category Handlers
  */
 export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
-  handle: async (operation: CancelBidOperation, metaplex: Metaplex) =>
-    cancelBidBuilder(operation.input).sendAndConfirm(
+  handle: async (
+    operation: CancelBidOperation,
+    metaplex: Metaplex,
+    scope: OperationScope
+  ) =>
+    cancelBidBuilder(metaplex, operation.input, scope).sendAndConfirm(
       metaplex,
-      operation.input.confirmOptions
+      scope.confirmOptions
     ),
 };
 
@@ -156,6 +157,7 @@ export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
  * @category Constructors
  */
 export const cancelBidBuilder = (
+  metaplex: Metaplex,
   params: CancelBidBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelBidBuilderContext> => {
@@ -185,10 +187,14 @@ export const cancelBidBuilder = (
 
   // Accounts.
   const tokenAccount = isPublic
-    ? findAssociatedTokenAccountPda(
-        asset.mint.address,
-        toPublicKey(buyerAddress)
-      )
+    ? metaplex
+        .tokens()
+        .pdas()
+        .associatedTokenAccount({
+          mint: asset.mint.address,
+          owner: toPublicKey(buyerAddress),
+          programs,
+        })
     : (asset as SftWithToken | NftWithToken).token.address;
 
   const accounts: CancelInstructionAccounts = {
@@ -228,6 +234,7 @@ export const cancelBidBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Cancel Bid.
       .add({
