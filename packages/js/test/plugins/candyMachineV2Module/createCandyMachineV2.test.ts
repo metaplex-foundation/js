@@ -46,13 +46,11 @@ test('[candyMachineV2Module] create with minimal input', async (t) => {
   const { tc, mx, client } = await init();
 
   // When we create that Candy Machine
-  const { response, candyMachine } = await client
-    .create({
-      price: sol(1.25),
-      sellerFeeBasisPoints: 500,
-      itemsAvailable: toBigNumber(100),
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    price: sol(1.25),
+    sellerFeeBasisPoints: 500,
+    itemsAvailable: toBigNumber(100),
+  });
 
   // Then we created the Candy Machine as configured
   await tc.assertSuccess(t, response.signature);
@@ -110,9 +108,10 @@ test('[candyMachineV2Module] create with creators', async (t) => {
   ];
 
   // When we create a Candy Machine and assign these creators.
-  const { response, candyMachine } = await client
-    .create({ ...minimalInput, creators })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    creators,
+  });
 
   // Then the creators where saved on the Candy Machine.
   await tc.assertSuccess(t, response.signature);
@@ -128,7 +127,7 @@ test('[candyMachineV2Module] create with 0-decimal SPL token treasury', async (t
   const { tc, mx, client, minimalInput } = await init();
 
   // And a token account and its mint account.
-  const { token: tokenMint } = await mx.tokens().createTokenWithMint().run();
+  const { token: tokenMint } = await mx.tokens().createTokenWithMint();
 
   const amount = token(
     100,
@@ -137,14 +136,12 @@ test('[candyMachineV2Module] create with 0-decimal SPL token treasury', async (t
   );
 
   // When we create a Candy Machine with an SPL treasury.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      price: amount,
-      wallet: tokenMint.address,
-      tokenMint: tokenMint.mint.address,
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    price: amount,
+    wallet: tokenMint.address,
+    tokenMint: tokenMint.mint.address,
+  });
 
   // Then a Candy Machine was created with the SPL treasury as configured.
   await tc.assertSuccess(t, response.signature);
@@ -165,8 +162,7 @@ test('[candyMachineV2Module] create with 9-decimal SPL token treasury', async (t
   // And a token account and its mint account.
   const { token: tokenMint } = await mx
     .tokens()
-    .createTokenWithMint({ decimals: 9 })
-    .run();
+    .createTokenWithMint({ decimals: 9 });
 
   const amount = token(
     1.25,
@@ -175,14 +171,12 @@ test('[candyMachineV2Module] create with 9-decimal SPL token treasury', async (t
   );
 
   // When we create a Candy Machine with an SPL treasury.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      price: amount,
-      wallet: tokenMint.address,
-      tokenMint: tokenMint.mint.address,
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    price: amount,
+    wallet: tokenMint.address,
+    tokenMint: tokenMint.mint.address,
+  });
 
   // Then a Candy Machine was created with the SPL treasury as configured.
   await tc.assertSuccess(t, response.signature);
@@ -199,15 +193,13 @@ test('[candyMachineV2Module] create with end settings', async (t) => {
   const { tc, client, minimalInput } = await init();
 
   // When we create a Candy Machine with end settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      endSettings: {
-        endSettingType: EndSettingType.Amount,
-        number: toBigNumber(100),
-      },
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    endSettings: {
+      endSettingType: EndSettingType.Amount,
+      number: toBigNumber(100),
+    },
+  });
 
   // Then a Candy Machine was created with these end settings.
   await tc.assertSuccess(t, response.signature);
@@ -226,16 +218,14 @@ test('[candyMachineV2Module] create with hidden settings', async (t) => {
   const { tc, client, minimalInput } = await init();
 
   // When we create a Candy Machine with hidden settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      hiddenSettings: {
-        hash: create32BitsHash('cache-file'),
-        uri: 'https://example.com',
-        name: 'mint-name',
-      },
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    hiddenSettings: {
+      hash: create32BitsHash('cache-file'),
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  });
 
   // Then a Candy Machine was created with these hidden settings.
   await tc.assertSuccess(t, response.signature);
@@ -255,16 +245,14 @@ test('[candyMachineV2Module] try to create with invalid hidden settings', async 
   const { client, minimalInput } = await init();
 
   // When we create a Candy Machine with invalid hidden settings.
-  const promise = client
-    .create({
-      ...minimalInput,
-      hiddenSettings: {
-        hash: [1, 2, 3], // <- Should be 32 bytes.
-        uri: 'https://example.com',
-        name: 'mint-name',
-      },
-    })
-    .run();
+  const promise = client.create({
+    ...minimalInput,
+    hiddenSettings: {
+      hash: [1, 2, 3], // <- Should be 32 bytes.
+      uri: 'https://example.com',
+      name: 'mint-name',
+    },
+  });
 
   // Then it fails to create the Candy Machine.
   await assertThrows(t, promise, /len.+3.+should match len.+32/i);
@@ -276,15 +264,13 @@ test('[candyMachineV2Module] create with gatekeeper settings', async (t) => {
   const gatekeeper = Keypair.generate();
 
   // When we create a Candy Machine with gatekeep settings.
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      gatekeeper: {
-        network: gatekeeper.publicKey,
-        expireOnUse: true,
-      },
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    gatekeeper: {
+      network: gatekeeper.publicKey,
+      expireOnUse: true,
+    },
+  });
 
   // Then a Candy Machine was created with these gatekeep settings.
   await tc.assertSuccess(t, response.signature);
@@ -304,17 +290,15 @@ test('[candyMachineV2Module] create with whitelistMint settings', async (t) => {
   const mint = Keypair.generate();
 
   // When we create a Candy Machine with ...
-  const { response, candyMachine } = await client
-    .create({
-      ...minimalInput,
-      whitelistMintSettings: {
-        mode: WhitelistMintMode.BurnEveryTime,
-        discountPrice: sol(0.5),
-        mint: mint.publicKey,
-        presale: false,
-      },
-    })
-    .run();
+  const { response, candyMachine } = await client.create({
+    ...minimalInput,
+    whitelistMintSettings: {
+      mode: WhitelistMintMode.BurnEveryTime,
+      discountPrice: sol(0.5),
+      mint: mint.publicKey,
+      presale: false,
+    },
+  });
 
   // Then a Candy Machine was created with ...
   await tc.assertSuccess(t, response.signature);
@@ -340,12 +324,10 @@ test('[candyMachineV2Module] create with collection', async (t) => {
   const collectionNft = await createNft(mx);
 
   // When we create that Candy Machine
-  const { candyMachine } = await client
-    .create({
-      ...minimalInput,
-      collection: collectionNft.address,
-    })
-    .run();
+  const { candyMachine } = await client.create({
+    ...minimalInput,
+    collection: collectionNft.address,
+  });
 
   // Then we created the Candy Machine as configured
   spok(t, candyMachine, {

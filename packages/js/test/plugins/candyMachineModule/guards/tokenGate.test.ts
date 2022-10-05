@@ -15,14 +15,11 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   // Given a payer with one token.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(1),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(1),
+  });
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -37,19 +34,16 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   });
 
   // When the payer mints from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        tokenGate: {
-          tokenAccount: payerTokens.address,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      tokenGate: {
+        tokenAccount: payerTokens.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -64,14 +58,11 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   // Given a payer with 42 tokens.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(42),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(42),
+  });
 
   // And a loaded Candy Machine with the token gate guard that requires 5 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -86,19 +77,16 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   });
 
   // When the payer mints from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        tokenGate: {
-          tokenAccount: payerTokens.address,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      tokenGate: {
+        tokenAccount: payerTokens.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -113,14 +101,11 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
   // Given a payer with one token using an associated token account.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(1),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(1),
+  });
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -135,14 +120,11 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
   });
 
   // When the payer mints from it without specifying the token account.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -157,14 +139,11 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   // Given a payer with zero tokens.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(0),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(0),
+  });
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -179,19 +158,16 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        tokenGate: {
-          tokenAccount: payerTokens.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      tokenGate: {
+        tokenAccount: payerTokens.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -201,14 +177,11 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   // Given a payer with 5 tokens.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(5),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(5),
+  });
 
   // And a loaded Candy Machine with the token gate guard that requires 10 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -223,19 +196,16 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        tokenGate: {
-          tokenAccount: payerTokens.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      tokenGate: {
+        tokenAccount: payerTokens.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -245,14 +215,11 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
   // Given a payer with zero tokens.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(0),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(0),
+  });
 
   // And a loaded Candy Machine with the token gate guard and the bot tax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -271,19 +238,16 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        tokenGate: {
-          tokenAccount: payerTokens.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      tokenGate: {
+        tokenAccount: payerTokens.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

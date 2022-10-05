@@ -28,14 +28,11 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   await mx.rpc().airdrop(auctionHouse.treasuryAccountAddress, sol(2));
 
   // When we withdraw 1 SOL from treasury account.
-  await mx
-    .auctionHouse()
-    .withdrawFromTreasuryAccount({
-      auctionHouse,
-      payer,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().withdrawFromTreasuryAccount({
+    auctionHouse,
+    payer,
+    amount: sol(1),
+  });
 
   // Then treasury account has 1 SOL in it.
   const treasuryBalance = await mx

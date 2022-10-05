@@ -22,14 +22,11 @@ test('[candyMachineModule] botTax guard: it does nothing if all conditions are v
 
   // When we mint from it.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {

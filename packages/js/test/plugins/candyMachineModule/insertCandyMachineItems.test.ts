@@ -21,23 +21,18 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   });
 
   // When we add two items to the Candy Machine.
-  await mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      authority,
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-      ],
-    })
-    .run();
+  await mx.candyMachines().insertItems({
+    candyMachine,
+    authority,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
 
   // Then the Candy Machine has been updated properly.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+
   t.false(updatedCandyMachine.isFullyLoaded);
   t.equals(updatedCandyMachine.itemsLoaded, 2);
   t.equals(updatedCandyMachine.items.length, 2);
@@ -73,22 +68,17 @@ test('[candyMachineModule] it uses the names and URIs as suffixes when adding it
   });
 
   // When we add two items to the Candy Machine by providing only the suffixes.
-  await mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [
-        { name: '1', uri: '1.json' },
-        { name: '2', uri: '2.json' },
-      ],
-    })
-    .run();
+  await mx.candyMachines().insertItems({
+    candyMachine,
+    items: [
+      { name: '1', uri: '1.json' },
+      { name: '2', uri: '2.json' },
+    ],
+  });
 
   // Then the update Candy Machine returns the full item names and URIs.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+
   t.deepEquals(updatedCandyMachine.items, [
     {
       index: 0,
@@ -119,16 +109,13 @@ test('[candyMachineModule] it cannot add items to a candy machine with hidden se
   });
 
   // When we try to add items to the Candy Machine.
-  const promise = mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [
-        { name: '1', uri: '1.json' },
-        { name: '2', uri: '2.json' },
-      ],
-    })
-    .run();
+  const promise = mx.candyMachines().insertItems({
+    candyMachine,
+    items: [
+      { name: '1', uri: '1.json' },
+      { name: '2', uri: '2.json' },
+    ],
+  });
 
   // Then we expect an error from the program.
   await assertThrows(t, promise, /HiddenSettingsDoNotHaveConfigLines/);
@@ -142,17 +129,14 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
   });
 
   // When we try to add 3 items to the Candy Machine.
-  const promise = mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'Degen #2', uri: 'https://example.com/degen/2' },
-        { name: 'Degen #3', uri: 'https://example.com/degen/3' },
-      ],
-    })
-    .run();
+  const promise = mx.candyMachines().insertItems({
+    candyMachine,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+      { name: 'Degen #3', uri: 'https://example.com/degen/3' },
+    ],
+  });
 
   // Then we expect an error to be thrown.
   await assertThrows(t, promise, /Candy Machine Cannot Add Amount/);
@@ -170,13 +154,10 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   });
 
   // When we try to add one more item to the Candy Machine.
-  const promise = mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [{ name: 'Degen #3', uri: 'https://example.com/degen/3' }],
-    })
-    .run();
+  const promise = mx.candyMachines().insertItems({
+    candyMachine,
+    items: [{ name: 'Degen #3', uri: 'https://example.com/degen/3' }],
+  });
 
   // Then we expect an error to be thrown.
   await assertThrows(t, promise, /Candy Machine Is Full/);
@@ -198,16 +179,13 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
   });
 
   // When we try to add items such that one of the names is too long.
-  const promiseName = mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'x'.repeat(11), uri: 'https://example.com/degen/2' },
-      ],
-    })
-    .run();
+  const promiseName = mx.candyMachines().insertItems({
+    candyMachine,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'x'.repeat(11), uri: 'https://example.com/degen/2' },
+    ],
+  });
 
   // Then we expect an error to be thrown regarding that name.
   await assertThrowsFn(t, promiseName, (error) => {
@@ -220,16 +198,13 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
   });
 
   // And when we try to add items such that one of the URIs is too long.
-  const promiseUri = mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      items: [
-        { name: 'Degen #1', uri: 'https://example.com/degen/1' },
-        { name: 'Degen #2', uri: 'x'.repeat(51) },
-      ],
-    })
-    .run();
+  const promiseUri = mx.candyMachines().insertItems({
+    candyMachine,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'x'.repeat(51) },
+    ],
+  });
 
   // Then we expect an error to be thrown regarding that URI.
   await assertThrowsFn(t, promiseUri, (error) => {
@@ -254,23 +229,18 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
   });
 
   // When we add 2 items to the Candy Machine at index 1.
-  await mx
-    .candyMachines()
-    .insertItems({
-      candyMachine,
-      index: 1,
-      items: [
-        { name: 'Degen #3', uri: 'https://example.com/degen/3' },
-        { name: 'Degen #4', uri: 'https://example.com/degen/4' },
-      ],
-    })
-    .run();
+  await mx.candyMachines().insertItems({
+    candyMachine,
+    index: 1,
+    items: [
+      { name: 'Degen #3', uri: 'https://example.com/degen/3' },
+      { name: 'Degen #4', uri: 'https://example.com/degen/4' },
+    ],
+  });
 
   // Then the Candy Machine has been updated properly.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+
   t.true(updatedCandyMachine.isFullyLoaded);
   t.equals(updatedCandyMachine.itemsLoaded, 3);
   t.equals(updatedCandyMachine.items.length, 3);

@@ -39,19 +39,16 @@ test('[candyMachineModule] nftGate guard: it allows minting when the payer owns 
   });
 
   // When we mint from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: payerNft.address,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -89,20 +86,17 @@ test('[candyMachineModule] nftGate guard: it allows minting when the NFT is not 
   });
 
   // When we mint from it by providing the mint and token addresses.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: payerNft.address,
-          tokenAccount: payerNft.token.address,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: payerNft.address,
+        tokenAccount: payerNft.token.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -128,14 +122,11 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer does
   });
 
   // But that sent his NFT to another wallet.
-  await mx
-    .nfts()
-    .send({
-      mintAddress: payerNft.address,
-      fromOwner: payer,
-      toOwner: Keypair.generate().publicKey,
-    })
-    .run();
+  await mx.nfts().send({
+    mintAddress: payerNft.address,
+    fromOwner: payer,
+    toOwner: Keypair.generate().publicKey,
+  });
 
   // And a loaded Candy Machine with an nftGate guard on that collection.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -149,19 +140,16 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer does
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Missing NFT on the account/);
@@ -196,19 +184,16 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
   });
 
   // When the payer tries to mint from it using its collection A NFT.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Invalid NFT collection/);
@@ -239,19 +224,16 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
   });
 
   // When the payer tries to mint from it using its unverified NFT.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Invalid NFT collection/);
@@ -280,19 +262,16 @@ test('[candyMachineModule] nftGate guard with bot tax: it charges a bot tax when
   // When we try to mint from it using any NFT that's not from the required collection.
   const payer = await createWallet(mx, 10);
   const wrongNft = await createNft(mx, { tokenOwner: payer.publicKey });
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftGate: {
-          mint: wrongNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftGate: {
+        mint: wrongNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -332,13 +311,10 @@ test('[candyMachineModule] nftGate guard: it fails if no mint settings are provi
 
   // When we try to mint from it without providing
   // any mint settings for the nftGate guard.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+  });
 
   // Then we expect an error.
   await assertThrows(

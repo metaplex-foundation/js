@@ -29,15 +29,12 @@ test('[candyMachineModule] solPayment guard: it transfers SOL from the payer to 
   // When we mint for another owner using an explicit payer.
   const payer = await createWallet(mx, 10);
   const owner = Keypair.generate().publicKey;
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      owner,
-    })
-    .run();
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    owner,
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -73,14 +70,11 @@ test('[candyMachineModule] solPayment guard: it fails if the payer does not have
 
   // When we mint from it using a payer that only has 4 SOL.
   const payer = await createWallet(mx, 4);
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough SOL to pay for the mint/);
@@ -111,14 +105,11 @@ test('[candyMachineModule] solPayment guard with bot tax: it charges a bot tax i
 
   // When we mint from it using a payer that only has 4 SOL.
   const payer = await createWallet(mx, 4);
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

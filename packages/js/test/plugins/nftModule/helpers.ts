@@ -19,6 +19,6 @@ export const assertRefreshedCollectionHasSize = async (
   collectionNft: Nft,
   expectedSize: number
 ) => {
-  const updateCollectionNft = await mx.nfts().refresh(collectionNft).run();
+  const updateCollectionNft = await mx.nfts().refresh(collectionNft);
   assertCollectionHasSize(t, updateCollectionNft, expectedSize);
 };

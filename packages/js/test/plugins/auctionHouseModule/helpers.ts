@@ -7,14 +7,11 @@ export const createAuctionHouse = async (
   auctioneerAuthority?: Signer | null,
   input: Partial<CreateAuctionHouseInput> = {}
 ) => {
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      auctioneerAuthority: auctioneerAuthority?.publicKey,
-      ...input,
-    })
-    .run();
+  const { auctionHouse } = await mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    auctioneerAuthority: auctioneerAuthority?.publicKey,
+    ...input,
+  });
 
   await mx.rpc().airdrop(auctionHouse.feeAccountAddress, sol(100));
 

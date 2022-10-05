@@ -19,24 +19,18 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
   const mx = await metaplex();
 
   // And we uploaded some metadata containing an image.
-  const { uri, metadata } = await mx
-    .nfts()
-    .uploadMetadata({
-      name: 'JSON SFT name',
-      description: 'JSON SFT description',
-      image: toMetaplexFile('some_image', 'some-image.jpg'),
-    })
-    .run();
+  const { uri, metadata } = await mx.nfts().uploadMetadata({
+    name: 'JSON SFT name',
+    description: 'JSON SFT description',
+    image: toMetaplexFile('some_image', 'some-image.jpg'),
+  });
 
   // When we create a new SFT with minimum configuration.
-  const { sft, mintAddress, metadataAddress } = await mx
-    .nfts()
-    .createSft({
-      uri,
-      name: 'On-chain SFT name',
-      sellerFeeBasisPoints: 200,
-    })
-    .run();
+  const { sft, mintAddress, metadataAddress } = await mx.nfts().createSft({
+    uri,
+    name: 'On-chain SFT name',
+    sellerFeeBasisPoints: 200,
+  });
 
   // Then we created and returned the new SFT and it has appropriate defaults.
   const expectedSft = {
@@ -75,10 +69,8 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
   spok(t, sft, { $topic: 'SFT', ...expectedSft });
 
   // And we get the same data when fetching a fresh instance of that SFT.
-  const retrievedSft = await mx
-    .nfts()
-    .findByMint({ mintAddress: sft.address })
-    .run();
+  const retrievedSft = await mx.nfts().findByMint({ mintAddress: sft.address });
+
   spok(t, retrievedSft, { $topic: 'Retrieved SFT', ...expectedSft });
 });
 
@@ -97,40 +89,37 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const otherCreator = Keypair.generate();
 
   // When we create a new SFT with maximum configuration.
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      uri: 'https://example.com/some-json-uri',
-      name: 'On-chain SFT name',
-      symbol: 'MYSFT',
-      decimals: 2,
-      sellerFeeBasisPoints: 456,
-      isMutable: false,
-      useNewMint: mint,
-      tokenOwner: owner.publicKey,
-      tokenAmount: token(4200),
-      payer,
-      mintAuthority,
-      updateAuthority,
-      freezeAuthority: freezeAuthority.publicKey,
-      collection: collection.publicKey,
-      uses: {
-        useMethod: UseMethod.Burn,
-        remaining: 0,
-        total: 1000,
+  const { sft } = await mx.nfts().createSft({
+    uri: 'https://example.com/some-json-uri',
+    name: 'On-chain SFT name',
+    symbol: 'MYSFT',
+    decimals: 2,
+    sellerFeeBasisPoints: 456,
+    isMutable: false,
+    useNewMint: mint,
+    tokenOwner: owner.publicKey,
+    tokenAmount: token(4200),
+    payer,
+    mintAuthority,
+    updateAuthority,
+    freezeAuthority: freezeAuthority.publicKey,
+    collection: collection.publicKey,
+    uses: {
+      useMethod: UseMethod.Burn,
+      remaining: 0,
+      total: 1000,
+    },
+    creators: [
+      {
+        address: updateAuthority.publicKey,
+        share: 60,
       },
-      creators: [
-        {
-          address: updateAuthority.publicKey,
-          share: 60,
-        },
-        {
-          address: otherCreator.publicKey,
-          share: 40,
-        },
-      ],
-    })
-    .run();
+      {
+        address: otherCreator.publicKey,
+        share: 40,
+      },
+    ],
+  });
 
   // Then the created SFT has the expected configuration.
   spok(t, sft, {
@@ -194,21 +183,17 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
   const mintAuthority = Keypair.generate();
   const { mint } = await mx
     .tokens()
-    .createMint({ decimals: 2, mintAuthority: mintAuthority.publicKey })
-    .run();
+    .createMint({ decimals: 2, mintAuthority: mintAuthority.publicKey });
 
   // When we create a new SFT from that mint.
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      ...minimalInput(),
-      useExistingMint: mint.address,
-      mintAuthority,
-      name: 'My SFT from an existing mint',
-      symbol: 'MYSFT',
-      decimals: 9, // <- This will not be used on existing mints.
-    })
-    .run();
+  const { sft } = await mx.nfts().createSft({
+    ...minimalInput(),
+    useExistingMint: mint.address,
+    mintAuthority,
+    name: 'My SFT from an existing mint',
+    symbol: 'MYSFT',
+    decimals: 9, // <- This will not be used on existing mints.
+  });
 
   // Then we created an SFT whilst keeping the provided mint.
   spok(t, sft, {
@@ -233,14 +218,11 @@ test('[nftModule] it can create an SFT with a new associated token', async (t: T
   const mx = await metaplex();
 
   // When we create a new SFT with a token account.
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      ...minimalInput(),
-      tokenOwner: mx.identity().publicKey,
-      tokenAmount: token(42),
-    })
-    .run();
+  const { sft } = await mx.nfts().createSft({
+    ...minimalInput(),
+    tokenOwner: mx.identity().publicKey,
+    tokenAmount: token(42),
+  });
 
   // Then the created SFT has the expected configuration.
   spok(t, sft, {
@@ -269,14 +251,11 @@ test('[nftModule] it can create an SFT with a new non-associated token', async (
 
   // When we create a new SFT with a non-associated token account.
   const tokenSigner = Keypair.generate();
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      ...minimalInput(),
-      tokenAddress: tokenSigner,
-      tokenAmount: token(42),
-    })
-    .run();
+  const { sft } = await mx.nfts().createSft({
+    ...minimalInput(),
+    tokenAddress: tokenSigner,
+    tokenAmount: token(42),
+  });
 
   // Then the created SFT has the expected configuration.
   spok(t, sft, {
@@ -307,20 +286,17 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
   const tokenSigner = Keypair.generate();
   const { token: existingToken } = await mx
     .tokens()
-    .createTokenWithMint({ token: tokenSigner })
-    .run();
+    .createTokenWithMint({ token: tokenSigner });
+
   const existingMint = existingToken.mint;
 
   // When we create a new SFT for that mint and mint to an existing token account.
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      ...minimalInput(),
-      useExistingMint: existingMint.address,
-      tokenAddress: tokenSigner,
-      tokenAmount: token(42),
-    })
-    .run();
+  const { sft } = await mx.nfts().createSft({
+    ...minimalInput(),
+    useExistingMint: existingMint.address,
+    tokenAddress: tokenSigner,
+    tokenAmount: token(42),
+  });
 
   // Then the created SFT has the expected configuration.
   spok(t, sft, {
@@ -351,28 +327,25 @@ test('[nftModule] it can create an SFT with additional verified creators', async
   const creatorB = Keypair.generate();
 
   // When we create a new SFT with these creators as signers.
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      ...minimalInput(),
-      creators: [
-        {
-          address: mx.identity().publicKey,
-          share: 40,
-        },
-        {
-          address: creatorA.publicKey,
-          authority: creatorA,
-          share: 35,
-        },
-        {
-          address: creatorB.publicKey,
-          authority: creatorB,
-          share: 25,
-        },
-      ],
-    })
-    .run();
+  const { sft } = await mx.nfts().createSft({
+    ...minimalInput(),
+    creators: [
+      {
+        address: mx.identity().publicKey,
+        share: 40,
+      },
+      {
+        address: creatorA.publicKey,
+        authority: creatorA,
+        share: 35,
+      },
+      {
+        address: creatorB.publicKey,
+        authority: creatorB,
+        share: 25,
+      },
+    ],
+  });
 
   // Then the created SFT has all creators verified.
   spok(t, sft, {

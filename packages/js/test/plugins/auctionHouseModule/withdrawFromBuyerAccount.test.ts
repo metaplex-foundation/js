@@ -18,13 +18,10 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
   const auctionHouse = await createAuctionHouse(mx);
 
   // And deposit 1 SOL to the buyer's escrow account.
-  await mx
-    .auctionHouse()
-    .depositToBuyerAccount({
-      auctionHouse,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().depositToBuyerAccount({
+    auctionHouse,
+    amount: sol(1),
+  });
 
   // Then buyer's escrow account has SOL in it
   const buyerEscrow = findAuctionHouseBuyerEscrowPda(
@@ -41,13 +38,10 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House', asy
   );
 
   // When we withdraw 1 SOL from the buyer's escrow account.
-  await mx
-    .auctionHouse()
-    .withdrawFromBuyerAccount({
-      auctionHouse,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().withdrawFromBuyerAccount({
+    auctionHouse,
+    amount: sol(1),
+  });
 
   // Then buyer's escrow account has minimum rent exempt SOL
   buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
@@ -65,13 +59,10 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House with 
   const auctionHouse = await createAuctionHouse(mx, null, { authority });
 
   // And deposit 1 SOL to the buyer's escrow account.
-  await mx
-    .auctionHouse()
-    .depositToBuyerAccount({
-      auctionHouse,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().depositToBuyerAccount({
+    auctionHouse,
+    amount: sol(1),
+  });
 
   // Then buyer's escrow account has SOL in it
   const buyerEscrow = findAuctionHouseBuyerEscrowPda(
@@ -88,14 +79,11 @@ test('[auctionHouseModule] withdraw from buyer account on an Auction House with 
   );
 
   // When we withdraw 1 SOL from the buyer's escrow account.
-  await mx
-    .auctionHouse()
-    .withdrawFromBuyerAccount({
-      auctionHouse,
-      amount: sol(1),
-      authority,
-    })
-    .run();
+  await mx.auctionHouse().withdrawFromBuyerAccount({
+    auctionHouse,
+    amount: sol(1),
+    authority,
+  });
 
   // Then buyer's escrow account has minimum rent exempt SOL
   buyerEscrowBalance = await mx.rpc().getBalance(buyerEscrow);
@@ -113,23 +101,18 @@ test('[auctionHouseModule] withdraw from buyer account on an Auctioneer Auction 
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we deposit 1 SOL.
-  await mx
-    .auctionHouse()
-    .depositToBuyerAccount({
-      auctionHouse,
-      auctioneerAuthority,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().depositToBuyerAccount({
+    auctionHouse,
+    auctioneerAuthority,
+    amount: sol(1),
+  });
 
   // Then buyer's escrow account has SOL in it.
-  let buyerEscrowBalance = await mx
-    .auctionHouse()
-    .getBuyerBalance({
-      auctionHouse: auctionHouse.address,
-      buyerAddress: mx.identity().publicKey,
-    })
-    .run();
+  let buyerEscrowBalance = await mx.auctionHouse().getBuyerBalance({
+    auctionHouse: auctionHouse.address,
+    buyerAddress: mx.identity().publicKey,
+  });
+
   const minimumRentExempt = await mx.rpc().getRent(0);
 
   t.same(
@@ -138,14 +121,11 @@ test('[auctionHouseModule] withdraw from buyer account on an Auctioneer Auction 
   );
 
   // When we withdraw 1 SOL from the buyer's escrow account.
-  await mx
-    .auctionHouse()
-    .withdrawFromBuyerAccount({
-      auctionHouse,
-      auctioneerAuthority,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().withdrawFromBuyerAccount({
+    auctionHouse,
+    auctioneerAuthority,
+    amount: sol(1),
+  });
 
   // Then buyer's escrow account has minimum rent exempt SOL
   buyerEscrowBalance = buyerEscrowBalance = await mx
@@ -153,8 +133,7 @@ test('[auctionHouseModule] withdraw from buyer account on an Auctioneer Auction 
     .getBuyerBalance({
       auctionHouse: auctionHouse.address,
       buyerAddress: mx.identity().publicKey,
-    })
-    .run();
+    });
 
   t.same(
     buyerEscrowBalance.basisPoints.toNumber(),
@@ -169,13 +148,10 @@ test('[auctionHouseModule] it throws an error if Auctioneer Authority is not pro
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // When we don't provide auctioneer authority to withdrawFromBuyerAccount.
-  const promise = mx
-    .auctionHouse()
-    .withdrawFromBuyerAccount({
-      auctionHouse,
-      amount: sol(1),
-    })
-    .run();
+  const promise = mx.auctionHouse().withdrawFromBuyerAccount({
+    auctionHouse,
+    amount: sol(1),
+  });
 
   // Then we expect an error.
   await assertThrows(

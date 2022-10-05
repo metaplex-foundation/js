@@ -41,25 +41,21 @@ test('[nftModule] it can update the on-chain metadata of an NFT', async (t: Test
       name: 'Updated JSON NFT name',
       description: 'Updated JSON NFT description',
       image: toMetaplexFile('updated image', 'updated-image.jpg'),
-    })
-    .run();
+    });
 
   // When we update the NFT with new on-chain data.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      name: 'Updated On-chain NFT name',
-      symbol: 'UPDATED',
-      sellerFeeBasisPoints: 500,
-      primarySaleHappened: true,
-      uri: updatedUri,
-      isMutable: false,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    name: 'Updated On-chain NFT name',
+    symbol: 'UPDATED',
+    sellerFeeBasisPoints: 500,
+    primarySaleHappened: true,
+    uri: updatedUri,
+    isMutable: false,
+  });
 
   // Then the returned NFT should have the updated data.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
@@ -104,25 +100,21 @@ test('[nftModule] it can update the on-chain metadata of an SFT', async (t: Test
       name: 'Updated JSON SFT name',
       description: 'Updated JSON SFT description',
       image: toMetaplexFile('updated image', 'updated-image.jpg'),
-    })
-    .run();
+    });
 
   // When we update the NFT with new on-chain data.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: sft,
-      name: 'Updated On-chain SFT name',
-      symbol: 'UPDATED',
-      sellerFeeBasisPoints: 500,
-      primarySaleHappened: true,
-      uri: updatedUri,
-      isMutable: false,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: sft,
+    name: 'Updated On-chain SFT name',
+    symbol: 'UPDATED',
+    sellerFeeBasisPoints: 500,
+    primarySaleHappened: true,
+    uri: updatedUri,
+    isMutable: false,
+  });
 
   // Then the returned NFT should have the updated data.
-  const updatedSft = await mx.nfts().refresh(sft).run();
+  const updatedSft = await mx.nfts().refresh(sft);
   spok(t, updatedSft, {
     $topic: 'Updated SFT',
     model: 'sft',
@@ -186,35 +178,32 @@ test('[nftModule] it can update and verify creators at the same time', async (t:
   // - creatorB is still unverified
   // - creatorC is now verified
   // - creatorD is added and verified
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      creators: [
-        {
-          address: creatorA.publicKey,
-          share: 30,
-        },
-        {
-          address: creatorB.publicKey,
-          share: 20,
-        },
-        {
-          address: creatorC.publicKey,
-          authority: creatorC,
-          share: 10,
-        },
-        {
-          address: creatorD.publicKey,
-          authority: creatorD,
-          share: 40,
-        },
-      ],
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    creators: [
+      {
+        address: creatorA.publicKey,
+        share: 30,
+      },
+      {
+        address: creatorB.publicKey,
+        share: 20,
+      },
+      {
+        address: creatorC.publicKey,
+        authority: creatorC,
+        share: 10,
+      },
+      {
+        address: creatorD.publicKey,
+        authority: creatorD,
+        share: 40,
+      },
+    ],
+  });
 
   // Then the returned NFT should have the updated data.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
@@ -256,16 +245,13 @@ test('[nftModule] it can set the parent Collection of an NFT', async (t: Test) =
   assertCollectionHasSize(t, collectionNft, 0);
 
   // When we update that NFT by providing a parent collection.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      collection: collectionNft.address,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collection: collectionNft.address,
+  });
 
   // Then the updated NFT is now from that collection.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -295,17 +281,14 @@ test('[nftModule] it can set and verify the parent Collection of an NFT', async 
   assertCollectionHasSize(t, collectionNft, 0);
 
   // When we update that NFT by providing a parent collection and its authority.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      collection: collectionNft.address,
-      collectionAuthority,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collection: collectionNft.address,
+    collectionAuthority,
+  });
 
   // Then the updated NFT is now from that collection and it is verified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -331,27 +314,21 @@ test('[nftModule] it can set and verify the parent Collection of an NFT using a 
   const delegatedCollectionAuthority = Keypair.generate();
   const collectionNft = await createCollectionNft(mx);
   assertCollectionHasSize(t, collectionNft, 0);
-  await mx
-    .nfts()
-    .approveCollectionAuthority({
-      mintAddress: collectionNft.address,
-      collectionAuthority: delegatedCollectionAuthority.publicKey,
-    })
-    .run();
+  await mx.nfts().approveCollectionAuthority({
+    mintAddress: collectionNft.address,
+    collectionAuthority: delegatedCollectionAuthority.publicKey,
+  });
 
   // When we update that NFT by providing a parent collection and its delegated authority.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      collection: collectionNft.address,
-      collectionAuthority: delegatedCollectionAuthority,
-      collectionAuthorityIsDelegated: true,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collection: collectionNft.address,
+    collectionAuthority: delegatedCollectionAuthority,
+    collectionAuthorityIsDelegated: true,
+  });
 
   // Then the updated NFT is now from that collection and it is verified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -383,17 +360,14 @@ test('[nftModule] it can update the parent Collection of an NFT even when verifi
   await assertRefreshedCollectionHasSize(t, mx, collectionNftB, 0);
 
   // When we update that NFT so it is part of collection B.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      collection: collectionNftB.address,
-      collectionAuthority: mx.identity(),
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collection: collectionNftB.address,
+    collectionAuthority: mx.identity(),
+  });
 
   // Then the updated NFT is now from collection B.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -422,16 +396,13 @@ test('[nftModule] it can unset the parent Collection of an NFT even when verifie
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 
   // When we update that NFT by removing its parent collection.
-  await mx
-    .nfts()
-    .update({
-      nftOrSft: nft,
-      collection: null,
-    })
-    .run();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collection: null,
+  });
 
   // Then the updated NFT should now have no parent collection.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -457,11 +428,11 @@ test('[nftModule] it does not try to remove a collection when the collection par
 
   // When we update the metadata of the NFT
   // without providing the collection parameter.
-  await mx.nfts().update({ nftOrSft: nft, name: 'Updated Name' }).run();
+  await mx.nfts().update({ nftOrSft: nft, name: 'Updated Name' });
 
   // Then the NFT should have the updated name
   // but its collection should still be the same.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',

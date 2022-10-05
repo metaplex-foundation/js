@@ -41,19 +41,16 @@ test('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer 
   });
 
   // When the payer mints from it using its NFT to pay.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftPayment: {
-          mint: payerNft.address,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftPayment: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -64,13 +61,11 @@ test('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer 
   });
 
   // And the NFT now belongs to the NFT treasury.
-  const updatedNft = await mx
-    .nfts()
-    .findByMint({
-      mintAddress: payerNft.address,
-      tokenOwner: nftTreasury.publicKey,
-    })
-    .run();
+  const updatedNft = await mx.nfts().findByMint({
+    mintAddress: payerNft.address,
+    tokenOwner: nftTreasury.publicKey,
+  });
+
   assertNftWithToken(updatedNft);
   t.true(
     updatedNft.token.ownerAddress.equals(nftTreasury.publicKey),
@@ -110,20 +105,17 @@ test('[candyMachineModule] nftPayment guard: it works when the provided NFT is n
 
   // When the payer mints from it using its NFT to pay
   // whilst providing the token address.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftPayment: {
-          mint: payerNft.address,
-          tokenAccount: payerNftTokenAccount.publicKey,
-        },
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftPayment: {
+        mint: payerNft.address,
+        tokenAccount: payerNftTokenAccount.publicKey,
       },
-    })
-    .run();
+    },
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -134,13 +126,11 @@ test('[candyMachineModule] nftPayment guard: it works when the provided NFT is n
   });
 
   // And the NFT now belongs to the NFT treasury.
-  const updatedNft = await mx
-    .nfts()
-    .findByMint({
-      mintAddress: payerNft.address,
-      tokenOwner: nftTreasury.publicKey,
-    })
-    .run();
+  const updatedNft = await mx.nfts().findByMint({
+    mintAddress: payerNft.address,
+    tokenOwner: nftTreasury.publicKey,
+  });
+
   assertNftWithToken(updatedNft);
   t.true(
     updatedNft.token.ownerAddress.equals(nftTreasury.publicKey),
@@ -174,19 +164,16 @@ test('[candyMachineModule] nftPayment guard: it fails if the payer does not own 
   });
 
   // When the payer tries to mint from it using its NFT to pay.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftPayment: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftPayment: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Invalid NFT collection/);
@@ -219,19 +206,16 @@ test('[candyMachineModule] nftPayment guard: it fails if the payer tries to prov
   });
 
   // When the payer tries to mint from it using its NFT to pay.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftPayment: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftPayment: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /Invalid NFT collection/);
@@ -268,19 +252,16 @@ test('[candyMachineModule] nftPayment guard with bot tax: it charges a bot tax w
   });
 
   // When the payer tries to mint from it using its NFT to pay.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-      guards: {
-        nftPayment: {
-          mint: payerNft.address,
-        },
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+    guards: {
+      nftPayment: {
+        mint: payerNft.address,
       },
-    })
-    .run();
+    },
+  });
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -309,14 +290,11 @@ test('[candyMachineModule] nftPayment guard: minting settings must be provided',
 
   // When we try to mint from it without providing the third party signer.
   const payer = await createWallet(mx, 10);
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then we expect an error.
   await assertThrows(

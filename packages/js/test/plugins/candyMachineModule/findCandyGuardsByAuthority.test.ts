@@ -21,8 +21,7 @@ test('[candyMachineModule] it can fetch all candy guards from a given authority'
   // When we fetch all Candy Guards from authority A.
   const candyGuards = await mx
     .candyMachines()
-    .findAllCandyGuardsByAuthority({ authority: authorityA })
-    .run();
+    .findAllCandyGuardsByAuthority({ authority: authorityA });
 
   // Then we receive the two Candy Guards from authority A.
   t.equal(candyGuards.length, 2);

@@ -32,19 +32,16 @@ test('[candyMachineModule] it can update one guard', async (t) => {
   });
 
   // When we update the Candy Guard's only guard.
-  await mx
-    .candyMachines()
-    .updateCandyGuard({
-      candyGuard: candyGuard.address,
-      guards: {
-        startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-      },
-      groups: [],
-    })
-    .run();
+  await mx.candyMachines().updateCandyGuard({
+    candyGuard: candyGuard.address,
+    guards: {
+      startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+    },
+    groups: [],
+  });
 
   // Then the updated Candy Guard has the expected data.
-  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard);
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -74,23 +71,20 @@ test('[candyMachineModule] it overrides all previous guards', async (t) => {
 
   // When we update the Candy Guard with a new set of guards.
   const lamportDestinationB = Keypair.generate().publicKey;
-  await mx
-    .candyMachines()
-    .updateCandyGuard({
-      candyGuard: candyGuard.address,
-      guards: {
-        solPayment: {
-          amount: sol(2),
-          destination: lamportDestinationB,
-        },
-        botTax: { lamports: sol(0.01), lastInstruction: true },
+  await mx.candyMachines().updateCandyGuard({
+    candyGuard: candyGuard.address,
+    guards: {
+      solPayment: {
+        amount: sol(2),
+        destination: lamportDestinationB,
       },
-      groups: [],
-    })
-    .run();
+      botTax: { lamports: sol(0.01), lastInstruction: true },
+    },
+    groups: [],
+  });
 
   // Then all previous guards were overridden.
-  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard);
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -126,24 +120,21 @@ test('[candyMachineModule] it can update groups', async (t) => {
   });
 
   // When we update the guards of the only Candy Guard's group.
-  await mx
-    .candyMachines()
-    .updateCandyGuard({
-      candyGuard: candyGuard.address,
-      guards: {},
-      groups: [
-        {
-          label: 'NEW',
-          guards: {
-            startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-          },
+  await mx.candyMachines().updateCandyGuard({
+    candyGuard: candyGuard.address,
+    guards: {},
+    groups: [
+      {
+        label: 'NEW',
+        guards: {
+          startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
         },
-      ],
-    })
-    .run();
+      },
+    ],
+  });
 
   // Then the updated Candy Guard has the expected data.
-  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard);
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -203,38 +194,35 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
 
   // When we update the candy guard's groups.
   const splTokenB = Keypair.generate().publicKey;
-  await mx
-    .candyMachines()
-    .updateCandyGuard({
-      candyGuard: candyGuard.address,
-      guards: {},
-      groups: [
-        {
-          label: 'GUARD1',
-          guards: {
-            solPayment: {
-              amount: sol(2),
-              destination: lamportDestination,
-            },
+  await mx.candyMachines().updateCandyGuard({
+    candyGuard: candyGuard.address,
+    guards: {},
+    groups: [
+      {
+        label: 'GUARD1',
+        guards: {
+          solPayment: {
+            amount: sol(2),
+            destination: lamportDestination,
           },
         },
-        {
-          label: 'GUARD2',
-          guards: {
-            startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
-            tokenPayment: {
-              tokenMint: splTokenB,
-              amount: token(42),
-              destinationAta: tokenDestination,
-            },
+      },
+      {
+        label: 'GUARD2',
+        guards: {
+          startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
+          tokenPayment: {
+            tokenMint: splTokenB,
+            amount: token(42),
+            destinationAta: tokenDestination,
           },
         },
-      ],
-    })
-    .run();
+      },
+    ],
+  });
 
   // Then all previous groups were overridden.
-  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard);
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',
@@ -313,17 +301,14 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
   });
 
   // When we update the candy guard with no guards and no groups.
-  await mx
-    .candyMachines()
-    .updateCandyGuard({
-      candyGuard: candyGuard.address,
-      guards: {},
-      groups: [],
-    })
-    .run();
+  await mx.candyMachines().updateCandyGuard({
+    candyGuard: candyGuard.address,
+    guards: {},
+    groups: [],
+  });
 
   // Then all groups and default guards were removed.
-  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard).run();
+  const updatedCandyGuard = await mx.candyMachines().refresh(candyGuard);
   spok(t, updatedCandyGuard, {
     $topic: 'Updated Candy Guard',
     model: 'candyGuard',

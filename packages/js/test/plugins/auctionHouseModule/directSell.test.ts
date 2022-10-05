@@ -29,24 +29,20 @@ test('[auctionHouseModule] sell using private bid on an Auction House with minim
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we put a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      price: sol(1),
-      seller: mx.identity().publicKey,
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    price: sol(1),
+    seller: mx.identity().publicKey,
+  });
 
   const privateBid = bid as PrivateBid;
 
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, bid: privateBid })
-    .run();
+    .sell({ auctionHouse, bid: privateBid });
 
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
@@ -82,25 +78,21 @@ test('[auctionHouseModule] sell using private bid on an Auction House with aucti
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we put a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      price: sol(1),
-      seller: mx.identity().publicKey,
-      auctioneerAuthority,
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    price: sol(1),
+    seller: mx.identity().publicKey,
+    auctioneerAuthority,
+  });
 
   const privateBid = bid as PrivateBid;
 
   // Then we execute an Sell on the bid
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, auctioneerAuthority, bid: privateBid })
-    .run();
+    .sell({ auctionHouse, auctioneerAuthority, bid: privateBid });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
@@ -119,31 +111,25 @@ test('[auctionHouseModule] sell using private bid on an Auction House with maxim
   });
 
   // And we put a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      seller: seller.publicKey,
-      mintAccount: nft.address,
-      price: sol(1),
-      printReceipt: true,
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    seller: seller.publicKey,
+    mintAccount: nft.address,
+    price: sol(1),
+    printReceipt: true,
+  });
 
   const privateBid = bid as PrivateBid;
 
   // When we execute direct buy with the given listing.
-  const { purchase } = await mx
-    .auctionHouse()
-    .sell({
-      auctionHouse,
-      authority,
-      seller,
-      bid: privateBid,
-      printReceipt: true,
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().sell({
+    auctionHouse,
+    authority,
+    seller,
+    bid: privateBid,
+    printReceipt: true,
+  });
 
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
@@ -179,23 +165,19 @@ test('[auctionHouseModule] sell using public bid on an Auction House with minimu
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we put a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   const publicBid = bid as PublicBid;
 
   // Then we execute an Sell on the bid by providing bid and nft token as external property
   const { purchase } = await mx
     .auctionHouse()
-    .sell({ auctionHouse, bid: publicBid, sellerToken: nft.token })
-    .run();
+    .sell({ auctionHouse, bid: publicBid, sellerToken: nft.token });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());

@@ -29,10 +29,10 @@ test('[nftModule] it can unverify a creator', async (t: Test) => {
   t.ok(nft.creators[1].verified, 'creator is verified');
 
   // When we unverify the creator.
-  await mx.nfts().unverifyCreator({ mintAddress: nft.address, creator }).run();
+  await mx.nfts().unverifyCreator({ mintAddress: nft.address, creator });
 
   // Then the returned NFT should have the updated data.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',

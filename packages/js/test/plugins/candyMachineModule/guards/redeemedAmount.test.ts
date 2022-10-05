@@ -33,14 +33,11 @@ test('[candyMachineModule] redeemedAmount guard: it allows minting until a thres
 
   // When we mint its first item.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const { nft } = await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -69,25 +66,19 @@ test('[candyMachineModule] redeemedAmount guard: it forbids minting once the red
   });
 
   // And assuming its first item has already been minted.
-  await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer: await createWallet(mx, 10),
-    })
-    .run();
+  await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer: await createWallet(mx, 10),
+  });
 
   // When we try to mint its second item.
   const payer = await createWallet(mx, 10);
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then we expect an error.
   await assertThrows(
@@ -120,25 +111,19 @@ test('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot t
   });
 
   // And assuming its first item has already been minted.
-  await mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer: await createWallet(mx, 10),
-    })
-    .run();
+  await mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer: await createWallet(mx, 10),
+  });
 
   // When we try to mint its second item.
   const payer = await createWallet(mx, 10);
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    payer,
+  });
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
