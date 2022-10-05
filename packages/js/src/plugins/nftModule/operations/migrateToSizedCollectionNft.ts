@@ -1,12 +1,12 @@
 import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -78,12 +78,6 @@ export type MigrateToSizedCollectionNftInput = {
    * @defaultValue `false`
    */
   isDelegated?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -103,12 +97,14 @@ export const migrateToSizedCollectionNftOperationHandler: OperationHandler<Migra
   {
     handle: async (
       operation: MigrateToSizedCollectionNftOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<MigrateToSizedCollectionNftOutput> => {
       return migrateToSizedCollectionNftBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 

@@ -196,14 +196,6 @@ export type UpdateCandyMachineV2BuilderParams = {
   authority?: Signer;
 
   /**
-   * The Signer that should pay for any required account storage.
-   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The new Candy Machine data.
    * This includes the wallet and token mint addresses
    * which can both be updated.

@@ -2,13 +2,13 @@ import {
   createVerifyCollectionInstruction,
   createVerifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -65,13 +65,6 @@ export type VerifyNftCollectionInput = {
   collectionAuthority?: Signer;
 
   /**
-   * The Signer paying for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Whether or not the provided `collectionMintAddress` is a
    * sized collection (as opposed to a legacy collection).
    *
@@ -87,12 +80,6 @@ export type VerifyNftCollectionInput = {
    * @defaultValue `false`
    */
   isDelegated?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -112,12 +99,14 @@ export const verifyNftCollectionOperationHandler: OperationHandler<VerifyNftColl
   {
     handle: async (
       operation: VerifyNftCollectionOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<VerifyNftCollectionOutput> => {
       return verifyNftCollectionBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 

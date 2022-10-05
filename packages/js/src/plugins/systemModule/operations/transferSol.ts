@@ -1,4 +1,4 @@
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -6,7 +6,6 @@ import {
   Operation,
   OperationHandler,
   OperationScope,
-  Program,
   Signer,
   SolAmount,
   useOperation,
@@ -77,12 +76,6 @@ export type TransferSolInput = {
    * @defaultValue Defaults to not being used.
    */
   seed?: string;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
