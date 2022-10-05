@@ -1,9 +1,12 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
-import { findBidReceiptPda } from '../pdas';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse, Bid } from '../models';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -53,10 +56,7 @@ export type FindBidByTradeStateInput = {
    *
    * @defaultValue `true`
    */
-  loadJsonMetadata?: boolean; // Default: true
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
+  loadJsonMetadata?: boolean;
 };
 
 /**
@@ -71,12 +71,13 @@ export const findBidByTradeStateOperationHandler: OperationHandler<FindBidByTrad
       scope: OperationScope
     ) => {
       const { tradeStateAddress } = operation.input;
-
-      const receiptAddress = findBidReceiptPda(tradeStateAddress);
+      const receiptAddress = metaplex.auctionHouse().pdas().bidReceipt({
+        tradeState: tradeStateAddress,
+        programs: scope.programs,
+      });
 
       return metaplex
         .auctionHouse()
-        .findBidByReceipt({ receiptAddress, ...operation.input })
-        .run(scope);
+        .findBidByReceipt({ receiptAddress, ...operation.input }, scope);
     },
   };

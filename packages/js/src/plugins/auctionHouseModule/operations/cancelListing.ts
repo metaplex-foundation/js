@@ -9,7 +9,6 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Listing } from '../models';
-import { findAuctioneerPda } from '../pdas';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   isSigner,
@@ -204,10 +203,11 @@ export const cancelListingBuilder = (
       {
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
-        ahAuctioneerPda: findAuctioneerPda(
-          auctionHouseAddress,
-          auctioneerAuthority.publicKey
-        ),
+        ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+          auctionHouse: auctionHouseAddress,
+          auctioneerAuthority: auctioneerAuthority.publicKey,
+          programs,
+        }),
       },
       args
     );
@@ -218,6 +218,7 @@ export const cancelListingBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Cancel Listing.
       .add({

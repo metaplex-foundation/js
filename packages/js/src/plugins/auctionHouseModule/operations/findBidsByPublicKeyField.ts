@@ -1,11 +1,13 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { findMetadataPda } from '../../nftModule';
+import { PublicKey } from '@solana/web3.js';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, Bid, LazyBid, toLazyBid } from '../models';
-import { AuctionHouseProgram } from '../program';
 import { toBidReceiptAccount } from '../accounts';
-import { DisposableScope } from '@/utils';
-import { Operation, OperationHandler, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 import { UnreachableCaseError } from '@/errors';
 
@@ -67,9 +69,6 @@ export type FindBidsByPublicKeyFieldInput = {
 
   /** The address to search for. */
   publicKey: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -89,15 +88,17 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<FindBidsByPublicKeyFieldOutput> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
-      const accounts = AuctionHouseProgram.bidAccounts(metaplex).mergeConfig({
-        commitment,
-      });
-      // return new BidReceiptGpaBuilder(metaplex, this.publicKey);
+      const { programs, commitment } = scope;
+      const { auctionHouse, type, publicKey } = operation.input;
 
-      let bidQuery: BidReceiptGpaBuilder = accounts.whereAuctionHouse(
-        auctionHouse.address
-      );
+      const auctionHouseProgram = metaplex.programs().getAuctionHouse();
+      let bidQuery = new BidReceiptGpaBuilder(
+        metaplex,
+        auctionHouseProgram.address
+      )
+        .mergeConfig({ commitment })
+        .whereAuctionHouse(auctionHouse.address);
+
       switch (type) {
         case 'buyer':
           bidQuery = bidQuery.whereBuyer(publicKey);
@@ -106,7 +107,9 @@ export const findBidsByPublicKeyFieldOperationHandler: OperationHandler<FindBids
           bidQuery = bidQuery.whereMetadata(publicKey);
           break;
         case 'mint':
-          bidQuery = bidQuery.whereMetadata(findMetadataPda(publicKey));
+          bidQuery = bidQuery.whereMetadata(
+            metaplex.nfts().pdas().metadata({ mint: publicKey, programs })
+          );
           break;
         default:
           throw new UnreachableCaseError(type);

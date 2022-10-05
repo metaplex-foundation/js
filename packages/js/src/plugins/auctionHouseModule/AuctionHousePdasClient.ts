@@ -50,11 +50,11 @@ export class AuctionHousePdasClient {
    * Finds the PDA of the Auction House Program
    * itself used to sign transaction.
    */
-  programAsSigner(input: {
+  programAsSigner(input?: {
     /** An optional set of programs that override the registered ones. */
     programs?: Program[];
   }): Pda {
-    const programId = this.programId(input.programs);
+    const programId = this.programId(input?.programs);
     return Pda.find(programId, [
       Buffer.from('auction_house', 'utf8'),
       Buffer.from('signer', 'utf8'),
@@ -119,7 +119,7 @@ export class AuctionHousePdasClient {
     /** The mint address of the token to trade. */
     tokenMint: PublicKey;
     /** The price of the trade in basis points. */
-    buyPrice: BigNumber;
+    price: BigNumber;
     /** The number of tokens to trade in basis points. */
     tokenSize: BigNumber;
     /** The token account from which to trade, unless it is a public bid. */
@@ -135,7 +135,7 @@ export class AuctionHousePdasClient {
       ...(input.tokenAccount ? [input.tokenAccount.toBuffer()] : []),
       input.treasuryMint.toBuffer(),
       input.tokenMint.toBuffer(),
-      input.buyPrice.toArrayLike(Buffer, 'le', 8),
+      input.price.toArrayLike(Buffer, 'le', 8),
       input.tokenSize.toArrayLike(Buffer, 'le', 8),
     ]);
   }

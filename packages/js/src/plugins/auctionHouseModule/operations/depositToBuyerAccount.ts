@@ -1,25 +1,23 @@
-import { ConfirmOptions } from '@solana/web3.js';
 import {
   createAuctioneerDepositInstruction,
   createDepositInstruction,
   DepositInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse } from '../models';
-import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  useOperation,
+  isSigner,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
-  toPublicKey,
-  isSigner,
   SolAmount,
   SplTokenAmount,
+  toPublicKey,
+  useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -94,22 +92,10 @@ export type DepositToBuyerAccountInput = {
   auctioneerAuthority?: Signer;
 
   /**
-   * The Signer paying for the creation of all accounts
-   * required to deposit to the buyer's account.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Amount of funds to deposit.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
   amount: SolAmount | SplTokenAmount;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -129,12 +115,14 @@ export const depositToBuyerAccountOperationHandler: OperationHandler<DepositToBu
   {
     handle: async (
       operation: DepositToBuyerAccountOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) =>
-      depositToBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
+      depositToBuyerAccountBuilder(
         metaplex,
-        operation.input.confirmOptions
-      ),
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions),
   };
 
 // -----------------
@@ -179,15 +167,14 @@ export const depositToBuyerAccountBuilder = (
   params: DepositToBuyerAccountBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder<DepositToBuyerAccountBuilderContext> => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     auctioneerAuthority,
     amount,
     instructionKey,
     buyer = metaplex.identity(),
-    payer = metaplex.identity(),
   } = params;
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
@@ -197,14 +184,22 @@ export const depositToBuyerAccountBuilder = (
   // Accounts.
   const paymentAccount = auctionHouse.isNative
     ? toPublicKey(buyer)
-    : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        toPublicKey(buyer)
-      );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    toPublicKey(buyer)
-  );
+    : metaplex
+        .tokens()
+        .pdas()
+        .associatedTokenAccount({
+          mint: auctionHouse.treasuryMint.address,
+          owner: toPublicKey(buyer),
+          programs,
+        });
+  const escrowPayment = metaplex
+    .auctionHouse()
+    .pdas()
+    .buyerEscrow({
+      auctionHouse: auctionHouse.address,
+      buyer: toPublicKey(buyer),
+      programs,
+    });
 
   const accounts: DepositInstructionAccounts = {
     wallet: toPublicKey(buyer),
@@ -226,10 +221,11 @@ export const depositToBuyerAccountBuilder = (
   // Deposit Instruction.
   let depositInstruction = createDepositInstruction(accounts, args);
   if (auctioneerAuthority) {
-    const ahAuctioneerPda = findAuctioneerPda(
-      auctionHouse.address,
-      auctioneerAuthority.publicKey
-    );
+    const ahAuctioneerPda = metaplex.auctionHouse().pdas().auctioneer({
+      auctionHouse: auctionHouse.address,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      programs,
+    });
 
     const accountsWithAuctioneer = {
       ...accounts,

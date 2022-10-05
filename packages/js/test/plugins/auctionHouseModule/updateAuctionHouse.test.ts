@@ -10,13 +10,6 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import {
-  findAssociatedTokenAccountPda,
-  findAuctioneerPda,
-  findAuctionHouseFeePda,
-  findAuctionHousePda,
-  findAuctionHouseTreasuryPda,
-} from '@/index';
 import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
@@ -139,10 +132,10 @@ test('[auctionHouseModule] it can assign an Auctioneer authority on an Auction H
     .run();
 
   // Then the Auctioneer authority has been correctly set.
-  const ahAuctioneerPda = findAuctioneerPda(
-    updatedAuctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
     auctioneer: {
@@ -173,10 +166,10 @@ test('[auctionHouseModule] it can assign an Auctioneer authority with an explici
     .run();
 
   // Then the Auctioneer data has been correctly set.
-  const ahAuctioneerPda = findAuctioneerPda(
-    updatedAuctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
     auctioneer: {
@@ -206,10 +199,10 @@ test('[auctionHouseModule] it keeps the original scope when updating the Auction
     .run();
 
   // Then the new scopes have been correctly set.
-  const ahAuctioneerPda = findAuctioneerPda(
-    updatedAuctionHouse.address,
-    newAuctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
     auctioneer: {
@@ -239,10 +232,10 @@ test('[auctionHouseModule] it can update Auctioneer Scope', async (t) => {
     .run();
 
   // Then the new scopes have been correctly set.
-  const ahAuctioneerPda = findAuctioneerPda(
-    updatedAuctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
     auctioneer: {
@@ -273,10 +266,10 @@ test('[auctionHouseModule] it can update both the Auctioneer authority and scope
     .run();
 
   // Then the new auctioneer data has been correctly set.
-  const ahAuctioneerPda = findAuctioneerPda(
-    updatedAuctionHouse.address,
-    newAuctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
     auctioneer: {

@@ -1,8 +1,12 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
-import { findAuctionHousePda } from '../pdas';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse } from '../models/AuctionHouse';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -57,9 +61,6 @@ export type FindAuctionHouseByCreatorAndMintInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -70,16 +71,21 @@ export const findAuctionHouseByCreatorAndMintOperationHandler: OperationHandler<
   {
     handle: async (
       operation: FindAuctionHouseByCreatorAndMintOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) => {
       const { creator, treasuryMint } = operation.input;
 
-      return metaplex
-        .auctionHouse()
-        .findByAddress({
-          address: findAuctionHousePda(creator, treasuryMint),
+      return metaplex.auctionHouse().findByAddress(
+        {
+          address: metaplex.auctionHouse().pdas().auctionHouse({
+            creator,
+            treasuryMint,
+            programs: scope.programs,
+          }),
           ...operation.input,
-        })
-        .run();
+        },
+        scope
+      );
     },
   };

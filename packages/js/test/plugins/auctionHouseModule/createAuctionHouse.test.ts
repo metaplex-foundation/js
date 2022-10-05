@@ -8,13 +8,7 @@ import {
   assertThrows,
   createWallet,
 } from '../../helpers';
-import {
-  findAuctionHouseFeePda,
-  findAuctionHousePda,
-  findAuctionHouseTreasuryPda,
-  findAuctioneerPda,
-  WRAPPED_SOL_MINT,
-} from '@/index';
+import { WRAPPED_SOL_MINT } from '@/index';
 import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
@@ -169,10 +163,11 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
     .run();
 
   // Then the new Auction House has Auctioneer attached.
-  const ahAuctioneerPda = findAuctioneerPda(
-    auctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = metaplex.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+    programs,
+  });
   spok(t, auctionHouse, {
     hasAuctioneer: true,
     auctioneer: {

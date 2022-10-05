@@ -1,9 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toPurchaseReceiptAccount } from '../accounts';
 import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -58,9 +62,6 @@ export type FindPurchaseByReceiptInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -74,17 +75,16 @@ export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchas
       metaplex: Metaplex,
       scope: OperationScope
     ) => {
-      const { receiptAddress, auctionHouse, commitment } = operation.input;
+      const { receiptAddress, auctionHouse } = operation.input;
 
       const account = toPurchaseReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, scope.commitment)
       );
       scope.throwIfCanceled();
 
       const lazyPurchase = toLazyPurchase(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadPurchase({ lazyPurchase, ...operation.input })
-        .run(scope);
+        .loadPurchase({ lazyPurchase, ...operation.input }, scope);
     },
   };

@@ -1,6 +1,6 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, Token } from '../../tokenModule';
+import { Token } from '../../tokenModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   AuctionHouse,
@@ -10,16 +10,14 @@ import {
   PublicBid,
   Purchase,
 } from '../models';
-import {
-  createListingBuilder,
-  CreateListingBuilderContext,
-} from './createListing';
-import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
+import { CreateListingBuilderContext } from './createListing';
+import { ExecuteSaleBuilderContext } from './executeSale';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   now,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   toPublicKey,
   useOperation,
@@ -106,9 +104,6 @@ export type DirectSellInput = {
    * @defaultValue `true`
    */
   printReceipt?: boolean;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 } & (
   | {
       /**
@@ -173,11 +168,16 @@ export type DirectSellOutput = {
  */
 export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
   {
-    handle: async (operation: DirectSellOperation, metaplex: Metaplex) =>
-      (await directSellBuilder(metaplex, operation.input)).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      ),
+    handle: async (
+      operation: DirectSellOperation,
+      metaplex: Metaplex,
+      scope: OperationScope
+    ) => {
+      const builder = await directSellBuilder(metaplex, operation.input, scope);
+      scope.throwIfCanceled();
+
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    },
   };
 
 // -----------------
@@ -248,19 +248,22 @@ export const directSellBuilder = async (
     : { ...bid.asset, token: params.sellerToken as Token };
 
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
-    await createListingBuilder(metaplex, {
-      mintAccount: asset.mint.address,
-      price,
-      auctionHouse,
-      auctioneerAuthority,
-      seller,
-      authority,
-      tokenAccount: asset.token.address,
-      tokens,
-      printReceipt,
-      bookkeeper,
-      instructionKey: createListingInstructionKey,
-    });
+    metaplex.auctionHouse().builders().list(
+      {
+        mintAccount: asset.mint.address,
+        price,
+        auctionHouse,
+        auctioneerAuthority,
+        seller,
+        authority,
+        tokenAccount: asset.token.address,
+        tokens,
+        printReceipt,
+        bookkeeper,
+        instructionKey: createListingInstructionKey,
+      },
+      { programs, payer }
+    );
   const { receipt, sellerTradeState } = listingBuilder.getContext();
 
   const listing: Listing = {
@@ -279,22 +282,28 @@ export const directSellBuilder = async (
     canceledAt: null,
   };
 
-  const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
-    await executeSaleBuilder(metaplex, {
-      auctionHouse,
-      auctioneerAuthority,
-      bid,
-      listing,
-      printReceipt,
-      bookkeeper,
-      instructionKey: executeSaleInstructionKey,
-    });
+  const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> = metaplex
+    .auctionHouse()
+    .builders()
+    .executeSale(
+      {
+        auctionHouse,
+        auctioneerAuthority,
+        bid,
+        listing,
+        printReceipt,
+        bookkeeper,
+        instructionKey: executeSaleInstructionKey,
+      },
+      { programs, payer }
+    );
   const { receipt: receiptAddress } = saleBuilder.getContext();
 
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
-    asset.address,
-    buyerAddress
-  );
+  const buyerTokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: asset.address,
+    owner: buyerAddress,
+    programs,
+  });
   const purchasedAsset = {
     ...asset,
     token: {
@@ -319,6 +328,7 @@ export const directSellBuilder = async (
   };
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
+    .setFeePayer(payer)
     .setContext({
       listing,
       purchase,

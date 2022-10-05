@@ -1,9 +1,13 @@
-import type { Commitment } from '@solana/web3.js';
-import { Purchase, LazyPurchase } from '../models/Purchase';
 import { assertNftOrSftWithToken } from '../../nftModule';
+import { LazyPurchase, Purchase } from '../models/Purchase';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { DisposableScope } from '@/utils';
+import {
+  amount,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -50,9 +54,6 @@ export type LoadPurchaseInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -66,21 +67,15 @@ export const loadPurchaseOperationHandler: OperationHandler<LoadPurchaseOperatio
       metaplex: Metaplex,
       scope: OperationScope
     ) => {
-      const {
-        lazyPurchase,
-        loadJsonMetadata = true,
-        commitment,
-      } = operation.input;
-
-      const asset = await metaplex
-        .nfts()
-        .findByMetadata({
+      const { lazyPurchase, loadJsonMetadata = true } = operation.input;
+      const asset = await metaplex.nfts().findByMetadata(
+        {
           metadata: lazyPurchase.metadataAddress,
           tokenOwner: lazyPurchase.buyerAddress,
-          commitment,
           loadJsonMetadata,
-        })
-        .run(scope);
+        },
+        scope
+      );
       assertNftOrSftWithToken(asset);
 
       return {

@@ -1,38 +1,26 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   AuthorityScope,
   createCreateAuctionHouseInstruction,
   createDelegateAuctioneerInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import {
-  findAssociatedTokenAccountPda,
-  WRAPPED_SOL_MINT,
-} from '../../tokenModule';
-import {
-  findAuctioneerPda,
-  findAuctionHouseFeePda,
-  findAuctionHousePda,
-  findAuctionHouseTreasuryPda,
-} from '../pdas';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { AuctionHouse } from '../models/AuctionHouse';
-import { ExpectedSignerError } from '@/errors';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  DisposableScope,
-  TransactionBuilder,
-  TransactionBuilderOptions,
-} from '@/utils';
-import {
-  useOperation,
-  Operation,
-  Signer,
-  OperationHandler,
-  Pda,
   isSigner,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Pda,
+  Signer,
   toPublicKey,
+  useOperation,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
+import { ExpectedSignerError } from '@/errors';
 
 // -----------------
 // Operation
@@ -118,14 +106,6 @@ export type CreateAuctionHouseInput = {
   treasuryMint?: PublicKey;
 
   /**
-   * The Signer paying for the creation of all accounts
-   * required to create the Auction House.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The Authority wallet of the Auction House.
    * It is used to sign off listings and bids in case `requiresSignOff` is true.
    *
@@ -154,9 +134,6 @@ export type CreateAuctionHouseInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -196,16 +173,19 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
     ): Promise<CreateAuctionHouseOutput> {
       const output = await createAuctionHouseBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
       scope.throwIfCanceled();
-      const auctionHouse = await metaplex
-        .auctionHouse()
-        .findByAddress({
+
+      const auctionHouse = await metaplex.auctionHouse().findByAddress(
+        {
           address: output.auctionHouseAddress,
           auctioneerAuthority: operation.input.auctioneerAuthority,
-        })
-        .run(scope);
+        },
+        scope
+      );
+
       return { ...output, auctionHouse };
     },
   };
@@ -260,7 +240,6 @@ export const createAuctionHouseBuilder = (
 
   // Accounts.
   const authority = params.authority ?? metaplex.identity();
-  const payer = params.payer ?? metaplex.identity();
   const treasuryMint = params.treasuryMint ?? WRAPPED_SOL_MINT;
   const treasuryWithdrawalDestinationOwner =
     params.treasuryWithdrawalDestinationOwner ?? metaplex.identity().publicKey;
@@ -278,18 +257,29 @@ export const createAuctionHouseBuilder = (
   }
 
   // PDAs.
-  const auctionHouse = findAuctionHousePda(
-    toPublicKey(authority),
-    treasuryMint
-  );
-  const auctionHouseFeeAccount = findAuctionHouseFeePda(auctionHouse);
-  const auctionHouseTreasury = findAuctionHouseTreasuryPda(auctionHouse);
+  const auctionHouse = metaplex
+    .auctionHouse()
+    .pdas()
+    .auctionHouse({
+      creator: toPublicKey(authority),
+      treasuryMint,
+      programs,
+    });
+  const auctionHouseFeeAccount = metaplex.auctionHouse().pdas().fee({
+    auctionHouse,
+    programs,
+  });
+  const auctionHouseTreasury = metaplex.auctionHouse().pdas().treasury({
+    auctionHouse,
+    programs,
+  });
   const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
     ? treasuryWithdrawalDestinationOwner
-    : findAssociatedTokenAccountPda(
-        treasuryMint,
-        treasuryWithdrawalDestinationOwner
-      );
+    : metaplex.tokens().pdas().associatedTokenAccount({
+        mint: treasuryMint,
+        owner: treasuryWithdrawalDestinationOwner,
+        programs,
+      });
 
   return (
     TransactionBuilder.make<CreateAuctionHouseBuilderContext>()
@@ -337,10 +327,11 @@ export const createAuctionHouseBuilder = (
               auctionHouse,
               authority: toPublicKey(authority as Signer),
               auctioneerAuthority,
-              ahAuctioneerPda: findAuctioneerPda(
+              ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
                 auctionHouse,
-                auctioneerAuthority
-              ),
+                auctioneerAuthority,
+                programs,
+              }),
             },
             { scopes: params.auctioneerScopes ?? AUCTIONEER_ALL_SCOPES }
           ),

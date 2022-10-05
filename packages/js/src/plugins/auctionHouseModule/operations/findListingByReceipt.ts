@@ -1,9 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toListingReceiptAccount } from '../accounts';
 import { AuctionHouse, Listing, toLazyListing } from '../models';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
+import {
+  useOperation,
+  Operation,
+  OperationHandler,
+  OperationScope,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -58,9 +62,6 @@ export type FindListingByReceiptInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -74,17 +75,16 @@ export const findListingByReceiptOperationHandler: OperationHandler<FindListingB
       metaplex: Metaplex,
       scope: OperationScope
     ) => {
-      const { receiptAddress, auctionHouse, commitment } = operation.input;
+      const { receiptAddress, auctionHouse } = operation.input;
 
       const account = toListingReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, scope.commitment)
       );
       scope.throwIfCanceled();
 
       const lazyListing = toLazyListing(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadListing({ lazyListing, ...operation.input })
-        .run(scope);
+        .loadListing({ lazyListing, ...operation.input }, scope);
     },
   };
