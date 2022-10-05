@@ -23,8 +23,7 @@ const Key = 'ThawDelegatedNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .thawDelegatedNft({ mintAddress, delegateAuthority })
- *   .run();
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority };
  * ```
  *
  * @group Operations

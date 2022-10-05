@@ -21,8 +21,7 @@ const Key = 'FindNftsByOwnerOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByOwner({ owner })
- *   .run();
+ *   .findAllByOwner({ owner };
  * ```
  *
  * @group Operations

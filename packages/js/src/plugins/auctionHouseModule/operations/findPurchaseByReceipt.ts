@@ -21,8 +21,7 @@ const Key = 'FindPurchaseByReceiptOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findPurchaseByReceipt({ receiptAddress, auctionHouse })
- *   .run();
+ *   .findPurchaseByReceipt({ receiptAddress, auctionHouse };
  * ```
  *
  * @group Operations

@@ -26,13 +26,11 @@ const Key = 'FindTokenWithMintByMintOperation' as const;
  * ```ts
  * const tokenWithMint = await metaplex
  *   .tokens()
- *   .findTokenWithMintByMint({ mint, address: tokenAddress, type: "token" })
- *   .run();
+ *   .findTokenWithMintByMint({ mint, address: tokenAddress, type: "token" };
  *
  * const tokenWithMint = await metaplex
  *   .tokens()
- *   .findTokenWithMintByMint({ mint, address: ownerAddress, type: "owner" })
- *   .run();
+ *   .findTokenWithMintByMint({ mint, address: ownerAddress, type: "owner" };
  * ```
  *
  * @group Operations

@@ -32,8 +32,7 @@ const Key = 'PrintNewEditionOperation' as const;
  * ```ts
  * const { nft } = await metaplex
  *   .nfts()
- *   .printNewEdition({ originalMint })
- *   .run();
+ *   .printNewEdition({ originalMint };
  * ```
  *
  * @group Operations

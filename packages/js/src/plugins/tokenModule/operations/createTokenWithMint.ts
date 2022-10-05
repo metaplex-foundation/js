@@ -25,7 +25,7 @@ const Key = 'CreateTokenWithMintOperation' as const;
  * Creates both mint and token accounts in the same transaction.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint().run();
+ * const { token } = await metaplex.tokens().createTokenWithMint();
  * const mint = token.mint;
  * ```
  *

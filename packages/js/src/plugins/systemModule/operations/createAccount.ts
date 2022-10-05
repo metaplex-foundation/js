@@ -24,8 +24,7 @@ const Key = 'CreateAccountOperation' as const;
  * ```ts
  * const { newAccount } = await metaplex
  *   .system()
- *   .createAccount({ space: 100 }) // 100 bytes
- *   .run();
+ *   .createAccount({ space: 100 }); // 100 bytes
  * ```
  *
  * @group Operations

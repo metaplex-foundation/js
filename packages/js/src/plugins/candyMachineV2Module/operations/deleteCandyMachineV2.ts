@@ -22,7 +22,7 @@ const Key = 'DeleteCandyMachineV2Operation' as const;
  * Deletes an existing Candy Machine.
  *
  * ```ts
- * await metaplex.candyMachinesV2().delete({ candyMachine }).run();
+ * await metaplex.candyMachinesV2().delete({ candyMachine });
  * ```
  *
  * @group Operations

@@ -23,7 +23,7 @@ const Key = 'FreezeTokensOperation' as const;
  * Freezes a token account.
  *
  * ```ts
- * await metaplex.tokens().freeze({ mintAddress, freezeAuthority }).run();
+ * await metaplex.tokens().freeze({ mintAddress, freezeAuthority });
  * ```
  *
  * @group Operations

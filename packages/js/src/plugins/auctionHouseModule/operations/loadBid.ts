@@ -22,8 +22,7 @@ const Key = 'LoadBidOperation' as const;
  * ```ts
  * const bid = await metaplex
  *   .auctionHouse()
- *   .loadBid({ lazyBid })
- *   .run();
+ *   .loadBid({ lazyBid };
  * ```
  *
  * @group Operations

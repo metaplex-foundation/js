@@ -46,8 +46,7 @@ import type { Metaplex } from '@/Metaplex';
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
  *     itemsAvailable: toBigNumber(1000), // 1000 items available
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @see {@link CandyMachine} The `CandyMachine` model
@@ -133,7 +132,7 @@ export class CandyMachinesV2Client {
    * Helper method that refetches a given Candy Machine.
    *
    * ```ts
-   * const candyMachine = await metaplex.candyMachinesV2().refresh(candyMachine).run();
+   * const candyMachine = await metaplex.candyMachinesV2().refresh(candyMachine);
    * ```
    */
   refresh(

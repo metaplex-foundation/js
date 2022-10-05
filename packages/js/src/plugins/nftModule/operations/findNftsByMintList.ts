@@ -22,8 +22,7 @@ const Key = 'FindNftsByMintListOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByMintList({ mints: [...] })
- *   .run();
+ *   .findAllByMintList({ mints: [...] };
  * ```
  *
  * @group Operations

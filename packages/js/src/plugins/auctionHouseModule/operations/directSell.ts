@@ -36,8 +36,7 @@ const Key = 'DirectSellOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .sell({ auctionHouse, bid })
- *   .run();
+ *   .sell({ auctionHouse, bid };
  * ```
  *
  * @group Operations

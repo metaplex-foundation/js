@@ -42,8 +42,7 @@ const Key = 'UpdateCandyGuardOperation' as const;
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
  *     groups: [],
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

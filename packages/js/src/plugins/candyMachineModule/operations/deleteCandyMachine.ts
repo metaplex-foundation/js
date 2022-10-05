@@ -27,8 +27,7 @@ const Key = 'DeleteCandyMachineOperation' as const;
  *     candyMachine: candyMachine.address,
  *     candyGuard: candyMachine.candyGuard.address,
  *     authority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

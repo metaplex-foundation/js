@@ -33,8 +33,7 @@ const Key = 'CancelListingOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .cancelListing({ auctionHouse, listing })
- *   .run();
+ *   .cancelListing({ auctionHouse, listing };
  * ```
  *
  * @group Operations

@@ -36,7 +36,6 @@ const Key = 'FindCandyMachinesV2ByPublicKeyOperation' as const;
  * const candyMachines = await metaplex
  *   .candyMachinesV2()
  *   .findAllBy({ type: 'authority', someAuthority });
- *   .run();
  * ```
  *
  * `wallet`: Find Candy Machines whose wallet address is the given `publicKey`.
@@ -45,7 +44,6 @@ const Key = 'FindCandyMachinesV2ByPublicKeyOperation' as const;
  * const candyMachines = await metaplex
  *   .candyMachinesV2()
  *   .findAllBy({ type: 'wallet', someWallet });
- *   .run();
  * ```
  *
  * @group Operations

@@ -39,8 +39,7 @@ const Key = 'UpdateAuctionHouseOperation' as const;
  *   .update({
  *     auctionHouse,
  *     canChangeSalePrice: true, // Updates the canChangeSalePrice only.
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

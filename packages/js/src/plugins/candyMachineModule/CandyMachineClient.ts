@@ -68,8 +68,7 @@ import type { Metaplex } from '@/Metaplex';
  *        address: collectionNft.address,
  *        updateAuthority: collectionUpdateAuthority,
  *      },
- *    })
- *    .run();
+ *    });
  * ```
  *
  * @see {@link CandyGuard} The `CandyGuard` model
@@ -190,8 +189,7 @@ export class CandyMachineClient {
    * ```ts
    * const candyGuard = await metaplex
    *   .candyMachines()
-   *   .findCandyGuardByBaseAddress({ address: base })
-   *   .run();
+   *   .findCandyGuardByBaseAddress({ address: base });
    * ```
    */
   findCandyGuardByBaseAddress<
@@ -230,8 +228,8 @@ export class CandyMachineClient {
    * Helper method that refetches a given Candy Machine or Candy Guard.
    *
    * ```ts
-   * const candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
-   * const candyGuard = await metaplex.candyMachines().refresh(candyGuard).run();
+   * const candyMachine = await metaplex.candyMachines().refresh(candyMachine);
+   * const candyGuard = await metaplex.candyMachines().refresh(candyGuard);
    * ```
    */
   async refresh<

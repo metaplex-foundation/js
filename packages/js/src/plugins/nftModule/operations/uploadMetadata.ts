@@ -26,8 +26,7 @@ const Key = 'UploadMetadataOperation' as const;
  *     name: "My NFT",
  *     description: "My description",
  *     image: "https://arweave.net/123",
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

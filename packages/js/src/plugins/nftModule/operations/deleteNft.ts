@@ -23,8 +23,7 @@ const Key = 'DeleteNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .delete({ mintAddress })
- *   .run();
+ *   .delete({ mintAddress };
  * ```
  *
  * @group Operations

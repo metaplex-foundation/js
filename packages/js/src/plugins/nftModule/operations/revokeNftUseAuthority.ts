@@ -23,8 +23,7 @@ const Key = 'RevokeNftUseAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .revokeUseAuthority({ mintAddress, user })
- *   .run();
+ *   .revokeUseAuthority({ mintAddress, user };
  * ```
  *
  * @group Operations

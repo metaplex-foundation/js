@@ -26,8 +26,7 @@ const Key = 'DeleteCandyGuardOperation' as const;
  *   .deleteCandyGuard({
  *     candyGuard,
  *     authority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

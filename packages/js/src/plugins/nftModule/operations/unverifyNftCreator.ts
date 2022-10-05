@@ -23,8 +23,7 @@ const Key = 'UnverifyNftCreatorOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .unverifyCreator({ mintAddress, creator })
- *   .run();
+ *   .unverifyCreator({ mintAddress, creator };
  * ```
  *
  * @group Operations

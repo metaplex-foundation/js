@@ -22,7 +22,7 @@ const Key = 'CreateMintOperation' as const;
  * Creates a new mint account.
  *
  * ```ts
- * const { mint } = await metaplex.tokens().createMint().run();
+ * const { mint } = await metaplex.tokens().createMint();
  * ```
  *
  * @group Operations

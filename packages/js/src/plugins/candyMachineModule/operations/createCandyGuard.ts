@@ -39,8 +39,7 @@ const Key = 'CreateCandyGuardOperation' as const;
  *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

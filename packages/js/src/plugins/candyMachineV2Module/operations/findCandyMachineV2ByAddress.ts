@@ -24,7 +24,7 @@ const Key = 'FindCandyMachineV2ByAddressOperation' as const;
  * Find an existing Candy Machine by its address.
  *
  * ```ts
- * const candyMachine = await metaplex.candyMachinesV2().findbyAddress({ address }).run();
+ * const candyMachine = await metaplex.candyMachinesV2().findbyAddress({ address });
  * ```
  *
  * @group Operations

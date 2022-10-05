@@ -29,8 +29,7 @@ const Key = 'WithdrawFromTreasuryAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .withdrawFromTreasuryAccount({ auctionHouse, amount })
- *   .run();
+ *   .withdrawFromTreasuryAccount({ auctionHouse, amount };
  * ```
  *
  * @group Operations

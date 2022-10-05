@@ -84,8 +84,7 @@ import { OperationOptions } from '@/types';
  *   .auctionHouse()
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @see {@link AuctionHouse} The `AuctionHouse` model

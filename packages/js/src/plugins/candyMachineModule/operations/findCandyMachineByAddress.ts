@@ -22,8 +22,7 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * ```ts
  * const candyMachine = await metaplex
  *   .candyMachines()
- *   .findbyAddress({ address })
- *   .run();
+ *   .findbyAddress({ address };
  * ```
  *
  * @group Operations

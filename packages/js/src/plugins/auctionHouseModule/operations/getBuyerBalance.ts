@@ -20,8 +20,7 @@ const Key = 'GetBuyerBalanceOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .getBuyerBalance({ auctionHouse, buyerAddress })
- *   .run();
+ *   .getBuyerBalance({ auctionHouse, buyerAddress };
  * ```
  *
  * @group Operations

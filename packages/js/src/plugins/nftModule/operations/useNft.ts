@@ -24,8 +24,8 @@ const Key = 'UseNftOperation' as const;
  * Utilizes a usable NFT.
  *
  * ```ts
- * await metaplex.nfts().use({ mintAddress }).run();
- * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 }).run();
+ * await metaplex.nfts().use({ mintAddress });
+ * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 });
  * ```
  *
  * @group Operations

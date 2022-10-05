@@ -34,8 +34,7 @@ const Key = 'CancelBidOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .cancelBid({ auctionHouse, bid })
- *   .run();
+ *   .cancelBid({ auctionHouse, bid };
  * ```
  *
  * @group Operations

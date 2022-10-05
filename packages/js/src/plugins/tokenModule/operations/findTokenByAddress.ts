@@ -19,7 +19,7 @@ const Key = 'FindTokenByAddressOperation' as const;
  * Finds a token account by its address.
  *
  * ```ts
- * const token = await metaplex.tokens().findTokenByAddress({ address }).run();
+ * const token = await metaplex.tokens().findTokenByAddress({ address });
  * ```
  *
  * @group Operations

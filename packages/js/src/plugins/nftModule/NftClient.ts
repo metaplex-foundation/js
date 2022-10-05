@@ -87,8 +87,7 @@ import type { Metaplex } from '@/Metaplex';
  *     name: "My off-chain name",
  *     description: "My off-chain description",
  *     image: "https://arweave.net/123",
- *   })
- *   .run();
+ *   };
  *
  * const { nft } = await metaplex
  *   .nfts()
@@ -96,8 +95,7 @@ import type { Metaplex } from '@/Metaplex';
  *     uri,
  *     name: 'My on-chain NFT',
  *     sellerFeeBasisPoints: 250, // 2.5%
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Modules
@@ -199,9 +197,9 @@ export class NftClient {
    * and returns an instance of the same type.
    *
    * ```ts
-   * nft = await metaplex.nfts().refresh(nft).run();
-   * sft = await metaplex.nfts().refresh(sft).run();
-   * nftWithToken = await metaplex.nfts().refresh(nftWithToken).run();
+   * nft = await metaplex.nfts().refresh(nft);
+   * sft = await metaplex.nfts().refresh(sft);
+   * nftWithToken = await metaplex.nfts().refresh(nftWithToken);
    * ```
    */
   refresh<

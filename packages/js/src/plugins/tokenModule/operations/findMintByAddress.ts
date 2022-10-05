@@ -19,7 +19,7 @@ const Key = 'FindMintByAddressOperation' as const;
  * Finds a mint account by its address.
  *
  * ```ts
- * const mint = await metaplex.tokens().findMintByAddress({ address }).run();
+ * const mint = await metaplex.tokens().findMintByAddress({ address });
  * ```
  *
  * @group Operations

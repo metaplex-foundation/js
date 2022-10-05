@@ -34,8 +34,7 @@ const Key = 'CreateAuctionHouseOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .create({ sellerFeeBasisPoints: 500 }) // 5% fee
- *   .run();
+ *   .create({ sellerFeeBasisPoints: 500 }); // 5% fee
  * ```
  *
  * Provide `auctioneerAuthority` in case you want to enable Auctioneer.
@@ -43,8 +42,7 @@ const Key = 'CreateAuctionHouseOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .create({ sellerFeeBasisPoints: 500, auctioneerAuthority: mx.identity().publicKey })
- *   .run();
+ *   .create({ sellerFeeBasisPoints: 500, auctioneerAuthority: mx.identity().publicKey };
  * ```
  *
  * @group Operations

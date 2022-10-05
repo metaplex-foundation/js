@@ -38,8 +38,7 @@ const Key = 'InsertCandyMachineItemsOperation' as const;
  *       { name: 'My NFT #2', uri: 'https://example.com/nft2' },
  *       { name: 'My NFT #3', uri: 'https://example.com/nft3' },
  *     ],
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

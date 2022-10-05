@@ -23,8 +23,7 @@ const Key = 'ApproveNftUseAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .approveUseAuthority({ mintAddress, user })
- *   .run();
+ *   .approveUseAuthority({ mintAddress, user };
  * ```
  *
  * @group Operations

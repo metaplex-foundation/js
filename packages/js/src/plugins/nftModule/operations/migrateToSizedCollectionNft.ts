@@ -26,8 +26,7 @@ const Key = 'MigrateToSizedCollectionNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) })
- *   .run();
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) };
  * ```
  *
  * @group Operations

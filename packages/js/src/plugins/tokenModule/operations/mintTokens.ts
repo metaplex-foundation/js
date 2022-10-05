@@ -31,8 +31,7 @@ const Key = 'MintTokensOperation' as const;
  *     mintAddress,
  *     toOwner,
  *     amount: token(100),
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

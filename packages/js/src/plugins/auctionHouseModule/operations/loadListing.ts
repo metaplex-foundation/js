@@ -21,8 +21,7 @@ const Key = 'LoadListingOperation' as const;
  * ```ts
  * const listing = await metaplex
  *   .auctionHouse()
- *   .loadListing({ lazyListing })
- *   .run();
+ *   .loadListing({ lazyListing };
  * ```
  *
  * @group Operations

@@ -28,8 +28,7 @@ const Key = 'TransferSolOperation' as const;
  *   .transferSol({
  *     to: new PublicKey("..."),
  *     amount: sol(1.5),
- *   })
- *   .run();
+ *   };
  * ````
  *
  * @group Operations

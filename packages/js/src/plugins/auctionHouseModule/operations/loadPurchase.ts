@@ -21,8 +21,7 @@ const Key = 'LoadPurchaseOperation' as const;
  * ```ts
  * const purchase = await metaplex
  *   .auctionHouse()
- *   .loadPurchase({ lazyPurchase })
- *   .run();
+ *   .loadPurchase({ lazyPurchase };
  * ```
  *
  * @group Operations

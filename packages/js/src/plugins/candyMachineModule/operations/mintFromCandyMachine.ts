@@ -42,8 +42,7 @@ const Key = 'MintFromCandyMachineOperation' as const;
  *   .mint({
  *     candyMachine,
  *     collectionUpdateAuthority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

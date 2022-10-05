@@ -20,8 +20,7 @@ const Key = 'FindAuctionHouseByCreatorAndMintOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findByCreatorAndMint({ creator, treasuryMint })
- *   .run();
+ *   .findByCreatorAndMint({ creator, treasuryMint };
  * ```
  *
  * @group Operations

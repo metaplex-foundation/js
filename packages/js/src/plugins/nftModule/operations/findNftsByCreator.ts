@@ -22,14 +22,12 @@ const Key = 'FindNftsByCreatorOperation' as const;
  * // Find all by first creator.
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByCreator({ creator })
- *   .run();
+ *   .findAllByCreator({ creator };
  *
  * // Find all by second creator.
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByCreator({ creator, position: 2 })
- *   .run();
+ *   .findAllByCreator({ creator, position: 2 };
  * ```
  *
  * @group Operations

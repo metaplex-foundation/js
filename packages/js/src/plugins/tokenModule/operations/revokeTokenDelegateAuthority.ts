@@ -25,8 +25,7 @@ const Key = 'RevokeTokenDelegateAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .tokens()
- *   .revokeDelegateAuthority({ mintAddress })
- *   .run();
+ *   .revokeDelegateAuthority({ mintAddress };
  * ```
  *
  * @group Operations

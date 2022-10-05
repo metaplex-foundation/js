@@ -30,8 +30,7 @@ const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
  *   .approveDelegateAuthority({
  *     delegateAuthority,
  *     mintAddress,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

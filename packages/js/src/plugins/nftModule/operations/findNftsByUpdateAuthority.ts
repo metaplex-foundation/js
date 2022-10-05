@@ -21,8 +21,7 @@ const Key = 'FindNftsByUpdateAuthorityOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByUpdateAuthority({ updateAuthority })
- *   .run();
+ *   .findAllByUpdateAuthority({ updateAuthority };
  * ```
  *
  * @group Operations

@@ -29,8 +29,7 @@ const Key = 'WrapCandyGuardOperation' as const;
  *   .wrapCandyGuard({
  *     candyMachine,
  *     candyGuard,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

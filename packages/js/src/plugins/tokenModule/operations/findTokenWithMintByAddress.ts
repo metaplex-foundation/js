@@ -21,7 +21,7 @@ const Key = 'FindTokenWithMintByAddressOperation' as const;
  * by providing the token address.
  *
  * ```ts
- * const tokenWithMint = await metaplex.tokens().findTokenWithMintByAddress({ address }).run();
+ * const tokenWithMint = await metaplex.tokens().findTokenWithMintByAddress({ address });
  * ```
  *
  * @group Operations

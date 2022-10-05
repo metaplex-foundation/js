@@ -31,8 +31,7 @@ const Key = 'UpdateNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .update({ nftOrSft, name: "My new NFT name" })
- *   .run();
+ *   .update({ nftOrSft, name: "My new NFT name" };
  * ```
  *
  * @group Operations

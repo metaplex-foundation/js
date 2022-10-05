@@ -42,8 +42,7 @@ const Key = 'FindNftByMintOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByMint({ mintAddress })
- *   .run();
+ *   .findByMint({ mintAddress };
  * ```
  *
  * @group Operations

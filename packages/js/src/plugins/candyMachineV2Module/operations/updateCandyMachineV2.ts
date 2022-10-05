@@ -41,8 +41,7 @@ const Key = 'UpdateCandyMachineV2Operation' as const;
  *   .update({
  *     candyMachine,
  *     price: sol(2), // Updates the price only.
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

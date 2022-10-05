@@ -50,8 +50,7 @@ const Key = 'UpdateCandyMachineOperation' as const;
  *   .update({
  *     candyMachine,
  *     sellerFeeBasisPoints: 500,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

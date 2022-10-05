@@ -26,8 +26,7 @@ const Key = 'ApproveNftCollectionAuthorityOperation' as const;
  *   .approveCollectionAuthority({
  *     mintAddress,
  *     collectionAuthority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

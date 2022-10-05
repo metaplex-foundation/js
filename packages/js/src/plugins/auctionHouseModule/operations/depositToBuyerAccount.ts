@@ -32,8 +32,7 @@ const Key = 'DepositToBuyerAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .depositToBuyerAccount({ auctionHouse, buyer, amount })
- *   .run();
+ *   .depositToBuyerAccount({ auctionHouse, buyer, amount };
  * ```
  *
  * @group Operations

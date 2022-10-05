@@ -22,8 +22,7 @@ const Key = 'FindAuctionHouseByAddressOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findByAddress({ address })
- *   .run();
+ *   .findByAddress({ address };
  * ```
  *
  * @group Operations

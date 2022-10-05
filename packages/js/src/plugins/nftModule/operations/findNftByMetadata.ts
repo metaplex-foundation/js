@@ -21,8 +21,7 @@ const Key = 'FindNftByMetadataOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByMetadata({ metadata })
- *   .run();
+ *   .findByMetadata({ metadata };
  * ```
  *
  * @group Operations

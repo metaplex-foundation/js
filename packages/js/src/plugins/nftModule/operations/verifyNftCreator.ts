@@ -23,8 +23,7 @@ const Key = 'VerifyNftCreatorOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .verifyCreator({ mintAddress, creator })
- *   .run();
+ *   .verifyCreator({ mintAddress, creator };
  * ```
  *
  * @group Operations

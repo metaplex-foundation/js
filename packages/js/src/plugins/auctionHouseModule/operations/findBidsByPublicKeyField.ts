@@ -24,20 +24,17 @@ const Key = 'FindBidsByPublicKeyOperation' as const;
  * // Find bids by buyer.
  * const bids = await metaplex
  *   .auctionHouse()
- *   .findBidsBy({ auctionHouse, type: 'buyer', publicKey: buyer })
- *   .run();
+ *   .findBidsBy({ auctionHouse, type: 'buyer', publicKey: buyer };
  *
  * // Find bids by metadata.
  * const bids = await metaplex
  *   .auctionHouse()
- *   .findBidsBy({ auctionHouse, type: 'metadata', publicKey: metadata })
- *   .run();
+ *   .findBidsBy({ auctionHouse, type: 'metadata', publicKey: metadata };
  *
  * // Find bids by mint.
  * const bids = await metaplex
  *   .auctionHouse()
- *   .findBidsBy({ auctionHouse, type: 'mint', publicKey: mint })
- *   .run();
+ *   .findBidsBy({ auctionHouse, type: 'mint', publicKey: mint };
  * ```
  *
  * @group Operations

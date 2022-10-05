@@ -23,8 +23,7 @@ const Key = 'FreezeDelegatedNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .freezeDelegatedNft({ mintAddress, delegateAuthority })
- *   .run();
+ *   .freezeDelegatedNft({ mintAddress, delegateAuthority };
  * ```
  *
  * @group Operations

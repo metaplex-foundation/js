@@ -43,8 +43,7 @@ const Key = 'MintCandyMachineV2Operation' as const;
  * ```ts
  * const { nft } = await metaplex
  *   .candyMachinesV2()
- *   .mint({ candyMachine })
- *   .run();
+ *   .mint({ candyMachine };
  * ```
  *
  * @group Operations

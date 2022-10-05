@@ -28,8 +28,7 @@ const Key = 'UnwrapCandyGuardOperation' as const;
  *   .unwrapCandyGuard({
  *     candyMachine,
  *     candyGuard,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

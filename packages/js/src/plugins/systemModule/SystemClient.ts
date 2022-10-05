@@ -25,7 +25,7 @@ import { OperationOptions } from '@/types';
  * using the code below.
  *
  * ```ts
- * const { newAccount } = await metaplex.system().createAccount({ space: 42 }).run();
+ * const { newAccount } = await metaplex.system().createAccount({ space: 42 });
  * ```
  *
  * @group Modules

@@ -29,26 +29,22 @@ const Key = 'FindPurchasesByPublicKeyOperation' as const;
  * // Find purchases by seller.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'seller', publicKey: seller })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'seller', publicKey: seller };
  *
  * // Find purchases by buyer.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'buyer', publicKey: buyer })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'buyer', publicKey: buyer };
  *
  * // Find purchases by metadata.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'metadata', publicKey: metadata })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'metadata', publicKey: metadata };
  *
  * // Find purchases by mint.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'mint', publicKey: mint })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'mint', publicKey: mint };
  * ```
  *
  * @group Operations

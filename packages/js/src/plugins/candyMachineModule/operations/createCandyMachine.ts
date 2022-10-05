@@ -48,8 +48,7 @@ const Key = 'CreateCandyMachineOperation' as const;
  *        address: collectionNft.address,
  *        updateAuthority: collectionUpdateAuthority,
  *      },
- *    })
- *    .run();
+ *    });
  * ```
  *
  * @group Operations
@@ -114,8 +113,7 @@ export type CreateCandyMachineInput<
    * ```ts
    * const { nft } = await metaplex.
    *   .nfts()
-   *   .create({ isCollection: true, name: 'My Collection', ... })
-   *   .run();
+   *   .create({ isCollection: true, name: 'My Collection', ... });
    * ```
    *
    * You can now use `nft.address` as the address of the collection and

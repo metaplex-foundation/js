@@ -26,8 +26,7 @@ const Key = 'VerifyNftCollectionOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .verifyCollection({ mintAddress, collectionMintAddress })
- *   .run();
+ *   .verifyCollection({ mintAddress, collectionMintAddress };
  * ```
  *
  * @group Operations

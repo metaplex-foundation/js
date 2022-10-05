@@ -23,7 +23,7 @@ const Key = 'ThawTokensOperation' as const;
  * Thaws a token account.
  *
  * ```ts
- * await metaplex.tokens().thaw({ mintAddress, freezeAuthority }).run();
+ * await metaplex.tokens().thaw({ mintAddress, freezeAuthority });
  * ```
  *
  * @group Operations

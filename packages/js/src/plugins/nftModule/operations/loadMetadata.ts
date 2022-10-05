@@ -20,8 +20,7 @@ const Key = 'LoadMetadataOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .load({ metadata })
- *   .run();
+ *   .load({ metadata };
  * ```
  *
  * @group Operations

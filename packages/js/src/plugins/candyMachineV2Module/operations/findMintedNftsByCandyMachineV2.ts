@@ -21,8 +21,7 @@ const Key = 'FindMintedNftsByCandyMachineV2Operation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .candyMachinesV2()
- *   .findMintedNfts({ candyMachine })
- *   .run();
+ *   .findMintedNfts({ candyMachine };
  * ```
  *
  * @group Operations

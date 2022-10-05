@@ -49,7 +49,7 @@ import { OperationOptions } from '@/types';
  * of the metaplex instance.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint().run();
+ * const { token } = await metaplex.tokens().createTokenWithMint();
  * ```
  *
  * @group Modules

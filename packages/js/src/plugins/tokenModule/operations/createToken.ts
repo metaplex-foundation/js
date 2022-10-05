@@ -29,7 +29,7 @@ const Key = 'CreateTokenOperation' as const;
  * Creates a new token account.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createToken({ mint }).run();
+ * const { token } = await metaplex.tokens().createToken({ mint });
  * ```
  *
  * @group Operations

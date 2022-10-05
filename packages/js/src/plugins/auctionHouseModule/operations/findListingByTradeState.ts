@@ -20,8 +20,7 @@ const Key = 'FindListingByTradeStateOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findListingByTradeState({ tradeStateAddress, auctionHouse })
- *   .run();
+ *   .findListingByTradeState({ tradeStateAddress, auctionHouse };
  * ```
  *
  * @group Operations

@@ -36,8 +36,7 @@ const Key = 'CreateSftOperation' as const;
  *     name: 'My SFT',
  *     uri: 'https://example.com/my-sft',
  *     sellerFeeBasisPoints: 250, // 2.5%
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

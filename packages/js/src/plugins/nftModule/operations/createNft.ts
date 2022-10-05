@@ -35,8 +35,7 @@ const Key = 'CreateNftOperation' as const;
  *     name: 'My NFT',
  *     uri: 'https://example.com/my-nft',
  *     sellerFeeBasisPoints: 250, // 2.5%
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations

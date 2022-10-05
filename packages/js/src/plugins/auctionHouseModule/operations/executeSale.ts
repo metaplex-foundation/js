@@ -47,8 +47,7 @@ const Key = 'ExecuteSaleOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .executeSale({ auctionHouse, bid, listing })
- *   .run();
+ *   .executeSale({ auctionHouse, bid, listing };
  * ```
  *
  * @group Operations
