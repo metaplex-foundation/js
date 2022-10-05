@@ -1,16 +1,15 @@
 import { createSignMetadataInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMetadataPda } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -58,12 +57,6 @@ export type VerifyNftCreatorInput = {
    * @defaultValue `metaplex.identity()`
    */
   creator?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -83,12 +76,14 @@ export const verifyNftCreatorOperationHandler: OperationHandler<VerifyNftCreator
   {
     handle: async (
       operation: VerifyNftCreatorOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<VerifyNftCreatorOutput> => {
-      return verifyNftCreatorBuilder(metaplex, operation.input).sendAndConfirm(
+      return verifyNftCreatorBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -127,19 +122,23 @@ export const verifyNftCreatorBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress, creator = metaplex.identity(), programs } = params;
+  const { mintAddress, creator = metaplex.identity() } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Verify the creator.
       .add({
         instruction: createSignMetadataInstruction(
           {
-            metadata: findMetadataPda(mintAddress),
+            metadata: metaplex.nfts().pdas().metadata({
+              mint: mintAddress,
+              programs,
+            }),
             creator: creator.publicKey,
           },
           tokenMetadataProgram.address

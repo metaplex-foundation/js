@@ -1,9 +1,13 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../../tokenModule';
 import { NftWithToken, SftWithToken } from '../models';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Program, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
 
 // -----------------
 // Operation
@@ -51,12 +55,6 @@ export type FindNftByTokenInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -81,14 +79,14 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
       );
       scope.throwIfCanceled();
 
-      const asset = await metaplex
-        .nfts()
-        .findByMint({
+      const asset = await metaplex.nfts().findByMint(
+        {
           ...operation.input,
           mintAddress: token.data.mint,
           tokenAddress: operation.input.token,
-        })
-        .run(scope);
+        },
+        scope
+      );
 
       return asset as FindNftByTokenOutput;
     },

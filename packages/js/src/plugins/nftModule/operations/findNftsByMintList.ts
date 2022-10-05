@@ -1,10 +1,14 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Metadata, Nft, Sft, toMetadata } from '../models';
-import { findMetadataPda } from '../pdas';
-import { DisposableScope, GmaBuilder } from '@/utils';
-import { Operation, OperationHandler, Program, useOperation } from '@/types';
 import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import { GmaBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -45,12 +49,6 @@ export type FindNftsByMintListOperation = Operation<
 export type FindNftsByMintListInput = {
   /** The addresses of all mint accounts we want to fetch. */
   mints: PublicKey[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -70,8 +68,12 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<FindNftsByMintListOutput> => {
-      const { mints, commitment } = operation.input;
-      const metadataPdas = mints.map((mint) => findMetadataPda(mint));
+      const { commitment, programs } = scope;
+      const { mints } = operation.input;
+      const nftPdas = metaplex.nfts().pdas();
+      const metadataPdas = mints.map((mint) =>
+        nftPdas.metadata({ mint, programs })
+      );
       const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas, {
         commitment,
       }).get();

@@ -2,22 +2,16 @@ import {
   createCreateMasterEditionV3Instruction,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
-import { findMasterEditionV2Pda } from '../pdas';
-import {
-  DisposableScope,
-  Option,
-  TransactionBuilder,
-  TransactionBuilderOptions,
-} from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   CreatorInput,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   token,
   toPublicKey,
@@ -65,15 +59,6 @@ export type CreateNftOperation = Operation<
  * @category Inputs
  */
 export type CreateNftInput = {
-  /**
-   * The Signer paying for the creation of all accounts
-   * required to create a new NFT.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
   /**
    * The authority that will be able to make changes
    * to the created NFT.
@@ -238,12 +223,6 @@ export type CreateNftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -285,8 +264,6 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       useExistingMint,
       tokenOwner = metaplex.identity().publicKey,
       tokenAddress: tokenSigner,
-      confirmOptions,
-      programs,
     } = operation.input;
 
     const mintAddress = useExistingMint ?? useNewMint.publicKey;
@@ -295,29 +272,33 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
       : metaplex.tokens().pdas().associatedTokenAccount({
           mint: mintAddress,
           owner: tokenOwner,
-          programs,
+          programs: scope.programs,
         });
     const tokenAccount = await metaplex.rpc().getAccount(tokenAddress);
     const tokenExists = tokenAccount.exists;
 
-    const builder = await createNftBuilder(metaplex, {
-      ...operation.input,
-      useNewMint,
-      tokenOwner,
-      tokenExists,
-    });
+    const builder = await createNftBuilder(
+      metaplex,
+      {
+        ...operation.input,
+        useNewMint,
+        tokenOwner,
+        tokenExists,
+      },
+      scope
+    );
     scope.throwIfCanceled();
 
-    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
     scope.throwIfCanceled();
 
-    const nft = await metaplex
-      .nfts()
-      .findByMint({
+    const nft = await metaplex.nfts().findByMint(
+      {
         mintAddress: output.mintAddress,
         tokenAddress: output.tokenAddress,
-      })
-      .run(scope);
+      },
+      scope
+    );
     scope.throwIfCanceled();
 
     assertNftWithToken(nft);
@@ -398,11 +379,9 @@ export const createNftBuilder = async (
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     useNewMint = Keypair.generate(),
-    payer = metaplex.identity(),
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
-    programs,
   } = params;
 
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -410,21 +389,26 @@ export const createNftBuilder = async (
   const sftBuilder = await metaplex
     .nfts()
     .builders()
-    .createSft({
-      ...params,
-      payer,
-      updateAuthority,
-      mintAuthority,
-      freezeAuthority: mintAuthority.publicKey,
-      useNewMint,
-      tokenOwner,
-      tokenAmount: token(1),
-      decimals: 0,
-    });
+    .createSft(
+      {
+        ...params,
+        updateAuthority,
+        mintAuthority,
+        freezeAuthority: mintAuthority.publicKey,
+        useNewMint,
+        tokenOwner,
+        tokenAmount: token(1),
+        decimals: 0,
+      },
+      { programs, payer }
+    );
 
   const { mintAddress, metadataAddress, tokenAddress } =
     sftBuilder.getContext();
-  const masterEditionAddress = findMasterEditionV2Pda(mintAddress);
+  const masterEditionAddress = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
+  });
 
   return (
     TransactionBuilder.make<CreateNftBuilderContext>()

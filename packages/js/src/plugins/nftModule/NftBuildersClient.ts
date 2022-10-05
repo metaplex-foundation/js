@@ -149,7 +149,8 @@ export class NftBuildersClient {
 
   /** {@inheritDoc approveNftCollectionAuthorityBuilder} */
   approveCollectionAuthority(
-    input: ApproveNftCollectionAuthorityBuilderParams
+    input: ApproveNftCollectionAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
   ) {
     return approveNftCollectionAuthorityBuilder(this.metaplex, input, options);
   }

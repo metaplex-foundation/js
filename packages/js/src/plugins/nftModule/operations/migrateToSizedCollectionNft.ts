@@ -1,8 +1,7 @@
 import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
   Operation,
@@ -11,7 +10,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -156,26 +155,31 @@ export const migrateToSizedCollectionNftBuilder = (
     collectionAuthority = metaplex.identity(),
     size,
     isDelegated = false,
-    programs,
   } = params;
 
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const nftPdas = metaplex.nfts().pdas();
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Update the metadata account.
       .add({
         instruction: createSetCollectionSizeInstruction(
           {
-            collectionMetadata: findMetadataPda(mintAddress),
+            collectionMetadata: nftPdas.metadata({
+              mint: mintAddress,
+              programs,
+            }),
             collectionAuthority: collectionAuthority.publicKey,
             collectionMint: mintAddress,
             collectionAuthorityRecord: isDelegated
-              ? findCollectionAuthorityRecordPda(
-                  mintAddress,
-                  collectionAuthority.publicKey
-                )
+              ? nftPdas.collectionAuthorityRecord({
+                  mint: mintAddress,
+                  collectionAuthority: collectionAuthority.publicKey,
+                  programs,
+                })
               : undefined,
           },
           { setCollectionSizeArgs: { size } },

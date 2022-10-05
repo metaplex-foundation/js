@@ -1,9 +1,12 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { MetadataV1GpaBuilder } from '../gpaBuilders';
 import { Metadata, Nft, Sft } from '../models';
-import { findNftsByMintListOperation } from './findNftsByMintList';
-import { DisposableScope } from '@/utils';
-import { Operation, OperationHandler, Program, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -45,12 +48,6 @@ export type FindNftsByUpdateAuthorityOperation = Operation<
 export type FindNftsByUpdateAuthorityInput = {
   /** The address of the update authority. */
   updateAuthority: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -70,11 +67,11 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<FindNftsByUpdateAuthorityOutput> => {
-      const { updateAuthority, commitment, programs } = operation.input;
+      const { updateAuthority } = operation.input;
 
       const gpaBuilder = new MetadataV1GpaBuilder(
         metaplex,
-        metaplex.programs().getTokenMetadata(programs).address
+        metaplex.programs().getTokenMetadata(scope.programs).address
       );
 
       const mints = await gpaBuilder
@@ -83,12 +80,7 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
         .getDataAsPublicKeys();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex
-        .operations()
-        .execute(
-          findNftsByMintListOperation({ mints, commitment, programs }),
-          scope
-        );
+      const nfts = await metaplex.nfts().findAllByMintList({ mints }, scope);
       scope.throwIfCanceled();
 
       return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);

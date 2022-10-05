@@ -4,12 +4,7 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
@@ -17,7 +12,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -168,22 +163,27 @@ export const verifyNftCollectionBuilder = (
     isSizedCollection = true,
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const accounts = {
-    metadata: findMetadataPda(mintAddress),
+    metadata: metaplex.nfts().pdas().metadata({
+      mint: mintAddress,
+      programs,
+    }),
     collectionAuthority: collectionAuthority.publicKey,
     payer: payer.publicKey,
     collectionMint: collectionMintAddress,
-    collection: findMetadataPda(collectionMintAddress),
-    collectionMasterEditionAccount: findMasterEditionV2Pda(
-      collectionMintAddress
-    ),
+    collection: metaplex.nfts().pdas().metadata({
+      mint: collectionMintAddress,
+      programs,
+    }),
+    collectionMasterEditionAccount: metaplex.nfts().pdas().masterEdition({
+      mint: collectionMintAddress,
+      programs,
+    }),
   };
 
   const instruction = isSizedCollection
@@ -195,10 +195,11 @@ export const verifyNftCollectionBuilder = (
 
   if (isDelegated) {
     instruction.keys.push({
-      pubkey: findCollectionAuthorityRecordPda(
-        collectionMintAddress,
-        collectionAuthority.publicKey
-      ),
+      pubkey: metaplex.nfts().pdas().collectionAuthorityRecord({
+        mint: collectionMintAddress,
+        collectionAuthority: collectionAuthority.publicKey,
+        programs,
+      }),
       isWritable: false,
       isSigner: false,
     });

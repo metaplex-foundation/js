@@ -1,16 +1,15 @@
 import { createApproveCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -64,21 +63,6 @@ export type ApproveNftCollectionAuthorityInput = {
    * @defaultValue `metaplex.identity()`
    */
   updateAuthority?: Signer;
-
-  /**
-   * The Signer paying for the creation of the PDA account
-   * that keeps track of the new collection authority.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -98,12 +82,14 @@ export const approveNftCollectionAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveNftCollectionAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<ApproveNftCollectionAuthorityOutput> => {
       return approveNftCollectionAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -149,17 +135,25 @@ export const approveNftCollectionAuthorityBuilder = (
     mintAddress,
     collectionAuthority,
     updateAuthority = metaplex.identity(),
-    payer = metaplex.identity(),
-    programs,
   } = params;
-  const metadata = findMetadataPda(mintAddress);
-  const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-    mintAddress,
-    collectionAuthority
-  );
 
+  // Programs.
   const systemProgram = metaplex.programs().getSystem(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
+  // PDAs.
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: mintAddress,
+      collectionAuthority,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()

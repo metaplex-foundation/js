@@ -1,16 +1,15 @@
 import { createRevokeCollectionAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -62,12 +61,6 @@ export type RevokeNftCollectionAuthorityInput = {
    * collection authority itself (i.e. revoking its own rights).
    */
   revokeAuthority?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -87,12 +80,14 @@ export const revokeNftCollectionAuthorityOperationHandler: OperationHandler<Revo
   {
     handle: async (
       operation: RevokeNftCollectionAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<RevokeNftCollectionAuthorityOutput> => {
       return revokeNftCollectionAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -135,15 +130,21 @@ export const revokeNftCollectionAuthorityBuilder = (
     mintAddress,
     collectionAuthority,
     revokeAuthority = metaplex.identity(),
-    programs,
   } = params;
 
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
-  const metadata = findMetadataPda(mintAddress);
-  const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-    mintAddress,
-    collectionAuthority
-  );
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: mintAddress,
+      collectionAuthority,
+      programs,
+    });
 
   const instruction = createRevokeCollectionAuthorityInstruction(
     {
@@ -162,6 +163,7 @@ export const revokeNftCollectionAuthorityBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Revoke the collection authority.
       .add({
