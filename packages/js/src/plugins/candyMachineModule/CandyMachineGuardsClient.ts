@@ -11,7 +11,9 @@ import {
 import {
   CandyGuardManifest,
   CandyGuardsMintSettings,
+  CandyGuardsRouteSettings,
   CandyGuardsSettings,
+  DefaultCandyGuardRouteSettings,
   DefaultCandyGuardSettings,
 } from './guards';
 import { CandyGuard } from './models';
@@ -289,12 +291,14 @@ export class CandyMachineGuardsClient {
    * the requested guard for the route instruction.
    */
   parseRouteSettings<
-    RouteSettings,
-    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+    Guard extends keyof RouteSettings & string,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
   >(
     candyMachine: PublicKey,
     candyGuard: CandyGuard<Settings>,
     payer: Signer,
+    guard: Guard,
     routeSettings: RouteSettings,
     groupLabel: Option<string>,
     programs: Program[] = []
@@ -304,45 +308,43 @@ export class CandyMachineGuardsClient {
     signers: Signer[];
   } {
     const availableGuards = this.forCandyGuardProgram(programs);
+    const guardManifest = availableGuards.find((g) => g.name === guard);
+
+    if (!guardManifest || !guardManifest.routeSettingsParser) {
+      // TODO(loris): custom error.
+      throw new Error('Guard in program with route settings not found');
+    }
+
     const guardSettings = this.resolveGroupSettings(
       candyGuard.guards,
       candyGuard.groups,
       groupLabel
     );
-    const initialAccumulator = {
-      arguments: Buffer.from([]),
-      accountMetas: [] as AccountMeta[],
-      signers: [] as Signer[],
+    const settings = guardSettings[guard] ?? null;
+
+    const parsedSettings = guardManifest.routeSettingsParser({
+      metaplex: this.metaplex,
+      settings,
+      routeSettings,
+      payer,
+      candyMachine,
+      candyGuard: candyGuard.address,
+      programs,
+    });
+    const { remainingAccounts } = parsedSettings;
+    const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
+      pubkey: account.isSigner ? account.address.publicKey : account.address,
+      isSigner: account.isSigner,
+      isWritable: account.isWritable,
+    }));
+    const signers: Signer[] = remainingAccounts
+      .filter((account) => account.isSigner)
+      .map((account) => account.address as Signer);
+
+    return {
+      arguments: parsedSettings.arguments,
+      accountMetas,
+      signers,
     };
-
-    return availableGuards.reduce((acc, guard) => {
-      const settings = guardSettings[guard.name] ?? null;
-      const mintSettings = guardMintSettings[guard.name] ?? null;
-      if (!guard.mintSettingsParser || !settings) return acc;
-
-      const parsedSettings = guard.mintSettingsParser({
-        metaplex: this.metaplex,
-        settings,
-        mintSettings,
-        payer,
-        candyMachine,
-        candyGuard: candyGuard.address,
-        programs,
-      });
-      const { remainingAccounts } = parsedSettings;
-      const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
-        pubkey: account.isSigner ? account.address.publicKey : account.address,
-        isSigner: account.isSigner,
-        isWritable: account.isWritable,
-      }));
-      const signers: Signer[] = remainingAccounts
-        .filter((account) => account.isSigner)
-        .map((account) => account.address as Signer);
-
-      acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
-      acc.accountMetas.push(...accountMetas);
-      acc.signers.push(...signers);
-      return acc;
-    }, initialAccumulator);
   }
 }

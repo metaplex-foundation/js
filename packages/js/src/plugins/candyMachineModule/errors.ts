@@ -119,6 +119,7 @@ export class CandyMachineBotTaxError extends CandyMachineV3Error {
   }
 }
 
+// TODO(loris): Make these group label error more generic (mint + route ix).
 /** @group Errors */
 export class MintingRequiresGroupLabelError extends CandyMachineV3Error {
   constructor(availableGroups: string[], options?: MetaplexErrorOptions) {

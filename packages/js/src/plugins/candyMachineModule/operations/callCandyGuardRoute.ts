@@ -3,6 +3,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyGuardsRouteSettings,
   CandyGuardsSettings,
+  DefaultCandyGuardRouteSettings,
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
@@ -38,10 +39,12 @@ const Key = 'CallCandyGuardRouteOperation' as const;
 export const callCandyGuardRouteOperation = _callCandyGuardRouteOperation;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function _callCandyGuardRouteOperation<
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  Guard extends keyof RouteSettings & string,
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
 >(
-  input: CallCandyGuardRouteInput<Settings>
-): CallCandyGuardRouteOperation<Settings> {
+  input: CallCandyGuardRouteInput<Guard, Settings, RouteSettings>
+): CallCandyGuardRouteOperation<Guard, Settings, RouteSettings> {
   return { key: Key, input };
 }
 _callCandyGuardRouteOperation.key = Key;
@@ -51,10 +54,12 @@ _callCandyGuardRouteOperation.key = Key;
  * @category Types
  */
 export type CallCandyGuardRouteOperation<
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  Guard extends keyof RouteSettings & string,
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
 > = Operation<
   typeof Key,
-  CallCandyGuardRouteInput<Settings>,
+  CallCandyGuardRouteInput<Guard, Settings, RouteSettings>,
   CallCandyGuardRouteOutput
 >;
 
@@ -63,7 +68,7 @@ export type CallCandyGuardRouteOperation<
  * @category Inputs
  */
 export type CallCandyGuardRouteInput<
-  Guard extends keyof RouteSettings,
+  Guard extends keyof RouteSettings & string,
   Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
   RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
 > = {
@@ -114,24 +119,27 @@ export type CallCandyGuardRouteOutput = {
  * @group Operations
  * @category Handlers
  */
-export const callCandyGuardRouteOperationHandler: OperationHandler<CallCandyGuardRouteOperation> =
-  {
-    async handle<
-      Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
-    >(
-      operation: CallCandyGuardRouteOperation<Settings>,
-      metaplex: Metaplex,
-      scope: OperationScope
-    ): Promise<CallCandyGuardRouteOutput> {
-      const builder = callCandyGuardRouteBuilder<Settings>(
-        metaplex,
-        operation.input,
-        scope
-      );
+export const callCandyGuardRouteOperationHandler: OperationHandler<
+  CallCandyGuardRouteOperation<any>
+> = {
+  async handle<
+    Guard extends keyof RouteSettings & string,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
+  >(
+    operation: CallCandyGuardRouteOperation<Guard, Settings, RouteSettings>,
+    metaplex: Metaplex,
+    scope: OperationScope
+  ): Promise<CallCandyGuardRouteOutput> {
+    const builder = callCandyGuardRouteBuilder<Guard, Settings, RouteSettings>(
+      metaplex,
+      operation.input,
+      scope
+    );
 
-      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
-    },
-  };
+    return builder.sendAndConfirm(metaplex, scope.confirmOptions);
+  },
+};
 
 // -----------------
 // Builder
@@ -142,8 +150,13 @@ export const callCandyGuardRouteOperationHandler: OperationHandler<CallCandyGuar
  * @category Inputs
  */
 export type CallCandyGuardRouteBuilderParams<
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Omit<CallCandyGuardRouteInput<Settings>, 'confirmOptions'> & {
+  Guard extends keyof RouteSettings & string,
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
+> = Omit<
+  CallCandyGuardRouteInput<Guard, Settings, RouteSettings>,
+  'confirmOptions'
+> & {
   /** A key to distinguish the instruction that mints from the Candy Machine. */
   instructionKey?: string;
 };
@@ -169,14 +182,16 @@ export type CallCandyGuardRouteBuilderParams<
  * @category Constructors
  */
 export const callCandyGuardRouteBuilder = <
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  Guard extends keyof RouteSettings & string,
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+  RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
 >(
   metaplex: Metaplex,
-  params: CallCandyGuardRouteBuilderParams<Settings>,
+  params: CallCandyGuardRouteBuilderParams<Guard, Settings, RouteSettings>,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { candyMachine, settings, group = null } = params;
+  const { candyMachine, guard, settings, group = null } = params;
 
   if (!candyMachine.candyGuard) {
     // TODO: custom error.
@@ -191,6 +206,7 @@ export const callCandyGuardRouteBuilder = <
       candyMachine.address,
       candyMachine.candyGuard,
       payer,
+      guard,
       settings,
       group,
       programs
@@ -205,7 +221,9 @@ export const callCandyGuardRouteBuilder = <
     },
     {
       args: {
-        guard: '' as any,
+        // "GuardType" is an enum for default guards only
+        // but we also allow custom guards, hence "any".
+        guard: guard as any,
         data: parsedRouteSettings.arguments,
       },
       label: group,
