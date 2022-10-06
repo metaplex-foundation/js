@@ -197,8 +197,8 @@ test('[auctionHouseModule] it keeps the original scope when updating the Auction
 
   // Then the new scopes have been correctly set.
   const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
-    auctionHouse: auctionHouse.address,
-    auctioneerAuthority: auctioneerAuthority.publicKey,
+    auctionHouse: updatedAuctionHouse.address,
+    auctioneerAuthority: newAuctioneerAuthority.publicKey,
   });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
@@ -258,8 +258,8 @@ test('[auctionHouseModule] it can update both the Auctioneer authority and scope
 
   // Then the new auctioneer data has been correctly set.
   const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
-    auctionHouse: auctionHouse.address,
-    auctioneerAuthority: auctioneerAuthority.publicKey,
+    auctionHouse: updatedAuctionHouse.address,
+    auctioneerAuthority: newAuctioneerAuthority.publicKey,
   });
   spok(t, updatedAuctionHouse, {
     hasAuctioneer: true,
