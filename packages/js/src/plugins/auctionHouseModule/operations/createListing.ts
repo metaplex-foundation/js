@@ -16,6 +16,7 @@ import {
   amount,
   isSigner,
   lamports,
+  makeConfirmOptionsFinalizedOnMainnet,
   now,
   Operation,
   OperationHandler,
@@ -201,12 +202,12 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       scope: OperationScope
     ): Promise<CreateListingOutput> {
       const { auctionHouse } = operation.input;
-
-      const output = await createListingBuilder(
+      const builder = createListingBuilder(metaplex, operation.input, scope);
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
-        operation.input,
-        scope
-      ).sendAndConfirm(metaplex, scope.confirmOptions);
+        scope.confirmOptions
+      );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       if (output.receipt) {

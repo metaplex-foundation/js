@@ -22,6 +22,7 @@ import {
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   assertAccountExists,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -178,10 +179,11 @@ export const mintCandyMachineV2OperationHandler: OperationHandler<MintCandyMachi
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       let nft: NftWithToken;

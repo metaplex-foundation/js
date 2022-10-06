@@ -10,6 +10,7 @@ import { ExpectedSignerError } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -106,10 +107,11 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const token = await metaplex

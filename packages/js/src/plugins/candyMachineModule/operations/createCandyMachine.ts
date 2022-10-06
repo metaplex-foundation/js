@@ -14,6 +14,7 @@ import {
   BigNumber,
   Creator,
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -301,10 +302,11 @@ export const createCandyMachineOperationHandler: OperationHandler<CreateCandyMac
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const candyMachine = await metaplex

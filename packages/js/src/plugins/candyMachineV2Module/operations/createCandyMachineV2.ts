@@ -22,6 +22,7 @@ import {
 import {
   assertSameCurrencies,
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -153,10 +154,11 @@ export const createCandyMachineV2OperationHandler: OperationHandler<CreateCandyM
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const candyMachine = await metaplex

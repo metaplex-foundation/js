@@ -12,6 +12,7 @@ import {
 import { CandyGuard } from '../models/CandyGuard';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -146,10 +147,12 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
         operation.input,
         scope
       );
-      const output = await builder.sendAndConfirm(
+
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const candyGuard = await metaplex

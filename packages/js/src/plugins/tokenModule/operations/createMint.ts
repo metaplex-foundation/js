@@ -4,6 +4,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -109,10 +110,11 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
       const builder = await createMintBuilder(metaplex, operation.input, scope);
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
         scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const mint = await metaplex
