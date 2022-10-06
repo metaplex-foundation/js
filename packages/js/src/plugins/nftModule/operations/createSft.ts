@@ -10,6 +10,7 @@ import {
   Creator,
   CreatorInput,
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -317,7 +318,11 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
     );
     scope.throwIfCanceled();
 
-    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+      metaplex,
+      scope.confirmOptions
+    );
+    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
     const sft = await metaplex.nfts().findByMint(

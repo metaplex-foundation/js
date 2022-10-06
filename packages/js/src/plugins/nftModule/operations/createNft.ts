@@ -9,6 +9,7 @@ import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   CreatorInput,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -288,7 +289,11 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     );
     scope.throwIfCanceled();
 
-    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+      metaplex,
+      scope.confirmOptions
+    );
+    const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
     const nft = await metaplex.nfts().findByMint(
