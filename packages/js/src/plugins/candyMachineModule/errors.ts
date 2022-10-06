@@ -174,12 +174,12 @@ export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
 }
 
 /** @group Errors */
-export class GuardMitingSettingsMissingError extends CandyMachineV3Error {
+export class GuardMintSettingsMissingError extends CandyMachineV3Error {
   constructor(guardName: string, options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'guard_miting_settings_missing',
-      title: 'Guard Miting Settings Missing',
+      key: 'guard_mint_settings_missing',
+      title: 'Guard Mint Settings Missing',
       problem:
         `The Candy Machine you are trying to mint from has the [${guardName}] guard enabled. ` +
         'This guard requires you to provide some additional settings when minting which you did not provide.',

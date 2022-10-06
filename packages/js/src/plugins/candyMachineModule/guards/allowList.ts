@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import * as beet from '@metaplex-foundation/beet';
 import { AllowList, allowListBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 import { createSerializerFromBeet, mapSerializer } from '@/types';
 
@@ -38,6 +38,8 @@ import { createSerializerFromBeet, mapSerializer } from '@/types';
  *
  * @see {@link AllowListGuardMintSettings} for more
  * information on the mint settings of this guard.
+ * @see {@link AllowListGuardRouteSettings} to learn more about
+ * the instructions that can be executed against this guard.
  */
 export type AllowListGuardSettings = {
   /**
@@ -63,10 +65,31 @@ export type AllowListGuardMintSettings = {
   merkleProof: Uint8Array[];
 };
 
+/**
+ * The settings for the allowList guard that should
+ * be provided when accessing the guard's special
+ * "route" instruction.
+ *
+ * @see {@link AllowListGuardSettings} for more
+ * information on the allowList guard itself.
+ */
+export type AllowListGuardRouteSettings = {
+  /** Selects the route to execute. */
+  route: 'proof';
+
+  /**
+   * The Proof that the minting wallet is part of the
+   * Merkle Tree-based allow list. You may use the
+   * `getMerkleProof` helper function to generate this.
+   */
+  merkleProof: Uint8Array[];
+};
+
 /** @internal */
 export const allowListGuardManifest: CandyGuardManifest<
   AllowListGuardSettings,
-  AllowListGuardMintSettings
+  AllowListGuardMintSettings,
+  AllowListGuardRouteSettings
 > = {
   name: 'allowList',
   settingsBytes: 32,
@@ -77,10 +100,20 @@ export const allowListGuardManifest: CandyGuardManifest<
   ),
   mintSettingsParser: ({ mintSettings }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('allowList');
+      throw new GuardMintSettingsMissingError('allowList');
     }
 
     const proof = mintSettings.merkleProof;
+    const vectorSize = Buffer.alloc(4);
+    beet.u32.write(vectorSize, 0, proof.length);
+
+    return {
+      arguments: Buffer.concat([vectorSize, ...proof]),
+      remainingAccounts: [],
+    };
+  },
+  routeSettingsParser: ({ routeSettings }) => {
+    const proof = routeSettings.merkleProof;
     const vectorSize = Buffer.alloc(4);
     beet.u32.write(vectorSize, 0, proof.length);
 

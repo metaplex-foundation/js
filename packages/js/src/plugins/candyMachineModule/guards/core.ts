@@ -10,7 +10,8 @@ import { Option } from '@/utils';
  */
 export type CandyGuardManifest<
   Settings extends object,
-  MintSettings extends object = {}
+  MintSettings extends object = {},
+  RouteSettings extends object = {}
 > = {
   /**
    * The name of your guard. This should match the name provided in the
@@ -53,9 +54,33 @@ export type CandyGuardManifest<
   }) => {
     /** The serialized arguments to pass to the mint instruction. */
     arguments: Buffer;
-    /** {@inheritDoc CandyGuardsMintRemainingAccount} */
-    remainingAccounts: CandyGuardsMintRemainingAccount[];
+    /** {@inheritDoc CandyGuardsRemainingAccount} */
+    remainingAccounts: CandyGuardsRemainingAccount[];
   };
+
+  /** TODO: Document */
+  routeSettingsParser?: (input: {
+    /** The metaplex instance used when calling the route instruction. */
+    metaplex: Metaplex;
+    /** The guard's settings. */
+    settings: Settings;
+    /** The route settings for that guard. */
+    routeSettings: RouteSettings;
+    /** The payer for the route instruction. */
+    payer: Signer;
+    /** The address of the Candy Machine we are routing from. */
+    candyMachine: PublicKey;
+    /** The address of the Candy Guard we are routing from. */
+    candyGuard: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs: Program[];
+  }) => {
+    /** The serialized arguments to pass to the route instruction. */
+    arguments: Buffer;
+    /** {@inheritDoc CandyGuardsRemainingAccount} */
+    remainingAccounts: CandyGuardsRemainingAccount[];
+  };
+
   // TODO(loris): Add and test onBeforeMint and onAfterMint hooks.
   // onBeforeMint?: (
   //   setting: Settings,
@@ -87,11 +112,11 @@ export type CandyGuardsMintSettings = {
 };
 
 /**
- * A remain account to push to the mint instruction.
+ * A remain account to push to the mint or route instruction.
  * When `isSigner` is true, the `address` attribute must be `Signer`
  * and it will be pushed to the `signers` array of the transaction.
  */
-export type CandyGuardsMintRemainingAccount =
+export type CandyGuardsRemainingAccount =
   | {
       isSigner: false;
       address: PublicKey;
