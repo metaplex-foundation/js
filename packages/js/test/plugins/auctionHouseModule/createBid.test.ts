@@ -95,10 +95,12 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
       model: 'nft',
       address: spokSamePubkey(nft.address),
       token: {
-        address: mx.tokens().pdas().associatedTokenAccount({
-          mint: nft.address,
-          owner: seller.publicKey,
-        }),
+        address: spokSamePubkey(
+          mx.tokens().pdas().associatedTokenAccount({
+            mint: nft.address,
+            owner: seller.publicKey,
+          })
+        ),
       },
     },
     isPublic: false,
@@ -137,10 +139,12 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
       model: 'nft',
       address: spokSamePubkey(nft.address),
       token: {
-        address: mx.tokens().pdas().associatedTokenAccount({
-          mint: nft.address,
-          owner: seller.publicKey,
-        }),
+        address: spokSamePubkey(
+          mx.tokens().pdas().associatedTokenAccount({
+            mint: nft.address,
+            owner: seller.publicKey,
+          })
+        ),
       },
     },
     isPublic: false,
