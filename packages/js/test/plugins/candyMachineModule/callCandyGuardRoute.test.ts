@@ -21,7 +21,7 @@ test('[candyMachineModule] it can call the route instruction of a specific guard
     },
   });
 
-  // When we mint an NFT from the candy machine using the mint authority.
+  // When we call the "proof" route of the guard by providing a valid proof.
   await mx.candyMachines().callGuardRoute(
     {
       candyMachine,
@@ -34,6 +34,19 @@ test('[candyMachineModule] it can call the route instruction of a specific guard
     { payer }
   );
 
-  // Then ...
-  t.pass('todo');
+  // Then the transaction was successful and a PDA
+  // was created to allow minting for that payer.
+  const merkleProofPda = mx
+    .candyMachines()
+    .pdas()
+    .merkleProof({
+      merkleRoot: getMerkleRoot(allowedWallets),
+      user: payer.publicKey,
+      candyMachine: candyMachine.address,
+      candyGuard: candyMachine.candyGuard!.address,
+    });
+  t.true(
+    await mx.rpc().accountExists(merkleProofPda),
+    'Merkle proof PDA was created'
+  );
 });
