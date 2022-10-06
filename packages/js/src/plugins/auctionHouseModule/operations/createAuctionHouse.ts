@@ -11,6 +11,7 @@ import { AuctionHouse } from '../models/AuctionHouse';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -175,10 +176,11 @@ export const createAuctionHouseOperationHandler: OperationHandler<CreateAuctionH
         scope
       );
 
-      const output = await builder.sendAndConfirm(metaplex, {
-        ...scope.confirmOptions,
-        commitment: 'finalized',
-      });
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+        metaplex,
+        scope.confirmOptions
+      );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress(

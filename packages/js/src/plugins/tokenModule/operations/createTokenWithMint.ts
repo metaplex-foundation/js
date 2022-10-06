@@ -5,6 +5,7 @@ import { TokenWithMint } from '../models/Token';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -144,10 +145,11 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(metaplex, {
-        ...scope.confirmOptions,
-        commitment: 'finalized',
-      });
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+        metaplex,
+        scope.confirmOptions
+      );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const token = await metaplex.tokens().findTokenWithMintByMint(

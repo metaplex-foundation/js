@@ -132,3 +132,12 @@ export const useOperation = <
 
   return constructor;
 };
+
+export const makeConfirmOptionsFinalizedOnMainnet = (
+  metaplex: Metaplex,
+  options?: ConfirmOptions
+): ConfirmOptions | undefined => {
+  return metaplex.cluster === 'mainnet-beta'
+    ? { ...options, commitment: 'finalized' }
+    : options;
+};

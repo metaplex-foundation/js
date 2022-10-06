@@ -10,6 +10,7 @@ import {
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
@@ -165,10 +166,11 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(metaplex, {
-        ...scope.confirmOptions,
-        commitment: 'finalized',
-      });
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+        metaplex,
+        scope.confirmOptions
+      );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const nft = await metaplex.nfts().findByMint(
