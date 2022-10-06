@@ -109,10 +109,10 @@ export const createMintOperationHandler: OperationHandler<CreateMintOperation> =
       const builder = await createMintBuilder(metaplex, operation.input, scope);
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
-        metaplex,
-        scope.confirmOptions
-      );
+      const output = await builder.sendAndConfirm(metaplex, {
+        ...scope.confirmOptions,
+        commitment: 'finalized',
+      });
       scope.throwIfCanceled();
 
       const mint = await metaplex

@@ -317,7 +317,10 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
     );
     scope.throwIfCanceled();
 
-    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, {
+      ...scope.confirmOptions,
+      commitment: 'finalized',
+    });
     scope.throwIfCanceled();
 
     const sft = await metaplex.nfts().findByMint(

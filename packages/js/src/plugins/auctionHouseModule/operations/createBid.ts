@@ -207,7 +207,10 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     const { auctionHouse } = operation.input;
 
     const builder = await createBidBuilder(metaplex, operation.input, scope);
-    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, {
+      ...scope.confirmOptions,
+      commitment: 'finalized',
+    });
     scope.throwIfCanceled();
 
     if (output.receipt) {

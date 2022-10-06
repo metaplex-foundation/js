@@ -146,10 +146,10 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
         operation.input,
         scope
       );
-      const output = await builder.sendAndConfirm(
-        metaplex,
-        scope.confirmOptions
-      );
+      const output = await builder.sendAndConfirm(metaplex, {
+        ...scope.confirmOptions,
+        commitment: 'finalized',
+      });
       scope.throwIfCanceled();
 
       const candyGuard = await metaplex

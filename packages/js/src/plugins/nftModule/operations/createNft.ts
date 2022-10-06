@@ -288,7 +288,10 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     );
     scope.throwIfCanceled();
 
-    const output = await builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    const output = await builder.sendAndConfirm(metaplex, {
+      ...scope.confirmOptions,
+      commitment: 'finalized',
+    });
     scope.throwIfCanceled();
 
     const nft = await metaplex.nfts().findByMint(

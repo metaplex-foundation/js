@@ -206,10 +206,10 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
-        metaplex,
-        scope.confirmOptions
-      );
+      const output = await builder.sendAndConfirm(metaplex, {
+        ...scope.confirmOptions,
+        commitment: 'finalized',
+      });
       scope.throwIfCanceled();
 
       let nft: NftWithToken;

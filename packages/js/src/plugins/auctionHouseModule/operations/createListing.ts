@@ -201,12 +201,11 @@ export const createListingOperationHandler: OperationHandler<CreateListingOperat
       scope: OperationScope
     ): Promise<CreateListingOutput> {
       const { auctionHouse } = operation.input;
-
-      const output = await createListingBuilder(
-        metaplex,
-        operation.input,
-        scope
-      ).sendAndConfirm(metaplex, scope.confirmOptions);
+      const builder = createListingBuilder(metaplex, operation.input, scope);
+      const output = await builder.sendAndConfirm(metaplex, {
+        ...scope.confirmOptions,
+        commitment: 'finalized',
+      });
       scope.throwIfCanceled();
 
       if (output.receipt) {
