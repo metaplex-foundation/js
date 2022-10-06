@@ -21,8 +21,6 @@ import {
   assertRefreshedCollectionHasSize,
 } from './helpers';
 import {
-  findEditionPda,
-  findMetadataPda,
   Nft,
   NftWithToken,
   toBigNumber,
@@ -428,8 +426,8 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
   // Given we have everything we need to create a Metadata account.
   const mx = await metaplex();
   const mint = Keypair.generate();
-  const metadata = findMetadataPda(mint.publicKey);
-  const edition = findEditionPda(mint.publicKey);
+  const metadata = mx.nfts().pdas().metadata({ mint: mint.publicKey });
+  const edition = mx.nfts().pdas().masterEdition({ mint: mint.publicKey });
   const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
 
   const data = {

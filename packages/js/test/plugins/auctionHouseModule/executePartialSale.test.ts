@@ -9,7 +9,6 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol, token } from '@/types';
-import { findAssociatedTokenAccountPda } from '@/plugins';
 
 killStuckProcess();
 
@@ -130,10 +129,10 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
   t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 3);
 
   // And payment tokens left buyer's account.
-  const paymentAccount = findAssociatedTokenAccountPda(
-    auctionHouse.treasuryMint.address,
-    buyer.publicKey
-  );
+  const paymentAccount = mx.tokens().pdas().associatedTokenAccount({
+    mint: auctionHouse.treasuryMint.address,
+    owner: buyer.publicKey,
+  });
 
   const buyerToken = await mx
     .tokens()

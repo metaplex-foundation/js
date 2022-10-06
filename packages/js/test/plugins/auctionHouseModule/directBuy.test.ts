@@ -11,7 +11,7 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol, token } from '@/types';
-import { findAssociatedTokenAccountPda, Purchase } from '@/index';
+import { Purchase } from '@/index';
 
 killStuckProcess();
 
@@ -49,10 +49,10 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
     asset: {
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(
-          nft.address,
-          mx.identity().publicKey
-        ),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: mx.identity().publicKey,
+        }),
         ownerAddress: spokSamePubkey(mx.identity().publicKey),
       },
     },
@@ -138,7 +138,10 @@ test('[auctionHouseModule] buy on an Auction House with maximum input', async (t
     asset: {
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: buyer.publicKey,
+        }),
         ownerAddress: spokSamePubkey(buyer.publicKey),
       },
     },

@@ -12,8 +12,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
-import { Bid, findAssociatedTokenAccountPda, Pda } from '@/index';
+import { Pda, sol, token, Bid } from '@/index';
 
 killStuckProcess();
 
@@ -70,13 +69,11 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const nft = await createNft(mx, { tokenOwner: seller.publicKey });
-
   const auctionHouse = await createAuctionHouse(mx);
-
-  const tokenAddress = findAssociatedTokenAccountPda(
-    nft.address,
-    seller.publicKey
-  );
+  const tokenAddress = mx.tokens().pdas().associatedTokenAccount({
+    mint: nft.address,
+    owner: seller.publicKey,
+  });
 
   // When we create a private bid on that NFT for 1 SOL.
   const { bid, buyerTradeState } = await mx.auctionHouse().bid({
@@ -98,7 +95,10 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
       model: 'nft',
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: seller.publicKey,
+        }),
       },
     },
     isPublic: false,
@@ -137,7 +137,10 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
       model: 'nft',
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(nft.address, seller.publicKey),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: seller.publicKey,
+        }),
       },
     },
     isPublic: false,

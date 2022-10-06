@@ -4,7 +4,6 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
-import { findMetadataPda } from '../pdas';
 import { JsonMetadata } from './JsonMetadata';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
@@ -153,7 +152,11 @@ export const toMetadata = (
   json?: Option<JsonMetadata>
 ): Metadata => ({
   model: 'metadata',
-  address: findMetadataPda(account.data.mint),
+  address: Pda.find(account.owner, [
+    Buffer.from('metadata', 'utf8'),
+    account.owner.toBuffer(),
+    account.data.mint.toBuffer(),
+  ]),
   mintAddress: account.data.mint,
   updateAuthorityAddress: account.data.updateAuthority,
   json: json ?? null,

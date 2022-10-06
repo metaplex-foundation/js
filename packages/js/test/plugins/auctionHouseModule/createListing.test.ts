@@ -12,13 +12,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
-import {
-  findAssociatedTokenAccountPda,
-  Listing,
-  AccountNotFoundError,
-  Pda,
-} from '@/index';
+import { Listing, AccountNotFoundError, Pda, sol, token } from '@/index';
 
 killStuckProcess();
 
@@ -47,10 +41,10 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
       model: 'nft',
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(
-          nft.address,
-          mx.identity().publicKey
-        ),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: mx.identity().publicKey,
+        }),
       },
     },
     receiptAddress: spok.defined,

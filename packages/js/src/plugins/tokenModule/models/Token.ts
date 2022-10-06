@@ -1,7 +1,6 @@
 import type { PublicKey } from '@solana/web3.js';
 import { AccountState } from '@solana/spl-token';
 import { TokenAccount } from '../accounts';
-import { findAssociatedTokenAccountPda } from '../pdas';
 import { Mint } from './Mint';
 import { amount, Pda, SplTokenAmount, token } from '@/types';
 import { assert, Option } from '@/utils';
@@ -76,10 +75,11 @@ export function assertToken(value: any): asserts value is Token {
 
 /** @group Model Helpers */
 export const toToken = (account: TokenAccount): Token => {
-  const associatedTokenAddress = findAssociatedTokenAccountPda(
-    account.data.mint,
-    account.data.owner
-  );
+  const associatedTokenAddress = Pda.find(account.owner, [
+    account.data.owner.toBuffer(),
+    account.owner.toBuffer(),
+    account.data.mint.toBuffer(),
+  ]);
   const isAssociatedToken = associatedTokenAddress.equals(account.publicKey);
 
   return {
