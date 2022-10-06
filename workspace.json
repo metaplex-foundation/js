@@ -1,79 +1,6 @@
 {
   "version": 2,
   "projects": {
-    "packages/js": {
-      "root": "packages/js",
-      "projectType": "library",
-      "sourceRoot": "packages/js/src",
-      "targets": {
-        "prebuild": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js"
-          }
-        },
-        "build": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": ["yarn workspace @metaplex-foundation/js build"],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "prebuild",
-              "projects": "self"
-            },
-            {
-              "target": "build",
-              "projects": "dependencies"
-            }
-          ]
-        },
-        "clean": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": ["yarn workspace @metaplex-foundation/js clean"],
-            "parallel": false
-          }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js {args.ver} {args.tag}",
-            "forwardAllArgs": true
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["packages/js/**/*.ts"],
-            "fix": true
-          }
-        },
-        "test": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": ["yarn workspace @metaplex-foundation/js test"],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "build",
-              "projects": "self"
-            }
-          ]
-        }
-      },
-      "tags": []
-    },
     "packages/js-core": {
       "root": "packages/js-core",
       "projectType": "library",
@@ -307,23 +234,23 @@
       },
       "tags": []
     },
-    "packages/js-plugin-bundlr-module": {
-      "root": "packages/js-plugin-bundlr-module",
+    "packages/js-plugin-bundlr": {
+      "root": "packages/js-plugin-bundlr",
       "projectType": "library",
-      "sourceRoot": "packages/js-plugin-bundlr-module/src",
+      "sourceRoot": "packages/js-plugin-bundlr/src",
       "targets": {
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
             "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-bundlr-module"
+            "cwd": "packages/js-plugin-bundlr"
           }
         },
         "build": {
           "executor": "nx:run-commands",
           "options": {
             "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-bundlr-module build"
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr build"
             ],
             "parallel": false
           },
@@ -342,7 +269,7 @@
           "executor": "nx:run-commands",
           "options": {
             "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-bundlr-module clean"
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr clean"
             ],
             "parallel": false
           }
@@ -350,7 +277,7 @@
         "publish": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-bundlr-module {args.ver} {args.tag}",
+            "command": "node ./scripts/publish.mjs packages/js-plugin-bundlr {args.ver} {args.tag}",
             "forwardAllArgs": true
           },
           "dependsOn": [
@@ -364,7 +291,7 @@
           "executor": "@nrwl/linter:eslint",
           "outputs": ["{options.outputFile}"],
           "options": {
-            "lintFilePatterns": ["packages/js-plugin-bundlr-module/**/*.ts"],
+            "lintFilePatterns": ["packages/js-plugin-bundlr/**/*.ts"],
             "fix": true
           }
         },
@@ -372,7 +299,7 @@
           "executor": "nx:run-commands",
           "options": {
             "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-bundlr-module test"
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr test"
             ],
             "parallel": false
           },
@@ -616,168 +543,6 @@
           "options": {
             "commands": [
               "yarn workspace @metaplex-foundation/js-plugin-derived-identity-module test"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "build",
-              "projects": "self"
-            }
-          ]
-        }
-      },
-      "tags": []
-    },
-    "packages/js-plugin-guest-identity-module": {
-      "root": "packages/js-plugin-guest-identity-module",
-      "projectType": "library",
-      "sourceRoot": "packages/js-plugin-guest-identity-module/src",
-      "targets": {
-        "prebuild": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-guest-identity-module"
-          }
-        },
-        "build": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-guest-identity-module build"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "prebuild",
-              "projects": "self"
-            },
-            {
-              "target": "build",
-              "projects": "dependencies"
-            }
-          ]
-        },
-        "clean": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-guest-identity-module clean"
-            ],
-            "parallel": false
-          }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-guest-identity-module {args.ver} {args.tag}",
-            "forwardAllArgs": true
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": [
-              "packages/js-plugin-guest-identity-module/**/*.ts"
-            ],
-            "fix": true
-          }
-        },
-        "test": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-guest-identity-module test"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "build",
-              "projects": "self"
-            }
-          ]
-        }
-      },
-      "tags": []
-    },
-    "packages/js-plugin-keypair-identity-module": {
-      "root": "packages/js-plugin-keypair-identity-module",
-      "projectType": "library",
-      "sourceRoot": "packages/js-plugin-keypair-identity-module/src",
-      "targets": {
-        "prebuild": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-keypair-identity-module"
-          }
-        },
-        "build": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-keypair-identity-module build"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "prebuild",
-              "projects": "self"
-            },
-            {
-              "target": "build",
-              "projects": "dependencies"
-            }
-          ]
-        },
-        "clean": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-keypair-identity-module clean"
-            ],
-            "parallel": false
-          }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-keypair-identity-module {args.ver} {args.tag}",
-            "forwardAllArgs": true
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": [
-              "packages/js-plugin-keypair-identity-module/**/*.ts"
-            ],
-            "fix": true
-          }
-        },
-        "test": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-keypair-identity-module test"
             ],
             "parallel": false
           },
@@ -1110,85 +875,6 @@
       "tags": []
     },
 
-    "packages/js-plugin-storage-module": {
-      "root": "packages/js-plugin-storage-module",
-      "projectType": "library",
-      "sourceRoot": "packages/js-plugin-storage-module/src",
-      "targets": {
-        "prebuild": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-storage-module"
-          }
-        },
-        "build": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-storage-module build"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "prebuild",
-              "projects": "self"
-            },
-            {
-              "target": "build",
-              "projects": "dependencies"
-            }
-          ]
-        },
-        "clean": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-storage-module clean"
-            ],
-            "parallel": false
-          }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-storage-module {args.ver} {args.tag}",
-            "forwardAllArgs": true
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["packages/js-plugin-storage-module/**/*.ts"],
-            "fix": true
-          }
-        },
-        "test": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-storage-module test"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "build",
-              "projects": "self"
-            }
-          ]
-        }
-      },
-      "tags": []
-    },
     "packages/js-plugin-system-module": {
       "root": "packages/js-plugin-system-module",
       "projectType": "library",
@@ -1334,85 +1020,6 @@
           "options": {
             "commands": [
               "yarn workspace @metaplex-foundation/js-plugin-token-module test"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "build",
-              "projects": "self"
-            }
-          ]
-        }
-      },
-      "tags": []
-    },
-    "packages/js-plugin-utils-module": {
-      "root": "packages/js-plugin-utils-module",
-      "projectType": "library",
-      "sourceRoot": "packages/js-plugin-utils-module/src",
-      "targets": {
-        "prebuild": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
-            "cwd": "packages/js-plugin-utils-module"
-          }
-        },
-        "build": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-utils-module build"
-            ],
-            "parallel": false
-          },
-          "dependsOn": [
-            {
-              "target": "prebuild",
-              "projects": "self"
-            },
-            {
-              "target": "build",
-              "projects": "dependencies"
-            }
-          ]
-        },
-        "clean": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-utils-module clean"
-            ],
-            "parallel": false
-          }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./scripts/publish.mjs packages/js-plugin-utils-module {args.ver} {args.tag}",
-            "forwardAllArgs": true
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["packages/js-plugin-utils-module/**/*.ts"],
-            "fix": true
-          }
-        },
-        "test": {
-          "executor": "nx:run-commands",
-          "options": {
-            "commands": [
-              "yarn workspace @metaplex-foundation/js-plugin-utils-module test"
             ],
             "parallel": false
           },

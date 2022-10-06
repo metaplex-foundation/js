@@ -2,11 +2,11 @@ import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // Low-level modules.
 import { identityModule } from '../identityModule';
-import { storageModule } from '../../../../js-plugin-storage-module/src';
+import { storageModule } from '../../../../js-core/src/plugins/storageModule';
 import { rpcModule } from '../../../../js-core/src/plugins/rpc';
 import { operationModule } from '../../../../js-plugin-operation-module/src';
 import { programModule } from '../../../../js-core/src/plugins/program';
-import { utilsModule } from '../../../../js-plugin-utils-module/src';
+import { utilsModule } from '../../../../js-core/src/plugins/utilsModule';
 
 // Default drivers.
 import { guestIdentity } from '../guestIdentity';

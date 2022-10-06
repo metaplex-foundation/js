@@ -1,6 +1,6 @@
 import { ProgramClient } from './ProgramClient';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { MetaplexPlugin } from '@metaplex-foundation/js-core/types';
+import type { Metaplex } from '../../Metaplex';
+import { MetaplexPlugin } from '../../types';
 
 /** @group Plugins */
 export const programModule = (): MetaplexPlugin => ({
