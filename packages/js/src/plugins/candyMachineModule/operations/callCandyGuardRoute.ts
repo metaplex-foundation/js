@@ -1,29 +1,13 @@
-import {
-  Keypair,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-  SYSVAR_SLOT_HASHES_PUBKEY,
-  TransactionInstruction,
-} from '@solana/web3.js';
 import { createRouteInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachineBotTaxError } from '../errors';
 import {
-  CandyGuardsMintSettings,
+  CandyGuardsRouteSettings,
   CandyGuardsSettings,
-  DefaultCandyGuardMintSettings,
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import {
-  Operation,
-  OperationHandler,
-  OperationScope,
-  PublicKey,
-  Signer,
-  token as tokenAmount,
-} from '@/types';
-import { NftWithToken } from '@/plugins/nftModule';
+import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
 import { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -40,8 +24,11 @@ const Key = 'CallCandyGuardRouteOperation' as const;
  *   .candyMachines()
  *   .callGuardRoute({
  *     candyMachine,
- *     group: 'GROUP1',
- *     settings: { route: 'freeze' },
+ *     guard: 'allowList',
+ *     settings: {
+ *       path: 'proof',
+ *       merkleProof: getMerkleProof(data, leaf)
+ *     },
  *   };
  * ```
  *
@@ -64,11 +51,10 @@ _callCandyGuardRouteOperation.key = Key;
  * @category Types
  */
 export type CallCandyGuardRouteOperation<
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
-  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
 > = Operation<
   typeof Key,
-  CallCandyGuardRouteInput<Settings, MintSettings>,
+  CallCandyGuardRouteInput<Settings>,
   CallCandyGuardRouteOutput
 >;
 
@@ -77,66 +63,29 @@ export type CallCandyGuardRouteOperation<
  * @category Inputs
  */
 export type CallCandyGuardRouteInput<
+  Guard extends keyof RouteSettings,
   Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
-  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+  RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
 > = {
   /**
-   * The Candy Machine to mint from.
+   * The Candy Machine containing the guard we are interested in.
    * We only need a subset of the `CandyMachine` model but we
    * need enough information regarding its settings to know how
-   * to mint from it.
+   * to execute the route instruction on the guard.
    *
-   * This includes its address, the address of its Collection NFT and,
-   * optionally, the Candy Guard account associated with it.
+   * This includes its address and the Candy Guard account associated with it.
    */
-  candyMachine: Pick<
-    CandyMachine<Settings>,
-    'address' | 'collectionMintAddress' | 'candyGuard'
-  >;
+  candyMachine: Pick<CandyMachine<Settings>, 'address' | 'candyGuard'>;
 
   /**
-   * The address of the update authority of the Collection NFT
-   * that is being assigned to each minted NFT.
+   * TODO: Document.
    */
-  collectionUpdateAuthority: PublicKey;
+  guard: Guard;
 
   /**
-   * The authority that is allowed to mint NFTs from the Candy Machine.
-   *
-   * @defaultValue
-   * `metaplex.identity()` if the Candy Machine has no associated Candy Guard.
-   * Otherwise, this parameter will be ignored.
+   * TODO: Document.
    */
-  mintAuthority?: Signer;
-
-  /**
-   * The mint account to create as a Signer.
-   * This expects a brand new Keypair with no associated account.
-   *
-   * @defaultValue `Keypair.generate()`
-   */
-  mint?: Signer;
-
-  /**
-   * The owner of the minted NFT.
-   *
-   * Defaults to the wallet that is paying for it, i.e. `payer`.
-   *
-   * @defaultValue `payer.publicKey`
-   */
-  owner?: PublicKey;
-
-  /**
-   * The new token account to create as a Signer.
-   *
-   * This property would typically be ignored as, by default, it will create a
-   * associated token account from the `owner` and `mint` properties.
-   *
-   * When provided, the `owner` property will be ignored.
-   *
-   * @defaultValue associated token address of `owner` and `mint`.
-   */
-  token?: Signer;
+  settings: RouteSettings;
 
   /**
    * The label of the group to mint from.
@@ -150,20 +99,6 @@ export type CallCandyGuardRouteInput<
    * @defaultValue `null`
    */
   group?: Option<string>;
-
-  /**
-   * Guard-specific data required to mint from the Candy Machine.
-   *
-   * Some guards require additional data to be provided at mint time.
-   * For instance, the `allowList` guard will require a Merkle proof
-   * ensuring the minting address is allowed to mint.
-   *
-   * You only need to provide configuration data for the guards
-   * that are set up within the group your are minting from.
-   *
-   * @defaultValue `{}`
-   */
-  guards?: Partial<MintSettings>;
 };
 
 /**
@@ -171,15 +106,6 @@ export type CallCandyGuardRouteInput<
  * @category Outputs
  */
 export type CallCandyGuardRouteOutput = {
-  /** The minted NFT. */
-  nft: NftWithToken;
-
-  /** The mint account of the minted NFT as a Signer. */
-  mintSigner: Signer;
-
-  /** The address of the minted NFT's token account. */
-  tokenAddress: PublicKey;
-
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -188,64 +114,22 @@ export type CallCandyGuardRouteOutput = {
  * @group Operations
  * @category Handlers
  */
-export const CallCandyGuardRouteOperationHandler: OperationHandler<CallCandyGuardRouteOperation> =
+export const callCandyGuardRouteOperationHandler: OperationHandler<CallCandyGuardRouteOperation> =
   {
     async handle<
-      Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
-      MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+      Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
     >(
-      operation: CallCandyGuardRouteOperation<Settings, MintSettings>,
+      operation: CallCandyGuardRouteOperation<Settings>,
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<CallCandyGuardRouteOutput> {
-      const builder = await CallCandyGuardRouteBuilder<Settings, MintSettings>(
+      const builder = callCandyGuardRouteBuilder<Settings>(
         metaplex,
         operation.input,
         scope
       );
-      scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
-        metaplex,
-        scope.confirmOptions
-      );
-      scope.throwIfCanceled();
-
-      let nft: NftWithToken;
-      try {
-        nft = (await metaplex.nfts().findByMint(
-          {
-            mintAddress: output.mintSigner.publicKey,
-            tokenAddress: output.tokenAddress,
-          },
-          scope
-        )) as NftWithToken;
-      } catch (error) {
-        const { candyGuard } = operation.input.candyMachine;
-        if (!candyGuard) {
-          throw error;
-        }
-
-        const activeGuards = metaplex
-          .candyMachines()
-          .guards()
-          .resolveGroupSettings(
-            candyGuard.guards,
-            candyGuard.groups,
-            operation.input.group ?? null
-          );
-
-        if (!('botTax' in activeGuards)) {
-          throw error;
-        }
-
-        throw new CandyMachineBotTaxError(
-          metaplex.rpc().getSolanaExporerUrl(output.response.signature),
-          error as Error
-        );
-      }
-
-      return { nft, ...output };
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -258,39 +142,11 @@ export const CallCandyGuardRouteOperationHandler: OperationHandler<CallCandyGuar
  * @category Inputs
  */
 export type CallCandyGuardRouteBuilderParams<
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
-  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
-> = Omit<CallCandyGuardRouteInput<Settings, MintSettings>, 'confirmOptions'> & {
-  /** A key to distinguish the instruction that creates the mint account of the NFT. */
-  createMintAccountInstructionKey?: string;
-
-  /** A key to distinguish the instruction that initializes the mint account of the NFT. */
-  initializeMintInstructionKey?: string;
-
-  /** A key to distinguish the instruction that creates the associated token account of the NFT. */
-  createAssociatedTokenAccountInstructionKey?: string;
-
-  /** A key to distinguish the instruction that creates the token account of the NFT. */
-  createTokenAccountInstructionKey?: string;
-
-  /** A key to distinguish the instruction that initializes the token account of the NFT. */
-  initializeTokenInstructionKey?: string;
-
-  /** A key to distinguish the instruction that mints the one token. */
-  mintTokensInstructionKey?: string;
-
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<CallCandyGuardRouteInput<Settings>, 'confirmOptions'> & {
   /** A key to distinguish the instruction that mints from the Candy Machine. */
-  CallCandyGuardRouteInstructionKey?: string;
+  instructionKey?: string;
 };
-
-/**
- * @group Transaction Builders
- * @category Contexts
- */
-export type CallCandyGuardRouteBuilderContext = Omit<
-  CallCandyGuardRouteOutput,
-  'response' | 'nft'
->;
 
 /**
  * TODO
@@ -299,173 +155,74 @@ export type CallCandyGuardRouteBuilderContext = Omit<
  * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
- *   .mint({
+ *   .callGuardRoute({
  *     candyMachine,
- *     collectionUpdateAuthority,
+ *     guard: 'allowList',
+ *     settings: {
+ *       path: 'proof',
+ *       merkleProof: getMerkleProof(data, leaf)
+ *     },
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const CallCandyGuardRouteBuilder = async <
-  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
-  MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
+export const callCandyGuardRouteBuilder = <
+  Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   metaplex: Metaplex,
-  params: CallCandyGuardRouteBuilderParams<Settings, MintSettings>,
+  params: CallCandyGuardRouteBuilderParams<Settings>,
   options: TransactionBuilderOptions = {}
-): Promise<TransactionBuilder<CallCandyGuardRouteBuilderContext>> => {
+): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const {
-    candyMachine,
-    collectionUpdateAuthority,
-    mintAuthority = metaplex.identity(),
-    mint = Keypair.generate(),
-    owner = payer.publicKey,
-    group = null,
-    guards = {},
-    token,
-  } = params;
+  const { candyMachine, settings, group = null } = params;
 
-  // Programs.
-  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
-  const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
-  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
-  const tokenProgram = metaplex.programs().getToken(programs);
-  const systemProgram = metaplex.programs().getSystem(programs);
+  if (!candyMachine.candyGuard) {
+    // TODO: custom error.
+    throw new Error('Candy Machine must have a Candy Guard');
+  }
 
-  // PDAs.
-  const authorityPda = metaplex.candyMachines().pdas().authority({
-    candyMachine: candyMachine.address,
-    programs,
-  });
-  const nftMetadata = metaplex.nfts().pdas().metadata({
-    mint: mint.publicKey,
-    programs,
-  });
-  const nftMasterEdition = metaplex.nfts().pdas().masterEdition({
-    mint: mint.publicKey,
-    programs,
-  });
-  const collectionMetadata = metaplex.nfts().pdas().metadata({
-    mint: candyMachine.collectionMintAddress,
-    programs,
-  });
-  const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
-    mint: candyMachine.collectionMintAddress,
-    programs,
-  });
-  const collectionAuthorityRecord = metaplex
-    .nfts()
-    .pdas()
-    .collectionAuthorityRecord({
-      mint: candyMachine.collectionMintAddress,
-      collectionAuthority: authorityPda,
-      programs,
-    });
-
-  // Transaction Builder that prepares the mint and token accounts.
-  const tokenWithMintBuilder = await metaplex
-    .tokens()
-    .builders()
-    .createTokenWithMint(
-      {
-        decimals: 0,
-        initialSupply: tokenAmount(1),
-        mint,
-        mintAuthority: payer,
-        freezeAuthority: payer.publicKey,
-        owner,
-        token,
-        createMintAccountInstructionKey: params.createMintAccountInstructionKey,
-        initializeMintInstructionKey: params.initializeMintInstructionKey,
-        createAssociatedTokenAccountInstructionKey:
-          params.createAssociatedTokenAccountInstructionKey,
-        createTokenAccountInstructionKey:
-          params.createTokenAccountInstructionKey,
-        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-        mintTokensInstructionKey: params.mintTokensInstructionKey,
-      },
-      { payer, programs }
-    );
-  const { tokenAddress } = tokenWithMintBuilder.getContext();
-
-  // Shared mint accounts
-  const sharedMintAccounts = {
-    candyMachine: candyMachine.address,
-    payer: payer.publicKey,
-    nftMetadata,
-    nftMint: mint.publicKey,
-    nftMintAuthority: payer.publicKey,
-    nftMasterEdition,
-    collectionAuthorityRecord,
-    collectionMint: candyMachine.collectionMintAddress,
-    collectionMetadata,
-    collectionMasterEdition,
-    collectionUpdateAuthority,
-    candyMachineProgram: candyMachineProgram.address,
-    tokenMetadataProgram: tokenMetadataProgram.address,
-    tokenProgram: tokenProgram.address,
-    systemProgram: systemProgram.address,
-    recentSlothashes: SYSVAR_SLOT_HASHES_PUBKEY,
-    instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
-  };
-
-  // Mint instruction.
-  let mintNftInstruction: TransactionInstruction;
-  let mintNftSigners: Signer[];
-  if (!!candyMachine.candyGuard) {
-    const { candyGuard } = candyMachine;
-    const guardClient = metaplex.candyMachines().guards();
-    const parsedMintSettings = guardClient.parseMintSettings(
+  // Route instruction.
+  const parsedRouteSettings = metaplex
+    .candyMachines()
+    .guards()
+    .parseRouteSettings(
       candyMachine.address,
-      candyGuard,
+      candyMachine.candyGuard,
       payer,
-      guards,
+      settings,
       group,
       programs
     );
 
-    mintNftSigners = [payer, mint, ...parsedMintSettings.signers];
-    mintNftInstruction = createMintFromGuardInstruction(
-      {
-        ...sharedMintAccounts,
-        candyGuard: candyMachine.candyGuard.address,
-        candyMachineAuthorityPda: authorityPda,
+  const routeSigners: Signer[] = [payer, ...parsedRouteSettings.signers];
+  const routeInstruction = createRouteInstruction(
+    {
+      candyGuard: candyMachine.candyGuard.address,
+      candyMachine: candyMachine.address,
+      payer: payer.publicKey,
+    },
+    {
+      args: {
+        guard: '' as any,
+        data: parsedRouteSettings.arguments,
       },
-      {
-        mintArgs: parsedMintSettings.arguments,
-        label: group,
-      },
-      candyGuardProgram.address
-    );
-    mintNftInstruction.keys.push(...parsedMintSettings.accountMetas);
-  } else {
-    mintNftSigners = [payer, mint, mintAuthority];
-    mintNftInstruction = createRouteInstruction(
-      {
-        ...sharedMintAccounts,
-        authorityPda,
-        mintAuthority: mintAuthority.publicKey,
-      },
-      candyMachineProgram.address
-    );
-  }
+      label: group,
+    },
+    metaplex.programs().getCandyGuard(programs).address
+  );
+  routeInstruction.keys.push(...parsedRouteSettings.accountMetas);
 
   return (
-    TransactionBuilder.make<CallCandyGuardRouteBuilderContext>()
+    TransactionBuilder.make()
       .setFeePayer(payer)
-      .setContext({ tokenAddress, mintSigner: mint })
 
-      // Create token and mint accounts.
-      .add(tokenWithMintBuilder)
-
-      // Mint the new NFT.
+      // Route instruction.
       .add({
-        instruction: mintNftInstruction,
-        signers: mintNftSigners,
-        key: params.CallCandyGuardRouteInstructionKey ?? 'mintNft',
+        instruction: routeInstruction,
+        signers: routeSigners,
+        key: params.instructionKey ?? 'callGuardRoute',
       })
   );
 };

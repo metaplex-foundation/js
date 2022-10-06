@@ -283,4 +283,66 @@ export class CandyMachineGuardsClient {
       return acc;
     }, initialAccumulator);
   }
+
+  /**
+   * Parses the arguments and remaining accounts of
+   * the requested guard for the route instruction.
+   */
+  parseRouteSettings<
+    RouteSettings,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(
+    candyMachine: PublicKey,
+    candyGuard: CandyGuard<Settings>,
+    payer: Signer,
+    routeSettings: RouteSettings,
+    groupLabel: Option<string>,
+    programs: Program[] = []
+  ): {
+    arguments: Buffer;
+    accountMetas: AccountMeta[];
+    signers: Signer[];
+  } {
+    const availableGuards = this.forCandyGuardProgram(programs);
+    const guardSettings = this.resolveGroupSettings(
+      candyGuard.guards,
+      candyGuard.groups,
+      groupLabel
+    );
+    const initialAccumulator = {
+      arguments: Buffer.from([]),
+      accountMetas: [] as AccountMeta[],
+      signers: [] as Signer[],
+    };
+
+    return availableGuards.reduce((acc, guard) => {
+      const settings = guardSettings[guard.name] ?? null;
+      const mintSettings = guardMintSettings[guard.name] ?? null;
+      if (!guard.mintSettingsParser || !settings) return acc;
+
+      const parsedSettings = guard.mintSettingsParser({
+        metaplex: this.metaplex,
+        settings,
+        mintSettings,
+        payer,
+        candyMachine,
+        candyGuard: candyGuard.address,
+        programs,
+      });
+      const { remainingAccounts } = parsedSettings;
+      const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
+        pubkey: account.isSigner ? account.address.publicKey : account.address,
+        isSigner: account.isSigner,
+        isWritable: account.isWritable,
+      }));
+      const signers: Signer[] = remainingAccounts
+        .filter((account) => account.isSigner)
+        .map((account) => account.address as Signer);
+
+      acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
+      acc.accountMetas.push(...accountMetas);
+      acc.signers.push(...signers);
+      return acc;
+    }, initialAccumulator);
+  }
 }

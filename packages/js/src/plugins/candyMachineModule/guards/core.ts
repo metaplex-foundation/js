@@ -112,6 +112,15 @@ export type CandyGuardsMintSettings = {
 };
 
 /**
+ * Sets expectations on Candy Guard route settings which
+ * uses the name of the guard as the key and the route
+ * settings of the guard as the value.
+ */
+export type CandyGuardsRouteSettings = {
+  [name: string]: object;
+};
+
+/**
  * A remain account to push to the mint or route instruction.
  * When `isSigner` is true, the `address` attribute must be `Signer`
  * and it will be pushed to the `signers` array of the transaction.

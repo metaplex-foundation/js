@@ -74,8 +74,8 @@ export type AllowListGuardMintSettings = {
  * information on the allowList guard itself.
  */
 export type AllowListGuardRouteSettings = {
-  /** Selects the route to execute. */
-  route: 'proof';
+  /** Selects the path to execute in the route instruction. */
+  path: 'proof';
 
   /**
    * The Proof that the minting wallet is part of the
