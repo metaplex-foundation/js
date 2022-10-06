@@ -4,6 +4,7 @@ import {
   SYSVAR_SLOT_HASHES_PUBKEY,
   TransactionInstruction,
 } from '@solana/web3.js';
+import { createRouteInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineBotTaxError } from '../errors';
 import {
@@ -442,7 +443,7 @@ export const CallCandyGuardRouteBuilder = async <
     mintNftInstruction.keys.push(...parsedMintSettings.accountMetas);
   } else {
     mintNftSigners = [payer, mint, mintAuthority];
-    mintNftInstruction = createMintFromMachineInstruction(
+    mintNftInstruction = createRouteInstruction(
       {
         ...sharedMintAccounts,
         authorityPda,
