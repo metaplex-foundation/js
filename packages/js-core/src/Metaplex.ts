@@ -1,6 +1,6 @@
 import { Connection } from '@solana/web3.js';
-import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from './types';
-// import { corePlugins } from './plugins/corePlugins';
+import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
+import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
@@ -16,7 +16,7 @@ export class Metaplex {
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
-    // this.use(corePlugins());
+    this.use(corePlugins());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {

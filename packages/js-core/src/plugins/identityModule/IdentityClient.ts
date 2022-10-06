@@ -7,8 +7,8 @@ import {
   isSigner,
   KeypairSigner,
   Signer,
-} from '../../types';
-import { DriverNotProvidedError } from '../../errors';
+} from '@/types';
+import { DriverNotProvidedError } from '@/errors';
 
 /**
  * @group Modules

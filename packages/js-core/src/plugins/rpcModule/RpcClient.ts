@@ -1,13 +1,16 @@
 import { Buffer } from 'buffer';
 import {
   AccountInfo,
+  Blockhash,
   BlockhashWithExpiryBlockHeight,
   Commitment,
   ConfirmOptions,
   GetLatestBlockhashConfig,
   GetProgramAccountsConfig,
   PublicKey,
+  RpcResponseAndContext,
   SendOptions,
+  SignatureResult,
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
@@ -18,22 +21,29 @@ import {
   MetaplexError,
   ParsedProgramError,
   UnknownProgramError,
-} from '../../errors';
-import type { Metaplex } from '../../Metaplex';
+} from '@/errors';
+import type { Metaplex } from '@/Metaplex';
+
 import {
   assertSol,
-  ConfirmTransactionResponse,
   getSignerHistogram,
   isErrorWithLogs,
   lamports,
   Program,
-  SendAndConfirmTransactionResponse,
   Signer,
   SolAmount,
   UnparsedAccount,
   UnparsedMaybeAccount,
-} from '../../types';
-import { TransactionBuilder, zipMap } from '../../utils';
+} from '@/types';
+import { TransactionBuilder, zipMap } from '@/utils';
+
+export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
+export type SendAndConfirmTransactionResponse = {
+  signature: TransactionSignature;
+  confirmResponse: ConfirmTransactionResponse;
+  blockhash: Blockhash;
+  lastValidBlockHeight: number;
+};
 
 /**
  * @group Modules
@@ -287,13 +297,10 @@ export class RpcClient {
     return this;
   }
 
-  getDefaultFeePayer(): Signer | undefined {
-    if (this.defaultFeePayer) {
-      return this.defaultFeePayer;
-    }
-
-    const identity = this.metaplex.identity();
-    return identity.publicKey.equals(PublicKey.default) ? undefined : identity;
+  getDefaultFeePayer(): Signer {
+    return this.defaultFeePayer
+      ? this.defaultFeePayer
+      : this.metaplex.identity();
   }
 
   protected getUnparsedMaybeAccount(

@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "../js-plugin-nft-module/src/models", "../js-plugin-token-module/src/models", "../js-plugin-wallet-adapter-identity-module/src/index.ts", "../js-plugin-bundlr-storage/src/BundlrStorageDriver.ts"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",

@@ -11,7 +11,6 @@ export * from './MetaplexPlugin';
 export * from './Model';
 export * from './Operation';
 export * from './Pda';
-export * from './Rpc';
 export * from './Program';
 export * from './PublicKey';
 export * from './Serializer';

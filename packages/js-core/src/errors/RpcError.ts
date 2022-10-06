@@ -1,10 +1,10 @@
-import { ConfirmTransactionResponse } from '../types';
 import { SendTransactionError, TransactionError } from '@solana/web3.js';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
+import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
 
 /** @group Errors */
 export class RpcError extends MetaplexError {

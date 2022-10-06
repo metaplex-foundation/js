@@ -3,7 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
-import { Program } from '../types';
+import { Program } from '@/types';
 
 type UnderlyingProgramError = Error & { code?: number; logs?: string[] };
 

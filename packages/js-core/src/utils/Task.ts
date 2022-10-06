@@ -1,7 +1,7 @@
 import EventEmitterPackage from 'eventemitter3';
 import type EventEmitter from 'eventemitter3';
 import { Disposable, DisposableScope } from './Disposable';
-import { TaskIsAlreadyRunningError } from '../errors';
+import { TaskIsAlreadyRunningError } from '@/errors';
 
 export type TaskStatus =
   | 'pending'
