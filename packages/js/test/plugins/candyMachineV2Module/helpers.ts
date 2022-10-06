@@ -15,29 +15,24 @@ export async function createCandyMachineV2(
     items?: CandyMachineV2Item[];
   } = {}
 ) {
-  const candyMachineOutput = await mx
-    .candyMachinesV2()
-    .create({
-      price: sol(1),
-      sellerFeeBasisPoints: 500,
-      itemsAvailable: toBigNumber(100),
-      ...input,
-    })
-    .run();
+  const candyMachineOutput = await mx.candyMachinesV2().create({
+    price: sol(1),
+    sellerFeeBasisPoints: 500,
+    itemsAvailable: toBigNumber(100),
+    ...input,
+  });
 
   let { candyMachine } = candyMachineOutput;
   const { response } = candyMachineOutput;
 
   if (input.items) {
-    await mx
-      .candyMachinesV2()
-      .insertItems({
-        candyMachine,
-        authority: mx.identity(),
-        items: input.items,
-      })
-      .run();
-    candyMachine = await mx.candyMachinesV2().refresh(candyMachine).run();
+    await mx.candyMachinesV2().insertItems({
+      candyMachine,
+      authority: mx.identity(),
+      items: input.items,
+    });
+
+    candyMachine = await mx.candyMachinesV2().refresh(candyMachine);
   }
 
   await amman.addr.addLabel('candy-machine', candyMachine.address);

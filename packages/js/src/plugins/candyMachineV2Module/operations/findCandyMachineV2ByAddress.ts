@@ -1,4 +1,4 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
   parseCandyMachineV2CollectionAccount,
   toCandyMachineV2Account,
@@ -9,6 +9,7 @@ import {
   assertAccountExists,
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -23,7 +24,7 @@ const Key = 'FindCandyMachineV2ByAddressOperation' as const;
  * Find an existing Candy Machine by its address.
  *
  * ```ts
- * const candyMachine = await metaplex.candyMachinesV2().findbyAddress({ address }).run();
+ * const candyMachine = await metaplex.candyMachinesV2().findbyAddress({ address });
  * ```
  *
  * @group Operations
@@ -49,9 +50,6 @@ export type FindCandyMachineV2ByAddressOperation = Operation<
 export type FindCandyMachineV2ByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -62,9 +60,11 @@ export const findCandyMachineV2ByAddressOperationHandler: OperationHandler<FindC
   {
     handle: async (
       operation: FindCandyMachineV2ByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) => {
-      const { address, commitment } = operation.input;
+      const { commitment } = scope;
+      const { address } = operation.input;
       const collectionPda = findCandyMachineV2CollectionPda(address);
       const accounts = await metaplex
         .rpc()
@@ -80,8 +80,7 @@ export const findCandyMachineV2ByAddressOperationHandler: OperationHandler<FindC
       const mint = account.data.tokenMint
         ? await metaplex
             .tokens()
-            .findMintByAddress({ address: account.data.tokenMint })
-            .run()
+            .findMintByAddress({ address: account.data.tokenMint }, scope)
         : null;
 
       return toCandyMachineV2(

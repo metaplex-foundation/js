@@ -20,13 +20,10 @@ test('[nftModule] it can fetch an NFT by its mint address', async (t: Test) => {
   });
 
   // When we fetch that NFT using its mint address and its token address.
-  const fetchedNft = (await mx
-    .nfts()
-    .findByMint({
-      mintAddress: nft.address,
-      tokenAddress: nft.token.address,
-    })
-    .run()) as NftWithToken;
+  const fetchedNft = (await mx.nfts().findByMint({
+    mintAddress: nft.address,
+    tokenAddress: nft.token.address,
+  })) as NftWithToken;
 
   // Then we get the right NFT.
   t.same(fetchedNft.name, nft.name);
@@ -49,8 +46,7 @@ test('[nftModule] it can fetch an SFT by its mint address', async (t: Test) => {
   // When we fetch that SFT using its mint address.
   const fetchedSft = await mx
     .nfts()
-    .findByMint({ mintAddress: mint.publicKey })
-    .run();
+    .findByMint({ mintAddress: mint.publicKey });
 
   // Then we get the right SFT.
   t.same(fetchedSft, sft);
@@ -59,20 +55,14 @@ test('[nftModule] it can fetch an SFT by its mint address', async (t: Test) => {
 test('[nftModule] it can fetch an NFT with an invalid URI', async (t: Test) => {
   // Given an existing NFT with an invalid URI.
   const mx = await metaplex();
-  const { nft } = await mx
-    .nfts()
-    .create({
-      name: 'Some NFT',
-      sellerFeeBasisPoints: 200,
-      uri: 'https://example.com/some/invalid/uri',
-    })
-    .run();
+  const { nft } = await mx.nfts().create({
+    name: 'Some NFT',
+    sellerFeeBasisPoints: 200,
+    uri: 'https://example.com/some/invalid/uri',
+  });
 
   // When we fetch that NFT using its mint address.
-  const fetchedNft = await mx
-    .nfts()
-    .findByMint({ mintAddress: nft.address })
-    .run();
+  const fetchedNft = await mx.nfts().findByMint({ mintAddress: nft.address });
 
   // Then we get the right NFT.
   t.same(fetchedNft.address, nft.address);

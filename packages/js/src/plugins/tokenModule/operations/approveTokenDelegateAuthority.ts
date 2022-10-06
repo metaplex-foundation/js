@@ -1,5 +1,5 @@
 import { createApproveInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -7,13 +7,13 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   SplTokenAmount,
   token,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -30,8 +30,7 @@ const Key = 'ApproveTokenDelegateAuthorityOperation' as const;
  *   .approveDelegateAuthority({
  *     delegateAuthority,
  *     mintAddress,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -93,12 +92,6 @@ export type ApproveTokenDelegateAuthorityInput = {
    * @defaultValue `[]`
    */
   multiSigners?: KeypairSigner[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -118,12 +111,14 @@ export const approveTokenDelegateAuthorityOperationHandler: OperationHandler<App
   {
     handle: async (
       operation: ApproveTokenDelegateAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<ApproveTokenDelegateAuthorityOutput> => {
       return approveTokenDelegateAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -161,8 +156,10 @@ export type ApproveTokenDelegateAuthorityBuilderParams = Omit<
  */
 export const approveTokenDelegateAuthorityBuilder = (
   metaplex: Metaplex,
-  params: ApproveTokenDelegateAuthorityBuilderParams
+  params: ApproveTokenDelegateAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     delegateAuthority,
@@ -170,7 +167,6 @@ export const approveTokenDelegateAuthorityBuilder = (
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],
-    programs,
   } = params;
 
   const [ownerPublicKey, signers] = isSigner(owner)
@@ -186,16 +182,18 @@ export const approveTokenDelegateAuthorityBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createApproveInstruction(
-      tokenAddressOrAta,
-      delegateAuthority,
-      ownerPublicKey,
-      amount.basisPoints.toNumber(),
-      multiSigners,
-      tokenProgram.address
-    ),
-    signers,
-    key: params.instructionKey ?? 'approveDelegateAuthority',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createApproveInstruction(
+        tokenAddressOrAta,
+        delegateAuthority,
+        ownerPublicKey,
+        amount.basisPoints.toNumber(),
+        multiSigners,
+        tokenProgram.address
+      ),
+      signers,
+      key: params.instructionKey ?? 'approveDelegateAuthority',
+    });
 };

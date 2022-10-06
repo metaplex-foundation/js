@@ -3,19 +3,13 @@ import {
   createSetCollectionDuringMintInstruction,
 } from '@metaplex-foundation/mpl-candy-machine';
 import {
-  ConfirmOptions,
   Keypair,
   PublicKey,
   SYSVAR_CLOCK_PUBKEY,
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_SLOT_HASHES_PUBKEY,
 } from '@solana/web3.js';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  NftWithToken,
-} from '../../nftModule';
+import { NftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
@@ -25,12 +19,12 @@ import {
   findCandyMachineV2CollectionPda,
   findCandyMachineV2CreatorPda,
 } from '../pdas';
-import { CandyMachineV2Program } from '../program';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   assertAccountExists,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   token,
   useOperation,
@@ -49,8 +43,7 @@ const Key = 'MintCandyMachineV2Operation' as const;
  * ```ts
  * const { nft } = await metaplex
  *   .candyMachinesV2()
- *   .mint({ candyMachine })
- *   .run();
+ *   .mint({ candyMachine };
  * ```
  *
  * @group Operations
@@ -96,14 +89,6 @@ export type MintCandyMachineV2Input = {
     | 'goLiveDate'
     | 'endSettings'
   >;
-
-  /**
-   * The account that should pay for the minted NFT
-   * and for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /**
    * The mint account to create as a Signer.
@@ -153,18 +138,6 @@ export type MintCandyMachineV2Input = {
    * `candyMachine.whitelistMintSettings.mint`.
    */
   whitelistToken?: PublicKey; // Defaults to associated token.
-
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the Token Metadata program to override if necessary. */
-  tokenMetadataProgram?: PublicKey;
-
-  /** The address of the Candy Machine program to override if necessary. */
-  candyMachineProgram?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -194,34 +167,32 @@ export const mintCandyMachineV2OperationHandler: OperationHandler<MintCandyMachi
     async handle(
       operation: MintCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<MintCandyMachineV2Output> {
-      assertCanMintCandyMachineV2(
-        operation.input.candyMachine,
-        operation.input.payer ?? metaplex.identity()
-      );
+      assertCanMintCandyMachineV2(operation.input.candyMachine, scope.payer);
 
       const builder = await mintCandyMachineV2Builder(
         metaplex,
-        operation.input
+        operation.input,
+        scope
       );
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
       let nft: NftWithToken;
       try {
-        nft = (await metaplex
-          .nfts()
-          .findByMint({
+        nft = (await metaplex.nfts().findByMint(
+          {
             mintAddress: output.mintSigner.publicKey,
             tokenAddress: output.tokenAddress,
-          })
-          .run(scope)) as NftWithToken;
+          },
+          scope
+        )) as NftWithToken;
       } catch (error) {
         throw new CandyMachineV2BotTaxError(
           metaplex.rpc().getSolanaExporerUrl(output.response.signature),
@@ -294,33 +265,34 @@ export type MintCandyMachineV2BuilderContext = Omit<
  */
 export const mintCandyMachineV2Builder = async (
   metaplex: Metaplex,
-  params: MintCandyMachineV2BuilderParams
+  params: MintCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<MintCandyMachineV2BuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyMachine,
-    payer = metaplex.identity(),
     newMint = Keypair.generate(),
     newOwner = metaplex.identity().publicKey,
     newToken,
-    candyMachineProgram = CandyMachineV2Program.publicKey,
   } = params;
 
-  const tokenMetadataProgram =
-    params.tokenMetadataProgram ??
-    metaplex.programs().getTokenMetadata().address;
+  const tokenMetadataProgram = metaplex
+    .programs()
+    .getTokenMetadata(programs).address;
 
-  const newMetadata = findMetadataPda(newMint.publicKey, tokenMetadataProgram);
-  const newEdition = findMasterEditionV2Pda(
-    newMint.publicKey,
-    tokenMetadataProgram
-  );
+  const newMetadata = metaplex.nfts().pdas().metadata({
+    mint: newMint.publicKey,
+    programs,
+  });
+  const newEdition = metaplex.nfts().pdas().masterEdition({
+    mint: newMint.publicKey,
+    programs,
+  });
   const candyMachineCreator = findCandyMachineV2CreatorPda(
-    candyMachine.address,
-    candyMachineProgram
+    candyMachine.address
   );
   const candyMachineCollectionAddress = findCandyMachineV2CollectionPda(
-    candyMachine.address,
-    candyMachineProgram
+    candyMachine.address
   );
   const candyMachineCollectionAccount = parseCandyMachineV2CollectionAccount(
     await metaplex.rpc().getAccount(candyMachineCollectionAddress)
@@ -329,23 +301,26 @@ export const mintCandyMachineV2Builder = async (
   const tokenWithMintBuilder = await metaplex
     .tokens()
     .builders()
-    .createTokenWithMint({
-      decimals: 0,
-      initialSupply: token(1),
-      mint: newMint,
-      mintAuthority: payer,
-      freezeAuthority: payer.publicKey,
-      owner: newOwner,
-      token: newToken,
-      payer,
-      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
-      initializeMintInstructionKey: params.initializeMintInstructionKey,
-      createAssociatedTokenAccountInstructionKey:
-        params.createAssociatedTokenAccountInstructionKey,
-      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
-      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-      mintTokensInstructionKey: params.mintTokensInstructionKey,
-    });
+    .createTokenWithMint(
+      {
+        decimals: 0,
+        initialSupply: token(1),
+        mint: newMint,
+        mintAuthority: payer,
+        freezeAuthority: payer.publicKey,
+        owner: newOwner,
+        token: newToken,
+        createMintAccountInstructionKey: params.createMintAccountInstructionKey,
+        initializeMintInstructionKey: params.initializeMintInstructionKey,
+        createAssociatedTokenAccountInstructionKey:
+          params.createAssociatedTokenAccountInstructionKey,
+        createTokenAccountInstructionKey:
+          params.createTokenAccountInstructionKey,
+        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+        mintTokensInstructionKey: params.mintTokensInstructionKey,
+      },
+      { payer, programs }
+    );
 
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
@@ -439,19 +414,22 @@ export const mintCandyMachineV2Builder = async (
       .when(candyMachineCollectionAccount.exists, (builder) => {
         assertAccountExists(candyMachineCollectionAccount);
         const collectionMint = candyMachineCollectionAccount.data.mint;
-        const collectionMetadata = findMetadataPda(
-          collectionMint,
-          tokenMetadataProgram
-        );
-        const collectionMasterEdition = findMasterEditionV2Pda(
-          collectionMint,
-          tokenMetadataProgram
-        );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          candyMachineCollectionAccount.publicKey,
-          tokenMetadataProgram
-        );
+        const collectionMetadata = metaplex.nfts().pdas().metadata({
+          mint: collectionMint,
+          programs,
+        });
+        const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
+          mint: collectionMint,
+          programs,
+        });
+        const collectionAuthorityRecord = metaplex
+          .nfts()
+          .pdas()
+          .collectionAuthorityRecord({
+            mint: collectionMint,
+            collectionAuthority: candyMachineCollectionAccount.publicKey,
+            programs,
+          });
 
         return builder.add({
           instruction: createSetCollectionDuringMintInstruction({

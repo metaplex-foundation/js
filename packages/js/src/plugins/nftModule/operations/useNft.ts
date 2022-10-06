@@ -1,23 +1,18 @@
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  findMetadataPda,
-  findProgramAsBurnerPda,
-  findUseAuthorityRecordPda,
-} from '../pdas';
 import { ExpectedSignerError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -29,8 +24,8 @@ const Key = 'UseNftOperation' as const;
  * Utilizes a usable NFT.
  *
  * ```ts
- * await metaplex.nfts().use({ mintAddress }).run();
- * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 }).run();
+ * await metaplex.nfts().use({ mintAddress });
+ * await metaplex.nfts().use({ mintAddress, numberOfUses: 3 });
  * ```
  *
  * @group Operations
@@ -84,12 +79,6 @@ export type UseNftInput = {
    * and using the `owner` parameter as a Signer instead.
    */
   useAuthority?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -108,11 +97,12 @@ export type UseNftOutput = {
 export const useNftOperationHandler: OperationHandler<UseNftOperation> = {
   handle: async (
     operation: UseNftOperation,
-    metaplex: Metaplex
+    metaplex: Metaplex,
+    scope: OperationScope
   ): Promise<UseNftOutput> => {
-    return useNftBuilder(metaplex, operation.input).sendAndConfirm(
+    return useNftBuilder(metaplex, operation.input, scope).sendAndConfirm(
       metaplex,
-      operation.input.confirmOptions
+      scope.confirmOptions
     );
   },
 };
@@ -145,14 +135,15 @@ export type UseNftBuilderParams = Omit<UseNftInput, 'confirmOptions'> & {
  */
 export const useNftBuilder = (
   metaplex: Metaplex,
-  params: UseNftBuilderParams
+  params: UseNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     numberOfUses = 1,
     owner = metaplex.identity(),
     useAuthority,
-    programs,
   } = params;
 
   // Programs.
@@ -166,7 +157,11 @@ export const useNftBuilder = (
     });
   }
 
-  const metadata = findMetadataPda(mintAddress);
+  // PDAs.
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
   const tokenAccount =
     params.ownerTokenAccount ??
     metaplex
@@ -177,14 +172,18 @@ export const useNftBuilder = (
         owner: toPublicKey(owner),
         programs,
       });
-
   const useAuthorityRecord = useAuthority
-    ? findUseAuthorityRecordPda(mintAddress, useAuthority.publicKey)
+    ? metaplex.nfts().pdas().useAuthorityRecord({
+        mint: mintAddress,
+        useAuthority: useAuthority.publicKey,
+        programs,
+      })
     : undefined;
-  const programAsBurner = findProgramAsBurnerPda();
+  const programAsBurner = metaplex.nfts().pdas().burner({ programs });
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Update the metadata account.
       .add({

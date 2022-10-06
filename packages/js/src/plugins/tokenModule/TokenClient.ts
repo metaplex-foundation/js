@@ -29,6 +29,7 @@ import {
 import { TokenBuildersClient } from './TokenBuildersClient';
 import { TokenPdasClient } from './TokenPdasClient';
 import type { Metaplex } from '@/Metaplex';
+import { OperationOptions } from '@/types';
 
 /**
  * This is a client for the Token module.
@@ -48,7 +49,7 @@ import type { Metaplex } from '@/Metaplex';
  * of the metaplex instance.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint().run();
+ * const { token } = await metaplex.tokens().createTokenWithMint();
  * ```
  *
  * @group Modules
@@ -84,31 +85,40 @@ export class TokenClient {
   // -----------------
 
   /** {@inheritDoc findMintByAddressOperation} */
-  findMintByAddress(input: FindMintByAddressInput) {
+  findMintByAddress(input: FindMintByAddressInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(findMintByAddressOperation(input));
+      .execute(findMintByAddressOperation(input), options);
   }
 
   /** {@inheritDoc findTokenByAddressOperation} */
-  findTokenByAddress(input: FindTokenByAddressInput) {
+  findTokenByAddress(
+    input: FindTokenByAddressInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findTokenByAddressOperation(input));
+      .execute(findTokenByAddressOperation(input), options);
   }
 
   /** {@inheritDoc findTokenWithMintByAddressOperation} */
-  findTokenWithMintByAddress(input: FindTokenWithMintByAddressInput) {
+  findTokenWithMintByAddress(
+    input: FindTokenWithMintByAddressInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findTokenWithMintByAddressOperation(input));
+      .execute(findTokenWithMintByAddressOperation(input), options);
   }
 
   /** {@inheritDoc findTokenWithMintByMintOperation} */
-  findTokenWithMintByMint(input: FindTokenWithMintByMintInput) {
+  findTokenWithMintByMint(
+    input: FindTokenWithMintByMintInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findTokenWithMintByMintOperation(input));
+      .execute(findTokenWithMintByMintOperation(input), options);
   }
 
   // -----------------
@@ -116,8 +126,10 @@ export class TokenClient {
   // -----------------
 
   /** {@inheritDoc createMintOperation} */
-  createMint(input?: CreateMintInput) {
-    return this.metaplex.operations().getTask(createMintOperation(input ?? {}));
+  createMint(input: CreateMintInput = {}, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(createMintOperation(input), options);
   }
 
   /**
@@ -125,15 +137,20 @@ export class TokenClient {
    * and returns the newly created `Token` model.
    */
   /** {@inheritDoc createTokenOperation} */
-  createToken(input: CreateTokenInput) {
-    return this.metaplex.operations().getTask(createTokenOperation(input));
+  createToken(input: CreateTokenInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(createTokenOperation(input), options);
   }
 
   /** {@inheritDoc createTokenWithMintOperation} */
-  createTokenWithMint(input: CreateTokenWithMintInput = {}) {
+  createTokenWithMint(
+    input: CreateTokenWithMintInput = {},
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(createTokenWithMintOperation(input));
+      .execute(createTokenWithMintOperation(input), options);
   }
 
   // -----------------
@@ -141,23 +158,31 @@ export class TokenClient {
   // -----------------
 
   /** {@inheritDoc mintTokensOperation} */
-  mint(input: MintTokensInput) {
-    return this.metaplex.operations().getTask(mintTokensOperation(input));
+  mint(input: MintTokensInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(mintTokensOperation(input), options);
   }
 
   /** {@inheritDoc sendTokensOperation} */
-  send(input: SendTokensInput) {
-    return this.metaplex.operations().getTask(sendTokensOperation(input));
+  send(input: SendTokensInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(sendTokensOperation(input), options);
   }
 
   /** {@inheritDoc freezeTokensOperation} */
-  freeze(input: FreezeTokensInput) {
-    return this.metaplex.operations().getTask(freezeTokensOperation(input));
+  freeze(input: FreezeTokensInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(freezeTokensOperation(input), options);
   }
 
   /** {@inheritDoc thawTokensOperation} */
-  thaw(input: ThawTokensInput) {
-    return this.metaplex.operations().getTask(thawTokensOperation(input));
+  thaw(input: ThawTokensInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(thawTokensOperation(input), options);
   }
 
   // -----------------
@@ -165,16 +190,22 @@ export class TokenClient {
   // -----------------
 
   /** {@inheritDoc approveTokenDelegateAuthorityOperation} */
-  approveDelegateAuthority(input: ApproveTokenDelegateAuthorityInput) {
+  approveDelegateAuthority(
+    input: ApproveTokenDelegateAuthorityInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(approveTokenDelegateAuthorityOperation(input));
+      .execute(approveTokenDelegateAuthorityOperation(input), options);
   }
 
   /** {@inheritDoc revokeTokenDelegateAuthorityOperation} */
-  revokeDelegateAuthority(input: RevokeTokenDelegateAuthorityInput) {
+  revokeDelegateAuthority(
+    input: RevokeTokenDelegateAuthorityInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(revokeTokenDelegateAuthorityOperation(input));
+      .execute(revokeTokenDelegateAuthorityOperation(input), options);
   }
 }

@@ -1,13 +1,11 @@
-import { Commitment } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
 import { assertCandyGuardProgram } from '../programs';
-import { DisposableScope } from '@/utils';
 import {
   assertAccountExists,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -24,8 +22,7 @@ const Key = 'FindCandyMachineByAddressOperation' as const;
  * ```ts
  * const candyMachine = await metaplex
  *   .candyMachines()
- *   .findbyAddress({ address })
- *   .run();
+ *   .findbyAddress({ address };
  * ```
  *
  * @group Operations
@@ -49,11 +46,7 @@ _findCandyMachineByAddressOperation.key = Key;
  */
 export type FindCandyMachineByAddressOperation<
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = Operation<
-  typeof Key,
-  FindCandyMachineByAddressInput,
-  FindCandyMachineByAddressOutput<T>
->;
+> = Operation<typeof Key, FindCandyMachineByAddressInput, CandyMachine<T>>;
 
 /**
  * @group Operations
@@ -62,21 +55,7 @@ export type FindCandyMachineByAddressOperation<
 export type FindCandyMachineByAddressInput = {
   /** The Candy Machine address. */
   address: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
-
-/**
- * @group Operations
- * @category Outputs
- */
-export type FindCandyMachineByAddressOutput<
-  T extends CandyGuardsSettings = DefaultCandyGuardSettings
-> = CandyMachine<T>;
 
 /**
  * @group Operations
@@ -87,9 +66,10 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: FindCandyMachineByAddressOperation<T>,
       metaplex: Metaplex,
-      scope: DisposableScope
-    ): Promise<FindCandyMachineByAddressOutput<T>> {
-      const { address, commitment, programs } = operation.input;
+      scope: OperationScope
+    ) {
+      const { address } = operation.input;
+      const { commitment, programs } = scope;
       const potentialCandyGuardAddress = metaplex
         .candyMachines()
         .pdas()

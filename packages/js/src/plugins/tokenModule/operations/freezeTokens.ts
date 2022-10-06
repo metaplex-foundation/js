@@ -1,5 +1,5 @@
 import { createFreezeAccountInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -7,11 +7,11 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -23,7 +23,7 @@ const Key = 'FreezeTokensOperation' as const;
  * Freezes a token account.
  *
  * ```ts
- * await metaplex.tokens().freeze({ mintAddress, freezeAuthority }).run();
+ * await metaplex.tokens().freeze({ mintAddress, freezeAuthority });
  * ```
  *
  * @group Operations
@@ -78,12 +78,6 @@ export type FreezeTokensInput = {
    * @defaultValue `[]`
    */
   multiSigners?: KeypairSigner[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -103,12 +97,14 @@ export const freezeTokensOperationHandler: OperationHandler<FreezeTokensOperatio
   {
     async handle(
       operation: FreezeTokensOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<FreezeTokensOutput> {
-      return freezeTokensBuilder(metaplex, operation.input).sendAndConfirm(
+      return freezeTokensBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -140,15 +136,16 @@ export type FreezeTokensBuilderParams = Omit<
  */
 export const freezeTokensBuilder = (
   metaplex: Metaplex,
-  params: FreezeTokensBuilderParams
+  params: FreezeTokensBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
     multiSigners = [],
     freezeAuthority,
-    programs,
   } = params;
 
   const [authorityPublicKey, signers] = isSigner(freezeAuthority)
@@ -164,15 +161,17 @@ export const freezeTokensBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createFreezeAccountInstruction(
-      tokenAddressOrAta,
-      mintAddress,
-      authorityPublicKey,
-      multiSigners,
-      tokenProgram.address
-    ),
-    signers,
-    key: params.instructionKey ?? 'freezeTokens',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createFreezeAccountInstruction(
+        tokenAddressOrAta,
+        mintAddress,
+        authorityPublicKey,
+        multiSigners,
+        tokenProgram.address
+      ),
+      signers,
+      key: params.instructionKey ?? 'freezeTokens',
+    });
 };

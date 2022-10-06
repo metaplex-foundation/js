@@ -1,16 +1,15 @@
 import { createFreezeDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMasterEditionV2Pda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -24,8 +23,7 @@ const Key = 'FreezeDelegatedNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .freezeDelegatedNft({ mintAddress, delegateAuthority })
- *   .run();
+ *   .freezeDelegatedNft({ mintAddress, delegateAuthority };
  * ```
  *
  * @group Operations
@@ -74,12 +72,6 @@ export type FreezeDelegatedNftInput = {
    * from the `mintAddress` and `tokenOwner` parameters.
    */
   tokenAddress?: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -99,12 +91,14 @@ export const freezeDelegatedNftOperationHandler: OperationHandler<FreezeDelegate
   {
     async handle(
       operation: FreezeDelegatedNftOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<FreezeDelegatedNftOutput> {
       return freezeDelegatedNftBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -139,14 +133,15 @@ export type FreezeDelegatedNftBuilderParams = Omit<
  */
 export const freezeDelegatedNftBuilder = (
   metaplex: Metaplex,
-  params: FreezeDelegatedNftBuilderParams
+  params: FreezeDelegatedNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     delegateAuthority,
     tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
-    programs,
   } = params;
 
   // Programs.
@@ -154,7 +149,10 @@ export const freezeDelegatedNftBuilder = (
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   // PDAs.
-  const editionAddress = findMasterEditionV2Pda(mintAddress);
+  const editionAddress = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
+  });
   const tokenAddressOrAta =
     tokenAddress ??
     metaplex.tokens().pdas().associatedTokenAccount({
@@ -163,18 +161,20 @@ export const freezeDelegatedNftBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createFreezeDelegatedAccountInstruction(
-      {
-        delegate: delegateAuthority.publicKey,
-        tokenAccount: tokenAddressOrAta,
-        edition: editionAddress,
-        mint: mintAddress,
-        tokenProgram: tokenProgram.address,
-      },
-      tokenMetadataProgram.address
-    ),
-    signers: [delegateAuthority],
-    key: params.instructionKey ?? 'freezeDelegatedNft',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createFreezeDelegatedAccountInstruction(
+        {
+          delegate: delegateAuthority.publicKey,
+          tokenAccount: tokenAddressOrAta,
+          edition: editionAddress,
+          mint: mintAddress,
+          tokenProgram: tokenProgram.address,
+        },
+        tokenMetadataProgram.address
+      ),
+      signers: [delegateAuthority],
+      key: params.instructionKey ?? 'freezeDelegatedNft',
+    });
 };

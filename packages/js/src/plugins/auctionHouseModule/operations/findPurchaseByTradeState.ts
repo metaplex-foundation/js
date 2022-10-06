@@ -1,9 +1,12 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse, Purchase } from '../models';
-import { findPurchaseReceiptPda } from '../pdas';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -17,8 +20,7 @@ const Key = 'FindPurchaseByTradeStateOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findPurchaseByTradeState({ sellerTradeState, buyerTradeState, auctionHouse })
- *   .run();
+ *   .findPurchaseByTradeState({ sellerTradeState, buyerTradeState, auctionHouse };
  * ```
  *
  * @group Operations
@@ -56,10 +58,7 @@ export type FindPurchaseByTradeStateInput = {
    *
    * @defaultValue `true`
    */
-  loadJsonMetadata?: boolean; // Default: true
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
+  loadJsonMetadata?: boolean;
 };
 
 /**
@@ -71,18 +70,17 @@ export const findPurchaseByTradeStateOperationHandler: OperationHandler<FindPurc
     handle: async (
       operation: FindPurchaseByTradeStateOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { sellerTradeState, buyerTradeState } = operation.input;
-
-      const receiptAddress = findPurchaseReceiptPda(
-        sellerTradeState,
-        buyerTradeState
-      );
+      const receiptAddress = metaplex.auctionHouse().pdas().purchaseReceipt({
+        listingTradeState: sellerTradeState,
+        bidTradeState: buyerTradeState,
+        programs: scope.programs,
+      });
 
       return metaplex
         .auctionHouse()
-        .findPurchaseByReceipt({ receiptAddress, ...operation.input })
-        .run(scope);
+        .findPurchaseByReceipt({ receiptAddress, ...operation.input }, scope);
     },
   };

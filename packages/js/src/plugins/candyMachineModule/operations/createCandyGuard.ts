@@ -2,7 +2,7 @@ import {
   createInitializeInstruction,
   initializeInstructionDiscriminator,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyGuardsSettings,
@@ -10,12 +10,12 @@ import {
   emptyDefaultCandyGuardSettings,
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   Pda,
-  Program,
   serializeDiscriminator,
   Signer,
 } from '@/types';
@@ -39,8 +39,7 @@ const Key = 'CreateCandyGuardOperation' as const;
  *       solPayment: { amount: sol(1.5), },
  *       botTax: { lamports: sol(0.01), lastInstruction: true },
  *     },
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -82,14 +81,6 @@ export type CreateCandyGuardInput<
   base?: Signer;
 
   /**
-   * The Signer that should pay for the creation of the Candy Guard.
-   * This includes both storage fees and the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The authority that will be allowed to update the Candy Guard.
    *
    * @defaultValue `metaplex.identity().publicKey`
@@ -117,12 +108,6 @@ export type CreateCandyGuardInput<
    * @defaultValue `[]`
    */
   groups?: { label: string; guards: Partial<T> }[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -154,19 +139,25 @@ export const createCandyGuardOperationHandler: OperationHandler<CreateCandyGuard
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: CreateCandyGuardOperation<T>,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateCandyGuardOutput<T>> {
-      const builder = createCandyGuardBuilder<T>(metaplex, operation.input);
+      const builder = createCandyGuardBuilder<T>(
+        metaplex,
+        operation.input,
+        scope
+      );
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
       const candyGuard = await metaplex
         .candyMachines()
-        .findCandyGuardByBaseAddress<T>({ address: output.base.publicKey })
-        .run(scope);
+        .findCandyGuardByBaseAddress<T>(
+          { address: output.base.publicKey },
+          scope
+        );
 
       return { ...output, candyGuard };
     },
@@ -219,11 +210,11 @@ export const createCandyGuardBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   metaplex: Metaplex,
-  params: CreateCandyGuardBuilderParams<T>
+  params: CreateCandyGuardBuilderParams<T>,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CreateCandyGuardBuilderContext> => {
-  const { programs } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const base = params.base ?? Keypair.generate();
-  const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
   const candyGuard = metaplex

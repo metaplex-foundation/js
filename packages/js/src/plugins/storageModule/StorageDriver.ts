@@ -12,4 +12,6 @@ export type StorageDriver = {
   ) => Promise<MetaplexFile>;
 };
 
-export type StorageDownloadOptions = RequestInit;
+export type StorageDownloadOptions = Omit<RequestInit, 'signal'> & {
+  signal?: AbortSignal | null;
+};

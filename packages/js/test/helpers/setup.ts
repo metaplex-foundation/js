@@ -49,20 +49,13 @@ export const createNft = async (
   mx: Metaplex,
   input: Partial<CreateNftInput & { json: UploadMetadataInput }> = {}
 ) => {
-  const { uri } = await mx
-    .nfts()
-    .uploadMetadata(input.json ?? {})
-    .run();
-
-  const { nft } = await mx
-    .nfts()
-    .create({
-      uri,
-      name: 'My NFT',
-      sellerFeeBasisPoints: 200,
-      ...input,
-    })
-    .run();
+  const { uri } = await mx.nfts().uploadMetadata(input.json ?? {});
+  const { nft } = await mx.nfts().create({
+    uri,
+    name: 'My NFT',
+    sellerFeeBasisPoints: 200,
+    ...input,
+  });
 
   return nft;
 };
@@ -76,20 +69,13 @@ export const createSft = async (
   mx: Metaplex,
   input: Partial<CreateSftInput & { json: UploadMetadataInput }> = {}
 ) => {
-  const { uri } = await mx
-    .nfts()
-    .uploadMetadata(input.json ?? {})
-    .run();
-
-  const { sft } = await mx
-    .nfts()
-    .createSft({
-      uri,
-      name: 'My SFT',
-      sellerFeeBasisPoints: 200,
-      ...input,
-    })
-    .run();
+  const { uri } = await mx.nfts().uploadMetadata(input.json ?? {});
+  const { sft } = await mx.nfts().createSft({
+    uri,
+    name: 'My SFT',
+    sellerFeeBasisPoints: 200,
+    ...input,
+  });
 
   return sft;
 };

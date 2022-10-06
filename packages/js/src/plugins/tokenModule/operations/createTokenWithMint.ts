@@ -1,13 +1,13 @@
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
 import { TokenWithMint } from '../models/Token';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   isSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   SplTokenAmount,
   toPublicKey,
@@ -25,7 +25,7 @@ const Key = 'CreateTokenWithMintOperation' as const;
  * Creates both mint and token accounts in the same transaction.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createTokenWithMint().run();
+ * const { token } = await metaplex.tokens().createTokenWithMint();
  * const mint = token.mint;
  * ```
  *
@@ -106,20 +106,6 @@ export type CreateTokenWithMintInput = {
    * using the `mint` and `owner` parameters.
    */
   token?: Signer;
-
-  /**
-   * The Signer paying for the new mint and token accounts
-   * and for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -149,28 +135,29 @@ export const createTokenWithMintOperationHandler: OperationHandler<CreateTokenWi
     async handle(
       operation: CreateTokenWithMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateTokenWithMintOutput> {
       const builder = await createTokenWithMintBuilder(
         metaplex,
-        operation.input
+        operation.input,
+        scope
       );
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
-      const token = await metaplex
-        .tokens()
-        .findTokenWithMintByMint({
+      const token = await metaplex.tokens().findTokenWithMintByMint(
+        {
           mint: output.mintSigner.publicKey,
           address: output.tokenAddress,
           addressType: 'token',
-        })
-        .run(scope);
+        },
+        scope
+      );
 
       return { ...output, token };
     },
@@ -231,8 +218,10 @@ export type CreateTokenWithMintBuilderContext = {
  */
 export const createTokenWithMintBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenWithMintBuilderParams
+  params: CreateTokenWithMintBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenWithMintBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     decimals = 0,
     initialSupply,
@@ -241,43 +230,43 @@ export const createTokenWithMintBuilder = async (
     freezeAuthority = metaplex.identity().publicKey,
     owner = metaplex.identity().publicKey,
     token,
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   const createMintBuilder = await metaplex
     .tokens()
     .builders()
-    .createMint({
-      decimals,
-      mint,
-      payer,
-      mintAuthority: toPublicKey(mintAuthority),
-      freezeAuthority,
-      programs,
-      createAccountInstructionKey:
-        params.createMintAccountInstructionKey ?? 'createMintAccount',
-      initializeMintInstructionKey:
-        params.initializeMintInstructionKey ?? 'initializeMint',
-    });
+    .createMint(
+      {
+        decimals,
+        mint,
+        mintAuthority: toPublicKey(mintAuthority),
+        freezeAuthority,
+        createAccountInstructionKey:
+          params.createMintAccountInstructionKey ?? 'createMintAccount',
+        initializeMintInstructionKey:
+          params.initializeMintInstructionKey ?? 'initializeMint',
+      },
+      { programs, payer }
+    );
 
   const createTokenBuilder = await metaplex
     .tokens()
     .builders()
-    .createToken({
-      mint: mint.publicKey,
-      owner,
-      token,
-      payer,
-      programs,
-      createAssociatedTokenAccountInstructionKey:
-        params.createAssociatedTokenAccountInstructionKey ??
-        'createAssociatedTokenAccount',
-      createAccountInstructionKey:
-        params.createTokenAccountInstructionKey ?? 'createTokenAccount',
-      initializeTokenInstructionKey:
-        params.initializeTokenInstructionKey ?? 'initializeToken',
-    });
+    .createToken(
+      {
+        mint: mint.publicKey,
+        owner,
+        token,
+        createAssociatedTokenAccountInstructionKey:
+          params.createAssociatedTokenAccountInstructionKey ??
+          'createAssociatedTokenAccount',
+        createAccountInstructionKey:
+          params.createTokenAccountInstructionKey ?? 'createTokenAccount',
+        initializeTokenInstructionKey:
+          params.initializeTokenInstructionKey ?? 'initializeToken',
+      },
+      { payer, programs }
+    );
 
   const { tokenAddress } = createTokenBuilder.getContext();
 
@@ -301,15 +290,17 @@ export const createTokenWithMintBuilder = async (
       await metaplex
         .tokens()
         .builders()
-        .mint({
-          mintAddress: mint.publicKey,
-          toToken: tokenAddress,
-          amount: initialSupply,
-          mintAuthority,
-          programs,
-          mintTokensInstructionKey:
-            params.mintTokensInstructionKey ?? 'mintTokens',
-        })
+        .mint(
+          {
+            mintAddress: mint.publicKey,
+            toToken: tokenAddress,
+            amount: initialSupply,
+            mintAuthority,
+            mintTokensInstructionKey:
+              params.mintTokensInstructionKey ?? 'mintTokens',
+          },
+          { payer, programs }
+        )
     );
   }
 

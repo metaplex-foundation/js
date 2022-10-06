@@ -3,17 +3,16 @@ import {
   UpdateMetadataAccountArgsV2,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
-import { findMetadataPda } from '../pdas';
-import { Option, TransactionBuilder } from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -32,8 +31,7 @@ const Key = 'UpdateNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .update({ nftOrSft, name: "My new NFT name" })
- *   .run();
+ *   .update({ nftOrSft, name: "My new NFT name" };
  * ```
  *
  * @group Operations
@@ -194,12 +192,6 @@ export type UpdateNftInput = {
    * @defaultValue `true`
    */
   oldCollectionIsSized?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -218,15 +210,16 @@ export type UpdateNftOutput = {
 export const updateNftOperationHandler: OperationHandler<UpdateNftOperation> = {
   handle: async (
     operation: UpdateNftOperation,
-    metaplex: Metaplex
+    metaplex: Metaplex,
+    scope: OperationScope
   ): Promise<UpdateNftOutput> => {
-    const builder = updateNftBuilder(metaplex, operation.input);
+    const builder = updateNftBuilder(metaplex, operation.input, scope);
 
     if (builder.isEmpty()) {
       throw new NoInstructionsToSendError(Key);
     }
 
-    return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+    return builder.sendAndConfirm(metaplex, scope.confirmOptions);
   },
 };
 
@@ -258,9 +251,11 @@ export type UpdateNftBuilderParams = Omit<UpdateNftInput, 'confirmOptions'> & {
  */
 export const updateNftBuilder = (
   metaplex: Metaplex,
-  params: UpdateNftBuilderParams
+  params: UpdateNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const { nftOrSft, updateAuthority = metaplex.identity(), programs } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { nftOrSft, updateAuthority = metaplex.identity() } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -294,11 +289,13 @@ export const updateNftBuilder = (
       return !!creator.authority && !currentlyVerified;
     })
     .map((creator) => {
-      return metaplex.nfts().builders().verifyCreator({
-        mintAddress: nftOrSft.address,
-        creator: creator.authority,
-        programs,
-      });
+      return metaplex.nfts().builders().verifyCreator(
+        {
+          mintAddress: nftOrSft.address,
+          creator: creator.authority,
+        },
+        { payer, programs }
+      );
     });
 
   return (
@@ -311,13 +308,16 @@ export const updateNftBuilder = (
           metaplex
             .nfts()
             .builders()
-            .unverifyCollection({
-              mintAddress: nftOrSft.address,
-              collectionMintAddress: nftOrSft.collection?.address as PublicKey,
-              collectionAuthority: updateAuthority,
-              isSizedCollection: params.oldCollectionIsSized ?? true,
-              programs,
-            })
+            .unverifyCollection(
+              {
+                mintAddress: nftOrSft.address,
+                collectionMintAddress: nftOrSft.collection
+                  ?.address as PublicKey,
+                collectionAuthority: updateAuthority,
+                isSizedCollection: params.oldCollectionIsSized ?? true,
+              },
+              { programs, payer }
+            )
         )
       )
 
@@ -326,7 +326,10 @@ export const updateNftBuilder = (
         builder.add({
           instruction: createUpdateMetadataAccountV2Instruction(
             {
-              metadata: findMetadataPda(nftOrSft.address),
+              metadata: metaplex.nfts().pdas().metadata({
+                mint: nftOrSft.address,
+                programs,
+              }),
               updateAuthority: updateAuthority.publicKey,
             },
             { updateMetadataAccountArgsV2: updateInstructionData },
@@ -346,14 +349,16 @@ export const updateNftBuilder = (
           metaplex
             .nfts()
             .builders()
-            .verifyCollection({
-              mintAddress: nftOrSft.address,
-              collectionMintAddress: params.collection as PublicKey,
-              collectionAuthority: params.collectionAuthority as Signer,
-              isDelegated: params.collectionAuthorityIsDelegated ?? false,
-              isSizedCollection: params.collectionIsSized ?? true,
-              programs,
-            })
+            .verifyCollection(
+              {
+                mintAddress: nftOrSft.address,
+                collectionMintAddress: params.collection as PublicKey,
+                collectionAuthority: params.collectionAuthority as Signer,
+                isDelegated: params.collectionAuthorityIsDelegated ?? false,
+                isSizedCollection: params.collectionIsSized ?? true,
+              },
+              { programs, payer }
+            )
         )
       )
   );

@@ -1,16 +1,15 @@
 import { createBurnNftInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -24,8 +23,7 @@ const Key = 'DeleteNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .delete({ mintAddress })
- *   .run();
+ *   .delete({ mintAddress };
  * ```
  *
  * @group Operations
@@ -76,12 +74,6 @@ export type DeleteNftInput = {
    * Size Collection NFT.
    */
   collection?: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -100,11 +92,12 @@ export type DeleteNftOutput = {
 export const deleteNftOperationHandler: OperationHandler<DeleteNftOperation> = {
   handle: async (
     operation: DeleteNftOperation,
-    metaplex: Metaplex
+    metaplex: Metaplex,
+    scope: OperationScope
   ): Promise<DeleteNftOutput> => {
-    return deleteNftBuilder(metaplex, operation.input).sendAndConfirm(
+    return deleteNftBuilder(metaplex, operation.input, scope).sendAndConfirm(
       metaplex,
-      operation.input.confirmOptions
+      scope.confirmOptions
     );
   },
 };
@@ -137,21 +130,28 @@ export type DeleteNftBuilderParams = Omit<DeleteNftInput, 'confirmOptions'> & {
  */
 export const deleteNftBuilder = (
   metaplex: Metaplex,
-  params: DeleteNftBuilderParams
+  params: DeleteNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     owner = metaplex.identity(),
     ownerTokenAccount,
     collection,
-    programs,
   } = params;
 
   const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  const metadata = findMetadataPda(mintAddress);
-  const edition = findMasterEditionV2Pda(mintAddress);
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const edition = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
+  });
   const tokenAddress =
     ownerTokenAccount ??
     metaplex.tokens().pdas().associatedTokenAccount({
@@ -160,22 +160,24 @@ export const deleteNftBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createBurnNftInstruction(
-      {
-        metadata,
-        owner: owner.publicKey,
-        mint: mintAddress,
-        tokenAccount: tokenAddress,
-        masterEditionAccount: edition,
-        splTokenProgram: tokenProgram.address,
-        collectionMetadata: collection
-          ? findMetadataPda(collection)
-          : undefined,
-      },
-      tokenMetadataProgram.address
-    ),
-    signers: [owner],
-    key: params.instructionKey ?? 'deleteNft',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createBurnNftInstruction(
+        {
+          metadata,
+          owner: owner.publicKey,
+          mint: mintAddress,
+          tokenAccount: tokenAddress,
+          masterEditionAccount: edition,
+          splTokenProgram: tokenProgram.address,
+          collectionMetadata: collection
+            ? metaplex.nfts().pdas().metadata({ mint: collection, programs })
+            : undefined,
+        },
+        tokenMetadataProgram.address
+      ),
+      signers: [owner],
+      key: params.instructionKey ?? 'deleteNft',
+    });
 };

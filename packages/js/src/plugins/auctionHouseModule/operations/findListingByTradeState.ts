@@ -1,9 +1,12 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { AuctionHouse, Listing } from '../models';
-import { findListingReceiptPda } from '../pdas';
 import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 
 // -----------------
 // Operation
@@ -17,8 +20,7 @@ const Key = 'FindListingByTradeStateOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findListingByTradeState({ tradeStateAddress, auctionHouse })
- *   .run();
+ *   .findListingByTradeState({ tradeStateAddress, auctionHouse };
  * ```
  *
  * @group Operations
@@ -53,10 +55,7 @@ export type FindListingByTradeStateInput = {
    *
    * @defaultValue `true`
    */
-  loadJsonMetadata?: boolean; // Default: true
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
+  loadJsonMetadata?: boolean;
 };
 
 /**
@@ -68,15 +67,17 @@ export const findListingByTradeStateOperationHandler: OperationHandler<FindListi
     handle: async (
       operation: FindListingByTradeStateOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
       const { tradeStateAddress } = operation.input;
 
-      const receiptAddress = findListingReceiptPda(tradeStateAddress);
+      const receiptAddress = metaplex.auctionHouse().pdas().listingReceipt({
+        tradeState: tradeStateAddress,
+        programs: scope.programs,
+      });
 
       return metaplex
         .auctionHouse()
-        .findListingByReceipt({ receiptAddress, ...operation.input })
-        .run(scope);
+        .findListingByReceipt({ receiptAddress, ...operation.input }, scope);
     },
   };

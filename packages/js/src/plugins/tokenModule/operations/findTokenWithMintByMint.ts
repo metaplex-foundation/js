@@ -1,9 +1,14 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toMintAccount, toTokenAccount } from '../accounts';
 import { TokenAndMintDoNotMatchError } from '../errors';
 import { toMint } from '../models/Mint';
 import { TokenWithMint, toTokenWithMint } from '../models/Token';
-import { Operation, OperationHandler, Program, useOperation } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -21,13 +26,11 @@ const Key = 'FindTokenWithMintByMintOperation' as const;
  * ```ts
  * const tokenWithMint = await metaplex
  *   .tokens()
- *   .findTokenWithMintByMint({ mint, address: tokenAddress, type: "token" })
- *   .run();
+ *   .findTokenWithMintByMint({ mint, address: tokenAddress, type: "token" };
  *
  * const tokenWithMint = await metaplex
  *   .tokens()
- *   .findTokenWithMintByMint({ mint, address: ownerAddress, type: "owner" })
- *   .run();
+ *   .findTokenWithMintByMint({ mint, address: ownerAddress, type: "owner" };
  * ```
  *
  * @group Operations
@@ -65,12 +68,6 @@ export type FindTokenWithMintByMintInput = {
    * or the address of its owner.
    */
   addressType: 'owner' | 'token';
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -81,10 +78,11 @@ export const findTokenWithMintByMintOperationHandler: OperationHandler<FindToken
   {
     handle: async (
       operation: FindTokenWithMintByMintOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<TokenWithMint> => {
-      const { mint, address, addressType, commitment, programs } =
-        operation.input;
+      const { commitment, programs } = scope;
+      const { mint, address, addressType } = operation.input;
       const tokenAddress =
         addressType === 'owner'
           ? metaplex.tokens().pdas().associatedTokenAccount({

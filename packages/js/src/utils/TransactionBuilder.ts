@@ -7,7 +7,7 @@ import {
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../plugins/rpcModule';
 import type { Metaplex } from '@/Metaplex';
-import type { Signer } from '@/types';
+import type { OperationOptions, Signer } from '@/types';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -19,6 +19,11 @@ type TransactionOptions = {
   /** Additional signatures. */
   signatures?: Array<SignaturePubkeyPair>;
 };
+
+export type TransactionBuilderOptions = Pick<
+  OperationOptions,
+  'programs' | 'payer'
+>;
 
 export class TransactionBuilder<C extends object = object> {
   /** The list of all instructions and their respective signers. */

@@ -1,5 +1,5 @@
 import { createTransferInstruction } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
@@ -7,13 +7,13 @@ import {
   KeypairSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -31,8 +31,7 @@ const Key = 'SendTokensOperation' as const;
  *     mintAddress,
  *     toOwner,
  *     amount: token(100),
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -118,20 +117,6 @@ export type SendTokensInput = {
    * @defaultValue Defaults to not using a delegate authority.
    */
   delegateAuthority?: Signer;
-
-  /**
-   * The Signer paying for the new token account if it does not
-   * already exist. This is also used to pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -152,13 +137,12 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
     async handle(
       operation: SendTokensOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<SendTokensOutput> {
       const {
         mintAddress,
         toOwner = metaplex.identity().publicKey,
         toToken,
-        programs,
       } = operation.input;
 
       const destination =
@@ -166,7 +150,7 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
         metaplex.tokens().pdas().associatedTokenAccount({
           mint: mintAddress,
           owner: toOwner,
-          programs,
+          programs: scope.programs,
         });
       const destinationAddress = toPublicKey(destination);
       const destinationAccountExists = await metaplex
@@ -174,13 +158,14 @@ export const sendTokensOperationHandler: OperationHandler<SendTokensOperation> =
         .accountExists(destinationAddress);
       scope.throwIfCanceled();
 
-      const builder = await sendTokensBuilder(metaplex, {
-        ...operation.input,
-        toTokenExists: destinationAccountExists,
-      });
+      const builder = await sendTokensBuilder(
+        metaplex,
+        { ...operation.input, toTokenExists: destinationAccountExists },
+        scope
+      );
       scope.throwIfCanceled();
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -236,8 +221,10 @@ export type SendTokensBuilderParams = Omit<
  */
 export const sendTokensBuilder = async (
   metaplex: Metaplex,
-  params: SendTokensBuilderParams
+  params: SendTokensBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     amount,
@@ -248,8 +235,6 @@ export const sendTokensBuilder = async (
     fromToken,
     fromMultiSigners = [],
     delegateAuthority,
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   const [fromOwnerPublicKey, signers] = isSigner(fromOwner)
@@ -274,21 +259,24 @@ export const sendTokensBuilder = async (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Create token account if missing.
       .add(
         await metaplex
           .tokens()
           .builders()
-          .createTokenIfMissing({
-            ...params,
-            mint: mintAddress,
-            owner: toOwner,
-            token: toToken,
-            tokenExists: toTokenExists,
-            payer,
-            tokenVariable: 'toToken',
-          })
+          .createTokenIfMissing(
+            {
+              ...params,
+              mint: mintAddress,
+              owner: toOwner,
+              token: toToken,
+              tokenExists: toTokenExists,
+              tokenVariable: 'toToken',
+            },
+            { programs, payer }
+          )
       )
 
       // Transfer tokens.

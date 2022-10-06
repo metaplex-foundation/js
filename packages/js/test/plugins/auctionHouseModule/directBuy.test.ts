@@ -11,7 +11,7 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol, token } from '@/types';
-import { findAssociatedTokenAccountPda, Purchase } from '@/index';
+import { Purchase } from '@/index';
 
 killStuckProcess();
 
@@ -24,24 +24,18 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      seller,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    seller,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // When we execute direct buy with the given listing.
-  const { purchase } = await mx
-    .auctionHouse()
-    .buy({
-      auctionHouse,
-      listing,
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().buy({
+    auctionHouse,
+    listing,
+  });
 
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
@@ -55,10 +49,10 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
     asset: {
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(
-          nft.address,
-          mx.identity().publicKey
-        ),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: mx.identity().publicKey,
+        }),
         ownerAddress: spokSamePubkey(mx.identity().publicKey),
       },
     },
@@ -80,27 +74,21 @@ test('[auctionHouseModule] buy on an Auction House with auctioneer with auctione
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-      auctioneerAuthority,
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+    auctioneerAuthority,
+  });
 
   // When we execute direct buy with the given listing.
-  const { purchase } = await mx
-    .auctionHouse()
-    .buy({
-      auctionHouse,
-      auctioneerAuthority,
-      listing,
-      buyer,
-      price: sol(1),
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().buy({
+    auctionHouse,
+    auctioneerAuthority,
+    listing,
+    buyer,
+    price: sol(1),
+  });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
@@ -119,29 +107,23 @@ test('[auctionHouseModule] buy on an Auction House with maximum input', async (t
   });
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      authority,
-      seller,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    authority,
+    seller,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // When we execute direct buy with the given listing.
-  const { purchase } = await mx
-    .auctionHouse()
-    .buy({
-      auctionHouse,
-      authority,
-      buyer,
-      listing,
-      printReceipt: true,
-      price: sol(1),
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().buy({
+    auctionHouse,
+    authority,
+    buyer,
+    listing,
+    printReceipt: true,
+    price: sol(1),
+  });
 
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
@@ -156,7 +138,10 @@ test('[auctionHouseModule] buy on an Auction House with maximum input', async (t
     asset: {
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: buyer.publicKey,
+        }),
         ownerAddress: spokSamePubkey(buyer.publicKey),
       },
     },

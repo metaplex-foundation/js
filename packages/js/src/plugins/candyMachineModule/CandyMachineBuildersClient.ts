@@ -27,6 +27,7 @@ import {
   WrapCandyGuardBuilderParams,
 } from './operations';
 import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilderOptions } from '@/utils';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -40,62 +41,84 @@ export class CandyMachineBuildersClient {
 
   /** {@inheritDoc createCandyMachineBuilder} */
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyMachineBuilderParams<T>
+    input: CreateCandyMachineBuilderParams<T>,
+    options?: TransactionBuilderOptions
   ) {
-    return createCandyMachineBuilder(this.metaplex, input);
+    return createCandyMachineBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createCandyGuardBuilder} */
   createCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: CreateCandyGuardBuilderParams<T>
+    input: CreateCandyGuardBuilderParams<T>,
+    options?: TransactionBuilderOptions
   ) {
-    return createCandyGuardBuilder(this.metaplex, input);
+    return createCandyGuardBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc deleteCandyMachineBuilder} */
-  delete(input: DeleteCandyMachineBuilderParams) {
-    return deleteCandyMachineBuilder(this.metaplex, input);
+  delete(
+    input: DeleteCandyMachineBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return deleteCandyMachineBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc deleteCandyGuardBuilder} */
-  deleteCandyGuard(input: DeleteCandyGuardBuilderParams) {
-    return deleteCandyGuardBuilder(this.metaplex, input);
+  deleteCandyGuard(
+    input: DeleteCandyGuardBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return deleteCandyGuardBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc insertCandyMachineItemsBuilder} */
-  insertItems(input: InsertCandyMachineItemsBuilderParams) {
-    return insertCandyMachineItemsBuilder(this.metaplex, input);
+  insertItems(
+    input: InsertCandyMachineItemsBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return insertCandyMachineItemsBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc mintFromCandyMachineBuilder} */
   mint<
     Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
     MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
-  >(input: MintFromCandyMachineBuilderParams<Settings, MintSettings>) {
-    return mintFromCandyMachineBuilder(this.metaplex, input);
+  >(
+    input: MintFromCandyMachineBuilderParams<Settings, MintSettings>,
+    options?: TransactionBuilderOptions
+  ) {
+    return mintFromCandyMachineBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc unwrapCandyGuardBuilder} */
-  unwrapCandyGuard(input: UnwrapCandyGuardBuilderParams) {
-    return unwrapCandyGuardBuilder(this.metaplex, input);
+  unwrapCandyGuard(
+    input: UnwrapCandyGuardBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return unwrapCandyGuardBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc updateCandyMachineBuilder} */
   update<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: UpdateCandyMachineBuilderParams<T>
+    input: UpdateCandyMachineBuilderParams<T>,
+    options?: TransactionBuilderOptions
   ) {
-    return updateCandyMachineBuilder(this.metaplex, input);
+    return updateCandyMachineBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc updateCandyGuardBuilder} */
   updateCandyGuard<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
-    input: UpdateCandyGuardBuilderParams<T>
+    input: UpdateCandyGuardBuilderParams<T>,
+    options?: TransactionBuilderOptions
   ) {
-    return updateCandyGuardBuilder(this.metaplex, input);
+    return updateCandyGuardBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc wrapCandyGuardBuilder} */
-  wrapCandyGuard(input: WrapCandyGuardBuilderParams) {
-    return wrapCandyGuardBuilder(this.metaplex, input);
+  wrapCandyGuard(
+    input: WrapCandyGuardBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return wrapCandyGuardBuilder(this.metaplex, input, options);
   }
 }

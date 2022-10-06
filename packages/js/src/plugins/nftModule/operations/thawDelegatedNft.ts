@@ -1,16 +1,15 @@
 import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMasterEditionV2Pda } from '../pdas';
-import { TransactionBuilder } from '@/utils';
+import type { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -24,8 +23,7 @@ const Key = 'ThawDelegatedNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .thawDelegatedNft({ mintAddress, delegateAuthority })
- *   .run();
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority };
  * ```
  *
  * @group Operations
@@ -74,12 +72,6 @@ export type ThawDelegatedNftInput = {
    * from the `mintAddress` and `tokenOwner` parameters.
    */
   tokenAddress?: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -99,11 +91,12 @@ export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNft
   {
     async handle(
       operation: ThawDelegatedNftOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<ThawDelegatedNftOutput> {
       return thawDelegatedNftBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
     },
   };
@@ -139,21 +132,25 @@ export type ThawDelegatedNftBuilderParams = Omit<
  */
 export const thawDelegatedNftBuilder = (
   metaplex: Metaplex,
-  params: ThawDelegatedNftBuilderParams
+  params: ThawDelegatedNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     delegateAuthority,
     tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
-    programs,
   } = params;
 
   // Programs.
   const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  const editionAddress = findMasterEditionV2Pda(mintAddress);
+  const editionAddress = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
+  });
   const tokenAddressOrAta =
     tokenAddress ??
     metaplex.tokens().pdas().associatedTokenAccount({
@@ -162,18 +159,20 @@ export const thawDelegatedNftBuilder = (
       programs,
     });
 
-  return TransactionBuilder.make().add({
-    instruction: createThawDelegatedAccountInstruction(
-      {
-        delegate: delegateAuthority.publicKey,
-        tokenAccount: tokenAddressOrAta,
-        edition: editionAddress,
-        mint: mintAddress,
-        tokenProgram: tokenProgram.address,
-      },
-      tokenMetadataProgram.address
-    ),
-    signers: [delegateAuthority],
-    key: params.instructionKey ?? 'thawDelegatedNft',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createThawDelegatedAccountInstruction(
+        {
+          delegate: delegateAuthority.publicKey,
+          tokenAccount: tokenAddressOrAta,
+          edition: editionAddress,
+          mint: mintAddress,
+          tokenProgram: tokenProgram.address,
+        },
+        tokenMetadataProgram.address
+      ),
+      signers: [delegateAuthority],
+      key: params.instructionKey ?? 'thawDelegatedNft',
+    });
 };

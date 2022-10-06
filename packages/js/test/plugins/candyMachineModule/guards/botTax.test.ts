@@ -22,14 +22,13 @@ test('[candyMachineModule] botTax guard: it does nothing if all conditions are v
 
   // When we mint from it.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -58,12 +57,14 @@ test('[candyMachineModule] botTax guard: it may charge a bot tax if the mint ins
   // When we try to add an instruction after the mint instruction.
   const payer = await createWallet(mx, 10);
   const mint = Keypair.generate();
-  const mintBuilder = await mx.candyMachines().builders().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    mint,
-  });
+  const mintBuilder = await mx.candyMachines().builders().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      mint,
+    },
+    { payer }
+  );
   mintBuilder.add(
     mx.tokens().builders().approveDelegateAuthority({
       mintAddress: mint.publicKey,

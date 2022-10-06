@@ -1,10 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
-import { findAuctioneerPda } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
-import { DisposableScope } from '@/utils';
-import { useOperation, Operation, OperationHandler } from '@/types';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -19,8 +22,7 @@ const Key = 'FindAuctionHouseByAddressOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findByAddress({ address })
- *   .run();
+ *   .findByAddress({ address };
  * ```
  *
  * @group Operations
@@ -54,9 +56,6 @@ export type FindAuctionHouseByAddressInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -68,11 +67,16 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
     handle: async (
       operation: FindAuctionHouseByAddressOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const { address, auctioneerAuthority, commitment } = operation.input;
+      const { programs, commitment } = scope;
+      const { address, auctioneerAuthority } = operation.input;
       const auctioneerPda = auctioneerAuthority
-        ? findAuctioneerPda(address, auctioneerAuthority)
+        ? metaplex.auctionHouse().pdas().auctioneer({
+            auctionHouse: address,
+            auctioneerAuthority,
+            programs,
+          })
         : undefined;
       const accountsToFetch = [address, auctioneerPda].filter(
         (account): account is PublicKey => !!account
@@ -86,11 +90,10 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       const auctionHouseAccount = toAuctionHouseAccount(accounts[0]);
       const mintModel = await metaplex
         .tokens()
-        .findMintByAddress({
-          address: auctionHouseAccount.data.treasuryMint,
-          commitment,
-        })
-        .run(scope);
+        .findMintByAddress(
+          { address: auctionHouseAccount.data.treasuryMint },
+          scope
+        );
       scope.throwIfCanceled();
 
       if (!auctionHouseAccount.data.hasAuctioneer) {

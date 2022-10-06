@@ -1,9 +1,4 @@
 import {
-  ConfirmOptions,
-  PublicKey,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-} from '@solana/web3.js';
-import {
   AuctioneerExecuteSaleInstructionAccounts,
   createAuctioneerExecuteSaleInstruction,
   createExecutePartialSaleInstruction,
@@ -11,16 +6,8 @@ import {
   createPrintPurchaseReceiptInstruction,
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
-import {
-  findAuctionHouseBuyerEscrowPda,
-  findAuctionHouseProgramAsSignerPda,
-  findAuctionHouseTradeStatePda,
-  findPurchaseReceiptPda,
-  findAuctioneerPda,
-} from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
   AuctioneerPartialSaleNotSupportedError,
@@ -30,20 +17,22 @@ import {
   CanceledListingIsNotAllowedError,
   PartialPriceMismatchError,
 } from '../errors';
+import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  useOperation,
+  amount,
+  isSigner,
+  lamports,
+  now,
   Operation,
   OperationHandler,
+  OperationScope,
   Pda,
-  lamports,
   Signer,
   SolAmount,
   SplTokenAmount,
-  isSigner,
-  now,
-  amount,
+  useOperation,
 } from '@/types';
-import { TransactionBuilder, Option, DisposableScope } from '@/utils';
 import type { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -58,8 +47,7 @@ const Key = 'ExecuteSaleOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .executeSale({ auctionHouse, bid, listing })
- *   .run();
+ *   .executeSale({ auctionHouse, bid, listing };
  * ```
  *
  * @group Operations
@@ -147,10 +135,7 @@ export type ExecuteSaleInput = {
    *
    * @defaultValue `true`
    */
-  printReceipt?: boolean; // Default: true
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
+  printReceipt?: boolean;
 };
 
 /**
@@ -210,24 +195,24 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
     async handle(
       operation: ExecuteSaleOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<ExecuteSaleOutput> {
       const { auctionHouse } = operation.input;
 
       const output = await executeSaleBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
       scope.throwIfCanceled();
 
       if (output.receipt) {
         const purchase = await metaplex
           .auctionHouse()
-          .findPurchaseByReceipt({
-            auctionHouse,
-            receiptAddress: output.receipt,
-          })
-          .run(scope);
+          .findPurchaseByReceipt(
+            { auctionHouse, receiptAddress: output.receipt },
+            scope
+          );
 
         return { purchase, ...output };
       }
@@ -249,8 +234,7 @@ export const executeSaleOperationHandler: OperationHandler<ExecuteSaleOperation>
       return {
         purchase: await metaplex
           .auctionHouse()
-          .loadPurchase({ lazyPurchase })
-          .run(scope),
+          .loadPurchase({ lazyPurchase }, scope),
         ...output,
       };
     },
@@ -286,8 +270,10 @@ export type ExecuteSaleBuilderContext = Omit<
  */
 export const executeSaleBuilder = (
   metaplex: Metaplex,
-  params: ExecuteSaleBuilderParams
+  params: ExecuteSaleBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<ExecuteSaleBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse, listing, bid, auctioneerAuthority } = params;
   const { sellerAddress, asset } = listing;
   const { buyerAddress } = bid;
@@ -302,6 +288,7 @@ export const executeSaleBuilder = (
   } = auctionHouse;
 
   const isPartialSale = bid.tokens.basisPoints < listing.tokens.basisPoints;
+
   // Use full size of listing & price when finding trade state PDA for the partial sale.
   const { tokens, price } = isPartialSale ? listing : bid;
   const { price: buyerPrice, tokens: buyerTokensSize } = bid;
@@ -345,25 +332,38 @@ export const executeSaleBuilder = (
   // Accounts.
   const sellerPaymentReceiptAccount = isNative
     ? sellerAddress
-    : findAssociatedTokenAccountPda(treasuryMint.address, sellerAddress);
-  const buyerReceiptTokenAccount = findAssociatedTokenAccountPda(
-    asset.address,
-    buyerAddress
-  );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouseAddress,
-    buyerAddress
-  );
-  const freeTradeState = findAuctionHouseTradeStatePda(
-    auctionHouseAddress,
-    sellerAddress,
-    treasuryMint.address,
-    asset.address,
-    lamports(0).basisPoints,
-    tokens.basisPoints,
-    asset.token.address
-  );
-  const programAsSigner = findAuctionHouseProgramAsSignerPda();
+    : metaplex.tokens().pdas().associatedTokenAccount({
+        mint: treasuryMint.address,
+        owner: sellerAddress,
+        programs,
+      });
+  const buyerReceiptTokenAccount = metaplex
+    .tokens()
+    .pdas()
+    .associatedTokenAccount({
+      mint: asset.address,
+      owner: buyerAddress,
+      programs,
+    });
+  const escrowPayment = metaplex.auctionHouse().pdas().buyerEscrow({
+    auctionHouse: auctionHouseAddress,
+    buyer: buyerAddress,
+    programs,
+  });
+  const freeTradeState = metaplex
+    .auctionHouse()
+    .pdas()
+    .tradeState({
+      auctionHouse: auctionHouseAddress,
+      wallet: sellerAddress,
+      treasuryMint: treasuryMint.address,
+      tokenMint: asset.address,
+      price: lamports(0).basisPoints,
+      tokenSize: tokens.basisPoints,
+      tokenAccount: asset.token.address,
+      programs,
+    });
+  const programAsSigner = metaplex.auctionHouse().pdas().programAsSigner();
 
   const accounts = {
     buyer: buyerAddress,
@@ -409,10 +409,11 @@ export const executeSaleBuilder = (
     const auctioneerAccounts: AuctioneerExecuteSaleInstructionAccounts = {
       ...accounts,
       auctioneerAuthority: auctioneerAuthority.publicKey,
-      ahAuctioneerPda: findAuctioneerPda(
-        auctionHouseAddress,
-        auctioneerAuthority.publicKey
-      ),
+      ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+        auctionHouse: auctionHouse.address,
+        auctioneerAuthority: auctioneerAuthority.publicKey,
+        programs,
+      }),
     };
 
     executeSaleInstruction = createAuctioneerExecuteSaleInstruction(
@@ -432,7 +433,11 @@ export const executeSaleBuilder = (
     // Provide ATA to receive SPL token royalty if is not native SOL sale.
     if (!isNative) {
       executeSaleInstruction.keys.push({
-        pubkey: findAssociatedTokenAccountPda(treasuryMint.address, address),
+        pubkey: metaplex.tokens().pdas().associatedTokenAccount({
+          mint: treasuryMint.address,
+          owner: address,
+          programs,
+        }),
         isWritable: true,
         isSigner: false,
       });
@@ -447,13 +452,15 @@ export const executeSaleBuilder = (
     (params.printReceipt ?? true) &&
     Boolean(listing.receiptAddress && bid.receiptAddress && !isPartialSale);
   const bookkeeper = params.bookkeeper ?? metaplex.identity();
-  const purchaseReceipt = findPurchaseReceiptPda(
-    listing.tradeStateAddress,
-    bid.tradeStateAddress
-  );
+  const purchaseReceipt = metaplex.auctionHouse().pdas().purchaseReceipt({
+    listingTradeState: listing.tradeStateAddress,
+    bidTradeState: bid.tradeStateAddress,
+    programs,
+  });
 
   return (
     TransactionBuilder.make<ExecuteSaleBuilderContext>()
+      .setFeePayer(payer)
       .setContext({
         sellerTradeState: listing.tradeStateAddress,
         buyerTradeState: bid.tradeStateAddress,

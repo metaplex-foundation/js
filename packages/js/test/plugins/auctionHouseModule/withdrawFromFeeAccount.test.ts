@@ -11,12 +11,10 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
 
   const { auctionHouse } = await mx
     .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      payer,
-      confirmOptions: { skipPreflight: true },
-    })
-    .run();
+    .create(
+      { sellerFeeBasisPoints: 200 },
+      { payer, confirmOptions: { skipPreflight: true } }
+    );
 
   // And withdrawal destination has 100 SOL.
   const originalFeeWithdrawalDestinationBalance = await mx
@@ -33,12 +31,7 @@ test('[auctionHouseModule] withdraw from fee account on an Auction House', async
   // When we withdraw 1 SOL from fee account.
   await mx
     .auctionHouse()
-    .withdrawFromFeeAccount({
-      auctionHouse,
-      payer,
-      amount: sol(1),
-    })
-    .run();
+    .withdrawFromFeeAccount({ auctionHouse, amount: sol(1) }, { payer });
 
   // Then fee account has 99 SOL in it.
   const feeAccountBalance = await mx
@@ -66,24 +59,18 @@ test('[auctionHouseModule] withdraw from fee account to a different wallet on an
   const mx = await metaplex();
   const feeWithdrawalDestination = await createWallet(mx);
 
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      feeWithdrawalDestination: toPublicKey(feeWithdrawalDestination),
-    })
-    .run();
+  const { auctionHouse } = await mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    feeWithdrawalDestination: toPublicKey(feeWithdrawalDestination),
+  });
 
   await mx.rpc().airdrop(auctionHouse.feeAccountAddress, sol(100));
 
   // When we withdraw 1 SOL from fee account.
-  await mx
-    .auctionHouse()
-    .withdrawFromFeeAccount({
-      auctionHouse,
-      amount: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().withdrawFromFeeAccount({
+    auctionHouse,
+    amount: sol(1),
+  });
 
   // Then withdrawal destination account has 101 SOL in it.
   const feeWithdrawalDestinationBalance = await mx

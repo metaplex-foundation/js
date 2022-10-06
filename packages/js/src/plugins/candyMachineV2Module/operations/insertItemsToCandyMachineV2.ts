@@ -1,5 +1,4 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   assertAllConfigLineConstraints,
@@ -7,11 +6,12 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachineV2, CandyMachineV2Item } from '../models';
-import { TransactionBuilder } from '@/utils';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
@@ -36,8 +36,7 @@ const Key = 'InsertItemsToCandyMachineV2Operation' as const;
  *       { name: 'My NFT #2', uri: 'https://example.com/nft2' },
  *       { name: 'My NFT #3', uri: 'https://example.com/nft3' },
  *     ],
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -95,9 +94,6 @@ export type InsertItemsToCandyMachineV2Input = {
    * @defaultValue `candyMachine.itemsLoaded`
    */
   index?: BigNumber;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -117,12 +113,14 @@ export const InsertItemsToCandyMachineV2OperationHandler: OperationHandler<Inser
   {
     async handle(
       operation: InsertItemsToCandyMachineV2Operation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<InsertItemsToCandyMachineV2Output> {
       return insertItemsToCandyMachineV2Builder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -156,8 +154,10 @@ export type InsertItemsToCandyMachineV2BuilderParams = Omit<
  */
 export const insertItemsToCandyMachineV2Builder = (
   metaplex: Metaplex,
-  params: InsertItemsToCandyMachineV2BuilderParams
+  params: InsertItemsToCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const { items } = params;
@@ -165,15 +165,17 @@ export const insertItemsToCandyMachineV2Builder = (
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllConfigLineConstraints(items);
 
-  return TransactionBuilder.make().add({
-    instruction: createAddConfigLinesInstruction(
-      {
-        candyMachine: params.candyMachine.address,
-        authority: authority.publicKey,
-      },
-      { index: index.toNumber(), configLines: items }
-    ),
-    signers: [authority],
-    key: params.instructionKey ?? 'insertItems',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createAddConfigLinesInstruction(
+        {
+          candyMachine: params.candyMachine.address,
+          authority: authority.publicKey,
+        },
+        { index: index.toNumber(), configLines: items }
+      ),
+      signers: [authority],
+      key: params.instructionKey ?? 'insertItems',
+    });
 };

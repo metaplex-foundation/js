@@ -296,13 +296,10 @@ export class RpcClient {
     return this;
   }
 
-  getDefaultFeePayer(): Signer | undefined {
-    if (this.defaultFeePayer) {
-      return this.defaultFeePayer;
-    }
-
-    const identity = this.metaplex.identity();
-    return identity.publicKey.equals(PublicKey.default) ? undefined : identity;
+  getDefaultFeePayer(): Signer {
+    return this.defaultFeePayer
+      ? this.defaultFeePayer
+      : this.metaplex.identity();
   }
 
   protected getUnparsedMaybeAccount(

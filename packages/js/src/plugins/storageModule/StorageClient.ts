@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch, { RequestInit } from 'node-fetch';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
@@ -65,7 +65,7 @@ export class StorageClient implements HasDriver<StorageDriver> {
       return driver.download(uri, options);
     }
 
-    const response = await fetch(uri, options);
+    const response = await fetch(uri, options as RequestInit);
     const buffer = await response.arrayBuffer();
 
     return toMetaplexFile(buffer, uri);
