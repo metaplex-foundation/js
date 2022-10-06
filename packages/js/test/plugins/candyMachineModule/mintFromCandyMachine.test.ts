@@ -347,11 +347,13 @@ test('[candyMachineModule] it can mint from a candy machine using an explicit pa
   );
 
   // When we mint from it using this payer.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {

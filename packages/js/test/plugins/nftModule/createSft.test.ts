@@ -89,37 +89,39 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const otherCreator = Keypair.generate();
 
   // When we create a new SFT with maximum configuration.
-  const { sft } = await mx.nfts().createSft({
-    uri: 'https://example.com/some-json-uri',
-    name: 'On-chain SFT name',
-    symbol: 'MYSFT',
-    decimals: 2,
-    sellerFeeBasisPoints: 456,
-    isMutable: false,
-    useNewMint: mint,
-    tokenOwner: owner.publicKey,
-    tokenAmount: token(4200),
-    payer,
-    mintAuthority,
-    updateAuthority,
-    freezeAuthority: freezeAuthority.publicKey,
-    collection: collection.publicKey,
-    uses: {
-      useMethod: UseMethod.Burn,
-      remaining: 0,
-      total: 1000,
+  const { sft } = await mx.nfts().createSft(
+    {
+      uri: 'https://example.com/some-json-uri',
+      name: 'On-chain SFT name',
+      symbol: 'MYSFT',
+      decimals: 2,
+      sellerFeeBasisPoints: 456,
+      isMutable: false,
+      useNewMint: mint,
+      tokenOwner: owner.publicKey,
+      tokenAmount: token(4200),
+      mintAuthority,
+      updateAuthority,
+      freezeAuthority: freezeAuthority.publicKey,
+      collection: collection.publicKey,
+      uses: {
+        useMethod: UseMethod.Burn,
+        remaining: 0,
+        total: 1000,
+      },
+      creators: [
+        {
+          address: updateAuthority.publicKey,
+          share: 60,
+        },
+        {
+          address: otherCreator.publicKey,
+          share: 40,
+        },
+      ],
     },
-    creators: [
-      {
-        address: updateAuthority.publicKey,
-        share: 60,
-      },
-      {
-        address: otherCreator.publicKey,
-        share: 40,
-      },
-    ],
-  });
+    { payer }
+  );
 
   // Then the created SFT has the expected configuration.
   spok(t, sft, {

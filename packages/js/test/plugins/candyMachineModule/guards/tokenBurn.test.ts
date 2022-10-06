@@ -34,11 +34,13 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
   });
 
   // When the payer mints from it.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -82,11 +84,13 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
   });
 
   // When the payer mints from it.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -130,11 +134,13 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
   });
 
   // When the payer tries to mint from it.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -177,11 +183,13 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
   });
 
   // When the payer tries to mint from it.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

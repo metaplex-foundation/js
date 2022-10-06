@@ -124,7 +124,7 @@ test('[candyMachineV2Module] it can mint from candy machine as another payer', a
   // When we mint an NFT from the candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey });
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created with the right data.
   spok(t, nft, {
@@ -179,7 +179,7 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   // When we mint an NFT from that candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey });
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created.
   spok(t, nft, {
@@ -250,7 +250,7 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   // When we mint an NFT from that candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey });
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created.
   spok(t, nft, {

@@ -26,11 +26,13 @@ test('[candyMachineModule] addressGate guard: it allows minting from a specific 
   });
 
   // When the allowed address mints from it.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer: allowedAddress,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer: allowedAddress }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -57,11 +59,13 @@ test('[candyMachineModule] addressGate guard: it forbids minting from anyone els
 
   // When the another wallet tries to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Address not authorized/);
@@ -87,11 +91,13 @@ test('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax 
 
   // When the another wallet tries to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

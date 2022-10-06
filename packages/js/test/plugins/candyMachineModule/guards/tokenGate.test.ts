@@ -34,16 +34,18 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   });
 
   // When the payer mints from it.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      tokenGate: {
-        tokenAccount: payerTokens.address,
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        tokenGate: {
+          tokenAccount: payerTokens.address,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -77,16 +79,18 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   });
 
   // When the payer mints from it.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      tokenGate: {
-        tokenAccount: payerTokens.address,
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        tokenGate: {
+          tokenAccount: payerTokens.address,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -120,11 +124,13 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
   });
 
   // When the payer mints from it without specifying the token account.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -158,16 +164,18 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   });
 
   // When the payer tries to mint from it.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      tokenGate: {
-        tokenAccount: payerTokens.address,
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        tokenGate: {
+          tokenAccount: payerTokens.address,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -196,16 +204,18 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   });
 
   // When the payer tries to mint from it.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      tokenGate: {
-        tokenAccount: payerTokens.address,
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        tokenGate: {
+          tokenAccount: payerTokens.address,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -238,16 +248,18 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
   });
 
   // When the payer tries to mint from it.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      tokenGate: {
-        tokenAccount: payerTokens.address,
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        tokenGate: {
+          tokenAccount: payerTokens.address,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

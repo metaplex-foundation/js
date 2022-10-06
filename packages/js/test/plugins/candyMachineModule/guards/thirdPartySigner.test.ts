@@ -27,16 +27,18 @@ test('[candyMachineModule] thirdPartySigner guard: it allows minting when the th
 
   // When we mint from it by providing the third party as a Signer.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      thirdPartySigner: {
-        signer: thirdPartySigner,
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        thirdPartySigner: {
+          signer: thirdPartySigner,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -64,16 +66,18 @@ test('[candyMachineModule] thirdPartySigner guard: it forbids minting when the t
   // When we try to mint from it by providing the wrong third party signer.
   const wrongThirdPartySigner = Keypair.generate();
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      thirdPartySigner: {
-        signer: wrongThirdPartySigner,
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        thirdPartySigner: {
+          signer: wrongThirdPartySigner,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /A signature was required but not found/);
@@ -100,16 +104,18 @@ test('[candyMachineModule] thirdPartySigner guard with bot tax: it charges a bot
   // When we try to mint from it by providing the wrong third party signer.
   const wrongThirdPartySigner = Keypair.generate();
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      thirdPartySigner: {
-        signer: wrongThirdPartySigner,
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        thirdPartySigner: {
+          signer: wrongThirdPartySigner,
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -138,11 +144,13 @@ test('[candyMachineModule] thirdPartySigner guard: minting settings must be prov
 
   // When we try to mint from it without providing the third party signer.
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(

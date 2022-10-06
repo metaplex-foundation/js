@@ -27,11 +27,13 @@ test('[candyMachineModule] startDate guard: it allows minting after the start da
 
   // When we mint from it.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -57,11 +59,13 @@ test('[candyMachineModule] startDate guard: it forbids minting before the start 
 
   // When we try to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Mint is not live/);
@@ -86,11 +90,13 @@ test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax wh
 
   // When we try to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

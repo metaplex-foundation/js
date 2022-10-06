@@ -109,51 +109,53 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
   const creatorA = Keypair.generate().publicKey;
   const creatorB = Keypair.generate().publicKey;
   const treasury = Keypair.generate().publicKey;
-  const { candyMachine } = await mx.candyMachines().create({
-    candyMachine: candyMachineSigner,
-    payer,
-    authority,
-    collection: {
-      address: collectionNft.address,
-      updateAuthority: collectionUpdateAuthority,
-    },
-    sellerFeeBasisPoints: 333, // 3.33%
-    itemsAvailable: toBigNumber(5000),
-    itemSettings: {
-      type: 'configLines',
-      prefixName: 'My NFT Drop #$ID+1$',
-      nameLength: 0,
-      prefixUri: 'https://arweave.net/',
-      uriLength: 50,
-      isSequential: true,
-    },
-    symbol: 'MYNFT',
-    maxEditionSupply: toBigNumber(1),
-    isMutable: false,
-    creators: [
-      { address: creatorA, share: 50 },
-      { address: creatorB, share: 50 },
-    ],
-    guards: {
-      botTax: { lamports: sol(0.01), lastInstruction: false },
-      solPayment: { amount: sol(1.5), destination: treasury },
-    },
-    groups: [
-      {
-        label: 'GROUP1',
-        guards: { startDate: { date: toDateTime('2022-09-09T16:00:00Z') } },
+  const { candyMachine } = await mx.candyMachines().create(
+    {
+      candyMachine: candyMachineSigner,
+      authority,
+      collection: {
+        address: collectionNft.address,
+        updateAuthority: collectionUpdateAuthority,
       },
-      {
-        label: 'GROUP2',
-        guards: { startDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
+      sellerFeeBasisPoints: 333, // 3.33%
+      itemsAvailable: toBigNumber(5000),
+      itemSettings: {
+        type: 'configLines',
+        prefixName: 'My NFT Drop #$ID+1$',
+        nameLength: 0,
+        prefixUri: 'https://arweave.net/',
+        uriLength: 50,
+        isSequential: true,
       },
-      {
-        label: 'GROUP3',
-        guards: { startDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
+      symbol: 'MYNFT',
+      maxEditionSupply: toBigNumber(1),
+      isMutable: false,
+      creators: [
+        { address: creatorA, share: 50 },
+        { address: creatorB, share: 50 },
+      ],
+      guards: {
+        botTax: { lamports: sol(0.01), lastInstruction: false },
+        solPayment: { amount: sol(1.5), destination: treasury },
       },
-    ],
-    withoutCandyGuard: false,
-  });
+      groups: [
+        {
+          label: 'GROUP1',
+          guards: { startDate: { date: toDateTime('2022-09-09T16:00:00Z') } },
+        },
+        {
+          label: 'GROUP2',
+          guards: { startDate: { date: toDateTime('2022-09-09T18:00:00Z') } },
+        },
+        {
+          label: 'GROUP3',
+          guards: { startDate: { date: toDateTime('2022-09-09T20:00:00Z') } },
+        },
+      ],
+      withoutCandyGuard: false,
+    },
+    { payer }
+  );
 
   // Then the following data was set on the Candy Machine account.
   const candyGuardAddress = mx

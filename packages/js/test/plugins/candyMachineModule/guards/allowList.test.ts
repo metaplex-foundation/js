@@ -42,16 +42,18 @@ test('[candyMachineModule] allowList guard: it allows minting from wallets of a 
 
   // When the allowed payer mints from that Candy Machine
   // by providing a valid merkle proof.
-  const { nft } = await mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      allowList: {
-        merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        allowList: {
+          merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -83,16 +85,18 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
   });
 
   // When the payer tries to mints from that Candy Machine.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      allowList: {
-        merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        allowList: {
+          merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Address not found on the allowed list/);
@@ -120,19 +124,21 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
 
   // When the payer tries to mints from that Candy Machine
   // by providing merkle proof of another valid wallet.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      allowList: {
-        merkleProof: getMerkleProof(
-          allowList,
-          '2vjCrmEFiN9CLLhiqy8u1JPh48av8Zpzp3kNkdTtirYG'
-        ),
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        allowList: {
+          merkleProof: getMerkleProof(
+            allowList,
+            '2vjCrmEFiN9CLLhiqy8u1JPh48av8Zpzp3kNkdTtirYG'
+          ),
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Address not found on the allowed list/);
@@ -163,16 +169,18 @@ test('[candyMachineModule] allowList guard with bot tax: it charges a bot tax wh
   });
 
   // When the payer tries to mints from that Candy Machine.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-    guards: {
-      allowList: {
-        merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      guards: {
+        allowList: {
+          merkleProof: getMerkleProof(allowList, payer.publicKey.toBase58()),
+        },
       },
     },
-  });
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -204,11 +212,13 @@ test('[candyMachineModule] allowList guard: minting settings must be provided', 
   });
 
   // When we try to mints from that Candy Machine without providing mint settings.
-  const promise = mx.candyMachines().mint({
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    payer,
-  });
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(
