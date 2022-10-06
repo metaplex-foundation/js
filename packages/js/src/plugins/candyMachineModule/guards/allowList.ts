@@ -3,7 +3,7 @@ import * as beet from '@metaplex-foundation/beet';
 import { AllowList, allowListBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import { createSerializerFromBeet, mapSerializer } from '@/types';
+import { createSerializerFromBeet, mapSerializer, Pda } from '@/types';
 
 /**
  * The allowList guard validates the minting wallet against
@@ -112,14 +112,38 @@ export const allowListGuardManifest: CandyGuardManifest<
       remainingAccounts: [],
     };
   },
-  routeSettingsParser: ({ routeSettings }) => {
+  routeSettingsParser: ({
+    metaplex,
+    settings,
+    routeSettings,
+    programs,
+    candyMachine,
+    candyGuard,
+    payer,
+  }) => {
     const proof = routeSettings.merkleProof;
     const vectorSize = Buffer.alloc(4);
     beet.u32.write(vectorSize, 0, proof.length);
 
     return {
       arguments: Buffer.concat([vectorSize, ...proof]),
-      remainingAccounts: [],
+      remainingAccounts: [
+        {
+          isSigner: false,
+          isWritable: true,
+          address: metaplex.candyMachines().pdas().merkleProof({
+            merkleRoot: settings.merkleRoot,
+            user: payer.publicKey,
+            candyMachine,
+            candyGuard,
+          }),
+        },
+        {
+          isSigner: false,
+          isWritable: false,
+          address: metaplex.programs().getSystem(programs).address,
+        },
+      ],
     };
   },
 };

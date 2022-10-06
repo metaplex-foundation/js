@@ -1,10 +1,14 @@
 import {
   CandyGuardsMintSettings,
+  CandyGuardsRouteSettings,
   CandyGuardsSettings,
   DefaultCandyGuardMintSettings,
+  DefaultCandyGuardRouteSettings,
   DefaultCandyGuardSettings,
 } from './guards';
 import {
+  callCandyGuardRouteBuilder,
+  CallCandyGuardRouteBuilderParams,
   createCandyGuardBuilder,
   CreateCandyGuardBuilderParams,
   createCandyMachineBuilder,
@@ -38,6 +42,18 @@ import { TransactionBuilderOptions } from '@/utils';
  */
 export class CandyMachineBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
+
+  /** {@inheritDoc callCandyGuardRouteBuilder} */
+  callGuardRoute<
+    Guard extends keyof RouteSettings & string,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
+  >(
+    input: CallCandyGuardRouteBuilderParams<Guard, Settings, RouteSettings>,
+    options?: TransactionBuilderOptions
+  ) {
+    return callCandyGuardRouteBuilder(this.metaplex, input, options);
+  }
 
   /** {@inheritDoc createCandyMachineBuilder} */
   create<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(

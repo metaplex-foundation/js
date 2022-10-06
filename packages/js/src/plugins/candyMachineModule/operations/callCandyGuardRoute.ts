@@ -1,4 +1,5 @@
 import { createRouteInstruction } from '@metaplex-foundation/mpl-candy-guard';
+import * as beet from '@metaplex-foundation/beet';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyGuardsRouteSettings,
@@ -221,9 +222,10 @@ export const callCandyGuardRouteBuilder = <
     },
     {
       args: {
-        // "GuardType" is an enum for default guards only
-        // but we also allow custom guards, hence "any".
-        guard: guard as any,
+        // "GuardType" is an enum for default guards only and will assert this
+        // whereas we want to allow custom guards, so we need to pass anything
+        // here to create the instruction and override this data afterwards.
+        guard: 8,
         data: parsedRouteSettings.arguments,
       },
       label: group,
@@ -231,6 +233,14 @@ export const callCandyGuardRouteBuilder = <
     metaplex.programs().getCandyGuard(programs).address
   );
   routeInstruction.keys.push(...parsedRouteSettings.accountMetas);
+
+  // As promised, we override the guard index here.
+  const availableGuards = metaplex
+    .candyMachines()
+    .guards()
+    .forCandyGuardProgram(programs);
+  const guardIndex = availableGuards.findIndex(({ name }) => name === guard);
+  beet.u8.write(routeInstruction.data, 8, guardIndex);
 
   return (
     TransactionBuilder.make()

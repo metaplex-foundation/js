@@ -3,12 +3,16 @@ import { CandyMachineGuardsClient } from './CandyMachineGuardsClient';
 import { CandyMachinePdasClient } from './CandyMachinePdasClient';
 import {
   CandyGuardsMintSettings,
+  CandyGuardsRouteSettings,
   CandyGuardsSettings,
   DefaultCandyGuardMintSettings,
+  DefaultCandyGuardRouteSettings,
   DefaultCandyGuardSettings,
 } from './guards';
 import { CandyGuard, CandyMachine, isCandyMachine } from './models';
 import {
+  CallCandyGuardRouteInput,
+  callCandyGuardRouteOperation,
   CreateCandyGuardInput,
   createCandyGuardOperation,
   CreateCandyMachineInput,
@@ -114,6 +118,26 @@ export class CandyMachineClient {
    */
   pdas() {
     return new CandyMachinePdasClient(this.metaplex);
+  }
+
+  /** {@inheritDoc callCandyGuardRouteOperation} */
+  callGuardRoute<
+    Guard extends keyof RouteSettings & string,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
+  >(
+    input: CallCandyGuardRouteInput<
+      Guard,
+      Settings extends undefined ? DefaultCandyGuardSettings : Settings,
+      RouteSettings extends undefined
+        ? DefaultCandyGuardRouteSettings
+        : RouteSettings
+    >,
+    options?: OperationOptions
+  ) {
+    return this.metaplex
+      .operations()
+      .execute(callCandyGuardRouteOperation(input), options);
   }
 
   /** {@inheritDoc createCandyMachineOperation} */
