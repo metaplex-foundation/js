@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import { BigNumberValues } from './BigNumber';
-import { assert, Opaque, Option } from '@/utils';
+import { assert, Opaque, Option } from '@metaplex-foundation/js-core/utils';
 
 export type DateTimeString = string;
 export type DateTimeValues = DateTimeString | BigNumberValues | Date;

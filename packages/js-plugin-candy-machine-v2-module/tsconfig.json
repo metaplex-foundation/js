@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src", "../js-plugin-bundlr-module/src/BundlrStorageDriver.ts", "js-plugin-auction-house-module/src/gpaBuilders"],
+  "compilerOptions": {
+    "outDir": "dist/esm",
+    "declarationDir": "dist/types",
+  },
+}

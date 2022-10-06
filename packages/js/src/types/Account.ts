@@ -6,7 +6,7 @@ import {
   deserializeAccount,
   SolitaType,
 } from './Serializer';
-import { AccountNotFoundError } from '@/errors';
+import { AccountNotFoundError } from '@metaplex-foundation/js-core/errors';
 
 export type AccountInfo = {
   readonly executable: boolean;

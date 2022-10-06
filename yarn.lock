@@ -2673,7 +2673,7 @@
     cborg "^1.6.0"
     multiformats "^9.5.4"
 
-"@ipld/dag-pb@^2.0.2", "@ipld/dag-pb@^2.1.16", "@ipld/dag-pb@^2.1.17":
+"@ipld/dag-pb@^2.0.2", "@ipld/dag-pb@^2.1.16":
   version "2.1.17"
   resolved "https://registry.npmjs.org/@ipld/dag-pb/-/dag-pb-2.1.17.tgz"
   integrity sha512-AmzOdmdv5hT8iGsrbpzm5R0Fvk7DEbtwcglG2gJLvW9q3zwb+E681hY4EwEELypM1Rfnp/JDA9dGqYcpEi/iAg==
@@ -3080,6 +3080,17 @@
     "@solana/web3.js" "^1.56.2"
     bn.js "^5.2.0"
 
+"@metaplex-foundation/mpl-candy-machine@^4.4.1":
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.7.1.tgz#ecf6ebbe96245084c9a186761ecc51c62ce1206f"
+  integrity sha512-tBNRAfBE/rYy9pe2aJD4gTFw+pgQ11o3AJjoYGB4+05ow0VjJMSt6kQGzHm2LRPgdLY4diKAq8qHvgsbV5ikNQ==
+  dependencies:
+    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet-solana" "^0.3.0"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@metaplex-foundation/mpl-core" "^0.6.1"
+    "@solana/web3.js" "^1.35.1"
+
 "@metaplex-foundation/mpl-candy-machine@^4.6.0":
   version "4.6.0"
   resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.6.0.tgz"
@@ -3098,6 +3109,19 @@
   dependencies:
     "@solana/web3.js" "^1.35.1"
     bs58 "^4.0.1"
+
+"@metaplex-foundation/mpl-token-metadata@^2.2.2":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-2.3.3.tgz#f7ce99689ff1fdfc5d382781f50943692f1ebb77"
+  integrity sha512-BUn95TWj1U9g91WEtn4z4oZdHOnrT7qgwzUaIZ6Im9l9V8G2prNVvQjkoD86WLXjtR0Dgu378Er0A3mVtPmlzg==
+  dependencies:
+    "@metaplex-foundation/beet" "^0.4.0"
+    "@metaplex-foundation/beet-solana" "^0.3.0"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@solana/spl-token" "^0.2.0"
+    "@solana/web3.js" "^1.35.1"
+    bn.js "^5.2.0"
+    debug "^4.3.3"
 
 "@metaplex-foundation/mpl-token-metadata@^2.3.2":
   version "2.3.2"
@@ -3651,10 +3675,10 @@
     superstruct "^0.14.2"
     tweetnacl "^1.0.0"
 
-"@solana/web3.js@^1.55.0", "@solana/web3.js@^1.56.2":
-  version "1.61.1"
-  resolved "https://registry.npmjs.org/@solana/web3.js/-/web3.js-1.61.1.tgz"
-  integrity sha512-rGxK1N/c+bGuY7ehpsT6q1jBzQ+8cmd+rPf7pQbMz0e9aBxI+67c/lBxq+0jOlj19salkT79d8R/OO+JNDyLsg==
+"@solana/web3.js@^1.47.3", "@solana/web3.js@^1.63.0", "@solana/web3.js@^1.63.1":
+  version "1.63.1"
+  resolved "https://registry.npmjs.org/@solana/web3.js/-/web3.js-1.63.1.tgz"
+  integrity sha512-wgEdGVK5FTS2zENxbcGSvKpGZ0jDS6BUdGu8Gn6ns0CzgJkK83u4ip3THSnBPEQ5i/jrqukg998BwV1H67+qiQ==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@noble/ed25519" "^1.7.0"
@@ -3672,10 +3696,10 @@
     rpc-websockets "^7.5.0"
     superstruct "^0.14.2"
 
-"@solana/web3.js@^1.63.0", "@solana/web3.js@^1.63.1":
-  version "1.63.1"
-  resolved "https://registry.npmjs.org/@solana/web3.js/-/web3.js-1.63.1.tgz"
-  integrity sha512-wgEdGVK5FTS2zENxbcGSvKpGZ0jDS6BUdGu8Gn6ns0CzgJkK83u4ip3THSnBPEQ5i/jrqukg998BwV1H67+qiQ==
+"@solana/web3.js@^1.55.0", "@solana/web3.js@^1.56.2":
+  version "1.61.1"
+  resolved "https://registry.npmjs.org/@solana/web3.js/-/web3.js-1.61.1.tgz"
+  integrity sha512-rGxK1N/c+bGuY7ehpsT6q1jBzQ+8cmd+rPf7pQbMz0e9aBxI+67c/lBxq+0jOlj19salkT79d8R/OO+JNDyLsg==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@noble/ed25519" "^1.7.0"
@@ -7261,7 +7285,15 @@ ipfs-unixfs-importer@^9.0.4:
     rabin-wasm "^0.1.4"
     uint8arrays "^3.0.0"
 
-ipfs-unixfs@^6.0.0, ipfs-unixfs@^6.0.3, ipfs-unixfs@^6.0.5, ipfs-unixfs@^6.0.6, ipfs-unixfs@^6.0.9:
+ipfs-unixfs@6.0.5:
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/ipfs-unixfs/-/ipfs-unixfs-6.0.5.tgz#e87f60d1d6c20411a920c9de860d047804d6a78c"
+  integrity sha512-D8Z3EsegLxOBc2L8oMyZw/FRUDQG0ZZAaBRfzMrRsGnj7RFI7OlV1hU54aMeDxFYFviKNnUdsyEFI2zUWmgGvw==
+  dependencies:
+    err-code "^3.0.1"
+    protobufjs "^6.10.2"
+
+ipfs-unixfs@^6.0.0, ipfs-unixfs@^6.0.3, ipfs-unixfs@^6.0.5, ipfs-unixfs@^6.0.6:
   version "6.0.9"
   resolved "https://registry.npmjs.org/ipfs-unixfs/-/ipfs-unixfs-6.0.9.tgz"
   integrity sha512-0DQ7p0/9dRB6XCb0mVCTli33GzIzSVx5udpJuVM47tGcD+W+Bl4LsnoLswd3ggNnNEakMv1FdoFITiEnchXDqQ==
@@ -8692,7 +8724,7 @@ multiaddr@^10.0.0:
     uint8arrays "^3.0.0"
     varint "^6.0.0"
 
-multiformats@^9.0.4, multiformats@^9.4.13, multiformats@^9.4.2, multiformats@^9.4.5, multiformats@^9.4.7, multiformats@^9.5.4, multiformats@^9.6.2, multiformats@^9.6.3, multiformats@^9.6.4, multiformats@^9.7.0:
+multiformats@^9.0.4, multiformats@^9.4.13, multiformats@^9.4.2, multiformats@^9.4.5, multiformats@^9.4.7, multiformats@^9.5.4, multiformats@^9.6.2, multiformats@^9.6.3:
   version "9.7.0"
   resolved "https://registry.npmjs.org/multiformats/-/multiformats-9.7.0.tgz"
   integrity sha512-uv/tcgwk0yN4DStopnBN4GTgvaAlYdy6KnZpuzEPFOYQd71DYFJjs0MN1ERElAflrZaYyGBWXyGxL5GgrxIx0Q==
@@ -8818,25 +8850,6 @@ nft.storage@^5.2.5:
     multiformats "^9.6.3"
     p-retry "^4.6.1"
     streaming-iterables "^6.0.0"
-
-nft.storage@^6.4.1:
-  version "6.4.1"
-  resolved "https://registry.npmjs.org/nft.storage/-/nft.storage-6.4.1.tgz"
-  integrity sha512-UwZ+QgDCr58X+vHN4BydqdB89M8Vaza+vkWR9RatC3rXuDfIyYE5T7oOV53tbiuhA8x5Yi56tlG3NI8wLfOO1A==
-  dependencies:
-    "@ipld/car" "^3.2.3"
-    "@ipld/dag-cbor" "^6.0.13"
-    "@web-std/blob" "^3.0.1"
-    "@web-std/fetch" "^3.0.3"
-    "@web-std/file" "^3.0.0"
-    "@web-std/form-data" "^3.0.0"
-    carbites "^1.0.6"
-    ipfs-car "^0.6.2"
-    it-pipe "^1.1.0"
-    multiformats "^9.6.4"
-    p-retry "^4.6.1"
-    streaming-iterables "^6.0.0"
-    throttled-queue "^2.1.2"
 
 nise@^5.1.1:
   version "5.1.1"
@@ -10525,11 +10538,6 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
-
-throttled-queue@^2.1.2:
-  version "2.1.4"
-  resolved "https://registry.npmjs.org/throttled-queue/-/throttled-queue-2.1.4.tgz"
-  integrity sha512-YGdk8sdmr4ge3g+doFj/7RLF5kLM+Mi7DEciu9PHxnMJZMeVuZeTj31g4VE7ekUffx/IdbvrtOCiz62afg0mkg==
 
 through2@~2.0.0:
   version "2.0.5"

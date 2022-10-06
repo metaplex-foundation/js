@@ -1,12 +1,12 @@
-import type { Metaplex } from '../../Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // Low-level modules.
 import { identityModule } from '../identityModule';
-import { storageModule } from '../storageModule';
-import { rpcModule } from '../rpcModule';
-import { operationModule } from '../operationModule';
-import { programModule } from '../programModule';
-import { utilsModule } from '../utilsModule';
+import { storageModule } from '../../../../js-plugin-storage-module/src';
+import { rpcModule } from '../../../../js-core/src/plugins/rpc';
+import { operationModule } from '../../../../js-plugin-operation-module/src';
+import { programModule } from '../../../../js-core/src/plugins/program';
+import { utilsModule } from '../../../../js-plugin-utils-module/src';
 
 // Default drivers.
 import { guestIdentity } from '../guestIdentity';

@@ -1,5 +1,6 @@
 import { PublicKey, PublicKeyInitData } from '@solana/web3.js';
 
+export { PublicKey } from '@solana/web3.js';
 export type PublicKeyString = string;
 export type PublicKeyValues =
   | PublicKeyInitData

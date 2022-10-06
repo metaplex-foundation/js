@@ -1,6 +1,5 @@
-import { SendTransactionError, TransactionError } from '@solana/web3.js';
 import { ConfirmTransactionResponse } from '../types';
-
+import { SendTransactionError, TransactionError } from '@solana/web3.js';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,

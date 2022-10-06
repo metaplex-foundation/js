@@ -1,10 +1,10 @@
 import { PublicKey } from '@solana/web3.js';
-import { Cluster, Program, Currency } from '../types';
 import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
+import { Cluster, Program, Currency } from '../types';
 
 /** @group Errors */
 export class SdkError extends MetaplexError {
@@ -336,6 +336,50 @@ export class NoInstructionsToSendError extends SdkError {
         `Ensure that the provided input has an effect on the operation. ` +
           `This typically happens when trying to update an account with ` +
           `the same data it already contains.`,
+    });
+  }
+}
+
+/** @group Errors */
+export class FailedToSerializeDataError extends SdkError {
+  constructor(dataDescription: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'failed_to_serialize_data',
+      title: 'Failed To Serialize Data',
+      problem: `The received data could not be serialized as a [${dataDescription}].`,
+      solution:
+        'Ensure the data is of the expected type so it can be serialized.',
+    });
+  }
+}
+
+/** @group Errors */
+export class MissingInputDataError extends SdkError {
+  constructor(missingParameters: string[], options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'missing_input_data',
+      title: 'Missing Input Data',
+      problem: 'Some parameters are missing from the provided input object.',
+      solution:
+        'Please provide the following missing parameters: [' +
+        missingParameters.join(', ') +
+        '].',
+    });
+  }
+}
+
+/** @group Errors */
+export class FailedToDeserializeDataError extends SdkError {
+  constructor(dataDescription: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'failed_to_deserialize_data',
+      title: 'Failed To Deserialize Data',
+      problem: `The received serialized data could not be deserialized to a [${dataDescription}].`,
+      solution:
+        'Ensure the serialized data is not corrupted and complies with the expected type.',
     });
   }
 }

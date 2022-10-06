@@ -1,4 +1,4 @@
-import { toMetaplexFile } from '@metaplex-foundation/js';
+import { toMetaplexFile } from '@metaplex-foundation/js-core';
 import test, { Test } from 'tape';
 import { nftStorage, NftStorageDriver } from '../src';
 import { killStuckProcess, metaplex } from './helpers';

@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { toMetaplexFile } from '@metaplex-foundation/js';
+import { toMetaplexFile } from '@metaplex-foundation/js-core';
 import test, { Test } from 'tape';
 import sinon from 'sinon';
 import { awsStorage } from '../src';

@@ -4,7 +4,7 @@ import {
   StorageDriver,
   lamports,
   Amount,
-} from '@metaplex-foundation/js';
+} from '@metaplex-foundation/js-core';
 
 export class AwsStorageDriver implements StorageDriver {
   protected client: S3Client;

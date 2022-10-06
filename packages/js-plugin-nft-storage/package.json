@@ -44,14 +44,15 @@
     "preversion": "yarn build && yarn test",
     "postversion": "git push --follow-tags"
   },
-  "dependencies": {
-    "@ipld/dag-pb": "^2.1.17",
-    "@metaplex-foundation/js": "*",
+  "dependencies": { "@metaplex-foundation/js-core": "*",    
+    "@ipld/dag-pb": "^2.0.2",
+    "@metaplex-foundation/js":"*",
     "@nftstorage/metaplex-auth": "^1.2.0",
+    "buffer": "^6.0.3",
     "ipfs-car": "^0.7.0",
-    "ipfs-unixfs": "^6.0.9",
-    "multiformats": "^9.7.0",
-    "nft.storage": "^6.4.1"
+    "ipfs-unixfs":"6.0.5",
+    "multiformats": "^9.5.4",
+    "nft.storage":"^5.2.5"
   },
   "engines": {
     "node": ">=16.0"

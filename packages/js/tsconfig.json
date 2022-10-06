@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "../js-plugin-storage-module/src/index.ts", "../js-core/src/plugins/rpc/index.ts", "../js-core/src/plugins/program/index.ts", "../js-plugin-wallet-adapter-identity-module/src/index.ts"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",

@@ -45,8 +45,8 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.54.1",
-    "@metaplex-foundation/js": "*"
+   "@metaplex-foundation/js-core": "*", 
+   "@aws-sdk/client-s3": "^3.54.1"
   },
   "engines": {
     "node": ">=16.0"

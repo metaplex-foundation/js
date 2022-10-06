@@ -9,7 +9,7 @@ import {
   Metaplex,
   Signer,
   isKeypairSigner,
-} from '@metaplex-foundation/js';
+} from '@metaplex-foundation/js-core';
 import {
   toDagPbLink,
   toDirectoryBlock,
