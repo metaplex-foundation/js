@@ -1,3 +1,4 @@
+export * from './callCandyGuardRoute';
 export * from './createCandyGuard';
 export * from './createCandyMachine';
 export * from './deleteCandyGuard';

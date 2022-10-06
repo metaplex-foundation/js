@@ -90,7 +90,7 @@ export type CallCandyGuardRouteInput<
   /**
    * TODO: Document.
    */
-  settings: RouteSettings;
+  settings: RouteSettings[Guard];
 
   /**
    * The label of the group to mint from.

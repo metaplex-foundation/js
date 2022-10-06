@@ -37,17 +37,17 @@ import type { Metaplex } from '@/Metaplex';
  * @group Module
  */
 export class CandyMachineGuardsClient {
-  readonly guards: CandyGuardManifest<any, any>[] = [];
+  readonly guards: CandyGuardManifest<any, any, any>[] = [];
 
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** Registers one or many guards by providing their manifest. */
-  register(...guard: CandyGuardManifest<any, any>[]) {
+  register(...guard: CandyGuardManifest<any, any, any>[]) {
     this.guards.push(...guard);
   }
 
   /** Gets the manifest of a guard using its name. */
-  get(name: string): CandyGuardManifest<any, any> {
+  get(name: string): CandyGuardManifest<any, any, any> {
     const guard = this.guards.find((guard) => guard.name === name);
 
     if (!guard) {
@@ -58,7 +58,7 @@ export class CandyMachineGuardsClient {
   }
 
   /** Gets all registered guard manifests. */
-  all(): CandyGuardManifest<any, any>[] {
+  all(): CandyGuardManifest<any, any, any>[] {
     return this.guards;
   }
 
@@ -71,7 +71,7 @@ export class CandyMachineGuardsClient {
    */
   forProgram(
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): CandyGuardManifest<any, any>[] {
+  ): CandyGuardManifest<any, any, any>[] {
     const candyGuardProgram =
       typeof program === 'object' && 'availableGuards' in program
         ? program
@@ -87,7 +87,7 @@ export class CandyMachineGuardsClient {
    */
   forCandyGuardProgram(
     programs: Program[] = []
-  ): CandyGuardManifest<any, any>[] {
+  ): CandyGuardManifest<any, any, any>[] {
     const candyGuardProgram = this.metaplex.programs().getCandyGuard(programs);
 
     return this.forProgram(candyGuardProgram);
@@ -299,7 +299,7 @@ export class CandyMachineGuardsClient {
     candyGuard: CandyGuard<Settings>,
     payer: Signer,
     guard: Guard,
-    routeSettings: RouteSettings,
+    routeSettings: RouteSettings[Guard],
     groupLabel: Option<string>,
     programs: Program[] = []
   ): {
