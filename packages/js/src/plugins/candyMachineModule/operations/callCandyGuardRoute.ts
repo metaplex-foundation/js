@@ -20,7 +20,19 @@ import { Metaplex } from '@/Metaplex';
 const Key = 'CallCandyGuardRouteOperation' as const;
 
 /**
- * TODO
+ * Calls the special "route" instruction on a specific guard.
+ *
+ * This allows guards to provide additional features such as creating
+ * PDAs that verify a payer before the mint instruction is executed or
+ * freezing and thawing minted NFTs.
+ *
+ * The "route" instruction must select a specific guard on a specific group
+ * (if groups are enabled) since it is possible for the same type of guard
+ * to have different settings based on its group.
+ *
+ * Additionally, it is possible for a guard to support multiple "paths" within
+ * their "route" instruction. The route settings of the guard will usually use
+ * the `path` property to distinguish them.
  *
  * ```ts
  * const { nft } = await metaplex
@@ -85,12 +97,19 @@ export type CallCandyGuardRouteInput<
   candyMachine: Pick<CandyMachine<Settings>, 'address' | 'candyGuard'>;
 
   /**
-   * TODO: Document.
+   * The guard to select on the Candy Machine.
+   *
+   * If the Candy Machine uses groups of guards, the `group` property
+   * must also be provided so we known which specific guard to select.
    */
   guard: Guard;
 
   /**
-   * TODO: Document.
+   * The route settings of the selected guard.
+   *
+   * These will depend on the type of guard selected but they will
+   * usually include a `path` property to distinguish between the
+   * different paths available within their "route" instruction.
    */
   settings: RouteSettings[Guard];
 
@@ -164,7 +183,19 @@ export type CallCandyGuardRouteBuilderParams<
 };
 
 /**
- * TODO
+ * Calls the special "route" instruction on a specific guard.
+ *
+ * This allows guards to provide additional features such as creating
+ * PDAs that verify a payer before the mint instruction is executed or
+ * freezing and thawing minted NFTs.
+ *
+ * The "route" instruction must select a specific guard on a specific group
+ * (if groups are enabled) since it is possible for the same type of guard
+ * to have different settings based on its group.
+ *
+ * Additionally, it is possible for a guard to support multiple "paths" within
+ * their "route" instruction. The route settings of the guard will usually use
+ * the `path` property to distinguish them.
  *
  * ```ts
  * const transactionBuilder = await metaplex

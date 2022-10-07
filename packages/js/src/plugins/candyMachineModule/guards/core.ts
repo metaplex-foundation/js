@@ -58,7 +58,11 @@ export type CandyGuardManifest<
     remainingAccounts: CandyGuardsRemainingAccount[];
   };
 
-  /** TODO: Document */
+  /**
+   * If your guard support the "route" instruction which allows you to execute
+   * a custom instruction on the guard, this function parses the predefined
+   * `routeSettings` of your guards into the required arguments and remaining accounts.
+   */
   routeSettingsParser?: (input: {
     /** The metaplex instance used when calling the route instruction. */
     metaplex: Metaplex;
@@ -80,17 +84,6 @@ export type CandyGuardManifest<
     /** {@inheritDoc CandyGuardsRemainingAccount} */
     remainingAccounts: CandyGuardsRemainingAccount[];
   };
-
-  // TODO(loris): Add and test onBeforeMint and onAfterMint hooks.
-  // onBeforeMint?: (
-  //   setting: Settings,
-  //   mintSettings: Option<MintSettings>
-  // ) => Promise<void> | void;
-  // onAfterMint?: (
-  //   nft: NftWithToken,
-  //   setting: Settings,
-  //   mintSettings: Option<MintSettings>
-  // ) => Promise<void> | void;
 };
 
 /**
