@@ -173,8 +173,7 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
   );
 
   // Then we also expect an error.
-  await assertThrows(t, mintPromise, /Account does not have correct owner/);
-  // TODO(loris): Update when program error is fixed.
+  await assertThrows(t, mintPromise, /Missing allowed list proof/);
 });
 
 test('[candyMachineModule] allowList guard: it forbids minting from wallets that are providing the wrong proof', async (t) => {
@@ -227,8 +226,7 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
   );
 
   // Then we also expect an error.
-  await assertThrows(t, mintPromise, /Account does not have correct owner/);
-  // TODO(loris): Update when program error is fixed.
+  await assertThrows(t, mintPromise, /Missing allowed list proof/);
 });
 
 test('[candyMachineModule] allowList guard with bot tax: it charges a bot tax when trying to mint whilst not on the predefined list', async (t) => {
