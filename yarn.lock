@@ -3058,10 +3058,10 @@
     "@solana/web3.js" "^1.35.1"
     bn.js "^5.2.0"
 
-"@metaplex-foundation/mpl-candy-guard@npm:@lorisleiva/mpl-candy-guard@0.0.17":
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-guard/-/mpl-candy-guard-0.0.17.tgz#4e604203b439feaa8a2db02f3b08659cb42cb17e"
-  integrity sha512-iQdSRfBA3VIsWiz/eVX1GJI7HC57B0rCoXeEeOTuQxwO/7CPw2biajUY7QLvd9P/8UDRUKcFB5x1wWFFmauriw==
+"@metaplex-foundation/mpl-candy-guard@npm:@lorisleiva/mpl-candy-guard@0.0.18":
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/@lorisleiva/mpl-candy-guard/-/mpl-candy-guard-0.0.18.tgz#dcbbbe6276cc6a1d1ada86d76e094f474883c0f9"
+  integrity sha512-a7Xt3nS0LJMuN0/GXRxhwemkOMW1TP+UYl1ds4ogxP2dMy5YSWypmniYGhYjesfV2kw9wVoGmhyR4+d3rBKZsA==
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
