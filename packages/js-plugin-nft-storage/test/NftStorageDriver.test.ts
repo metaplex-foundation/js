@@ -5,7 +5,11 @@ import { killStuckProcess, metaplex } from './helpers';
 
 killStuckProcess();
 
-test('[nftStorage] it can upload one file', async (t: Test) => {
+// TODO(loris): Unskip these tests when we can mock the NFT Storage API.
+// Currently, these tests are hitting the real API which makes them long,
+// inconsistent and occasionally fail due to rate limiting.
+
+test.skip('[nftStorage] it can upload one file', async (t: Test) => {
   // Given a Metaplex instance using NFT.Storage.
   const mx = await metaplex();
   mx.use(nftStorage());
@@ -31,7 +35,7 @@ test('[nftStorage] it can upload one file', async (t: Test) => {
   );
 });
 
-test('[nftStorage] it can upload one file without a Gateway URL', async (t: Test) => {
+test.skip('[nftStorage] it can upload one file without a Gateway URL', async (t: Test) => {
   // Given a Metaplex instance using NFT.Storage without Gateway URLs.
   const mx = await metaplex();
   mx.use(nftStorage({ useGatewayUrls: false }));
@@ -46,7 +50,7 @@ test('[nftStorage] it can upload one file without a Gateway URL', async (t: Test
   t.ok(uri.startsWith('ipfs://'), 'should use Gateway URI by default');
 });
 
-test('[nftStorage] it can upload multiple files in batch', async (t: Test) => {
+test.skip('[nftStorage] it can upload multiple files in batch', async (t: Test) => {
   // Given a Metaplex instance using NFT.Storage with a batch size of 1.
   const mx = await metaplex();
   mx.use(nftStorage({ batchSize: 1 }));
@@ -75,7 +79,7 @@ test('[nftStorage] it can upload multiple files in batch', async (t: Test) => {
   );
 });
 
-test('[nftStorage] it can keep track of upload progress', async (t: Test) => {
+test.skip('[nftStorage] it can keep track of upload progress', async (t: Test) => {
   // Given a Metaplex instance using NFT.Storage.
   const mx = await metaplex();
   mx.use(nftStorage());
