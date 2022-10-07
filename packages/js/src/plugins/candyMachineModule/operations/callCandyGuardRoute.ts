@@ -225,7 +225,7 @@ export const callCandyGuardRouteBuilder = <
         // "GuardType" is an enum for default guards only and will assert this
         // whereas we want to allow custom guards, so we need to pass anything
         // here to create the instruction and override this data afterwards.
-        guard: 8,
+        guard: 0,
         data: parsedRouteSettings.arguments,
       },
       label: group,
@@ -239,7 +239,7 @@ export const callCandyGuardRouteBuilder = <
     .candyMachines()
     .guards()
     .forCandyGuardProgram(programs);
-  const guardIndex = availableGuards.findIndex(({ name }) => name === guard);
+  const guardIndex = availableGuards.findIndex((g) => g.name === guard);
   beet.u8.write(routeInstruction.data, 8, guardIndex);
 
   return (

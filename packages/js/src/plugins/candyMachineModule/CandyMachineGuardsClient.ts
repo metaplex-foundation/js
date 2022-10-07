@@ -4,12 +4,14 @@ import { AccountMeta } from '@solana/web3.js';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
   GuardGroupRequiredError,
-  UnregisteredCandyGuardError,
+  GuardRouteNotSupportedError,
   SelectedGuardGroupDoesNotExistError,
+  UnregisteredCandyGuardError,
 } from './errors';
 import {
   CandyGuardManifest,
   CandyGuardsMintSettings,
+  CandyGuardsRemainingAccount,
   CandyGuardsRouteSettings,
   CandyGuardsSettings,
   DefaultCandyGuardRouteSettings,
@@ -264,18 +266,11 @@ export class CandyMachineGuardsClient {
         candyGuard: candyGuard.address,
         programs,
       });
-      const { remainingAccounts } = parsedSettings;
-      const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
-        pubkey: account.isSigner ? account.address.publicKey : account.address,
-        isSigner: account.isSigner,
-        isWritable: account.isWritable,
-      }));
-      const signers: Signer[] = remainingAccounts
-        .filter((account) => account.isSigner)
-        .map((account) => account.address as Signer);
 
+      const accounts = this.getAccountMetas(parsedSettings.remainingAccounts);
+      const signers = this.getSigners(parsedSettings.remainingAccounts);
       acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
-      acc.accountMetas.push(...accountMetas);
+      acc.accountMetas.push(...accounts);
       acc.signers.push(...signers);
       return acc;
     }, initialAccumulator);
@@ -302,12 +297,9 @@ export class CandyMachineGuardsClient {
     accountMetas: AccountMeta[];
     signers: Signer[];
   } {
-    const availableGuards = this.forCandyGuardProgram(programs);
-    const guardManifest = availableGuards.find((g) => g.name === guard);
-
+    const guardManifest = this.get(guard);
     if (!guardManifest || !guardManifest.routeSettingsParser) {
-      // TODO(loris): custom error.
-      throw new Error('Guard in program with route settings not found');
+      throw new GuardRouteNotSupportedError(guard);
     }
 
     const guardSettings = this.resolveGroupSettings(
@@ -316,7 +308,6 @@ export class CandyMachineGuardsClient {
       groupLabel
     );
     const settings = guardSettings[guard] ?? null;
-
     const parsedSettings = guardManifest.routeSettingsParser({
       metaplex: this.metaplex,
       settings,
@@ -326,20 +317,31 @@ export class CandyMachineGuardsClient {
       candyGuard: candyGuard.address,
       programs,
     });
-    const { remainingAccounts } = parsedSettings;
-    const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
+
+    return {
+      arguments: parsedSettings.arguments,
+      accountMetas: this.getAccountMetas(parsedSettings.remainingAccounts),
+      signers: this.getSigners(parsedSettings.remainingAccounts),
+    };
+  }
+
+  /** @internal */
+  protected getAccountMetas(
+    remainingAccounts: CandyGuardsRemainingAccount[]
+  ): AccountMeta[] {
+    return remainingAccounts.map((account) => ({
       pubkey: account.isSigner ? account.address.publicKey : account.address,
       isSigner: account.isSigner,
       isWritable: account.isWritable,
     }));
-    const signers: Signer[] = remainingAccounts
+  }
+
+  /** @internal */
+  protected getSigners(
+    remainingAccounts: CandyGuardsRemainingAccount[]
+  ): Signer[] {
+    return remainingAccounts
       .filter((account) => account.isSigner)
       .map((account) => account.address as Signer);
-
-    return {
-      arguments: parsedSettings.arguments,
-      accountMetas,
-      signers,
-    };
   }
 }

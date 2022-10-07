@@ -1,7 +1,7 @@
 import test from 'tape';
 import { createWallet, killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachine } from './helpers';
-import { getMerkleProof, getMerkleRoot } from '@/index';
+import { getMerkleProof, getMerkleRoot, sol } from '@/index';
 
 killStuckProcess();
 
@@ -49,4 +49,24 @@ test('[candyMachineModule] it can call the route instruction of a specific guard
     await mx.rpc().accountExists(merkleProofPda),
     'Merkle proof PDA was created'
   );
+});
+
+test.only('[candyMachineModule] it fails to call the route instruction of a guard that does not support it', async (t) => {
+  // Given a Candy Machine with a botTax guard which does not supports the route instruction.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    guards: {
+      botTax: {
+        lastInstruction: true,
+        lamports: sol(0.1),
+      },
+    },
+  });
+
+  // When we try to call the route of the botTax guard.
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'botTax',
+    settings: {},
+  });
 });

@@ -176,3 +176,21 @@ export class GuardMintSettingsMissingError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class GuardRouteNotSupportedError extends CandyMachineV3Error {
+  constructor(guardName: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'guard_route_not_supported',
+      title: 'Guard Route Not Supported',
+      problem:
+        `You are trying to call the route instruction of the [${guardName}] guard ` +
+        'but this guard does not support this feature or did not register it on the SDK.',
+      solution:
+        'Please select a guard that support the route instruction feature. ' +
+        'If you are using a custom guard, make sure you registered the route instruction ' +
+        'feature by implementing the `routeSettingsParser` method on the guard manifest.',
+    });
+  }
+}
