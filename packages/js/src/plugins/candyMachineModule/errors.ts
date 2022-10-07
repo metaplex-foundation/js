@@ -194,3 +194,19 @@ export class GuardRouteNotSupportedError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class CandyGuardRequiredOnCandyMachineError extends CandyMachineV3Error {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'candy_guard_required_on_candy_machine',
+      title: 'Candy Guard Required On Candy Machine',
+      problem:
+        `The provided Candy Machine does not have a Candy Guard associated with ` +
+        `it yet, it is required for the operation you are trying to execute.`,
+      solution:
+        'Please provide a Candy Machine with an associated Candy Guard account.',
+    });
+  }
+}

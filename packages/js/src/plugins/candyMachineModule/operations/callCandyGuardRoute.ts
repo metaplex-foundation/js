@@ -8,6 +8,7 @@ import {
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
+import { CandyGuardRequiredOnCandyMachineError } from '../errors';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -195,8 +196,7 @@ export const callCandyGuardRouteBuilder = <
   const { candyMachine, guard, settings, group = null } = params;
 
   if (!candyMachine.candyGuard) {
-    // TODO: custom error.
-    throw new Error('Candy Machine must have a Candy Guard');
+    throw new CandyGuardRequiredOnCandyMachineError();
   }
 
   // Route instruction.
