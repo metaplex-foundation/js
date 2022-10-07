@@ -210,3 +210,24 @@ export class CandyGuardRequiredOnCandyMachineError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class GuardNotEnabledError extends CandyMachineV3Error {
+  constructor(
+    guard: string,
+    group: string | null,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'guard_not_enabled',
+      title: 'Guard Not Enabled',
+      problem: group
+        ? `The guard [${guard}] is not enabled on the group [${group}] of the Candy Machine.`
+        : `The guard [${guard}] is not enabled on the Candy Machine.`,
+      solution:
+        'Please provide a different guard or select a different group ' +
+        'such that the provided guard is enabled on the selected group.',
+    });
+  }
+}

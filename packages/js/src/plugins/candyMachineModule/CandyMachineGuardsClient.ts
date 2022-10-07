@@ -4,6 +4,7 @@ import { AccountMeta } from '@solana/web3.js';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
   GuardGroupRequiredError,
+  GuardNotEnabledError,
   GuardRouteNotSupportedError,
   SelectedGuardGroupDoesNotExistError,
   UnregisteredCandyGuardError,
@@ -298,7 +299,7 @@ export class CandyMachineGuardsClient {
     signers: Signer[];
   } {
     const guardManifest = this.get(guard);
-    if (!guardManifest || !guardManifest.routeSettingsParser) {
+    if (!guardManifest.routeSettingsParser) {
       throw new GuardRouteNotSupportedError(guard);
     }
 
@@ -308,6 +309,10 @@ export class CandyMachineGuardsClient {
       groupLabel
     );
     const settings = guardSettings[guard] ?? null;
+    if (!settings) {
+      throw new GuardNotEnabledError(guard, groupLabel);
+    }
+
     const parsedSettings = guardManifest.routeSettingsParser({
       metaplex: this.metaplex,
       settings,
