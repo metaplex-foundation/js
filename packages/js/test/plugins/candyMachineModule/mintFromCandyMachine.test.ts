@@ -258,7 +258,7 @@ test('[candyMachineModule] it cannot mint using the default guards if the Candy 
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Minting Requires Group Label/);
+  await assertThrows(t, promise, /Guard Group Required/);
 });
 
 test('[candyMachineModule] it cannot mint using a labelled group if the Candy Guard has no groups', async (t) => {
@@ -283,7 +283,7 @@ test('[candyMachineModule] it cannot mint using a labelled group if the Candy Gu
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Minting Must Not Use Group/);
+  await assertThrows(t, promise, /Selected Guard Group Does Not Exist/);
 });
 
 test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the provided group label does not exist', async (t) => {
@@ -327,7 +327,7 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Minting Group Selected Does Not Exist/);
+  await assertThrows(t, promise, /Selected Guard Group Does Not Exist/);
 });
 
 test('[candyMachineModule] it can mint from a candy machine using an explicit payer', async (t) => {

@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { thirdPartySignerBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
 import { createSerializerFromBeet, PublicKey, Signer } from '@/types';
 
@@ -49,7 +49,7 @@ export const thirdPartySignerGuardManifest: CandyGuardManifest<
   settingsSerializer: createSerializerFromBeet(thirdPartySignerBeet),
   mintSettingsParser: ({ mintSettings }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('thirdPartySigner');
+      throw new GuardMintSettingsMissingError('thirdPartySigner');
     }
 
     return {

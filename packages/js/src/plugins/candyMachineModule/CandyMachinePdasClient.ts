@@ -75,4 +75,35 @@ export class CandyMachinePdasClient {
       candyMachine.toBuffer(),
     ]);
   }
+
+  /**
+   * Finds the Allow List Proof PDA that keeps track of whether a user
+   * has provided the correct Merkle Proof for the given Merkle Root.
+   */
+  merkleProof({
+    merkleRoot,
+    user,
+    candyMachine,
+    candyGuard,
+    programs,
+  }: {
+    /** The Merkle Root used when verifying the user. */
+    merkleRoot: Uint8Array;
+    /** The address of the wallet trying to mint. */
+    user: PublicKey;
+    /** The address of the Candy Guard account. */
+    candyGuard: PublicKey;
+    /** The address of the Candy Machine account. */
+    candyMachine: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const program = this.metaplex.programs().getCandyGuard(programs);
+    return Pda.find(program.address, [
+      merkleRoot,
+      user.toBuffer(),
+      candyGuard.toBuffer(),
+      candyMachine.toBuffer(),
+    ]);
+  }
 }

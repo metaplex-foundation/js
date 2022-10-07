@@ -1,10 +1,14 @@
 import { AddressGateGuardSettings } from './addressGate';
 import {
-  AllowListGuardMintSettings,
+  AllowListGuardRouteSettings,
   AllowListGuardSettings,
 } from './allowList';
 import { BotTaxGuardSettings } from './botTax';
-import { CandyGuardsMintSettings, CandyGuardsSettings } from './core';
+import {
+  CandyGuardsMintSettings,
+  CandyGuardsRouteSettings,
+  CandyGuardsSettings,
+} from './core';
 import { EndDateGuardSettings } from './endDate';
 import {
   GatekeeperGuardMintSettings,
@@ -66,7 +70,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   tokenGate: Option<TokenGateGuardMintSettings>;
   gatekeeper: Option<GatekeeperGuardMintSettings>;
   // endDate: no mint settings
-  allowList: Option<AllowListGuardMintSettings>;
+  // allowList: no mint settings
   // mintLimit: no mint settings
   nftPayment: Option<NftPaymentGuardMintSettings>;
   // redeemedAmount: no mint settings
@@ -74,6 +78,28 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   nftGate: Option<NftGateGuardMintSettings>;
   nftBurn: Option<NftBurnGuardMintSettings>;
   // tokenBurn: no mint settings
+};
+
+/**
+ * The mint settings for all default Candy Machine guards.
+ */
+export type DefaultCandyGuardRouteSettings = CandyGuardsRouteSettings & {
+  // botTax: no route settings
+  // solPayment: no route settings
+  // tokenPayment: no route settings
+  // startDate: no route settings
+  // thirdPartySigner: no route settings
+  // tokenGate: no route settings
+  // gatekeeper: no route settings
+  // endDate: no route settings
+  allowList: AllowListGuardRouteSettings;
+  // mintLimit: no route settings
+  // nftPayment: no route settings
+  // redeemedAmount: no route settings
+  // addressGate: no route settings
+  // nftGate: no route settings
+  // nftBurn: no route settings
+  // tokenBurn: no route settings
 };
 
 /** @internal */

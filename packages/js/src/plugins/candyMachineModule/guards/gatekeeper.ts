@@ -3,7 +3,7 @@ import {
   Gatekeeper,
   gatekeeperBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
+import { CandyGuardManifest, CandyGuardsRemainingAccount } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
@@ -99,7 +99,7 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
         settings.network.toBuffer(),
       ]);
 
-    const remainingAccounts: CandyGuardsMintRemainingAccount[] = [
+    const remainingAccounts: CandyGuardsRemainingAccount[] = [
       {
         isSigner: false,
         address: tokenAccount,

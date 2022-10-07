@@ -10,7 +10,8 @@ import { Option } from '@/utils';
  */
 export type CandyGuardManifest<
   Settings extends object,
-  MintSettings extends object = {}
+  MintSettings extends object = {},
+  RouteSettings extends object = {}
 > = {
   /**
    * The name of your guard. This should match the name provided in the
@@ -53,19 +54,36 @@ export type CandyGuardManifest<
   }) => {
     /** The serialized arguments to pass to the mint instruction. */
     arguments: Buffer;
-    /** {@inheritDoc CandyGuardsMintRemainingAccount} */
-    remainingAccounts: CandyGuardsMintRemainingAccount[];
+    /** {@inheritDoc CandyGuardsRemainingAccount} */
+    remainingAccounts: CandyGuardsRemainingAccount[];
   };
-  // TODO(loris): Add and test onBeforeMint and onAfterMint hooks.
-  // onBeforeMint?: (
-  //   setting: Settings,
-  //   mintSettings: Option<MintSettings>
-  // ) => Promise<void> | void;
-  // onAfterMint?: (
-  //   nft: NftWithToken,
-  //   setting: Settings,
-  //   mintSettings: Option<MintSettings>
-  // ) => Promise<void> | void;
+
+  /**
+   * If your guard support the "route" instruction which allows you to execute
+   * a custom instruction on the guard, this function parses the predefined
+   * `routeSettings` of your guards into the required arguments and remaining accounts.
+   */
+  routeSettingsParser?: (input: {
+    /** The metaplex instance used when calling the route instruction. */
+    metaplex: Metaplex;
+    /** The guard's settings. */
+    settings: Settings;
+    /** The route settings for that guard. */
+    routeSettings: RouteSettings;
+    /** The payer for the route instruction. */
+    payer: Signer;
+    /** The address of the Candy Machine we are routing from. */
+    candyMachine: PublicKey;
+    /** The address of the Candy Guard we are routing from. */
+    candyGuard: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs: Program[];
+  }) => {
+    /** The serialized arguments to pass to the route instruction. */
+    arguments: Buffer;
+    /** {@inheritDoc CandyGuardsRemainingAccount} */
+    remainingAccounts: CandyGuardsRemainingAccount[];
+  };
 };
 
 /**
@@ -87,11 +105,20 @@ export type CandyGuardsMintSettings = {
 };
 
 /**
- * A remain account to push to the mint instruction.
+ * Sets expectations on Candy Guard route settings which
+ * uses the name of the guard as the key and the route
+ * settings of the guard as the value.
+ */
+export type CandyGuardsRouteSettings = {
+  [name: string]: object;
+};
+
+/**
+ * A remain account to push to the mint or route instruction.
  * When `isSigner` is true, the `address` attribute must be `Signer`
  * and it will be pushed to the `signers` array of the transaction.
  */
-export type CandyGuardsMintRemainingAccount =
+export type CandyGuardsRemainingAccount =
   | {
       isSigner: false;
       address: PublicKey;
