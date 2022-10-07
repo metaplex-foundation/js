@@ -1,5 +1,11 @@
 import { Commitment, Connection, Keypair } from '@solana/web3.js';
-import { Metaplex, KeypairSigner } from '../../src/index';
+import {
+  Metaplex,
+  KeypairSigner,
+  guestIdentity,
+  mockStorage,
+  keypairIdentity,
+} from '../../src/index';
 import { amman } from './amman';
 
 import { LOCALHOST } from '@metaplex-foundation/amman-client';

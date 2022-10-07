@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { killStuckProcess } from '../../helpers';
+import { killStuckProcess, metaplex } from '../../helpers';
 import { addAmounts, lamports, multiplyAmount } from '../../../src/types';
 
 killStuckProcess();

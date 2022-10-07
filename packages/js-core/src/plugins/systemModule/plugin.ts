@@ -46,7 +46,7 @@ declare module '@metaplex-foundation/js-core/Metaplex' {
   }
 }
 
-declare module '@metaplex-foundation/js-core' {
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
   interface ProgramClient {
     getSystem(programs?: Program[]): Program;
   }
