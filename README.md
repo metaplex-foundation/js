@@ -41,36 +41,26 @@ const metaplex = Metaplex.make(connection)
 Notice how you can create a `Metaplex` instance using `Metaplex.make(...)` instead of `new Metaplex(...)` in order to make the fluent API more readable.
 
 ## Usage
-Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one (documented) NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
+Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one documented NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
 
-Every method that you call on the SDK will return an instance of type `Task<T>` where `T` is the return value you can expect when running the task. For instance, say you want to fetch an NFT via its mint address, you can access the `Task<Nft>` and run it like so:
+For instance, here is how you can fetch an NFT by its mint address.
 
 ```ts
-const task = metaplex.nfts().findByMint({ mintAddress });
-const nft = await task.run();
-
-// Or for short:
-const nft = await metaplex.nfts().findByMint({ mintAddress }).run();
+const nft = await metaplex.nfts().findByMint({ mintAddress });
 ```
 
-There are several advantages in consistently wrapping these operations into tasks. For instance, you can use the `task` instance to keep track of its progress _and_ you can cancel the task using an `AbortSignal` (similarly to how you cancel an HTTP request).
+We call `findByMint` an **Operation** on the NFT Module. Each operation accepts an input object as its first argument that is defined by the operation itself. Additionally, each operation accepts a second optional argument that is shared by all operations and used for more generic options. For instance, you may pass an `AbortSignal` to this second argument to cancel the operation before it finishes — similarly to how you would cancel an HTTP request.
 
 ```ts
-// Access the task that fetches the NFT.
-const task = metaplex.nfts().findByMint({ mintAddress });
-
-// Listen to status changes an log them in the console.
-task.onStatusChange((status: TaskStatus) => console.log(status));
-
 // Create an AbortController that aborts in 100ms.
 const abortController = new AbortController();
 setTimeout(() => abortController.abort(), 100);
 
-// Run the task using the AbortController's signal.
-const nft = await task.run({ signal: abortController.signal });
+// Pass the AbortController's signal to the operation.
+const nft = await metaplex.nfts().findByMint({ mintAddress }, {
+    signal: abortController.signal
+});
 ```
-
-We'll talk more about tasks and what you can do with them [in a later section](#tasks).
 
 Now, let’s look into the NFT module in a bit more detail before moving on to the identity and storage drivers.
 
@@ -101,7 +91,7 @@ The `findByMint` method accepts a `mintAddress` public key and returns [an `Nft`
 ```ts
 const mintAddress = new PublicKey("ATe3DymKZadrUoqAMn7HSpraxE4gB88uo1L9zLGmzJeL");
 
-const nft = await metaplex.nfts().findByMint({ mintAddress }).run();
+const nft = await metaplex.nfts().findByMint({ mintAddress });
 ```
 
 The returned `Nft` object will have its JSON metadata already loaded so you can, for instance, access its image URL like so (provided it is present in the downloaded metadata).
@@ -133,10 +123,9 @@ The `findAllByMintList` operation accepts an array of mint addresses and returns
 Note that this is much more efficient than calling `findByMint` for each mint in the list as the SDK can optimise the query and fetch multiple NFTs in much fewer requests.
 
 ```ts
-const [nftA, nftB] = await metaplex
-    .nfts()
-    .findAllByMintList({ mints: [mintA, mintB] })
-    .run();
+const [nftA, nftB] = await metaplex.nfts().findAllByMintList({
+    mints: [mintA, mintB]
+});
 ```
 
 NFTs retrieved via `findAllByMintList` may be of type `Metadata` rather than `Nft`.
@@ -152,7 +141,7 @@ Thus, if you want to load the `json` and/or `edition` properties of an NFT, you 
 For performance reasons, when fetching NFTs in bulk, you may received `Metadata`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `Metadata` into an `Nft`, you may use the `load` operation like so.
 
 ```ts
-const nft = await metaplex.nfts().load({ metadata }).run();
+const nft = await metaplex.nfts().load({ metadata });
 ```
 
 This will give you access to the `json` and `edition` properties of the NFT as explained in [the NFT model documentation](#the-nft-model).
@@ -162,10 +151,9 @@ This will give you access to the `json` and `edition` properties of the NFT as e
 The `findAllByOwner` method accepts a public key and returns all NFTs owned by that public key.
 
 ```ts
-const myNfts = await metaplex
-    .nfts()
-    .findAllByOwner({ owner: metaplex.identity().publicKey })
-    .run();
+const myNfts = await metaplex.nfts().findAllByOwner({
+    owner: metaplex.identity().publicKey
+});
 ```
 
 Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
@@ -175,9 +163,9 @@ Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
 The `findAllByCreator` method accepts a public key and returns all NFTs that have that public key registered as their first creator. Additionally, you may provide an optional position parameter to match the public key at a specific position in the creator list.
 
 ```ts
-const nfts = await metaplex.nfts().findAllByCreator({ creator }).run();
-const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 1 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 2 }).run(); // Now matching the second creator field.
+const nfts = await metaplex.nfts().findAllByCreator({ creator });
+const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 1 }); // Equivalent to the previous line.
+const nfts = await metaplex.nfts().findAllByCreator({ creator, position: 2 }); // Now matching the second creator field.
 ```
 
 Similarly to `findAllByMintList`, the returned NFTs may be `Metadata`s.
@@ -189,14 +177,11 @@ When creating or updating an NFT, you will need a URI pointing to some JSON Meta
 If your JSON metadata is not already uploaded, you may do this using the SDK via the `uploadMetadata` method. It accepts a metadata object and returns the URI of the uploaded metadata. Where exactly the metadata will be uploaded depends on the selected `StorageDriver`.
 
 ```ts
-const { uri } = await metaplex
-    .nfts()
-    .uploadMetadata({
-        name: "My NFT",
-        description: "My description",
-        image: "https://arweave.net/123",
-    })
-    .run();
+const { uri } = await metaplex.nfts().uploadMetadata({
+    name: "My NFT",
+    description: "My description",
+    image: "https://arweave.net/123",
+});
 
 console.log(uri) // https://arweave.net/789
 ```
@@ -206,24 +191,21 @@ Some properties inside that metadata object will also require you to upload some
 To make this process easier, the `uploadMetadata` method will recognise any instances of `MetaplexFile` within the provided object and upload them in bulk to the current storage driver. It will then create a new version of the provided metadata where all instances of `MetaplexFile` are replaced with their URI. Finally, it will upload that replaced metadata to the storage driver and return it.
 
 ```ts
-// Assuming the user uploaded two images via an input field of type "file".
+// Assuming the user uploaded two assets via an input field of type "file".
 const browserFiles = event.target.files;
 
-const { uri, metadata } = await metaplex
-    .nfts()
-    .uploadMetadata({
-        name: "My NFT",
-        image: await toMetaplexFileFromBrowser(browserFiles[0]),
-        properties: {
-            files: [
-                {
-                    type: "video/mp4",
-                    uri: await toMetaplexFileFromBrowser(browserFiles[1]),
-                },
-            ]
-        }
-    })
-    .run();
+const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+    name: "My NFT",
+    image: await toMetaplexFileFromBrowser(browserFiles[0]),
+    properties: {
+        files: [
+            {
+                type: "video/mp4",
+                uri: await toMetaplexFileFromBrowser(browserFiles[1]),
+            },
+        ]
+    }
+});
 
 console.log(metadata.image) // https://arweave.net/123
 console.log(metadata.properties.files[0].uri) // https://arweave.net/456
@@ -239,14 +221,11 @@ The `create` method accepts [a variety of parameters](https://metaplex-foundatio
 Here's how you can create a new NFT with minimum configuration.
 
 ```ts
-const { nft } = await metaplex
-    .nfts()
-    .create({
-        uri: "https://arweave.net/123",
-        name: "My NFT",
-        sellerFeeBasisPoints: 500, // Represents 5.00%.
-    })
-    .run();
+const { nft } = await metaplex.nfts().create({
+    uri: "https://arweave.net/123",
+    name: "My NFT",
+    sellerFeeBasisPoints: 500, // Represents 5.00%.
+});
 ```
 
 This will take care of creating the mint account, the associated token account, the metadata PDA and the original edition PDA (a.k.a. the master edition) for you.
@@ -265,40 +244,31 @@ The `update` method accepts an `Nft` object and a set of parameters to update on
 For instance, here is how you would change the on-chain name of an NFT.
 
 ```ts
-await metaplex
-    .nfts()
-    .update({ 
-        nftOrSft: nft,
-        name: "My Updated Name"
-    })
-    .run();
+await metaplex.nfts().update({ 
+    nftOrSft: nft,
+    name: "My Updated Name"
+});
 ```
 
 Anything that you don’t provide in the parameters will stay unchanged. Note that it will not fetch the updated NFT in order to avoid the extra HTTP call if you don't need it. If you do need to refresh the NFT instance to access the latest data, you may do that using the `refresh` operation.
 
 ```ts
-const updatedNft = await metaplex.nfts().refresh(nft).run();
+const updatedNft = await metaplex.nfts().refresh(nft);
 ```
 
 If you’d like to change the JSON metadata of the NFT, you’d first need to upload a new metadata object using the `uploadMetadata` method and then use the provided URI to update the NFT.
 
 ```ts
-const { uri: newUri } = await metaplex
-    .nfts()
-    .uploadMetadata({
-        ...nft.json,
-        name: "My Updated Metadata Name",
-        description: "My Updated Metadata Description",
-    })
-    .run();
+const { uri: newUri } = await metaplex.nfts().uploadMetadata({
+    ...nft.json,
+    name: "My Updated Metadata Name",
+    description: "My Updated Metadata Description",
+});
 
-await metaplex
-    .nfts()
-    .update({ 
-        nftOrSft: nft,
-        uri: newUri
-    })
-    .run();
+await metaplex.nfts().update({ 
+    nftOrSft: nft,
+    uri: newUri
+});
 ```
 
 ### printNewEdition
@@ -308,21 +278,19 @@ The `printNewEdition` method requires the mint address of the original NFT and r
 This is how you would print a new edition of the `originalNft` NFT.
 
 ```ts
-const { nft: printedNft } = await metaplex
-    .nfts()
-    .printNewEdition({ originalMint: originalNft.mint })
-    .run();
+const { nft: printedNft } = await metaplex.nfts().printNewEdition({
+    originalMint: originalNft.mint
+});
 ```
 
 By default, it will print using the token account of the original NFT as proof of ownership, and it will do so using the current `identity` of the SDK. You may customise all of these parameters by providing them explicitly.
 
 ```ts
-metaplex.nfts().printNewEdition({
+await metaplex.nfts().printNewEdition({
     originalMint,
     newMint,                   // Defaults to a brand-new Keypair.
     newUpdateAuthority,        // Defaults to the current identity.
     newOwner,                  // Defaults to the current identity.
-    payer,                     // Defaults to the current identity.
     originalTokenAccountOwner, // Defaults to the current identity.
     originalTokenAccount,      // Defaults to the associated token account of the current identity.
 });
@@ -331,7 +299,7 @@ metaplex.nfts().printNewEdition({
 Notice that, by default, update authority will be transfered to the metaplex identity. If you want the printed edition to retain the update authority of the original edition, you might want to provide it explicitly like so.
 
 ```ts
-metaplex.nfts().printNewEdition({
+await metaplex.nfts().printNewEdition({
     originalMint,
     newUpdateAuthority: originalNft.updateAuthorityAddress,
 });
@@ -342,8 +310,8 @@ metaplex.nfts().printNewEdition({
 The `use` method requires [a usable NFT](https://docs.metaplex.com/programs/token-metadata/using-nfts) and will decrease the amount of uses by one. You may also provide the `numberOfUses` parameter, if you'd like to use it more than once in the same instruction.
 
 ```ts
-await mx.nfts().use({ mintAddress: nft.address }).run(); // Use once.
-await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 }).run(); // Use three times.
+await mx.nfts().use({ mintAddress: nft.address }); // Use once.
+await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 }); // Use three times.
 ```
 
 ### The `Nft` model
@@ -430,9 +398,9 @@ The `findMintedNfts` method accepts the public key of a Candy Machine and return
 By default, it will assume you're providing the public key of a Candy Machine v2. If you want to use a different version, you can provide the version as the second parameter.
 
 ```ts
-const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine }).run();
-const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 2 }).run(); // Equivalent to the previous line.
-const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 1 }).run(); // Now finding NFTs for Candy Machine v1.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine });
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 2 }); // Equivalent to the previous line.
+const nfts = await metaplex.candyMachinesV2().findMintedNfts({ candyMachine, version: 1 }); // Now finding NFTs for Candy Machine v1.
 ```
 
 Note that the current implementation of this method delegates to `nfts().findAllByCreator()` whilst fetching the appropriate PDA for Candy Machines v2.
@@ -611,44 +579,6 @@ bundlrStorage.fund(1000); // Fund using byte size.
 (await bundlrStorage.bundlr()).fund(1000); // Fund using lamports directly.
 ```
 
-
-### awsStorage
-
-The `awsStorage` driver uploads assets off-chain to an S3 bucket of your choice.
-
-This storage driver is not bundled by the JS SDK by default, you first need to install it by running:
-
-```sh
-npm install @metaplex-foundation/js-plugin-aws
-```
-
-Then, to set this up, you need to pass in the AWS client as well as the bucket name you wish to use. For instance:
-
-```ts
-import { awsStorage } from "@metaplex-foundation/js-plugin-aws";
-import { S3Client } from "@aws-sdk/client-s3";
-
-const awsClient = new S3Client({
-    region: "us-east-1",
-    credentials: {
-      accessKeyId: "",
-      secretAccessKey: "",
-    },
-  });
-
-metaplex.use(awsStorage(awsClient, 'my-nft-bucket'));
-```
-
-When uploading a `MetaplexFile` using `metaplex.storage().upload(file)`, the unique name of the file will be used as the AWS key. By default, this will be a random string generated by the SDK but you may explicitly provide your own like so.
-
-```ts
-const file = toMetaplexFile('file-content', 'filename.jpg', {
-    uniqueName: 'my-unique-aws-key',
-})
-
-const uri = await metaplex.storage().upload(file);
-```
-
 ### mockStorage
 
 The `mockStorage` driver is a fake driver mostly used for testing purposes. It will not actually upload the assets anywhere but instead will generate random URLs and keep track of their content in a local dictionary. That way, once uploaded, an asset can be retrieved using the `download` method.
@@ -659,54 +589,9 @@ import { mockStorage } from "@metaplex-foundation/js";
 metaplex.use(mockStorage());
 ```
 
-## Tasks
+### Additional Storage Drivers
 
-Tasks are a core component of the JS SDK and enable you to do more with your asynchronous operations. This includes:
+The following storage drivers are available as separate packages and must be installed separately.
 
-- Cancelling asynchronous operations via `AbortController`s.
-- Listening to status updates — e.g. pending, running, failed, etc.
-- Nesting tasks together to create and keep track of more complex asynchronous operations.
-
-The client of every module will return a `Task<T>` object where `T` is the return value you can expect when running the task using `await task.run()`.
-
-Here's an overview of the methods available in `Task` objects.
-
-```ts
-class Task<T> = {
-    getStatus: () => TaskStatus;
-    getResult: () => T | undefined;
-    getError: () => unknown;
-    isPending: () => boolean;
-    isRunning: () => boolean;
-    isCompleted: () => boolean;
-    isSuccessful: () => boolean;
-    isFailed: () => boolean;
-    isCanceled: () => boolean;
-    run: (options?: TaskOptions) => Promise<T>;
-    loadWith: (preloadedResult: T) => Task<T>;
-    reset: () => Task<T>;
-    onStatusChange: (callback: (status: TaskStatus) => unknown) => Task<T>;
-    onStatusChangeTo: (status: TaskStatus, callback: () => unknown) => Task<T>;
-    onSuccess: (callback: () => unknown) => Task<T>;
-    onFailure: (callback: () => unknown) => Task<T>;
-    onCancel: (callback: () => unknown) => Task<T>;
-    setChildren: (children: Task<any>[]) => Task<T>;
-    getChildren: () => Task<any>[];
-    getDescendants: () => Task<any>[];
-    setContext: (context: object) => Task<T>;
-    getContext: () => object;
-};
-
-export type TaskOptions = {
-    signal?: AbortSignal;
-    force?: boolean;
-};
-```
-
-As you can see, you get a bunch of methods to check the status of a task, listen to its changes, run it and reset its data. You also get a `loadWith` method which allows you to bypass the task and load the provided data directly.
-
-You may also provide an `AbortSignal` using the `signal` property of the `TaskOptions` when running a task, allowing you to cancel the task if you need to. This needs to be supported by the concrete implementation of the task as they will have to consistently check that the task was not cancelled and return early if it was. The `force` property of `TaskOptions` can be used to force the task to run even if the task was already completed.
-
-Tasks can also contain nested Tasks to keep track of the progress of a more complex operation if needed. You may use the `setChildren` and `getChildren` methods to add and retrieve nested tasks. The `getDescendants` method returns all the children of the task recursively.
-
-Finally, you can set a context for the task using the `setContext` and `getContext` methods. This is useful for passing any custom data to a task such as a "name" and a "description" that can be used by the UI.
+- [`js-plugin-aws`](https://github.com/metaplex-foundation/js/tree/main/packages/js-plugin-aws) Uploads files to AWS.
+- [`js-plugin-nft-storage`](https://github.com/metaplex-foundation/js/tree/main/packages/js-plugin-nft-storage) Uploads files to IPFS via NFT.Storage.
