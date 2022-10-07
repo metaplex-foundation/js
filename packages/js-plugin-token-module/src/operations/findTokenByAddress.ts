@@ -1,11 +1,12 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toTokenAccount } from '../accounts';
 import { Token, toToken } from '../models/Token';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
@@ -18,7 +19,7 @@ const Key = 'FindTokenByAddressOperation' as const;
  * Finds a token account by its address.
  *
  * ```ts
- * const token = await metaplex.tokens().findTokenByAddress({ address }).run();
+ * const token = await metaplex.tokens().findTokenByAddress({ address });
  * ```
  *
  * @group Operations
@@ -44,9 +45,6 @@ export type FindTokenByAddressOperation = Operation<
 export type FindTokenByAddressInput = {
   /** The address of the token account. */
   address: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -57,9 +55,11 @@ export const findTokenByAddressOperationHandler: OperationHandler<FindTokenByAdd
   {
     handle: async (
       operation: FindTokenByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<Token> => {
-      const { address, commitment } = operation.input;
+      const { commitment } = scope;
+      const { address } = operation.input;
 
       const account = toTokenAccount(
         await metaplex.rpc().getAccount(address, commitment)

@@ -1,4 +1,4 @@
-import { ConfirmTransactionResponse } from '@metaplex-foundation/js-core/types';
+import { ConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { SendTransactionError, TransactionError } from '@solana/web3.js';
 import {
   MetaplexError,

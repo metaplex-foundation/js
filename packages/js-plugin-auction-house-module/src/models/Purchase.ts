@@ -11,7 +11,7 @@ import {
   SplTokenAmount,
   toBigNumber,
   toDateTime,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { assert, Option } from '@metaplex-foundation/js-core/utils';
 
 export type Purchase = Readonly<{

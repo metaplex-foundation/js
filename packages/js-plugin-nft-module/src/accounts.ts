@@ -11,8 +11,8 @@ import {
   SolitaType,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
-} from '@metaplex-foundation/js-core/types';
-import { NotYetImplementedError } from '@metaplex-foundation/js-core/errors';
+} from '@metaplex-foundation/js-core';
+import { NotYetImplementedError } from '@/errors';
 
 /** @group Accounts */
 export type MetadataAccount = Account<Metadata>;

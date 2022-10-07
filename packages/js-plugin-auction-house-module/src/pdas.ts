@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { AuctionHouseProgram } from './program';
-import { BigNumber, Pda } from '@metaplex-foundation/js-core/types';
+import { BigNumber, Pda } from '@metaplex-foundation/js-core';
 import { Option } from '@metaplex-foundation/js-core/utils';
 
 /** @group Pdas */

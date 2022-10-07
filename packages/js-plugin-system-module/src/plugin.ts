@@ -6,10 +6,7 @@ import {
   transferSolOperationHandler,
 } from './operations';
 import { SystemClient } from './SystemClient';
-import type {
-  MetaplexPlugin,
-  Program,
-} from '@metaplex-foundation/js-core/types';
+import type { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
@@ -48,7 +45,7 @@ declare module '@metaplex-foundation/js-core/Metaplex' {
   }
 }
 
-declare module '../programModule/ProgramClient' {
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
   interface ProgramClient {
     getSystem(programs?: Program[]): Program;
   }

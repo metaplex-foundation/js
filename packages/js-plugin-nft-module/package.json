@@ -45,8 +45,10 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-   "@metaplex-foundation/js-core": "*",   "@solana/web3.js": "^1.63.1",
+   "@metaplex-foundation/js-core": "*",
+   "@solana/web3.js": "^1.63.1",
    "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
+   "@metaplex-foundation/js-plugin-token-module": "*",
    "lodash.clonedeep": "^4.5.0",
    "lodash.isequal": "^4.5.0"
   },

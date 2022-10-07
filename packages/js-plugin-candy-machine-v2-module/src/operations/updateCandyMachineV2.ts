@@ -12,7 +12,7 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../../nftModule';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   CandyMachineV2,
   CandyMachineV2Configs,
@@ -26,7 +26,7 @@ import {
   OperationHandler,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
 

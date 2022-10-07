@@ -18,7 +18,7 @@ import {
   updateCandyMachineV2OperationHandler,
 } from './operations';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { MetaplexPlugin } from '@metaplex-foundation/js-core/types';
+import { MetaplexPlugin } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const candyMachineV2Module = (): MetaplexPlugin => ({

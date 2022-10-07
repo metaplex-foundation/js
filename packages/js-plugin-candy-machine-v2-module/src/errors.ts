@@ -9,7 +9,7 @@ import {
   BigNumber,
   DateTime,
   formatDateTime,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Option } from '@metaplex-foundation/js-core/utils';
 
 /** @group Errors */

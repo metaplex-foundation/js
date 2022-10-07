@@ -1,6 +1,6 @@
 import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions, Keypair } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
   CandyMachine,
@@ -24,7 +24,7 @@ import {
   Signer,
   toBigNumber,
   toPublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,

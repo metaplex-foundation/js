@@ -13,7 +13,7 @@ import {
   toBigNumber,
   toDateTime,
   toOptionDateTime,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { assert, Option } from '@metaplex-foundation/js-core/utils';
 
 /** @group Models */

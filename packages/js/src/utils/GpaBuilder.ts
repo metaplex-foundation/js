@@ -8,7 +8,7 @@ import base58 from 'bs58';
 import BN from 'bn.js';
 import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { UnparsedAccount } from '@metaplex-foundation/js-core/types';
+import { UnparsedAccount } from '@metaplex-foundation/js-core';
 
 export type GpaSortCallback = (
   a: UnparsedAccount,

@@ -11,8 +11,8 @@ import {
   createPrintBidReceiptInstruction,
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { findMetadataPda } from '../../nftModule';
 import { AuctionHouse, Bid, LazyBid } from '../models';
 import {
@@ -36,7 +36,7 @@ import {
   SplTokenAmount,
   Pda,
   now,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   TransactionBuilder,
   Option,

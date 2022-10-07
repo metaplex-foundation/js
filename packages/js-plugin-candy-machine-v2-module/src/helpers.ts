@@ -6,7 +6,7 @@ import {
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
 import { CandyMachineV2Item } from './models';
 import { removeEmptyChars } from '@metaplex-foundation/js-core/utils';
-import { BigNumber, toBigNumber } from '@metaplex-foundation/js-core/types';
+import { BigNumber, toBigNumber } from '@metaplex-foundation/js-core';
 
 export function countCandyMachineV2Items(rawData: Buffer): BigNumber {
   const number = rawData.slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4);

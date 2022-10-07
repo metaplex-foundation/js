@@ -14,7 +14,7 @@ import {
   toBigNumber,
   toDateTime,
   toOptionDateTime,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /** @group Models */
 export type Listing = Readonly<{

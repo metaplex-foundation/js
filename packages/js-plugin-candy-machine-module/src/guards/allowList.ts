@@ -6,7 +6,7 @@ import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The allowList guard validates the minting wallet against

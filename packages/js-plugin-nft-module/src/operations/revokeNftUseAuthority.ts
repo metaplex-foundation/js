@@ -1,16 +1,15 @@
 import { createRevokeUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import { PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+} from '@metaplex-foundation/js-core';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -24,8 +23,7 @@ const Key = 'RevokeNftUseAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .revokeUseAuthority({ mintAddress, user })
- *   .run();
+ *   .revokeUseAuthority({ mintAddress, user };
  * ```
  *
  * @group Operations
@@ -70,12 +68,6 @@ export type RevokeNftUseAuthorityInput = {
    * from the `mintAddress` and `owner` parameters.
    */
   ownerTokenAddress?: PublicKey;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -95,12 +87,14 @@ export const revokeNftUseAuthorityOperationHandler: OperationHandler<RevokeNftUs
   {
     handle: async (
       operation: RevokeNftUseAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<RevokeNftUseAuthorityOutput> => {
       return revokeNftUseAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -135,17 +129,27 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
  */
 export const revokeNftUseAuthorityBuilder = (
   metaplex: Metaplex,
-  params: RevokeNftUseAuthorityBuilderParams
+  params: RevokeNftUseAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const { mintAddress, user, owner = metaplex.identity(), programs } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { mintAddress, user, owner = metaplex.identity() } = params;
 
   // Programs.
   const systemProgram = metaplex.programs().getSystem(programs);
   const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  const metadata = findMetadataPda(mintAddress);
-  const useAuthorityRecord = findUseAuthorityRecordPda(mintAddress, user);
+  // PDAs.
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const useAuthorityRecord = metaplex.nfts().pdas().useAuthorityRecord({
+    mint: mintAddress,
+    useAuthority: user,
+    programs,
+  });
   const ownerTokenAddress =
     params.ownerTokenAddress ??
     metaplex.tokens().pdas().associatedTokenAccount({
@@ -156,6 +160,7 @@ export const revokeNftUseAuthorityBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Revoke the use authority.
       .add({

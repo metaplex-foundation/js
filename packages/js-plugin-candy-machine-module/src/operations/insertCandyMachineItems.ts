@@ -1,6 +1,6 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import type { ConfirmOptions } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   assertAllItemConstraints,
   assertCanAdd,
@@ -14,7 +14,7 @@ import {
   Program,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

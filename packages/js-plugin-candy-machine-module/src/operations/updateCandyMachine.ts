@@ -6,7 +6,7 @@ import {
   createUpdateInstruction as createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
   CandyMachine,
@@ -34,7 +34,7 @@ import {
   PublicKey,
   Signer,
   toPublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   assertObjectHasDefinedKeys,
   removeUndefinedAttributes,

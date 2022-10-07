@@ -1,10 +1,6 @@
 import { Buffer } from 'buffer';
 import { Metaplex, Program } from '@metaplex-foundation/js-core/index';
-import {
-  PublicKey,
-  Serializer,
-  Signer,
-} from '@metaplex-foundation/js-core/types';
+import { PublicKey, Serializer, Signer } from '@metaplex-foundation/js-core';
 import { Option } from '@metaplex-foundation/js-core/utils';
 
 /**

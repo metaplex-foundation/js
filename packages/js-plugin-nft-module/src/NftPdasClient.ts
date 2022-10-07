@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Pda,
   Program,
   PublicKey,
   toBigNumber,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to build PDAs related to the NFT module.

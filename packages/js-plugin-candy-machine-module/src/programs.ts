@@ -12,7 +12,7 @@ import {
   ErrorWithLogs,
   Program,
   PublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /** @group Programs */
 export const candyMachineProgram: Program = {

@@ -5,8 +5,8 @@ import {
   amount,
   SplTokenCurrency,
   SplTokenAmount,
-} from '@metaplex-foundation/js-core/types';
-import { assert, Option } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { assert, Option } from '@/utils';
 
 /**
  * This model represents a mint account.

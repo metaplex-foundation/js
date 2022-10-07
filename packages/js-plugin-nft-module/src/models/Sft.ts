@@ -1,8 +1,8 @@
 import type { PublicKey } from '@solana/web3.js';
-import type { Mint, Token } from '../../tokenModule';
+import type { Mint, Token } from '@metaplex-foundation/js-plugin-token-module';
 import type { Metadata } from './Metadata';
-import { assert } from '@metaplex-foundation/js-core/utils';
-import { amount, Pda } from '@metaplex-foundation/js-core/types';
+import { assert } from '@/utils';
+import { amount, Pda } from '@metaplex-foundation/js-core';
 
 /** @group Models */
 export type Sft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> &

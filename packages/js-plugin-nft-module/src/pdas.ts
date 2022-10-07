@@ -1,11 +1,7 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import {
-  BigNumber,
-  Pda,
-  toBigNumber,
-} from '@metaplex-foundation/js-core/types';
+import { BigNumber, Pda, toBigNumber } from '@metaplex-foundation/js-core';
 
 /**
  * @group Pdas

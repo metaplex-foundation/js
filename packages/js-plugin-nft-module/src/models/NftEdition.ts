@@ -9,8 +9,8 @@ import {
   BigNumber,
   toBigNumber,
   toOptionBigNumber,
-} from '@metaplex-foundation/js-core/types';
-import { assert, Option } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { assert, Option } from '@/utils';
 
 /** @group Models */
 export type NftEdition = NftOriginalEdition | NftPrintEdition;

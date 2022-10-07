@@ -5,10 +5,10 @@ import {
   createCancelInstruction,
   createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { AuctionHouse, Bid } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { findAuctioneerPda } from '../pdas';
 import {
   useOperation,
@@ -18,7 +18,7 @@ import {
   isSigner,
   toPublicKey,
   Pda,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {

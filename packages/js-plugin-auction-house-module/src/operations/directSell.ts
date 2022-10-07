@@ -1,6 +1,9 @@
 import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, Token } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import {
+  findAssociatedTokenAccountPda,
+  Token,
+} from '@metaplex-foundation/js-plugin-token-module';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   AuctionHouse,
@@ -23,7 +26,7 @@ import {
   Signer,
   toPublicKey,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

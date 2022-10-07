@@ -4,7 +4,7 @@ import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   PublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The nftBurn guard restricts the mint to holders of a predefined

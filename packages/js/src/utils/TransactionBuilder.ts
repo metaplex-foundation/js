@@ -9,7 +9,7 @@ import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import type {
   SendAndConfirmTransactionResponse,
   Signer,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;

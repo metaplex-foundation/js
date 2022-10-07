@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { CandyMachineV2Program } from './program';
-import { Pda } from '@metaplex-foundation/js-core/types';
+import { Pda } from '@metaplex-foundation/js-core';
 
 /** @group Pdas */
 export const findCandyMachineV2CreatorPda = (

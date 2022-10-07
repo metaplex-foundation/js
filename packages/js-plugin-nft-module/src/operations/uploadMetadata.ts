@@ -5,9 +5,10 @@ import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { DisposableScope, walk } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { walk } from '@/utils';
 
 // -----------------
 // Operation
@@ -25,8 +26,7 @@ const Key = 'UploadMetadataOperation' as const;
  *     name: "My NFT",
  *     description: "My description",
  *     image: "https://arweave.net/123",
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -78,7 +78,7 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
     handle: async (
       operation: UploadMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<UploadMetadataOutput> => {
       const rawMetadata = operation.input;
       const files = getAssetsFromJsonMetadata(rawMetadata);

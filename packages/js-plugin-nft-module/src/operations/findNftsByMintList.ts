@@ -1,18 +1,14 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Metadata, Nft, Sft, toMetadata } from '../models';
-import { findMetadataPda } from '../pdas';
-import {
-  DisposableScope,
-  GmaBuilder,
-} from '@metaplex-foundation/js-core/utils';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+} from '@metaplex-foundation/js-core';
+import { GmaBuilder } from '@/utils';
 
 // -----------------
 // Operation
@@ -26,8 +22,7 @@ const Key = 'FindNftsByMintListOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByMintList({ mints: [...] })
- *   .run();
+ *   .findAllByMintList({ mints: [...] };
  * ```
  *
  * @group Operations
@@ -53,12 +48,6 @@ export type FindNftsByMintListOperation = Operation<
 export type FindNftsByMintListInput = {
   /** The addresses of all mint accounts we want to fetch. */
   mints: PublicKey[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -76,10 +65,14 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
     handle: async (
       operation: FindNftsByMintListOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByMintListOutput> => {
-      const { mints, commitment } = operation.input;
-      const metadataPdas = mints.map((mint) => findMetadataPda(mint));
+      const { commitment, programs } = scope;
+      const { mints } = operation.input;
+      const nftPdas = metaplex.nfts().pdas();
+      const metadataPdas = mints.map((mint) =>
+        nftPdas.metadata({ mint, programs })
+      );
       const metadataInfos = await GmaBuilder.make(metaplex, metadataPdas, {
         commitment,
       }).get();

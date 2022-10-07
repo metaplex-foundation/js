@@ -2,7 +2,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { Program } from '@metaplex-foundation/js-core/types';
+import { Program } from '@metaplex-foundation/js-core';
 
 /** @group Programs */
 export const tokenProgram: Program = {

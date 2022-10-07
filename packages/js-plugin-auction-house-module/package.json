@@ -43,7 +43,9 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-   "@metaplex-foundation/js-core": "*",    "@metaplex-foundation/mpl-auction-house": "^2.1.1",
+   "@metaplex-foundation/js-core": "*",    
+   "@metaplex-foundation/js-plugin-token-module":"*",
+   "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@solana/web3.js": "^1.47.3",
     "buffer": "^6.0.3",
     "lodash.isequal": "^4.5.0"

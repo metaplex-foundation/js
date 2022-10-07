@@ -1,14 +1,13 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { toTokenAccount } from '../../tokenModule';
+import { PublicKey } from '@solana/web3.js';
+import { toTokenAccount } from '@metaplex-foundation/js-plugin-token-module';
 import { NftWithToken, SftWithToken } from '../models';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -22,8 +21,7 @@ const Key = 'FindNftByTokenOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByToken({ token })
- *   .run();
+ *   .findByToken({ token };
  * ```
  *
  * @group Operations
@@ -56,12 +54,6 @@ export type FindNftByTokenInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -79,21 +71,21 @@ export const findNftByTokenOperationHandler: OperationHandler<FindNftByTokenOper
     handle: async (
       operation: FindNftByTokenOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByTokenOutput> => {
       const token = toTokenAccount(
         await metaplex.rpc().getAccount(operation.input.token)
       );
       scope.throwIfCanceled();
 
-      const asset = await metaplex
-        .nfts()
-        .findByMint({
+      const asset = await metaplex.nfts().findByMint(
+        {
           ...operation.input,
           mintAddress: token.data.mint,
           tokenAddress: operation.input.token,
-        })
-        .run(scope);
+        },
+        scope
+      );
 
       return asset as FindNftByTokenOutput;
     },

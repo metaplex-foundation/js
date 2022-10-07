@@ -3,7 +3,7 @@ import {
   initializeInstructionDiscriminator,
 } from '@metaplex-foundation/mpl-candy-guard';
 import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   CandyGuardsSettings,
   DefaultCandyGuardSettings,
@@ -21,7 +21,7 @@ import {
   Program,
   serializeDiscriminator,
   Signer,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

@@ -4,7 +4,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from './MetaplexError';
-import { Cluster, Program, Currency } from '@metaplex-foundation/js-core/types';
+import { Cluster, Program, Currency } from '@metaplex-foundation/js-core';
 
 /** @group Errors */
 export class SdkError extends MetaplexError {

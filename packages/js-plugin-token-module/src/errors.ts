@@ -3,7 +3,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@metaplex-foundation/js-core/errors';
+} from '@/errors';
 
 /** @group Errors */
 export class TokenError extends MetaplexError {

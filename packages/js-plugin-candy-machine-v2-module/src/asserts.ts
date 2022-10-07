@@ -24,7 +24,7 @@ import {
   now,
   Signer,
   toBigNumber,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 export const assertName = (name: string) => {
   assert(

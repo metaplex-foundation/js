@@ -11,8 +11,8 @@ import {
   createPrintPurchaseReceiptInstruction,
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { AuctionHouse, Bid, Listing, LazyPurchase, Purchase } from '../models';
 import {
   findAuctionHouseBuyerEscrowPda,
@@ -42,7 +42,7 @@ import {
   isSigner,
   now,
   amount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   TransactionBuilder,
   Option,

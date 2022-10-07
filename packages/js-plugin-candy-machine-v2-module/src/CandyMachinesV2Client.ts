@@ -20,7 +20,7 @@ import {
   updateCandyMachineV2Operation,
 } from './operations';
 import { Task } from '@metaplex-foundation/js-core/utils';
-import { toPublicKey } from '@metaplex-foundation/js-core/types';
+import { toPublicKey } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**

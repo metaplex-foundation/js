@@ -1,4 +1,4 @@
-import { Metaplex } from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { CreateSftInput } from '../../src/operations/createSft';
 import { UploadMetadataInput } from '../../src/operations/uploadMetadata';
 

@@ -9,7 +9,7 @@ import {
   Signer,
   SolAmount,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 
 // -----------------

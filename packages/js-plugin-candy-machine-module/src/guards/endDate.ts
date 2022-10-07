@@ -5,7 +5,7 @@ import {
   DateTime,
   mapSerializer,
   toDateTime,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The endDate guard is used to specify a date to end the mint.

@@ -3,7 +3,7 @@ import {
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
 } from '@metaplex-foundation/js-core/errors';
-import { Amount, formatAmount } from '@metaplex-foundation/js-core/types';
+import { Amount, formatAmount } from '@metaplex-foundation/js-core';
 
 /** @group Errors */
 export class AuctionHouseError extends MetaplexError {

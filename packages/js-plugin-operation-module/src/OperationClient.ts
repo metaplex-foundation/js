@@ -6,7 +6,7 @@ import {
   InputOfOperation,
   OutputOfOperation,
   OperationHandler,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Task, TaskOptions } from '@metaplex-foundation/js-core/utils';
 import { OperationHandlerMissingError } from '@metaplex-foundation/js-core/errors';
 

@@ -3,7 +3,7 @@ import {
   WalletAdapter,
 } from './WalletAdapterIdentityDriver';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { MetaplexPlugin } from '@metaplex-foundation/js-core/types';
+import { MetaplexPlugin } from '@metaplex-foundation/js-core';
 
 export const walletAdapterIdentity = (
   walletAdapter: WalletAdapter

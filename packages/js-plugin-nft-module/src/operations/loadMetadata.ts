@@ -1,13 +1,12 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -21,8 +20,7 @@ const Key = 'LoadMetadataOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .load({ metadata })
- *   .run();
+ *   .load({ metadata };
  * ```
  *
  * @group Operations
@@ -80,12 +78,6 @@ export type LoadMetadataInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -103,18 +95,18 @@ export const loadMetadataOperationHandler: OperationHandler<LoadMetadataOperatio
     handle: async (
       operation: LoadMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<LoadMetadataOutput> => {
       const { metadata, loadJsonMetadata = true } = operation.input;
 
-      let nftOrSft = await metaplex
-        .nfts()
-        .findByMint({
+      let nftOrSft = await metaplex.nfts().findByMint(
+        {
           ...operation.input,
           mintAddress: metadata.mintAddress,
           loadJsonMetadata: !metadata.jsonLoaded && loadJsonMetadata,
-        })
-        .run(scope);
+        },
+        scope
+      );
 
       if (!nftOrSft.jsonLoaded && metadata.jsonLoaded) {
         nftOrSft = { ...nftOrSft, json: metadata.json, jsonLoaded: true };

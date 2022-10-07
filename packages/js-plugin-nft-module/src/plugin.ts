@@ -59,8 +59,8 @@ import {
   ErrorWithLogs,
   MetaplexPlugin,
   Program,
-} from '@metaplex-foundation/js-core/types';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+} from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
@@ -154,7 +154,7 @@ declare module '@metaplex-foundation/js-core/Metaplex' {
   }
 }
 
-declare module '../programModule/ProgramClient' {
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
   interface ProgramClient {
     getTokenMetadata(programs?: Program[]): Program;
   }

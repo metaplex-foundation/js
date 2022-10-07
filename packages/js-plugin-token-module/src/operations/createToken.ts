@@ -3,24 +3,21 @@ import {
   createAssociatedTokenAccountInstruction,
   createInitializeAccountInstruction,
 } from '@solana/spl-token';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../../../../js-plugin-rpc-module/src';
+import { PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Token } from '../models/Token';
-import { ExpectedSignerError } from '@metaplex-foundation/js-core/errors';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { ExpectedSignerError } from '@/errors';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   isSigner,
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   Signer,
   toPublicKey,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import {
-  DisposableScope,
-  TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -32,7 +29,7 @@ const Key = 'CreateTokenOperation' as const;
  * Creates a new token account.
  *
  * ```ts
- * const { token } = await metaplex.tokens().createToken({ mint }).run();
+ * const { token } = await metaplex.tokens().createToken({ mint });
  * ```
  *
  * @group Operations
@@ -77,20 +74,6 @@ export type CreateTokenInput = {
    * using the `mint` and `owner` parameters.
    */
   token?: Signer;
-
-  /**
-   * The Signer paying for the new token account and
-   * for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -114,21 +97,24 @@ export const createTokenOperationHandler: OperationHandler<CreateTokenOperation>
     async handle(
       operation: CreateTokenOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateTokenOutput> {
-      const builder = await createTokenBuilder(metaplex, operation.input);
+      const builder = await createTokenBuilder(
+        metaplex,
+        operation.input,
+        scope
+      );
       scope.throwIfCanceled();
 
       const output = await builder.sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
       scope.throwIfCanceled();
 
       const token = await metaplex
         .tokens()
-        .findTokenByAddress({ address: output.tokenAddress })
-        .run(scope);
+        .findTokenByAddress({ address: output.tokenAddress }, scope);
 
       return { ...output, token };
     },
@@ -177,15 +163,11 @@ export type CreateTokenBuilderContext = {
  */
 export const createTokenBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenBuilderParams
+  params: CreateTokenBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
-  const {
-    mint,
-    owner = metaplex.identity().publicKey,
-    token,
-    payer = metaplex.identity(),
-    programs,
-  } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { mint, owner = metaplex.identity().publicKey, token } = params;
 
   const tokenProgram = metaplex.programs().getToken(programs);
   const associatedTokenProgram = metaplex
@@ -234,14 +216,16 @@ export const createTokenBuilder = async (
         await metaplex
           .system()
           .builders()
-          .createAccount({
-            payer,
-            newAccount: token,
-            space: ACCOUNT_SIZE,
-            program: tokenProgram.address,
-            instructionKey:
-              params.createAccountInstructionKey ?? 'createAccount',
-          })
+          .createAccount(
+            {
+              newAccount: token,
+              space: ACCOUNT_SIZE,
+              program: tokenProgram.address,
+              instructionKey:
+                params.createAccountInstructionKey ?? 'createAccount',
+            },
+            { payer, programs }
+          )
       )
 
       // Initialize the Token.
@@ -296,16 +280,16 @@ export type CreateTokenIfMissingBuilderParams = Omit<
  */
 export const createTokenIfMissingBuilder = async (
   metaplex: Metaplex,
-  params: CreateTokenIfMissingBuilderParams
+  params: CreateTokenIfMissingBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateTokenBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mint,
     owner = metaplex.identity().publicKey,
     token,
     tokenExists = true,
-    payer = metaplex.identity(),
     tokenVariable = 'token',
-    programs,
   } = params;
 
   const destination =
@@ -338,12 +322,14 @@ export const createTokenIfMissingBuilder = async (
     await metaplex
       .tokens()
       .builders()
-      .createToken({
-        ...params,
-        mint,
-        owner,
-        token,
-        payer,
-      })
+      .createToken(
+        {
+          ...params,
+          mint,
+          owner,
+          token,
+        },
+        { programs, payer }
+      )
   );
 };

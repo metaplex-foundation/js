@@ -3,7 +3,7 @@ import { CandyGuardManifest } from './core';
 import {
   createSerializerFromBeet,
   PublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The addressGate guard restricts the mint to a single

@@ -6,7 +6,7 @@ import { assert, removeEmptyChars } from '@metaplex-foundation/js-core/utils';
 import {
   deserializeFeatureFlags,
   toBigNumber,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /** @internal */
 export type CandyMachineHiddenSection = {

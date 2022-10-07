@@ -7,14 +7,14 @@ import {
 import {
   findAssociatedTokenAccountPda,
   WRAPPED_SOL_MINT,
-} from '../../tokenModule';
+} from '@metaplex-foundation/js-plugin-token-module';
 import {
   findAuctioneerPda,
   findAuctionHouseFeePda,
   findAuctionHousePda,
   findAuctionHouseTreasuryPda,
 } from '../pdas';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { AuctionHouse } from '../models/AuctionHouse';
 import { ExpectedSignerError } from '@metaplex-foundation/js-core/errors';
@@ -30,7 +30,7 @@ import {
   Pda,
   isSigner,
   toPublicKey,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

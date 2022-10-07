@@ -1,15 +1,88 @@
 {
   "version": 2,
   "projects": {
-    "packages/js-core": {
-      "root": "packages/js-core",
+    "packages/js": {
+      "root": "packages/js",
       "projectType": "library",
-      "sourceRoot": "@",
+      "sourceRoot": "packages/js/src",
       "targets": {
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
+            "cwd": "packages/js"
+          }
+        },
+        "build": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js build"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js clean"],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js test"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-core": {
+      "root": "packages/js-core",
+      "projectType": "library",
+      "sourceRoot": "packages/js-core/src",
+      "targets": {
+        "prebuild": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-core"
           }
         },
@@ -82,7 +155,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-auction-house-module"
           }
         },
@@ -163,7 +236,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-aws"
           }
         },
@@ -242,7 +315,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-bundlr"
           }
         },
@@ -313,6 +386,85 @@
       },
       "tags": []
     },
+    "packages/js-plugin-bundlr-storage": {
+      "root": "packages/js-plugin-bundlr-storage",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-bundlr-storage/src",
+      "targets": {
+        "prebuild": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
+            "cwd": "packages/js-plugin-bundlr-storage"
+          }
+        },
+        "build": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr-storage build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr-storage clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./scripts/publish.mjs packages/js-plugin-bundlr-storage {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-plugin-bundlr-storage/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-bundlr-storage test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
     "packages/js-plugin-candy-machine-module": {
       "root": "packages/js-plugin-candy-machine-module",
       "projectType": "library",
@@ -321,7 +473,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-candy-machine-module"
           }
         },
@@ -402,7 +554,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-candy-machine-v2-module"
           }
         },
@@ -483,7 +635,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-derived-identity-module"
           }
         },
@@ -564,7 +716,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-mock-storage-module"
           }
         },
@@ -645,7 +797,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-nft-module"
           }
         },
@@ -724,7 +876,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-nft-storage"
           }
         },
@@ -803,7 +955,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-operation-module"
           }
         },
@@ -874,7 +1026,6 @@
       },
       "tags": []
     },
-
     "packages/js-plugin-system-module": {
       "root": "packages/js-plugin-system-module",
       "projectType": "library",
@@ -883,7 +1034,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-system-module"
           }
         },
@@ -962,7 +1113,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-token-module"
           }
         },
@@ -1041,7 +1192,7 @@
         "prebuild": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "yarn depcheck --ignore-patterns=test --ignores=buffer",
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-wallet-adapter-identity-module"
           }
         },

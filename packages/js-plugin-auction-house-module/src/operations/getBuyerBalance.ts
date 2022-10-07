@@ -6,7 +6,7 @@ import {
   Operation,
   OperationHandler,
   SolAmount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

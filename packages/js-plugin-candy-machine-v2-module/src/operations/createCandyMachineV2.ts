@@ -9,7 +9,7 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from '../../nftModule';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   CandyMachineV2,
   CandyMachineV2Configs,
@@ -35,7 +35,7 @@ import {
   toBigNumber,
   toPublicKey,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

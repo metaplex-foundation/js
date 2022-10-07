@@ -16,7 +16,7 @@ import {
   findMetadataPda,
   NftWithToken,
 } from '../../nftModule';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
 import { CandyMachineV2BotTaxError } from '../errors';
@@ -37,7 +37,7 @@ import {
   Signer,
   token,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

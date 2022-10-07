@@ -1,6 +1,6 @@
 import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { ConfirmOptions } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
@@ -9,7 +9,7 @@ import {
   PublicKey,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 
 // -----------------

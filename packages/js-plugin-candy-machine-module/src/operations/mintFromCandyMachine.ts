@@ -7,7 +7,7 @@ import {
   SYSVAR_SLOT_HASHES_PUBKEY,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyMachineBotTaxError } from '../errors';
 import { CandyMachine } from '../models';
 import {
@@ -28,7 +28,7 @@ import {
   PublicKey,
   Signer,
   token as tokenAmount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { NftWithToken } from '@metaplex-foundation/js-core/plugins/nftModule';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 

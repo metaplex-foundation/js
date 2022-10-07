@@ -3,15 +3,7 @@ import pkg from './package.json';
 
 export default createConfigs({
   pkg,
-  dependenciesToExcludeInBundle: [
-    '@metaplex-foundation/js',
-    '@ipld/dag-pb',
-    '@nftstorage/metaplex-auth',
-    'ipfs-car',
-    'ipfs-unixfs',
-    'multiformats',
-    'nft.storage',
-  ],
+  dependenciesToExcludeInBundle: Object.keys(pkg.dependencies),
   builds: [
     {
       dir: 'dist/esm',

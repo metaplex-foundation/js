@@ -7,7 +7,7 @@ import {
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
   MaybeAccount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /** @group Accounts */
 export type CandyMachineV2Account = Account<CandyMachine>;

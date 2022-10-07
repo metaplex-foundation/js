@@ -3,7 +3,7 @@ import {
   createWithdrawFromTreasuryInstruction,
   WithdrawFromTreasuryInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { AuctionHouse } from '../models';
 import { findAuctionHouseTreasuryPda } from '../pdas';
 import {
@@ -13,7 +13,7 @@ import {
   Signer,
   SolAmount,
   SplTokenAmount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 

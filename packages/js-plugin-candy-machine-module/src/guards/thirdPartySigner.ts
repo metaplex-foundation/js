@@ -6,7 +6,7 @@ import {
   createSerializerFromBeet,
   PublicKey,
   Signer,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The thirdPartySigner guard requires a predefined

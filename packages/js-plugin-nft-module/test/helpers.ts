@@ -1,5 +1,5 @@
 import { Test } from 'tape';
-import { Metaplex } from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { CreateNftInput, Nft, UploadMetadataInput } from '../src';
 
 export const assertCollectionHasSize = (

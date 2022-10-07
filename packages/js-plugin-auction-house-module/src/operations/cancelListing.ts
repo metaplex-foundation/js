@@ -5,7 +5,7 @@ import {
   createCancelInstruction,
   createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { AuctionHouse, Listing } from '../models';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { findAuctioneerPda } from '../pdas';
@@ -17,7 +17,7 @@ import {
   Signer,
   isSigner,
   Pda,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 

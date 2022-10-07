@@ -23,7 +23,7 @@ import {
   toAccountInfo,
   toBigNumber,
   UnparsedAccount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   assert,
   Option,

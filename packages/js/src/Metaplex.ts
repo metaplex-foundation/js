@@ -3,7 +3,7 @@ import {
   MetaplexPlugin,
   Cluster,
   resolveClusterFromConnection,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { corePlugins } from '@metaplex-foundation/js-core/plugins/corePlugins';
 
 export type MetaplexOptions = {

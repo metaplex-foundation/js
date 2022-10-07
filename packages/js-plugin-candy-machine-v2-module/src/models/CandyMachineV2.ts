@@ -26,7 +26,7 @@ import {
   toOptionDateTime,
   UnparsedAccount,
   Creator,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   assert,
   Option,

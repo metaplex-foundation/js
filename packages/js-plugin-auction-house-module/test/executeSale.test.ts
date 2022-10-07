@@ -11,7 +11,7 @@ import {
   assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@metaplex-foundation/js-core/types';
+import { sol, token } from '@metaplex-foundation/js-core';
 import {
   AccountNotFoundError,
   findAssociatedTokenAccountPda,

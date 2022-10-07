@@ -1,10 +1,10 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
   toMint,
   toMintAccount,
   toToken,
   toTokenAccount,
-} from '../../tokenModule';
+} from '@metaplex-foundation/js-plugin-token-module';
 import {
   parseOriginalOrPrintEditionAccount,
   toMetadataAccount,
@@ -22,14 +22,12 @@ import {
   toSft,
   toSftWithToken,
 } from '../models';
-import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
@@ -44,8 +42,7 @@ const Key = 'FindNftByMintOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByMint({ mintAddress })
- *   .run();
+ *   .findByMint({ mintAddress };
  * ```
  *
  * @group Operations
@@ -103,12 +100,6 @@ export type FindNftByMintInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -126,15 +117,14 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
     handle: async (
       operation: FindNftByMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByMintOutput> => {
+      const { programs, commitment } = scope;
       const {
         mintAddress,
         tokenAddress,
         tokenOwner,
         loadJsonMetadata = true,
-        commitment,
-        programs,
       } = operation.input;
 
       const associatedTokenAddress = tokenOwner
@@ -144,10 +134,11 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
             programs,
           })
         : undefined;
+      const nftPdas = metaplex.nfts().pdas();
       const accountAddresses = [
         mintAddress,
-        findMetadataPda(mintAddress),
-        findMasterEditionV2Pda(mintAddress),
+        nftPdas.metadata({ mint: mintAddress, programs }),
+        nftPdas.masterEdition({ mint: mintAddress, programs }),
         tokenAddress ?? associatedTokenAddress,
       ].filter((address): address is PublicKey => !!address);
 

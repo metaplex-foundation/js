@@ -6,8 +6,8 @@ import {
   createUpdateAuctionHouseInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import isEqual from 'lodash.isequal';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   assertAuctioneerAuctionHouse,
   AuctionHouse,
@@ -25,7 +25,7 @@ import {
   Operation,
   Signer,
   OperationHandler,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

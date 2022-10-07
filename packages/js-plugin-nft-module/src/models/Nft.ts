@@ -1,10 +1,10 @@
 import type { PublicKey } from '@solana/web3.js';
-import type { Mint, Token } from '../../tokenModule';
 import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
-import { assert } from '@metaplex-foundation/js-core/utils';
-import type { Pda } from '@metaplex-foundation/js-core/types';
+import { assert } from '@/utils';
+import type { Pda } from '@metaplex-foundation/js-core';
+import { Mint, Token } from '@metaplex-foundation/js-plugin-token-module';
 
 /**
  * This model captures all the relevant information about an NFT

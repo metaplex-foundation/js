@@ -28,11 +28,8 @@ import {
 } from './operations';
 import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
-import type {
-  MetaplexPlugin,
-  Program,
-} from '@metaplex-foundation/js-core/types';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
+import type { Metaplex, ProgramClient } from '@metaplex-foundation/js-core';
 /**
  * @group Plugins
  */
@@ -103,7 +100,7 @@ declare module '@metaplex-foundation/js-core/Metaplex' {
   }
 }
 
-declare module '../programModule/ProgramClient' {
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
   interface ProgramClient {
     getToken(programs?: Program[]): Program;
     getAssociatedToken(programs?: Program[]): Program;

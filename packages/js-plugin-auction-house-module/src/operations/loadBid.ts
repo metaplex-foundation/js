@@ -7,7 +7,7 @@ import {
   Operation,
   OperationHandler,
   amount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { assert, DisposableScope } from '@metaplex-foundation/js-core/utils';
 
 // -----------------

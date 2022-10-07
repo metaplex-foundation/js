@@ -4,8 +4,8 @@ import {
   createDepositInstruction,
   DepositInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { AuctionHouse } from '../models';
 import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
@@ -18,7 +18,7 @@ import {
   isSigner,
   SolAmount,
   SplTokenAmount,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 

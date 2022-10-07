@@ -1,6 +1,6 @@
 import { DerivedIdentityClient } from './DerivedIdentityClient';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { MetaplexPlugin } from '@metaplex-foundation/js-core/types';
+import { MetaplexPlugin } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const derivedIdentity = (): MetaplexPlugin => ({

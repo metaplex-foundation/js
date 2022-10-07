@@ -1,6 +1,6 @@
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { CreateAuctionHouseInput } from '@metaplex-foundation/js-core/plugins';
-import { sol, Signer } from '@metaplex-foundation/js-core/types';
+import { sol, Signer } from '@metaplex-foundation/js-core';
 
 export const createAuctionHouse = async (
   mx: Metaplex,

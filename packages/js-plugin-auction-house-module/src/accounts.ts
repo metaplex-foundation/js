@@ -9,7 +9,7 @@ import {
   Account,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 /** @group Accounts */
 export type AuctioneerAccount = Account<Auctioneer>;

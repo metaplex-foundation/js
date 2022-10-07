@@ -1,14 +1,13 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -22,8 +21,7 @@ const Key = 'FindNftByMetadataOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByMetadata({ metadata })
- *   .run();
+ *   .findByMetadata({ metadata };
  * ```
  *
  * @group Operations
@@ -82,12 +80,6 @@ export type FindNftByMetadataInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -105,7 +97,7 @@ export const findNftByMetadataOperationHandler: OperationHandler<FindNftByMetada
     handle: async (
       operation: FindNftByMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByMetadataOutput> => {
       const metadata = toMetadataAccount(
         await metaplex.rpc().getAccount(operation.input.metadata)
@@ -114,10 +106,9 @@ export const findNftByMetadataOperationHandler: OperationHandler<FindNftByMetada
 
       return metaplex
         .nfts()
-        .findByMint({
-          ...operation.input,
-          mintAddress: metadata.data.mint,
-        })
-        .run(scope);
+        .findByMint(
+          { ...operation.input, mintAddress: metadata.data.mint },
+          scope
+        );
     },
   };

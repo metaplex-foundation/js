@@ -13,7 +13,7 @@ import {
   Operation,
   OperationHandler,
   useOperation,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import {
   Mint,
   toMint,

@@ -4,13 +4,13 @@ import {
   RawAccount as SplTokenAccount,
   RawMint as SplMintAccount,
 } from '@solana/spl-token';
-import { NotYetImplementedError } from '@metaplex-foundation/js-core/errors';
+import { NotYetImplementedError } from '@/errors';
 import {
   Account,
   SolitaType,
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 
 const mintAccountParser: SolitaType<SplMintAccount> = {
   name: 'MintAccount',

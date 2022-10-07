@@ -8,7 +8,7 @@ import {
   createPrintListingReceiptInstruction,
   createSellInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
-import type { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import type { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   findAuctioneerPda,
   findAuctionHouseProgramAsSignerPda,
@@ -16,7 +16,7 @@ import {
   findListingReceiptPda,
 } from '../pdas';
 import { AuctionHouse, LazyListing, Listing } from '../models';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
+import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { findMetadataPda } from '../../nftModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import {
@@ -42,7 +42,7 @@ import {
   SolAmount,
   SplTokenAmount,
   now,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

@@ -7,7 +7,7 @@ import {
   createWallet,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { addAmounts, sol } from '@metaplex-foundation/js-core/types';
+import { addAmounts, sol } from '@metaplex-foundation/js-core';
 import { findAuctionHouseBuyerEscrowPda } from '@metaplex-foundation/js-core/plugins';
 
 killStuckProcess();

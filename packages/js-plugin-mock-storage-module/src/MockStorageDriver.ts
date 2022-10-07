@@ -4,7 +4,7 @@ import {
   BigNumber,
   lamports,
   toBigNumber,
-} from '@metaplex-foundation/js-core/types';
+} from '@metaplex-foundation/js-core';
 import { AssetNotFoundError } from '@metaplex-foundation/js-core/errors';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';

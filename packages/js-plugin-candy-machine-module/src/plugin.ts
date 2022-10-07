@@ -52,7 +52,7 @@ import {
   defaultCandyGuardProgram,
   gatewayProgram,
 } from './programs';
-import { MetaplexPlugin, Program } from '@metaplex-foundation/js-core/types';
+import { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /** @group Plugins */
@@ -155,7 +155,7 @@ declare module '@metaplex-foundation/js-core/Metaplex' {
   }
 }
 
-declare module '../programModule/ProgramClient' {
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
   interface ProgramClient {
     getCandyMachine(programs?: Program[]): Program;
     getCandyGuard<T extends CandyGuardProgram>(programs?: Program[]): T;
