@@ -3,10 +3,9 @@ import * as beet from '@metaplex-foundation/beet';
 import { AccountMeta } from '@solana/web3.js';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
-  MintingGroupSelectedDoesNotExistError,
-  MintingMustNotUseGroupError,
-  MintingRequiresGroupLabelError,
+  GuardGroupRequiredError,
   UnregisteredCandyGuardError,
+  SelectedGuardGroupDoesNotExistError,
 } from './errors';
 import {
   CandyGuardManifest,
@@ -193,25 +192,21 @@ export class CandyMachineGuardsClient {
     groups: { label: string; guards: T }[] = [],
     groupLabel: Option<string>
   ): T {
-    if (groups.length === 0) {
-      if (!!groupLabel) {
-        throw new MintingMustNotUseGroupError();
-      }
-
-      return guards;
-    }
-
     const availableGroups = groups.map((group) => group.label);
-    if (!groupLabel) {
-      throw new MintingRequiresGroupLabelError(availableGroups);
-    }
-
     const activeGroup = groups.find((group) => group.label === groupLabel);
-    if (!activeGroup) {
-      throw new MintingGroupSelectedDoesNotExistError(
+    if (groupLabel && !activeGroup) {
+      throw new SelectedGuardGroupDoesNotExistError(
         groupLabel,
         availableGroups
       );
+    }
+
+    if (groups.length === 0) {
+      return guards;
+    }
+
+    if (!activeGroup) {
+      throw new GuardGroupRequiredError(availableGroups);
     }
 
     const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
