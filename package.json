@@ -28,9 +28,7 @@
     "lint:fix": "nx run-many --all --target=lint:fix",
     "format": "prettier --write packages/",
     "docs": "typedoc",
-    "deploy:docs": "yarn docs && gh-pages --dist docs --dotfiles",
-    "bump:version": "changeset add",
-    "commit:version": "changeset version",
+    "docs:deploy": "yarn docs && gh-pages --dist docs --dotfiles",
     "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
     "amman:stop": "amman stop"
   },
