@@ -1,6 +1,5 @@
 import { AddressGateGuardSettings } from './addressGate';
 import {
-  AllowListGuardMintSettings,
   AllowListGuardRouteSettings,
   AllowListGuardSettings,
 } from './allowList';
@@ -71,7 +70,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   tokenGate: Option<TokenGateGuardMintSettings>;
   gatekeeper: Option<GatekeeperGuardMintSettings>;
   // endDate: no mint settings
-  allowList: Option<AllowListGuardMintSettings>;
+  // allowList: no mint settings
   // mintLimit: no mint settings
   nftPayment: Option<NftPaymentGuardMintSettings>;
   // redeemedAmount: no mint settings
