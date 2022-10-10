@@ -2,17 +2,17 @@ import { Buffer } from 'buffer';
 import * as ed25519 from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import { TransferSolOutput } from '../systemModule';
 import { UninitializedDerivedIdentityError } from './errors';
-import { Task } from '@metaplex-foundation/js-core/utils';
+import { Task } from '@metaplex-foundation/js-core';
 import {
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
   SolAmount,
+  TransferSolOutput,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /**
  * @group Modules

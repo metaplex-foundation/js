@@ -5,7 +5,7 @@ import {
   MAX_NAME_LENGTH,
   MAX_URI_LENGTH,
 } from '@metaplex-foundation/js-core/plugins/candyMachineV2Module/constants';
-import { toBigNumber } from '@metaplex-foundation/js-core/index';
+import { toBigNumber } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

@@ -17,7 +17,7 @@ import {
   findAssociatedTokenAccountPda,
   Pda,
   Purchase,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

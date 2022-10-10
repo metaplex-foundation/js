@@ -1,14 +1,14 @@
 import type { Commitment } from '@solana/web3.js';
 import { LazyListing, Listing } from '../models/Listing';
 import { assertNftOrSftWithToken } from '../../nftModule';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,
   OperationHandler,
   amount,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

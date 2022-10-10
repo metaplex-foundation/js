@@ -17,7 +17,7 @@ import {
   toBigNumber,
   toDateTime,
   token,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

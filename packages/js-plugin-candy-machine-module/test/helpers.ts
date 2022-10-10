@@ -21,7 +21,7 @@ import {
   PublicKey,
   toBigNumber,
   token,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 export const SEQUENTIAL_ITEM_SETTINGS: CandyMachineConfigLineSettings = {
   type: 'configLines',

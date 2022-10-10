@@ -1,6 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { findAuctionHouseBuyerEscrowPda } from '../pdas';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,

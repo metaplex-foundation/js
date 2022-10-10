@@ -5,8 +5,8 @@ import {
 } from '@metaplex-foundation/mpl-auction-house';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { AuctionHouse } from '../models';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import type { Metaplex } from '@metaplex-foundation/js-core';
+import { TransactionBuilder } from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,

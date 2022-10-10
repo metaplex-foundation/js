@@ -5,7 +5,7 @@ import {
 import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
 import { JsonMetadata } from './JsonMetadata';
-import { assert, Option, removeEmptyChars } from '@/utils';
+import { assert, Option, removeEmptyChars } from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Creator,

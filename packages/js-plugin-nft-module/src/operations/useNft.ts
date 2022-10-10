@@ -1,7 +1,7 @@
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
-import { ExpectedSignerError } from '@/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core/errors';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   isSigner,
@@ -12,7 +12,10 @@ import {
   toPublicKey,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

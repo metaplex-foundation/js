@@ -7,7 +7,7 @@ import {
   OperationHandler,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

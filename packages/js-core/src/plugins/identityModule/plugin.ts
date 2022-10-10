@@ -11,7 +11,7 @@ export const identityModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core/Metaplex' {
+declare module '@/Metaplex' {
   interface Metaplex {
     identity(): IdentityClient;
   }

@@ -15,7 +15,7 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
   NftWithToken,
-} from '../../nftModule';
+} from '@metaplex-foundation/js-plugin-nft-module';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
@@ -29,7 +29,7 @@ import { CandyMachineV2Program } from '../program';
 import {
   DisposableScope,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   assertAccountExists,
   Operation,

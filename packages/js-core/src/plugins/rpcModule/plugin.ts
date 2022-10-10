@@ -11,7 +11,7 @@ export const rpcModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core/Metaplex' {
+declare module '@/Metaplex' {
   interface Metaplex {
     rpc(): RpcClient;
   }

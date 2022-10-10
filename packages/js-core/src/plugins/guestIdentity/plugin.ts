@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { GuestIdentityDriver } from './GuestIdentityDriver';
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */

@@ -47,8 +47,8 @@ import {
   TransactionBuilder,
   Option,
   DisposableScope,
-} from '@metaplex-foundation/js-core/utils';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+} from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

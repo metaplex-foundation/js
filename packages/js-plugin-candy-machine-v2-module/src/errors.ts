@@ -10,7 +10,7 @@ import {
   DateTime,
   formatDateTime,
 } from '@metaplex-foundation/js-core';
-import { Option } from '@metaplex-foundation/js-core/utils';
+import { Option } from '@metaplex-foundation/js-core';
 
 /** @group Errors */
 export class CandyMachineV2Error extends MetaplexError {

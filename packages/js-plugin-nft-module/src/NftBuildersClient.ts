@@ -35,7 +35,7 @@ import {
   VerifyNftCreatorBuilderParams,
 } from './operations';
 import type { Metaplex } from '@metaplex-foundation/js-core';
-import { TransactionBuilderOptions } from '@/utils';
+import { TransactionBuilderOptions } from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to access the underlying Transaction Builders

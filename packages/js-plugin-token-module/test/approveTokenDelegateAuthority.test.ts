@@ -1,15 +1,16 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
+
+import { refreshToken, killStuckProcess } from './helpers';
+import { token } from '@metaplex-foundation/js-core';
 import {
   assertThrows,
-  killStuckProcess,
-  metaplex,
   spokSameAmount,
   spokSamePubkey,
-} from '../../js/test/helpers';
-import { refreshToken } from './helpers';
-import { Token, token } from '@metaplex-foundation/js-core/index';
+} from '../../js-core/test/helpers/asserts';
+import { Token } from '@metaplex-foundation/js-plugin-token-module/models/Token';
+import { metaplex } from './setup';
 
 killStuckProcess();
 

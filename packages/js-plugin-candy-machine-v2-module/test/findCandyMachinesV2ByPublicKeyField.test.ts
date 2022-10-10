@@ -2,7 +2,7 @@ import test from 'tape';
 import { Keypair } from '@solana/web3.js';
 import { createCollectionNft, killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachineV2 } from './helpers';
-import { token } from '@metaplex-foundation/js-core/index';
+import { token } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

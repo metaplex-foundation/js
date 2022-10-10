@@ -24,7 +24,7 @@ import {
   Option,
   RequiredKeys,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   assertSameCurrencies,
   isSigner,

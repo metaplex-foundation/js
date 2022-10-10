@@ -12,7 +12,7 @@ import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
 import {
   DisposableScope,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Creator,

@@ -1,7 +1,9 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
-import { token } from '@metaplex-foundation/js-core/index';
+import { assertThrows } from '../../js-core/test/helpers/asserts';
+import { token } from '@metaplex-foundation/js-core';
+import { killStuckProcess } from './helpers';
+import { metaplex } from './setup';
 
 killStuckProcess();
 

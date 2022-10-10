@@ -3,7 +3,7 @@ import test, { Test } from 'tape';
 import {
   Cluster,
   resolveClusterFromEndpoint,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 const assertCluster = (t: Test, endpoint: string, expected: Cluster) => {
   t.equal(resolveClusterFromEndpoint(endpoint), expected);

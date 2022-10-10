@@ -12,7 +12,7 @@ import {
   getAccountParsingAndAssertingFunction,
   getAccountParsingFunction,
 } from '@metaplex-foundation/js-core';
-import { NotYetImplementedError } from '@/errors';
+import { NotYetImplementedError } from '@metaplex-foundation/js-core/errors';
 
 /** @group Accounts */
 export type MetadataAccount = Account<Metadata>;

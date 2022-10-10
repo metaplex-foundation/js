@@ -4,7 +4,7 @@ import { ListingReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toListingReceiptAccount } from '../accounts';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

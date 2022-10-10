@@ -9,7 +9,7 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
-import { Nft } from '@metaplex-foundation/js-core/index';
+import { Nft } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

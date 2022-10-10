@@ -2,7 +2,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
 import { createNft, killStuckProcess, metaplex } from '../../helpers';
-import { Nft } from '@metaplex-foundation/js-core/index';
+import { Nft } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

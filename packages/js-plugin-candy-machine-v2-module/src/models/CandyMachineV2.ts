@@ -27,11 +27,7 @@ import {
   UnparsedAccount,
   Creator,
 } from '@metaplex-foundation/js-core';
-import {
-  assert,
-  Option,
-  removeEmptyChars,
-} from '@metaplex-foundation/js-core/utils';
+import { assert, Option, removeEmptyChars } from '@metaplex-foundation/js-core';
 import { Mint } from '@metaplex-foundation/js-core/plugins/tokenModule';
 
 // -----------------

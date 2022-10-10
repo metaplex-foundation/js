@@ -10,10 +10,14 @@
     "emitDeclarationOnly": true,
     "paths": {      
       "@/*": ["packages/js-core/src/*"],
-      "@metaplex-foundation/js-core": ["packages/js-core/src"],
+      "@": ["packages/js-core/src/index"],
+
+      "@metaplex-foundation/js-core": ["packages/js-core/src/index"],
       "@metaplex-foundation/js-core/*": ["packages/js-core/src/*"],
       "@metaplex-foundation/js-plugin-token-module/*": ["packages/js-plugin-token-module/src/*"],
-      "@metaplex-foundation/js-plugin-token-module": ["packages/js-plugin-token-module/src"]
+      "@metaplex-foundation/js-plugin-token-module": ["packages/js-plugin-token-module/src"],
+      "@metaplex-foundation/js-plugin-nft-module": ["packages/js-plugin-nft-module/src"],
+      "@metaplex-foundation/js-plugin-nft-module/*": ["packages/js-plugin-nft-module/src/*"]
 
     },
 

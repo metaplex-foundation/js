@@ -18,7 +18,7 @@ import {
   CreateListingBuilderContext,
 } from './createListing';
 import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import { TransactionBuilder } from '@metaplex-foundation/js-core';
 import {
   now,
   Operation,
@@ -27,7 +27,7 @@ import {
   toPublicKey,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

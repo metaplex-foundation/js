@@ -40,7 +40,7 @@ export const systemModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core/Metaplex' {
+declare module '@/Metaplex' {
   interface Metaplex {
     system(): SystemClient;
   }

@@ -1,13 +1,13 @@
 import type { Commitment, PublicKey } from '@solana/web3.js';
 import { toPurchaseReceiptAccount } from '../accounts';
 import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,
   OperationHandler,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

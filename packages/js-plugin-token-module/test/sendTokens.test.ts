@@ -1,9 +1,10 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
-import { assertRefreshedTokenHasAmount, assertTokenHasAmount } from './helpers';
-import { token } from '@metaplex-foundation/js-core/index';
 
+import { assertRefreshedTokenHasAmount, assertTokenHasAmount } from './helpers';
+import { token } from '@metaplex-foundation/js-core';
+import { killStuckProcess } from './helpers';
+import { metaplex } from './setup';
 killStuckProcess();
 
 test('[tokenModule] it can send tokens to an existing token account', async (t: Test) => {

@@ -63,7 +63,7 @@ import type {
   ErrorWithLogs,
   MetaplexPlugin,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({

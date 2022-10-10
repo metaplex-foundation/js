@@ -2,7 +2,7 @@ import { PublicKey, Transaction } from '@solana/web3.js';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
-} from '@/errors';
+} from '@metaplex-foundation/js-core';
 import { IdentityDriver } from '@metaplex-foundation/js-core';
 
 export type WalletAdapter = {

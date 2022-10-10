@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { Pda, Program, PublicKey } from '@metaplex-foundation/js-core';
 
 /**

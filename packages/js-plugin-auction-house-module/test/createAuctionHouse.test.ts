@@ -14,7 +14,7 @@ import {
   findAuctionHouseTreasuryPda,
   findAuctioneerPda,
   WRAPPED_SOL_MINT,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 import { AUCTIONEER_ALL_SCOPES } from '@metaplex-foundation/js-core/plugins/auctionHouseModule/constants';
 
 killStuckProcess();

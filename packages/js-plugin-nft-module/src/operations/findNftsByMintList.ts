@@ -8,7 +8,7 @@ import {
   OperationScope,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { GmaBuilder } from '@/utils';
+import { GmaBuilder } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

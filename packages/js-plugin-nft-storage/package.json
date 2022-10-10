@@ -44,9 +44,9 @@
     "preversion": "yarn build && yarn test",
     "postversion": "git push --follow-tags"
   },
-  "dependencies": { "@metaplex-foundation/js-core": "*",    
+  "dependencies": { 
+    "@metaplex-foundation/js-core": "*",    
     "@ipld/dag-pb": "^2.0.2",
-    "@metaplex-foundation/js":"*",
     "@nftstorage/metaplex-auth": "^1.2.0",
     "buffer": "^6.0.3",
     "ipfs-car": "^0.7.0",

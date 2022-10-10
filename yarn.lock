@@ -3091,17 +3091,6 @@
     "@metaplex-foundation/mpl-core" "^0.6.1"
     "@solana/web3.js" "^1.35.1"
 
-"@metaplex-foundation/mpl-candy-machine@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-candy-machine/-/mpl-candy-machine-4.6.0.tgz"
-  integrity sha512-5H3q78Gum5GgClTx/7VTUZwf7+Nn/m755S/5to/vBD1cEAaIcsGCw3uUwzKauDfCTMjVce7WbfTQf1CS0n3C1A==
-  dependencies:
-    "@metaplex-foundation/beet" "^0.4.0"
-    "@metaplex-foundation/beet-solana" "^0.3.0"
-    "@metaplex-foundation/cusper" "^0.0.2"
-    "@metaplex-foundation/mpl-core" "^0.6.1"
-    "@solana/web3.js" "^1.35.1"
-
 "@metaplex-foundation/mpl-core@^0.6.1":
   version "0.6.1"
   resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-core/-/mpl-core-0.6.1.tgz"
@@ -3114,19 +3103,6 @@
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-2.3.3.tgz#f7ce99689ff1fdfc5d382781f50943692f1ebb77"
   integrity sha512-BUn95TWj1U9g91WEtn4z4oZdHOnrT7qgwzUaIZ6Im9l9V8G2prNVvQjkoD86WLXjtR0Dgu378Er0A3mVtPmlzg==
-  dependencies:
-    "@metaplex-foundation/beet" "^0.4.0"
-    "@metaplex-foundation/beet-solana" "^0.3.0"
-    "@metaplex-foundation/cusper" "^0.0.2"
-    "@solana/spl-token" "^0.2.0"
-    "@solana/web3.js" "^1.35.1"
-    bn.js "^5.2.0"
-    debug "^4.3.3"
-
-"@metaplex-foundation/mpl-token-metadata@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-2.3.2.tgz"
-  integrity sha512-z8db73QmDIvCUOkrKrEIpdJYwlnfHbz1bE3zoaLusdsrhOfSbZvJ+NDfpV3/QGGEi3sFGAz1UalBO4vkmASTJw==
   dependencies:
     "@metaplex-foundation/beet" "^0.4.0"
     "@metaplex-foundation/beet-solana" "^0.3.0"
@@ -8872,7 +8848,7 @@ node-addon-api@^3.2.1:
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-3.2.1.tgz"
   integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
 
-node-fetch@2, node-fetch@2.6.7, node-fetch@^2.6.1, node-fetch@^2.6.7:
+node-fetch@2, node-fetch@2.6.7, node-fetch@^2.6.1, node-fetch@^2.6.2:
   version "2.6.7"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==

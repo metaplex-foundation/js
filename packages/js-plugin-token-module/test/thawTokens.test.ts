@@ -1,8 +1,9 @@
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
+import { killStuckProcess } from './helpers';
 import { refreshToken } from './helpers';
+import { metaplex } from './setup';
 
 killStuckProcess();
 

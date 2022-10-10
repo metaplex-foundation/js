@@ -29,7 +29,7 @@ import {
   toBigNumber,
   toDateTime,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

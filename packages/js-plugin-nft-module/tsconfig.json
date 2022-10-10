@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "test/approveNftCollectionAuthority.test.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",

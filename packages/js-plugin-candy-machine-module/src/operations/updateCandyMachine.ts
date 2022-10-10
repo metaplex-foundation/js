@@ -39,7 +39,7 @@ import {
   assertObjectHasDefinedKeys,
   removeUndefinedAttributes,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

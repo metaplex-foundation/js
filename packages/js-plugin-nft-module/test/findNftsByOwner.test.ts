@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
 import { metaplex, createNft, killStuckProcess } from '../../helpers';
-import { Metadata } from '@metaplex-foundation/js-core/index';
+import { Metadata } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

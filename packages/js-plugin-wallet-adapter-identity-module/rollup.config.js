@@ -3,7 +3,7 @@ import pkg from './package.json';
 
 export default createConfigs({
   pkg,
-  dependenciesToExcludeInBundle: Object.keys(pkg.dependencies),,
+  dependenciesToExcludeInBundle: Object.keys(pkg.dependencies),
   builds: [
     {
       dir: 'dist/esm',

@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../helpers';
 import { create32BitsHash, createCandyMachine } from './helpers';
-import { toBigNumber } from '@metaplex-foundation/js-core/index';
+import { toBigNumber } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

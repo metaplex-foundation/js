@@ -1,6 +1,6 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
 import { chunk } from './common';
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { UnparsedMaybeAccount } from '@/types';
 
 export type GmaBuilderOptions = {

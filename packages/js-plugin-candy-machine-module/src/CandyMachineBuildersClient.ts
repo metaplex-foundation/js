@@ -26,7 +26,7 @@ import {
   wrapCandyGuardBuilder,
   WrapCandyGuardBuilderParams,
 } from './operations';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to access the underlying Transaction Builders

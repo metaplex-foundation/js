@@ -7,7 +7,7 @@ import {
   Metaplex,
   sol,
   toBigNumber,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 export async function createCandyMachineV2(
   mx: Metaplex,

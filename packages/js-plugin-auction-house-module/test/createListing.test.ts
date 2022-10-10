@@ -18,7 +18,7 @@ import {
   Listing,
   AccountNotFoundError,
   Pda,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

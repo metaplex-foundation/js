@@ -20,7 +20,7 @@ import {
   Option,
   padEmptyChars,
   removeEmptyChars,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   deserialize,
   deserializeFeatureFlags,
@@ -29,7 +29,7 @@ import {
   serialize,
   Signer,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /**
  * This client enables us to register custom guards from

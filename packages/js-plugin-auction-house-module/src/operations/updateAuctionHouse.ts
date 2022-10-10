@@ -19,14 +19,14 @@ import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
 import {
   DisposableScope,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,
   Signer,
   OperationHandler,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

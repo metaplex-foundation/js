@@ -59,7 +59,7 @@ import {
   VerifyNftCreatorInput,
   verifyNftCreatorOperation,
 } from './operations';
-import { PartialKeys } from '@/utils';
+import { PartialKeys } from '@metaplex-foundation/js-core';
 import { OperationOptions, token } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core';
 

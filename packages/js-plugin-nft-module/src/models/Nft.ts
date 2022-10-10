@@ -2,7 +2,7 @@ import type { PublicKey } from '@solana/web3.js';
 import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 import type { Pda } from '@metaplex-foundation/js-core';
 import { Mint, Token } from '@metaplex-foundation/js-plugin-token-module';
 

@@ -10,7 +10,7 @@ import {
   Signer,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import { TransactionBuilder } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

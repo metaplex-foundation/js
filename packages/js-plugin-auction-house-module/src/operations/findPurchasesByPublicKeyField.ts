@@ -9,7 +9,7 @@ import {
 } from '../models';
 import { AuctionHouseProgram } from '../program';
 import { toPurchaseReceiptAccount } from '../accounts';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

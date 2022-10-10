@@ -7,7 +7,11 @@ import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Sft } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   CreatorInput,
   Operation,
@@ -17,7 +21,7 @@ import {
   useOperation,
 } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { NoInstructionsToSendError } from '@/errors';
+import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
 
 // -----------------
 // Operation

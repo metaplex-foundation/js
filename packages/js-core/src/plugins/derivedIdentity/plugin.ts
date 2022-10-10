@@ -11,7 +11,7 @@ export const derivedIdentity = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core/Metaplex' {
+declare module '@/Metaplex' {
   interface Metaplex {
     derivedIdentity(): DerivedIdentityClient;
   }

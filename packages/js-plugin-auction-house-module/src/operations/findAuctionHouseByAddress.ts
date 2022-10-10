@@ -3,13 +3,13 @@ import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
 import { findAuctioneerPda } from '../pdas';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
-import { DisposableScope } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope } from '@metaplex-foundation/js-core';
 import {
   useOperation,
   Operation,
   OperationHandler,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

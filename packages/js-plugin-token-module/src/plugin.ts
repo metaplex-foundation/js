@@ -28,8 +28,14 @@ import {
 } from './operations';
 import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
-import type { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
-import type { Metaplex, ProgramClient } from '@metaplex-foundation/js-core';
+import type {
+  MetaplexPlugin,
+  Program,
+  ProgramClient,
+} from '@metaplex-foundation/js-core';
+
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+
 /**
  * @group Plugins
  */

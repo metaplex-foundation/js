@@ -24,11 +24,7 @@ import {
   toBigNumber,
   UnparsedAccount,
 } from '@metaplex-foundation/js-core';
-import {
-  assert,
-  Option,
-  removeEmptyChars,
-} from '@metaplex-foundation/js-core/utils';
+import { assert, Option, removeEmptyChars } from '@metaplex-foundation/js-core';
 
 /**
  * This model contains all the relevant information about a Candy Machine.

@@ -1,7 +1,7 @@
 import type { PublicKey } from '@solana/web3.js';
 import type { Mint, Token } from '@metaplex-foundation/js-plugin-token-module';
 import type { Metadata } from './Metadata';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 import { amount, Pda } from '@metaplex-foundation/js-core';
 
 /** @group Models */

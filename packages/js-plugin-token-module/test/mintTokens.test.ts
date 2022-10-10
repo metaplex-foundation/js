@@ -1,8 +1,13 @@
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
-import { assertRefreshedTokenHasAmount, assertTokenHasAmount } from './helpers';
-import { token } from '@metaplex-foundation/js-core/index';
+
+import {
+  assertRefreshedTokenHasAmount,
+  assertTokenHasAmount,
+  killStuckProcess,
+} from './helpers';
+import { token } from '@metaplex-foundation/js-core';
+import { metaplex } from './setup';
 
 killStuckProcess();
 

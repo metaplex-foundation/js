@@ -10,7 +10,7 @@ import {
   isEqualToAmount,
   isLessThanAmount,
   isGreaterThanAmount,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

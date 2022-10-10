@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { ListingReceiptAccount } from '../accounts';
 import { NftWithToken, SftWithToken } from '../../nftModule';
 import { AuctionHouse } from './AuctionHouse';
-import { assert, Option } from '@metaplex-foundation/js-core/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 import {
   amount,
   BigNumber,

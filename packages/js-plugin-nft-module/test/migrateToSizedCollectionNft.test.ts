@@ -7,7 +7,7 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
-import { Nft, toBigNumber } from '@metaplex-foundation/js-core/index';
+import { Nft, toBigNumber } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

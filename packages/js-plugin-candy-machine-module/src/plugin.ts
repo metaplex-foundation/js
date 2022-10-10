@@ -53,7 +53,7 @@ import {
   gatewayProgram,
 } from './programs';
 import { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({

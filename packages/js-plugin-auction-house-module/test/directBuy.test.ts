@@ -14,7 +14,7 @@ import { sol, token } from '@metaplex-foundation/js-core';
 import {
   findAssociatedTokenAccountPda,
   Purchase,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

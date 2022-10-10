@@ -5,7 +5,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
 import { CandyMachineV2Item } from './models';
-import { removeEmptyChars } from '@metaplex-foundation/js-core/utils';
+import { removeEmptyChars } from '@metaplex-foundation/js-core';
 import { BigNumber, toBigNumber } from '@metaplex-foundation/js-core';
 
 export function countCandyMachineV2Items(rawData: Buffer): BigNumber {

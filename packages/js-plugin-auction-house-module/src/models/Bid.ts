@@ -14,7 +14,7 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@metaplex-foundation/js-core';
-import { assert, Option } from '@metaplex-foundation/js-core/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 
 /** @group Models */
 export type Bid = Readonly<

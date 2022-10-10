@@ -3,7 +3,7 @@ import spok, { Specifications } from 'spok';
 import test from 'tape';
 import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
 import { createCandyMachine } from './helpers';
-import { assert, CandyMachine } from '@metaplex-foundation/js-core/index';
+import { assert, CandyMachine } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

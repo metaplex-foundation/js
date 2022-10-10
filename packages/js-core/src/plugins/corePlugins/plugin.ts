@@ -6,6 +6,7 @@ import { storageModule } from '../storageModule';
 import { rpcModule } from '../rpcModule';
 import { programModule } from '../programModule';
 import { utilsModule } from '../utilsModule';
+import { operationModule } from '../operationModule';
 
 // Default drivers.
 import { guestIdentity } from '../guestIdentity';
@@ -19,7 +20,7 @@ export const corePlugins = () => ({
     metaplex.use(identityModule());
     metaplex.use(storageModule());
     metaplex.use(rpcModule());
-    // metaplex.use(operationModule());
+    metaplex.use(operationModule());
     metaplex.use(programModule());
     metaplex.use(utilsModule());
 

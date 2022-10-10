@@ -3,7 +3,7 @@ import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import { TransactionBuilder } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

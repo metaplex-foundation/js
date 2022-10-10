@@ -13,7 +13,7 @@ import {
   assertCollectionHasSize,
   assertRefreshedCollectionHasSize,
 } from './helpers';
-import { Nft, Sft, toMetaplexFile } from '@metaplex-foundation/js-core/index';
+import { Nft, Sft, toMetaplexFile } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

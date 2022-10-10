@@ -30,7 +30,7 @@ import {
   TokenGateGuardSettings,
 } from './tokenGate';
 import { TokenPaymentGuardSettings } from './tokenPayment';
-import { Option } from '@metaplex-foundation/js-core/utils';
+import { Option } from '@metaplex-foundation/js-core';
 
 /**
  * The settings for all default Candy Machine guards.

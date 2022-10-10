@@ -18,8 +18,8 @@ import {
   isSigner,
   Pda,
 } from '@metaplex-foundation/js-core';
-import { TransactionBuilder } from '@metaplex-foundation/js-core/utils';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { TransactionBuilder } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

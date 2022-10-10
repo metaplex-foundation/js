@@ -20,7 +20,7 @@ import {
   toCandyMachineV2InstructionData,
 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { Option, TransactionBuilder } from '@metaplex-foundation/js-core/utils';
+import { Option, TransactionBuilder } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

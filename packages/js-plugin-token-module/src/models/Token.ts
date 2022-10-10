@@ -9,7 +9,7 @@ import {
   SplTokenAmount,
   token,
 } from '@metaplex-foundation/js-core';
-import { assert, Option } from '@/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 
 /**
  * This model represents a token account.

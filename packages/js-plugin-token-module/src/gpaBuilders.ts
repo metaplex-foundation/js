@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { MINT_SIZE, ACCOUNT_SIZE, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { GpaBuilder } from '@/utils';
+import { GpaBuilder } from '@metaplex-foundation/js-core';
 import { BigNumber } from '@metaplex-foundation/js-core';
 
 export class MintGpaBuilder extends GpaBuilder {

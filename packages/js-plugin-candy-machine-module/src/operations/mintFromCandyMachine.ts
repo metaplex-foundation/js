@@ -20,7 +20,7 @@ import {
   DisposableScope,
   Option,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
@@ -29,8 +29,8 @@ import {
   Signer,
   token as tokenAmount,
 } from '@metaplex-foundation/js-core';
-import { NftWithToken } from '@metaplex-foundation/js-core/plugins/nftModule';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { NftWithToken } from '../../../js-plugin-nft-module/src/models/Nft';
 
 // -----------------
 // Operation

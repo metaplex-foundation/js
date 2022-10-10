@@ -10,7 +10,7 @@ import {
   assertThrows,
   createSft,
 } from '../../helpers';
-import { Nft, Sft, token } from '@metaplex-foundation/js-core/index';
+import { Nft, Sft, token } from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

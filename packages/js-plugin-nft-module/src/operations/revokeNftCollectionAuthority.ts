@@ -9,7 +9,10 @@ import {
   Signer,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

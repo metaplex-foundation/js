@@ -6,7 +6,7 @@ import {
   isEqualToAmount,
   sol,
   toBigNumber,
-} from '@metaplex-foundation/js-core/index';
+} from '@metaplex-foundation/js-core';
 
 killStuckProcess();
 

@@ -32,7 +32,7 @@ import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
 } from './operations/updateAuctionHouse';
-import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to access the underlying Transaction Builders

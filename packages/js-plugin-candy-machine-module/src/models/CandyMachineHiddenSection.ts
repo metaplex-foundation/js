@@ -2,7 +2,7 @@ import * as beet from '@metaplex-foundation/beet';
 import { CandyMachineData } from '@metaplex-foundation/mpl-candy-machine-core';
 import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
-import { assert, removeEmptyChars } from '@metaplex-foundation/js-core/utils';
+import { assert, removeEmptyChars } from '@metaplex-foundation/js-core';
 import {
   deserializeFeatureFlags,
   toBigNumber,

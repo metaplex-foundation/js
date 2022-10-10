@@ -8,7 +8,7 @@ import { CandyMachineV2GpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { DisposableScope, zipMap } from '@metaplex-foundation/js-core/utils';
+import { DisposableScope, zipMap } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

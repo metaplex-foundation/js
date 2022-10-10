@@ -4,7 +4,7 @@ import {
   RawAccount as SplTokenAccount,
   RawMint as SplMintAccount,
 } from '@solana/spl-token';
-import { NotYetImplementedError } from '@/errors';
+import { NotYetImplementedError } from '@metaplex-foundation/js-core/errors';
 import {
   Account,
   SolitaType,

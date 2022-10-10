@@ -1,9 +1,10 @@
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { assertThrows, killStuckProcess, metaplex } from '../../helpers';
-import { refreshToken } from './helpers';
-import { token } from '@metaplex-foundation/js-core/index';
+import { assertThrows } from '../../js-core/test/helpers/asserts';
+import { refreshToken, killStuckProcess } from './helpers';
+import { token } from '@metaplex-foundation/js-core';
+import { metaplex } from './setup';
 
 killStuckProcess();
 

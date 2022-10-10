@@ -18,7 +18,7 @@ import {
   CandyMachineV2IsFullError,
   CandyMachineV2NotLiveError,
 } from './errors';
-import { assert } from '@metaplex-foundation/js-core/utils';
+import { assert } from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   now,

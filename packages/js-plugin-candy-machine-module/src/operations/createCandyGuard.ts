@@ -13,7 +13,7 @@ import { CandyGuard } from '../models/CandyGuard';
 import {
   DisposableScope,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core/utils';
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

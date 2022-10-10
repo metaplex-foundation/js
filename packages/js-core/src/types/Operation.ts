@@ -1,7 +1,7 @@
 import { Commitment, ConfirmOptions } from '@solana/web3.js';
 import { Signer } from './Signer';
 import { Program } from './Program';
-import { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@/Metaplex';
 import { DisposableScope, RequiredKeys } from '@/utils';
 
 export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown>
