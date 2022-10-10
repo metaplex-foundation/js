@@ -5,7 +5,7 @@ import {
   lamports,
   mapSerializer,
   SolAmount,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The botTax guard charges a penalty for invalid transactions

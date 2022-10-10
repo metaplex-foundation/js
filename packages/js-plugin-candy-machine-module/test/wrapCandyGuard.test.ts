@@ -1,9 +1,9 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
-import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
+import { killStuckProcess, metaplex, spokSamePubkey } from './helpers';
 import { createCandyGuard, createCandyMachine } from './helpers';
-import { CandyMachine } from '@/index';
+import { CandyMachine } from '../src';
 
 killStuckProcess();
 

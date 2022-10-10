@@ -1,6 +1,6 @@
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
-import { killStuckProcess, metaplex } from '../../helpers';
+import { killStuckProcess, metaplex } from './helpers';
 import { createCandyGuard } from './helpers';
 
 killStuckProcess();

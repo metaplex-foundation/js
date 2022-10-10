@@ -8,8 +8,7 @@ import {
   createSerializerFromBeet,
   mapSerializer,
   toBigNumber,
-} from '@/types';
-
+} from '@metaplex-foundation/js-core';
 /**
  * The redeemedAmount guard forbids minting when the
  * number of minted NFTs for the entire Candy Machine

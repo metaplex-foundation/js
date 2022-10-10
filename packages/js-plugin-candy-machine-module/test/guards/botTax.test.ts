@@ -1,6 +1,6 @@
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
-import { createWallet, killStuckProcess, metaplex } from '../../../helpers';
+import { createWallet, killStuckProcess, metaplex } from '../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import { isEqualToAmount, sol, toBigNumber } from '@/index';
 

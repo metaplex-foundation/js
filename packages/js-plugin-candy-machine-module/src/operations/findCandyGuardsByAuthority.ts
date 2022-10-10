@@ -2,8 +2,12 @@ import { CandyGuard as MplCandyGuard } from '@metaplex-foundation/mpl-candy-guar
 import { PublicKey } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard, toCandyGuard } from '../models';
-import { GpaBuilder } from '@/utils';
-import { Operation, OperationHandler, OperationScope } from '@/types';
+import { GpaBuilder } from '@metaplex-foundation/js-core';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

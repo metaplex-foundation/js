@@ -8,16 +8,13 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
-} from '../../helpers';
+} from './helpers';
+import { sol, toBigNumber, toDateTime, token } from '@/index';
 import {
   CandyGuard,
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
-  sol,
-  toBigNumber,
-  toDateTime,
-  token,
-} from '@/index';
+} from '../src';
 
 killStuckProcess();
 

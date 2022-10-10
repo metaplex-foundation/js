@@ -20,7 +20,11 @@ import {
 } from './guards';
 import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
-import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
+import {
+  Option,
+  padEmptyChars,
+  removeEmptyChars,
+} from '@metaplex-foundation/js-core';
 import {
   deserialize,
   deserializeFeatureFlags,
@@ -28,8 +32,8 @@ import {
   PublicKey,
   serialize,
   Signer,
-} from '@/types';
-import type { Metaplex } from '@/Metaplex';
+} from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
  * This client enables us to register custom guards from

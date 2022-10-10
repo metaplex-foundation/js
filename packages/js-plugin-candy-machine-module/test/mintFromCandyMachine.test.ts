@@ -5,7 +5,7 @@ import {
   createWallet,
   killStuckProcess,
   metaplex,
-} from '../../helpers';
+} from './helpers';
 import {
   assertMintingWasSuccessful,
   create32BitsHash,

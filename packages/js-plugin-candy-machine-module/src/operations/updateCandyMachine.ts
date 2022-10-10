@@ -14,7 +14,10 @@ import {
   isCandyMachine,
   toCandyMachineData,
 } from '../models';
-import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
+import {
+  MissingInputDataError,
+  NoInstructionsToSendError,
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 import {
@@ -27,13 +30,13 @@ import {
   PublicKey,
   Signer,
   toPublicKey,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 import {
   assertObjectHasDefinedKeys,
   removeUndefinedAttributes,
   TransactionBuilder,
   TransactionBuilderOptions,
-} from '@/utils';
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

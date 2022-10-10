@@ -10,7 +10,7 @@ import {
   mapSerializer,
   PublicKey,
   SolAmount,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The solPayment guard is used to charge an

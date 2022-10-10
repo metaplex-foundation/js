@@ -1,12 +1,8 @@
 import test from 'tape';
-import {
-  assertThrows,
-  createWallet,
-  killStuckProcess,
-  metaplex,
-} from '../../helpers';
+import { createWallet, killStuckProcess, metaplex } from './helpers';
 import { createCandyMachine } from './helpers';
 import { getMerkleProof, getMerkleRoot, sol } from '@/index';
+import { assertThrows } from 'packages/js-core/test/helpers/asserts';
 
 killStuckProcess();
 

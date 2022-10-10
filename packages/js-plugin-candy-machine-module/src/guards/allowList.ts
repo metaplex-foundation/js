@@ -2,7 +2,10 @@ import { Buffer } from 'buffer';
 import * as beet from '@metaplex-foundation/beet';
 import { AllowList, allowListBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
-import { createSerializerFromBeet, mapSerializer } from '@/types';
+import {
+  createSerializerFromBeet,
+  mapSerializer,
+} from '@metaplex-foundation/js-core';
 
 /**
  * The allowList guard validates the minting wallet against

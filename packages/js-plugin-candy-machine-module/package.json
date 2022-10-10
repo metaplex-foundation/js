@@ -46,10 +46,10 @@
   "dependencies": {
     "@metaplex-foundation/js-core": "*",
     "@metaplex-foundation/js-plugin-nft-module": "*",
-
-    "@metaplex-foundation/mpl-candy-guard": "npm:@lorisleiva/mpl-candy-guard@^0.0.12",
+    "@metaplex-foundation/mpl-candy-guard": "^0.0.2",
     "@metaplex-foundation/beet": "0.7.1",
-    "@metaplex-foundation/mpl-candy-machine-core": "npm:@lorisleiva/mpl-candy-machine-core@^0.0.12",
+    "@metaplex-foundation/mpl-candy-machine-core": "^0.1.0",
+
     "@solana/web3.js": "^1.47.3",
     "buffer": "^6.0.3"
   },

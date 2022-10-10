@@ -2,7 +2,11 @@ import { Buffer } from 'buffer';
 import { thirdPartySignerBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import { createSerializerFromBeet, PublicKey, Signer } from '@/types';
+import {
+  createSerializerFromBeet,
+  PublicKey,
+  Signer,
+} from '@metaplex-foundation/js-core';
 
 /**
  * The thirdPartySigner guard requires a predefined

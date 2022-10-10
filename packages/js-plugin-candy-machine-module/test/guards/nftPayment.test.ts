@@ -2,14 +2,17 @@ import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import {
   assertThrows,
-  createCollectionNft,
-  createNft,
   createWallet,
   killStuckProcess,
   metaplex,
-} from '../../../helpers';
+} from '../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { assertNftWithToken, isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import {
+  createCollectionNft,
+  createNft,
+} from '../../../js-plugin-nft-module/test/helpers';
+import { assertNftWithToken } from '@metaplex-foundation/js-plugin-nft-module';
 
 killStuckProcess();
 

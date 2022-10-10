@@ -6,7 +6,7 @@ import {
   PublicKey,
   SplTokenAmount,
   token,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The tokenBurn guard restricts minting to token holders

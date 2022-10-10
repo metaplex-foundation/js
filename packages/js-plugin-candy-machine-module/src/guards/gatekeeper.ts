@@ -9,7 +9,7 @@ import {
   mapSerializer,
   Pda,
   PublicKey,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 
 /**
  * The gatekeeper guard checks whether the minting wallet

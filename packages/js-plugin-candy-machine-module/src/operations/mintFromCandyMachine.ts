@@ -15,15 +15,20 @@ import {
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
   OperationScope,
   PublicKey,
   Signer,
+  makeConfirmOptionsFinalizedOnMainnet,
   token as tokenAmount,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 import { NftWithToken } from '@metaplex-foundation/js-plugin-nft-module';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 

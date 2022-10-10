@@ -7,16 +7,14 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
-} from '../../helpers';
+} from './helpers';
 import { createCandyGuard } from './helpers';
+import { sol, toDateTime, token } from '@/index';
 import {
   CandyGuard,
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
-  sol,
-  toDateTime,
-  token,
-} from '@/index';
+} from '../src';
 
 killStuckProcess();
 

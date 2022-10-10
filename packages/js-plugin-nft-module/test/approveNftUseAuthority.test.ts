@@ -8,8 +8,7 @@ import {
   killStuckProcess,
   metaplex,
   spokSameBignum,
-} from '../../helpers';
-import { Nft } from '@metaplex-foundation/js-core';
+} from './helpers';
 
 killStuckProcess();
 

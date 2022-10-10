@@ -55,8 +55,12 @@ import {
   defaultCandyGuardProgram,
   gatewayProgram,
 } from './programs';
-import { MetaplexPlugin, OperationConstructor, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import {
+  MetaplexPlugin,
+  OperationConstructor,
+  Program,
+} from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({

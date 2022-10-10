@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { mintLimitBeet } from '@metaplex-foundation/mpl-candy-guard';
 import { CandyGuardManifest } from './core';
-import { createSerializerFromBeet } from '@/types';
+import { createSerializerFromBeet } from '@metaplex-foundation/js-core';
 
 /**
  * The mintLimit guard allows to specify a limit on the

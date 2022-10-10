@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
-import type { Metaplex } from '@/Metaplex';
-import { Pda, Program, PublicKey } from '@/types';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { Pda, Program, PublicKey } from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to build PDAs related to the Candy Machine module.

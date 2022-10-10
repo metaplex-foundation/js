@@ -4,16 +4,16 @@ import {
   createWallet,
   killStuckProcess,
   metaplex,
-} from '../../../helpers';
+} from '../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import {
   getMerkleProof,
   getMerkleRoot,
   isEqualToAmount,
-  NftWithToken,
   sol,
   toBigNumber,
 } from '@/index';
+import { NftWithToken } from '@metaplex-foundation/js-plugin-nft-module';
 
 killStuckProcess();
 

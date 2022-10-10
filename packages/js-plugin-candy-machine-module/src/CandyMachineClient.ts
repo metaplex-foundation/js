@@ -40,8 +40,8 @@ import {
   WrapCandyGuardInput,
   wrapCandyGuardOperation,
 } from './operations';
-import { OperationOptions, toPublicKey } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { OperationOptions, toPublicKey } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
  * This is a client for the Candy Machine V3 module.

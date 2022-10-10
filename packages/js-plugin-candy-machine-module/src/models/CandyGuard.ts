@@ -15,7 +15,7 @@ import {
   PublicKey,
   toAccountInfo,
   UnparsedAccount,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /** @group Models */

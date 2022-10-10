@@ -9,14 +9,17 @@ import {
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
 } from '../guards';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
   OperationScope,
   serializeDiscriminator,
   Signer,
-} from '@/types';
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------

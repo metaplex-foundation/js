@@ -3,25 +3,22 @@ import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
   assertThrows,
-  createCollectionNft,
   createWallet,
   killStuckProcess,
   metaplex,
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
-} from '../../helpers';
+} from './helpers';
 import { create32BitsHash } from './helpers';
+import { sol, toBigNumber, toDateTime } from '@/index';
 import {
   CandyMachine,
   candyMachineProgram,
   defaultCandyGuardProgram,
   emptyDefaultCandyGuardSettings,
-  sol,
-  toBigNumber,
-  toDateTime,
-} from '@/index';
-
+} from '../src';
+import { createCollectionNft } from '../../js-plugin-nft-module/test/helpers';
 killStuckProcess();
 
 test('[candyMachineModule] create candy machine with minimum configuration', async (t) => {

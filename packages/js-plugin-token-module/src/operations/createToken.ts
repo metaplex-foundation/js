@@ -6,7 +6,7 @@ import {
 import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Token } from '../models/Token';
-import { ExpectedSignerError } from '@metaplex-foundation/js-core/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   isSigner,

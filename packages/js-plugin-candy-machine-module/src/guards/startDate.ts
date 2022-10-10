@@ -5,8 +5,7 @@ import {
   DateTime,
   mapSerializer,
   toDateTime,
-} from '@/types';
-
+} from '@metaplex-foundation/js-core';
 /**
  * The startDate guard determines the start date of the mint.
  * Before this date, minting is not allowed.

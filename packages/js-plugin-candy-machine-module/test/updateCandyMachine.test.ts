@@ -4,22 +4,17 @@ import test from 'tape';
 import {
   assertThrows,
   assertThrowsFn,
-  createCollectionNft,
   killStuckProcess,
   metaplex,
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
-} from '../../helpers';
+} from './helpers';
 import { create32BitsHash, createCandyMachine } from './helpers';
-import {
-  CandyMachine,
-  emptyDefaultCandyGuardSettings,
-  sol,
-  toBigNumber,
-  toDateTime,
-} from '@/index';
+import { sol, toBigNumber, toDateTime } from '@/index';
 
+import { CandyMachine, emptyDefaultCandyGuardSettings } from '../src';
+import { createCollectionNft } from 'packages/js-plugin-nft-module/test/helpers';
 killStuckProcess();
 
 test('[candyMachineModule] it can update the data of a candy machine', async (t) => {
