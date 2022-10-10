@@ -1,6 +1,5 @@
 import { ProgramClient } from './ProgramClient';
 import type { Metaplex } from '@/Metaplex';
-
 import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
@@ -11,7 +10,7 @@ export const programModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@/Metaplex' {
+declare module '../../Metaplex' {
   interface Metaplex {
     programs(): ProgramClient;
   }

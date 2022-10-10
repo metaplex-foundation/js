@@ -1,12 +1,12 @@
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '../../Metaplex';
 
 // Low-level modules.
 import { identityModule } from '../identityModule';
 import { storageModule } from '../storageModule';
 import { rpcModule } from '../rpcModule';
+import { operationModule } from '../operationModule';
 import { programModule } from '../programModule';
 import { utilsModule } from '../utilsModule';
-import { operationModule } from '../operationModule';
 
 // Default drivers.
 import { guestIdentity } from '../guestIdentity';
@@ -26,7 +26,6 @@ export const corePlugins = () => ({
 
     // Default drivers.
     metaplex.use(guestIdentity());
-    // metaplex.use(bundlrStorage());
 
     // Verticals.
     metaplex.use(systemModule());

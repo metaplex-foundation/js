@@ -1,7 +1,7 @@
 import { Commitment, ConfirmOptions } from '@solana/web3.js';
 import { Signer } from './Signer';
 import { Program } from './Program';
-import type { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 import { DisposableScope, RequiredKeys } from '@/utils';
 
 export type KeyOfOperation<T> = T extends Operation<infer N, unknown, unknown>
@@ -131,4 +131,13 @@ export const useOperation = <
   constructor.key = key;
 
   return constructor;
+};
+
+export const makeConfirmOptionsFinalizedOnMainnet = (
+  metaplex: Metaplex,
+  options?: ConfirmOptions
+): ConfirmOptions | undefined => {
+  return metaplex.cluster === 'mainnet-beta'
+    ? { ...options, commitment: 'finalized' }
+    : options;
 };

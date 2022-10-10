@@ -25,8 +25,9 @@ test('[nftModule] it can fetch all NFTs for a given update authority', async (t:
   // When we fetch all NFTs where wallet A is the authority.
   const nfts = (await mx
     .nfts()
-    .findAllByUpdateAuthority({ updateAuthority: walletA.publicKey })
-    .run()) as Metadata[];
+    .findAllByUpdateAuthority({
+      updateAuthority: walletA.publicKey,
+    })) as Metadata[];
 
   // Then we get the right NFTs.
   t.same(nfts.map((nft) => nft.name).sort(), ['NFT A', 'NFT B']);

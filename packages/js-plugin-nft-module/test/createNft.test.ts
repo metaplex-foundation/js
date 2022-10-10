@@ -38,14 +38,11 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   const mx = await metaplex();
 
   // And we uploaded some metadata containing an image.
-  const { uri, metadata } = await mx
-    .nfts()
-    .uploadMetadata({
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
-      image: toMetaplexFile('some_image', 'some-image.jpg'),
-    })
-    .run();
+  const { uri, metadata } = await mx.nfts().uploadMetadata({
+    name: 'JSON NFT name',
+    description: 'JSON NFT description',
+    image: toMetaplexFile('some_image', 'some-image.jpg'),
+  });
 
   // When we create a new NFT with minimum configuration.
   const {
@@ -54,14 +51,11 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
     metadataAddress,
     masterEditionAddress,
     tokenAddress,
-  } = await mx
-    .nfts()
-    .create({
-      uri,
-      name: 'On-chain NFT name',
-      sellerFeeBasisPoints: 500,
-    })
-    .run();
+  } = await mx.nfts().create({
+    uri,
+    name: 'On-chain NFT name',
+    sellerFeeBasisPoints: 500,
+  });
 
   // Then we created and returned the new NFT and it has appropriate defaults.
   const expectedNft = {
@@ -111,8 +105,8 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   // And we get the same data when fetching a fresh instance of that NFT.
   const retrievedNft = await mx
     .nfts()
-    .findByMint({ mintAddress: nft.address, tokenAddress })
-    .run();
+    .findByMint({ mintAddress: nft.address, tokenAddress });
+
   spok(t, retrievedNft, { $topic: 'Retrieved NFT', ...expectedNft });
 });
 
@@ -121,14 +115,11 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   const mx = await metaplex();
 
   // And we uploaded some metadata.
-  const { uri, metadata } = await mx
-    .nfts()
-    .uploadMetadata({
-      name: 'JSON NFT name',
-      description: 'JSON NFT description',
-      image: toMetaplexFile('some_image', 'some-image.jpg'),
-    })
-    .run();
+  const { uri, metadata } = await mx.nfts().uploadMetadata({
+    name: 'JSON NFT name',
+    description: 'JSON NFT description',
+    image: toMetaplexFile('some_image', 'some-image.jpg'),
+  });
 
   // And a various keypairs for different access.
   const payer = await createWallet(mx);
@@ -140,38 +131,35 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   const otherCreator = Keypair.generate();
 
   // When we create a new NFT with minimum configuration.
-  const { nft } = await mx
-    .nfts()
-    .create({
-      uri,
-      name: 'On-chain NFT name',
-      symbol: 'MYNFT',
-      sellerFeeBasisPoints: 456,
-      isMutable: true,
-      maxSupply: toBigNumber(123),
-      useNewMint: mint,
-      payer,
-      mintAuthority,
-      updateAuthority,
-      tokenOwner: owner.publicKey,
-      collection: collection.publicKey,
-      uses: {
-        useMethod: UseMethod.Burn,
-        remaining: 0,
-        total: 1000,
+  const { nft } = await mx.nfts().create({
+    uri,
+    name: 'On-chain NFT name',
+    symbol: 'MYNFT',
+    sellerFeeBasisPoints: 456,
+    isMutable: true,
+    maxSupply: toBigNumber(123),
+    useNewMint: mint,
+    payer,
+    mintAuthority,
+    updateAuthority,
+    tokenOwner: owner.publicKey,
+    collection: collection.publicKey,
+    uses: {
+      useMethod: UseMethod.Burn,
+      remaining: 0,
+      total: 1000,
+    },
+    creators: [
+      {
+        address: updateAuthority.publicKey,
+        share: 60,
       },
-      creators: [
-        {
-          address: updateAuthority.publicKey,
-          share: 60,
-        },
-        {
-          address: otherCreator.publicKey,
-          share: 40,
-        },
-      ],
-    })
-    .run();
+      {
+        address: otherCreator.publicKey,
+        share: 40,
+      },
+    ],
+  });
 
   // Then we created and retrieved the new NFT and it has appropriate defaults.
   spok(t, nft, {
@@ -234,24 +222,18 @@ test('[nftModule] it can create an NFT from an existing mint', async (t: Test) =
 
   // And an existing mint.
   const mintAuthority = Keypair.generate();
-  const { mint } = await mx
-    .tokens()
-    .createMint({
-      decimals: 0,
-      mintAuthority: mintAuthority.publicKey,
-    })
-    .run();
+  const { mint } = await mx.tokens().createMint({
+    decimals: 0,
+    mintAuthority: mintAuthority.publicKey,
+  });
 
   // When we create a new SFT from that mint.
-  const { nft, masterEditionAddress } = await mx
-    .nfts()
-    .create({
-      ...minimalInput(),
-      useExistingMint: mint.address,
-      mintAuthority,
-      name: 'My NFT from an existing mint',
-    })
-    .run();
+  const { nft, masterEditionAddress } = await mx.nfts().create({
+    ...minimalInput(),
+    useExistingMint: mint.address,
+    mintAuthority,
+    name: 'My NFT from an existing mint',
+  });
 
   // Then we created an SFT whilst keeping the provided mint.
   spok(t, nft, {
@@ -288,10 +270,7 @@ test('[nftModule] it can make another signer wallet pay for the storage and tran
   t.equal(await mx.connection.getBalance(payer.publicKey), 1000000000);
 
   // When we create a new NFT using that account as a payer.
-  const { nft } = await mx
-    .nfts()
-    .create({ ...minimalInput(), payer })
-    .run();
+  const { nft } = await mx.nfts().create({ ...minimalInput(), payer });
 
   // Then the payer has less lamports than it used to.
   t.ok((await mx.connection.getBalance(payer.publicKey)) < 1000000000);
@@ -313,8 +292,7 @@ test('[nftModule] it can create an NFT with an invalid URI', async (t: Test) => 
   // When we create an NFT with an invalid URI.
   const { nft } = await mx
     .nfts()
-    .create({ ...minimalInput(), uri: 'https://example.com/some/invalid/uri' })
-    .run();
+    .create({ ...minimalInput(), uri: 'https://example.com/some/invalid/uri' });
 
   // Then the NFT was created successfully.
   t.equal(nft.model, 'nft');
@@ -331,8 +309,7 @@ test('[nftModule] it can create a collection NFT', async (t: Test) => {
   // When we create a collection NFT.
   const { nft } = await mx
     .nfts()
-    .create({ ...minimalInput(), isCollection: true })
-    .run();
+    .create({ ...minimalInput(), isCollection: true });
 
   // Then the created NFT is a sized collection.
   spok(t, nft, {
@@ -354,8 +331,7 @@ test('[nftModule] it can create an NFT with a parent Collection', async (t: Test
   // When we create a new NFT with this collection as a parent.
   const { nft } = await mx
     .nfts()
-    .create({ ...minimalInput(), collection: collectionNft.address })
-    .run();
+    .create({ ...minimalInput(), collection: collectionNft.address });
 
   // Then the created NFT is from that collection.
   spok(t, nft, {
@@ -381,14 +357,11 @@ test('[nftModule] it can create an NFT with a verified parent Collection', async
   assertCollectionHasSize(t, collectionNft, 0);
 
   // When we create a new NFT with this collection as a parent and with its update authority.
-  const { nft } = await mx
-    .nfts()
-    .create({
-      ...minimalInput(),
-      collection: collectionNft.address,
-      collectionAuthority: collectionUpdateAuthority,
-    })
-    .run();
+  const { nft } = await mx.nfts().create({
+    ...minimalInput(),
+    collection: collectionNft.address,
+    collectionAuthority: collectionUpdateAuthority,
+  });
 
   // Then the created NFT is from that collection and it is verified.
   spok(t, nft, {
@@ -412,24 +385,18 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
 
   // And a delegated collection authority for that collection NFT.
   const collectionDelegatedAuthority = Keypair.generate();
-  await mx
-    .nfts()
-    .approveCollectionAuthority({
-      mintAddress: collectionNft.address,
-      collectionAuthority: collectionDelegatedAuthority.publicKey,
-    })
-    .run();
+  await mx.nfts().approveCollectionAuthority({
+    mintAddress: collectionNft.address,
+    collectionAuthority: collectionDelegatedAuthority.publicKey,
+  });
 
   // When we create a new NFT with this collection as a parent using the delegated authority.
-  const { nft } = await mx
-    .nfts()
-    .create({
-      ...minimalInput(),
-      collection: collectionNft.address,
-      collectionAuthority: collectionDelegatedAuthority,
-      collectionAuthorityIsDelegated: true,
-    })
-    .run();
+  const { nft } = await mx.nfts().create({
+    ...minimalInput(),
+    collection: collectionNft.address,
+    collectionAuthority: collectionDelegatedAuthority,
+    collectionAuthorityIsDelegated: true,
+  });
 
   // Then the created NFT is from that collection and it is verified.
   spok(t, nft, {
@@ -461,10 +428,8 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
   const mint = Keypair.generate();
   const metadata = findMetadataPda(mint.publicKey);
   const edition = findEditionPda(mint.publicKey);
-  const { uri } = await mx
-    .nfts()
-    .uploadMetadata({ name: 'Metadata Name' })
-    .run();
+  const { uri } = await mx.nfts().uploadMetadata({ name: 'Metadata Name' });
+
   const data = {
     name: 'My NFT',
     symbol: 'MNFT',
@@ -531,7 +496,7 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
   await mx.rpc().sendAndConfirmTransaction(tx);
 
   // Then the transaction succeeded and the NFT was created.
-  const nft = await mx.nfts().findByMint({ mintAddress: mint.publicKey }).run();
+  const nft = await mx.nfts().findByMint({ mintAddress: mint.publicKey });
   t.equal(nft.name, 'My NFT');
   t.equal(nft.metadataAddress.toBase58(), metadata.toBase58());
 });

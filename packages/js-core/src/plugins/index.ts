@@ -1,3 +1,4 @@
+export * from './corePlugins';
 export * from './guestIdentity';
 export * from './identityModule';
 export * from './keypairIdentity';
@@ -8,4 +9,4 @@ export * from './rpcModule';
 export * from './storageModule';
 export * from './systemModule';
 export * from './utilsModule';
-export * from './corePlugins';
+export * from './walletAdapterIdentity';

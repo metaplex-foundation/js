@@ -1,6 +1,5 @@
 import { StorageClient } from './StorageClient';
 import type { Metaplex } from '@/Metaplex';
-
 import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
@@ -11,7 +10,7 @@ export const storageModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@/Metaplex' {
+declare module '../../Metaplex' {
   interface Metaplex {
     storage(): StorageClient;
   }

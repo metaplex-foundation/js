@@ -16,8 +16,7 @@ test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test)
   // When we fetch the NFTs by creator A.
   const nftsA = (await mx
     .nfts()
-    .findAllByCreator({ creator: creatorA })
-    .run()) as Metadata[];
+    .findAllByCreator({ creator: creatorA })) as Metadata[];
 
   // Then we don't get the NFTs from creator B.
   t.same(
@@ -29,8 +28,7 @@ test('[nftModule] it can fetch all NFTs from the first creator', async (t: Test)
   // And vice versa.
   const nftsB = (await mx
     .nfts()
-    .findAllByCreator({ creator: creatorB })
-    .run()) as Metadata[];
+    .findAllByCreator({ creator: creatorB })) as Metadata[];
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']
@@ -49,8 +47,7 @@ test('[nftModule] it can fetch all NFTs from other creator positions', async (t:
   // When we fetch the NFTs by second creator A.
   const nftsA = (await mx
     .nfts()
-    .findAllByCreator({ creator: creatorA, position: 2 })
-    .run()) as Metadata[];
+    .findAllByCreator({ creator: creatorA, position: 2 })) as Metadata[];
 
   // Then we don't get the NFTs from second creator B.
   t.same(
@@ -62,8 +59,7 @@ test('[nftModule] it can fetch all NFTs from other creator positions', async (t:
   // And vice versa.
   const nftsB = (await mx
     .nfts()
-    .findAllByCreator({ creator: creatorB, position: 2 })
-    .run()) as Metadata[];
+    .findAllByCreator({ creator: creatorB, position: 2 })) as Metadata[];
   t.same(
     nftsB.map((nft) => nft.name),
     ['NFT B']

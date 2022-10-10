@@ -31,17 +31,14 @@ test('[nftModule] it can unverify the collection of an NFT item', async (t: Test
   await assertRefreshedCollectionHasSize(t, mx, collection, 1);
 
   // When we unverify the collection.
-  await mx
-    .nfts()
-    .unverifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority,
-    })
-    .run();
+  await mx.nfts().unverifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority,
+  });
 
   // Then the NFT collection should be unverified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
@@ -74,18 +71,15 @@ test('[nftModule] it can unverify the legacy collection of an NFT item', async (
   t.false(collection.collectionDetails, 'collection is legacy');
 
   // When we unverify the collection.
-  await mx
-    .nfts()
-    .unverifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority,
-      isSizedCollection: false,
-    })
-    .run();
+  await mx.nfts().unverifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority,
+    isSizedCollection: false,
+  });
 
   // Then the NFT collection should be unverified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',

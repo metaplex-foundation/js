@@ -1,4 +1,4 @@
-import type { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@/Metaplex';
 
 export type HasMetaplex = {
   readonly metaplex: Metaplex;

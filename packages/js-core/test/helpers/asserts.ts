@@ -1,9 +1,9 @@
+import type { bignum } from '@metaplex-foundation/beet';
 import { PublicKey } from '@solana/web3.js';
-import { bignum } from '@metaplex-foundation/beet';
 import BN from 'bn.js';
 import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
-import { Amount, BigNumber, sameAmounts } from '@metaplex-foundation/js-core';
+import { Amount, BigNumber, sameAmounts } from '@/types';
 
 export function spokSamePubkey(
   a: PublicKey | string | null | undefined
@@ -46,19 +46,35 @@ export async function assertThrows<T>(
   fnOrPromise: (() => any) | Promise<T>,
   match: RegExp
 ): Promise<void> {
+  await assertThrowsFn(
+    t,
+    fnOrPromise,
+    (error: any) => {
+      const message: string = error?.message ?? '';
+      if (message.match(match)) {
+        t.pass(`throws ${match.toString()}`);
+      } else {
+        t.fail(`expected to throw ${match.toString()}, got ${message}`);
+      }
+    },
+    match.toString()
+  );
+}
+
+export async function assertThrowsFn<T>(
+  t: Test,
+  fnOrPromise: (() => any) | Promise<T>,
+  onError: (error: any) => void,
+  expectedError = 'an error'
+): Promise<void> {
   try {
     if (typeof fnOrPromise === 'function') {
       await fnOrPromise();
     } else {
       await fnOrPromise;
     }
-    t.fail(`expected to throw ${match.toString()}`);
+    t.fail(`expected to throw ${expectedError}`);
   } catch (error: any) {
-    const message: string = error?.message ?? '';
-    if (message.match(match)) {
-      t.pass(`throws ${match.toString()}`);
-    } else {
-      t.fail(`expected to throw ${match.toString()}, got ${message}`);
-    }
+    onError(error);
   }
 }

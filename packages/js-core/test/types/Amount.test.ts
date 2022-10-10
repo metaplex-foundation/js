@@ -22,7 +22,7 @@ import {
   SOL,
   CurrencyMismatchError,
   token,
-} from '@metaplex-foundation/js-core';
+} from '@/index';
 
 test('[Amount] it can create amounts from any currencies', (t: Test) => {
   const usdAmount = amount(1500, { symbol: 'USD', decimals: 2 });
@@ -139,6 +139,15 @@ test('[Amount] it can compare amounts together', (t: Test) => {
   t.false(isPositiveAmount(sol(-1)));
   t.true(isNegativeAmount(sol(-1)));
   t.false(isZeroAmount(sol(-1)));
+
+  t.end();
+});
+
+test('[Amount] it can compare amounts together with a tolerance', (t: Test) => {
+  t.false(isEqualToAmount(sol(1.5), sol(1.6)));
+  t.false(isEqualToAmount(sol(1.5), sol(1.6), sol(0.01)));
+  t.true(isEqualToAmount(sol(1.5), sol(1.6), sol(0.1)));
+  t.true(isEqualToAmount(sol(1.5), sol(1.6), sol(0.2)));
 
   t.end();
 });

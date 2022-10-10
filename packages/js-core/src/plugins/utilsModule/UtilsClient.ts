@@ -1,5 +1,4 @@
 import type { Metaplex } from '@/Metaplex';
-
 import {
   addAmounts,
   lamports,

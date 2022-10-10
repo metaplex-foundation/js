@@ -32,39 +32,31 @@ test('[nftModule] it can revoke a collection authority for a given NFT', async (
 
   // And a delegated collection authority for that collection.
   const delegatedCollectionAuthority = Keypair.generate();
-  await mx
-    .nfts()
-    .approveCollectionAuthority({
-      mintAddress: collection.address,
-      collectionAuthority: delegatedCollectionAuthority.publicKey,
-      updateAuthority: collectionAuthority,
-    })
-    .run();
+  await mx.nfts().approveCollectionAuthority({
+    mintAddress: collection.address,
+    collectionAuthority: delegatedCollectionAuthority.publicKey,
+    updateAuthority: collectionAuthority,
+  });
 
   // When we revoke that authority.
-  await mx
-    .nfts()
-    .revokeCollectionAuthority({
-      mintAddress: collection.address,
-      collectionAuthority: delegatedCollectionAuthority.publicKey,
-      revokeAuthority: collectionAuthority,
-    })
-    .run();
+  await mx.nfts().revokeCollectionAuthority({
+    mintAddress: collection.address,
+    collectionAuthority: delegatedCollectionAuthority.publicKey,
+    revokeAuthority: collectionAuthority,
+  });
 
   // Then we expect an error when we try to verify the NFT using that delegated authority.
-  const promise = mx
-    .nfts()
-    .verifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority: delegatedCollectionAuthority,
-      isDelegated: true,
-    })
-    .run();
+  const promise = mx.nfts().verifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority: delegatedCollectionAuthority,
+    isDelegated: true,
+  });
+
   await assertThrows(t, promise, /Collection Update Authority is invalid/);
 
   // And the NFT collection should still be unverified.
-  const refreshedNft = await mx.nfts().refresh(nft).run();
+  const refreshedNft = await mx.nfts().refresh(nft);
   spok(t, refreshedNft, {
     $topic: 'Refreshed Nft',
     model: 'nft',

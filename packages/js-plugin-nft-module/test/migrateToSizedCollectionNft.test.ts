@@ -23,17 +23,14 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection'
   t.false(collection.collectionDetails, 'collection is legacy');
 
   // When we migrate the collection to a sized collection of 12345 items.
-  await mx
-    .nfts()
-    .migrateToSizedCollection({
-      mintAddress: collection.address,
-      size: toBigNumber(12345),
-      collectionAuthority,
-    })
-    .run();
+  await mx.nfts().migrateToSizedCollection({
+    mintAddress: collection.address,
+    size: toBigNumber(12345),
+    collectionAuthority,
+  });
 
   // Then the collection NFT has been updated to a sized collection.
-  const updatedCollection = await mx.nfts().refresh(collection).run();
+  const updatedCollection = await mx.nfts().refresh(collection);
   spok(t, updatedCollection, {
     $topic: 'Updated Collection NFT',
     model: 'nft',
@@ -57,28 +54,22 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection 
 
   // And a delegated collection authority for that collection NFT.
   const delegatedCollectionAuthority = Keypair.generate();
-  await mx
-    .nfts()
-    .approveCollectionAuthority({
-      mintAddress: collection.address,
-      collectionAuthority: delegatedCollectionAuthority.publicKey,
-      updateAuthority: collectionAuthority,
-    })
-    .run();
+  await mx.nfts().approveCollectionAuthority({
+    mintAddress: collection.address,
+    collectionAuthority: delegatedCollectionAuthority.publicKey,
+    updateAuthority: collectionAuthority,
+  });
 
   // When we migrate the collection to a sized collection using that delegated authority.
-  await mx
-    .nfts()
-    .migrateToSizedCollection({
-      mintAddress: collection.address,
-      size: toBigNumber(12345),
-      collectionAuthority: delegatedCollectionAuthority,
-      isDelegated: true,
-    })
-    .run();
+  await mx.nfts().migrateToSizedCollection({
+    mintAddress: collection.address,
+    size: toBigNumber(12345),
+    collectionAuthority: delegatedCollectionAuthority,
+    isDelegated: true,
+  });
 
   // Then the collection NFT has been updated to a sized collection.
-  const updatedCollection = await mx.nfts().refresh(collection).run();
+  const updatedCollection = await mx.nfts().refresh(collection);
   spok(t, updatedCollection, {
     $topic: 'Updated Collection NFT',
     model: 'nft',

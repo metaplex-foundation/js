@@ -1,9 +1,6 @@
 import { clusterApiUrl } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import {
-  Cluster,
-  resolveClusterFromEndpoint,
-} from '@metaplex-foundation/js-core';
+import { Cluster, resolveClusterFromEndpoint } from '@/index';
 
 const assertCluster = (t: Test, endpoint: string, expected: Cluster) => {
   t.equal(resolveClusterFromEndpoint(endpoint), expected);

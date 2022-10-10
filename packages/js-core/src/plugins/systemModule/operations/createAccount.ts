@@ -1,7 +1,6 @@
 import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
-
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
-
 import {
   assertSol,
   Operation,
@@ -12,7 +11,6 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

@@ -5,7 +5,6 @@ import {
   TransferSolBuilderParams,
 } from './operations';
 import type { Metaplex } from '@/Metaplex';
-
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

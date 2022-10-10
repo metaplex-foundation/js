@@ -6,7 +6,6 @@ import {
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
 import type { Metaplex } from '@/Metaplex';
-
 import { OperationOptions } from '@/types';
 
 /**

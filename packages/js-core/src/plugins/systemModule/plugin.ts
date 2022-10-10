@@ -40,13 +40,13 @@ export const systemModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@/Metaplex' {
+declare module '../../Metaplex' {
   interface Metaplex {
     system(): SystemClient;
   }
 }
 
-declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
+declare module '../programModule/ProgramClient' {
   interface ProgramClient {
     getSystem(programs?: Program[]): Program;
   }

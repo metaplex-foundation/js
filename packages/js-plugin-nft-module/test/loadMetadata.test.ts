@@ -28,8 +28,7 @@ test('[nftModule] it can load a Metadata model into an NFT', async (t: Test) => 
   const metadata = await asMetadata(mx, originalNft);
 
   // When we load that Metadata model.
-  const nft = await mx.nfts().load({ metadata }).run();
-
+  const nft = await mx.nfts().load({ metadata });
   // Then we get the fully loaded NFT model.
   spok(t, nft, {
     $topic: 'Loaded NFT',
@@ -59,8 +58,7 @@ test('[nftModule] it can load a Metadata model into an SFT', async (t: Test) => 
   const metadata = await asMetadata(mx, originalSft);
 
   // When we load that Metadata model.
-  const sft = await mx.nfts().load({ metadata }).run();
-
+  const sft = await mx.nfts().load({ metadata });
   // Then we get the fully loaded SFT model.
   spok(t, sft, {
     $topic: 'Loaded SFT',
@@ -89,8 +87,7 @@ test('[nftModule] it can load a Metadata model into an NftWithToken', async (t: 
   // When we load that Metadata model and provide the token address
   const nft = await mx
     .nfts()
-    .load({ metadata, tokenAddress: originalNft.token.address })
-    .run();
+    .load({ metadata, tokenAddress: originalNft.token.address });
 
   // Then we get the fully loaded NFT model with Token information.
   spok(t, nft, {
