@@ -1,4 +1,4 @@
-import { ProgramClient } from '../programModule';
+import { ProgramClient } from '@metaplex-foundation/js-core';
 import { CandyMachineClient } from './CandyMachineClient';
 import {
   addressGateGuardManifest,
@@ -19,6 +19,9 @@ import {
   tokenPaymentGuardManifest,
 } from './guards';
 import {
+  CallCandyGuardRouteOperation,
+  callCandyGuardRouteOperation,
+  callCandyGuardRouteOperationHandler,
   createCandyGuardOperation,
   createCandyGuardOperationHandler,
   createCandyMachineOperation,
@@ -52,8 +55,8 @@ import {
   defaultCandyGuardProgram,
   gatewayProgram,
 } from './programs';
-import { MetaplexPlugin, Program } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import { MetaplexPlugin, OperationConstructor, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
@@ -109,6 +112,12 @@ export const candyMachineModule = (): MetaplexPlugin => ({
 
     // Operations.
     const op = metaplex.operations();
+    op.register(
+      callCandyGuardRouteOperation as OperationConstructor<
+        CallCandyGuardRouteOperation<any>
+      >,
+      callCandyGuardRouteOperationHandler
+    );
     op.register(createCandyGuardOperation, createCandyGuardOperationHandler);
     op.register(
       createCandyMachineOperation,

@@ -1,11 +1,12 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard, toCandyGuard } from '../models';
 import {
   assertAccountExists,
   Operation,
   OperationHandler,
-} from '@metaplex-foundation/js-core';
+  OperationScope,
+} from '@/types';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
@@ -20,8 +21,7 @@ const Key = 'FindCandyGuardByAddressOperation' as const;
  * ```ts
  * const candyGuard = await metaplex
  *   .candyMachines()
- *   .findCandyGuardbyAddress({ address })
- *   .run();
+ *   .findCandyGuardbyAddress({ address };
  * ```
  *
  * @group Operations
@@ -52,9 +52,6 @@ export type FindCandyGuardByAddressOperation<
 export type FindCandyGuardByAddressInput = {
   /** The Candy Guard address. */
   address: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -65,10 +62,13 @@ export const findCandyGuardByAddressOperationHandler: OperationHandler<FindCandy
   {
     handle: async <T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: FindCandyGuardByAddressOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<CandyGuard<T>> => {
-      const { address, commitment } = operation.input;
-      const account = await metaplex.rpc().getAccount(address, commitment);
+      const { address } = operation.input;
+      const account = await metaplex
+        .rpc()
+        .getAccount(address, scope.commitment);
       assertAccountExists(account);
 
       return toCandyGuard<T>(account, metaplex);

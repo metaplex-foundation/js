@@ -29,6 +29,7 @@ export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
       .use(operationModule())
       .use(programModule())
       .use(utilsModule())
+      .use(tokenModule())
 
       // Default drivers.
       .use(guestIdentity())

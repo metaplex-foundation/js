@@ -2,7 +2,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@metaplex-foundation/js-core/errors';
+} from '@/errors';
 
 /** @group Errors */
 export class CandyMachineV3Error extends MetaplexError {
@@ -120,72 +120,114 @@ export class CandyMachineBotTaxError extends CandyMachineV3Error {
 }
 
 /** @group Errors */
-export class MintingRequiresGroupLabelError extends CandyMachineV3Error {
+export class GuardGroupRequiredError extends CandyMachineV3Error {
   constructor(availableGroups: string[], options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'minting_requires_group_label',
-      title: 'Minting Requires Group Label',
+      key: 'guard_group_required',
+      title: 'Guard Group Required',
       problem:
-        "You're trying to mint an NFT from a Candy Machine that has groups of guards " +
-        'but no group label was provided to identity which group we should mint from.',
+        'The provided Candy Machine defines groups of guards but no' +
+        'group label was provided to identity which group we should select.',
       solution:
-        'Please provide the label of the group you wish to mint from via the `group` parameter. ' +
+        'Please provide the label of the group you wish to select from via the `group` parameter. ' +
         `The available groups are [${availableGroups.join(', ')}]`,
     });
   }
 }
 
 /** @group Errors */
-export class MintingMustNotUseGroupError extends CandyMachineV3Error {
-  constructor(options?: MetaplexErrorOptions) {
-    super({
-      options,
-      key: 'minting_must_not_use_group',
-      title: 'Minting Must Not Use Group',
-      problem:
-        "You're trying to mint an NFT from a Candy Machine that has no groups of guards " +
-        'yet you provided the label of a specific group to mint from.',
-      solution:
-        'Please set the `group` parameter to `null` or remove it altogether.',
-    });
-  }
-}
-
-/** @group Errors */
-export class MintingGroupSelectedDoesNotExistError extends CandyMachineV3Error {
+export class SelectedGuardGroupDoesNotExistError extends CandyMachineV3Error {
   constructor(
-    providedGroup: string,
+    selectedGroup: string,
     availableGroups: string[],
     options?: MetaplexErrorOptions
   ) {
     super({
       options,
-      key: 'minting_group_selected_does_not_exist',
-      title: 'Minting Group Selected Does Not Exist',
+      key: 'selected_guard_group_does_not_exist',
+      title: 'Selected Guard Group Does Not Exist',
       problem:
-        `You're trying to mint an NFT from a Candy Machine using a specific group labelled [${providedGroup}] ` +
-        'but this group of guards does not exists on the Candy Machine.',
+        `You're trying to select the guard group [${selectedGroup}] from a ` +
+        'Candy Machine but this group does not exists on this Candy Machine.',
       solution:
-        'Please provide the label of a group that exists on the Candy Machine. ' +
-        `The available groups are [${availableGroups.join(', ')}]`,
+        availableGroups.length > 0
+          ? 'Please provide the label of a group that exists on the Candy Machine. ' +
+            `The available groups are [${availableGroups.join(', ')}]`
+          : 'There are no guard groups defined on the Candy Machine. ' +
+            'Please set the `group` parameter to `null` or remove it altogether.',
     });
   }
 }
 
 /** @group Errors */
-export class GuardMitingSettingsMissingError extends CandyMachineV3Error {
+export class GuardMintSettingsMissingError extends CandyMachineV3Error {
   constructor(guardName: string, options?: MetaplexErrorOptions) {
     super({
       options,
-      key: 'guard_miting_settings_missing',
-      title: 'Guard Miting Settings Missing',
+      key: 'guard_mint_settings_missing',
+      title: 'Guard Mint Settings Missing',
       problem:
         `The Candy Machine you are trying to mint from has the [${guardName}] guard enabled. ` +
         'This guard requires you to provide some additional settings when minting which you did not provide.',
       solution:
         `Please provide some minting settings for the [${guardName}] guard ` +
         `via the \`guards\` parameter like so: \`guards.${guardName} = {...}\`.`,
+    });
+  }
+}
+
+/** @group Errors */
+export class GuardRouteNotSupportedError extends CandyMachineV3Error {
+  constructor(guardName: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'guard_route_not_supported',
+      title: 'Guard Route Not Supported',
+      problem:
+        `You are trying to call the route instruction of the [${guardName}] guard ` +
+        'but this guard does not support this feature or did not register it on the SDK.',
+      solution:
+        'Please select a guard that support the route instruction feature. ' +
+        'If you are using a custom guard, make sure you registered the route instruction ' +
+        'feature by implementing the `routeSettingsParser` method on the guard manifest.',
+    });
+  }
+}
+
+/** @group Errors */
+export class CandyGuardRequiredOnCandyMachineError extends CandyMachineV3Error {
+  constructor(options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'candy_guard_required_on_candy_machine',
+      title: 'Candy Guard Required On Candy Machine',
+      problem:
+        `The provided Candy Machine does not have a Candy Guard associated with ` +
+        `it yet, it is required for the operation you are trying to execute.`,
+      solution:
+        'Please provide a Candy Machine with an associated Candy Guard account.',
+    });
+  }
+}
+
+/** @group Errors */
+export class GuardNotEnabledError extends CandyMachineV3Error {
+  constructor(
+    guard: string,
+    group: string | null,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'guard_not_enabled',
+      title: 'Guard Not Enabled',
+      problem: group
+        ? `The guard [${guard}] is not enabled on the group [${group}] of the Candy Machine.`
+        : `The guard [${guard}] is not enabled on the Candy Machine.`,
+      solution:
+        'Please provide a different guard or select a different group ' +
+        'such that the provided guard is enabled on the selected group.',
     });
   }
 }

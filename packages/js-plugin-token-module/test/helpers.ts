@@ -37,7 +37,7 @@ export const refreshToken = (
   metaplex: Metaplex,
   token: Token | TokenWithMint
 ) => {
-  return metaplex.tokens().findTokenByAddress({ address: token.address }).run();
+  return metaplex.tokens().findTokenByAddress({ address: token.address });
 };
 
 /**

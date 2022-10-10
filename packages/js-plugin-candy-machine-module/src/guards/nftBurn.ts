@@ -1,10 +1,7 @@
 import { nftBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import {
-  createSerializerFromBeet,
-  PublicKey,
-} from '@metaplex-foundation/js-core';
+import { createSerializerFromBeet, PublicKey } from '@/types';
 
 /**
  * The nftBurn guard restricts the mint to holders of a predefined
@@ -68,7 +65,7 @@ export const nftBurnGuardManifest: CandyGuardManifest<
     programs,
   }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('nftBurn');
+      throw new GuardMintSettingsMissingError('nftBurn');
     }
 
     const tokenAccount =

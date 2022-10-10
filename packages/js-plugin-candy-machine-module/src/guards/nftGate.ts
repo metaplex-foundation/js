@@ -1,10 +1,7 @@
 import { nftGateBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import {
-  createSerializerFromBeet,
-  PublicKey,
-} from '@metaplex-foundation/js-core';
+import { createSerializerFromBeet, PublicKey } from '@/types';
 
 /**
  * The nftGate guard restricts minting to holders
@@ -59,7 +56,7 @@ export const nftGateGuardManifest: CandyGuardManifest<
   settingsSerializer: createSerializerFromBeet(nftGateBeet),
   mintSettingsParser: ({ metaplex, mintSettings, payer, programs }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('nftGate');
+      throw new GuardMintSettingsMissingError('nftGate');
     }
 
     const tokenAccount =

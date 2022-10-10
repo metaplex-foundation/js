@@ -1,7 +1,6 @@
-import { createMintInstruction as createMintFromMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { createMintInstruction as createMintFromGuardInstruction } from '@metaplex-foundation/mpl-candy-guard';
+import { createMintInstruction as createMintFromMachineInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import {
-  ConfirmOptions,
   Keypair,
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_SLOT_HASHES_PUBKEY,
@@ -9,28 +8,24 @@ import {
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyMachineBotTaxError } from '../errors';
-import { CandyMachine } from '../models';
 import {
   CandyGuardsMintSettings,
   CandyGuardsSettings,
   DefaultCandyGuardMintSettings,
   DefaultCandyGuardSettings,
 } from '../guards';
-import {
-  DisposableScope,
-  Option,
-  TransactionBuilder,
-} from '@metaplex-foundation/js-core';
+import { CandyMachine } from '../models';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
   Signer,
   token as tokenAmount,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
+import { NftWithToken } from '@metaplex-foundation/js-plugin-nft-module';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { NftWithToken } from '../../../js-plugin-nft-module/src/models/Nft';
 
 // -----------------
 // Operation
@@ -47,8 +42,7 @@ const Key = 'MintFromCandyMachineOperation' as const;
  *   .mint({
  *     candyMachine,
  *     collectionUpdateAuthority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -106,14 +100,6 @@ export type MintFromCandyMachineInput<
    * that is being assigned to each minted NFT.
    */
   collectionUpdateAuthority: PublicKey;
-
-  /**
-   * The account that should pay for the minted NFT
-   * and for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /**
    * The authority that is allowed to mint NFTs from the Candy Machine.
@@ -179,12 +165,6 @@ export type MintFromCandyMachineInput<
    * @defaultValue `{}`
    */
   guards?: Partial<MintSettings>;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -217,29 +197,31 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
     >(
       operation: MintFromCandyMachineOperation<Settings, MintSettings>,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<MintFromCandyMachineOutput> {
       const builder = await mintFromCandyMachineBuilder<Settings, MintSettings>(
         metaplex,
-        operation.input
+        operation.input,
+        scope
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       let nft: NftWithToken;
       try {
-        nft = (await metaplex
-          .nfts()
-          .findByMint({
+        nft = (await metaplex.nfts().findByMint(
+          {
             mintAddress: output.mintSigner.publicKey,
             tokenAddress: output.tokenAddress,
-          })
-          .run(scope)) as NftWithToken;
+          },
+          scope
+        )) as NftWithToken;
       } catch (error) {
         const { candyGuard } = operation.input.candyMachine;
         if (!candyGuard) {
@@ -336,19 +318,19 @@ export const mintFromCandyMachineBuilder = async <
   MintSettings extends CandyGuardsMintSettings = DefaultCandyGuardMintSettings
 >(
   metaplex: Metaplex,
-  params: MintFromCandyMachineBuilderParams<Settings, MintSettings>
+  params: MintFromCandyMachineBuilderParams<Settings, MintSettings>,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<MintFromCandyMachineBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyMachine,
     collectionUpdateAuthority,
-    payer = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     mint = Keypair.generate(),
     owner = payer.publicKey,
     group = null,
     guards = {},
     token,
-    programs,
   } = params;
 
   // Programs.
@@ -392,24 +374,26 @@ export const mintFromCandyMachineBuilder = async <
   const tokenWithMintBuilder = await metaplex
     .tokens()
     .builders()
-    .createTokenWithMint({
-      decimals: 0,
-      initialSupply: tokenAmount(1),
-      mint,
-      mintAuthority: payer,
-      freezeAuthority: payer.publicKey,
-      owner,
-      token,
-      payer,
-      programs,
-      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
-      initializeMintInstructionKey: params.initializeMintInstructionKey,
-      createAssociatedTokenAccountInstructionKey:
-        params.createAssociatedTokenAccountInstructionKey,
-      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
-      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-      mintTokensInstructionKey: params.mintTokensInstructionKey,
-    });
+    .createTokenWithMint(
+      {
+        decimals: 0,
+        initialSupply: tokenAmount(1),
+        mint,
+        mintAuthority: payer,
+        freezeAuthority: payer.publicKey,
+        owner,
+        token,
+        createMintAccountInstructionKey: params.createMintAccountInstructionKey,
+        initializeMintInstructionKey: params.initializeMintInstructionKey,
+        createAssociatedTokenAccountInstructionKey:
+          params.createAssociatedTokenAccountInstructionKey,
+        createTokenAccountInstructionKey:
+          params.createTokenAccountInstructionKey,
+        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+        mintTokensInstructionKey: params.mintTokensInstructionKey,
+      },
+      { payer, programs }
+    );
   const { tokenAddress } = tokenWithMintBuilder.getContext();
 
   // Shared mint accounts

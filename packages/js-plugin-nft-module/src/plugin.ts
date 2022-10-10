@@ -1,5 +1,5 @@
 import { cusper, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { ProgramClient } from '../programModule';
+import { ProgramClient } from '@metaplex-foundation/js-core/plugins';
 import { NftClient } from './NftClient';
 import {
   approveNftCollectionAuthorityOperation,

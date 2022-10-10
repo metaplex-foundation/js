@@ -3,13 +3,13 @@ import {
   Gatekeeper,
   gatekeeperBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest, CandyGuardsMintRemainingAccount } from './core';
+import { CandyGuardManifest, CandyGuardsRemainingAccount } from './core';
 import {
   createSerializerFromBeet,
   mapSerializer,
   Pda,
   PublicKey,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
 
 /**
  * The gatekeeper guard checks whether the minting wallet
@@ -99,7 +99,7 @@ export const gatekeeperGuardManifest: CandyGuardManifest<
         settings.network.toBuffer(),
       ]);
 
-    const remainingAccounts: CandyGuardsMintRemainingAccount[] = [
+    const remainingAccounts: CandyGuardsRemainingAccount[] = [
       {
         isSigner: false,
         address: tokenAccount,

@@ -10,7 +10,7 @@ import {
   PublicKey,
   SplTokenAmount,
   token,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
 
 /**
  * The tokenPayment guard allows minting by charging the

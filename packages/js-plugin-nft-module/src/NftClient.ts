@@ -1,6 +1,6 @@
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
-import { SendTokensInput } from '../tokenModule';
+import { SendTokensInput } from '@metaplex-foundation/js-plugin-token-module';
 import { toMintAddress } from './helpers';
 import { Nft, NftWithToken, Sft, SftWithToken } from './models';
 import { NftBuildersClient } from './NftBuildersClient';

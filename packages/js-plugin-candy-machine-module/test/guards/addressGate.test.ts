@@ -5,13 +5,9 @@ import {
   createWallet,
   killStuckProcess,
   metaplex,
-} from '../../../js/test/helpers';
+} from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import {
-  isEqualToAmount,
-  sol,
-  toBigNumber,
-} from '@metaplex-foundation/js-core';
+import { isEqualToAmount, sol, toBigNumber } from '@/index';
 
 killStuckProcess();
 
@@ -30,14 +26,13 @@ test('[candyMachineModule] addressGate guard: it allows minting from a specific 
   });
 
   // When the allowed address mints from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer: allowedAddress,
-    })
-    .run();
+    },
+    { payer: allowedAddress }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -64,14 +59,13 @@ test('[candyMachineModule] addressGate guard: it forbids minting from anyone els
 
   // When the another wallet tries to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Address not authorized/);
@@ -97,14 +91,13 @@ test('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax 
 
   // When the another wallet tries to mint from it.
   const payer = await createWallet(mx, 10);
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

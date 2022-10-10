@@ -12,7 +12,7 @@ import {
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

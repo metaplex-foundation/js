@@ -3,24 +3,24 @@ import * as beet from '@metaplex-foundation/beet';
 import { AccountMeta } from '@solana/web3.js';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
-  MintingGroupSelectedDoesNotExistError,
-  MintingMustNotUseGroupError,
-  MintingRequiresGroupLabelError,
+  GuardGroupRequiredError,
+  GuardNotEnabledError,
+  GuardRouteNotSupportedError,
+  SelectedGuardGroupDoesNotExistError,
   UnregisteredCandyGuardError,
 } from './errors';
 import {
   CandyGuardManifest,
   CandyGuardsMintSettings,
+  CandyGuardsRemainingAccount,
+  CandyGuardsRouteSettings,
   CandyGuardsSettings,
+  DefaultCandyGuardRouteSettings,
   DefaultCandyGuardSettings,
 } from './guards';
 import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
-import {
-  Option,
-  padEmptyChars,
-  removeEmptyChars,
-} from '@metaplex-foundation/js-core';
+import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
 import {
   deserialize,
   deserializeFeatureFlags,
@@ -28,8 +28,8 @@ import {
   PublicKey,
   serialize,
   Signer,
-} from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This client enables us to register custom guards from
@@ -39,17 +39,17 @@ import type { Metaplex } from '@metaplex-foundation/js-core';
  * @group Module
  */
 export class CandyMachineGuardsClient {
-  readonly guards: CandyGuardManifest<any, any>[] = [];
+  readonly guards: CandyGuardManifest<any, any, any>[] = [];
 
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** Registers one or many guards by providing their manifest. */
-  register(...guard: CandyGuardManifest<any, any>[]) {
+  register(...guard: CandyGuardManifest<any, any, any>[]) {
     this.guards.push(...guard);
   }
 
   /** Gets the manifest of a guard using its name. */
-  get(name: string): CandyGuardManifest<any, any> {
+  get(name: string): CandyGuardManifest<any, any, any> {
     const guard = this.guards.find((guard) => guard.name === name);
 
     if (!guard) {
@@ -60,7 +60,7 @@ export class CandyMachineGuardsClient {
   }
 
   /** Gets all registered guard manifests. */
-  all(): CandyGuardManifest<any, any>[] {
+  all(): CandyGuardManifest<any, any, any>[] {
     return this.guards;
   }
 
@@ -73,7 +73,7 @@ export class CandyMachineGuardsClient {
    */
   forProgram(
     program: string | PublicKey | CandyGuardProgram = 'CandyGuardProgram'
-  ): CandyGuardManifest<any, any>[] {
+  ): CandyGuardManifest<any, any, any>[] {
     const candyGuardProgram =
       typeof program === 'object' && 'availableGuards' in program
         ? program
@@ -89,7 +89,7 @@ export class CandyMachineGuardsClient {
    */
   forCandyGuardProgram(
     programs: Program[] = []
-  ): CandyGuardManifest<any, any>[] {
+  ): CandyGuardManifest<any, any, any>[] {
     const candyGuardProgram = this.metaplex.programs().getCandyGuard(programs);
 
     return this.forProgram(candyGuardProgram);
@@ -195,25 +195,21 @@ export class CandyMachineGuardsClient {
     groups: { label: string; guards: T }[] = [],
     groupLabel: Option<string>
   ): T {
-    if (groups.length === 0) {
-      if (!!groupLabel) {
-        throw new MintingMustNotUseGroupError();
-      }
-
-      return guards;
-    }
-
     const availableGroups = groups.map((group) => group.label);
-    if (!groupLabel) {
-      throw new MintingRequiresGroupLabelError(availableGroups);
-    }
-
     const activeGroup = groups.find((group) => group.label === groupLabel);
-    if (!activeGroup) {
-      throw new MintingGroupSelectedDoesNotExistError(
+    if (groupLabel && !activeGroup) {
+      throw new SelectedGuardGroupDoesNotExistError(
         groupLabel,
         availableGroups
       );
+    }
+
+    if (groups.length === 0) {
+      return guards;
+    }
+
+    if (!activeGroup) {
+      throw new GuardGroupRequiredError(availableGroups);
     }
 
     const activeGroupGuardsWithoutNullGuards = Object.fromEntries(
@@ -271,20 +267,86 @@ export class CandyMachineGuardsClient {
         candyGuard: candyGuard.address,
         programs,
       });
-      const { remainingAccounts } = parsedSettings;
-      const accountMetas: AccountMeta[] = remainingAccounts.map((account) => ({
-        pubkey: account.isSigner ? account.address.publicKey : account.address,
-        isSigner: account.isSigner,
-        isWritable: account.isWritable,
-      }));
-      const signers: Signer[] = remainingAccounts
-        .filter((account) => account.isSigner)
-        .map((account) => account.address as Signer);
 
+      const accounts = this.getAccountMetas(parsedSettings.remainingAccounts);
+      const signers = this.getSigners(parsedSettings.remainingAccounts);
       acc.arguments = Buffer.concat([acc.arguments, parsedSettings.arguments]);
-      acc.accountMetas.push(...accountMetas);
+      acc.accountMetas.push(...accounts);
       acc.signers.push(...signers);
       return acc;
     }, initialAccumulator);
+  }
+
+  /**
+   * Parses the arguments and remaining accounts of
+   * the requested guard for the route instruction.
+   */
+  parseRouteSettings<
+    Guard extends keyof RouteSettings & string,
+    Settings extends CandyGuardsSettings = DefaultCandyGuardSettings,
+    RouteSettings extends CandyGuardsRouteSettings = DefaultCandyGuardRouteSettings
+  >(
+    candyMachine: PublicKey,
+    candyGuard: CandyGuard<Settings>,
+    payer: Signer,
+    guard: Guard,
+    routeSettings: RouteSettings[Guard],
+    groupLabel: Option<string>,
+    programs: Program[] = []
+  ): {
+    arguments: Buffer;
+    accountMetas: AccountMeta[];
+    signers: Signer[];
+  } {
+    const guardManifest = this.get(guard);
+    if (!guardManifest.routeSettingsParser) {
+      throw new GuardRouteNotSupportedError(guard);
+    }
+
+    const guardSettings = this.resolveGroupSettings(
+      candyGuard.guards,
+      candyGuard.groups,
+      groupLabel
+    );
+    const settings = guardSettings[guard] ?? null;
+    if (!settings) {
+      throw new GuardNotEnabledError(guard, groupLabel);
+    }
+
+    const parsedSettings = guardManifest.routeSettingsParser({
+      metaplex: this.metaplex,
+      settings,
+      routeSettings,
+      payer,
+      candyMachine,
+      candyGuard: candyGuard.address,
+      programs,
+    });
+
+    return {
+      arguments: parsedSettings.arguments,
+      accountMetas: this.getAccountMetas(parsedSettings.remainingAccounts),
+      signers: this.getSigners(parsedSettings.remainingAccounts),
+    };
+  }
+
+  /** @internal */
+  protected getAccountMetas(
+    remainingAccounts: CandyGuardsRemainingAccount[]
+  ): AccountMeta[] {
+    return remainingAccounts.map((account) => ({
+      pubkey: account.isSigner ? account.address.publicKey : account.address,
+      isSigner: account.isSigner,
+      isWritable: account.isWritable,
+    }));
+  }
+
+  /** @internal */
+  protected getSigners(
+    remainingAccounts: CandyGuardsRemainingAccount[]
+  ): Signer[] {
+    return remainingAccounts
+      .filter((account) => account.isSigner)
+      .map((account) => account.address as Signer);
   }
 }

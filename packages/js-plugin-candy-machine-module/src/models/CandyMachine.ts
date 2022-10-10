@@ -23,8 +23,8 @@ import {
   toAccountInfo,
   toBigNumber,
   UnparsedAccount,
-} from '@metaplex-foundation/js-core';
-import { assert, Option, removeEmptyChars } from '@metaplex-foundation/js-core';
+} from '@/types';
+import { assert, Option, removeEmptyChars } from '@/utils';
 
 /**
  * This model contains all the relevant information about a Candy Machine.

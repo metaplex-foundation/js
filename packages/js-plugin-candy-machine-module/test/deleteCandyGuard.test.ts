@@ -14,13 +14,10 @@ test('[candyMachineModule] it can delete a Candy Guard', async (t) => {
   });
 
   // When we delete the Candy Guard account.
-  await mx
-    .candyMachines()
-    .deleteCandyGuard({
-      candyGuard: candyGuard.address,
-      authority: candyGuardAuthority,
-    })
-    .run();
+  await mx.candyMachines().deleteCandyGuard({
+    candyGuard: candyGuard.address,
+    authority: candyGuardAuthority,
+  });
 
   // Then the Candy Guard account no longer exists.
   t.false(await mx.rpc().accountExists(candyGuard.address));

@@ -8,7 +8,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { replaceCandyMachineItemPattern } from '@metaplex-foundation/js-core/plugins/candyMachineModule/models/CandyMachineHiddenSection';
+import { replaceCandyMachineItemPattern } from '@/plugins/candyMachineModule/models/CandyMachineHiddenSection';
 import {
   CandyMachine,
   CandyMachineConfigLineSettings,
@@ -21,7 +21,7 @@ import {
   PublicKey,
   toBigNumber,
   token,
-} from '@metaplex-foundation/js-core';
+} from '@/index';
 
 export const SEQUENTIAL_ITEM_SETTINGS: CandyMachineConfigLineSettings = {
   type: 'configLines',
@@ -46,29 +46,23 @@ export const createCandyMachine = async (
     collection = { address: nft.address, updateAuthority: metaplex.identity() };
   }
 
-  let { candyMachine } = await metaplex
-    .candyMachines()
-    .create({
-      collection,
-      sellerFeeBasisPoints: 200,
-      itemsAvailable: toBigNumber(1000),
-      ...input,
-    })
-    .run();
+  let { candyMachine } = await metaplex.candyMachines().create({
+    collection,
+    sellerFeeBasisPoints: 200,
+    itemsAvailable: toBigNumber(1000),
+    ...input,
+  });
 
   if (input?.items) {
-    await metaplex
-      .candyMachines()
-      .insertItems({
-        candyMachine,
-        authority:
-          input.authority && isSigner(input.authority)
-            ? input.authority
-            : metaplex.identity(),
-        items: input.items,
-      })
-      .run();
-    candyMachine = await metaplex.candyMachines().refresh(candyMachine).run();
+    await metaplex.candyMachines().insertItems({
+      candyMachine,
+      authority:
+        input.authority && isSigner(input.authority)
+          ? input.authority
+          : metaplex.identity(),
+      items: input.items,
+    });
+    candyMachine = await metaplex.candyMachines().refresh(candyMachine);
   }
 
   return { candyMachine, collection };
@@ -80,8 +74,7 @@ export const createCandyGuard = async (
 ) => {
   const { candyGuard } = await metaplex
     .candyMachines()
-    .createCandyGuard({ guards: {}, ...input })
-    .run();
+    .createCandyGuard({ guards: {}, ...input });
 
   return candyGuard;
 };
@@ -182,8 +175,7 @@ export const assertMintingWasSuccessful = async (
   const expectedRemaining = candyMachine.itemsAvailable.sub(expectedMinted);
   const updatedCandyMachine = await metaplex
     .candyMachines()
-    .refresh(candyMachine)
-    .run();
+    .refresh(candyMachine);
   spok(t, updatedCandyMachine, {
     $topic: 'Update Candy Machine',
     itemsAvailable: spokSameBignum(candyMachine.itemsAvailable),

@@ -1,16 +1,16 @@
 import { createUnwrapInstruction } from '@metaplex-foundation/mpl-candy-guard';
-import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core';
-import { TransactionBuilder } from '@metaplex-foundation/js-core';
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -29,8 +29,7 @@ const Key = 'UnwrapCandyGuardOperation' as const;
  *   .unwrapCandyGuard({
  *     candyMachine,
  *     candyGuard,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -73,19 +72,6 @@ export type UnwrapCandyGuardInput = {
    * @defaultValue `metaplex.identity()`
    */
   candyGuardAuthority?: Signer;
-
-  /**
-   * The Signer that should pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -105,12 +91,14 @@ export const unwrapCandyGuardOperationHandler: OperationHandler<UnwrapCandyGuard
   {
     async handle(
       operation: UnwrapCandyGuardOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UnwrapCandyGuardOutput> {
-      return unwrapCandyGuardBuilder(metaplex, operation.input).sendAndConfirm(
+      return unwrapCandyGuardBuilder(
         metaplex,
-        operation.input.confirmOptions
-      );
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -150,15 +138,15 @@ export type UnwrapCandyGuardBuilderParams = Omit<
  */
 export const unwrapCandyGuardBuilder = (
   metaplex: Metaplex,
-  params: UnwrapCandyGuardBuilderParams
+  params: UnwrapCandyGuardBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyGuard,
     candyGuardAuthority = metaplex.identity(),
     candyMachine,
     candyMachineAuthority = metaplex.identity(),
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   // Programs.

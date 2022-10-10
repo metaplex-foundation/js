@@ -3,7 +3,7 @@ import spok, { Specifications } from 'spok';
 import test from 'tape';
 import { killStuckProcess, metaplex, spokSamePubkey } from '../../helpers';
 import { createCandyGuard, createCandyMachine } from './helpers';
-import { CandyMachine } from '@metaplex-foundation/js-core';
+import { CandyMachine } from '@/index';
 
 killStuckProcess();
 
@@ -24,21 +24,16 @@ test('[candyMachineModule] it can wrap a Candy Machine in a Candy Guard', async 
   });
 
   // When we wrap this Candy Machine with that Candy Guard.
-  await mx
-    .candyMachines()
-    .wrapCandyGuard({
-      candyMachine: candyMachine.address,
-      candyMachineAuthority,
-      candyGuard: candyGuard.address,
-      candyGuardAuthority,
-    })
-    .run();
+  await mx.candyMachines().wrapCandyGuard({
+    candyMachine: candyMachine.address,
+    candyMachineAuthority,
+    candyGuard: candyGuard.address,
+    candyGuardAuthority,
+  });
 
   // Then the Candy Machine's data was updated accordingly.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+
   spok(t, updatedCandyMachine, {
     $topic: 'Updated Candy Machine',
     model: 'candyMachine',
@@ -68,21 +63,16 @@ test('[candyMachineModule] it can wrap a different Candy Guard on a Candy Machin
   });
 
   // When we wrap the Candy Machine with that new Candy Guard.
-  await mx
-    .candyMachines()
-    .wrapCandyGuard({
-      candyMachine: candyMachine.address,
-      candyMachineAuthority,
-      candyGuard: newCandyGuard.address,
-      candyGuardAuthority: newCandyGuardAuthority,
-    })
-    .run();
+  await mx.candyMachines().wrapCandyGuard({
+    candyMachine: candyMachine.address,
+    candyMachineAuthority,
+    candyGuard: newCandyGuard.address,
+    candyGuardAuthority: newCandyGuardAuthority,
+  });
 
   // Then the Candy Machine's data was updated accordingly.
-  const updatedCandyMachine = await mx
-    .candyMachines()
-    .refresh(candyMachine)
-    .run();
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+
   spok(t, updatedCandyMachine, {
     $topic: 'Updated Candy Machine',
     model: 'candyMachine',

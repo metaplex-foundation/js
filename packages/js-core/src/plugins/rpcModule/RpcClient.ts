@@ -23,7 +23,6 @@ import {
   UnknownProgramError,
 } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
-
 import {
   assertSol,
   getSignerHistogram,

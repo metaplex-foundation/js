@@ -29,7 +29,7 @@ import {
   toBigNumber,
   toDateTime,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core';
+} from '@/index';
 
 killStuckProcess();
 
@@ -63,19 +63,18 @@ test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper 
   });
 
   // When that payer mints from the Candy Machine using its valid token.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: gatewayTokenAccount,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -114,14 +113,13 @@ test('[candyMachineModule] gatekeeper guard: it defaults to calculating the gate
   });
 
   // When that payer mints from the Candy Machine without passing in its valid token.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was still successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -154,19 +152,18 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
   });
 
   // When the payer tries to mint from it with the wrong token.
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: wrongToken,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Gateway token is not valid/);
@@ -202,19 +199,18 @@ test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tok
   });
 
   // When that payer mints from the Candy Machine using its non-expired token.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: gatewayTokenAccount,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -254,19 +250,18 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting using gateway to
   });
 
   // When the payer tries to mint from the Candy Machine using its expired token.
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: expiredGatewayTokenAccount,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Gateway token is not valid/);
@@ -307,19 +302,18 @@ test('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tok
   });
 
   // When that payer mints from the Candy Machine using its token.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: gatewayTokenAccount,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -368,19 +362,18 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
   });
 
   // When the payer tries to mint from it with the wrong token.
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         gatekeeper: {
           tokenAccount: wrongToken,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);

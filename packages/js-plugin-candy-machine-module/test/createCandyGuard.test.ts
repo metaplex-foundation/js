@@ -17,7 +17,7 @@ import {
   toBigNumber,
   toDateTime,
   token,
-} from '@metaplex-foundation/js-core';
+} from '@/index';
 
 killStuckProcess();
 
@@ -28,8 +28,7 @@ test('[candyMachineModule] create candy guard with no guards', async (t) => {
   // When we create a new Candy Guard with no guards.
   const { candyGuard, base } = await mx
     .candyMachines()
-    .createCandyGuard({ guards: {} })
-    .run();
+    .createCandyGuard({ guards: {} });
 
   // Then we expect the Candy Guard account to exists with the following data.
   spok(t, candyGuard, {
@@ -67,70 +66,67 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
   const nftGateCollection = Keypair.generate().publicKey;
   const nftBurnCollection = Keypair.generate().publicKey;
   const addressGate = Keypair.generate().publicKey;
-  const { candyGuard } = await mx
-    .candyMachines()
-    .createCandyGuard({
-      guards: {
-        botTax: {
-          lamports: sol(0.01),
-          lastInstruction: false,
-        },
-        solPayment: {
-          amount: sol(1.5),
-          destination: lamportDestination,
-        },
-        tokenPayment: {
-          amount: token(5),
-          tokenMint,
-          destinationAta: tokenDestination,
-        },
-        startDate: {
-          date: toDateTime('2022-09-05T20:00:00.000Z'),
-        },
-        thirdPartySigner: {
-          signerKey: thirdPartySigner,
-        },
-        tokenGate: {
-          mint: tokenGateMint,
-          amount: token(5),
-        },
-        gatekeeper: {
-          network: gatekeeperNetwork,
-          expireOnUse: true,
-        },
-        endDate: {
-          date: toDateTime('2022-09-06T20:00:00.000Z'),
-        },
-        allowList: {
-          merkleRoot,
-        },
-        mintLimit: {
-          id: 1,
-          limit: 5,
-        },
-        nftPayment: {
-          requiredCollection: nftPaymentCollection,
-          destination: nftPaymentDestination,
-        },
-        redeemedAmount: {
-          maximum: toBigNumber(100),
-        },
-        addressGate: {
-          address: addressGate,
-        },
-        nftGate: {
-          requiredCollection: nftGateCollection,
-        },
-        nftBurn: {
-          requiredCollection: nftBurnCollection,
-        },
-        tokenBurn: {
-          mint: tokenBurnMint,
-          amount: token(1),
-        },
+  const { candyGuard } = await mx.candyMachines().createCandyGuard({
+    guards: {
+      botTax: {
+        lamports: sol(0.01),
+        lastInstruction: false,
       },
-    })
-    .run();
+      solPayment: {
+        amount: sol(1.5),
+        destination: lamportDestination,
+      },
+      tokenPayment: {
+        amount: token(5),
+        tokenMint,
+        destinationAta: tokenDestination,
+      },
+      startDate: {
+        date: toDateTime('2022-09-05T20:00:00.000Z'),
+      },
+      thirdPartySigner: {
+        signerKey: thirdPartySigner,
+      },
+      tokenGate: {
+        mint: tokenGateMint,
+        amount: token(5),
+      },
+      gatekeeper: {
+        network: gatekeeperNetwork,
+        expireOnUse: true,
+      },
+      endDate: {
+        date: toDateTime('2022-09-06T20:00:00.000Z'),
+      },
+      allowList: {
+        merkleRoot,
+      },
+      mintLimit: {
+        id: 1,
+        limit: 5,
+      },
+      nftPayment: {
+        requiredCollection: nftPaymentCollection,
+        destination: nftPaymentDestination,
+      },
+      redeemedAmount: {
+        maximum: toBigNumber(100),
+      },
+      addressGate: {
+        address: addressGate,
+      },
+      nftGate: {
+        requiredCollection: nftGateCollection,
+      },
+      nftBurn: {
+        requiredCollection: nftBurnCollection,
+      },
+      tokenBurn: {
+        mint: tokenBurnMint,
+        amount: token(1),
+      },
+    },
+  });
 
   // Then we expect the Candy Guard account to exists with the following data.
   spok(t, candyGuard, {
@@ -262,8 +258,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           },
         },
       ],
-    })
-    .run();
+    });
 
   // Then we expect the Candy Guard account to exist with the following data.
   spok(t, candyGuard, {
@@ -340,8 +335,7 @@ test('[candyMachineModule] create candy guard with explicit authority', async (t
   // When we create a new Candy Guard using that authority.
   const { candyGuard } = await mx
     .candyMachines()
-    .createCandyGuard({ guards: {}, authority })
-    .run();
+    .createCandyGuard({ guards: {}, authority });
 
   // Then we expect the Candy Guard's authority to be the given authority.
   spok(t, candyGuard, {
@@ -359,8 +353,7 @@ test('[candyMachineModule] create candy guard with explicit payer', async (t) =>
   // When we create a new Candy Guard using that payer.
   const { candyGuard } = await mx
     .candyMachines()
-    .createCandyGuard({ guards: {}, payer })
-    .run();
+    .createCandyGuard({ guards: {} }, { payer });
 
   // Then the Candy Guard was created successfully.
   spok(t, candyGuard, {

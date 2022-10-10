@@ -7,12 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import {
-  isEqualToAmount,
-  sol,
-  toBigNumber,
-  token,
-} from '@metaplex-foundation/js-core';
+import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
 
 killStuckProcess();
 
@@ -20,14 +15,11 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
   // Given a payer with one token.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(1),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(1),
+  });
 
   // And a loaded Candy Machine with the tokenBurn guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -42,14 +34,13 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
   });
 
   // When the payer mints from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -62,8 +53,8 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
   // And the payer's token was burned.
   const refreshedPayerTokens = await mx
     .tokens()
-    .findTokenByAddress({ address: payerTokens.address })
-    .run();
+    .findTokenByAddress({ address: payerTokens.address });
+
   t.ok(
     isEqualToAmount(refreshedPayerTokens.amount, token(0)),
     'payer now has zero tokens'
@@ -74,14 +65,11 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
   // Given a payer with 42 token.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(42),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(42),
+  });
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 5 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -96,14 +84,13 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
   });
 
   // When the payer mints from it.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -116,8 +103,8 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
   // And the payer lost 5 tokens.
   const refreshedPayerTokens = await mx
     .tokens()
-    .findTokenByAddress({ address: payerTokens.address })
-    .run();
+    .findTokenByAddress({ address: payerTokens.address });
+
   t.ok(
     isEqualToAmount(refreshedPayerTokens.amount, token(37)),
     'payer now has 37 tokens'
@@ -128,14 +115,11 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
   // Given a payer with one token.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(1),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(1),
+  });
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 2 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -150,14 +134,13 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Not enough tokens on the account/);
@@ -165,8 +148,8 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
   // And the payer still has one token.
   const refreshedPayerTokens = await mx
     .tokens()
-    .findTokenByAddress({ address: payerTokens.address })
-    .run();
+    .findTokenByAddress({ address: payerTokens.address });
+
   t.ok(
     isEqualToAmount(refreshedPayerTokens.amount, token(1)),
     'payer still has one token'
@@ -177,14 +160,11 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
   // Given a payer with one token.
   const mx = await metaplex();
   const payer = await createWallet(mx, 10);
-  const { token: payerTokens } = await mx
-    .tokens()
-    .createTokenWithMint({
-      mintAuthority: Keypair.generate(),
-      owner: payer.publicKey,
-      initialSupply: token(1),
-    })
-    .run();
+  const { token: payerTokens } = await mx.tokens().createTokenWithMint({
+    mintAuthority: Keypair.generate(),
+    owner: payer.publicKey,
+    initialSupply: token(1),
+  });
 
   // And a loaded Candy Machine with a botTax guard and a tokenBurn guard that requires 2 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -203,14 +183,13 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
   });
 
   // When the payer tries to mint from it.
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -225,8 +204,8 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
   // And the payer still has one token.
   const refreshedPayerTokens = await mx
     .tokens()
-    .findTokenByAddress({ address: payerTokens.address })
-    .run();
+    .findTokenByAddress({ address: payerTokens.address });
+
   t.ok(
     isEqualToAmount(refreshedPayerTokens.amount, token(1)),
     'payer still has one token'

@@ -1,4 +1,3 @@
-export * from './derivedIdentity';
 export * from './guestIdentity';
 export * from './identityModule';
 export * from './keypairIdentity';

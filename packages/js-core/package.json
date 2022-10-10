@@ -45,6 +45,8 @@
   },
   "dependencies": {
     "@metaplex-foundation/beet": "^0.6.1",
+    "@metaplex-foundation/js-core": "*",
+
     "@noble/ed25519": "^1.7.1",
     "@noble/hashes": "^1.1.3",
     "@solana/web3.js": "^1.63.1",

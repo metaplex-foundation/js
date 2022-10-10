@@ -1,16 +1,16 @@
 import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
-import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+
 import {
   Operation,
   OperationHandler,
-  Program,
+  OperationScope,
   PublicKey,
   Signer,
   useOperation,
-} from '@metaplex-foundation/js-core';
-import { TransactionBuilder } from '@metaplex-foundation/js-core';
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -28,8 +28,7 @@ const Key = 'DeleteCandyMachineOperation' as const;
  *     candyMachine: candyMachine.address,
  *     candyGuard: candyMachine.candyGuard.address,
  *     authority,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -83,19 +82,6 @@ export type DeleteCandyMachineInput = {
    * @defaultValue `authority`
    */
   candyGuardAuthority?: Signer;
-
-  /**
-   * The Signer that should pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -115,12 +101,14 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
   {
     async handle(
       operation: DeleteCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<DeleteCandyMachineOutput> {
       return deleteCandyMachineBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -159,15 +147,15 @@ export type DeleteCandyMachineBuilderParams = Omit<
  */
 export const deleteCandyMachineBuilder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineBuilderParams
+  params: DeleteCandyMachineBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     candyMachine,
     candyGuard,
     authority = metaplex.identity(),
     candyGuardAuthority = authority,
-    payer = metaplex.identity(),
-    programs,
   } = params;
 
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
@@ -188,12 +176,13 @@ export const deleteCandyMachineBuilder = (
 
   if (candyGuard) {
     builder.add(
-      metaplex.candyMachines().builders().deleteCandyGuard({
-        candyGuard,
-        authority: candyGuardAuthority,
-        payer,
-        programs,
-      })
+      metaplex
+        .candyMachines()
+        .builders()
+        .deleteCandyGuard(
+          { candyGuard, authority: candyGuardAuthority },
+          { payer, programs }
+        )
     );
   }
 

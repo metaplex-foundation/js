@@ -43,7 +43,8 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-   "@metaplex-foundation/js-core": "*",    
+   "@metaplex-foundation/js-core": "*",
+   "@metaplex-foundation/js-plugin-nft-module": "*",
    "@metaplex-foundation/js-plugin-token-module":"*",
    "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@solana/web3.js": "^1.47.3",

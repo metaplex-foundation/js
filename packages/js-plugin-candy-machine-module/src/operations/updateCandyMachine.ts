@@ -5,7 +5,6 @@ import {
   createSetMintAuthorityInstruction,
   createUpdateInstruction as createUpdateCandyMachineInstruction,
 } from '@metaplex-foundation/mpl-candy-machine-core';
-import { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
@@ -15,31 +14,26 @@ import {
   isCandyMachine,
   toCandyMachineData,
 } from '../models';
-import {
-  MissingInputDataError,
-  NoInstructionsToSendError,
-} from '@metaplex-foundation/js-core/errors';
+import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '@metaplex-foundation/js-core/plugins/nftModule';
+
 import {
   BigNumber,
   Creator,
   Operation,
   OperationHandler,
+  OperationScope,
   Program,
   PublicKey,
   Signer,
   toPublicKey,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
 import {
   assertObjectHasDefinedKeys,
   removeUndefinedAttributes,
   TransactionBuilder,
-} from '@metaplex-foundation/js-core';
+  TransactionBuilderOptions,
+} from '@/utils';
 
 // -----------------
 // Operation
@@ -57,8 +51,7 @@ const Key = 'UpdateCandyMachineOperation' as const;
  *   .update({
  *     candyMachine,
  *     sellerFeeBasisPoints: 500,
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -131,17 +124,6 @@ export type UpdateCandyMachineInput<
    * @defaultValue Defaults to the `authority` parameter.
    */
   candyGuardAuthority?: Signer;
-
-  /**
-   * The Signer that should pay for any changes in the Candy Machine or
-   * Candy Guard account size. This includes receiving lamports if
-   * the account size decreases.
-   *
-   * This account will also pay for the transaction fee by default.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /**
    * The new authority that will be allowed to manage the Candy Machine.
@@ -289,12 +271,6 @@ export type UpdateCandyMachineInput<
    * @defaultValue Defaults to not being updated.
    */
   groups?: { label: string; guards: Partial<T> }[];
-
-  /** An optional set of programs that override the registered ones. */
-  programs?: Program[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -314,15 +290,20 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
   {
     async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
       operation: UpdateCandyMachineOperation<T>,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UpdateCandyMachineOutput> {
-      const builder = updateCandyMachineBuilder(metaplex, operation.input);
+      const builder = updateCandyMachineBuilder(
+        metaplex,
+        operation.input,
+        scope
+      );
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -374,20 +355,21 @@ export const updateCandyMachineBuilder = <
   T extends CandyGuardsSettings = DefaultCandyGuardSettings
 >(
   metaplex: Metaplex,
-  params: UpdateCandyMachineBuilderParams<T>
+  params: UpdateCandyMachineBuilderParams<T>,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const {
-    payer = metaplex.identity(),
-    authority = metaplex.identity(),
-    candyGuardAuthority = authority,
-  } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { authority = metaplex.identity(), candyGuardAuthority = authority } =
+    params;
 
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
 
       // Update Candy Machine data.
-      .add(updateCandyMachineDataBuilder<T>(metaplex, params, authority))
+      .add(
+        updateCandyMachineDataBuilder<T>(metaplex, params, authority, programs)
+      )
 
       // Update Candy Machine collection.
       .add(
@@ -395,7 +377,8 @@ export const updateCandyMachineBuilder = <
           metaplex,
           params,
           authority,
-          payer
+          payer,
+          programs
         )
       )
 
@@ -405,17 +388,30 @@ export const updateCandyMachineBuilder = <
           metaplex,
           params,
           candyGuardAuthority,
-          payer
+          payer,
+          programs
         )
       )
 
       // Update Candy Machine mint authority.
       .add(
-        updateCandyMachineMintAuthorityBuilder<T>(metaplex, params, authority)
+        updateCandyMachineMintAuthorityBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          programs
+        )
       )
 
       // Update Candy Machine authority.
-      .add(updateCandyMachineAuthorityBuilder<T>(metaplex, params, authority))
+      .add(
+        updateCandyMachineAuthorityBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          programs
+        )
+      )
   );
 };
 
@@ -424,7 +420,8 @@ const updateCandyMachineDataBuilder = <
 >(
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
-  authority: Signer
+  authority: Signer,
+  programs?: Program[]
 ): TransactionBuilder => {
   const dataToUpdate: Partial<CandyMachine> = removeUndefinedAttributes({
     itemsAvailable: params.itemsAvailable,
@@ -436,9 +433,7 @@ const updateCandyMachineDataBuilder = <
     itemSettings: params.itemSettings,
   });
 
-  const candyMachineProgram = metaplex
-    .programs()
-    .getCandyMachine(params.programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
   let data: CandyMachineData;
   if (Object.keys(dataToUpdate).length === 0) {
@@ -482,7 +477,8 @@ const updateCandyMachineCollectionBuilder = <
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
   authority: Signer,
-  payer: Signer
+  payer: Signer,
+  programs?: Program[]
 ): TransactionBuilder => {
   if (!params.collection) {
     return TransactionBuilder.make();
@@ -498,16 +494,43 @@ const updateCandyMachineCollectionBuilder = <
     throw onMissingInputError(['collection.currentCollectionAddress']);
   }
 
-  const { programs } = params;
-  const candyMachineAddress = toPublicKey(params.candyMachine);
-  const authorityPda = metaplex
-    .candyMachines()
-    .pdas()
-    .authority({ candyMachine: candyMachineAddress, programs });
-  const collectionAddress = params.collection.address;
-  const collectionUpdateAuthority = params.collection.updateAuthority;
+  // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
   const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
+  // Addresses.
+  const candyMachineAddress = toPublicKey(params.candyMachine);
+  const collectionAddress = params.collection.address;
+  const collectionUpdateAuthority = params.collection.updateAuthority;
+
+  // PDAs.
+  const authorityPda = metaplex.candyMachines().pdas().authority({
+    candyMachine: candyMachineAddress,
+    programs,
+  });
+  const currentCollectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: currentCollectionAddress,
+  });
+  const currentCollectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: currentCollectionAddress,
+      collectionAuthority: authorityPda,
+    });
+  const collectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: collectionAddress,
+  });
+  const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: collectionAddress,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: collectionAddress,
+      collectionAuthority: authorityPda,
+    });
 
   return TransactionBuilder.make().add({
     instruction: createSetCollectionInstruction(
@@ -517,19 +540,13 @@ const updateCandyMachineCollectionBuilder = <
         authorityPda,
         payer: payer.publicKey,
         collectionMint: currentCollectionAddress,
-        collectionMetadata: findMetadataPda(currentCollectionAddress),
-        collectionAuthorityRecord: findCollectionAuthorityRecordPda(
-          currentCollectionAddress,
-          authorityPda
-        ),
+        collectionMetadata: currentCollectionMetadata,
+        collectionAuthorityRecord: currentCollectionAuthorityRecord,
         newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
-        newCollectionMetadata: findMetadataPda(collectionAddress),
+        newCollectionMetadata: collectionMetadata,
         newCollectionMint: collectionAddress,
-        newCollectionMasterEdition: findMasterEditionV2Pda(collectionAddress),
-        newCollectionAuthorityRecord: findCollectionAuthorityRecordPda(
-          collectionAddress,
-          authorityPda
-        ),
+        newCollectionMasterEdition: collectionMasterEdition,
+        newCollectionAuthorityRecord: collectionAuthorityRecord,
         tokenMetadataProgram: tokenMetadataProgram.address,
       },
       candyMachineProgram.address
@@ -545,7 +562,8 @@ const updateCandyGuardsBuilder = <
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
   candyGuardAuthority: Signer,
-  payer: Signer
+  payer: Signer,
+  programs?: Program[]
 ): TransactionBuilder => {
   const guardsToUpdate: {
     candyGuard?: PublicKey;
@@ -589,16 +607,17 @@ const updateCandyGuardsBuilder = <
   return metaplex
     .candyMachines()
     .builders()
-    .updateCandyGuard<T>({
-      candyGuard: args.candyGuard,
-      guards: args.guards,
-      groups: args.groups,
-      authority: candyGuardAuthority,
-      payer,
-      programs: params.programs,
-      updateInstructionKey:
-        params.updateCandyGuardInstructionKey ?? 'updateCandyGuard',
-    });
+    .updateCandyGuard<T>(
+      {
+        candyGuard: args.candyGuard,
+        guards: args.guards,
+        groups: args.groups,
+        authority: candyGuardAuthority,
+        updateInstructionKey:
+          params.updateCandyGuardInstructionKey ?? 'updateCandyGuard',
+      },
+      { payer, programs }
+    );
 };
 
 const updateCandyMachineMintAuthorityBuilder = <
@@ -606,15 +625,14 @@ const updateCandyMachineMintAuthorityBuilder = <
 >(
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
-  authority: Signer
+  authority: Signer,
+  programs?: Program[]
 ): TransactionBuilder => {
   if (!params.newMintAuthority) {
     return TransactionBuilder.make();
   }
 
-  const candyMachineProgram = metaplex
-    .programs()
-    .getCandyMachine(params.programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
   return TransactionBuilder.make().add({
     instruction: createSetMintAuthorityInstruction(
@@ -635,15 +653,14 @@ const updateCandyMachineAuthorityBuilder = <
 >(
   metaplex: Metaplex,
   params: UpdateCandyMachineBuilderParams<T>,
-  authority: Signer
+  authority: Signer,
+  programs?: Program[]
 ): TransactionBuilder => {
   if (!params.newAuthority) {
     return TransactionBuilder.make();
   }
 
-  const candyMachineProgram = metaplex
-    .programs()
-    .getCandyMachine(params.programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
   return TransactionBuilder.make().add({
     instruction: createSetAuthorityInstruction(

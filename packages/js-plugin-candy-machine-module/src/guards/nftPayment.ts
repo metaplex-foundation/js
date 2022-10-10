@@ -1,10 +1,7 @@
 import { nftPaymentBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
+import { GuardMintSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import {
-  createSerializerFromBeet,
-  PublicKey,
-} from '@metaplex-foundation/js-core';
+import { createSerializerFromBeet, PublicKey } from '@/types';
 
 /**
  * The nftPayment guard allows minting by charging the
@@ -72,7 +69,7 @@ export const nftPaymentGuardManifest: CandyGuardManifest<
     programs,
   }) => {
     if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('nftPayment');
+      throw new GuardMintSettingsMissingError('nftPayment');
     }
 
     const associatedTokenProgram = metaplex

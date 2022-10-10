@@ -1,12 +1,8 @@
 import { Buffer } from 'buffer';
 import * as beet from '@metaplex-foundation/beet';
 import { AllowList, allowListBeet } from '@metaplex-foundation/mpl-candy-guard';
-import { GuardMitingSettingsMissingError } from '../errors';
 import { CandyGuardManifest } from './core';
-import {
-  createSerializerFromBeet,
-  mapSerializer,
-} from '@metaplex-foundation/js-core';
+import { createSerializerFromBeet, mapSerializer } from '@/types';
 
 /**
  * The allowList guard validates the minting wallet against
@@ -24,7 +20,7 @@ import {
  * Here is an example.
  *
  * ```ts
- * import { getMerkleProof, getMerkleRoot } from '@metaplex-foundation/js-core';
+ * import { getMerkleProof, getMerkleRoot } from '@metaplex-foundation/js';
  * const allowList = [
  *   'Ur1CbWSGsXCdedknRbJsEk7urwAvu1uddmQv51nAnXB',
  *   'GjwcWFQYzemBtpUoN5fMAP2FZviTtMRWCmrppGuTthJS',
@@ -35,12 +31,17 @@ import {
  * const invalidMerkleProof = getMerkleProof(allowList, 'invalid-address');
  * ```
  *
+ * Note that you will need to provide the Merkle Proof for the
+ * minting wallet before calling the mint instruction via the
+ * special "route" instruction of the guard.
+ * See {@link AllowListGuardRouteSettings} for more information.
+ *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
  * Machine if you wish to enable this guard.
  *
- * @see {@link AllowListGuardMintSettings} for more
- * information on the mint settings of this guard.
+ * @see {@link AllowListGuardRouteSettings} to learn more about
+ * the instructions that can be executed against this guard.
  */
 export type AllowListGuardSettings = {
   /**
@@ -51,13 +52,35 @@ export type AllowListGuardSettings = {
 };
 
 /**
- * The settings for the allowList guard that could
- * be provided when minting from the Candy Machine.
+ * The settings for the allowList guard that should be provided
+ * when accessing the guard's special "route" instruction.
+ *
+ * ## Proof
+ * The `proof` path allows you to provide a Merkle Proof
+ * for a specific wallet in order to allow minting for that wallet.
+ * This will create a small PDA account on the Program as a proof
+ * that the wallet has been allowed to mint.
+ *
+ * ```ts
+ * await metaplex.candyMachines().callGuardRoute({
+ *   candyMachine,
+ *   guard: 'allowList',
+ *   settings: {
+ *     path: 'proof',
+ *     merkleProof: getMerkleProof(allowedWallets, metaplex.identity().publicKey.toBase58()),
+ *   },
+ * });
+ *
+ * // You are now allows to mint with this wallet.
+ * ```
  *
  * @see {@link AllowListGuardSettings} for more
  * information on the allowList guard itself.
  */
-export type AllowListGuardMintSettings = {
+export type AllowListGuardRouteSettings = {
+  /** Selects the path to execute in the route instruction. */
+  path: 'proof';
+
   /**
    * The Proof that the minting wallet is part of the
    * Merkle Tree-based allow list. You may use the
@@ -69,7 +92,8 @@ export type AllowListGuardMintSettings = {
 /** @internal */
 export const allowListGuardManifest: CandyGuardManifest<
   AllowListGuardSettings,
-  AllowListGuardMintSettings
+  {},
+  AllowListGuardRouteSettings
 > = {
   name: 'allowList',
   settingsBytes: 32,
@@ -78,18 +102,61 @@ export const allowListGuardManifest: CandyGuardManifest<
     (settings) => ({ merkleRoot: new Uint8Array(settings.merkleRoot) }),
     (settings) => ({ merkleRoot: Array.from(settings.merkleRoot) })
   ),
-  mintSettingsParser: ({ mintSettings }) => {
-    if (!mintSettings) {
-      throw new GuardMitingSettingsMissingError('allowList');
-    }
-
-    const proof = mintSettings.merkleProof;
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    payer,
+    candyMachine,
+    candyGuard,
+  }) => {
+    return {
+      arguments: Buffer.from([]),
+      remainingAccounts: [
+        {
+          isSigner: false,
+          isWritable: false,
+          address: metaplex.candyMachines().pdas().merkleProof({
+            merkleRoot: settings.merkleRoot,
+            user: payer.publicKey,
+            candyMachine,
+            candyGuard,
+          }),
+        },
+      ],
+    };
+  },
+  routeSettingsParser: ({
+    metaplex,
+    settings,
+    routeSettings,
+    programs,
+    candyMachine,
+    candyGuard,
+    payer,
+  }) => {
+    const proof = routeSettings.merkleProof;
     const vectorSize = Buffer.alloc(4);
     beet.u32.write(vectorSize, 0, proof.length);
 
     return {
       arguments: Buffer.concat([vectorSize, ...proof]),
-      remainingAccounts: [],
+      remainingAccounts: [
+        {
+          isSigner: false,
+          isWritable: true,
+          address: metaplex.candyMachines().pdas().merkleProof({
+            merkleRoot: settings.merkleRoot,
+            user: payer.publicKey,
+            candyMachine,
+            candyGuard,
+          }),
+        },
+        {
+          isSigner: false,
+          isWritable: false,
+          address: metaplex.programs().getSystem(programs).address,
+        },
+      ],
     };
   },
 };

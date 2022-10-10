@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
-import type { Metaplex } from '@metaplex-foundation/js-core';
-import { Pda, Program, PublicKey } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@/Metaplex';
+import { Pda, Program, PublicKey } from '@/types';
 
 /**
  * This client allows you to build PDAs related to the Candy Machine module.
@@ -69,7 +69,40 @@ export class CandyMachinePdasClient {
   }): Pda {
     const program = this.metaplex.programs().getCandyGuard(programs);
     return Pda.find(program.address, [
+      Buffer.from('mint_limit', 'utf8'),
       Buffer.from([id]),
+      user.toBuffer(),
+      candyGuard.toBuffer(),
+      candyMachine.toBuffer(),
+    ]);
+  }
+
+  /**
+   * Finds the Allow List Proof PDA that keeps track of whether a user
+   * has provided the correct Merkle Proof for the given Merkle Root.
+   */
+  merkleProof({
+    merkleRoot,
+    user,
+    candyMachine,
+    candyGuard,
+    programs,
+  }: {
+    /** The Merkle Root used when verifying the user. */
+    merkleRoot: Uint8Array;
+    /** The address of the wallet trying to mint. */
+    user: PublicKey;
+    /** The address of the Candy Guard account. */
+    candyGuard: PublicKey;
+    /** The address of the Candy Machine account. */
+    candyMachine: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const program = this.metaplex.programs().getCandyGuard(programs);
+    return Pda.find(program.address, [
+      Buffer.from('allow_list', 'utf8'),
+      merkleRoot,
       user.toBuffer(),
       candyGuard.toBuffer(),
       candyMachine.toBuffer(),

@@ -9,11 +9,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import {
-  isEqualToAmount,
-  sol,
-  toBigNumber,
-} from '@metaplex-foundation/js-core';
+import { isEqualToAmount, sol, toBigNumber } from '@/index';
 
 killStuckProcess();
 
@@ -43,19 +39,18 @@ test('[candyMachineModule] nftBurn guard: it burns a specific NFT to allow minti
   });
 
   // When the payer mints from it using its NFT to burn.
-  const { nft } = await mx
-    .candyMachines()
-    .mint({
+  const { nft } = await mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         nftBurn: {
           mint: payerNft.address,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then minting was successful.
   await assertMintingWasSuccessful(t, mx, {
@@ -97,19 +92,18 @@ test('[candyMachineModule] nftBurn guard: it fails if there is not valid NFT to 
   // When we try to mint from it using an NFT that's not part of this collection.
   const payer = await createWallet(mx, 10);
   const payerNft = await createNft(mx, { tokenOwner: payer.publicKey });
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         nftBurn: {
           mint: payerNft.address,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect an error.
   await assertThrows(t, promise, /Invalid NFT collection/);
@@ -136,19 +130,18 @@ test('[candyMachineModule] nftBurn guard with bot tax: it charges a bot tax when
   // When we try to mint from it using an NFT that's not part of this collection.
   const payer = await createWallet(mx, 10);
   const payerNft = await createNft(mx, { tokenOwner: payer.publicKey });
-  const promise = mx
-    .candyMachines()
-    .mint({
+  const promise = mx.candyMachines().mint(
+    {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      payer,
       guards: {
         nftBurn: {
           mint: payerNft.address,
         },
       },
-    })
-    .run();
+    },
+    { payer }
+  );
 
   // Then we expect a bot tax error.
   await assertThrows(t, promise, /Candy Machine Bot Tax/);
@@ -188,13 +181,10 @@ test('[candyMachineModule] nftBurn guard: it fails if no mint settings are provi
 
   // When we try to mint from it without providing
   // any mint settings for the nftBurn guard.
-  const promise = mx
-    .candyMachines()
-    .mint({
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    })
-    .run();
+  const promise = mx.candyMachines().mint({
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+  });
 
   // Then we expect an error.
   await assertThrows(

@@ -6,7 +6,7 @@ import {
   PublicKey,
   SplTokenAmount,
   token,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
 
 /**
  * The tokenGate guard restricts minting to token holders

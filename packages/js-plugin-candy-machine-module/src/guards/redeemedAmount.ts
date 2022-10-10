@@ -8,7 +8,7 @@ import {
   createSerializerFromBeet,
   mapSerializer,
   toBigNumber,
-} from '@metaplex-foundation/js-core';
+} from '@/types';
 
 /**
  * The redeemedAmount guard forbids minting when the
