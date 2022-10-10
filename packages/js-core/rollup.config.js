@@ -7,10 +7,12 @@ export default createConfigs({
     {
       dir: 'dist/esm',
       format: 'es',
+      bundle: true,
     },
     {
       dir: 'dist/cjs',
       format: 'cjs',
+      bundle: true,
     },
   ],
 });

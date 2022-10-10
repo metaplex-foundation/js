@@ -2,13 +2,13 @@
   "name": "@metaplex-foundation/js-core",
   "version": "0.16.1",
   "sideEffects": false,
-  "module": "dist/esm/src/index.mjs",
-  "main": "dist/cjs/src/index.cjs",
+  "module": "dist/esm/index.mjs",
+  "main": "dist/cjs/index.cjs",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/src/index.mjs",
-      "require": "./dist/cjs/src/index.cjs"
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
     }
   },
   "files": [
