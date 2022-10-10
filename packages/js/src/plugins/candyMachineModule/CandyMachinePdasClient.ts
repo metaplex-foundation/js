@@ -69,6 +69,7 @@ export class CandyMachinePdasClient {
   }): Pda {
     const program = this.metaplex.programs().getCandyGuard(programs);
     return Pda.find(program.address, [
+      Buffer.from('mint_limit', 'utf8'),
       Buffer.from([id]),
       user.toBuffer(),
       candyGuard.toBuffer(),
@@ -100,6 +101,7 @@ export class CandyMachinePdasClient {
   }): Pda {
     const program = this.metaplex.programs().getCandyGuard(programs);
     return Pda.find(program.address, [
+      Buffer.from('allow_list', 'utf8'),
       merkleRoot,
       user.toBuffer(),
       candyGuard.toBuffer(),
