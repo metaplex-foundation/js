@@ -9,4 +9,3 @@ export * from './rpcModule';
 export * from './storageModule';
 export * from './systemModule';
 export * from './utilsModule';
-export * from './walletAdapterIdentity';
