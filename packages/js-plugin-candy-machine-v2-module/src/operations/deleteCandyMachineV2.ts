@@ -1,16 +1,19 @@
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { TransactionBuilder } from '@metaplex-foundation/js-core';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -22,7 +25,7 @@ const Key = 'DeleteCandyMachineV2Operation' as const;
  * Deletes an existing Candy Machine.
  *
  * ```ts
- * await metaplex.candyMachinesV2().delete({ candyMachine }).run();
+ * await metaplex.candyMachinesV2().delete({ candyMachine });
  * ```
  *
  * @group Operations
@@ -63,9 +66,6 @@ export type DeleteCandyMachineV2Input = {
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -85,12 +85,14 @@ export const deleteCandyMachineV2OperationHandler: OperationHandler<DeleteCandyM
   {
     async handle(
       operation: DeleteCandyMachineV2Operation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<DeleteCandyMachineV2Output> {
       return deleteCandyMachineV2Builder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -127,8 +129,10 @@ export type DeleteCandyMachineV2BuilderParams = Omit<
  */
 export const deleteCandyMachineV2Builder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineV2BuilderParams
+  params: DeleteCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
   const { candyMachine } = params;
 
@@ -146,17 +150,11 @@ export const deleteCandyMachineV2Builder = (
     });
   }
 
-  return (
-    TransactionBuilder.make()
-
-      // This is important because, otherwise, the authority will not be identitied
-      // as a mutable account and debitting it will cause an error.
-      .setFeePayer(authority)
-
-      .add({
-        instruction: deleteInstruction,
-        signers: [authority],
-        key: params.instructionKey ?? 'withdrawFunds',
-      })
-  );
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: deleteInstruction,
+      signers: [authority],
+      key: params.instructionKey ?? 'withdrawFunds',
+    });
 };

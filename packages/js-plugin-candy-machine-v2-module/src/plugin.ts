@@ -17,7 +17,7 @@ import {
   updateCandyMachineV2Operation,
   updateCandyMachineV2OperationHandler,
 } from './operations';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@/Metaplex';
 import { MetaplexPlugin } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */

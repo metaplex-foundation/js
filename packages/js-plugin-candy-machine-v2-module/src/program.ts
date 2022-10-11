@@ -1,6 +1,6 @@
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachineV2GpaBuilder } from './gpaBuilders';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 /** @group Programs */
 export const CandyMachineV2Program = {

@@ -9,17 +9,16 @@ import {
   metaplex,
   spokSameBignum,
   spokSamePubkey,
-} from '../../helpers';
+} from './helpers';
 import { createCandyMachineV2 } from './helpers';
 import {
-  CandyMachineV2,
-  findCandyMachineV2CreatorPda,
-  Nft,
   now,
   toBigNumber,
   toDateTime,
   token,
 } from '@metaplex-foundation/js-core';
+import { CandyMachineV2, findCandyMachineV2CreatorPda } from '../src';
+import { Nft } from '@metaplex-foundation/js-plugin-nft-module';
 
 killStuckProcess();
 
@@ -37,11 +36,8 @@ test('[candyMachineV2Module] it can mint from candy machine', async (t) => {
   });
 
   // When we mint an NFT from the candy machine.
-  const { nft } = await mx.candyMachinesV2().mint({ candyMachine }).run();
-  const updatedCandyMachine = await mx
-    .candyMachinesV2()
-    .refresh(candyMachine)
-    .run();
+  const { nft } = await mx.candyMachinesV2().mint({ candyMachine });
+  const updatedCandyMachine = await mx.candyMachinesV2().refresh(candyMachine);
 
   // Then an NFT was created with the right data.
   spok(t, nft, {
@@ -98,7 +94,7 @@ test('[candyMachineV2Module] it can mint from candy machine with a collection', 
   });
 
   // When we mint an NFT from that candy machine.
-  const { nft } = await mx.candyMachinesV2().mint({ candyMachine }).run();
+  const { nft } = await mx.candyMachinesV2().mint({ candyMachine });
 
   // Then an NFT was created.
   spok(t, nft, {
@@ -127,8 +123,7 @@ test('[candyMachineV2Module] it can mint from candy machine as another payer', a
   // When we mint an NFT from the candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey })
-    .run();
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created with the right data.
   spok(t, nft, {
@@ -138,14 +133,12 @@ test('[candyMachineV2Module] it can mint from candy machine as another payer', a
   } as Specifications<Nft>);
 
   // And it belongs to the payer.
-  const nftTokenHolder = await mx
-    .tokens()
-    .findTokenWithMintByMint({
-      mint: nft.address,
-      address: payer.publicKey,
-      addressType: 'owner',
-    })
-    .run();
+  const nftTokenHolder = await mx.tokens().findTokenWithMintByMint({
+    mint: nft.address,
+    address: payer.publicKey,
+    addressType: 'owner',
+  });
+
   t.ok(
     nftTokenHolder.ownerAddress.equals(payer.publicKey),
     'NFT belongs to the payer'
@@ -160,13 +153,12 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   const payer = await createWallet(mx);
   const { token: payerTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey })
-    .run();
+    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey });
+
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
     .tokens()
-    .createToken({ mint: mintTreasury.address })
-    .run();
+    .createToken({ mint: mintTreasury.address });
 
   // And given a Candy Machine with all of these settings.
   const { candyMachine } = await createCandyMachineV2(mx, {
@@ -186,8 +178,7 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   // When we mint an NFT from that candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey })
-    .run();
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created.
   spok(t, nft, {
@@ -199,8 +190,8 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   // And the payer token account was debited.
   const updatedPayerTokenAccount = await mx
     .tokens()
-    .findTokenByAddress({ address: payerTokenAccount.address })
-    .run();
+    .findTokenByAddress({ address: payerTokenAccount.address });
+
   t.equal(
     updatedPayerTokenAccount.amount.basisPoints.toNumber(),
     5,
@@ -216,19 +207,18 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   const payer = await createWallet(mx);
   const { token: payerTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey })
-    .run();
+    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey });
+
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
     .tokens()
-    .createToken({ mint: mintTreasury.address })
-    .run();
+    .createToken({ mint: mintTreasury.address });
 
   // And the following whitelist settings.
   const { token: payerWhitelistTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(1), owner: payer.publicKey })
-    .run();
+    .createTokenWithMint({ initialSupply: token(1), owner: payer.publicKey });
+
   const whitelistMintSettings = {
     mode: WhitelistMintMode.BurnEveryTime,
     mint: payerWhitelistTokenAccount.mint.address,
@@ -259,8 +249,7 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   // When we mint an NFT from that candy machine.
   const { nft } = await mx
     .candyMachinesV2()
-    .mint({ candyMachine, payer, newOwner: payer.publicKey })
-    .run();
+    .mint({ candyMachine, newOwner: payer.publicKey }, { payer });
 
   // Then an NFT was created.
   spok(t, nft, {

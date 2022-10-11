@@ -19,9 +19,8 @@ import {
   UpdateCandyMachineV2Input,
   updateCandyMachineV2Operation,
 } from './operations';
-import { Task } from '@metaplex-foundation/js-core';
-import { toPublicKey } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import { OperationOptions, toPublicKey } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the Candy Machine module.
@@ -47,8 +46,7 @@ import type { Metaplex } from '@metaplex-foundation/js-core';
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
  *     itemsAvailable: toBigNumber(1000), // 1000 items available
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @see {@link CandyMachine} The `CandyMachine` model
@@ -70,72 +68,84 @@ export class CandyMachinesV2Client {
   }
 
   /** {@inheritDoc createCandyMachineV2Operation} */
-  create(input: CreateCandyMachineV2Input) {
+  create(input: CreateCandyMachineV2Input, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(createCandyMachineV2Operation(input));
+      .execute(createCandyMachineV2Operation(input), options);
   }
 
   /** {@inheritDoc deleteCandyMachineV2Operation} */
-  delete(input: DeleteCandyMachineV2Input) {
+  delete(input: DeleteCandyMachineV2Input, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(deleteCandyMachineV2Operation(input));
+      .execute(deleteCandyMachineV2Operation(input), options);
   }
 
   /** {@inheritDoc findCandyMachinesV2ByPublicKeyFieldOperation} */
-  findAllBy(input: FindCandyMachinesV2ByPublicKeyFieldInput) {
+  findAllBy(
+    input: FindCandyMachinesV2ByPublicKeyFieldInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachinesV2ByPublicKeyFieldOperation(input));
+      .execute(findCandyMachinesV2ByPublicKeyFieldOperation(input), options);
   }
 
   /** {@inheritDoc findCandyMachineV2ByAddressOperation} */
-  findByAddress(input: FindCandyMachineV2ByAddressInput): Task<CandyMachineV2> {
+  findByAddress(
+    input: FindCandyMachineV2ByAddressInput,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findCandyMachineV2ByAddressOperation(input));
+      .execute(findCandyMachineV2ByAddressOperation(input), options);
   }
 
   /** {@inheritDoc findMintedNftsByCandyMachineV2Operation} */
-  findMintedNfts(input: FindMintedNftsByCandyMachineV2Input) {
+  findMintedNfts(
+    input: FindMintedNftsByCandyMachineV2Input,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(findMintedNftsByCandyMachineV2Operation(input));
+      .execute(findMintedNftsByCandyMachineV2Operation(input), options);
   }
 
   /** {@inheritDoc insertItemsToCandyMachineV2Operation} */
-  insertItems(input: InsertItemsToCandyMachineV2Input) {
+  insertItems(
+    input: InsertItemsToCandyMachineV2Input,
+    options?: OperationOptions
+  ) {
     return this.metaplex
       .operations()
-      .getTask(insertItemsToCandyMachineV2Operation(input));
+      .execute(insertItemsToCandyMachineV2Operation(input), options);
   }
 
   /** {@inheritDoc mintCandyMachineV2Operation} */
-  mint(input: MintCandyMachineV2Input) {
+  mint(input: MintCandyMachineV2Input, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(mintCandyMachineV2Operation(input));
+      .execute(mintCandyMachineV2Operation(input), options);
   }
 
   /**
    * Helper method that refetches a given Candy Machine.
    *
    * ```ts
-   * const candyMachine = await metaplex.candyMachinesV2().refresh(candyMachine).run();
+   * const candyMachine = await metaplex.candyMachinesV2().refresh(candyMachine);
    * ```
    */
   refresh(
     candyMachine: CandyMachineV2 | PublicKey,
-    input?: Omit<FindCandyMachineV2ByAddressInput, 'address'>
-  ): Task<CandyMachineV2> {
-    return this.findByAddress({ address: toPublicKey(candyMachine), ...input });
+    options?: OperationOptions
+  ) {
+    return this.findByAddress({ address: toPublicKey(candyMachine) }, options);
   }
 
   /** {@inheritDoc updateCandyMachineV2Operation} */
-  update(input: UpdateCandyMachineV2Input) {
+  update(input: UpdateCandyMachineV2Input, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .getTask(updateCandyMachineV2Operation(input));
+      .execute(updateCandyMachineV2Operation(input), options);
   }
 }

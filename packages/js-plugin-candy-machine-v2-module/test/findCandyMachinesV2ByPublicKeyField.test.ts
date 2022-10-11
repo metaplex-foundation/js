@@ -1,6 +1,6 @@
 import test from 'tape';
 import { Keypair } from '@solana/web3.js';
-import { createCollectionNft, killStuckProcess, metaplex } from '../../helpers';
+import { createCollectionNft, killStuckProcess, metaplex } from './helpers';
 import { createCandyMachineV2 } from './helpers';
 import { token } from '@metaplex-foundation/js-core';
 
@@ -22,8 +22,7 @@ test('[candyMachineV2Module] find all candy machines by wallet', async (t) => {
   // When I find all candy machines from wallet A.
   const candyMachines = await mx
     .candyMachinesV2()
-    .findAllBy({ type: 'wallet', publicKey: walletA.publicKey })
-    .run();
+    .findAllBy({ type: 'wallet', publicKey: walletA.publicKey });
 
   // Then we got two candy machines.
   t.equal(candyMachines.length, 2, 'returns two accounts');
@@ -53,8 +52,7 @@ test('[candyMachineV2Module] find all candy machines by authority', async (t) =>
   // When I find all candy machines from authority A.
   const candyMachines = await mx
     .candyMachinesV2()
-    .findAllBy({ type: 'authority', publicKey: authorityA.publicKey })
-    .run();
+    .findAllBy({ type: 'authority', publicKey: authorityA.publicKey });
 
   // Then we got two candy machines.
   t.equal(candyMachines.length, 2, 'returns two accounts');
@@ -73,8 +71,8 @@ test('[candyMachineV2Module] find all candy machines correctly parses token mint
   const mx = await metaplex();
   const authority = mx.identity();
 
-  const { token: token1 } = await mx.tokens().createTokenWithMint().run();
-  const { token: token2_3 } = await mx.tokens().createTokenWithMint().run();
+  const { token: token1 } = await mx.tokens().createTokenWithMint();
+  const { token: token2_3 } = await mx.tokens().createTokenWithMint();
 
   const amount1 = token(1.0, token1.mint.decimals, token1.mint.currency.symbol);
   const amount2 = token(
@@ -116,8 +114,7 @@ test('[candyMachineV2Module] find all candy machines correctly parses token mint
   // When I find all candy machines
   const foundCandyMachines = await mx
     .candyMachinesV2()
-    .findAllBy({ type: 'authority', publicKey: authority.publicKey })
-    .run();
+    .findAllBy({ type: 'authority', publicKey: authority.publicKey });
 
   // Then we got three candy machines.
   t.equal(foundCandyMachines.length, 3, 'returns three accounts');

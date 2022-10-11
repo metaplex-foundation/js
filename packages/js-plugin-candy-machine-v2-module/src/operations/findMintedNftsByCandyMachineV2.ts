@@ -1,17 +1,13 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import {
-  findNftsByCreatorOperation,
-  Metadata,
-  Nft,
-} from '@metaplex-foundation/js-plugin-nft-module';
+import { PublicKey } from '@solana/web3.js';
+import { Metadata, Nft } from '@metaplex-foundation/js-plugin-nft-module';
 import { findCandyMachineV2CreatorPda } from '../pdas';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -25,8 +21,7 @@ const Key = 'FindMintedNftsByCandyMachineV2Operation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .candyMachinesV2()
- *   .findMintedNfts({ candyMachine })
- *   .run();
+ *   .findMintedNfts({ candyMachine };
  * ```
  *
  * @group Operations
@@ -59,9 +54,6 @@ export type FindMintedNftsByCandyMachineV2Input = {
    * @defaultValue `2`
    */
   version?: 1 | 2;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -79,22 +71,17 @@ export const findMintedNftsByCandyMachineV2OperationHandler: OperationHandler<Fi
     handle: async (
       operation: FindMintedNftsByCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const { candyMachine, version = 2, commitment } = operation.input;
+      const { candyMachine, version = 2 } = operation.input;
       const firstCreator =
         version === 2
           ? findCandyMachineV2CreatorPda(candyMachine)
           : candyMachine;
 
-      const mintedNfts = await metaplex.operations().execute(
-        findNftsByCreatorOperation({
-          creator: firstCreator,
-          position: 1,
-          commitment,
-        }),
-        scope
-      );
+      const mintedNfts = await metaplex
+        .nfts()
+        .findAllByCreator({ creator: firstCreator, position: 1 }, scope);
 
       return mintedNfts as (Nft | Metadata)[];
     },

@@ -3,40 +3,37 @@ import {
   createSetCollectionInstruction,
   Creator,
 } from '@metaplex-foundation/mpl-candy-machine';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '@metaplex-foundation/js-plugin-nft-module';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import {
   CandyMachineV2,
   CandyMachineV2Configs,
   toCandyMachineV2InstructionData,
 } from '../models';
-import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 import {
-  DisposableScope,
   Option,
   RequiredKeys,
   TransactionBuilder,
+  TransactionBuilderOptions,
 } from '@metaplex-foundation/js-core';
 import {
   assertSameCurrencies,
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SOL,
   toBigNumber,
   toPublicKey,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -54,8 +51,7 @@ const Key = 'CreateCandyMachineV2Operation' as const;
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
  *     itemsAvailable: toBigNumber(1000), // 1000 items available
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -84,14 +80,6 @@ export type CreateCandyMachineV2InputWithoutConfigs = {
   candyMachine?: Signer;
 
   /**
-   * The Signer that should pay for the creation of the Candy Machine.
-   * This includes both storage fees and the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The authority that will be allowed to update the Candy Machine.
    * Upon creation, passing the authority's public key is enough to set it.
    * However, when also passing a `collection` to this operation,
@@ -111,9 +99,6 @@ export type CreateCandyMachineV2InputWithoutConfigs = {
    * @defaultValue `null`
    */
   collection?: Option<PublicKey>;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -141,9 +126,6 @@ export type CreateCandyMachineV2Output = {
   /** The create Candy Machine's account as a Signer. */
   candyMachineSigner: Signer;
 
-  /** The account that ended up paying for the Candy Machine as a Signer. */
-  payer: Signer;
-
   /** The created Candy Machine's wallet. */
   wallet: PublicKey;
 
@@ -163,24 +145,25 @@ export const createCandyMachineV2OperationHandler: OperationHandler<CreateCandyM
     async handle(
       operation: CreateCandyMachineV2Operation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateCandyMachineV2Output> {
       const builder = await createCandyMachineV2Builder(
         metaplex,
-        operation.input
+        operation.input,
+        scope
       );
       scope.throwIfCanceled();
 
-      const output = await builder.sendAndConfirm(
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
       const candyMachine = await metaplex
         .candyMachinesV2()
-        .findByAddress({ address: output.candyMachineSigner.publicKey })
-        .run(scope);
+        .findByAddress({ address: output.candyMachineSigner.publicKey }, scope);
 
       return { ...output, candyMachine };
     },
@@ -236,10 +219,11 @@ export type CreateCandyMachineV2BuilderContext = Omit<
  */
 export const createCandyMachineV2Builder = async (
   metaplex: Metaplex,
-  params: CreateCandyMachineV2BuilderParams
+  params: CreateCandyMachineV2BuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateCandyMachineV2BuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const candyMachine = params.candyMachine ?? Keypair.generate();
-  const payer: Signer = params.payer ?? metaplex.identity();
   const authority = params.authority ?? metaplex.identity();
   const collection: PublicKey | null = params.collection ?? null;
 
@@ -293,7 +277,6 @@ export const createCandyMachineV2Builder = async (
       .setFeePayer(payer)
       .setContext({
         candyMachineSigner: candyMachine,
-        payer,
         wallet,
         authority: toPublicKey(authority),
         creators: data.creators,
@@ -304,14 +287,16 @@ export const createCandyMachineV2Builder = async (
         await metaplex
           .system()
           .builders()
-          .createAccount({
-            payer,
-            newAccount: candyMachine,
-            space: getCandyMachineV2AccountSizeFromData(data),
-            program: CandyMachineV2Program.publicKey,
-            instructionKey:
-              params.createAccountInstructionKey ?? 'createAccount',
-          })
+          .createAccount(
+            {
+              newAccount: candyMachine,
+              space: getCandyMachineV2AccountSizeFromData(data),
+              program: CandyMachineV2Program.publicKey,
+              instructionKey:
+                params.createAccountInstructionKey ?? 'createAccount',
+            },
+            { payer, programs }
+          )
       )
 
       // Initialize the candy machine account.
@@ -337,15 +322,25 @@ export const createCandyMachineV2Builder = async (
         }
 
         const collectionMint = collection as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const edition = findMasterEditionV2Pda(collectionMint);
+        const metadata = metaplex.nfts().pdas().metadata({
+          mint: collectionMint,
+          programs,
+        });
+        const edition = metaplex.nfts().pdas().masterEdition({
+          mint: collectionMint,
+          programs,
+        });
         const collectionPda = findCandyMachineV2CollectionPda(
           candyMachine.publicKey
         );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
+        const collectionAuthorityRecord = metaplex
+          .nfts()
+          .pdas()
+          .collectionAuthorityRecord({
+            mint: collectionMint,
+            collectionAuthority: collectionPda,
+            programs,
+          });
 
         return builder.add({
           instruction: createSetCollectionInstruction({
