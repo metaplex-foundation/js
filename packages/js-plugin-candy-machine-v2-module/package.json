@@ -44,10 +44,10 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {
-   "@metaplex-foundation/js-core": "*",
-   "@metaplex-foundation/js-plugin-nft-module": "*",
-
-   "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
+    "@metaplex-foundation/js-core": "*",
+    "@metaplex-foundation/js-plugin-nft-module": "*",
+    "@metaplex-foundation/js-plugin-token-module": "*",
+    "@metaplex-foundation/mpl-candy-machine": "^4.4.1",
     "@metaplex-foundation/mpl-token-metadata": "^2.2.2",
     "@solana/web3.js": "^1.47.3",
     "buffer": "^6.0.3",

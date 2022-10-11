@@ -9,15 +9,11 @@ import {
   spokSamePubkey,
   spokSameAmount,
   assertThrows,
-} from '../../helpers';
+} from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@metaplex-foundation/js-core';
-import {
-  AccountNotFoundError,
-  findAssociatedTokenAccountPda,
-  Pda,
-  Purchase,
-} from '@metaplex-foundation/js-core';
+import { sol, token } from '@/types';
+import { AccountNotFoundError, Pda } from '@metaplex-foundation/js-core';
+import { Purchase } from '../src';
 
 killStuckProcess();
 
@@ -30,32 +26,25 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And we created a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      seller: mx.identity().publicKey,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    seller: mx.identity().publicKey,
+    price: sol(1),
+  });
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
     .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+    .executeSale({ auctionHouse, listing, bid });
 
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
@@ -69,7 +58,10 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
     asset: {
       address: spokSamePubkey(nft.address),
       token: {
-        address: findAssociatedTokenAccountPda(nft.address, buyer.publicKey),
+        address: mx.tokens().pdas().associatedTokenAccount({
+          mint: nft.address,
+          owner: buyer.publicKey,
+        }),
         ownerAddress: spokSamePubkey(buyer.publicKey),
       },
     },
@@ -81,13 +73,11 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   } as unknown as Specifications<Purchase>);
 
   // And we get the same result when we fetch the Purchase by address.
-  const retrievePurchase = await mx
-    .auctionHouse()
-    .findPurchaseByReceipt({
-      receiptAddress: purchase.receiptAddress as Pda,
-      auctionHouse,
-    })
-    .run();
+  const retrievePurchase = await mx.auctionHouse().findPurchaseByReceipt({
+    receiptAddress: purchase.receiptAddress as Pda,
+    auctionHouse,
+  });
+
   spok(t, retrievePurchase, {
     $topic: 'Retrieved Purchase',
     ...expectedPurchase,
@@ -107,32 +97,25 @@ test('[auctionHouseModule] it executes sale on an Auction House with separate au
   });
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And we created a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      seller: mx.identity().publicKey,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    seller: mx.identity().publicKey,
+    price: sol(1),
+  });
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
     .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+    .executeSale({ auctionHouse, listing, bid });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
@@ -147,33 +130,26 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And we created a private receipt-less bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      tokenAccount: nft.token.address,
-      price: sol(1),
-      printReceipt: false,
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    tokenAccount: nft.token.address,
+    price: sol(1),
+    printReceipt: false,
+  });
 
   // When we execute a sale with given listing and receipt-less bid.
   const { purchase } = await mx
     .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+    .executeSale({ auctionHouse, listing, bid });
 
   // Then we still get a purchase model but without a generated receipt.
   t.same(purchase.asset.address, nft.address);
@@ -181,14 +157,12 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
 
   // But we cannot retrieve it later with the default operation handler.
   try {
-    await mx
-      .auctionHouse()
-      .findPurchaseByTradeState({
-        auctionHouse,
-        sellerTradeState: listing.tradeStateAddress,
-        buyerTradeState: bid.tradeStateAddress,
-      })
-      .run();
+    await mx.auctionHouse().findPurchaseByTradeState({
+      auctionHouse,
+      sellerTradeState: listing.tradeStateAddress,
+      buyerTradeState: bid.tradeStateAddress,
+    });
+
     t.fail('expected to throw AccountNotFoundError');
   } catch (error: any) {
     const hasNotFoundMessage = error.message.includes(
@@ -208,33 +182,26 @@ test('[auctionHouseModule] it executes receipt-less sale on an Auction House whe
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL without receipt.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-      printReceipt: false,
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+    printReceipt: false,
+  });
 
   // And we created a private bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      tokenAccount: nft.token.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    tokenAccount: nft.token.address,
+    price: sol(1),
+  });
 
   // When we execute a sale with given bid and receipt-less listing.
   const { purchase } = await mx
     .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+    .executeSale({ auctionHouse, listing, bid });
 
   // Then we still get a purchase model but without a generated receipt.
   t.same(purchase.asset.address, nft.address);
@@ -250,31 +217,24 @@ test('[auctionHouseModule] it executes sale on an Auction House when Bid is publ
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And we created a public bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // When we execute a sale with given listing and bid.
   const { purchase } = await mx
     .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+    .executeSale({ auctionHouse, listing, bid });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
@@ -291,37 +251,28 @@ test('[auctionHouseModule] it executes sale on an Auction House with Auctioneer'
   const auctionHouse = await createAuctionHouse(mx, auctioneerAuthority);
 
   // And we listed that NFT.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      auctioneerAuthority,
-      mintAccount: nft.address,
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    auctioneerAuthority,
+    mintAccount: nft.address,
+  });
 
   // And we created a public bid on that NFT for 1 SOL.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      auctioneerAuthority,
-      buyer,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    auctioneerAuthority,
+    buyer,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // When we execute an auctioneer sale with given listing and bid.
-  const { purchase } = await mx
-    .auctionHouse()
-    .executeSale({
-      auctionHouse,
-      auctioneerAuthority,
-      listing,
-      bid,
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().executeSale({
+    auctionHouse,
+    auctioneerAuthority,
+    listing,
+    bid,
+  });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
@@ -340,30 +291,21 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
   });
 
   // And we listed that NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And we created a public bid on that NFT for 1 SOL but with different AH.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse: buyerAuctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse: buyerAuctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // When we execute a sale with given listing and bid.
-  const promise = mx
-    .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+  const promise = mx.auctionHouse().executeSale({ auctionHouse, listing, bid });
 
   // Then we expect an error.
   await assertThrows(
@@ -382,30 +324,21 @@ test('[auctionHouseModule] it throws an error if Bid and Listing have different 
   const auctionHouse = await createAuctionHouse(mx);
 
   // And we listed that First NFT for 1 SOL.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And we created a public bid on that Second NFT.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // When we execute a sale with given listing and bid.
-  const promise = mx
-    .auctionHouse()
-    .executeSale({ auctionHouse, listing, bid })
-    .run();
+  const promise = mx.auctionHouse().executeSale({ auctionHouse, listing, bid });
 
   // Then we expect an error.
   await assertThrows(
@@ -421,20 +354,14 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
   const buyer = await createWallet(mx);
 
   // And an existing SPL treasury.
-  const { token: treasuryToken } = await mx
-    .tokens()
-    .createTokenWithMint()
-    .run();
+  const { token: treasuryToken } = await mx.tokens().createTokenWithMint();
 
   // And airdrop 2 Tokens to buyer.
-  await mx
-    .tokens()
-    .mint({
-      mintAddress: treasuryToken.mint.address,
-      amount: token(2),
-      toOwner: buyer.publicKey,
-    })
-    .run();
+  await mx.tokens().mint({
+    mintAddress: treasuryToken.mint.address,
+    amount: token(2),
+    toOwner: buyer.publicKey,
+  });
 
   // And we created a new Auction House using that treasury with NFT to sell.
   const treasuryMint = treasuryToken.mint.address;
@@ -444,50 +371,40 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
   const nft = await createNft(mx);
 
   // And we listed that NFT for 2 Tokens.
-  const { listing } = await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: token(2),
-    })
-    .run();
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: token(2),
+  });
 
   // And we created a private bid on that NFT for 2 Tokens.
-  const { bid } = await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      buyer,
-      mintAccount: nft.address,
-      tokenAccount: nft.token.address,
-      price: token(2),
-    })
-    .run();
+  const { bid } = await mx.auctionHouse().bid({
+    auctionHouse,
+    buyer,
+    mintAccount: nft.address,
+    tokenAccount: nft.token.address,
+    price: token(2),
+  });
 
   // When we execute a sale with given listing and bid.
-  const { purchase } = await mx
-    .auctionHouse()
-    .executeSale({
-      auctionHouse,
-      listing,
-      bid,
-    })
-    .run();
+  const { purchase } = await mx.auctionHouse().executeSale({
+    auctionHouse,
+    listing,
+    bid,
+  });
 
   // Then we created and returned the new Purchase
   t.equal(purchase.asset.address.toBase58(), nft.address.toBase58());
 
   // And treasury tokens left buyer's account.
-  const paymentAccount = findAssociatedTokenAccountPda(
-    auctionHouse.treasuryMint.address,
-    buyer.publicKey
-  );
+  const paymentAccount = mx.tokens().pdas().associatedTokenAccount({
+    mint: auctionHouse.treasuryMint.address,
+    owner: buyer.publicKey,
+  });
 
   const buyerToken = await mx
     .tokens()
-    .findTokenByAddress({ address: paymentAccount })
-    .run();
+    .findTokenByAddress({ address: paymentAccount });
 
   t.equal(buyerToken.amount.basisPoints.toNumber(), 0);
 });

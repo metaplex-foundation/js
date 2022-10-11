@@ -1,25 +1,28 @@
-import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import {
   CancelInstructionAccounts,
-  createCancelListingReceiptInstruction,
-  createCancelInstruction,
   createAuctioneerCancelInstruction,
+  createCancelInstruction,
+  createCancelListingReceiptInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
-import { AuctionHouse, Listing } from '../models';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAuctioneerPda } from '../pdas';
 import { AUCTIONEER_PRICE } from '../constants';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, Listing } from '../models';
 import {
-  useOperation,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
+import {
+  isSigner,
   Operation,
   OperationHandler,
-  Signer,
-  isSigner,
+  OperationScope,
   Pda,
+  Signer,
+  useOperation,
 } from '@metaplex-foundation/js-core';
-import { TransactionBuilder } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -33,8 +36,7 @@ const Key = 'CancelListingOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .cancelListing({ auctionHouse, listing })
- *   .run();
+ *   .cancelListing({ auctionHouse, listing };
  * ```
  *
  * @group Operations
@@ -88,9 +90,6 @@ export type CancelListingInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -108,10 +107,14 @@ export type CancelListingOutput = {
  */
 export const cancelListingOperationHandler: OperationHandler<CancelListingOperation> =
   {
-    handle: async (operation: CancelListingOperation, metaplex: Metaplex) =>
-      cancelListingBuilder(operation.input).sendAndConfirm(
+    handle: async (
+      operation: CancelListingOperation,
+      metaplex: Metaplex,
+      scope: OperationScope
+    ) =>
+      cancelListingBuilder(metaplex, operation.input, scope).sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       ),
   };
 
@@ -150,8 +153,11 @@ export type CancelListingBuilderContext = Omit<CancelListingOutput, 'response'>;
  * @category Constructors
  */
 export const cancelListingBuilder = (
-  params: CancelListingBuilderParams
+  metaplex: Metaplex,
+  params: CancelListingBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelListingBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse, auctioneerAuthority, listing } = params;
 
   // Data.
@@ -199,10 +205,11 @@ export const cancelListingBuilder = (
       {
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
-        ahAuctioneerPda: findAuctioneerPda(
-          auctionHouseAddress,
-          auctioneerAuthority.publicKey
-        ),
+        ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+          auctionHouse: auctionHouseAddress,
+          auctioneerAuthority: auctioneerAuthority.publicKey,
+          programs,
+        }),
       },
       args
     );
@@ -213,6 +220,7 @@ export const cancelListingBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Cancel Listing.
       .add({

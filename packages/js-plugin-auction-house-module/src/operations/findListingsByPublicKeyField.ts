@@ -1,17 +1,15 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { findMetadataPda } from '../../nftModule';
+import { PublicKey } from '@solana/web3.js';
+import { toListingReceiptAccount } from '../accounts';
 import { ListingReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';
-import { AuctionHouseProgram } from '../program';
-import { toListingReceiptAccount } from '../accounts';
-import { DisposableScope } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { UnreachableCaseError } from '@metaplex-foundation/js-core/errors';
+import { Metaplex } from '@/Metaplex';
+import { UnreachableCaseError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -26,20 +24,17 @@ const Key = 'FindListingsByPublicKeyOperation' as const;
  * // Find listings by seller.
  * const listings = await metaplex
  *   .auctionHouse()
- *   .findListingsBy({ auctionHouse, type: 'seller', publicKey: seller })
- *   .run();
+ *   .findListingsBy({ auctionHouse, type: 'seller', publicKey: seller };
  *
  * // Find listings by metadata.
  * const listings = await metaplex
  *   .auctionHouse()
- *   .findListingsBy({ auctionHouse, type: 'metadata', publicKey: metadata })
- *   .run();
+ *   .findListingsBy({ auctionHouse, type: 'metadata', publicKey: metadata };
  *
  * // Find listings by mint.
  * const listings = await metaplex
  *   .auctionHouse()
- *   .findListingsBy({ auctionHouse, type: 'mint', publicKey: mint })
- *   .run();
+ *   .findListingsBy({ auctionHouse, type: 'mint', publicKey: mint };
  * ```
  *
  * @group Operations
@@ -71,9 +66,6 @@ export type FindListingsByPublicKeyFieldInput = {
 
   /** The address to search for. */
   publicKey: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -91,18 +83,18 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
     handle: async (
       operation: FindListingsByPublicKeyFieldOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindListingsByPublicKeyFieldOutput> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
-      const accounts = AuctionHouseProgram.listingAccounts(
-        metaplex
-      ).mergeConfig({
-        commitment,
-      });
+      const { commitment, programs } = scope;
+      const { auctionHouse, type, publicKey } = operation.input;
+      const auctionHouseProgram = metaplex.programs().getAuctionHouse();
+      let listingQuery = new ListingReceiptGpaBuilder(
+        metaplex,
+        auctionHouseProgram.address
+      )
+        .mergeConfig({ commitment })
+        .whereAuctionHouse(auctionHouse.address);
 
-      let listingQuery: ListingReceiptGpaBuilder = accounts.whereAuctionHouse(
-        auctionHouse.address
-      );
       switch (type) {
         case 'seller':
           listingQuery = listingQuery.whereSeller(publicKey);
@@ -111,7 +103,9 @@ export const findListingsByPublicKeyFieldOperationHandler: OperationHandler<Find
           listingQuery = listingQuery.whereMetadata(publicKey);
           break;
         case 'mint':
-          listingQuery = listingQuery.whereMetadata(findMetadataPda(publicKey));
+          listingQuery = listingQuery.whereMetadata(
+            metaplex.nfts().pdas().metadata({ mint: publicKey, programs })
+          );
           break;
         default:
           throw new UnreachableCaseError(type);

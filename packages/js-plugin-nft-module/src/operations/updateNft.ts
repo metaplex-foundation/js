@@ -21,7 +21,7 @@ import {
   useOperation,
 } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
+import { NoInstructionsToSendError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

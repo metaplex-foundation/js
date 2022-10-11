@@ -8,7 +8,7 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-} from '../../nftModule';
+} from '@metaplex-foundation/js-plugin-nft-module';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   CandyMachineV2,
@@ -18,7 +18,7 @@ import {
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { ExpectedSignerError } from '@metaplex-foundation/js-core/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 import {
   DisposableScope,
   Option,

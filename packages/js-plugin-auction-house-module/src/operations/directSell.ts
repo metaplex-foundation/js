@@ -1,9 +1,6 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
-import {
-  findAssociatedTokenAccountPda,
-  Token,
-} from '@metaplex-foundation/js-plugin-token-module';
+import { Token } from '@metaplex-foundation/js-plugin-token-module';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import {
   AuctionHouse,
@@ -13,21 +10,22 @@ import {
   PublicBid,
   Purchase,
 } from '../models';
+import { CreateListingBuilderContext } from './createListing';
+import { ExecuteSaleBuilderContext } from './executeSale';
 import {
-  createListingBuilder,
-  CreateListingBuilderContext,
-} from './createListing';
-import { executeSaleBuilder, ExecuteSaleBuilderContext } from './executeSale';
-import { TransactionBuilder } from '@metaplex-foundation/js-core';
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   now,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   toPublicKey,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -41,8 +39,7 @@ const Key = 'DirectSellOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .sell({ auctionHouse, bid })
- *   .run();
+ *   .sell({ auctionHouse, bid };
  * ```
  *
  * @group Operations
@@ -109,9 +106,6 @@ export type DirectSellInput = {
    * @defaultValue `true`
    */
   printReceipt?: boolean;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 } & (
   | {
       /**
@@ -176,11 +170,16 @@ export type DirectSellOutput = {
  */
 export const directSellOperationHandler: OperationHandler<DirectSellOperation> =
   {
-    handle: async (operation: DirectSellOperation, metaplex: Metaplex) =>
-      (await directSellBuilder(metaplex, operation.input)).sendAndConfirm(
-        metaplex,
-        operation.input.confirmOptions
-      ),
+    handle: async (
+      operation: DirectSellOperation,
+      metaplex: Metaplex,
+      scope: OperationScope
+    ) => {
+      const builder = await directSellBuilder(metaplex, operation.input, scope);
+      scope.throwIfCanceled();
+
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
+    },
   };
 
 // -----------------
@@ -221,9 +220,11 @@ export type DirectSellBuilderContext = Omit<DirectSellOutput, 'response'>;
  */
 export const directSellBuilder = async (
   metaplex: Metaplex,
-  params: DirectSellBuilderParams
+  params: DirectSellBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<DirectSellBuilderContext>> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     auctioneerAuthority,
@@ -249,19 +250,22 @@ export const directSellBuilder = async (
     : { ...bid.asset, token: params.sellerToken as Token };
 
   const listingBuilder: TransactionBuilder<CreateListingBuilderContext> =
-    await createListingBuilder(metaplex, {
-      mintAccount: asset.mint.address,
-      price,
-      auctionHouse,
-      auctioneerAuthority,
-      seller,
-      authority,
-      tokenAccount: asset.token.address,
-      tokens,
-      printReceipt,
-      bookkeeper,
-      instructionKey: createListingInstructionKey,
-    });
+    metaplex.auctionHouse().builders().list(
+      {
+        mintAccount: asset.mint.address,
+        price,
+        auctionHouse,
+        auctioneerAuthority,
+        seller,
+        authority,
+        tokenAccount: asset.token.address,
+        tokens,
+        printReceipt,
+        bookkeeper,
+        instructionKey: createListingInstructionKey,
+      },
+      { programs, payer }
+    );
   const { receipt, sellerTradeState } = listingBuilder.getContext();
 
   const listing: Listing = {
@@ -280,22 +284,28 @@ export const directSellBuilder = async (
     canceledAt: null,
   };
 
-  const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> =
-    await executeSaleBuilder(metaplex, {
-      auctionHouse,
-      auctioneerAuthority,
-      bid,
-      listing,
-      printReceipt,
-      bookkeeper,
-      instructionKey: executeSaleInstructionKey,
-    });
+  const saleBuilder: TransactionBuilder<ExecuteSaleBuilderContext> = metaplex
+    .auctionHouse()
+    .builders()
+    .executeSale(
+      {
+        auctionHouse,
+        auctioneerAuthority,
+        bid,
+        listing,
+        printReceipt,
+        bookkeeper,
+        instructionKey: executeSaleInstructionKey,
+      },
+      { programs, payer }
+    );
   const { receipt: receiptAddress } = saleBuilder.getContext();
 
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
-    asset.address,
-    buyerAddress
-  );
+  const buyerTokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: asset.address,
+    owner: buyerAddress,
+    programs,
+  });
   const purchasedAsset = {
     ...asset,
     token: {
@@ -320,6 +330,7 @@ export const directSellBuilder = async (
   };
 
   return TransactionBuilder.make<DirectSellBuilderContext>()
+    .setFeePayer(payer)
     .setContext({
       listing,
       purchase,

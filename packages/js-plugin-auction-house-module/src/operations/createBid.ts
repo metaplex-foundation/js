@@ -1,9 +1,4 @@
 import {
-  ConfirmOptions,
-  PublicKey,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-} from '@solana/web3.js';
-import {
   BuyInstructionAccounts,
   createAuctioneerBuyInstruction,
   createAuctioneerPublicBuyInstruction,
@@ -11,38 +6,33 @@ import {
   createPrintBidReceiptInstruction,
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
-import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
-import { findMetadataPda } from '../../nftModule';
+import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, LazyBid } from '../models';
 import {
-  findAuctioneerPda,
-  findAuctionHouseBuyerEscrowPda,
-  findAuctionHouseTradeStatePda,
-  findBidReceiptPda,
-} from '../pdas';
-import { AuctioneerAuthorityRequiredError } from '../errors';
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
-  useOperation,
+  amount,
+  isSigner,
+  lamports,
+  makeConfirmOptionsFinalizedOnMainnet,
+  now,
   Operation,
   OperationHandler,
+  OperationScope,
+  Pda,
   Signer,
-  toPublicKey,
-  token,
-  lamports,
-  isSigner,
-  amount,
   SolAmount,
   SplTokenAmount,
-  Pda,
-  now,
+  token,
+  toPublicKey,
+  useOperation,
 } from '@metaplex-foundation/js-core';
-import {
-  TransactionBuilder,
-  Option,
-  DisposableScope,
-} from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -62,8 +52,7 @@ const Key = 'CreateBidOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .createBid({ auctionHouse, mintAccount, seller })
- *   .run();
+ *   .createBid({ auctionHouse, mintAccount, seller };
  * ```
  *
  * @group Operations
@@ -172,9 +161,6 @@ export type CreateBidInput = {
    * @defaultValue `metaplex.identity()`
    */
   bookkeeper?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -221,22 +207,25 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
   async handle(
     operation: CreateBidOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ): Promise<CreateBidOutput> {
-    const { auctionHouse, confirmOptions } = operation.input;
+    const { auctionHouse } = operation.input;
 
-    const builder = await createBidBuilder(metaplex, operation.input);
+    const builder = await createBidBuilder(metaplex, operation.input, scope);
+    const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+      metaplex,
+      scope.confirmOptions
+    );
     const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
     if (output.receipt) {
       const bid = await metaplex
         .auctionHouse()
-        .findBidByReceipt({
-          auctionHouse,
-          receiptAddress: output.receipt,
-        })
-        .run(scope);
+        .findBidByReceipt(
+          { auctionHouse, receiptAddress: output.receipt },
+          scope
+        );
 
       return { bid, ...output };
     }
@@ -261,7 +250,7 @@ export const createBidOperationHandler: OperationHandler<CreateBidOperation> = {
     };
 
     return {
-      bid: await metaplex.auctionHouse().loadBid({ lazyBid }).run(scope),
+      bid: await metaplex.auctionHouse().loadBid({ lazyBid }, scope),
       ...output,
     };
   },
@@ -306,9 +295,11 @@ export type CreateBidBuilderContext = Omit<CreateBidOutput, 'response' | 'bid'>;
  */
 export const createBidBuilder = async (
   metaplex: Metaplex,
-  params: CreateBidBuilderParams
+  params: CreateBidBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateBidBuilderContext>> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse } = params;
   const tokens = params.tokens ?? token(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;
@@ -323,36 +314,59 @@ export const createBidBuilder = async (
   // Accounts.
   const buyer = params.buyer ?? (metaplex.identity() as Signer);
   const authority = params.authority ?? auctionHouse.authorityAddress;
-  const metadata = findMetadataPda(params.mintAccount);
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: params.mintAccount,
+    programs,
+  });
   const paymentAccount = auctionHouse.isNative
     ? toPublicKey(buyer)
-    : findAssociatedTokenAccountPda(
-        auctionHouse.treasuryMint.address,
-        toPublicKey(buyer)
-      );
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    toPublicKey(buyer)
-  );
+    : metaplex
+        .tokens()
+        .pdas()
+        .associatedTokenAccount({
+          mint: auctionHouse.treasuryMint.address,
+          owner: toPublicKey(buyer),
+          programs,
+        });
+  const escrowPayment = metaplex
+    .auctionHouse()
+    .pdas()
+    .buyerEscrow({
+      auctionHouse: auctionHouse.address,
+      buyer: toPublicKey(buyer),
+      programs,
+    });
   const tokenAccount =
     params.tokenAccount ??
     (params.seller
-      ? findAssociatedTokenAccountPda(params.mintAccount, params.seller)
+      ? metaplex.tokens().pdas().associatedTokenAccount({
+          mint: params.mintAccount,
+          owner: params.seller,
+          programs,
+        })
       : null);
-  const buyerTokenAccount = findAssociatedTokenAccountPda(
-    params.mintAccount,
-    toPublicKey(buyer)
-  );
+  const buyerTokenAccount = metaplex
+    .tokens()
+    .pdas()
+    .associatedTokenAccount({
+      mint: params.mintAccount,
+      owner: toPublicKey(buyer),
+      programs,
+    });
 
-  const buyerTradeState = findAuctionHouseTradeStatePda(
-    auctionHouse.address,
-    toPublicKey(buyer),
-    auctionHouse.treasuryMint.address,
-    params.mintAccount,
-    price.basisPoints,
-    tokens.basisPoints,
-    tokenAccount
-  );
+  const buyerTradeState = metaplex
+    .auctionHouse()
+    .pdas()
+    .tradeState({
+      auctionHouse: auctionHouse.address,
+      wallet: toPublicKey(buyer),
+      treasuryMint: auctionHouse.treasuryMint.address,
+      tokenMint: params.mintAccount,
+      price: price.basisPoints,
+      tokenSize: tokens.basisPoints,
+      tokenAccount,
+      programs,
+    });
 
   const accounts: Omit<BuyInstructionAccounts, 'tokenAccount'> = {
     wallet: toPublicKey(buyer),
@@ -384,10 +398,11 @@ export const createBidBuilder = async (
       );
 
   if (params.auctioneerAuthority) {
-    const ahAuctioneerPda = findAuctioneerPda(
-      auctionHouse.address,
-      params.auctioneerAuthority.publicKey
-    );
+    const ahAuctioneerPda = metaplex.auctionHouse().pdas().auctioneer({
+      auctionHouse: auctionHouse.address,
+      auctioneerAuthority: params.auctioneerAuthority.publicKey,
+      programs,
+    });
 
     const accountsWithAuctioneer = {
       ...accounts,
@@ -429,10 +444,14 @@ export const createBidBuilder = async (
   const shouldPrintReceipt =
     (params.printReceipt ?? true) && !params.auctioneerAuthority;
   const bookkeeper = params.bookkeeper ?? metaplex.identity();
-  const receipt = findBidReceiptPda(buyerTradeState);
+  const receipt = metaplex.auctionHouse().pdas().bidReceipt({
+    tradeState: buyerTradeState,
+    programs,
+  });
 
-  const builder = TransactionBuilder.make<CreateBidBuilderContext>().setContext(
-    {
+  const builder = TransactionBuilder.make<CreateBidBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({
       buyerTradeState,
       tokenAccount,
       metadata,
@@ -441,8 +460,7 @@ export const createBidBuilder = async (
       bookkeeper: shouldPrintReceipt ? bookkeeper.publicKey : null,
       price,
       tokens,
-    }
-  );
+    });
 
   // Create a TA for public bid if it doesn't exist
   if (!tokenAccount) {

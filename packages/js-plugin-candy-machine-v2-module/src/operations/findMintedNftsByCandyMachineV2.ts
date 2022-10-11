@@ -1,5 +1,9 @@
 import { Commitment, PublicKey } from '@solana/web3.js';
-import { findNftsByCreatorOperation, Metadata, Nft } from '../../nftModule';
+import {
+  findNftsByCreatorOperation,
+  Metadata,
+  Nft,
+} from '@metaplex-foundation/js-plugin-nft-module';
 import { findCandyMachineV2CreatorPda } from '../pdas';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {

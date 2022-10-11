@@ -18,9 +18,9 @@ import {
   Mint,
   toMint,
   toMintAccount,
-} from '@metaplex-foundation/js-core/plugins/tokenModule';
+} from '@metaplex-foundation/js-plugin-token-module';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { UnreachableCaseError } from '@metaplex-foundation/js-core/errors';
+import { UnreachableCaseError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

@@ -1,14 +1,9 @@
 import test from 'tape';
 
-import {
-  killStuckProcess,
-  metaplex,
-  createNft,
-  createWallet,
-} from '../../helpers';
+import { killStuckProcess, metaplex, createNft, createWallet } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol } from '@metaplex-foundation/js-core';
-import { LazyBid } from '@metaplex-foundation/js-core/plugins';
+import { sol } from '@/types';
+import { LazyBid } from '../src';
 
 killStuckProcess();
 
@@ -21,45 +16,33 @@ test('[auctionHouseModule] find all lazy bids by buyer', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on that NFT for 6.5 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(6.5),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(6.5),
+  });
 
   // And given we create another public bid on that NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+  });
 
   // And given we create public bid on that NFT for 1 SOL from different wallet.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: nft.address,
-      price: sol(1),
-      buyer: seller,
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: nft.address,
+    price: sol(1),
+    buyer: seller,
+  });
 
   // When I find all lazy bids by buyer.
-  const bids = await mx
-    .auctionHouse()
-    .findBidsBy({
-      type: 'buyer',
-      auctionHouse,
-      publicKey: mx.identity().publicKey,
-    })
-    .run();
+  const bids = await mx.auctionHouse().findBidsBy({
+    type: 'buyer',
+    auctionHouse,
+    publicKey: mx.identity().publicKey,
+  });
 
   // Then we got two lazy bids for given buyer.
   t.equal(bids.length, 2, 'returns two accounts');
@@ -80,44 +63,32 @@ test('[auctionHouseModule] find all lazy bids by metadata', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on first NFT for 6.5 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(6.5),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(6.5),
+  });
 
   // And given we create another public bid on first NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And given we create public bid on second NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // When I find all lazy bids by first NFT metadata.
-  const bids = await mx
-    .auctionHouse()
-    .findBidsBy({
-      type: 'metadata',
-      auctionHouse,
-      publicKey: firstNft.metadataAddress,
-    })
-    .run();
+  const bids = await mx.auctionHouse().findBidsBy({
+    type: 'metadata',
+    auctionHouse,
+    publicKey: firstNft.metadataAddress,
+  });
 
   // Then we got two lazy bids.
   t.equal(bids.length, 2, 'returns two accounts');
@@ -141,44 +112,32 @@ test('[auctionHouseModule] find all bids by mint', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a public bid on first NFT for 6.5 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(6.5),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(6.5),
+  });
 
   // And given we create another public bid on first NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And given we create public bid on second NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .bid({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().bid({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // When I find all bids by mint.
-  const bids = await mx
-    .auctionHouse()
-    .findBidsBy({
-      type: 'mint',
-      auctionHouse,
-      publicKey: firstNft.address,
-    })
-    .run();
+  const bids = await mx.auctionHouse().findBidsBy({
+    type: 'mint',
+    auctionHouse,
+    publicKey: firstNft.address,
+  });
 
   // Then we got two bids.
   t.equal(bids.length, 2, 'returns two accounts');

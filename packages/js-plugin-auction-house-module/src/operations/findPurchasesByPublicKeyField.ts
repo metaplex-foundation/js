@@ -1,22 +1,20 @@
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { findMetadataPda } from '../../nftModule';
+import { PublicKey } from '@solana/web3.js';
+import { toPurchaseReceiptAccount } from '../accounts';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
 import {
   AuctionHouse,
-  Purchase,
   LazyPurchase,
+  Purchase,
   toLazyPurchase,
 } from '../models';
-import { AuctionHouseProgram } from '../program';
-import { toPurchaseReceiptAccount } from '../accounts';
-import { DisposableScope } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
+  OperationScope,
   useOperation,
 } from '@metaplex-foundation/js-core';
-import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { UnreachableCaseError } from '@metaplex-foundation/js-core/errors';
+import { Metaplex } from '@/Metaplex';
+import { UnreachableCaseError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -31,26 +29,22 @@ const Key = 'FindPurchasesByPublicKeyOperation' as const;
  * // Find purchases by seller.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'seller', publicKey: seller })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'seller', publicKey: seller };
  *
  * // Find purchases by buyer.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'buyer', publicKey: buyer })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'buyer', publicKey: buyer };
  *
  * // Find purchases by metadata.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'metadata', publicKey: metadata })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'metadata', publicKey: metadata };
  *
  * // Find purchases by mint.
  * const purchases = await metaplex
  *   .auctionHouse()
- *   .findPurchasesBy({ auctionHouse, type: 'mint', publicKey: mint })
- *   .run();
+ *   .findPurchasesBy({ auctionHouse, type: 'mint', publicKey: mint };
  * ```
  *
  * @group Operations
@@ -82,9 +76,6 @@ export type FindPurchasesByPublicKeyFieldInput = {
 
   /** The address to search for. */
   publicKey: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -102,18 +93,18 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
     handle: async (
       operation: FindPurchasesByPublicKeyFieldOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindPurchasesByPublicKeyFieldOutput> => {
-      const { auctionHouse, type, publicKey, commitment } = operation.input;
-      const accounts = AuctionHouseProgram.purchaseAccounts(
-        metaplex
-      ).mergeConfig({
-        commitment,
-      });
+      const { programs, commitment } = scope;
+      const { auctionHouse, type, publicKey } = operation.input;
+      const auctionHouseProgram = metaplex.programs().getAuctionHouse();
+      let purchaseQuery = new PurchaseReceiptGpaBuilder(
+        metaplex,
+        auctionHouseProgram.address
+      )
+        .mergeConfig({ commitment })
+        .whereAuctionHouse(auctionHouse.address);
 
-      let purchaseQuery: PurchaseReceiptGpaBuilder = accounts.whereAuctionHouse(
-        auctionHouse.address
-      );
       switch (type) {
         case 'buyer':
           purchaseQuery = purchaseQuery.whereBuyer(publicKey);
@@ -126,7 +117,7 @@ export const findPurchasesByPublicKeyFieldOperationHandler: OperationHandler<Fin
           break;
         case 'mint':
           purchaseQuery = purchaseQuery.whereMetadata(
-            findMetadataPda(publicKey)
+            metaplex.nfts().pdas().metadata({ mint: publicKey, programs })
           );
           break;
         default:

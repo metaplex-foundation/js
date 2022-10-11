@@ -1,14 +1,9 @@
 import test from 'tape';
 
-import {
-  killStuckProcess,
-  metaplex,
-  createNft,
-  createWallet,
-} from '../../helpers';
+import { killStuckProcess, metaplex, createNft, createWallet } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol } from '@metaplex-foundation/js-core';
-import { LazyListing } from '@metaplex-foundation/js-core/plugins';
+import { sol } from '@/types';
+import { LazyListing } from '../src';
 
 killStuckProcess();
 
@@ -23,45 +18,33 @@ test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And given we create a listing on second NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // And given we create a listing on third NFT for 1 SOL from different wallet.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: thirdNft.address,
-      seller: secondSeller,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: thirdNft.address,
+    seller: secondSeller,
+    price: sol(1),
+  });
 
   // When I find all listings by seller.
-  const listings = await mx
-    .auctionHouse()
-    .findListingsBy({
-      type: 'seller',
-      auctionHouse,
-      publicKey: mx.identity().publicKey,
-    })
-    .run();
+  const listings = await mx.auctionHouse().findListingsBy({
+    type: 'seller',
+    auctionHouse,
+    publicKey: mx.identity().publicKey,
+  });
 
   // Then we got two lazy listings for given seller.
   t.equal(listings.length, 2, 'returns two accounts');
@@ -84,34 +67,25 @@ test('[auctionHouseModule] find all lazy listings by metadata', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And given we create a listing on second NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // When I find all listings by metadata.
-  const listings = await mx
-    .auctionHouse()
-    .findListingsBy({
-      type: 'metadata',
-      auctionHouse,
-      publicKey: firstNft.metadataAddress,
-    })
-    .run();
+  const listings = await mx.auctionHouse().findListingsBy({
+    type: 'metadata',
+    auctionHouse,
+    publicKey: firstNft.metadataAddress,
+  });
 
   // Then we got one lazy listing.
   t.equal(listings.length, 1, 'returns one account');
@@ -134,34 +108,25 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
   const auctionHouse = await createAuctionHouse(mx);
 
   // And given we create a listing on first NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: firstNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
 
   // And given we create a listing on second NFT for 1 SOL.
-  await mx
-    .auctionHouse()
-    .list({
-      auctionHouse,
-      mintAccount: secondNft.address,
-      price: sol(1),
-    })
-    .run();
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
 
   // When I find all listings by mint.
-  const listings = await mx
-    .auctionHouse()
-    .findListingsBy({
-      type: 'mint',
-      auctionHouse,
-      publicKey: firstNft.address,
-    })
-    .run();
+  const listings = await mx.auctionHouse().findListingsBy({
+    type: 'mint',
+    auctionHouse,
+    publicKey: firstNft.address,
+  });
 
   // Then we got one listing.
   t.equal(listings.length, 1, 'returns one account');

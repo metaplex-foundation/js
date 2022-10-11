@@ -1,13 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
-import { AuctionHouse, Bid, toLazyBid } from '../models';
+import type { PublicKey } from '@solana/web3.js';
 import { toBidReceiptAccount } from '../accounts';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import { AuctionHouse, Bid, toLazyBid } from '../models';
 import {
-  useOperation,
   Operation,
   OperationHandler,
+  OperationScope,
+  useOperation,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -21,8 +21,7 @@ const Key = 'FindBidByReceiptOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findBidByReceipt({ receiptAddress, auctionHouse })
- *   .run();
+ *   .findBidByReceipt({ receiptAddress, auctionHouse };
  * ```
  *
  * @group Operations
@@ -62,9 +61,6 @@ export type FindBidByReceiptInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -76,19 +72,18 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
     handle: async (
       operation: FindBidByReceiptOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const { receiptAddress, auctionHouse, commitment } = operation.input;
+      const { receiptAddress, auctionHouse } = operation.input;
 
       const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, scope.commitment)
       );
       scope.throwIfCanceled();
 
       const lazyBid = toLazyBid(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadBid({ lazyBid, ...operation.input })
-        .run(scope);
+        .loadBid({ lazyBid, ...operation.input }, scope);
     },
   };

@@ -1,13 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
+import type { PublicKey } from '@solana/web3.js';
 import { toPurchaseReceiptAccount } from '../accounts';
 import { AuctionHouse, Purchase, toLazyPurchase } from '../models';
-import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
-  useOperation,
   Operation,
   OperationHandler,
+  OperationScope,
+  useOperation,
 } from '@metaplex-foundation/js-core';
-import { DisposableScope } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation
@@ -21,8 +21,7 @@ const Key = 'FindPurchaseByReceiptOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findPurchaseByReceipt({ receiptAddress, auctionHouse })
- *   .run();
+ *   .findPurchaseByReceipt({ receiptAddress, auctionHouse };
  * ```
  *
  * @group Operations
@@ -62,9 +61,6 @@ export type FindPurchaseByReceiptInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -76,19 +72,18 @@ export const findPurchaseByReceiptOperationHandler: OperationHandler<FindPurchas
     handle: async (
       operation: FindPurchaseByReceiptOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const { receiptAddress, auctionHouse, commitment } = operation.input;
+      const { receiptAddress, auctionHouse } = operation.input;
 
       const account = toPurchaseReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, scope.commitment)
       );
       scope.throwIfCanceled();
 
       const lazyPurchase = toLazyPurchase(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadPurchase({ lazyPurchase, ...operation.input })
-        .run(scope);
+        .loadPurchase({ lazyPurchase, ...operation.input }, scope);
     },
   };

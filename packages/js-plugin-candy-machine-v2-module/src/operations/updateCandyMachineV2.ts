@@ -11,7 +11,7 @@ import {
   findCollectionAuthorityRecordPda,
   findMasterEditionV2Pda,
   findMetadataPda,
-} from '../../nftModule';
+} from '@metaplex-foundation/js-plugin-nft-module';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
 import {
   CandyMachineV2,
@@ -28,7 +28,7 @@ import {
   useOperation,
 } from '@metaplex-foundation/js-core';
 import { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
+import { NoInstructionsToSendError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

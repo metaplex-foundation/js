@@ -1,6 +1,6 @@
-import { cusper } from '@metaplex-foundation/mpl-auction-house';
+import { cusper, PROGRAM_ID } from '@metaplex-foundation/mpl-auction-house';
+import { ProgramClient } from '@metaplex-foundation/js-core';
 import { AuctionHouseClient } from './AuctionHouseClient';
-import { AuctionHouseProgram } from './program';
 import {
   cancelBidOperation,
   cancelBidOperationHandler,
@@ -62,19 +62,27 @@ import {
 import type {
   ErrorWithLogs,
   MetaplexPlugin,
+  Program,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Auction House Program.
-    metaplex.programs().register({
+    const auctionHouseProgram = {
       name: 'AuctionHouseProgram',
-      address: AuctionHouseProgram.publicKey,
+      address: PROGRAM_ID,
       errorResolver: (error: ErrorWithLogs) =>
         cusper.errorFromProgramLogs(error.logs, false),
-    });
+    };
+    metaplex.programs().register(auctionHouseProgram);
+    metaplex.programs().getAuctionHouse = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(auctionHouseProgram.name, programs);
+    };
 
     const op = metaplex.operations();
     op.register(cancelBidOperation, cancelBidOperationHandler);
@@ -163,5 +171,11 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
 declare module '@metaplex-foundation/js-core/Metaplex' {
   interface Metaplex {
     auctionHouse(): AuctionHouseClient;
+  }
+}
+
+declare module '@metaplex-foundation/js-core/plugins/programModule/ProgramClient' {
+  interface ProgramClient {
+    getAuctionHouse(programs?: Program[]): Program;
   }
 }

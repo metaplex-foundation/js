@@ -6,7 +6,7 @@ import {
   killStuckProcess,
   createSft,
 } from '../../helpers';
-import { NftWithToken } from '@metaplex-foundation/js-core/plugins';
+import { NftWithToken } from '../src';
 
 killStuckProcess();
 

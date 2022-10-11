@@ -28,7 +28,7 @@ import {
   Creator,
 } from '@metaplex-foundation/js-core';
 import { assert, Option, removeEmptyChars } from '@metaplex-foundation/js-core';
-import { Mint } from '@metaplex-foundation/js-core/plugins/tokenModule';
+import { Mint } from '@metaplex-foundation/js-plugin-token-module';
 
 // -----------------
 // Model

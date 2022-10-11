@@ -3,7 +3,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@metaplex-foundation/js-core/errors';
+} from '@metaplex-foundation/js-core';
 
 /** @group Errors */
 export class NftError extends MetaplexError {

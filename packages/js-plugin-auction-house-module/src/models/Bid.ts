@@ -1,6 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import { BidReceiptAccount } from '../accounts';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
+import {
+  Nft,
+  NftWithToken,
+  Sft,
+  SftWithToken,
+} from '@metaplex-foundation/js-plugin-nft-module';
 import { AuctionHouse } from './AuctionHouse';
 import {
   amount,

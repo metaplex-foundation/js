@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../helpers';
 import { createCandyMachineV2 } from './helpers';
-import { findCandyMachineV2CollectionPda } from '@metaplex-foundation/js-core/plugins';
+import { findCandyMachineV2CollectionPda } from '../src';
 
 killStuckProcess();
 

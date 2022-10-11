@@ -1,32 +1,31 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
 import {
   AuthorityScope,
   createDelegateAuctioneerInstruction,
   createUpdateAuctioneerInstruction,
   createUpdateAuctionHouseInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
-import { findAssociatedTokenAccountPda } from '@metaplex-foundation/js-plugin-token-module';
 import { SendAndConfirmTransactionResponse } from '@metaplex-foundation/js-core';
+import { AUCTIONEER_ALL_SCOPES } from '../constants';
+import { TreasuryDestinationOwnerRequiredError } from '../errors';
 import {
   assertAuctioneerAuctionHouse,
   AuctionHouse,
 } from '../models/AuctionHouse';
-import { TreasuryDestinationOwnerRequiredError } from '../errors';
-import { findAuctioneerPda } from '../pdas';
-import { AUCTIONEER_ALL_SCOPES } from '../constants';
-import { NoInstructionsToSendError } from '@metaplex-foundation/js-core/errors';
 import {
-  DisposableScope,
   TransactionBuilder,
+  TransactionBuilderOptions,
 } from '@metaplex-foundation/js-core';
 import {
-  useOperation,
   Operation,
-  Signer,
   OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
 } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { NoInstructionsToSendError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
@@ -43,8 +42,7 @@ const Key = 'UpdateAuctionHouseOperation' as const;
  *   .update({
  *     auctionHouse,
  *     canChangeSalePrice: true, // Updates the canChangeSalePrice only.
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -83,14 +81,6 @@ export type UpdateAuctionHouseInput = {
    * @defaultValue `auctionHouse.authority`
    */
   authority?: Signer;
-
-  /**
-   * The Signer paying for the creation of all accounts
-   * required to create the Auction House.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
 
   /**
    * The share of the sale the auction house takes on all NFTs as a fee.
@@ -155,9 +145,6 @@ export type UpdateAuctionHouseInput = {
    * @defaultValue `auctionHouse.auctioneerScopes`
    */
   auctioneerScopes?: AuthorityScope[];
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -181,30 +168,35 @@ export const updateAuctionHouseOperationHandler: OperationHandler<UpdateAuctionH
     async handle(
       operation: UpdateAuctionHouseOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) {
-      const { auctionHouse, auctioneerAuthority, confirmOptions } =
-        operation.input;
-
-      const builder = updateAuctionHouseBuilder(metaplex, operation.input);
+      const { auctionHouse, auctioneerAuthority } = operation.input;
+      const builder = updateAuctionHouseBuilder(
+        metaplex,
+        operation.input,
+        scope
+      );
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+      const output = await builder.sendAndConfirm(
+        metaplex,
+        scope.confirmOptions
+      );
 
       const currentAuctioneerAuthority = auctionHouse.hasAuctioneer
         ? auctionHouse.auctioneer.authority
         : undefined;
-      const updatedAuctionHouse = await metaplex
-        .auctionHouse()
-        .findByAddress({
+      const updatedAuctionHouse = await metaplex.auctionHouse().findByAddress(
+        {
           address: auctionHouse.address,
           auctioneerAuthority:
             auctioneerAuthority ?? currentAuctioneerAuthority,
-        })
-        .run(scope);
+        },
+        scope
+      );
 
       return { ...output, auctionHouse: updatedAuctionHouse };
     },
@@ -242,10 +234,11 @@ export type UpdateAuctionHouseBuilderParams = Omit<
  */
 export const updateAuctionHouseBuilder = (
   metaplex: Metaplex,
-  params: UpdateAuctionHouseBuilderParams
+  params: UpdateAuctionHouseBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const authority = params.authority ?? metaplex.identity();
-  const payer = params.payer ?? metaplex.identity();
   const { auctionHouse } = params;
 
   let treasuryWithdrawalDestinationOwner: PublicKey;
@@ -258,10 +251,14 @@ export const updateAuctionHouseBuilder = (
   } else if (params.treasuryWithdrawalDestinationOwner) {
     treasuryWithdrawalDestinationOwner =
       params.treasuryWithdrawalDestinationOwner;
-    treasuryWithdrawalDestination = findAssociatedTokenAccountPda(
-      auctionHouse.treasuryMint.address,
-      treasuryWithdrawalDestinationOwner
-    );
+    treasuryWithdrawalDestination = metaplex
+      .tokens()
+      .pdas()
+      .associatedTokenAccount({
+        mint: auctionHouse.treasuryMint.address,
+        owner: treasuryWithdrawalDestinationOwner,
+        programs,
+      });
   } else {
     throw new TreasuryDestinationOwnerRequiredError();
   }
@@ -345,10 +342,11 @@ export const updateAuctionHouseBuilder = (
               auctionHouse: auctionHouse.address,
               authority: authority.publicKey,
               auctioneerAuthority,
-              ahAuctioneerPda: findAuctioneerPda(
-                auctionHouse.address,
-                auctioneerAuthority
-              ),
+              ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+                auctionHouse: auctionHouse.address,
+                auctioneerAuthority,
+                programs,
+              }),
             },
             { scopes: params.auctioneerScopes ?? defaultScopes }
           ),
@@ -369,10 +367,11 @@ export const updateAuctionHouseBuilder = (
               auctionHouse: auctionHouse.address,
               authority: authority.publicKey,
               auctioneerAuthority,
-              ahAuctioneerPda: findAuctioneerPda(
-                auctionHouse.address,
-                auctioneerAuthority
-              ),
+              ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+                auctionHouse: auctionHouse.address,
+                auctioneerAuthority,
+                programs,
+              }),
             },
             {
               scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes,

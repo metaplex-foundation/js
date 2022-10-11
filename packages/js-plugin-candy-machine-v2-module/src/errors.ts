@@ -4,7 +4,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@metaplex-foundation/js-core/errors';
+} from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   DateTime,
