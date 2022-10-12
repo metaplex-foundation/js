@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   CandyMachine as MplCandyMachine,
   candyMachineBeet,
@@ -389,7 +390,7 @@ export const toCandyMachine = <
     isFullyLoaded,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
-      toBigNumber(parsedAccount.data.features).toBuffer('le', 8),
+      toBigNumber(parsedAccount.data.features).toArrayLike(Buffer, 'le', 8),
       64
     )[0],
     candyGuard,
