@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   CandyMachine as MplCandyMachine,
   candyMachineBeet,
