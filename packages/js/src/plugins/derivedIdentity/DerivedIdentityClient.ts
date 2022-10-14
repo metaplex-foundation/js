@@ -59,20 +59,26 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
 
   fund(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.originalSigner,
-      to: this.derivedKeypair.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.originalSigner,
+        to: this.derivedKeypair.publicKey,
+        amount,
+      },
+      { payer: this.originalSigner }
+    );
   }
 
   withdraw(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.derivedKeypair,
-      to: this.originalSigner.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.derivedKeypair,
+        to: this.originalSigner.publicKey,
+        amount,
+      },
+      { payer: this.derivedKeypair }
+    );
   }
 
   async withdrawAll() {
