@@ -267,11 +267,11 @@ export class BundlrStorageDriver implements StorageDriver {
       ): Promise<TransactionSignature> => {
         const { ...sendOptions } = options;
 
-        const signers = [identity, ...options.signers || []]
+        const signers = [identity, ...(options.signers || [])];
 
-          return this._metaplex
-            .rpc()
-            .sendTransaction(transaction, sendOptions, signers);
+        return this._metaplex
+          .rpc()
+          .sendTransaction(transaction, sendOptions, signers);
       },
     };
 
