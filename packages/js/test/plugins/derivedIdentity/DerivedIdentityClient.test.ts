@@ -8,8 +8,6 @@ import {
   KeypairIdentityDriver,
   sol,
   isEqualToAmount,
-  isLessThanAmount,
-  isGreaterThanAmount,
 } from '@/index';
 
 killStuckProcess();
@@ -162,12 +160,8 @@ test('[derivedIdentity] it can fund the derived identity', async (t: Test) => {
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
   t.ok(
-    isLessThanAmount(identityBalance, sol(4)),
-    'identity balance is less than 4'
-  );
-  t.ok(
-    isGreaterThanAmount(identityBalance, sol(3.9)),
-    'identity balance is greater than 3.9'
+    isEqualToAmount(identityBalance, sol(4), sol(0.01)),
+    'identity balance is around 4'
   );
   t.ok(isEqualToAmount(derivedBalance, sol(1)), 'derived balance is 1');
 });
@@ -188,15 +182,11 @@ test('[derivedIdentity] it can withdraw from the derived identity', async (t: Te
   // Then we can see that 1 SOL was transferred from the derived identity to the identity.
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
+  t.ok(isEqualToAmount(identityBalance, sol(6)), 'identity balance is 6');
   t.ok(
-    isLessThanAmount(identityBalance, sol(6)),
-    'identity balance is less than 6'
+    isEqualToAmount(derivedBalance, sol(1), sol(0.01)),
+    'derived balance is around 1'
   );
-  t.ok(
-    isGreaterThanAmount(identityBalance, sol(5.9)),
-    'identity balance is greater than 5.9'
-  );
-  t.ok(isEqualToAmount(derivedBalance, sol(1)), 'derived balance is 1');
 });
 
 test('[derivedIdentity] it can withdraw everything from the derived identity', async (t: Test) => {
@@ -216,12 +206,8 @@ test('[derivedIdentity] it can withdraw everything from the derived identity', a
   // It's a little less due to the transaction fee.
   const { identityBalance, derivedBalance } = await getBalances(mx);
   t.ok(
-    isLessThanAmount(identityBalance, sol(7)),
-    'identity balance is less than 7'
-  );
-  t.ok(
-    isGreaterThanAmount(identityBalance, sol(6.9)),
-    'identity balance is greater than 6.9'
+    isEqualToAmount(identityBalance, sol(7), sol(0.01)),
+    'derived balance is around 7'
   );
   t.ok(isEqualToAmount(derivedBalance, sol(0)), 'derived balance is 0');
 });
