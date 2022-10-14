@@ -265,19 +265,13 @@ export class BundlrStorageDriver implements StorageDriver {
         connection: Connection,
         options: SendOptions & { signers?: Web3Signer[] } = {}
       ): Promise<TransactionSignature> => {
-        const { signers, ...sendOptions } = options;
+        const { ...sendOptions } = options;
 
-        if ('rpc' in this._metaplex) {
+        const signers = [identity, ...options.signers || []]
+
           return this._metaplex
             .rpc()
             .sendTransaction(transaction, sendOptions, signers);
-        }
-
-        return connection.sendTransaction(
-          transaction,
-          signers ?? [],
-          sendOptions
-        );
       },
     };
 
