@@ -430,3 +430,33 @@ export const toCandyMachineData = (
         : null,
   };
 };
+
+export const getCandyMachineSize = (data: CandyMachineData): number => {
+  if (data.hiddenSettings) {
+    return CANDY_MACHINE_HIDDEN_SECTION;
+  }
+
+  // This should not happen as the candy machine input type
+  // ensures exactly on of them is provided.
+  assert(
+    !!data.configLineSettings,
+    'No config line settings nor hidden settings were provided. ' +
+      'Please provide one of them.'
+  );
+
+  const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
+  const configLineSize =
+    data.configLineSettings.nameLength + data.configLineSettings.uriLength;
+
+  return Math.ceil(
+    CANDY_MACHINE_HIDDEN_SECTION +
+      // Number of currently items inserted.
+      4 +
+      // Config line data.
+      itemsAvailable * configLineSize +
+      // Bit mask to keep track of which ConfigLines have been added.
+      (4 + Math.floor(itemsAvailable / 8) + 1) +
+      // Mint indices.
+      (4 + itemsAvailable * 4)
+  );
+};
