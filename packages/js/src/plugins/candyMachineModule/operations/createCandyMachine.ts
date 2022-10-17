@@ -7,8 +7,8 @@ import {
   CandyMachineConfigLineSettings,
   CandyMachineHiddenSettings,
   toCandyMachineData,
+  getCandyMachineSize,
 } from '../models';
-import { getCandyMachineSize } from '../models/CandyMachineHiddenSection';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,

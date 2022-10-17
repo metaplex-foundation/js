@@ -9,6 +9,7 @@ import {
   KeypairSigner,
   Signer,
   SolAmount,
+  subtractAmounts,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -59,20 +60,26 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
 
   fund(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.originalSigner,
-      to: this.derivedKeypair.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.originalSigner,
+        to: this.derivedKeypair.publicKey,
+        amount,
+      },
+      { payer: this.originalSigner }
+    );
   }
 
   withdraw(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.derivedKeypair,
-      to: this.originalSigner.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.derivedKeypair,
+        to: this.originalSigner.publicKey,
+        amount,
+      },
+      { payer: this.derivedKeypair }
+    );
   }
 
   async withdrawAll() {
@@ -80,7 +87,8 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     const balance = await this.metaplex
       .rpc()
       .getBalance(this.derivedKeypair.publicKey);
-    return this.withdraw(balance);
+    const transactionFee = this.metaplex.utils().estimateTransactionFee();
+    return this.withdraw(subtractAmounts(balance, transactionFee));
   }
 
   close(): void {
