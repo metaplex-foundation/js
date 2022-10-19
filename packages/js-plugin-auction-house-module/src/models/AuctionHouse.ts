@@ -168,7 +168,8 @@ export const toAuctionHouse = (
             address: auctioneerAccount.publicKey,
             authority: auctioneerAccount.data.auctioneerAuthority,
             scopes: auctioneerAccount.data.scopes.reduce<number[]>(
-              (acc, isAllowed, index) => (isAllowed ? [...acc, index] : acc),
+              (acc, isAllowed: AuthorityScope, index) =>
+                isAllowed ? [...acc, index] : acc,
               [] as number[]
             ),
           },
