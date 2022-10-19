@@ -8,7 +8,7 @@ import {
 } from './operations';
 import { SystemClient } from './SystemClient';
 import type { MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
  * @group Plugins
@@ -40,7 +40,7 @@ export const systemModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core/Metaplex' {
   interface Metaplex {
     system(): SystemClient;
   }

@@ -29,7 +29,7 @@ import {
   serialize,
   Signer,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
  * This client enables us to register custom guards from

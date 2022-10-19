@@ -1,6 +1,6 @@
 import { assertNftOrSftWithToken } from '../../nftModule';
 import { LazyPurchase, Purchase } from '../models/Purchase';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   amount,
   Operation,

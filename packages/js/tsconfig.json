@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "../js-core/src/types/Program.ts", "../js-core/src/utils", "../js-core/src/errors", "../js-core/src/types/Model.ts", "../js-core/src/types/Account.ts"],
   "compilerOptions": {
     "outDir": "dist/esm",
     "declarationDir": "dist/types",

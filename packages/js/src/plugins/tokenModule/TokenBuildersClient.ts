@@ -20,7 +20,7 @@ import {
   thawTokensBuilder,
   ThawTokensBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

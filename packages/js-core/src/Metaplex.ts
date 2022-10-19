@@ -16,7 +16,7 @@ export class Metaplex {
   constructor(connection: Connection, options: MetaplexOptions = {}) {
     this.connection = connection;
     this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
-    this.use(corePlugins());
+    // this.use(corePlugins());
   }
 
   static make(connection: Connection, options: MetaplexOptions = {}) {

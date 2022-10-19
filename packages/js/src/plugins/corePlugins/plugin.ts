@@ -1,4 +1,4 @@
-import type { Metaplex } from '../../Metaplex';
+import type { Metaplex } from '../../../../js-core/src/Metaplex';
 
 // Low-level modules.
 import { identityModule } from '../identityModule';

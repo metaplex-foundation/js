@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.8",
+    "@metaplex-foundation/js-core": "*",
     "@metaplex-foundation/beet": "0.7.1",
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-guard": "^0.0.2",
@@ -56,16 +57,10 @@
     "@solana/spl-token": "^0.3.5",
     "@solana/web3.js": "^1.63.1",
     "bignumber.js": "^9.0.2",
-    "bn.js": "^5.2.1",
-    "bs58": "^5.0.0",
     "buffer": "^6.0.3",
-    "debug": "^4.3.4",
-    "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
-    "merkletreejs": "^0.2.32",
-    "mime": "^3.0.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch":"^2.6.2"
   },
   "engines": {
     "node": ">=16.0"

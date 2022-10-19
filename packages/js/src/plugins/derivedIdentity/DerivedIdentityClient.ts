@@ -11,7 +11,7 @@ import {
   SolAmount,
   subtractAmounts,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /**
  * @group Modules

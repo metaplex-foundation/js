@@ -1,6 +1,6 @@
 import { RpcClient } from './RpcClient';
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
+import { MetaplexPlugin } from '@metaplex-foundation/js-core';
 
 /** @group Plugins */
 export const rpcModule = (): MetaplexPlugin => ({
@@ -10,7 +10,7 @@ export const rpcModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core/Metaplex' {
   interface Metaplex {
     rpc(): RpcClient;
   }

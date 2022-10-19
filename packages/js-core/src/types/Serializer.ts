@@ -5,7 +5,7 @@ import {
   FailedToDeserializeDataError,
   FailedToSerializeDataError,
   UnexpectedAccountError,
-} from '../errors';
+} from '@/errors';
 import {
   Account,
   MaybeAccount,

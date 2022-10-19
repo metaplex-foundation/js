@@ -58,7 +58,7 @@ import {
   withdrawFromTreasuryAccountOperation,
 } from './operations';
 import { AuctionHousePdasClient } from './AuctionHousePdasClient';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { OperationOptions } from '@/types';
 
 /**

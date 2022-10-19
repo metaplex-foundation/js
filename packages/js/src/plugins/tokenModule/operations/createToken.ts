@@ -7,7 +7,7 @@ import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Token } from '../models/Token';
 import { ExpectedSignerError } from '@/errors';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   isSigner,
   makeConfirmOptionsFinalizedOnMainnet,

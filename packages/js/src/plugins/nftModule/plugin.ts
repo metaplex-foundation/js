@@ -56,7 +56,7 @@ import {
   verifyNftCreatorOperationHandler,
 } from './operations';
 import { ErrorWithLogs, MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 /** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
@@ -144,7 +144,7 @@ export const nftModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core/Metaplex' {
   interface Metaplex {
     nfts(): NftClient;
   }

@@ -33,7 +33,7 @@ import {
   SplTokenAmount,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 
 // -----------------
 // Operation

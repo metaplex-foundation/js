@@ -30,7 +30,7 @@ import {
 import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
 import type { MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 /**
  * @group Plugins
  */
@@ -95,7 +95,7 @@ export const tokenModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core/Metaplex' {
   interface Metaplex {
     tokens(): TokenClient;
   }

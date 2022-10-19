@@ -1,4 +1,4 @@
-import { assert } from '../utils';
+import { assert } from '@/utils';
 
 /**
  * A helper type that defines a model as an opaque type.

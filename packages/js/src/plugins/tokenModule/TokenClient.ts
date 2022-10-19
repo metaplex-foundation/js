@@ -28,7 +28,7 @@ import {
 } from './operations';
 import { TokenBuildersClient } from './TokenBuildersClient';
 import { TokenPdasClient } from './TokenPdasClient';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { OperationOptions } from '@/types';
 
 /**

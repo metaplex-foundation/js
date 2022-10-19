@@ -1,4 +1,4 @@
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import { CreateAuctionHouseInput } from '@/plugins';
 import { sol, Signer, OperationOptions } from '@/types';
 
