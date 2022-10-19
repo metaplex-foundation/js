@@ -17,6 +17,9 @@
   "repository": {
     "url": "https://github.com/metaplex-foundation/js.git"
   },
+  "engines": {
+    "node": ">=16.0"
+  },
   "scripts": {
     "clean": "nx affected --all --target=clean",
     "clean:all": "nx run-many --all --target=clean",
