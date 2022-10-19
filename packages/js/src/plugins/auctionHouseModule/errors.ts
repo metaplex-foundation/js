@@ -2,7 +2,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@/errors';
+} from '@metaplex-foundation/js-core';
 import { Amount, formatAmount } from '@/types';
 
 /** @group Errors */

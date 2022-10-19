@@ -2,7 +2,10 @@ import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-m
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

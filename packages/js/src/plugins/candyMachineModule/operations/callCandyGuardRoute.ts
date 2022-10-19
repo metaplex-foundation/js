@@ -9,7 +9,11 @@ import {
 } from '../guards';
 import { CandyMachine } from '../models';
 import { CandyGuardRequiredOnCandyMachineError } from '../errors';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
 import { Metaplex } from '@/Metaplex';
 

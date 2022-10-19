@@ -45,6 +45,7 @@
     "postversion": "git push --follow-tags"
   },
   "dependencies": {    
+    "@metaplex-foundation/js": "*",    
     "@metaplex-foundation/js-core": "*",    
     "buffer": "^6.0.3",
     "@ipld/dag-pb": "^2.1.17",

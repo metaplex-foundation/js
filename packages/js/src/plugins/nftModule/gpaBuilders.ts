@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { Key, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
-import { GpaBuilder, padEmptyChars } from '@/utils';
+import { GpaBuilder, padEmptyChars } from '@metaplex-foundation/js-core';
 import { toBigNumber } from '@/types';
 
 const MAX_NAME_LENGTH = 32;

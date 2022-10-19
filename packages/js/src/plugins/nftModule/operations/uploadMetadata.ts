@@ -8,7 +8,7 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { walk } from '@/utils';
+import { walk } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

@@ -3,7 +3,10 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, Listing, Purchase } from '../models';
 import { ExecuteSaleBuilderContext } from './executeSale';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   now,
   Operation,

@@ -11,6 +11,8 @@
     "paths": {      
       "@metaplex-foundation/js/*": ["packages/js/src/*"],
       "@metaplex-foundation/js": ["packages/js/src/index"],
+      "@/plugins*": ["packages/js/src/plugins*"],
+      "@plugins": ["packages/js/src/plugins"],
       "@/*": ["packages/js-core/src/*"],
       "@": ["packages/js-core/src/index"],
 

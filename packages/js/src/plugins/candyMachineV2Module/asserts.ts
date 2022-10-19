@@ -18,7 +18,7 @@ import {
   CandyMachineV2IsFullError,
   CandyMachineV2NotLiveError,
 } from './errors';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 import { BigNumber, now, Signer, toBigNumber } from '@/types';
 
 export const assertName = (name: string) => {

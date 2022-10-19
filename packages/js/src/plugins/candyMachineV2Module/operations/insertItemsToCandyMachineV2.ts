@@ -6,7 +6,10 @@ import {
   assertNotFull,
 } from '../asserts';
 import { CandyMachineV2, CandyMachineV2Item } from '../models';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Operation,

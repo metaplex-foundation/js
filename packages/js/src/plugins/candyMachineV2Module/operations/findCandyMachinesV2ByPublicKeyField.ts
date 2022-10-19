@@ -8,7 +8,7 @@ import { CandyMachineV2GpaBuilder } from '../gpaBuilders';
 import { CandyMachineV2, toCandyMachineV2 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
 import { CandyMachineV2Program } from '../program';
-import { zipMap } from '@/utils';
+import { zipMap } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
@@ -17,7 +17,7 @@ import {
 } from '@/types';
 import { Mint, toMint, toMintAccount } from '@/plugins/tokenModule';
 import { Metaplex } from '@/Metaplex';
-import { UnreachableCaseError } from '@/errors';
+import { UnreachableCaseError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

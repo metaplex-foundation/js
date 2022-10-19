@@ -9,7 +9,10 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Listing } from '../models';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   isSigner,
   Operation,

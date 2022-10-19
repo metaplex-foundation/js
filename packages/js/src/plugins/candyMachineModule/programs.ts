@@ -7,7 +7,7 @@ import {
   PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-candy-machine-core';
 import { defaultCandyGuardNames } from './guards';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 import { ErrorWithLogs, Program, PublicKey } from '@/types';
 
 /** @group Programs */

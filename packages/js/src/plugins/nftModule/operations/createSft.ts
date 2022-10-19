@@ -5,7 +5,11 @@ import {
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, Sft, SftWithToken } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Creator,
   CreatorInput,

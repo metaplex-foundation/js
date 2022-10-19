@@ -12,7 +12,10 @@ import {
 } from '../models';
 import { CreateListingBuilderContext } from './createListing';
 import { ExecuteSaleBuilderContext } from './executeSale';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   now,
   Operation,

@@ -10,7 +10,10 @@ import {
   SolAmount,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

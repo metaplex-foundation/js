@@ -8,7 +8,7 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

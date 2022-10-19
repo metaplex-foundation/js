@@ -15,7 +15,11 @@ import {
   toCandyMachineV2InstructionData,
 } from '../models';
 import { findCandyMachineV2CollectionPda } from '../pdas';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,
@@ -24,7 +28,7 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { NoInstructionsToSendError } from '@/errors';
+import { NoInstructionsToSendError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

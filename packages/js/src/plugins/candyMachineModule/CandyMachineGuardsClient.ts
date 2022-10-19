@@ -20,7 +20,11 @@ import {
 } from './guards';
 import { CandyGuard } from './models';
 import { CandyGuardProgram } from './programs';
-import { Option, padEmptyChars, removeEmptyChars } from '@/utils';
+import {
+  Option,
+  padEmptyChars,
+  removeEmptyChars,
+} from '@metaplex-foundation/js-core';
 import {
   deserialize,
   deserializeFeatureFlags,

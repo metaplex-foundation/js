@@ -19,7 +19,10 @@ import {
   findCandyMachineV2CollectionPda,
   findCandyMachineV2CreatorPda,
 } from '../pdas';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   assertAccountExists,
   makeConfirmOptionsFinalizedOnMainnet,

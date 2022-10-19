@@ -1,6 +1,6 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { IdentityDriver } from '../identityModule';
-import { OperationUnauthorizedForGuestsError } from '@/errors';
+import { OperationUnauthorizedForGuestsError } from '@metaplex-foundation/js-core';
 
 export class GuestIdentityDriver implements IdentityDriver {
   public readonly publicKey: PublicKey;

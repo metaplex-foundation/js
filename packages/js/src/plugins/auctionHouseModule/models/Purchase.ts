@@ -12,7 +12,7 @@ import {
   toBigNumber,
   toDateTime,
 } from '@/types';
-import { assert, Option } from '@/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 
 export type Purchase = Readonly<{
   /** A model identifier to distinguish models in the SDK. */

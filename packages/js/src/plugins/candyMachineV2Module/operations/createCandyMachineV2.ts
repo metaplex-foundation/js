@@ -18,7 +18,7 @@ import {
   RequiredKeys,
   TransactionBuilder,
   TransactionBuilderOptions,
-} from '@/utils';
+} from '@metaplex-foundation/js-core';
 import {
   assertSameCurrencies,
   isSigner,
@@ -33,7 +33,7 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { ExpectedSignerError } from '@/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

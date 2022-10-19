@@ -2,14 +2,13 @@ import { Blob, NFTStorage } from 'nft.storage';
 import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
 import { NFTStorageMetaplexor } from '@nftstorage/metaplex-auth';
 import {
-  MetaplexFile,
-  StorageDriver,
   lamports,
   Amount,
   Metaplex,
   Signer,
   isKeypairSigner,
 } from '@metaplex-foundation/js-core';
+import { MetaplexFile, StorageDriver } from '@metaplex-foundation/js';
 import {
   toDagPbLink,
   toDirectoryBlock,

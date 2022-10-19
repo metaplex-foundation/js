@@ -11,7 +11,7 @@ import {
   UpdateCandyMachineV2BuilderParams,
 } from './operations';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { TransactionBuilderOptions } from '@/utils';
+import { TransactionBuilderOptions } from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to access the underlying Transaction Builders

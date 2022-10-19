@@ -1,6 +1,10 @@
 import { Buffer } from 'buffer';
-import { getContentType, getExtension, randomStr } from '@/utils';
-import { InvalidJsonVariableError } from '@/errors';
+import {
+  getContentType,
+  getExtension,
+  randomStr,
+} from '@metaplex-foundation/js-core';
+import { InvalidJsonVariableError } from '@metaplex-foundation/js-core';
 
 export type MetaplexFile = {
   readonly buffer: Buffer;

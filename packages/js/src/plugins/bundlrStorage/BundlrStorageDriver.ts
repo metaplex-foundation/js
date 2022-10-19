@@ -33,7 +33,7 @@ import {
   BundlrWithdrawError,
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
-} from '@/errors';
+} from '@metaplex-foundation/js-core';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.

@@ -18,7 +18,11 @@ import {
   PartialPriceMismatchError,
 } from '../errors';
 import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   amount,
   isSigner,

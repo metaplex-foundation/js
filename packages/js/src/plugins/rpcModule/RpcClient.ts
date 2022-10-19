@@ -15,13 +15,10 @@ import {
   TransactionSignature,
 } from '@solana/web3.js';
 import {
-  FailedToConfirmTransactionError,
-  FailedToConfirmTransactionWithResponseError,
-  FailedToSendTransactionError,
   MetaplexError,
   ParsedProgramError,
   UnknownProgramError,
-} from '@/errors';
+} from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   assertSol,
@@ -34,7 +31,12 @@ import {
   UnparsedAccount,
   UnparsedMaybeAccount,
 } from '@/types';
-import { TransactionBuilder, zipMap } from '@/utils';
+import { TransactionBuilder, zipMap } from '@metaplex-foundation/js-core';
+import {
+  FailedToConfirmTransactionError,
+  FailedToConfirmTransactionWithResponseError,
+  FailedToSendTransactionError,
+} from '../../errors';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {

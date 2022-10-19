@@ -6,7 +6,7 @@ import {
   PrintEditionAccount,
 } from '../accounts';
 import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
-import { assert, Option } from '@/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 
 /** @group Models */
 export type NftEdition = NftOriginalEdition | NftPrintEdition;

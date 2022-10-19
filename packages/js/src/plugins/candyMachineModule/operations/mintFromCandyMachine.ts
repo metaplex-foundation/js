@@ -15,7 +15,11 @@ import {
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,

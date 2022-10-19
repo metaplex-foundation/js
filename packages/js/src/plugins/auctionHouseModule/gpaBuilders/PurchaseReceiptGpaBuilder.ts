@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { GpaBuilder } from '@/utils';
+import { GpaBuilder } from '@metaplex-foundation/js-core';
 
 type AccountDiscriminator = [
   number,

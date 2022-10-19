@@ -2,7 +2,11 @@ import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,

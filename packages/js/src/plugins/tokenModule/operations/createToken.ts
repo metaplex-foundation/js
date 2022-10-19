@@ -6,7 +6,7 @@ import {
 import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Token } from '../models/Token';
-import { ExpectedSignerError } from '@/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
 import {
   isSigner,
@@ -18,7 +18,10 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

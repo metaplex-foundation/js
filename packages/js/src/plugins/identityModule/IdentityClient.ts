@@ -8,7 +8,7 @@ import {
   KeypairSigner,
   Signer,
 } from '@/types';
-import { DriverNotProvidedError } from '@/errors';
+import { DriverNotProvidedError } from '@metaplex-foundation/js-core';
 
 /**
  * @group Modules

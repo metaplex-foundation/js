@@ -7,7 +7,10 @@ import {
 } from './MetaplexFile';
 import { StorageDownloadOptions, StorageDriver } from './StorageDriver';
 import { Amount, HasDriver } from '@/types';
-import { DriverNotProvidedError, InvalidJsonStringError } from '@/errors';
+import {
+  DriverNotProvidedError,
+  InvalidJsonStringError,
+} from '@metaplex-foundation/js-core';
 
 /**
  * @group Modules

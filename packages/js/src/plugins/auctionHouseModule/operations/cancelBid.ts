@@ -8,7 +8,10 @@ import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid } from '../models';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   isSigner,
   Operation,

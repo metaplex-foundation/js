@@ -14,7 +14,7 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { UnreachableCaseError } from '@/errors';
+import { UnreachableCaseError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

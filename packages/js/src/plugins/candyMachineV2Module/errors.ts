@@ -4,9 +4,9 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from '@/errors';
+} from '@metaplex-foundation/js-core';
 import { BigNumber, DateTime, formatDateTime } from '@/types';
-import { Option } from '@/utils';
+import { Option } from '@metaplex-foundation/js-core';
 
 /** @group Errors */
 export class CandyMachineV2Error extends MetaplexError {

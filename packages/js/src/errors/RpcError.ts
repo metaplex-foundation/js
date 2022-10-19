@@ -3,7 +3,7 @@ import {
   MetaplexError,
   MetaplexErrorInputWithoutSource,
   MetaplexErrorOptions,
-} from './MetaplexError';
+} from '@metaplex-foundation/js-core';
 import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
 
 /** @group Errors */

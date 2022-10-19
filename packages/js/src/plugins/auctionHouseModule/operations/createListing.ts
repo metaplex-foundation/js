@@ -11,7 +11,11 @@ import {
   CreateListingRequiresSignerError,
 } from '../errors';
 import { AuctionHouse, LazyListing, Listing } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  Option,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   amount,
   isSigner,

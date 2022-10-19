@@ -3,7 +3,7 @@ import type { PublicKey } from '@solana/web3.js';
 import { AuctioneerAccount, AuctionHouseAccount } from '../accounts';
 import { Mint } from '../../tokenModule';
 import { Pda } from '@/types';
-import { assert } from '@/utils';
+import { assert } from '@metaplex-foundation/js-core';
 
 export type AuctionHouse = Readonly<
   {

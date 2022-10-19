@@ -8,7 +8,10 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { AuctionHouse } from '../models/AuctionHouse';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   isSigner,
   makeConfirmOptionsFinalizedOnMainnet,
@@ -21,7 +24,7 @@ import {
   useOperation,
 } from '@/types';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { ExpectedSignerError } from '@/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

@@ -14,7 +14,10 @@ import {
   isCandyMachine,
   toCandyMachineData,
 } from '../models';
-import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
+import {
+  MissingInputDataError,
+  NoInstructionsToSendError,
+} from '@metaplex-foundation/js-core';
 import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
@@ -32,7 +35,7 @@ import {
   removeUndefinedAttributes,
   TransactionBuilder,
   TransactionBuilderOptions,
-} from '@/utils';
+} from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

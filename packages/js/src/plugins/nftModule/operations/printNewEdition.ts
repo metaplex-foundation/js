@@ -7,7 +7,10 @@ import {
   NftWithToken,
   toNftOriginalEdition,
 } from '../models';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   makeConfirmOptionsFinalizedOnMainnet,

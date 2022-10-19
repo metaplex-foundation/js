@@ -1,7 +1,7 @@
 import * as beet from '@metaplex-foundation/beet';
 import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 import { deserializeFeatureFlags } from '@/types';
-import { removeEmptyChars } from '@/utils';
+import { removeEmptyChars } from '@metaplex-foundation/js-core';
 
 /** @internal */
 export type CandyMachineHiddenSection = {

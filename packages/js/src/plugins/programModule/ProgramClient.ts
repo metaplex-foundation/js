@@ -1,8 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 import type { Metaplex } from '@metaplex-foundation/js-core/Metaplex';
-import { MissingGpaBuilderError, ProgramNotRecognizedError } from '@/errors';
+import {
+  MissingGpaBuilderError,
+  ProgramNotRecognizedError,
+} from '@metaplex-foundation/js-core';
 import { Program, Cluster } from '@/types';
-import { GpaBuilder } from '@/utils';
+import { GpaBuilder } from '@metaplex-foundation/js-core';
 
 /**
  * @group Modules

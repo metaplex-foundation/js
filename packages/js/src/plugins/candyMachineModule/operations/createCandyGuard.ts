@@ -10,7 +10,10 @@ import {
   emptyDefaultCandyGuardSettings,
 } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,

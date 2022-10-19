@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { Metaplex, Program } from '@/index';
 import { PublicKey, Serializer, Signer } from '@/types';
-import { Option } from '@/utils';
+import { Option } from '@metaplex-foundation/js-core';
 
 /**
  * When creating your own custom guards, you will need to register them

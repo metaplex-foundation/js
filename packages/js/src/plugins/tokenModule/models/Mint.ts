@@ -2,7 +2,7 @@ import type { PublicKey } from '@solana/web3.js';
 import { MintAccount } from '../accounts';
 import { WRAPPED_SOL_MINT } from '../constants';
 import { amount, SplTokenCurrency, SplTokenAmount } from '@/types';
-import { assert, Option } from '@/utils';
+import { assert, Option } from '@metaplex-foundation/js-core';
 
 /**
  * This model represents a mint account.

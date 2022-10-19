@@ -9,7 +9,10 @@ import {
   toCandyMachineData,
   getCandyMachineSize,
 } from '../models';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Creator,
@@ -24,7 +27,7 @@ import {
   toPublicKey,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { ExpectedSignerError } from '@/errors';
+import { ExpectedSignerError } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

@@ -9,8 +9,8 @@ import {
   OperationOptions,
   OperationScope,
 } from '@/types';
-import { Disposable, DisposableScope } from '@/utils';
-import { OperationHandlerMissingError } from '@/errors';
+import { Disposable, DisposableScope } from '@metaplex-foundation/js-core';
+import { OperationHandlerMissingError } from '@metaplex-foundation/js-core';
 
 /**
  * @group Modules
