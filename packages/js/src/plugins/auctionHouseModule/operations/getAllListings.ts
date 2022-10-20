@@ -64,7 +64,7 @@ export const getAllListingsInAuctionHouseOperationHandler: OperationHandler<GetA
       const { commitment } = scope;
       const { auctionHouse } = operation.input;
       const auctionHouseProgram = metaplex.programs().getAuctionHouse();
-      let listingQuery = new ListingReceiptGpaBuilder(
+      const listingQuery = new ListingReceiptGpaBuilder(
         metaplex,
         auctionHouseProgram.address
       )
