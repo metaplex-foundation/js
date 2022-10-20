@@ -8,7 +8,6 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol } from '@/types';
-import { LazyListing } from '@/plugins';
 
 killStuckProcess();
 
