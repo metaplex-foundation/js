@@ -18,6 +18,7 @@ export * from './findListingsByPublicKeyField';
 export * from './findPurchaseByReceipt';
 export * from './findPurchaseByTradeState';
 export * from './findPurchasesByPublicKeyField';
+export * from './getAllListings';
 export * from './getBuyerBalance';
 export * from './loadBid';
 export * from './loadListing';

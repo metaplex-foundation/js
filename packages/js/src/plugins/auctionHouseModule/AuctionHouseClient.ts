@@ -40,6 +40,8 @@ import {
   findPurchaseByTradeStateOperation,
   FindPurchasesByPublicKeyFieldInput,
   findPurchasesByPublicKeyFieldOperation,
+  GetAllListingsInAuctionHouseOperationInput,
+  getAllListingsInAuctionHouseOperation,
   GetBuyerBalanceInput,
   getBuyerBalanceOperation,
   LoadBidInput,
@@ -270,6 +272,16 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .execute(findPurchasesByPublicKeyFieldOperation(input), options);
+  }
+
+  /** {@inheritDoc getAllListingsInAuctionHouseOperation} */
+  getAllListings(
+    input: GetAllListingsInAuctionHouseOperationInput,
+    options?: OperationOptions
+  ) {
+    return this.metaplex
+      .operations()
+      .execute(getAllListingsInAuctionHouseOperation(input), options);
   }
 
   /** {@inheritDoc getBuyerBalanceOperation} */
