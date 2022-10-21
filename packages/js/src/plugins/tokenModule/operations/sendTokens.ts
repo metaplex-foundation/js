@@ -57,7 +57,7 @@ export type SendTokensInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
 
-  /** The amount of tokens to mint. */
+  /** The amount of tokens to send. */
   amount: SplTokenAmount;
 
   /**
