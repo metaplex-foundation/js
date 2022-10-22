@@ -35,8 +35,7 @@ const Key = 'FindListingsOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const findListingsOperation =
-  useOperation<FindListingsOperation>(Key);
+export const findListingsOperation = useOperation<FindListingsOperation>(Key);
 
 /**
  * @group Operations
@@ -96,7 +95,7 @@ export const findListingsOperationHandler: OperationHandler<FindListingsOperatio
         .mergeConfig({ commitment })
         .whereAuctionHouse(auctionHouse.address);
 
-      if(seller) {
+      if (seller) {
         listingQuery = listingQuery.whereSeller(seller);
       }
 

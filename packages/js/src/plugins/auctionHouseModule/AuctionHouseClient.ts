@@ -233,10 +233,7 @@ export class AuctionHouseClient {
   }
 
   /** {@inheritDoc findListingsOperation} */
-  findListings(
-    input: FindListingsInput,
-    options?: OperationOptions
-  ) {
+  findListings(input: FindListingsInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
       .execute(findListingsOperation(input), options);

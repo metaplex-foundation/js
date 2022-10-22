@@ -179,7 +179,7 @@ test('[auctionHouseModule] when finding all lazy listings by seller, metadata & 
     auctionHouse,
     seller: mx.identity().publicKey,
     metadata: secondNft.metadataAddress,
-    mint: firstNft.address
+    mint: firstNft.address,
   });
 
   // Then we got only one lazy listing for given seller and mint.
@@ -196,7 +196,9 @@ test('[auctionHouseModule] when finding all lazy listings by seller, metadata & 
       'metadata from mint matches'
     );
     t.not(
-      (listing as LazyListing).metadataAddress.equals(secondNft.metadataAddress),
+      (listing as LazyListing).metadataAddress.equals(
+        secondNft.metadataAddress
+      ),
       'provided metadata filter is not used'
     );
   });

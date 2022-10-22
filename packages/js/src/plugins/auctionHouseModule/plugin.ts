@@ -121,10 +121,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findListingByTradeStateOperation,
       findListingByTradeStateOperationHandler
     );
-    op.register(
-      findListingsOperation,
-      findListingsOperationHandler
-    );
+    op.register(findListingsOperation, findListingsOperationHandler);
     op.register(
       findPurchaseByReceiptOperation,
       findPurchaseByReceiptOperationHandler
