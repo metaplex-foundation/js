@@ -32,8 +32,8 @@ import {
   findListingByReceiptOperation,
   FindListingByTradeStateInput,
   findListingByTradeStateOperation,
-  FindListingsByPublicKeyFieldInput,
-  findListingsByPublicKeyFieldOperation,
+  FindListingsInput,
+  findListingsOperation,
   FindPurchaseByReceiptInput,
   findPurchaseByReceiptOperation,
   FindPurchaseByTradeStateInput,
@@ -232,14 +232,14 @@ export class AuctionHouseClient {
       .execute(findListingByReceiptOperation(input), options);
   }
 
-  /** {@inheritDoc findListingsByPublicKeyFieldOperation} */
-  findListingsBy(
-    input: FindListingsByPublicKeyFieldInput,
+  /** {@inheritDoc findListingsOperation} */
+  findListings(
+    input: FindListingsInput,
     options?: OperationOptions
   ) {
     return this.metaplex
       .operations()
-      .execute(findListingsByPublicKeyFieldOperation(input), options);
+      .execute(findListingsOperation(input), options);
   }
 
   /** {@inheritDoc findPurchaseByTradeStateOperation} */

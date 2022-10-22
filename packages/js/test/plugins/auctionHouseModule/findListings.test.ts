@@ -45,10 +45,9 @@ test('[auctionHouseModule] find all lazy listings by seller', async (t) => {
   });
 
   // When I find all listings by seller.
-  const listings = await mx.auctionHouse().findListingsBy({
-    type: 'seller',
+  const listings = await mx.auctionHouse().findListings({
     auctionHouse,
-    publicKey: mx.identity().publicKey,
+    seller: mx.identity().publicKey,
   });
 
   // Then we got two lazy listings for given seller.
@@ -86,10 +85,9 @@ test('[auctionHouseModule] find all lazy listings by metadata', async (t) => {
   });
 
   // When I find all listings by metadata.
-  const listings = await mx.auctionHouse().findListingsBy({
-    type: 'metadata',
+  const listings = await mx.auctionHouse().findListings({
     auctionHouse,
-    publicKey: firstNft.metadataAddress,
+    metadata: firstNft.metadataAddress,
   });
 
   // Then we got one lazy listing.
@@ -127,10 +125,9 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
   });
 
   // When I find all listings by mint.
-  const listings = await mx.auctionHouse().findListingsBy({
-    type: 'mint',
+  const listings = await mx.auctionHouse().findListings({
     auctionHouse,
-    publicKey: firstNft.address,
+    mint: firstNft.address,
   });
 
   // Then we got one listing.
@@ -141,6 +138,66 @@ test('[auctionHouseModule] find all listings by mint', async (t) => {
     t.ok(
       (listing as LazyListing).metadataAddress.equals(firstNft.metadataAddress),
       'metadata matches'
+    );
+  });
+});
+
+test('[auctionHouseModule] when finding all lazy listings by seller, metadata & mint then metadata criteria is ignored', async (t) => {
+  // Given we have an Auction House and 2 NFTs.
+  const mx = await metaplex();
+  const secondSeller = await createWallet(mx);
+  const firstNft = await createNft(mx);
+  const secondNft = await createNft(mx);
+  const thirdNft = await createNft(mx, { tokenOwner: secondSeller.publicKey });
+
+  const auctionHouse = await createAuctionHouse(mx);
+
+  // And given we create a listing on first NFT for 1 SOL.
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: firstNft.address,
+    price: sol(1),
+  });
+
+  // And given we create a listing on second NFT for 1 SOL.
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: secondNft.address,
+    price: sol(1),
+  });
+
+  // And given we create a listing on third NFT for 1 SOL from different wallet.
+  await mx.auctionHouse().list({
+    auctionHouse,
+    mintAccount: thirdNft.address,
+    seller: secondSeller,
+    price: sol(1),
+  });
+
+  // When I find all listings by seller, metadata and mint.
+  const listings = await mx.auctionHouse().findListings({
+    auctionHouse,
+    seller: mx.identity().publicKey,
+    metadata: secondNft.metadataAddress,
+    mint: firstNft.address
+  });
+
+  // Then we got only one lazy listing for given seller and mint.
+  t.equal(listings.length, 1, 'returns one account');
+
+  // And it's from seller and mint while metadata is ignored.
+  listings.forEach((listing) => {
+    t.ok(
+      listing.sellerAddress.equals(mx.identity().publicKey),
+      'wallet matches'
+    );
+    t.ok(
+      (listing as LazyListing).metadataAddress.equals(firstNft.metadataAddress),
+      'metadata from mint matches'
+    );
+    t.not(
+      (listing as LazyListing).metadataAddress.equals(secondNft.metadataAddress),
+      'provided metadata filter is not used'
     );
   });
 });
