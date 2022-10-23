@@ -5,7 +5,8 @@ import {
   Pda,
   Program,
   PublicKey,
- Option } from '@metaplex-foundation/js-core';
+  Option,
+} from '@metaplex-foundation/js-core';
 
 /**
  * This client allows you to build PDAs related to the Auction House module.

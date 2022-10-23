@@ -4,7 +4,8 @@ import type {
   ErrorWithLogs,
   MetaplexPlugin,
   Program,
- Metaplex } from '@metaplex-foundation/js-core';
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import { AuctionHouseClient } from './AuctionHouseClient';
 import {
   cancelBidOperation,

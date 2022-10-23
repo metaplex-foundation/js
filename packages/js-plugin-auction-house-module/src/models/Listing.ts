@@ -1,5 +1,9 @@
 import { PublicKey } from '@solana/web3.js';
-import { NftWithToken, SftWithToken , assert, Option ,
+import {
+  NftWithToken,
+  SftWithToken,
+  assert,
+  Option,
   amount,
   BigNumber,
   DateTime,
