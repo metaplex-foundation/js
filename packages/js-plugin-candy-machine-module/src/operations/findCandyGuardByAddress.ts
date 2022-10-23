@@ -4,7 +4,8 @@ import {
   Operation,
   OperationHandler,
   OperationScope,
- Metaplex } from '@metaplex-foundation/js-core';
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard, toCandyGuard } from '../models';
 

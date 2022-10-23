@@ -12,7 +12,9 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
- create32BitsHash, createCandyMachine } from './helpers';
+  create32BitsHash,
+  createCandyMachine,
+} from './helpers';
 
 killStuckProcess();
 

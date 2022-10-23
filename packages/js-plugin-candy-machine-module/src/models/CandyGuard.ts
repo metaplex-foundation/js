@@ -13,7 +13,8 @@ import {
   PublicKey,
   toAccountInfo,
   UnparsedAccount,
- Metaplex } from '@metaplex-foundation/js-core';
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import { CANDY_GUARD_DATA } from '../constants';
 import { CandyGuardsSettings } from '../guards';
 

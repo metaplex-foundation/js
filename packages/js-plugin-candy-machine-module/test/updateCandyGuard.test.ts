@@ -13,7 +13,8 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
- createCandyGuard } from './helpers';
+  createCandyGuard,
+} from './helpers';
 killStuckProcess();
 
 test('[candyMachineModule] it can update one guard', async (t) => {

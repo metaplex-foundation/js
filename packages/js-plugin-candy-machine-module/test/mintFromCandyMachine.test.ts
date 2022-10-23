@@ -13,7 +13,6 @@ import {
   createWallet,
   killStuckProcess,
   metaplex,
-
   assertMintingWasSuccessful,
   create32BitsHash,
   createCandyMachine,

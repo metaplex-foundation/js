@@ -1,4 +1,5 @@
-import { ProgramClient ,
+import {
+  ProgramClient,
   MetaplexPlugin,
   OperationConstructor,
   Program,
