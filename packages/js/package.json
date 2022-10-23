@@ -39,7 +39,7 @@
     "clean": "rimraf dist",
     "build": "yarn clean && tsc && tsc-alias && rollup -c",
     "test": "echo 'no-test'",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
+    "test:exports": "echo 'no-test'",
     "preversion": "yarn build",
     "postversion": "git push --follow-tags"
   },
