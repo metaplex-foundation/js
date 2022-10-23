@@ -65,7 +65,7 @@ getDirectories(__dirname + '/packages', (err, directories) => {
               publish: {
                 executor: 'nx:run-commands',
                 options: {
-                  command: `node ./scripts/publish.mjs packages/${rec} {args.ver} {args.tag}`,
+                  command: `node ./infra/publish.mjs packages/${rec} {args.ver} {args.tag}`,
                   forwardAllArgs: true,
                 },
                 dependsOn: [
