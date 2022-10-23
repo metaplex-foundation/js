@@ -4,7 +4,9 @@ import {
   OperationHandler,
   OperationScope,
   useOperation,
- Metaplex , UnreachableCaseError } from '@metaplex-foundation/js-core';
+  Metaplex,
+  UnreachableCaseError,
+} from '@metaplex-foundation/js-core';
 import { toListingReceiptAccount } from '../accounts';
 import { ListingReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, LazyListing, Listing, toLazyListing } from '../models';

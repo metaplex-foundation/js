@@ -4,7 +4,9 @@ import {
   OperationHandler,
   OperationScope,
   useOperation,
- Metaplex , UnreachableCaseError } from '@metaplex-foundation/js-core';
+  Metaplex,
+  UnreachableCaseError,
+} from '@metaplex-foundation/js-core';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, Bid, LazyBid, toLazyBid } from '../models';
 import { toBidReceiptAccount } from '../accounts';

@@ -4,12 +4,14 @@ import {
   createSellInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
-import type { SendAndConfirmTransactionResponse , Metaplex } from '@metaplex-foundation/js-core';
+import type {
+  SendAndConfirmTransactionResponse,
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import {
   Option,
   TransactionBuilder,
   TransactionBuilderOptions,
-
   amount,
   isSigner,
   lamports,

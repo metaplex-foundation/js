@@ -1,4 +1,5 @@
-import { assertNftOrSftWithToken ,
+import {
+  assertNftOrSftWithToken,
   amount,
   Operation,
   OperationHandler,
