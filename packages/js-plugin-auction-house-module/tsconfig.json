@@ -3,11 +3,10 @@
   "include": ["src"],
   "compilerOptions": {
     "outDir": "dist/esm",
-    "declarationDir": "dist/types",
+    "declarationDir": "dist/types",    
     "paths": {
       "@metaplex-foundation/js-core/*": ["packages/js-core/src/*"],
-      "@metaplex-foundation/js-core": ["packages/js-core/src"],     
-      "@metaplex-foundation/js-plugin-auction-house-module": ["packages/js-plugin-auction-house-module/src"],
+      "@metaplex-foundation/js-core": ["packages/js-core/src"],
       "@/*": ["packages/js-core/src/*"]
     }
   },

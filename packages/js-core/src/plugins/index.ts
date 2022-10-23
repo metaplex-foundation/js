@@ -1,4 +1,3 @@
-export * from './auctionHouseModule';
 export * from './bundlrStorage';
 export * from './candyMachineModule';
 export * from './candyMachineV2Module';

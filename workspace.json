@@ -75,6 +75,90 @@
       },
       "tags": []
     },
+
+    "packages/js-plugin-auction-house-module": {
+      "root": "packages/js-plugin-auction-house-module",
+      "projectType": "library",
+      "sourceRoot": "packages/js-plugin-auction-house-module/src",
+      "targets": {
+        "prebuild": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
+            "cwd": "packages/js-plugin-auction-house-module"
+          }
+        },
+        "build": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-auction-house-module build"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-auction-house-module clean"
+            ],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./infra/publish.mjs packages/js-plugin-auction-house-module {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": [
+              "packages/js-plugin-auction-house-module/**/*.ts"
+            ],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "nx:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-plugin-auction-house-module",
+            "commands": [
+              "yarn workspace @metaplex-foundation/js-plugin-auction-house-module test"
+            ],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+
     "packages/js-core": {
       "root": "packages/js-core",
       "projectType": "library",
