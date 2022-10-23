@@ -75,6 +75,80 @@
       },
       "tags": []
     },
+    "packages/js-core": {
+      "root": "packages/js-core",
+      "projectType": "library",
+      "sourceRoot": "packages/js-core/src",
+      "targets": {
+        "prebuild": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
+            "cwd": "packages/js-core"
+          }
+        },
+        "build": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js-core build"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js-core clean"],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./infra/publish.mjs packages/js-core {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-core/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "nx:run-commands",
+          "options": {
+            "dir": "./dist/packages/js-core",
+            "commands": ["yarn workspace @metaplex-foundation/js-core test"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
     "packages/js-plugin-aws": {
       "root": "packages/js-plugin-aws",
       "sourceRoot": "packages/js-plugin-aws/src",

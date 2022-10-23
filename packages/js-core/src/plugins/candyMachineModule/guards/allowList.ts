@@ -20,7 +20,7 @@ import { createSerializerFromBeet, mapSerializer } from '@/types';
  * Here is an example.
  *
  * ```ts
- * import { getMerkleProof, getMerkleRoot } from '@metaplex-foundation/js';
+ * import { getMerkleProof, getMerkleRoot } from '@metaplex-foundation/js-core';
  * const allowList = [
  *   'Ur1CbWSGsXCdedknRbJsEk7urwAvu1uddmQv51nAnXB',
  *   'GjwcWFQYzemBtpUoN5fMAP2FZviTtMRWCmrppGuTthJS',

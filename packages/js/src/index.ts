@@ -1,5 +1,11 @@
-export * from './errors';
-export * from './plugins';
-export * from './types';
-export * from './utils';
-export * from './Metaplex';
+import {
+  Metaplex as MetaplexBase,
+  MetaplexOptions,
+} from '@metaplex-foundation/js-core';
+import { Connection } from '@solana/web3.js';
+
+export class MetaplexJS {
+  static make(connection: Connection, options: MetaplexOptions = {}) {
+    return new MetaplexBase(connection, options);
+  }
+}

@@ -8,10 +8,6 @@
     "noEmit": false,
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
-    "paths": {
-      "@/*": ["packages/js/src/*"]
-    },
-
     "target": "es2019",
     "module": "esnext",
     "moduleResolution": "node",

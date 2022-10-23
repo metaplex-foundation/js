@@ -8,7 +8,7 @@ import {
   mockStorage,
   KeypairSigner,
   logDebug,
-} from '@metaplex-foundation/js';
+} from '@metaplex-foundation/js-core';
 
 export const amman = Amman.instance({ log: logDebug });
 

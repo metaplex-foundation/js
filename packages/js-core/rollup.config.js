@@ -3,25 +3,15 @@ import pkg from './package.json';
 
 export default createConfigs({
   pkg,
-  dependenciesToExcludeInBundle: [
-    '@metaplex-foundation/js-core',
-    '@ipld/dag-pb',
-    '@nftstorage/metaplex-auth',
-    'ipfs-car',
-    'ipfs-unixfs',
-    'multiformats',
-    'nft.storage',
-  ],
+  additionalExternals: ['@noble/hashes/sha3', '@noble/hashes/sha512'],
   builds: [
     {
       dir: 'dist/esm',
       format: 'es',
-      bundle: true,
     },
     {
       dir: 'dist/cjs',
       format: 'cjs',
-      bundle: true,
     },
   ],
 });

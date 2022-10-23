@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@ipld/dag-pb": "^2.1.17",
-    "@metaplex-foundation/js": "*",
+    "@metaplex-foundation/js-core": "*", 
     "@nftstorage/metaplex-auth": "^1.2.0",
     "ipfs-car": "^0.7.0",
     "ipfs-unixfs": "^6.0.9",

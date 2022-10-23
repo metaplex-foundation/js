@@ -4,7 +4,7 @@ import pkg from './package.json';
 export default createConfigs({
   pkg,
   dependenciesToExcludeInBundle: [
-    '@metaplex-foundation/js',
+    '@metaplex-foundation/js-core',
     '@aws-sdk/client-s3',
   ],
   builds: [
