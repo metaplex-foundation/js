@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import { assert } from '@metaplex-foundation/js-core';
-import { killStuckProcess, metaplex , createCandyMachine } from './helpers';
+import { killStuckProcess, metaplex, createCandyMachine } from './helpers';
 
 killStuckProcess();
 

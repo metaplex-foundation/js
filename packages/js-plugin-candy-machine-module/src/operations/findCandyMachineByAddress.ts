@@ -4,7 +4,8 @@ import {
   OperationHandler,
   OperationScope,
   PublicKey,
- Metaplex } from '@metaplex-foundation/js-core';
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyMachine, toCandyGuard, toCandyMachine } from '../models';
 import { assertCandyGuardProgram } from '../programs';

@@ -22,7 +22,8 @@ import {
   token,
   useOperation,
   Metaplex,
- NftWithToken } from '@metaplex-foundation/js-core';
+  NftWithToken,
+} from '@metaplex-foundation/js-core';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
 import { assertCanMintCandyMachineV2 } from '../asserts';
 import { CandyMachineV2BotTaxError } from '../errors';

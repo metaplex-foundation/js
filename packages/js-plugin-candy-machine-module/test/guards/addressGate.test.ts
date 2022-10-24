@@ -6,7 +6,11 @@ import {
   killStuckProcess,
   metaplex,
 } from '@metaplex-foundation/js-core/test/helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@metaplex-foundation/js-core';
+import {
+  isEqualToAmount,
+  sol,
+  toBigNumber,
+} from '@metaplex-foundation/js-core';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 
 killStuckProcess();

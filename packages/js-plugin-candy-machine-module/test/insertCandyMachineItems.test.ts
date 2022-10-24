@@ -6,7 +6,9 @@ import {
   assertThrowsFn,
   killStuckProcess,
   metaplex,
- create32BitsHash, createCandyMachine } from './helpers';
+  create32BitsHash,
+  createCandyMachine,
+} from './helpers';
 
 killStuckProcess();
 

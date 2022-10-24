@@ -1,5 +1,8 @@
 import * as beet from '@metaplex-foundation/beet';
-import { deserializeFeatureFlags , removeEmptyChars } from '@metaplex-foundation/js-core';
+import {
+  deserializeFeatureFlags,
+  removeEmptyChars,
+} from '@metaplex-foundation/js-core';
 import { CandyMachineConfigLineSettings, CandyMachineItem } from '..';
 
 /** @internal */
