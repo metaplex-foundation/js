@@ -12,7 +12,6 @@ import { LazyListing } from '@/plugins';
 
 killStuckProcess();
 
-
 test('[auctionHouseModule] find all listings', async (t) => {
   // Given we have an Auction House and 2 NFTs.
   const mx = await metaplex();
