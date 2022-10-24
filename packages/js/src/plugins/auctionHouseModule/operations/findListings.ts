@@ -18,13 +18,12 @@ const Key = 'FindListingsOperation' as const;
 
 /**
  * Finds Listings by multiple criteria.
- * Metadata field is ignored whe Mint is provided.
  *
  * ```ts
- * // Find listings by seller and metadata.
+ * // Find all listings in an Auction House.
  * const listings = await metaplex
  *   .auctionHouse()
- *   .findListings({ auctionHouse, seller, metadata });
+ *   .findListings({ auctionHouse });
  *
  * // Find listings by seller and mint.
  * const listings = await metaplex
