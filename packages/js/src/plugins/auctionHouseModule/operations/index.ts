@@ -14,7 +14,7 @@ export * from './findBidByTradeState';
 export * from './findBidsByPublicKeyField';
 export * from './findListingByReceipt';
 export * from './findListingByTradeState';
-export * from './findListingsByPublicKeyField';
+export * from './findListings';
 export * from './findPurchaseByReceipt';
 export * from './findPurchaseByTradeState';
 export * from './findPurchasesByPublicKeyField';
