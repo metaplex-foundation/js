@@ -1,13 +1,13 @@
 import test from 'tape';
-import { findCandyMachineV2CollectionPda } from '../src';
 import {
   assertThrows,
   createNft,
   createWallet,
   killStuckProcess,
   metaplex,
-  createCandyMachineV2,
 } from './helpers';
+import { createCandyMachineV2 } from './helpers';
+import { findCandyMachineV2CollectionPda } from '../src';
 
 killStuckProcess();
 

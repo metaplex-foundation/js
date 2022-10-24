@@ -2,15 +2,16 @@ import { Buffer } from 'buffer';
 import { sha512 } from '@noble/hashes/sha512';
 import { Metaplex, sol, toBigNumber } from '@metaplex-foundation/js-core';
 import {
-  metaplex as metaplexBase,
-  MetaplexTestOptions,
-  amman,
-} from '../../js-core/test/helpers';
-import {
   candyMachineV2Module,
   CandyMachineV2Item,
   CreateCandyMachineV2Input,
 } from '../src';
+
+import {
+  amman,
+  metaplex as metaplexBase,
+  MetaplexTestOptions,
+} from '../../js-core/test/helpers';
 export * from '../../js-core/test/helpers';
 
 export const metaplex = async (options: MetaplexTestOptions = {}) => {
