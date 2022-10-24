@@ -5,7 +5,9 @@ import {
   OperationScope,
   useOperation,
   Metaplex,
- Metadata, Nft } from '@metaplex-foundation/js-core';
+  Metadata,
+  Nft,
+} from '@metaplex-foundation/js-core';
 import { findCandyMachineV2CreatorPda } from '../pdas';
 
 // -----------------

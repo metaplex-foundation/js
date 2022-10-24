@@ -6,7 +6,8 @@ import {
   cusper as candyMachineCusper,
   PROGRAM_ID as CANDY_MACHINE_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-candy-machine-core';
-import { assert ,
+import {
+  assert,
   ErrorWithLogs,
   Program,
   PublicKey,
