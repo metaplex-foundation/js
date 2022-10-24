@@ -86,7 +86,8 @@ export const findListingsOperationHandler: OperationHandler<FindListingsOperatio
     ): Promise<FindListingsOutput> => {
       const { commitment, programs } = scope;
       const { auctionHouse, seller, metadata, mint } = operation.input;
-      const auctionHouseProgram = metaplex.programs().getAuctionHouse();
+      const auctionHouseProgram = metaplex.programs().getAuctionHouse(programs);
+
       let listingQuery = new ListingReceiptGpaBuilder(
         metaplex,
         auctionHouseProgram.address
