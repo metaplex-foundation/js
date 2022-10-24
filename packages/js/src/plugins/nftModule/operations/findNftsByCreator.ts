@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
+import { toMetadataAccount } from '../accounts';
 import { MetadataV1GpaBuilder } from '../gpaBuilders';
-import { Metadata, Nft, Sft } from '../models';
+import { Metadata, Nft, Sft, toMetadata } from '../models';
 import {
   Operation,
   OperationHandler,
@@ -89,15 +90,21 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
         metaplex.programs().getTokenMetadata(programs).address
       );
 
-      const mints = await gpaBuilder
-        .selectMint()
-        .whereCreator(position, creator)
-        .getDataAsPublicKeys();
+      const nfts = await gpaBuilder.whereCreator(position, creator).get();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex.nfts().findAllByMintList({ mints }, scope);
-      scope.throwIfCanceled();
+      return nfts
+        .map<Metadata | null>((account) => {
+          if (account == null) {
+            return null;
+          }
 
-      return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);
+          try {
+            return toMetadata(toMetadataAccount(account));
+          } catch (error) {
+            return null;
+          }
+        })
+        .filter((nft): nft is Metadata => nft !== null);
     },
   };
