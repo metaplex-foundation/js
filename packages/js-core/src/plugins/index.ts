@@ -1,5 +1,4 @@
 export * from './bundlrStorage';
-export * from './candyMachineV2Module';
 export * from './corePlugins';
 export * from './derivedIdentity';
 export * from './guestIdentity';

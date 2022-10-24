@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "outDir": "dist/esm",
+    "declarationDir": "dist/types",    
+    "paths": {
+      "@metaplex-foundation/js-core/*": ["packages/js-core/src/*"],
+      "@metaplex-foundation/js-core": ["packages/js-core/src"],
+      "@/*": ["packages/js-core/src/*"]
+    }
+  },
+}
