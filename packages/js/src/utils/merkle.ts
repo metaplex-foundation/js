@@ -1,4 +1,4 @@
-import MerkleTree from 'merkletreejs';
+import { MerkleTree } from 'merkletreejs';
 import { keccak_256 } from '@noble/hashes/sha3';
 
 /**
