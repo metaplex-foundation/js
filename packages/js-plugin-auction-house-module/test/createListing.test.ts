@@ -12,7 +12,12 @@ import {
   createWallet,
 } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { AccountNotFoundError, Pda, sol, token } from '@/index';
+import {
+  AccountNotFoundError,
+  Pda,
+  sol,
+  token,
+} from '@metaplex-foundation/js-core';
 import { Listing } from '../src';
 
 killStuckProcess();

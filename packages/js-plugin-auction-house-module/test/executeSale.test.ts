@@ -11,8 +11,8 @@ import {
   assertThrows,
 } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
-import { AccountNotFoundError, Pda } from '@/index';
+import { sol, token } from '@metaplex-foundation/js-core';
+import { AccountNotFoundError, Pda } from '@metaplex-foundation/js-core';
 import { Purchase } from '../src';
 
 killStuckProcess();

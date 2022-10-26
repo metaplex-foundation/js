@@ -2,7 +2,7 @@ import test from 'tape';
 
 import { killStuckProcess, metaplex, createNft, createWallet } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol } from '@/types';
+import { sol } from '@metaplex-foundation/js-core';
 import { LazyPurchase } from '../src';
 
 killStuckProcess();

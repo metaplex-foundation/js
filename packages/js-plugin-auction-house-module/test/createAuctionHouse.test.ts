@@ -7,7 +7,7 @@ import {
   assertThrows,
   createWallet,
 } from '../../js-core/test/helpers';
-import { WRAPPED_SOL_MINT } from '@/index';
+import { WRAPPED_SOL_MINT } from '@metaplex-foundation/js-core';
 import { AUCTIONEER_ALL_SCOPES } from '../src/constants';
 import { metaplex } from './helpers';
 

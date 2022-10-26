@@ -10,7 +10,7 @@ import {
   spokSamePubkey,
 } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
+import { sol, token } from '@metaplex-foundation/js-core';
 import { PrivateBid, PublicBid, Purchase } from '../src';
 
 killStuckProcess();

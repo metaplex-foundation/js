@@ -11,7 +11,7 @@ import {
   createWallet,
 } from './helpers';
 import { createAuctionHouse } from './helpers';
-import { Pda, sol, token } from '@/index';
+import { Pda, sol, token } from '@metaplex-foundation/js-core';
 import { metaplex } from './helpers';
 import { Bid } from '../src';
 

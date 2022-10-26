@@ -28,7 +28,7 @@ import {
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
-import { NftWithToken } from '@/plugins/nftModule';
+import { NftWithToken } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation
