@@ -18,9 +18,9 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "clean": "nx affected --all --target=clean",
+    "clean": "nx affected --target=clean",
     "clean:all": "nx run-many --all --target=clean",
-    "build": "nx affected --all --target=build",
+    "build": "nx affected --target=build",
     "build:all": "nx run-many --all --target=build",
     "test": "nx affected --target=test",
     "test:all": "nx run-many --all --target=test",
