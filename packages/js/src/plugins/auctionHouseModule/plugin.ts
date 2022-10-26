@@ -28,8 +28,8 @@ import {
   findBidByReceiptOperationHandler,
   findBidByTradeStateOperation,
   findBidByTradeStateOperationHandler,
-  findBidsByPublicKeyFieldOperation,
-  findBidsByPublicKeyFieldOperationHandler,
+  findBidsOperation,
+  findBidsOperationHandler,
   findListingByReceiptOperation,
   findListingByReceiptOperationHandler,
   findListingByTradeStateOperation,
@@ -40,8 +40,8 @@ import {
   findPurchaseByReceiptOperationHandler,
   findPurchaseByTradeStateOperation,
   findPurchaseByTradeStateOperationHandler,
-  findPurchasesByPublicKeyFieldOperation,
-  findPurchasesByPublicKeyFieldOperationHandler,
+  findPurchasesOperation,
+  findPurchasesOperationHandler,
   getBuyerBalanceOperation,
   getBuyerBalanceOperationHandler,
   loadBidOperation,
@@ -109,10 +109,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findBidByTradeStateOperation,
       findBidByTradeStateOperationHandler
     );
-    op.register(
-      findBidsByPublicKeyFieldOperation,
-      findBidsByPublicKeyFieldOperationHandler
-    );
+    op.register(findBidsOperation, findBidsOperationHandler);
     op.register(
       findListingByReceiptOperation,
       findListingByReceiptOperationHandler
@@ -130,10 +127,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findPurchaseByTradeStateOperation,
       findPurchaseByTradeStateOperationHandler
     );
-    op.register(
-      findPurchasesByPublicKeyFieldOperation,
-      findPurchasesByPublicKeyFieldOperationHandler
-    );
+    op.register(findPurchasesOperation, findPurchasesOperationHandler);
     op.register(getBuyerBalanceOperation, getBuyerBalanceOperationHandler);
     op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);

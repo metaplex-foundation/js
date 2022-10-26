@@ -18,6 +18,7 @@ const Key = 'FindListingsOperation' as const;
 
 /**
  * Finds Listings by multiple criteria.
+ * You can use any combination of keys.
  *
  * ```ts
  * // Find all listings in an Auction House.
