@@ -25,7 +25,8 @@ const Key = 'FindPurchasesOperation' as const;
 /**
  * Finds Purchases by multiple criteria.
  * You can use any combination of keys.
- * Supports only 3 criteria at the same time.
+ * Supports only 3 criteria at the same time including
+ * the required `auctionHouse` attribute.
  *
  * ```ts
  * // Find all purchases in an Auction House.
