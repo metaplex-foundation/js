@@ -457,7 +457,7 @@ test('[auctionHouseModule] find all lazy purchases by buyer and metadata', async
   const purchases = await mx.auctionHouse().findPurchases({
     auctionHouse,
     metadata: firstNft.metadataAddress,
-    buyer: buyer.publicKey
+    buyer: buyer.publicKey,
   });
 
   // Then we a lazy purchase for given buyer and metadata.
@@ -514,9 +514,5 @@ test('[auctionHouseModule] it throws when providing 4 filters', async (t) => {
   });
 
   // Then we expect an error. Because it's only possible to provide 3 filters at the same time.
-  await assertThrows(
-    t,
-    promise,
-    /Find all supports only three filters max/
-  );
+  await assertThrows(t, promise, /Find all supports only three filters max/);
 });

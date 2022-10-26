@@ -190,8 +190,7 @@ export class FindAllSupportsOnlyThreeFiltersMaxError extends AuctionHouseError {
       title: 'Find all supports only three filters max',
       problem:
         'Solana filter allows only to provide four custom filters, one of the filters is internal so it is only possible to provide 3 custom filters.',
-      solution:
-        'Please provide less filters to the find all query.'
+      solution: 'Please provide less filters to the find all query.',
     });
   }
 }
