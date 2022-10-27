@@ -78,7 +78,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenPayment: {
         amount: token(5),
-        tokenMint,
+        mint: tokenMint,
         destinationAta: tokenDestination,
       },
       startDate: {
@@ -143,7 +143,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenPayment: {
         amount: spokSameAmount(token(5)),
-        tokenMint: spokSamePubkey(tokenMint),
+        mint: spokSamePubkey(tokenMint),
         destinationAta: spokSamePubkey(tokenDestination),
       },
       startDate: {
