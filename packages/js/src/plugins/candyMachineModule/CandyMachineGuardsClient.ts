@@ -127,14 +127,9 @@ export class CandyMachineGuardsClient {
 
     let buffer = serializeSet(guards);
 
-    if (groups.length > 0) {
-      const groupCountBuffer = Buffer.alloc(5);
-      beet.u8.write(groupCountBuffer, 0, 1);
-      beet.u32.write(groupCountBuffer, 1, groups.length);
-      buffer = Buffer.concat([buffer, groupCountBuffer]);
-    } else {
-      buffer = Buffer.concat([buffer, Buffer.from([0])]);
-    }
+    const groupCountBuffer = Buffer.alloc(4);
+    beet.u32.write(groupCountBuffer, 0, groups.length);
+    buffer = Buffer.concat([buffer, groupCountBuffer]);
 
     groups.forEach((group) => {
       const labelBuffer = Buffer.alloc(4 + CANDY_GUARD_LABEL_SIZE);
