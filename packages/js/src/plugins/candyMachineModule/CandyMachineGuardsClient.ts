@@ -27,6 +27,7 @@ import {
   Program,
   PublicKey,
   serialize,
+  serializeFeatureFlags,
   Signer,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
@@ -103,15 +104,25 @@ export class CandyMachineGuardsClient {
   ): Buffer {
     const availableGuards = this.forCandyGuardProgram(programs);
     const serializeSet = (set: Partial<T>): Buffer => {
-      return availableGuards.reduce((acc, guard) => {
-        const value = set[guard.name] ?? null;
-        const optionPrefix = Buffer.from([value ? 1 : 0]);
-        const newBuffer = value
-          ? serialize(value, guard.settingsSerializer)
-          : Buffer.from([]);
-        acc = Buffer.concat([acc, optionPrefix, newBuffer]);
-        return acc;
-      }, Buffer.from([]));
+      const { features, buffer } = availableGuards.reduce(
+        (acc, guard, index) => {
+          const value = set[guard.name] ?? null;
+          acc.features[index] = Boolean(value);
+          if (value) {
+            acc.buffer = Buffer.concat([
+              acc.buffer,
+              serialize(value, guard.settingsSerializer),
+            ]);
+          }
+          return acc;
+        },
+        {
+          features: [] as boolean[],
+          buffer: Buffer.from([]),
+        }
+      );
+
+      return Buffer.concat([serializeFeatureFlags(features, 8), buffer]);
     };
 
     let buffer = serializeSet(guards);
@@ -134,6 +145,7 @@ export class CandyMachineGuardsClient {
           0,
           padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE)
         );
+      // TODO(loris): Throw error if label is too long.
       buffer = Buffer.concat([buffer, labelBuffer, serializeSet(group.guards)]);
     });
 
