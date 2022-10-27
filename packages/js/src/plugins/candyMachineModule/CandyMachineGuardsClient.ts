@@ -132,15 +132,14 @@ export class CandyMachineGuardsClient {
     buffer = Buffer.concat([buffer, groupCountBuffer]);
 
     groups.forEach((group) => {
-      const labelBuffer = Buffer.alloc(4 + CANDY_GUARD_LABEL_SIZE);
-      beet
-        .fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE)
-        .write(
-          labelBuffer,
-          0,
-          padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE)
-        );
       // TODO(loris): Throw error if label is too long.
+      const labelBuffer = Buffer.alloc(CANDY_GUARD_LABEL_SIZE);
+      labelBuffer.write(
+        padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE),
+        0,
+        CANDY_GUARD_LABEL_SIZE,
+        'utf8'
+      );
       buffer = Buffer.concat([buffer, labelBuffer, serializeSet(group.guards)]);
     });
 
