@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, Listing, Purchase } from '../models';
@@ -9,7 +9,7 @@ import {
   Operation,
   OperationHandler,
   OperationScope,
-  Signer,
+  Signer, sol,
   SolAmount,
   SplTokenAmount,
   toPublicKey,
@@ -98,6 +98,12 @@ export type DirectBuyInput = {
    * @defaultValue `listing.price`.
    */
   price?: SolAmount | SplTokenAmount;
+
+  /**
+   * The amount of tokens to buy.
+   *
+   */
+  tokens?: SplTokenAmount;
 
   /**
    * The Auctioneer authority key.
@@ -199,7 +205,7 @@ export const directBuyBuilder = async (
     auctionHouse,
     auctioneerAuthority,
     listing,
-    price = listing.price,
+    tokens: tokensToBuy,
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
@@ -207,8 +213,9 @@ export const directBuyBuilder = async (
     executeSaleInstructionKey,
   } = params;
 
-  const { tokens, asset, sellerAddress, receiptAddress } = listing;
-
+  const { tokens: listingTokens, asset, sellerAddress, receiptAddress } = listing;
+  const tokens = tokensToBuy ? tokensToBuy : listingTokens;
+  const price = !tokens ? listing.price : sol(listing.price.basisPoints.mul(tokens.basisPoints).div(listing.tokens.basisPoints).toNumber()/LAMPORTS_PER_SOL);
   const printReceipt = (params.printReceipt ?? true) && Boolean(receiptAddress);
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
@@ -222,7 +229,7 @@ export const directBuyBuilder = async (
       authority,
       tokens,
       price,
-      mintAccount: asset.mint.address,
+      mintAccount: listing.asset.mint.address,
       seller: sellerAddress,
       buyer,
       printReceipt,

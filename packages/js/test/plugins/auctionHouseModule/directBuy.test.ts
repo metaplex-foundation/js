@@ -1,17 +1,12 @@
 import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
-import { Keypair } from '@solana/web3.js';
 import {
-  createNft,
+  createSft,
   createWallet,
   killStuckProcess,
   metaplex,
-  spokSameAmount,
-  spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol, token } from '@/types';
-import { Purchase } from '@/index';
 
 killStuckProcess();
 
@@ -62,6 +57,53 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
     $topic: 'Purchase',
     ...expectedPurchase,
   } as unknown as Specifications<Purchase>);
+});
+
+test('[auctionHouseModule] partial buy on an Auction House', async (t: Test) => {
+  // Given we have an Auction House and an NFT.
+  const mx = await metaplex();
+  const seller = await createWallet(mx);
+  const auctionHouse = await createAuctionHouse(mx);
+  const sft = await createSft(mx, {
+    tokenOwner: seller.publicKey,
+    tokenAmount: token(10)
+  });
+
+  await mx.tokens().mint({
+    mintAddress: sft.address,
+    amount: token(10),
+    toOwner: seller.publicKey
+  });
+
+  // And we listed that 5 SFTs for 1 SOL each.
+  const { listing } = await mx.auctionHouse().list({
+    auctionHouse,
+    seller,
+    mintAccount: sft.address,
+    price: sol(5),
+    tokens: token(5),
+  });
+
+  // When we execute direct buy with the given listing.
+  const { purchase } = await mx.auctionHouse().buy({
+    auctionHouse,
+    listing,
+    tokens: token(3)
+  });
+
+  // Then the user must receive 3 Tokens.
+  const buyerTokens = await mx
+    .nfts()
+    .findByToken({ token: purchase.asset.token.address });
+
+  t.equal(buyerTokens.token.amount.basisPoints.toNumber(), 3);
+
+  // And then the seller must have 2 Tokens on sale left.
+  const sellerTokens = await mx
+    .nfts()
+    .findByToken({ token: listing.asset.token.address });
+
+  t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 2);
 });
 
 test('[auctionHouseModule] buy on an Auction House with auctioneer with auctioneer', async (t: Test) => {
