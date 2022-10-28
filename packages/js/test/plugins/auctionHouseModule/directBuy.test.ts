@@ -1,4 +1,6 @@
 import test, { Test } from 'tape';
+import spok, { Specifications } from 'spok';
+import { Keypair } from '@solana/web3.js';
 import {
   createNft,
   createSft,
@@ -8,9 +10,7 @@ import {
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
 import { sol, token } from '@/types';
-import spok, { Specifications } from 'spok';
 import { Purchase } from '@/plugins';
-import { Keypair } from '@solana/web3.js';
 
 killStuckProcess();
 

@@ -1,15 +1,17 @@
-import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, Listing, Purchase } from '../models';
 import { ExecuteSaleBuilderContext } from './executeSale';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  amount,
+  lamports,
   now,
   Operation,
   OperationHandler,
   OperationScope,
-  Signer, sol,
+  Signer,
   SolAmount,
   SplTokenAmount,
   toPublicKey,
@@ -205,7 +207,7 @@ export const directBuyBuilder = async (
     auctionHouse,
     auctioneerAuthority,
     listing,
-    tokens: tokensToBuy,
+    price,
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
@@ -213,9 +215,21 @@ export const directBuyBuilder = async (
     executeSaleInstructionKey,
   } = params;
 
-  const { tokens: listingTokens, asset, sellerAddress, receiptAddress } = listing;
-  const tokens = tokensToBuy ? tokensToBuy : listingTokens;
-  const price = !tokens ? listing.price : sol(listing.price.basisPoints.mul(tokens.basisPoints).div(listing.tokens.basisPoints).toNumber()/LAMPORTS_PER_SOL);
+
+  const { asset, sellerAddress, receiptAddress } = listing;
+  const tokens = params.tokens ?? listing.tokens;
+
+  let finalPrice = price;
+
+  if(!finalPrice) {
+    const listingPricePerToken = listing.price.basisPoints.div(listing.tokens.basisPoints);
+    const finalPriceBasisPoints = listingPricePerToken.mul(tokens.basisPoints);
+
+    finalPrice = auctionHouse.isNative
+      ? lamports(finalPriceBasisPoints)
+      : amount(finalPriceBasisPoints, auctionHouse.treasuryMint.currency)
+  }
+
   const printReceipt = (params.printReceipt ?? true) && Boolean(receiptAddress);
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
@@ -228,7 +242,7 @@ export const directBuyBuilder = async (
       auctioneerAuthority,
       authority,
       tokens,
-      price,
+      price: finalPrice,
       mintAccount: listing.asset.mint.address,
       seller: sellerAddress,
       buyer,
@@ -250,7 +264,7 @@ export const directBuyBuilder = async (
     buyerAddress: buyer.publicKey,
     receiptAddress: receipt,
     purchaseReceiptAddress: null,
-    price,
+    price: finalPrice,
     tokens,
     canceledAt: null,
     createdAt: now(),
