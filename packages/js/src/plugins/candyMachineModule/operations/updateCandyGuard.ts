@@ -1,22 +1,9 @@
-import {
-  createUpdateInstruction,
-  updateInstructionDiscriminator,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { createUpdateInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import type { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  CandyGuardsSettings,
-  DefaultCandyGuardSettings,
-  emptyDefaultCandyGuardSettings,
-} from '../guards';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
-import {
-  Operation,
-  OperationHandler,
-  OperationScope,
-  serializeDiscriminator,
-  Signer,
-} from '@/types';
+import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
 import { Metaplex } from '@/Metaplex';
 
 // -----------------
@@ -194,28 +181,10 @@ export const updateCandyGuardBuilder = <
   } = params;
 
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
-  const updateInstruction = createUpdateInstruction(
-    {
-      candyGuard,
-      authority: authority.publicKey,
-      payer: payer.publicKey,
-    },
-    {
-      data: {
-        default: emptyDefaultCandyGuardSettings,
-        groups: null,
-      },
-    },
-    candyGuardProgram.address
-  );
-
   const serializedSettings = metaplex
     .candyMachines()
     .guards()
     .serializeSettings<T>(guards, groups, programs);
-
-  const discriminator = serializeDiscriminator(updateInstructionDiscriminator);
-  updateInstruction.data = Buffer.concat([discriminator, serializedSettings]);
 
   return (
     TransactionBuilder.make()
@@ -223,7 +192,15 @@ export const updateCandyGuardBuilder = <
 
       // Update the candy guard account.
       .add({
-        instruction: updateInstruction,
+        instruction: createUpdateInstruction(
+          {
+            candyGuard,
+            authority: authority.publicKey,
+            payer: payer.publicKey,
+          },
+          { data: serializedSettings },
+          candyGuardProgram.address
+        ),
         signers: [authority, payer],
         key: params.updateInstructionKey ?? 'updateCandyGuard',
       })
