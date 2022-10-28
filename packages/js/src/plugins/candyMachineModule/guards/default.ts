@@ -29,10 +29,7 @@ import {
   ThirdPartySignerGuardSettings,
 } from './thirdPartySigner';
 import { TokenBurnGuardSettings } from './tokenBurn';
-import {
-  TokenGateGuardMintSettings,
-  TokenGateGuardSettings,
-} from './tokenGate';
+import { TokenGateGuardSettings } from './tokenGate';
 import { TokenPaymentGuardSettings } from './tokenPayment';
 import { Option } from '@/utils';
 
@@ -67,7 +64,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // tokenPayment: no mint settings
   // startDate: no mint settings
   thirdPartySigner: Option<ThirdPartySignerGuardMintSettings>;
-  tokenGate: Option<TokenGateGuardMintSettings>;
+  // tokenGate: no mint settings
   gatekeeper: Option<GatekeeperGuardMintSettings>;
   // endDate: no mint settings
   // allowList: no mint settings
