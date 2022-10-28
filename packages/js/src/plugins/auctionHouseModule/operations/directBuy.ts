@@ -243,7 +243,7 @@ export const directBuyBuilder = async (
       authority,
       tokens,
       price: finalPrice,
-      mintAccount: listing.asset.mint.address,
+      mintAccount: asset.mint.address,
       seller: sellerAddress,
       buyer,
       printReceipt,
