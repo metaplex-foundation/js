@@ -16,9 +16,6 @@ import {
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
  * Machine if you wish to enable this guard.
- *
- * @see {@link TokenGateGuardMintSettings} for more
- * information on the mint settings of this guard.
  */
 export type TokenGateGuardSettings = {
   /** The mint address of the required tokens. */
@@ -28,61 +25,32 @@ export type TokenGateGuardSettings = {
   amount: SplTokenAmount;
 };
 
-/**
- * The settings for the tokenGate guard that could
- * be provided when minting from the Candy Machine.
- *
- * @see {@link TokenGateGuardSettings} for more
- * information on the tokenGate guard itself.
- */
-export type TokenGateGuardMintSettings = {
-  /**
-   * The token account linking the mint
-   * account with the token holder.
-   *
-   * @defaultValue
-   * Defaults to the associated token address using the
-   * mint address and the payer's address.
-   */
-  tokenAccount?: PublicKey;
-};
-
 /** @internal */
-export const tokenGateGuardManifest: CandyGuardManifest<
-  TokenGateGuardSettings,
-  TokenGateGuardMintSettings
-> = {
-  name: 'tokenGate',
-  settingsBytes: 40,
-  settingsSerializer: mapSerializer<TokenGate, TokenGateGuardSettings>(
-    createSerializerFromBeet(tokenGateBeet),
-    (settings) => ({ ...settings, amount: token(settings.amount) }),
-    (settings) => ({ ...settings, amount: settings.amount.basisPoints })
-  ),
-  mintSettingsParser: ({
-    metaplex,
-    settings,
-    mintSettings,
-    payer,
-    programs,
-  }) => {
-    const tokenAccount =
-      mintSettings?.tokenAccount ??
-      metaplex.tokens().pdas().associatedTokenAccount({
+export const tokenGateGuardManifest: CandyGuardManifest<TokenGateGuardSettings> =
+  {
+    name: 'tokenGate',
+    settingsBytes: 40,
+    settingsSerializer: mapSerializer<TokenGate, TokenGateGuardSettings>(
+      createSerializerFromBeet(tokenGateBeet),
+      (settings) => ({ ...settings, amount: token(settings.amount) }),
+      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+    ),
+    mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
+      const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
         mint: settings.mint,
         owner: payer.publicKey,
         programs,
       });
 
-    return {
-      arguments: Buffer.from([]),
-      remainingAccounts: [
-        {
-          isSigner: false,
-          address: tokenAccount,
-          isWritable: false,
-        },
-      ],
-    };
-  },
-};
+      return {
+        arguments: Buffer.from([]),
+        remainingAccounts: [
+          {
+            isSigner: false,
+            address: tokenAccount,
+            isWritable: false,
+          },
+        ],
+      };
+    },
+  };

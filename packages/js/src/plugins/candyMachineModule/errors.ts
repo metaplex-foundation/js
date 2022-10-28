@@ -231,3 +231,22 @@ export class GuardNotEnabledError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class GuardGroupLabelTooLongError extends CandyMachineV3Error {
+  constructor(
+    label: string,
+    maxLength: number,
+    options?: MetaplexErrorOptions
+  ) {
+    super({
+      options,
+      key: 'guard_group_label_too_long',
+      title: 'Guard Group Label Too Long',
+      problem:
+        `The provided group label [${label}] is too long. ` +
+        `Group labels cannot be longer than ${maxLength} characters.`,
+      solution: 'Please provide a shorter group label.',
+    });
+  }
+}
