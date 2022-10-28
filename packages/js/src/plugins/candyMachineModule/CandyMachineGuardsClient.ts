@@ -3,6 +3,7 @@ import * as beet from '@metaplex-foundation/beet';
 import { AccountMeta } from '@solana/web3.js';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
+  GuardGroupLabelTooLongError,
   GuardGroupRequiredError,
   GuardNotEnabledError,
   GuardRouteNotSupportedError,
@@ -132,7 +133,12 @@ export class CandyMachineGuardsClient {
     buffer = Buffer.concat([buffer, groupCountBuffer]);
 
     groups.forEach((group) => {
-      // TODO(loris): Throw error if label is too long.
+      if (group.label.length > CANDY_GUARD_LABEL_SIZE) {
+        throw new GuardGroupLabelTooLongError(
+          group.label,
+          CANDY_GUARD_LABEL_SIZE
+        );
+      }
       const labelBuffer = Buffer.alloc(CANDY_GUARD_LABEL_SIZE);
       labelBuffer.write(
         padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE),
