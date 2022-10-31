@@ -3,6 +3,13 @@ import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import {
+  AccountNotFoundError,
+  Pda,
+  sol,
+  token,
+} from '@metaplex-foundation/js-core';
+import { Listing } from '../src';
+import {
   metaplex,
   killStuckProcess,
   createNft,
@@ -10,15 +17,7 @@ import {
   spokSameAmount,
   assertThrows,
   createWallet,
-} from './helpers';
-import { createAuctionHouse } from './helpers';
-import {
-  AccountNotFoundError,
-  Pda,
-  sol,
-  token,
-} from '@metaplex-foundation/js-core';
-import { Listing } from '../src';
+ createAuctionHouse } from './helpers';
 
 killStuckProcess();
 

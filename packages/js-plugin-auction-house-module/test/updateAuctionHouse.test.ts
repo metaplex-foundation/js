@@ -2,15 +2,14 @@ import test, { Test } from 'tape';
 import spok from 'spok';
 import { Keypair } from '@solana/web3.js';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
+import { AUCTIONEER_ALL_SCOPES } from '../src/constants';
 import {
   metaplex,
   spokSamePubkey,
   killStuckProcess,
   assertThrows,
   createWallet,
-} from './helpers';
-import { createAuctionHouse } from './helpers';
-import { AUCTIONEER_ALL_SCOPES } from '../src/constants';
+ createAuctionHouse } from './helpers';
 
 killStuckProcess();
 

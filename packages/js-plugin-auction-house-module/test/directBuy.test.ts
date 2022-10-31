@@ -1,6 +1,8 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
+import { sol, token } from '@metaplex-foundation/js-core';
+import { Purchase } from '../src';
 import {
   createNft,
   createWallet,
@@ -8,10 +10,7 @@ import {
   metaplex,
   spokSameAmount,
   spokSamePubkey,
-} from './helpers';
-import { createAuctionHouse } from './helpers';
-import { sol, token } from '@metaplex-foundation/js-core';
-import { Purchase } from '../src';
+ createAuctionHouse } from './helpers';
 
 killStuckProcess();
 

@@ -1,6 +1,6 @@
 import test, { Test } from 'tape';
-import { metaplex, killStuckProcess, createWallet } from './helpers';
 import { sol, toPublicKey } from '@metaplex-foundation/js-core';
+import { metaplex, killStuckProcess, createWallet } from './helpers';
 
 killStuckProcess();
 

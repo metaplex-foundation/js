@@ -19,7 +19,7 @@ import {
   Signer,
   token as tokenAmount,
   Metaplex,
-} from '@metaplex-foundation/js-core';
+ NftWithToken } from '@metaplex-foundation/js-core';
 import { CandyMachineBotTaxError } from '../errors';
 import {
   CandyGuardsMintSettings,
@@ -28,7 +28,6 @@ import {
   DefaultCandyGuardSettings,
 } from '../guards';
 import { CandyMachine } from '../models';
-import { NftWithToken } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

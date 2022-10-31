@@ -2,6 +2,8 @@ import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
+import { Pda, sol, token } from '@metaplex-foundation/js-core';
+import { Bid } from '../src';
 import {
   assertThrows,
   killStuckProcess,
@@ -9,11 +11,7 @@ import {
   spokSamePubkey,
   spokSameAmount,
   createWallet,
-} from './helpers';
-import { createAuctionHouse } from './helpers';
-import { Pda, sol, token } from '@metaplex-foundation/js-core';
-import { metaplex } from './helpers';
-import { Bid } from '../src';
+ createAuctionHouse , metaplex } from './helpers';
 
 killStuckProcess();
 

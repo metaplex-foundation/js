@@ -5,6 +5,13 @@ import {
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
+import { sol, toBigNumber, token } from '@metaplex-foundation/js-core';
+import {
+  CandyMachineV2,
+  CandyMachineV2Program,
+  CreateCandyMachineV2Input,
+  getCandyMachineV2UuidFromAddress,
+} from '../src';
 import {
   amman,
   assertThrows,
@@ -14,15 +21,7 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
-} from './helpers';
-import { create32BitsHash } from './helpers';
-import { sol, toBigNumber, token } from '@metaplex-foundation/js-core';
-import {
-  CandyMachineV2,
-  CandyMachineV2Program,
-  CreateCandyMachineV2Input,
-  getCandyMachineV2UuidFromAddress,
-} from '../src';
+ create32BitsHash } from './helpers';
 
 killStuckProcess();
 

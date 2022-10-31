@@ -1,14 +1,13 @@
 import test, { Test } from 'tape';
 import { Keypair } from '@solana/web3.js';
+import { sol, token } from '@metaplex-foundation/js-core';
 import {
   metaplex,
   killStuckProcess,
   createSft,
   createWallet,
   assertThrows,
-} from './helpers';
-import { createAuctionHouse } from './helpers';
-import { sol, token } from '@metaplex-foundation/js-core';
+ createAuctionHouse } from './helpers';
 
 killStuckProcess();
 

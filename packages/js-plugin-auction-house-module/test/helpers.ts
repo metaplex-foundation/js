@@ -1,6 +1,6 @@
 import type { Metaplex } from '@metaplex-foundation/js-core';
-import { auctionHouseModule, CreateAuctionHouseInput } from '../src';
 import { sol, Signer, OperationOptions } from '@metaplex-foundation/js-core';
+import { auctionHouseModule, CreateAuctionHouseInput } from '../src';
 import {
   metaplex as metaplexBase,
   MetaplexTestOptions,

@@ -1,16 +1,15 @@
 import test from 'tape';
 
+import { LazyPurchase } from '../src';
 import {
   killStuckProcess,
   metaplex,
   createNft,
   createWallet,
   assertThrows,
-} from './helpers';
+ createAuctionHouse } from './helpers';
 
-import { createAuctionHouse } from './helpers';
 import { sol } from '@/types';
-import { LazyPurchase } from '../src';
 
 killStuckProcess();
 
