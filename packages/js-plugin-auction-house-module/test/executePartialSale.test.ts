@@ -7,7 +7,8 @@ import {
   createSft,
   createWallet,
   assertThrows,
- createAuctionHouse } from './helpers';
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 

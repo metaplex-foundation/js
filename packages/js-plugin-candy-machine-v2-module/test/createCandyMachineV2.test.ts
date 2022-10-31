@@ -21,7 +21,8 @@ import {
   spokSameAmount,
   spokSameBignum,
   spokSamePubkey,
- create32BitsHash } from './helpers';
+  create32BitsHash,
+} from './helpers';
 
 killStuckProcess();
 

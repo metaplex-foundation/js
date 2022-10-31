@@ -11,7 +11,9 @@ import {
   spokSamePubkey,
   spokSameAmount,
   createWallet,
- createAuctionHouse , metaplex } from './helpers';
+  createAuctionHouse,
+  metaplex,
+} from './helpers';
 
 killStuckProcess();
 

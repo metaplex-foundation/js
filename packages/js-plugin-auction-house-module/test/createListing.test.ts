@@ -17,7 +17,8 @@ import {
   spokSameAmount,
   assertThrows,
   createWallet,
- createAuctionHouse } from './helpers';
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 

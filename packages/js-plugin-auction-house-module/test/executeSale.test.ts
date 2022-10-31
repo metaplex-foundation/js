@@ -1,9 +1,15 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
-import { sol, token , AccountNotFoundError, Pda } from '@metaplex-foundation/js-core';
+import {
+  sol,
+  token,
+  AccountNotFoundError,
+  Pda,
+} from '@metaplex-foundation/js-core';
 import { Purchase } from '../src';
-import { createAuctionHouse ,
+import {
+  createAuctionHouse,
   metaplex,
   killStuckProcess,
   createNft,

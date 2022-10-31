@@ -10,7 +10,8 @@ import {
   metaplex,
   spokSameAmount,
   spokSamePubkey,
- createAuctionHouse } from './helpers';
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 

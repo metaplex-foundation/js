@@ -4,7 +4,8 @@ import {
   OperationHandler,
   OperationScope,
   useOperation,
- Metaplex } from '@metaplex-foundation/js-core';
+  Metaplex,
+} from '@metaplex-foundation/js-core';
 import { toPurchaseReceiptAccount } from '../accounts';
 import { PurchaseReceiptGpaBuilder } from '../gpaBuilders';
 import {

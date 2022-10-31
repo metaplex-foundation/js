@@ -6,7 +6,8 @@ import {
   createWallet,
   killStuckProcess,
   metaplex,
- createCandyMachineV2 } from './helpers';
+  createCandyMachineV2,
+} from './helpers';
 
 killStuckProcess();
 

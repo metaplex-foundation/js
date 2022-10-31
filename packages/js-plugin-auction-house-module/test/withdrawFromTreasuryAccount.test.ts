@@ -1,6 +1,11 @@
 import test, { Test } from 'tape';
 import { sol, toPublicKey } from '@metaplex-foundation/js-core';
-import { metaplex, killStuckProcess, createWallet , createAuctionHouse } from './helpers';
+import {
+  metaplex,
+  killStuckProcess,
+  createWallet,
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 

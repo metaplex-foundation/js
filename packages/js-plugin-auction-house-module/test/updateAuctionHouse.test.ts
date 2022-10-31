@@ -9,7 +9,8 @@ import {
   killStuckProcess,
   assertThrows,
   createWallet,
- createAuctionHouse } from './helpers';
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 

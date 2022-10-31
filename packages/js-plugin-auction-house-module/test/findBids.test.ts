@@ -1,7 +1,13 @@
 import test from 'tape';
 
 import { LazyBid } from '../src';
-import { killStuckProcess, metaplex, createNft, createWallet , createAuctionHouse } from './helpers';
+import {
+  killStuckProcess,
+  metaplex,
+  createNft,
+  createWallet,
+  createAuctionHouse,
+} from './helpers';
 import { sol } from '@/types';
 
 killStuckProcess();

@@ -2,7 +2,13 @@ import test from 'tape';
 
 import { sol } from '@metaplex-foundation/js-core';
 import { LazyListing } from '../src';
-import { killStuckProcess, metaplex, createNft, createWallet , createAuctionHouse } from './helpers';
+import {
+  killStuckProcess,
+  metaplex,
+  createNft,
+  createWallet,
+  createAuctionHouse,
+} from './helpers';
 
 killStuckProcess();
 
