@@ -39,10 +39,10 @@ export class BidReceiptGpaBuilder extends GpaBuilder {
   }
 
   whereBuyer(buyerAddress: PublicKey) {
-    return this.bidReceiptAccounts().where(BUYER, buyerAddress);
+    return this.where(BUYER, buyerAddress);
   }
 
   whereMetadata(metadataAddress: PublicKey) {
-    return this.bidReceiptAccounts().where(METADATA, metadataAddress);
+    return this.where(METADATA, metadataAddress);
   }
 }

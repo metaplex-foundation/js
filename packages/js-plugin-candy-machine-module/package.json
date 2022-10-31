@@ -47,7 +47,7 @@
   "dependencies": {
     "@metaplex-foundation/js-core": "*", 
     "@metaplex-foundation/beet": "0.7.1",
-    "@metaplex-foundation/mpl-candy-guard": "^0.0.2",
+    "@metaplex-foundation/mpl-candy-guard": "^0.3.0",
     "@metaplex-foundation/mpl-candy-machine-core": "^0.1.0",
     "@solana/web3.js": "^1.63.1",
     "buffer": "^6.0.3"

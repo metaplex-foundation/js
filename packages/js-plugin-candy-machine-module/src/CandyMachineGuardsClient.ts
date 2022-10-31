@@ -11,10 +11,12 @@ import {
   PublicKey,
   serialize,
   Signer,
+  serializeFeatureFlags,
 } from '@metaplex-foundation/js-core';
 import type { Metaplex } from '@metaplex-foundation/js-core';
 import { CANDY_GUARD_LABEL_SIZE } from './constants';
 import {
+  GuardGroupLabelTooLongError,
   GuardGroupRequiredError,
   GuardNotEnabledError,
   GuardRouteNotSupportedError,
@@ -105,37 +107,47 @@ export class CandyMachineGuardsClient {
   ): Buffer {
     const availableGuards = this.forCandyGuardProgram(programs);
     const serializeSet = (set: Partial<T>): Buffer => {
-      return availableGuards.reduce((acc, guard) => {
-        const value = set[guard.name] ?? null;
-        const optionPrefix = Buffer.from([value ? 1 : 0]);
-        const newBuffer = value
-          ? serialize(value, guard.settingsSerializer)
-          : Buffer.from([]);
-        acc = Buffer.concat([acc, optionPrefix, newBuffer]);
-        return acc;
-      }, Buffer.from([]));
+      const { features, buffer } = availableGuards.reduce(
+        (acc, guard, index) => {
+          const value = set[guard.name] ?? null;
+          acc.features[index] = Boolean(value);
+          if (value) {
+            acc.buffer = Buffer.concat([
+              acc.buffer,
+              serialize(value, guard.settingsSerializer),
+            ]);
+          }
+          return acc;
+        },
+        {
+          features: [] as boolean[],
+          buffer: Buffer.from([]),
+        }
+      );
+
+      return Buffer.concat([serializeFeatureFlags(features, 8), buffer]);
     };
 
     let buffer = serializeSet(guards);
 
-    if (groups.length > 0) {
-      const groupCountBuffer = Buffer.alloc(5);
-      beet.u8.write(groupCountBuffer, 0, 1);
-      beet.u32.write(groupCountBuffer, 1, groups.length);
-      buffer = Buffer.concat([buffer, groupCountBuffer]);
-    } else {
-      buffer = Buffer.concat([buffer, Buffer.from([0])]);
-    }
+    const groupCountBuffer = Buffer.alloc(4);
+    beet.u32.write(groupCountBuffer, 0, groups.length);
+    buffer = Buffer.concat([buffer, groupCountBuffer]);
 
     groups.forEach((group) => {
-      const labelBuffer = Buffer.alloc(4 + CANDY_GUARD_LABEL_SIZE);
-      beet
-        .fixedSizeUtf8String(CANDY_GUARD_LABEL_SIZE)
-        .write(
-          labelBuffer,
-          0,
-          padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE)
+      if (group.label.length > CANDY_GUARD_LABEL_SIZE) {
+        throw new GuardGroupLabelTooLongError(
+          group.label,
+          CANDY_GUARD_LABEL_SIZE
         );
+      }
+      const labelBuffer = Buffer.alloc(CANDY_GUARD_LABEL_SIZE);
+      labelBuffer.write(
+        padEmptyChars(group.label, CANDY_GUARD_LABEL_SIZE),
+        0,
+        CANDY_GUARD_LABEL_SIZE,
+        'utf8'
+      );
       buffer = Buffer.concat([buffer, labelBuffer, serializeSet(group.guards)]);
     });
 
