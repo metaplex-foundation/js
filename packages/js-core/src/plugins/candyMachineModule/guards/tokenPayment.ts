@@ -27,7 +27,7 @@ import {
  */
 export type TokenPaymentGuardSettings = {
   /** The mint address of the required tokens. */
-  tokenMint: PublicKey;
+  mint: PublicKey;
 
   /** The amount of tokens required to mint an NFT. */
   amount: SplTokenAmount;
@@ -43,12 +43,20 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<TokenPaymentGuardSett
     settingsBytes: 72,
     settingsSerializer: mapSerializer<TokenPayment, TokenPaymentGuardSettings>(
       createSerializerFromBeet(tokenPaymentBeet),
-      (settings) => ({ ...settings, amount: token(settings.amount) }),
-      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+      (settings) => ({
+        mint: settings.mint,
+        amount: token(settings.amount),
+        destinationAta: settings.destinationAta,
+      }),
+      (settings) => ({
+        mint: settings.mint,
+        amount: settings.amount.basisPoints,
+        destinationAta: settings.destinationAta,
+      })
     ),
     mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
       const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
-        mint: settings.tokenMint,
+        mint: settings.mint,
         owner: payer.publicKey,
         programs,
       });

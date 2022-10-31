@@ -42,10 +42,10 @@ export class ListingReceiptGpaBuilder extends GpaBuilder {
   }
 
   whereSeller(sellerAddress: PublicKey) {
-    return this.listingReceiptAccounts().where(SELLER, sellerAddress);
+    return this.where(SELLER, sellerAddress);
   }
 
   whereMetadata(metadataAddress: PublicKey) {
-    return this.listingReceiptAccounts().where(METADATA, metadataAddress);
+    return this.where(METADATA, metadataAddress);
   }
 }
