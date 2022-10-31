@@ -1,10 +1,6 @@
-import {
-  createInitializeInstruction,
-  initializeInstructionDiscriminator,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { createInitializeInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import {
-  SendAndConfirmTransactionResponse,
   TransactionBuilder,
   TransactionBuilderOptions,
   makeConfirmOptionsFinalizedOnMainnet,
@@ -12,15 +8,11 @@ import {
   OperationHandler,
   OperationScope,
   Pda,
-  serializeDiscriminator,
   Signer,
   Metaplex,
+  SendAndConfirmTransactionResponse,
 } from '@metaplex-foundation/js-core';
-import {
-  CandyGuardsSettings,
-  DefaultCandyGuardSettings,
-  emptyDefaultCandyGuardSettings,
-} from '../guards';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { CandyGuard } from '../models/CandyGuard';
 
 // -----------------
@@ -221,38 +213,15 @@ export const createCandyGuardBuilder = <
   const base = params.base ?? Keypair.generate();
   const authority = params.authority ?? metaplex.identity().publicKey;
   const candyGuardProgram = metaplex.programs().getCandyGuard(programs);
-  const candyGuard = metaplex
-    .candyMachines()
-    .pdas()
-    .candyGuard({ base: base.publicKey, programs });
-
-  const initializeInstruction = createInitializeInstruction(
-    {
-      candyGuard,
-      base: base.publicKey,
-      authority,
-      payer: payer.publicKey,
-    },
-    {
-      data: {
-        default: emptyDefaultCandyGuardSettings,
-        groups: null,
-      },
-    },
-    candyGuardProgram.address
-  );
+  const candyGuard = metaplex.candyMachines().pdas().candyGuard({
+    base: base.publicKey,
+    programs,
+  });
 
   const serializedSettings = metaplex
     .candyMachines()
     .guards()
     .serializeSettings<T>(params.guards, params.groups ?? [], programs);
-  const discriminator = serializeDiscriminator(
-    initializeInstructionDiscriminator
-  );
-  initializeInstruction.data = Buffer.concat([
-    discriminator,
-    serializedSettings,
-  ]);
 
   return (
     TransactionBuilder.make<CreateCandyGuardBuilderContext>()
@@ -261,7 +230,16 @@ export const createCandyGuardBuilder = <
 
       // Create and initialize the candy guard account.
       .add({
-        instruction: initializeInstruction,
+        instruction: createInitializeInstruction(
+          {
+            candyGuard,
+            base: base.publicKey,
+            authority,
+            payer: payer.publicKey,
+          },
+          { data: serializedSettings },
+          candyGuardProgram.address
+        ),
         signers: [base, payer],
         key: params.createCandyGuardInstructionKey ?? 'createCandyGuard',
       })

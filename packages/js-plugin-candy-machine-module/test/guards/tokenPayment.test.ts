@@ -32,7 +32,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     guards: {
       tokenPayment: {
         amount: token(5),
-        tokenMint: tokenTreasury.mint.address,
+        mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
     },
@@ -99,7 +99,7 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
     guards: {
       tokenPayment: {
         amount: token(5),
-        tokenMint: tokenTreasury.mint.address,
+        mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
     },
@@ -146,7 +146,7 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
       },
       tokenPayment: {
         amount: token(5),
-        tokenMint: tokenTreasury.mint.address,
+        mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
     },

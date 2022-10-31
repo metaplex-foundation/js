@@ -28,20 +28,20 @@ import {
   findBidByReceiptOperation,
   FindBidByTradeStateInput,
   findBidByTradeStateOperation,
-  FindBidsByPublicKeyFieldInput,
-  findBidsByPublicKeyFieldOperation,
+  FindBidsInput,
+  findBidsOperation,
   FindListingByReceiptInput,
   findListingByReceiptOperation,
   FindListingByTradeStateInput,
   findListingByTradeStateOperation,
-  FindListingsByPublicKeyFieldInput,
-  findListingsByPublicKeyFieldOperation,
+  FindListingsInput,
+  findListingsOperation,
   FindPurchaseByReceiptInput,
   findPurchaseByReceiptOperation,
   FindPurchaseByTradeStateInput,
   findPurchaseByTradeStateOperation,
-  FindPurchasesByPublicKeyFieldInput,
-  findPurchasesByPublicKeyFieldOperation,
+  FindPurchasesInput,
+  findPurchasesOperation,
   GetBuyerBalanceInput,
   getBuyerBalanceOperation,
   LoadBidInput,
@@ -205,11 +205,11 @@ export class AuctionHouseClient {
       .execute(findBidByTradeStateOperation(input), options);
   }
 
-  /** {@inheritDoc findBidsByPublicKeyFieldOperation} */
-  findBidsBy(input: FindBidsByPublicKeyFieldInput, options?: OperationOptions) {
+  /** {@inheritDoc findBidsOperation} */
+  findBids(input: FindBidsInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .execute(findBidsByPublicKeyFieldOperation(input), options);
+      .execute(findBidsOperation(input), options);
   }
 
   /** {@inheritDoc findListingByTradeStateOperation} */
@@ -232,14 +232,11 @@ export class AuctionHouseClient {
       .execute(findListingByReceiptOperation(input), options);
   }
 
-  /** {@inheritDoc findListingsByPublicKeyFieldOperation} */
-  findListingsBy(
-    input: FindListingsByPublicKeyFieldInput,
-    options?: OperationOptions
-  ) {
+  /** {@inheritDoc findListingsOperation} */
+  findListings(input: FindListingsInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .execute(findListingsByPublicKeyFieldOperation(input), options);
+      .execute(findListingsOperation(input), options);
   }
 
   /** {@inheritDoc findPurchaseByTradeStateOperation} */
@@ -262,14 +259,11 @@ export class AuctionHouseClient {
       .execute(findPurchaseByReceiptOperation(input), options);
   }
 
-  /** {@inheritDoc findPurchasesByPublicKeyFieldOperation} */
-  findPurchasesBy(
-    input: FindPurchasesByPublicKeyFieldInput,
-    options?: OperationOptions
-  ) {
+  /** {@inheritDoc findPurchasesOperation} */
+  findPurchases(input: FindPurchasesInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
-      .execute(findPurchasesByPublicKeyFieldOperation(input), options);
+      .execute(findPurchasesOperation(input), options);
   }
 
   /** {@inheritDoc getBuyerBalanceOperation} */

@@ -9,7 +9,7 @@ import {
 } from './helpers';
 
 import { createAuctionHouse } from './helpers';
-import { sol } from '@metaplex-foundation/js-core';
+import { sol } from '@/types';
 import { LazyPurchase } from '../src';
 
 killStuckProcess();
