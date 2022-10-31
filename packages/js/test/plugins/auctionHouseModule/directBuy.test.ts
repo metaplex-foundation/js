@@ -64,19 +64,13 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
 });
 
 test('[auctionHouseModule] partial buy on an Auction House', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+  // Given we have an Auction House and an SFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const auctionHouse = await createAuctionHouse(mx);
   const sft = await createSft(mx, {
     tokenOwner: seller.publicKey,
     tokenAmount: token(10)
-  });
-
-  await mx.tokens().mint({
-    mintAddress: sft.address,
-    amount: token(10),
-    toOwner: seller.publicKey
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
@@ -111,19 +105,13 @@ test('[auctionHouseModule] partial buy on an Auction House', async (t: Test) => 
 });
 
 test('[auctionHouseModule] partial buy on an Auction House with exact price', async (t: Test) => {
-  // Given we have an Auction House and an NFT.
+  // Given we have an Auction House and an SFT.
   const mx = await metaplex();
   const seller = await createWallet(mx);
   const auctionHouse = await createAuctionHouse(mx);
   const sft = await createSft(mx, {
     tokenOwner: seller.publicKey,
     tokenAmount: token(10)
-  });
-
-  await mx.tokens().mint({
-    mintAddress: sft.address,
-    amount: token(10),
-    toOwner: seller.publicKey
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
