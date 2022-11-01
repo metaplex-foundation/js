@@ -49,7 +49,7 @@
     "@metaplex-foundation/mpl-auction-house": "^2.1.1",
     "@metaplex-foundation/mpl-candy-guard": "^0.3.0",
     "@metaplex-foundation/mpl-candy-machine": "^4.6.0",
-    "@metaplex-foundation/mpl-candy-machine-core": "^0.1.0",
+    "@metaplex-foundation/mpl-candy-machine-core": "^0.1.2",
     "@metaplex-foundation/mpl-token-metadata": "^2.3.3",
     "@noble/ed25519": "^1.7.1",
     "@noble/hashes": "^1.1.3",
