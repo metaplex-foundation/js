@@ -8,9 +8,10 @@ import {
 import { UnrecognizePathForRouteInstructionError } from '../errors';
 import {
   CandyGuardManifest,
-  RouteSettingsParserInput,
   CandyGuardsRemainingAccount,
+  RouteSettingsParserInput,
 } from './core';
+import { assert } from '@/utils';
 import {
   BigNumber,
   createSerializerFromBeet,
@@ -20,7 +21,6 @@ import {
   Signer,
   SolAmount,
 } from '@/types';
-import { assert } from '@/utils';
 
 /**
  * The solPayment guard allows minting frozen NFTs by charging
@@ -69,6 +69,13 @@ export type FreezeSolPaymentGuardRouteSettings =
 
       /** The owner address of the NFT to thaw. */
       nftOwner: PublicKey;
+    }
+  | {
+      /** Selects the path to execute in the route instruction. */
+      path: 'unlockFunds';
+
+      /** The authority of the Candy Guard as a Signer. */
+      candyGuardAuthority: Signer;
     };
 
 /** @internal */
@@ -135,6 +142,8 @@ export const freezeSolPaymentGuardManifest: CandyGuardManifest<
         return initializeRouteInstruction(input);
       case 'thaw':
         return thawRouteInstruction(input);
+      case 'unlockFunds':
+        return unlockFundsRouteInstruction(input);
       default:
         throw new UnrecognizePathForRouteInstructionError(
           'freezeSolPayment',
@@ -256,6 +265,56 @@ function thawRouteInstruction({
         isSigner: false,
         address: tokenProgram.address,
         isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: systemProgram.address,
+        isWritable: false,
+      },
+    ] as CandyGuardsRemainingAccount[],
+  };
+}
+
+function unlockFundsRouteInstruction({
+  metaplex,
+  settings,
+  routeSettings,
+  candyMachine,
+  candyGuard,
+  programs,
+}: RouteSettingsParserInput<
+  FreezeSolPaymentGuardSettings,
+  FreezeSolPaymentGuardRouteSettings
+>) {
+  assert(routeSettings.path === 'unlockFunds');
+  const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+    destination: settings.destination,
+    candyMachine,
+    candyGuard,
+    programs,
+  });
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  const args = Buffer.alloc(1);
+  beet.u8.write(args, 0, FreezeInstruction.UnlockFunds);
+
+  return {
+    arguments: args,
+    remainingAccounts: [
+      {
+        isSigner: false,
+        address: freezeEscrow,
+        isWritable: true,
+      },
+      {
+        isSigner: true,
+        address: routeSettings.candyGuardAuthority,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: settings.destination,
+        isWritable: true,
       },
       {
         isSigner: false,
