@@ -2,6 +2,7 @@ import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test from 'tape';
 import {
+  assertThrows,
   createWallet,
   killStuckProcess,
   metaplex,
@@ -78,7 +79,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenPayment: {
         amount: token(5),
-        tokenMint,
+        mint: tokenMint,
         destinationAta: tokenDestination,
       },
       startDate: {
@@ -143,7 +144,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenPayment: {
         amount: spokSameAmount(token(5)),
-        tokenMint: spokSamePubkey(tokenMint),
+        mint: spokSamePubkey(tokenMint),
         destinationAta: spokSamePubkey(tokenDestination),
       },
       startDate: {
@@ -325,6 +326,29 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
       },
     ],
   } as unknown as Specifications<CandyGuard<DefaultCandyGuardSettings>>);
+});
+
+test('[candyMachineModule] it fails to create a group with a label that is too long', async (t) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a new Candy Guard with a group label that is too long.
+  const promise = mx.candyMachines().createCandyGuard({
+    guards: {},
+    groups: [
+      {
+        label: 'IAMALABELTHATISTOOLONG',
+        guards: {},
+      },
+    ],
+  });
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /The provided group label \[IAMALABELTHATISTOOLONG\] is too long./
+  );
 });
 
 test('[candyMachineModule] create candy guard with explicit authority', async (t) => {
