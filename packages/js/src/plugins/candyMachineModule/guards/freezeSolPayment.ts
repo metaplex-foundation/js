@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import * as beet from '@metaplex-foundation/beet';
 import {
+  FreezeInstruction,
   FreezeSolPayment,
   freezeSolPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
@@ -48,16 +49,27 @@ export type FreezeSolPaymentGuardSettings = {
 /**
  * TODO(loris): Document
  */
-export type FreezeSolPaymentGuardRouteSettings = {
-  /** Selects the path to execute in the route instruction. */
-  path: 'initialize';
+export type FreezeSolPaymentGuardRouteSettings =
+  | {
+      /** Selects the path to execute in the route instruction. */
+      path: 'initialize';
 
-  /** The freeze period in seconds (maximum 30 days). */
-  period: BigNumber;
+      /** The freeze period in seconds (maximum 30 days). */
+      period: BigNumber;
 
-  /** The authority of the Candy Guard as a Signer. */
-  candyGuardAuthority: Signer;
-};
+      /** The authority of the Candy Guard as a Signer. */
+      candyGuardAuthority: Signer;
+    }
+  | {
+      /** Selects the path to execute in the route instruction. */
+      path: 'thaw';
+
+      /** The mint address of the NFT to thaw. */
+      nftMint: PublicKey;
+
+      /** The owner address of the NFT to thaw. */
+      nftOwner: PublicKey;
+    };
 
 /** @internal */
 export const freezeSolPaymentGuardManifest: CandyGuardManifest<
@@ -118,18 +130,22 @@ export const freezeSolPaymentGuardManifest: CandyGuardManifest<
     };
   },
   routeSettingsParser: (input) => {
-    if (input.routeSettings.path === 'initialize') {
-      return initializeRouteInstruction(input);
+    switch (input.routeSettings.path) {
+      case 'initialize':
+        return initializeRouteInstruction(input);
+      case 'thaw':
+        return thawRouteInstruction(input);
+      default:
+        throw new UnrecognizePathForRouteInstructionError(
+          'freezeSolPayment',
+          // @ts-ignore
+          input.routeSettings.path
+        );
     }
-
-    throw new UnrecognizePathForRouteInstructionError(
-      'freezeSolPayment',
-      input.routeSettings.path
-    );
   },
 };
 
-const initializeRouteInstruction = ({
+function initializeRouteInstruction({
   metaplex,
   settings,
   routeSettings,
@@ -139,22 +155,18 @@ const initializeRouteInstruction = ({
 }: RouteSettingsParserInput<
   FreezeSolPaymentGuardSettings,
   FreezeSolPaymentGuardRouteSettings
->) => {
-  assert(
-    routeSettings.path === 'initialize',
-    'Route path must be "initialize"'
-  );
-
+>) {
+  assert(routeSettings.path === 'initialize');
   const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
     destination: settings.destination,
     candyMachine,
     candyGuard,
     programs,
   });
-  const systemProgram = metaplex.programs().getSystem();
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   const args = Buffer.alloc(9);
-  beet.u8.write(args, 0, 1);
+  beet.u8.write(args, 0, FreezeInstruction.Initialize);
   beet.u64.write(args, 1, routeSettings.period);
 
   return {
@@ -177,4 +189,79 @@ const initializeRouteInstruction = ({
       },
     ] as CandyGuardsRemainingAccount[],
   };
-};
+}
+
+function thawRouteInstruction({
+  metaplex,
+  settings,
+  routeSettings,
+  candyMachine,
+  candyGuard,
+  programs,
+}: RouteSettingsParserInput<
+  FreezeSolPaymentGuardSettings,
+  FreezeSolPaymentGuardRouteSettings
+>) {
+  assert(routeSettings.path === 'thaw');
+  const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+    destination: settings.destination,
+    candyMachine,
+    candyGuard,
+    programs,
+  });
+  const nftAta = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: routeSettings.nftMint,
+    owner: routeSettings.nftOwner,
+    programs,
+  });
+  const nftEdition = metaplex.nfts().pdas().masterEdition({
+    mint: routeSettings.nftMint,
+    programs,
+  });
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  const args = Buffer.alloc(1);
+  beet.u8.write(args, 0, FreezeInstruction.Thaw);
+
+  return {
+    arguments: args,
+    remainingAccounts: [
+      {
+        isSigner: false,
+        address: freezeEscrow,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: routeSettings.nftMint,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: routeSettings.nftOwner,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: nftAta,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: nftEdition,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: tokenProgram.address,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: systemProgram.address,
+        isWritable: false,
+      },
+    ] as CandyGuardsRemainingAccount[],
+  };
+}
