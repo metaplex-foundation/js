@@ -279,6 +279,7 @@ export class CandyMachineGuardsClient {
         mint,
         candyMachine,
         candyGuard: candyGuard.address,
+        candyGuardAuthority: candyGuard.authorityAddress,
         programs,
       });
 
@@ -334,6 +335,7 @@ export class CandyMachineGuardsClient {
       payer,
       candyMachine,
       candyGuard: candyGuard.address,
+      candyGuardAuthority: candyGuard.authorityAddress,
       programs,
     });
 

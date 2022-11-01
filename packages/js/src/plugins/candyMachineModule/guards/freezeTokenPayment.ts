@@ -111,6 +111,12 @@ export const freezeTokenPaymentGuardManifest: CandyGuardManifest<FreezeTokenPaym
             isWritable: false,
           },
         ],
+        routeSettingsParser: () => {
+          return {
+            arguments: Buffer.from([]),
+            remainingAccounts: [],
+          };
+        },
       };
     },
   };

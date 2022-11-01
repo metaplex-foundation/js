@@ -76,6 +76,8 @@ export type MintSettingsParserInput<Settings, MintSettings> = {
   candyMachine: PublicKey;
   /** The address of the Candy Guard we are minting from. */
   candyGuard: PublicKey;
+  /** The address of the Candy Guard's authority. */
+  candyGuardAuthority: PublicKey;
   /** An optional set of programs that override the registered ones. */
   programs: Program[];
 };
@@ -94,6 +96,8 @@ export type RouteSettingsParserInput<Settings, RouteSettings> = {
   candyMachine: PublicKey;
   /** The address of the Candy Guard we are routing from. */
   candyGuard: PublicKey;
+  /** The address of the Candy Guard's authority. */
+  candyGuardAuthority: PublicKey;
   /** An optional set of programs that override the registered ones. */
   programs: Program[];
 };
