@@ -45,6 +45,8 @@ export type CandyGuardManifest<
     mintSettings: Option<MintSettings>;
     /** The minting wallet as a Signer. */
     payer: Signer;
+    /** The NFT mint account as a Signer. */
+    mint: Signer;
     /** The address of the Candy Machine we are minting from. */
     candyMachine: PublicKey;
     /** The address of the Candy Guard we are minting from. */

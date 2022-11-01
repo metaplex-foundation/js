@@ -428,6 +428,7 @@ export const mintFromCandyMachineBuilder = async <
       candyMachine.address,
       candyGuard,
       payer,
+      mint,
       guards,
       group,
       programs

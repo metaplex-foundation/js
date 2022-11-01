@@ -245,6 +245,7 @@ export class CandyMachineGuardsClient {
     candyMachine: PublicKey,
     candyGuard: CandyGuard<Settings>,
     payer: Signer,
+    mint: Signer,
     guardMintSettings: Partial<MintSettings>,
     groupLabel: Option<string>,
     programs: Program[] = []
@@ -275,6 +276,7 @@ export class CandyMachineGuardsClient {
         settings,
         mintSettings,
         payer,
+        mint,
         candyMachine,
         candyGuard: candyGuard.address,
         programs,
