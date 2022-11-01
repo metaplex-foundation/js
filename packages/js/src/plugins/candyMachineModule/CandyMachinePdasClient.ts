@@ -108,4 +108,32 @@ export class CandyMachinePdasClient {
       candyMachine.toBuffer(),
     ]);
   }
+
+  /**
+   * Finds the Freeze PDA used as an escrow account by
+   * the freezeSolPayment and freezeTokenPayment guards.
+   */
+  freezeEscrow({
+    destination,
+    candyMachine,
+    candyGuard,
+    programs,
+  }: {
+    /** The wallet that will eventually receive the funds. */
+    destination: PublicKey;
+    /** The address of the Candy Guard account. */
+    candyGuard: PublicKey;
+    /** The address of the Candy Machine account. */
+    candyMachine: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const program = this.metaplex.programs().getCandyGuard(programs);
+    return Pda.find(program.address, [
+      Buffer.from('freeze_escrow', 'utf8'),
+      destination.toBuffer(),
+      candyGuard.toBuffer(),
+      candyMachine.toBuffer(),
+    ]);
+  }
 }
