@@ -30,6 +30,10 @@ import {
   wrapCandyGuardBuilder,
   WrapCandyGuardBuilderParams,
 } from './operations';
+import {
+  updateCandyGuardAuthorityBuilder,
+  UpdateCandyGuardAuthorityBuilderParams,
+} from './operations/updateCandyGuardAuthority';
 import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
@@ -128,6 +132,14 @@ export class CandyMachineBuildersClient {
     options?: TransactionBuilderOptions
   ) {
     return updateCandyGuardBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc updateCandyGuardAuthorityBuilder} */
+  updateCandyGuardAuthority(
+    input: UpdateCandyGuardAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return updateCandyGuardAuthorityBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc wrapCandyGuardBuilder} */

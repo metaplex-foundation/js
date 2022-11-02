@@ -55,6 +55,10 @@ import {
   defaultCandyGuardProgram,
   gatewayProgram,
 } from './programs';
+import {
+  updateCandyGuardAuthorityOperation,
+  updateCandyGuardAuthorityOperationHandler,
+} from './operations/updateCandyGuardAuthority';
 import { MetaplexPlugin, OperationConstructor, Program } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -149,6 +153,10 @@ export const candyMachineModule = (): MetaplexPlugin => ({
       mintFromCandyMachineOperationHandler
     );
     op.register(unwrapCandyGuardOperation, unwrapCandyGuardOperationHandler);
+    op.register(
+      updateCandyGuardAuthorityOperation,
+      updateCandyGuardAuthorityOperationHandler
+    );
     op.register(updateCandyGuardOperation, updateCandyGuardOperationHandler);
     op.register(
       updateCandyMachineOperation,

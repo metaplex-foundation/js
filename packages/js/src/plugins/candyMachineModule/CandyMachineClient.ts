@@ -40,6 +40,10 @@ import {
   WrapCandyGuardInput,
   wrapCandyGuardOperation,
 } from './operations';
+import {
+  UpdateCandyGuardAuthorityInput,
+  updateCandyGuardAuthorityOperation,
+} from './operations/updateCandyGuardAuthority';
 import { OperationOptions, toPublicKey } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -297,6 +301,16 @@ export class CandyMachineClient {
     return this.metaplex
       .operations()
       .execute(updateCandyGuardOperation(input), options);
+  }
+
+  /** {@inheritDoc updateCandyGuardAuthorityOperation} */
+  updateCandyGuardAuthority(
+    input: UpdateCandyGuardAuthorityInput,
+    options?: OperationOptions
+  ) {
+    return this.metaplex
+      .operations()
+      .execute(updateCandyGuardAuthorityOperation(input), options);
   }
 
   /** {@inheritDoc wrapCandyGuardOperation} */
