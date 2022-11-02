@@ -131,6 +131,10 @@ export type UpdateCandyMachineInput<
    * Warning: This means the current `authority` Signer will no longer be able
    * to manage the Candy Machine.
    *
+   * Note that if your Candy Machine has a Candy Guard associated to it,
+   * you might want to also update the Candy Guard's authority using the
+   * `newCandyGuardAuthority` parameter.
+   *
    * @defaultValue Defaults to not being updated.
    */
   newAuthority?: PublicKey;
@@ -152,9 +156,7 @@ export type UpdateCandyMachineInput<
    * Warning: This means the current Candy Guard `authority` Signer will
    * no longer be able to manage the Candy Guard account.
    *
-   * @defaultValue
-   * - If `newAuthority` is provided, defaults to `newAuthority`.
-   * - Otherwise, defaults to not being updated.
+   * @defaultValue Defaults to not being updated.
    */
   newCandyGuardAuthority?: PublicKey;
 
@@ -711,30 +713,26 @@ const updateCandyGuardAuthorityBuilder = <
   payer: Signer,
   programs?: Program[]
 ): TransactionBuilder => {
-  const newCandyGuardAuthority =
-    params.newCandyGuardAuthority ?? params.newAuthority;
-
-  if (!newCandyGuardAuthority) {
+  if (!params.newCandyGuardAuthority) {
     return TransactionBuilder.make();
   }
 
-  if (
-    !params.candyGuard ||
-    !isCandyMachine<T>(params.candyMachine) ||
-    !params.candyMachine.candyGuard
-  ) {
+  const candyGuardAddress =
+    params.candyGuard ??
+    (isCandyMachine<T>(params.candyMachine) && params.candyMachine.candyGuard
+      ? params.candyMachine.candyGuard.address
+      : null);
+
+  if (!candyGuardAddress) {
     throw onMissingInputError(['candyGuard']);
   }
-
-  const candyGuardAddress =
-    params.candyGuard ?? params.candyMachine.candyGuard.address;
 
   return TransactionBuilder.make().add(
     metaplex.candyMachines().builders().updateCandyGuardAuthority(
       {
         candyGuard: candyGuardAddress,
         authority: candyGuardAuthority,
-        newAuthority: newCandyGuardAuthority,
+        newAuthority: params.newCandyGuardAuthority,
         instructionKey: params.setCandyGuardAuthorityInstructionKey,
       },
       { payer, programs }
