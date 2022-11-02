@@ -1,20 +1,20 @@
-import { ConfirmOptions } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   createWithdrawFromFeeInstruction,
   WithdrawFromFeeInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse } from '../models';
+import type { Metaplex } from '@/Metaplex';
 import {
-  useOperation,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SolAmount,
   SplTokenAmount,
+  useOperation,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -29,8 +29,7 @@ const Key = 'WithdrawFromFeeAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .withdrawFromFeeAccount({ auctionHouse, amount })
- *   .run();
+ *   .withdrawFromFeeAccount({ auctionHouse, amount };
  * ```
  *
  * @group Operations
@@ -74,20 +73,10 @@ export type WithdrawFromFeeAccountInput = {
   authority?: Signer;
 
   /**
-   * The Signer paying for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
   amount: SolAmount | SplTokenAmount;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -107,12 +96,14 @@ export const withdrawFromFeeAccountOperationHandler: OperationHandler<WithdrawFr
   {
     handle: async (
       operation: WithdrawFromFeeAccountOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) =>
-      withdrawFromFeeAccountBuilder(metaplex, operation.input).sendAndConfirm(
+      withdrawFromFeeAccountBuilder(
         metaplex,
-        operation.input.confirmOptions
-      ),
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions),
   };
 
 // -----------------
@@ -155,14 +146,15 @@ export type WithdrawFromFeeAccountBuilderContext = Omit<
  */
 export const withdrawFromFeeAccountBuilder = (
   metaplex: Metaplex,
-  params: WithdrawFromFeeAccountBuilderParams
+  params: WithdrawFromFeeAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromFeeAccountBuilderContext> => {
   // Data.
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     amount,
     instructionKey,
-    payer = metaplex.identity(),
     authority = metaplex.identity(),
   } = params;
 
@@ -174,21 +166,17 @@ export const withdrawFromFeeAccountBuilder = (
     auctionHouseFeeAccount: auctionHouse.feeAccountAddress,
   };
 
-  // Args.
-  const args = {
-    amount: amount.basisPoints,
-  };
-
   // Withdraw From Fee Instruction.
   const withdrawFromFeeInstruction = createWithdrawFromFeeInstruction(
     accounts,
-    args
+    { amount: amount.basisPoints }
   );
 
   // Signers.
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
+
       // Withdraw From Fee.
       .add({
         instruction: withdrawFromFeeInstruction,

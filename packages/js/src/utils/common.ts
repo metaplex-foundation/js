@@ -36,8 +36,8 @@ export const zipMap = <T, U, V>(
 ): V[] => left.map((t: T, index) => fn(t, right?.[index] ?? null, index));
 
 export const randomStr = (
-  length: number = 20,
-  alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  length = 20,
+  alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 ) => {
   let result = '';
   const alphabetLength = alphabet.length;
@@ -90,3 +90,17 @@ export const walk = (
     });
   }
 };
+
+export const removeUndefinedAttributes = <
+  T extends {
+    [key: string]: any;
+  }
+>(
+  object: T
+): { [key in keyof T]-?: T[key] } =>
+  Object.keys(object).reduce((acc, key: keyof T) => {
+    if (object[key] !== undefined) {
+      acc[key] = object[key];
+    }
+    return acc;
+  }, {} as { [key in keyof T]-?: T[key] });

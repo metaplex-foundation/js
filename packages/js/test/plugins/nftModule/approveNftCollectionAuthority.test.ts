@@ -1,4 +1,3 @@
-import { Nft } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -10,6 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { assertRefreshedCollectionHasSize } from './helpers';
+import { Nft } from '@/index';
 
 killStuckProcess();
 
@@ -31,28 +31,22 @@ test('[nftModule] it can approve a collection authority for a given NFT', async 
 
   // When we approve a new delegated collection authority.
   const delegatedCollectionAuthority = Keypair.generate();
-  await mx
-    .nfts()
-    .approveCollectionAuthority({
-      mintAddress: collection.address,
-      collectionAuthority: delegatedCollectionAuthority.publicKey,
-      updateAuthority: collectionAuthority,
-    })
-    .run();
+  await mx.nfts().approveCollectionAuthority({
+    mintAddress: collection.address,
+    collectionAuthority: delegatedCollectionAuthority.publicKey,
+    updateAuthority: collectionAuthority,
+  });
 
   // Then that delegated authority can successfully verify the NFT.
-  await mx
-    .nfts()
-    .verifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority: delegatedCollectionAuthority,
-      isDelegated: true,
-    })
-    .run();
+  await mx.nfts().verifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority: delegatedCollectionAuthority,
+    isDelegated: true,
+  });
 
   // And the NFT should now be verified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',

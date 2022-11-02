@@ -1,16 +1,16 @@
+import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   BigNumber,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findCollectionAuthorityRecordPda, findMetadataPda } from '../pdas';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -26,8 +26,7 @@ const Key = 'MigrateToSizedCollectionNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) })
- *   .run();
+ *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) };
  * ```
  *
  * @group Operations
@@ -79,9 +78,6 @@ export type MigrateToSizedCollectionNftInput = {
    * @defaultValue `false`
    */
   isDelegated?: boolean;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -101,12 +97,14 @@ export const migrateToSizedCollectionNftOperationHandler: OperationHandler<Migra
   {
     handle: async (
       operation: MigrateToSizedCollectionNftOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<MigrateToSizedCollectionNftOutput> => {
       return migrateToSizedCollectionNftBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -143,8 +141,10 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
  */
 export const migrateToSizedCollectionNftBuilder = (
   metaplex: Metaplex,
-  params: MigrateToSizedCollectionNftBuilderParams
+  params: MigrateToSizedCollectionNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     collectionAuthority = metaplex.identity(),
@@ -152,24 +152,33 @@ export const migrateToSizedCollectionNftBuilder = (
     isDelegated = false,
   } = params;
 
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const nftPdas = metaplex.nfts().pdas();
+
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Update the metadata account.
       .add({
         instruction: createSetCollectionSizeInstruction(
           {
-            collectionMetadata: findMetadataPda(mintAddress),
+            collectionMetadata: nftPdas.metadata({
+              mint: mintAddress,
+              programs,
+            }),
             collectionAuthority: collectionAuthority.publicKey,
             collectionMint: mintAddress,
             collectionAuthorityRecord: isDelegated
-              ? findCollectionAuthorityRecordPda(
-                  mintAddress,
-                  collectionAuthority.publicKey
-                )
+              ? nftPdas.collectionAuthorityRecord({
+                  mint: mintAddress,
+                  collectionAuthority: collectionAuthority.publicKey,
+                  programs,
+                })
               : undefined,
           },
-          { setCollectionSizeArgs: { size } }
+          { setCollectionSizeArgs: { size } },
+          tokenMetadataProgram.address
         ),
         signers: [collectionAuthority],
         key: params.instructionKey ?? 'setCollectionSize',

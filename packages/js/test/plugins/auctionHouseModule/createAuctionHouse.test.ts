@@ -8,13 +8,7 @@ import {
   assertThrows,
   createWallet,
 } from '../../helpers';
-import {
-  findAuctionHouseFeePda,
-  findAuctionHousePda,
-  findAuctionHouseTreasuryPda,
-  findAuctioneerPda,
-  WRAPPED_SOL_MINT,
-} from '@/index';
+import { WRAPPED_SOL_MINT } from '@/index';
 import { AUCTIONEER_ALL_SCOPES } from '@/plugins/auctionHouseModule/constants';
 
 killStuckProcess();
@@ -26,13 +20,15 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   // When we create a new Auction House with minimum configuration.
   const { auctionHouse } = await mx
     .auctionHouse()
-    .create({ sellerFeeBasisPoints: 200 })
-    .run();
+    .create({ sellerFeeBasisPoints: 200 });
 
   // Then we created and returned the new Auction House and it has appropriate defaults.
   const expectedCreator = mx.identity().publicKey;
   const expectedMint = WRAPPED_SOL_MINT;
-  const expectedAddress = findAuctionHousePda(expectedCreator, expectedMint);
+  const expectedAddress = mx.auctionHouse().pdas().auctionHouse({
+    creator: expectedCreator,
+    treasuryMint: expectedMint,
+  });
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
     creatorAddress: spokSamePubkey(expectedCreator),
@@ -40,9 +36,11 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
     treasuryMint: {
       address: spokSamePubkey(expectedMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: expectedAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(expectedAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: expectedAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
     treasuryWithdrawalDestinationAddress: spokSamePubkey(expectedCreator),
@@ -57,8 +55,7 @@ test('[auctionHouseModule] create new Auction House with minimum configuration',
   // And we get the same result when we fetch the Auction House by address.
   const retrievedAuctionHouse = await mx
     .auctionHouse()
-    .findByAddress({ address: auctionHouse.address })
-    .run();
+    .findByAddress({ address: auctionHouse.address });
 
   spok(t, retrievedAuctionHouse, {
     $topic: 'Retrieved Auction House',
@@ -75,26 +72,25 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
   const authority = mx.identity();
   const feeWithdrawalDestination = Keypair.generate();
   const treasuryWithdrawalDestinationOwner = Keypair.generate();
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
+  const { auctionHouse } = await mx.auctionHouse().create(
+    {
       sellerFeeBasisPoints: 200,
       requiresSignOff: true,
       canChangeSalePrice: true,
-      treasuryMint: treasuryMint,
-      payer: authority,
+      treasuryMint,
       authority: authority.publicKey,
       feeWithdrawalDestination: feeWithdrawalDestination.publicKey,
       treasuryWithdrawalDestinationOwner:
         treasuryWithdrawalDestinationOwner.publicKey,
-    })
-    .run();
+    },
+    { payer: authority }
+  );
 
   // Then the created Auction House has the expected configuration.
-  const expectedAddress = findAuctionHousePda(
-    authority.publicKey,
-    treasuryMint
-  );
+  const expectedAddress = mx.auctionHouse().pdas().auctionHouse({
+    creator: authority.publicKey,
+    treasuryMint,
+  });
   const expectedAuctionHouse = {
     address: spokSamePubkey(expectedAddress),
     creatorAddress: spokSamePubkey(authority.publicKey),
@@ -102,9 +98,11 @@ test('[auctionHouseModule] create new Auction House with maximum configuration',
     treasuryMint: {
       address: spokSamePubkey(treasuryMint),
     },
-    feeAccountAddress: spokSamePubkey(findAuctionHouseFeePda(expectedAddress)),
+    feeAccountAddress: spokSamePubkey(
+      mx.auctionHouse().pdas().fee({ auctionHouse: expectedAddress })
+    ),
     treasuryAccountAddress: spokSamePubkey(
-      findAuctionHouseTreasuryPda(expectedAddress)
+      mx.auctionHouse().pdas().treasury({ auctionHouse: expectedAddress })
     ),
     feeWithdrawalDestinationAddress: spokSamePubkey(
       feeWithdrawalDestination.publicKey
@@ -129,18 +127,14 @@ test('[auctionHouseModule] create new Auction House with SPL treasury', async (t
   const treasuryOwner = Keypair.generate().publicKey;
   const { token } = await mx
     .tokens()
-    .createTokenWithMint({ owner: treasuryOwner })
-    .run();
+    .createTokenWithMint({ owner: treasuryOwner });
 
   // When we create a new Auction House using that treasury.
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      treasuryMint: token.mint.address,
-      treasuryWithdrawalDestinationOwner: treasuryOwner,
-    })
-    .run();
+  const { auctionHouse } = await mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    treasuryMint: token.mint.address,
+    treasuryWithdrawalDestinationOwner: treasuryOwner,
+  });
 
   // Then the created Auction House stores the treasury information.
   spok(t, auctionHouse, {
@@ -160,19 +154,16 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
   const auctioneerAuthority = Keypair.generate();
 
   // When we create a new Auctioneer Auction House.
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-    })
-    .run();
+  const { auctionHouse } = await mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
 
   // Then the new Auction House has Auctioneer attached.
-  const ahAuctioneerPda = findAuctioneerPda(
-    auctionHouse.address,
-    auctioneerAuthority.publicKey
-  );
+  const ahAuctioneerPda = mx.auctionHouse().pdas().auctioneer({
+    auctionHouse: auctionHouse.address,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+  });
   spok(t, auctionHouse, {
     hasAuctioneer: true,
     auctioneer: {
@@ -195,14 +186,11 @@ test('[auctionHouseModule] create new Auctioneer Auction House with separate aut
   const authority = await createWallet(mx);
 
   // When we create a new Auctioneer Auction House with a separate authority.
-  const { auctionHouse } = await mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-      authority,
-    })
-    .run();
+  const { auctionHouse } = await mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+    authority,
+  });
 
   // Then the new Auction House has separate authority.
   t.equal(
@@ -222,14 +210,11 @@ test('[auctionHouseModule] it throws when creating Auctioneer Auction House with
   const authority = await createWallet(mx);
 
   // When we create a new Auctioneer Auction House with an separate authority provided as PublicKey.
-  const promise = mx
-    .auctionHouse()
-    .create({
-      sellerFeeBasisPoints: 200,
-      auctioneerAuthority: auctioneerAuthority.publicKey,
-      authority: authority.publicKey, // Provide PublicKey instead of Signer to catch an error
-    })
-    .run();
+  const promise = mx.auctionHouse().create({
+    sellerFeeBasisPoints: 200,
+    auctioneerAuthority: auctioneerAuthority.publicKey,
+    authority: authority.publicKey, // Provide PublicKey instead of Signer to catch an error
+  });
 
   // Then we expect an error because Auctioneer delegation requires authority signer.
   await assertThrows(

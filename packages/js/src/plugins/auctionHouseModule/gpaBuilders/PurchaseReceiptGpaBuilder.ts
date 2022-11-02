@@ -1,5 +1,5 @@
-import { GpaBuilder } from '@/utils';
 import { PublicKey } from '@solana/web3.js';
+import { GpaBuilder } from '@/utils';
 
 type AccountDiscriminator = [
   number,
@@ -34,14 +34,6 @@ export class PurchaseReceiptGpaBuilder extends GpaBuilder {
     return this.whereDiscriminator(purchaseReceiptDiscriminator);
   }
 
-  whereBuyer(buyerAddress: PublicKey) {
-    return this.purchaseReceiptAccounts().where(BUYER, buyerAddress);
-  }
-
-  whereSeller(sellerAddress: PublicKey) {
-    return this.purchaseReceiptAccounts().where(SELLER, sellerAddress);
-  }
-
   whereAuctionHouse(auctionHouseAddress: PublicKey) {
     return this.purchaseReceiptAccounts().where(
       AUCTION_HOUSE,
@@ -49,7 +41,15 @@ export class PurchaseReceiptGpaBuilder extends GpaBuilder {
     );
   }
 
+  whereBuyer(buyerAddress: PublicKey) {
+    return this.where(BUYER, buyerAddress);
+  }
+
+  whereSeller(sellerAddress: PublicKey) {
+    return this.where(SELLER, sellerAddress);
+  }
+
   whereMetadata(metadataAddress: PublicKey) {
-    return this.purchaseReceiptAccounts().where(METADATA, metadataAddress);
+    return this.where(METADATA, metadataAddress);
   }
 }

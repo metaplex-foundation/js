@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   approveNftCollectionAuthorityBuilder,
   ApproveNftCollectionAuthorityBuilderParams,
@@ -35,6 +34,8 @@ import {
   verifyNftCreatorBuilder,
   VerifyNftCreatorBuilderParams,
 } from './operations';
+import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilderOptions } from '@/utils';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -51,28 +52,34 @@ export class NftBuildersClient {
   // -----------------
 
   /** {@inheritDoc createNftBuilder} */
-  create(input: CreateNftBuilderParams) {
-    return createNftBuilder(this.metaplex, input);
+  create(input: CreateNftBuilderParams, options?: TransactionBuilderOptions) {
+    return createNftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc createSftBuilder} */
-  createSft(input: CreateSftBuilderParams) {
-    return createSftBuilder(this.metaplex, input);
+  createSft(
+    input: CreateSftBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createSftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc printNewEditionBuilder} */
-  printNewEdition(input: PrintNewEditionBuilderParams) {
-    return printNewEditionBuilder(this.metaplex, input);
+  printNewEdition(
+    input: PrintNewEditionBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return printNewEditionBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc updateNftBuilder} */
-  update(input: UpdateNftBuilderParams) {
-    return updateNftBuilder(this.metaplex, input);
+  update(input: UpdateNftBuilderParams, options?: TransactionBuilderOptions) {
+    return updateNftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc deleteNftBuilder} */
-  delete(input: DeleteNftBuilderParams) {
-    return deleteNftBuilder(this.metaplex, input);
+  delete(input: DeleteNftBuilderParams, options?: TransactionBuilderOptions) {
+    return deleteNftBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -80,18 +87,24 @@ export class NftBuildersClient {
   // -----------------
 
   /** {@inheritDoc useNftBuilder} */
-  use(input: UseNftBuilderParams) {
-    return useNftBuilder(this.metaplex, input);
+  use(input: UseNftBuilderParams, options?: TransactionBuilderOptions) {
+    return useNftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc approveNftUseAuthorityBuilder} */
-  approveUseAuthority(input: ApproveNftUseAuthorityBuilderParams) {
-    return approveNftUseAuthorityBuilder(this.metaplex, input);
+  approveUseAuthority(
+    input: ApproveNftUseAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return approveNftUseAuthorityBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc revokeNftUseAuthorityBuilder} */
-  revokeUseAuthority(input: RevokeNftUseAuthorityBuilderParams) {
-    return revokeNftUseAuthorityBuilder(this.metaplex, input);
+  revokeUseAuthority(
+    input: RevokeNftUseAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return revokeNftUseAuthorityBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -99,13 +112,19 @@ export class NftBuildersClient {
   // -----------------
 
   /** {@inheritDoc verifyNftCreatorBuilder} */
-  verifyCreator(input: VerifyNftCreatorBuilderParams) {
-    return verifyNftCreatorBuilder(this.metaplex, input);
+  verifyCreator(
+    input: VerifyNftCreatorBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return verifyNftCreatorBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc unverifyNftCreatorBuilder} */
-  unverifyCreator(input: UnverifyNftCreatorBuilderParams) {
-    return unverifyNftCreatorBuilder(this.metaplex, input);
+  unverifyCreator(
+    input: UnverifyNftCreatorBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return unverifyNftCreatorBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -113,30 +132,43 @@ export class NftBuildersClient {
   // -----------------
 
   /** {@inheritDoc verifyNftCollectionBuilder} */
-  verifyCollection(input: VerifyNftCollectionBuilderParams) {
-    return verifyNftCollectionBuilder(this.metaplex, input);
+  verifyCollection(
+    input: VerifyNftCollectionBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return verifyNftCollectionBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc unverifyNftCollectionBuilder} */
-  unverifyCollection(input: UnverifyNftCollectionBuilderParams) {
-    return unverifyNftCollectionBuilder(this.metaplex, input);
+  unverifyCollection(
+    input: UnverifyNftCollectionBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return unverifyNftCollectionBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc approveNftCollectionAuthorityBuilder} */
   approveCollectionAuthority(
-    input: ApproveNftCollectionAuthorityBuilderParams
+    input: ApproveNftCollectionAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
   ) {
-    return approveNftCollectionAuthorityBuilder(this.metaplex, input);
+    return approveNftCollectionAuthorityBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc revokeNftCollectionAuthorityBuilder} */
-  revokeCollectionAuthority(input: RevokeNftCollectionAuthorityBuilderParams) {
-    return revokeNftCollectionAuthorityBuilder(this.metaplex, input);
+  revokeCollectionAuthority(
+    input: RevokeNftCollectionAuthorityBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return revokeNftCollectionAuthorityBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc migrateToSizedCollectionNftBuilder} */
-  migrateToSizedCollection(input: MigrateToSizedCollectionNftBuilderParams) {
-    return migrateToSizedCollectionNftBuilder(this.metaplex, input);
+  migrateToSizedCollection(
+    input: MigrateToSizedCollectionNftBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return migrateToSizedCollectionNftBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -144,12 +176,18 @@ export class NftBuildersClient {
   // -----------------
 
   /** {@inheritDoc freezeDelegatedNftBuilder} */
-  freezeDelegatedNft(input: FreezeDelegatedNftBuilderParams) {
-    return freezeDelegatedNftBuilder(this.metaplex, input);
+  freezeDelegatedNft(
+    input: FreezeDelegatedNftBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return freezeDelegatedNftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc thawDelegatedNftBuilder} */
-  thawDelegatedNft(input: ThawDelegatedNftBuilderParams) {
-    return thawDelegatedNftBuilder(this.metaplex, input);
+  thawDelegatedNft(
+    input: ThawDelegatedNftBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return thawDelegatedNftBuilder(this.metaplex, input, options);
   }
 }

@@ -1,6 +1,6 @@
-import { AbortSignal } from 'abort-controller';
-import { Amount } from '@/types';
+import { RequestInit } from 'node-fetch';
 import { MetaplexFile } from './MetaplexFile';
+import { Amount } from '@/types';
 
 export type StorageDriver = {
   getUploadPrice: (bytes: number) => Promise<Amount>;

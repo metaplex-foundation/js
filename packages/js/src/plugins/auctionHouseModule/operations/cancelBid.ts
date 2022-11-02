@@ -1,27 +1,26 @@
-import { ConfirmOptions, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   CancelInstructionAccounts,
+  createAuctioneerCancelInstruction,
   createCancelBidReceiptInstruction,
   createCancelInstruction,
-  createAuctioneerCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctioneerAuthorityRequiredError } from '../errors';
+import { AuctionHouse, Bid } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  useOperation,
+  isSigner,
   Operation,
   OperationHandler,
-  Signer,
-  isSigner,
-  toPublicKey,
+  OperationScope,
   Pda,
+  Signer,
+  toPublicKey,
+  useOperation,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse, Bid } from '../models';
-import { AuctioneerAuthorityRequiredError } from '../errors';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { findAuctioneerPda } from '../pdas';
 import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -35,8 +34,7 @@ const Key = 'CancelBidOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .cancelBid({ auctionHouse, bid })
- *   .run();
+ *   .cancelBid({ auctionHouse, bid };
  * ```
  *
  * @group Operations
@@ -98,9 +96,6 @@ export type CancelBidInput = {
    * @defaultValue No default value.
    */
   auctioneerAuthority?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -117,10 +112,14 @@ export type CancelBidOutput = {
  * @category Handlers
  */
 export const cancelBidOperationHandler: OperationHandler<CancelBidOperation> = {
-  handle: async (operation: CancelBidOperation, metaplex: Metaplex) =>
-    cancelBidBuilder(operation.input).sendAndConfirm(
+  handle: async (
+    operation: CancelBidOperation,
+    metaplex: Metaplex,
+    scope: OperationScope
+  ) =>
+    cancelBidBuilder(metaplex, operation.input, scope).sendAndConfirm(
       metaplex,
-      operation.input.confirmOptions
+      scope.confirmOptions
     ),
 };
 
@@ -156,8 +155,11 @@ export type CancelBidBuilderContext = Omit<CancelBidOutput, 'response'>;
  * @category Constructors
  */
 export const cancelBidBuilder = (
-  params: CancelBidBuilderParams
+  metaplex: Metaplex,
+  params: CancelBidBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<CancelBidBuilderContext> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse, auctioneerAuthority, bid } = params;
 
   // Data.
@@ -183,10 +185,14 @@ export const cancelBidBuilder = (
 
   // Accounts.
   const tokenAccount = isPublic
-    ? findAssociatedTokenAccountPda(
-        asset.mint.address,
-        toPublicKey(buyerAddress)
-      )
+    ? metaplex
+        .tokens()
+        .pdas()
+        .associatedTokenAccount({
+          mint: asset.mint.address,
+          owner: toPublicKey(buyerAddress),
+          programs,
+        })
     : (asset as SftWithToken | NftWithToken).token.address;
 
   const accounts: CancelInstructionAccounts = {
@@ -212,10 +218,11 @@ export const cancelBidBuilder = (
       {
         ...accounts,
         auctioneerAuthority: auctioneerAuthority.publicKey,
-        ahAuctioneerPda: findAuctioneerPda(
-          auctionHouseAddress,
-          auctioneerAuthority.publicKey
-        ),
+        ahAuctioneerPda: metaplex.auctionHouse().pdas().auctioneer({
+          auctionHouse: auctionHouseAddress,
+          auctioneerAuthority: auctioneerAuthority.publicKey,
+          programs,
+        }),
       },
       args
     );
@@ -226,6 +233,7 @@ export const cancelBidBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Cancel Bid.
       .add({

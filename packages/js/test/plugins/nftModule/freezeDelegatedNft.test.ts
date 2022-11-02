@@ -1,4 +1,3 @@
-import { NftWithToken } from '@/index';
 import { AccountState } from '@solana/spl-token';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -9,6 +8,7 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../helpers';
+import { NftWithToken } from '@/index';
 
 killStuckProcess();
 
@@ -17,22 +17,18 @@ test('[nftModule] a delegated authority can freeze its NFT', async (t: Test) => 
   const mx = await metaplex();
   const delegateAuthority = Keypair.generate();
   const nft = await createNft(mx);
-  await mx
-    .tokens()
-    .approveDelegateAuthority({
-      mintAddress: nft.address,
-      delegateAuthority: delegateAuthority.publicKey,
-    })
-    .run();
+  await mx.tokens().approveDelegateAuthority({
+    mintAddress: nft.address,
+    delegateAuthority: delegateAuthority.publicKey,
+  });
 
   // When the delegated authority freezes the NFT.
   await mx
     .nfts()
-    .freezeDelegatedNft({ mintAddress: nft.address, delegateAuthority })
-    .run();
+    .freezeDelegatedNft({ mintAddress: nft.address, delegateAuthority });
 
   // Then the token account for that NFT is frozen.
-  const frozenNft = await mx.nfts().refresh(nft).run();
+  const frozenNft = await mx.nfts().refresh(nft);
   spok(t, frozenNft, {
     model: 'nft',
     $topic: 'Frozen NFT',
@@ -49,14 +45,11 @@ test('[nftModule] the owner of the NFT cannot freeze its own NFT without a deleg
   const nft = await createNft(mx, { tokenOwner: owner.publicKey });
 
   // When the owner tries to freeze the NFT.
-  const promise = mx
-    .nfts()
-    .freezeDelegatedNft({
-      mintAddress: nft.address,
-      delegateAuthority: owner,
-      tokenOwner: owner.publicKey,
-    })
-    .run();
+  const promise = mx.nfts().freezeDelegatedNft({
+    mintAddress: nft.address,
+    delegateAuthority: owner,
+    tokenOwner: owner.publicKey,
+  });
 
   // Then we expect an error.
   await assertThrows(

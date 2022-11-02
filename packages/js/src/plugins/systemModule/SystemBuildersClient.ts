@@ -1,10 +1,11 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   createAccountBuilder,
   CreateAccountBuilderParams,
   transferSolBuilder,
   TransferSolBuilderParams,
 } from './operations';
+import type { Metaplex } from '@/Metaplex';
+import { TransactionBuilderOptions } from '@/utils';
 
 /**
  * This client allows you to access the underlying Transaction Builders
@@ -17,12 +18,18 @@ export class SystemBuildersClient {
   constructor(protected readonly metaplex: Metaplex) {}
 
   /** {@inheritDoc createAccountBuilder} */
-  createAccount(input: CreateAccountBuilderParams) {
-    return createAccountBuilder(this.metaplex, input);
+  createAccount(
+    input: CreateAccountBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return createAccountBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc transferSolBuilder} */
-  transferSol(input: TransferSolBuilderParams) {
-    return transferSolBuilder(this.metaplex, input);
+  transferSol(
+    input: TransferSolBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return transferSolBuilder(this.metaplex, input, options);
   }
 }

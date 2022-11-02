@@ -1,10 +1,13 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { TokenProgram } from '../../tokenModule';
+import { PublicKey } from '@solana/web3.js';
+import { TokenGpaBuilder } from '../../tokenModule';
 import { Metadata, Nft, Sft } from '../models';
-import { findNftsByMintListOperation } from './findNftsByMintList';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -18,8 +21,7 @@ const Key = 'FindNftsByOwnerOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByOwner({ owner })
- *   .run();
+ *   .findAllByOwner({ owner };
  * ```
  *
  * @group Operations
@@ -45,9 +47,6 @@ export type FindNftsByOwnerOperation = Operation<
 export type FindNftsByOwnerInput = {
   /** The address of the owner. */
   owner: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -65,20 +64,20 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
     handle: async (
       operation: FindNftsByOwnerOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByOwnerOutput> => {
-      const { owner, commitment } = operation.input;
+      const { programs } = scope;
+      const { owner } = operation.input;
 
-      const mints = await TokenProgram.tokenAccounts(metaplex)
+      const tokenProgram = metaplex.programs().getToken(programs);
+      const mints = await new TokenGpaBuilder(metaplex, tokenProgram.address)
         .selectMint()
         .whereOwner(owner)
         .whereAmount(1)
         .getDataAsPublicKeys();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex
-        .operations()
-        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
+      const nfts = await metaplex.nfts().findAllByMintList({ mints }, scope);
       scope.throwIfCanceled();
 
       return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);

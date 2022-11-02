@@ -1,9 +1,14 @@
-import type { Commitment } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler, amount } from '@/types';
-import { assert, DisposableScope } from '@/utils';
-import { Bid, LazyBid } from '../models/Bid';
 import { assertNftOrSftWithToken } from '../../nftModule';
+import { Bid, LazyBid } from '../models/Bid';
+import type { Metaplex } from '@/Metaplex';
+import {
+  amount,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import { assert } from '@/utils';
 
 // -----------------
 // Operation
@@ -17,8 +22,7 @@ const Key = 'LoadBidOperation' as const;
  * ```ts
  * const bid = await metaplex
  *   .auctionHouse()
- *   .loadBid({ lazyBid })
- *   .run();
+ *   .loadBid({ lazyBid };
  * ```
  *
  * @group Operations
@@ -46,9 +50,6 @@ export type LoadBidInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -59,9 +60,9 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
   handle: async (
     operation: LoadBidOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ) => {
-    const { lazyBid, loadJsonMetadata = true, commitment } = operation.input;
+    const { lazyBid, loadJsonMetadata = true } = operation.input;
 
     const bid: Omit<Bid, 'asset' | 'tokens'> = {
       ...lazyBid,
@@ -72,12 +73,7 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
     if (lazyBid.tokenAddress) {
       const asset = await metaplex
         .nfts()
-        .findByToken({
-          token: lazyBid.tokenAddress,
-          commitment,
-          loadJsonMetadata,
-        })
-        .run(scope);
+        .findByToken({ token: lazyBid.tokenAddress, loadJsonMetadata }, scope);
       scope.throwIfCanceled();
 
       assertNftOrSftWithToken(asset);
@@ -92,23 +88,20 @@ export const loadBidOperationHandler: OperationHandler<LoadBidOperation> = {
         asset,
         tokens: amount(lazyBid.tokens, asset.mint.currency),
       };
-    } else {
-      const asset = await metaplex
-        .nfts()
-        .findByMetadata({
-          metadata: lazyBid.metadataAddress,
-          commitment,
-          loadJsonMetadata,
-        })
-        .run(scope);
-      scope.throwIfCanceled();
-
-      return {
-        ...bid,
-        isPublic: true,
-        asset,
-        tokens: amount(lazyBid.tokens, asset.mint.currency),
-      };
     }
+    const asset = await metaplex
+      .nfts()
+      .findByMetadata(
+        { metadata: lazyBid.metadataAddress, loadJsonMetadata },
+        scope
+      );
+    scope.throwIfCanceled();
+
+    return {
+      ...bid,
+      isPublic: true,
+      asset,
+      tokens: amount(lazyBid.tokens, asset.mint.currency),
+    };
   },
 };

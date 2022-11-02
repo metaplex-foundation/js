@@ -1,21 +1,20 @@
-import { ConfirmOptions } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
   createWithdrawFromTreasuryInstruction,
   WithdrawFromTreasuryInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { AuctionHouse } from '../models';
+import type { Metaplex } from '@/Metaplex';
 import {
-  useOperation,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SolAmount,
   SplTokenAmount,
+  useOperation,
 } from '@/types';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse } from '../models';
-import { findAuctionHouseTreasuryPda } from '../pdas';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -30,8 +29,7 @@ const Key = 'WithdrawFromTreasuryAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .withdrawFromTreasuryAccount({ auctionHouse, amount })
- *   .run();
+ *   .withdrawFromTreasuryAccount({ auctionHouse, amount };
  * ```
  *
  * @group Operations
@@ -76,20 +74,10 @@ export type WithdrawFromTreasuryAccountInput = {
   authority?: Signer;
 
   /**
-   * The Signer paying for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
   amount: SolAmount | SplTokenAmount;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -109,12 +97,14 @@ export const withdrawFromTreasuryAccountOperationHandler: OperationHandler<Withd
   {
     handle: async (
       operation: WithdrawFromTreasuryAccountOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) =>
       withdrawFromTreasuryAccountBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions),
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions),
   };
 
 // -----------------
@@ -157,46 +147,44 @@ export type WithdrawFromTreasuryAccountBuilderContext = Omit<
  */
 export const withdrawFromTreasuryAccountBuilder = (
   metaplex: Metaplex,
-  params: WithdrawFromTreasuryAccountBuilderParams
+  params: WithdrawFromTreasuryAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromTreasuryAccountBuilderContext> => {
   // Data.
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     auctionHouse,
     amount,
     instructionKey,
-    payer = metaplex.identity(),
     authority = metaplex.identity(),
   } = params;
 
   // Accounts.
-  const auctionHouseTreasury = findAuctionHouseTreasuryPda(
-    auctionHouse.address
-  );
+  const auctionHouseTreasury = metaplex.auctionHouse().pdas().treasury({
+    auctionHouse: auctionHouse.address,
+    programs,
+  });
 
   const accounts: WithdrawFromTreasuryInstructionAccounts = {
     treasuryMint: auctionHouse.treasuryMint.address,
     authority: auctionHouse.authorityAddress,
     treasuryWithdrawalDestination:
       auctionHouse.treasuryWithdrawalDestinationAddress,
-    auctionHouseTreasury: auctionHouseTreasury,
+    auctionHouseTreasury,
     auctionHouse: auctionHouse.address,
-  };
-
-  // Args.
-  const args = {
-    amount: amount.basisPoints,
   };
 
   // Withdraw From Treasury Instruction.
   const withdrawFromTreasuryInstruction = createWithdrawFromTreasuryInstruction(
     accounts,
-    args
+    { amount: amount.basisPoints }
   );
 
   // Signers.
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
+
       // Withdraw From Treasury.
       .add({
         instruction: withdrawFromTreasuryInstruction,

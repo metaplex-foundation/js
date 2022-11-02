@@ -1,6 +1,5 @@
 import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
-import { Nft, Sft, token } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import {
@@ -11,6 +10,7 @@ import {
   assertThrows,
   createSft,
 } from '../../helpers';
+import { Nft, Sft, token } from '@/index';
 
 killStuckProcess();
 
@@ -26,8 +26,8 @@ test('[nftModule] it can use an NFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  await mx.nfts().use({ mintAddress: nft.address }).run();
-  const usedNft = await mx.nfts().refresh(nft).run();
+  await mx.nfts().use({ mintAddress: nft.address });
+  const usedNft = await mx.nfts().refresh(nft);
 
   // Then the returned usable NFT should have one less use.
   spok(t, usedNft, {
@@ -55,8 +55,8 @@ test('[nftModule] it can use an SFT', async (t: Test) => {
   });
 
   // When we use the NFT once.
-  await mx.nfts().use({ mintAddress: sft.address }).run();
-  const usedSft = await mx.nfts().refresh(sft).run();
+  await mx.nfts().use({ mintAddress: sft.address });
+  const usedSft = await mx.nfts().refresh(sft);
 
   // Then the returned usable NFT should have one less use.
   spok(t, usedSft, {
@@ -82,8 +82,8 @@ test('[nftModule] it can use an NFT multiple times', async (t: Test) => {
   });
 
   // When we use the NFT 3 times.
-  await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 }).run();
-  const usedNft = await mx.nfts().refresh(nft).run();
+  await mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 });
+  const usedNft = await mx.nfts().refresh(nft);
 
   // Then the returned NFT should have 4 remaining uses.
   spok(t, usedNft, {
@@ -113,8 +113,7 @@ test('[nftModule] it only allows the owner to update the uses', async (t: Test) 
   // When this other wallet tries to use that NFT.
   const promise = mx
     .nfts()
-    .use({ mintAddress: nft.address, owner: anotherWallet })
-    .run();
+    .use({ mintAddress: nft.address, owner: anotherWallet });
 
   // Then we get an error.
   await assertThrows(t, promise, /invalid account data for instruction/);
@@ -132,10 +131,7 @@ test('[nftModule] it cannot be used more times than the remaining uses', async (
   });
 
   // When this other wallet tries to use that NFT.
-  const promise = mx
-    .nfts()
-    .use({ mintAddress: nft.address, numberOfUses: 3 })
-    .run();
+  const promise = mx.nfts().use({ mintAddress: nft.address, numberOfUses: 3 });
 
   // Then we get an error.
   await assertThrows(

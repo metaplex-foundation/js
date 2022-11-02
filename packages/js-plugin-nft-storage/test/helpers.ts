@@ -1,5 +1,5 @@
 import { Commitment, Connection, Keypair } from '@solana/web3.js';
-import { LOCALHOST } from '@metaplex-foundation/amman-client';
+import { Amman, LOCALHOST } from '@metaplex-foundation/amman-client';
 import test from 'tape';
 import {
   Metaplex,
@@ -7,8 +7,10 @@ import {
   keypairIdentity,
   mockStorage,
   KeypairSigner,
-  sol,
+  logDebug,
 } from '@metaplex-foundation/js';
+
+export const amman = Amman.instance({ log: logDebug });
 
 export type MetaplexTestOptions = {
   rpcEndpoint?: string;
@@ -35,10 +37,10 @@ export const metaplex = async (options: MetaplexTestOptions = {}) => {
 
 export const createWallet = async (
   mx: Metaplex,
-  solsToAirdrop: number = 100
+  solsToAirdrop = 100
 ): Promise<KeypairSigner> => {
   const wallet = Keypair.generate();
-  await mx.rpc().airdrop(wallet.publicKey, sol(solsToAirdrop));
+  await amman.airdrop(mx.connection, wallet.publicKey, solsToAirdrop);
 
   return wallet;
 };

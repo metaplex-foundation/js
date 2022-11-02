@@ -1,4 +1,3 @@
-import { Token, token } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -10,6 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { refreshToken } from './helpers';
+import { Token, token } from '@/index';
 
 killStuckProcess();
 
@@ -17,25 +17,19 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
   // Given a Metaplex instance and an existing token account containing 42 tokens.
   const mx = await metaplex();
   const owner = Keypair.generate();
-  const { token: tokenWithMint } = await mx
-    .tokens()
-    .createTokenWithMint({
-      owner: owner.publicKey,
-      initialSupply: token(42),
-    })
-    .run();
+  const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
+    owner: owner.publicKey,
+    initialSupply: token(42),
+  });
 
   // When we approve a new token delegate authority for 10 tokens.
   const delegateAuthority = Keypair.generate();
-  await mx
-    .tokens()
-    .approveDelegateAuthority({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority: delegateAuthority.publicKey,
-      amount: token(10),
-      owner,
-    })
-    .run();
+  await mx.tokens().approveDelegateAuthority({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority: delegateAuthority.publicKey,
+    amount: token(10),
+    owner,
+  });
 
   // Then the token account was updated.
   spok(t, await refreshToken(mx, tokenWithMint), {
@@ -47,16 +41,13 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
 
   // And the delegate authority can do what they want with up to 10 of these tokens.
   const newOwner = Keypair.generate();
-  await mx
-    .tokens()
-    .send({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority,
-      fromOwner: owner.publicKey,
-      toOwner: newOwner.publicKey,
-      amount: token(8),
-    })
-    .run();
+  await mx.tokens().send({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority,
+    fromOwner: owner.publicKey,
+    toOwner: newOwner.publicKey,
+    amount: token(8),
+  });
 
   // And the data is updated correctly on the token account afterwards.
   spok(t, await refreshToken(mx, tokenWithMint), {
@@ -72,38 +63,29 @@ test('[tokenModule] an approved delegate authority is automatically revoked when
   // Given a Metaplex instance and an existing token account containing 42 tokens.
   const mx = await metaplex();
   const owner = Keypair.generate();
-  const { token: tokenWithMint } = await mx
-    .tokens()
-    .createTokenWithMint({
-      owner: owner.publicKey,
-      initialSupply: token(42),
-    })
-    .run();
+  const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
+    owner: owner.publicKey,
+    initialSupply: token(42),
+  });
 
   // And given we approved a new token delegate authority for 10 tokens.
   const delegateAuthority = Keypair.generate();
-  await mx
-    .tokens()
-    .approveDelegateAuthority({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority: delegateAuthority.publicKey,
-      amount: token(10),
-      owner,
-    })
-    .run();
+  await mx.tokens().approveDelegateAuthority({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority: delegateAuthority.publicKey,
+    amount: token(10),
+    owner,
+  });
 
   // When we use all 10 delegated tokens from that delegate authority.
   const newOwner = Keypair.generate();
-  await mx
-    .tokens()
-    .send({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority,
-      fromOwner: owner.publicKey,
-      toOwner: newOwner.publicKey,
-      amount: token(10),
-    })
-    .run();
+  await mx.tokens().send({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority,
+    fromOwner: owner.publicKey,
+    toOwner: newOwner.publicKey,
+    amount: token(10),
+  });
 
   // Then the delegated authority was automatically revoked.
   spok(t, await refreshToken(mx, tokenWithMint), {
@@ -119,38 +101,29 @@ test('[tokenModule] a delegated authority cannot use more tokens than initially 
   // Given a Metaplex instance and an existing token account containing 42 tokens.
   const mx = await metaplex();
   const owner = Keypair.generate();
-  const { token: tokenWithMint } = await mx
-    .tokens()
-    .createTokenWithMint({
-      owner: owner.publicKey,
-      initialSupply: token(42),
-    })
-    .run();
+  const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
+    owner: owner.publicKey,
+    initialSupply: token(42),
+  });
 
   // And given we approved a new token delegate authority for 10 tokens.
   const delegateAuthority = Keypair.generate();
-  await mx
-    .tokens()
-    .approveDelegateAuthority({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority: delegateAuthority.publicKey,
-      amount: token(10),
-      owner,
-    })
-    .run();
+  await mx.tokens().approveDelegateAuthority({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority: delegateAuthority.publicKey,
+    amount: token(10),
+    owner,
+  });
 
   // When we try to use more than the 10 tokens delegated.
   const newOwner = Keypair.generate();
-  const promise = mx
-    .tokens()
-    .send({
-      mintAddress: tokenWithMint.mint.address,
-      delegateAuthority,
-      fromOwner: owner.publicKey,
-      toOwner: newOwner.publicKey,
-      amount: token(20),
-    })
-    .run();
+  const promise = mx.tokens().send({
+    mintAddress: tokenWithMint.mint.address,
+    delegateAuthority,
+    fromOwner: owner.publicKey,
+    toOwner: newOwner.publicKey,
+    amount: token(20),
+  });
 
   // Then we expect an error.
   // Note that we don't get a nice parsed error because we don't

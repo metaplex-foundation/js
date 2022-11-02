@@ -1,6 +1,6 @@
+import * as ed25519 from '@noble/ed25519';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import nacl from 'tweetnacl';
-import { DriverNotProvidedError } from '@/errors';
+import { IdentityDriver } from './IdentityDriver';
 import {
   HasDriver,
   IdentitySigner,
@@ -8,7 +8,7 @@ import {
   KeypairSigner,
   Signer,
 } from '@/types';
-import { IdentityDriver } from './IdentityDriver';
+import { DriverNotProvidedError } from '@/errors';
 
 /**
  * @group Modules
@@ -51,11 +51,7 @@ export class IdentityClient
   }
 
   verifyMessage(message: Uint8Array, signature: Uint8Array): boolean {
-    return nacl.sign.detached.verify(
-      message,
-      signature,
-      this.publicKey.toBytes()
-    );
+    return ed25519.sync.verify(message, signature, this.publicKey.toBytes());
   }
 
   equals(that: Signer | PublicKey): boolean {

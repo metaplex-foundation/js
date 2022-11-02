@@ -1,10 +1,14 @@
+import { PublicKey } from '@solana/web3.js';
+import { toMetadataAccount } from '../accounts';
+import { MetadataV1GpaBuilder } from '../gpaBuilders';
+import { Metadata, Nft, Sft, toMetadata } from '../models';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { Metadata, Nft, Sft } from '../models';
-import { TokenMetadataProgram } from '../program';
-import { findNftsByMintListOperation } from './findNftsByMintList';
 
 // -----------------
 // Operation
@@ -19,14 +23,12 @@ const Key = 'FindNftsByCreatorOperation' as const;
  * // Find all by first creator.
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByCreator({ creator })
- *   .run();
+ *   .findAllByCreator({ creator };
  *
  * // Find all by second creator.
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByCreator({ creator, position: 2 })
- *   .run();
+ *   .findAllByCreator({ creator, position: 2 };
  * ```
  *
  * @group Operations
@@ -61,9 +63,6 @@ export type FindNftsByCreatorInput = {
    * @defaultValue `1`
    */
   position?: number;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -81,21 +80,31 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
     handle: async (
       operation: FindNftsByCreatorOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByCreatorOutput> => {
-      const { creator, position = 1, commitment } = operation.input;
+      const { programs } = scope;
+      const { creator, position = 1 } = operation.input;
 
-      const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
-        .selectMint()
-        .whereCreator(position, creator)
-        .getDataAsPublicKeys();
+      const gpaBuilder = new MetadataV1GpaBuilder(
+        metaplex,
+        metaplex.programs().getTokenMetadata(programs).address
+      );
+
+      const nfts = await gpaBuilder.whereCreator(position, creator).get();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex
-        .operations()
-        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
-      scope.throwIfCanceled();
+      return nfts
+        .map<Metadata | null>((account) => {
+          if (account == null) {
+            return null;
+          }
 
-      return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);
+          try {
+            return toMetadata(toMetadataAccount(account));
+          } catch (error) {
+            return null;
+          }
+        })
+        .filter((nft): nft is Metadata => nft !== null);
     },
   };

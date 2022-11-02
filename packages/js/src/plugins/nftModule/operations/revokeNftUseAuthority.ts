@@ -1,11 +1,15 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createRevokeUseAuthorityInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
-import { findMetadataPda, findUseAuthorityRecordPda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -19,8 +23,7 @@ const Key = 'RevokeNftUseAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .revokeUseAuthority({ mintAddress, user })
- *   .run();
+ *   .revokeUseAuthority({ mintAddress, user };
  * ```
  *
  * @group Operations
@@ -65,15 +68,6 @@ export type RevokeNftUseAuthorityInput = {
    * from the `mintAddress` and `owner` parameters.
    */
   ownerTokenAddress?: PublicKey;
-
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL System program to override if necessary. */
-  systemProgram?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -93,12 +87,14 @@ export const revokeNftUseAuthorityOperationHandler: OperationHandler<RevokeNftUs
   {
     handle: async (
       operation: RevokeNftUseAuthorityOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<RevokeNftUseAuthorityOutput> => {
       return revokeNftUseAuthorityBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -133,30 +129,54 @@ export type RevokeNftUseAuthorityBuilderParams = Omit<
  */
 export const revokeNftUseAuthorityBuilder = (
   metaplex: Metaplex,
-  params: RevokeNftUseAuthorityBuilderParams
+  params: RevokeNftUseAuthorityBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { mintAddress, user, owner = metaplex.identity() } = params;
-  const metadata = findMetadataPda(mintAddress);
-  const useAuthorityRecord = findUseAuthorityRecordPda(mintAddress, user);
+
+  // Programs.
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
+  // PDAs.
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const useAuthorityRecord = metaplex.nfts().pdas().useAuthorityRecord({
+    mint: mintAddress,
+    useAuthority: user,
+    programs,
+  });
   const ownerTokenAddress =
     params.ownerTokenAddress ??
-    findAssociatedTokenAccountPda(mintAddress, owner.publicKey);
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: owner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Revoke the use authority.
       .add({
-        instruction: createRevokeUseAuthorityInstruction({
-          useAuthorityRecord,
-          owner: owner.publicKey,
-          user,
-          ownerTokenAccount: ownerTokenAddress,
-          mint: mintAddress,
-          metadata,
-          tokenProgram: params.tokenProgram ?? TokenProgram.publicKey,
-          systemProgram: params.systemProgram ?? SystemProgram.programId,
-        }),
+        instruction: createRevokeUseAuthorityInstruction(
+          {
+            useAuthorityRecord,
+            owner: owner.publicKey,
+            user,
+            ownerTokenAccount: ownerTokenAddress,
+            mint: mintAddress,
+            metadata,
+            tokenProgram: tokenProgram.address,
+            systemProgram: systemProgram.address,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [owner],
         key: params.instructionKey ?? 'revokeUseAuthority',
       })

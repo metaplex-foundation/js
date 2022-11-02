@@ -1,25 +1,25 @@
-import { Metaplex } from '@/Metaplex';
+import {
+  createCreateMetadataAccountV3Instruction,
+  Uses,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { assertSft, Sft, SftWithToken } from '../models';
+import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Creator,
   CreatorInput,
   isSigner,
+  makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
-import { DisposableScope, Option, TransactionBuilder } from '@/utils';
-import {
-  createCreateMetadataAccountV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
-import { assertSft, Sft, SftWithToken } from '../models';
-import { findMetadataPda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -37,8 +37,7 @@ const Key = 'CreateSftOperation' as const;
  *     name: 'My SFT',
  *     uri: 'https://example.com/my-sft',
  *     sellerFeeBasisPoints: 250, // 2.5%
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -61,15 +60,6 @@ export type CreateSftOperation = Operation<
  * @category Inputs
  */
 export type CreateSftInput = {
-  /**
-   * The Signer paying for the creation of all accounts
-   * required to create a new SFT.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
   /**
    * The authority that will be able to make changes
    * to the created SFT.
@@ -261,15 +251,6 @@ export type CreateSftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
-
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -301,19 +282,22 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
   handle: async (
     operation: CreateSftOperation,
     metaplex: Metaplex,
-    scope: DisposableScope
+    scope: OperationScope
   ) => {
     const {
       useNewMint = Keypair.generate(),
       useExistingMint,
       tokenOwner,
       tokenAddress: tokenSigner,
-      confirmOptions,
     } = operation.input;
 
     const mintAddress = useExistingMint ?? useNewMint.publicKey;
     const associatedTokenAddress = tokenOwner
-      ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+      ? metaplex.tokens().pdas().associatedTokenAccount({
+          mint: mintAddress,
+          owner: tokenOwner,
+          programs: scope.programs,
+        })
       : null;
     const tokenAddress = tokenSigner
       ? toPublicKey(tokenSigner)
@@ -327,23 +311,27 @@ export const createSftOperationHandler: OperationHandler<CreateSftOperation> = {
       tokenExists = false;
     }
 
-    const builder = await createSftBuilder(metaplex, {
-      ...operation.input,
-      useNewMint,
-      tokenExists,
-    });
+    const builder = await createSftBuilder(
+      metaplex,
+      { ...operation.input, useNewMint, tokenExists },
+      scope
+    );
     scope.throwIfCanceled();
 
+    const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+      metaplex,
+      scope.confirmOptions
+    );
     const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
-    const sft = await metaplex
-      .nfts()
-      .findByMint({
+    const sft = await metaplex.nfts().findByMint(
+      {
         mintAddress: output.mintAddress,
         tokenAddress: output.tokenAddress ?? undefined,
-      })
-      .run(scope);
+      },
+      scope
+    );
     scope.throwIfCanceled();
 
     assertSft(sft);
@@ -415,10 +403,11 @@ export type CreateSftBuilderContext = Omit<CreateSftOutput, 'response' | 'sft'>;
  */
 export const createSftBuilder = async (
   metaplex: Metaplex,
-  params: CreateSftBuilderParams
+  params: CreateSftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateSftBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
-    payer = metaplex.identity(),
     useNewMint = Keypair.generate(),
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
@@ -427,11 +416,16 @@ export const createSftBuilder = async (
   const mintAndTokenBuilder = await createMintAndTokenForSftBuilder(
     metaplex,
     params,
+    { programs, payer },
     useNewMint
   );
   const { mintAddress, tokenAddress } = mintAndTokenBuilder.getContext();
 
-  const metadataPda = findMetadataPda(mintAddress);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const metadataPda = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
   const creatorsInput: CreatorInput[] = params.creators ?? [
     {
       address: updateAuthority.publicKey,
@@ -473,7 +467,8 @@ export const createSftBuilder = async (
           ? { __kind: 'V1', size: 0 } // Program will hardcode size to zero anyway.
           : null,
       },
-    }
+    },
+    tokenMetadataProgram.address
   );
 
   // When the payer is different than the update authority, the latter will
@@ -488,10 +483,13 @@ export const createSftBuilder = async (
       );
     })
     .map((creator) => {
-      return metaplex.nfts().builders().verifyCreator({
-        mintAddress,
-        creator: creator.authority,
-      });
+      return metaplex.nfts().builders().verifyCreator(
+        {
+          mintAddress,
+          creator: creator.authority,
+        },
+        { programs, payer }
+      );
     });
 
   return (
@@ -522,14 +520,16 @@ export const createSftBuilder = async (
           metaplex
             .nfts()
             .builders()
-            .verifyCollection({
-              payer,
-              mintAddress,
-              collectionMintAddress: params.collection as PublicKey,
-              collectionAuthority: params.collectionAuthority as Signer,
-              isDelegated: params.collectionAuthorityIsDelegated ?? false,
-              isSizedCollection: params.collectionIsSized ?? true,
-            })
+            .verifyCollection(
+              {
+                mintAddress,
+                collectionMintAddress: params.collection as PublicKey,
+                collectionAuthority: params.collectionAuthority as Signer,
+                isDelegated: params.collectionAuthorityIsDelegated ?? false,
+                isSizedCollection: params.collectionIsSized ?? true,
+              },
+              { payer, programs }
+            )
         )
       )
   );
@@ -538,12 +538,13 @@ export const createSftBuilder = async (
 const createMintAndTokenForSftBuilder = async (
   metaplex: Metaplex,
   params: CreateSftBuilderParams,
+  options: TransactionBuilderOptions,
   useNewMint: Signer
 ): Promise<
   TransactionBuilder<{ mintAddress: PublicKey; tokenAddress: PublicKey | null }>
 > => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
-    payer = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     freezeAuthority = metaplex.identity().publicKey,
     tokenExists = false,
@@ -551,7 +552,11 @@ const createMintAndTokenForSftBuilder = async (
 
   const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
   const associatedTokenAddress = params.tokenOwner
-    ? findAssociatedTokenAccountPda(mintAddress, params.tokenOwner)
+    ? metaplex.tokens().pdas().associatedTokenAccount({
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        programs,
+      })
     : null;
   const tokenAddress = params.tokenAddress
     ? toPublicKey(params.tokenAddress)
@@ -560,10 +565,12 @@ const createMintAndTokenForSftBuilder = async (
   const builder = TransactionBuilder.make<{
     mintAddress: PublicKey;
     tokenAddress: PublicKey | null;
-  }>().setContext({
-    mintAddress,
-    tokenAddress,
-  });
+  }>()
+    .setFeePayer(payer)
+    .setContext({
+      mintAddress,
+      tokenAddress,
+    });
 
   // Create the mint account if it doesn't exist.
   if (!params.useExistingMint) {
@@ -571,16 +578,17 @@ const createMintAndTokenForSftBuilder = async (
       await metaplex
         .tokens()
         .builders()
-        .createMint({
-          decimals: params.decimals ?? 0,
-          mint: useNewMint,
-          payer,
-          mintAuthority: mintAuthority.publicKey,
-          freezeAuthority,
-          tokenProgram: params.tokenProgram,
-          createAccountInstructionKey: params.createMintAccountInstructionKey,
-          initializeMintInstructionKey: params.initializeMintInstructionKey,
-        })
+        .createMint(
+          {
+            decimals: params.decimals ?? 0,
+            mint: useNewMint,
+            mintAuthority: mintAuthority.publicKey,
+            freezeAuthority,
+            createAccountInstructionKey: params.createMintAccountInstructionKey,
+            initializeMintInstructionKey: params.initializeMintInstructionKey,
+          },
+          { programs, payer }
+        )
     );
   }
 
@@ -592,33 +600,36 @@ const createMintAndTokenForSftBuilder = async (
       await metaplex
         .tokens()
         .builders()
-        .createToken({
-          mint: mintAddress,
-          owner: params.tokenOwner,
-          token: params.tokenAddress as Signer | undefined,
-          payer,
-          tokenProgram: params.tokenProgram,
-          associatedTokenProgram: params.associatedTokenProgram,
-          createAssociatedTokenAccountInstructionKey:
-            params.createAssociatedTokenAccountInstructionKey,
-          createAccountInstructionKey: params.createTokenAccountInstructionKey,
-          initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-        })
+        .createToken(
+          {
+            mint: mintAddress,
+            owner: params.tokenOwner,
+            token: params.tokenAddress as Signer | undefined,
+            createAssociatedTokenAccountInstructionKey:
+              params.createAssociatedTokenAccountInstructionKey,
+            createAccountInstructionKey:
+              params.createTokenAccountInstructionKey,
+            initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+          },
+          { programs, payer }
+        )
     );
   }
 
   // Mint provided amount to the token account.
   if (tokenAddress && params.tokenAmount) {
     builder.add(
-      await metaplex.tokens().builders().mint({
-        mintAddress,
-        toToken: tokenAddress,
-        toTokenExists: true,
-        amount: params.tokenAmount,
-        mintAuthority,
-        tokenProgram: params.tokenProgram,
-        mintTokensInstructionKey: params.mintTokensInstructionKey,
-      })
+      await metaplex.tokens().builders().mint(
+        {
+          mintAddress,
+          toToken: tokenAddress,
+          toTokenExists: true,
+          amount: params.tokenAmount,
+          mintAuthority,
+          mintTokensInstructionKey: params.mintTokensInstructionKey,
+        },
+        { programs, payer }
+      )
     );
   }
 

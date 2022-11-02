@@ -1,30 +1,38 @@
-import { NoInstructionsToSendError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { Option, TransactionBuilder } from '@/utils';
 import {
   CandyMachineData,
-  createRemoveCollectionInstruction,
+  createSetAuthorityInstruction,
   createSetCollectionInstruction,
-  createUpdateAuthorityInstruction,
-  createUpdateCandyMachineInstruction,
-} from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import isEqual from 'lodash.isequal';
-import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-  TokenMetadataProgram,
-} from '../../nftModule';
+  createSetMintAuthorityInstruction,
+  createUpdateInstruction as createUpdateCandyMachineInstruction,
+} from '@metaplex-foundation/mpl-candy-machine-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import {
   CandyMachine,
-  CandyMachineConfigs,
-  toCandyMachineConfigs,
-  toCandyMachineInstructionData,
-} from '../models/CandyMachine';
-import { findCandyMachineCollectionPda } from '../pdas';
+  CandyMachineConfigLineSettings,
+  CandyMachineHiddenSettings,
+  isCandyMachine,
+  toCandyMachineData,
+} from '../models';
+import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
+import { Metaplex } from '@/Metaplex';
+import {
+  BigNumber,
+  Creator,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Program,
+  PublicKey,
+  Signer,
+  toPublicKey,
+} from '@/types';
+import {
+  assertObjectHasDefinedKeys,
+  removeUndefinedAttributes,
+  TransactionBuilder,
+  TransactionBuilderOptions,
+} from '@/utils';
 
 // -----------------
 // Operation
@@ -33,84 +41,250 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'UpdateCandyMachineOperation' as const;
 
 /**
- * Updates an existing Candy Machine.
+ * Updates the every aspect of an existing Candy Machine, including its
+ * authorities, collection and guards (when associated with a Candy Guard).
  *
  * ```ts
  * await metaplex
  *   .candyMachines()
  *   .update({
  *     candyMachine,
- *     price: sol(2), // Updates the price only.
- *   })
- *   .run();
+ *     sellerFeeBasisPoints: 500,
+ *   };
  * ```
  *
  * @group Operations
  * @category Constructors
  */
-export const updateCandyMachineOperation =
-  useOperation<UpdateCandyMachineOperation>(Key);
+export const updateCandyMachineOperation = _updateCandyMachineOperation;
+// eslint-disable-next-line @typescript-eslint/naming-convention
+function _updateCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(input: UpdateCandyMachineInput<T>): UpdateCandyMachineOperation<T> {
+  return { key: Key, input };
+}
+_updateCandyMachineOperation.key = Key;
 
 /**
  * @group Operations
  * @category Types
  */
-export type UpdateCandyMachineOperation = Operation<
-  typeof Key,
-  UpdateCandyMachineInput,
-  UpdateCandyMachineOutput
->;
+export type UpdateCandyMachineOperation<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Operation<typeof Key, UpdateCandyMachineInput<T>, UpdateCandyMachineOutput>;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type UpdateCandyMachineInput = Partial<CandyMachineConfigs> & {
+export type UpdateCandyMachineInput<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = {
   /**
    * The Candy Machine to update.
-   * We need the full model in order to compare the current data with
-   * the provided data to update. For instance, if you only want to
-   * update the `price`, we need to send an instruction that updates
-   * the data whilst keeping all other properties the same.
    *
-   * If you want more control over how this transaction is built,
-   * you may use the associated transaction builder instead using
-   * `metaplex.candyMachines().builders().updateCandyMachine({...})`.
+   * This can either be a Candy Machine instance or its address.
+   * When passing its address, you will need to provide enough input
+   * so the SDK knows what to update.
+   *
+   * For instance, if you only want to update the `creators` array of the Candy Machine,
+   * you will also need to provide all other Candy Machine data such as its `symbol`,
+   * its `sellerFeeBasisPoints`, etc.
+   *
+   * That's because the program requires all data to be provided at once when updating.
+   * The SDK will raise an error if you don't provide enough data letting you know
+   * what's missing.
+   *
+   * Alternatively, if you provide a Candy Machine instance, the SDK will use its
+   * current data to fill all the gaps so you can focus on what you want to update.
    */
-  candyMachine: CandyMachine;
+  candyMachine: PublicKey | CandyMachine<T>;
 
   /**
-   * The Signer authorized to update the candy machine.
+   * The address of the Candy Guard associated to the Candy Machine, if any.
+   * This is only required if `candyMachine` is provided as an address and
+   * you are trying to update the `guards` or `groups` parameters.
+   *
+   * @defaultValue `candyMachine.candyGuard?.address`
+   */
+  candyGuard?: PublicKey;
+
+  /**
+   * The Signer authorized to update the Candy Machine.
    *
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
 
   /**
-   * The Signer that should pay for any required account storage.
-   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
+   * The Signer authorized to update the associated Candy Guard, if any.
+   * This is typically the same as the Candy Machine authority.
    *
-   * @defaultValue `metaplex.identity()`
+   * @defaultValue Defaults to the `authority` parameter.
    */
-  payer?: Signer;
+  candyGuardAuthority?: Signer;
 
   /**
-   * The new Candy Machine authority.
+   * The new authority that will be allowed to manage the Candy Machine.
+   * This includes updating its data, authorities, inserting items, etc.
+   *
+   * Warning: This means the current `authority` Signer will no longer be able
+   * to manage the Candy Machine.
+   *
+   * Note that if your Candy Machine has a Candy Guard associated to it,
+   * you might want to also update the Candy Guard's authority using the
+   * `newCandyGuardAuthority` parameter.
    *
    * @defaultValue Defaults to not being updated.
    */
   newAuthority?: PublicKey;
 
   /**
-   * The mint address of the new Candy Machine collection.
-   * When `null` is provided, the collection is removed.
+   * The new authority that will be able to mint from this Candy Machine.
+   *
+   * This must be a Signer to ensure Candy Guards are not used to mint from
+   * unexpected Candy Machines as some of its guards could have side effects.
    *
    * @defaultValue Defaults to not being updated.
    */
-  newCollection?: Option<PublicKey>;
+  newMintAuthority?: Signer;
 
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
+  /**
+   * The new authority that will be allowed to manage the Candy Guard
+   * account associated with the Candy Machine.
+   *
+   * Warning: This means the current Candy Guard `authority` Signer will
+   * no longer be able to manage the Candy Guard account.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  newCandyGuardAuthority?: PublicKey;
+
+  /**
+   * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
+   * This must include its address and the update authority as a Signer.
+   *
+   * If the `candyMachine` attribute is passed as a `PublicKey`, you will also need to
+   * provide the mint address of the current collection that will be overriden.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  collection?: {
+    /** The mint address of the collection. */
+    address: PublicKey;
+
+    /** The update authority of the collection as a Signer. */
+    updateAuthority: Signer;
+
+    /** The mint address of the current collection that will be overriden. */
+    currentCollectionAddress?: PublicKey;
+  };
+
+  /**
+   * The royalties that should be set on minted NFTs in basis points.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  sellerFeeBasisPoints?: number;
+
+  /**
+   * The total number of items availble in the Candy Machine, minted or not.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  itemsAvailable?: BigNumber;
+
+  /**
+   * Settings related to the Candy Machine's items.
+   *
+   * These can either be inserted manually within the Candy Machine or
+   * they can be infered from a set of hidden settings.
+   *
+   * - If `type` is `hidden`, the Candy Machine is using hidden settings.
+   * - If `type` is `configLines`, the Candy Machine is using config line settings.
+   *
+   * @defaultValue Defaults to not being updated.
+   *
+   * @see {@link CandyMachineHiddenSettings}
+   * @see {@link CandyMachineConfigLineSettings}
+   */
+  itemSettings?: CandyMachineHiddenSettings | CandyMachineConfigLineSettings;
+
+  /**
+   * The symbol to use when minting NFTs (e.g. "MYPROJECT")
+   *
+   * This can be any string up to 10 bytes and can be made optional
+   * by providing an empty string.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  symbol?: string;
+
+  /**
+   * The maximum number of editions that can be printed from the
+   * minted NFTs.
+   *
+   * For most use cases, you'd want to set this to `0` to prevent
+   * minted NFTs to be printed multiple times.
+   *
+   * Note that you cannot set this to `null` which means unlimited editions
+   * are not supported by the Candy Machine program.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  maxEditionSupply?: BigNumber;
+
+  /**
+   * Whether the minted NFTs should be mutable or not.
+   *
+   * We recommend setting this to `true` unless you have a specific reason.
+   * You can always make NFTs immutable in the future but you cannot make
+   * immutable NFTs mutable ever again.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  isMutable?: boolean;
+
+  /**
+   * Array of creators that should be set on minted NFTs.
+   *
+   * @defaultValue Defaults to not being updated.
+   *
+   * @see {@link Creator}
+   */
+  creators?: Omit<Creator, 'verified'>[];
+
+  /**
+   * The settings of all guards we wish to activate.
+   *
+   * Note that this will override the existing `guards` settings
+   * so you must provide all guards you wish to activate.
+   *
+   * Any guard not provided or set to `null` will be disabled.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  guards?: Partial<T>;
+
+  /**
+   * This parameter allows us to create multiple minting groups that have their
+   * own set of requirements — i.e. guards.
+   *
+   * Note that this will override the existing `groups` settings
+   * so you must provide all groups and guards you wish to activate.
+   *
+   * When groups are provided, the `guards` parameter becomes a set of default
+   * guards that will be applied to all groups. If a specific group enables
+   * a guard that is also present in the default guards, the group's guard
+   * will override the default guard.
+   *
+   * For each group, any guard not provided or set to `null` will be disabled.
+   *
+   * You may disable groups by providing an empty array `[]`.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  groups?: { label: string; guards: Partial<T> }[];
 };
 
 /**
@@ -128,52 +302,22 @@ export type UpdateCandyMachineOutput = {
  */
 export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMachineOperation> =
   {
-    async handle(
-      operation: UpdateCandyMachineOperation,
-      metaplex: Metaplex
+    async handle<T extends CandyGuardsSettings = DefaultCandyGuardSettings>(
+      operation: UpdateCandyMachineOperation<T>,
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UpdateCandyMachineOutput> {
-      const {
-        candyMachine,
-        authority = metaplex.identity(),
-        payer = metaplex.identity(),
-        newAuthority,
-        newCollection,
-        confirmOptions,
-        ...updatableFields
-      } = operation.input;
-
-      const currentConfigs = toCandyMachineConfigs(candyMachine);
-      const instructionDataWithoutChanges = toCandyMachineInstructionData(
-        candyMachine.address,
-        currentConfigs
+      const builder = updateCandyMachineBuilder(
+        metaplex,
+        operation.input,
+        scope
       );
-      const instructionData = toCandyMachineInstructionData(
-        candyMachine.address,
-        {
-          ...currentConfigs,
-          ...updatableFields,
-        }
-      );
-      const { data, wallet, tokenMint } = instructionData;
-      const shouldUpdateData = !isEqual(
-        instructionData,
-        instructionDataWithoutChanges
-      );
-
-      const builder = updateCandyMachineBuilder(metaplex, {
-        candyMachine,
-        authority,
-        payer,
-        newData: shouldUpdateData ? { ...data, wallet, tokenMint } : undefined,
-        newCollection,
-        newAuthority,
-      });
 
       if (builder.isEmpty()) {
         throw new NoInstructionsToSendError(Key);
       }
 
-      return builder.sendAndConfirm(metaplex, confirmOptions);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -185,215 +329,422 @@ export const updateCandyMachineOperationHandler: OperationHandler<UpdateCandyMac
  * @group Transaction Builders
  * @category Inputs
  */
-export type UpdateCandyMachineBuilderParams = {
-  /**
-   * The Candy Machine to update.
-   * We only need a subset of the `CandyMachine` model to figure out
-   * the current values for the wallet and collection addresses.
-   */
-  candyMachine: Pick<
-    CandyMachine,
-    'address' | 'walletAddress' | 'collectionMintAddress'
-  >;
+export type UpdateCandyMachineBuilderParams<
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+> = Omit<UpdateCandyMachineInput<T>, 'confirmOptions'> & {
+  /** A key to distinguish the instruction that updates the Candy Machine data. */
+  updateDataInstructionKey?: string;
 
-  /**
-   * The Signer authorized to update the candy machine.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  authority?: Signer;
-
-  /**
-   * The Signer that should pay for any required account storage.
-   * E.g. for the collection PDA that keeps track of the Candy Machine's collection.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
-   * The new Candy Machine data.
-   * This includes the wallet and token mint addresses
-   * which can both be updated.
-   *
-   * @defaultValue Defaults to not being updated.
-   */
-  newData?: CandyMachineData & {
-    wallet: PublicKey;
-    tokenMint: Option<PublicKey>;
-  };
-
-  /**
-   * The new Candy Machine authority.
-   *
-   * @defaultValue Defaults to not being updated.
-   */
-  newAuthority?: PublicKey;
-
-  /**
-   * The mint address of the new Candy Machine collection.
-   * When `null` is provided, the collection is removed.
-   *
-   * @defaultValue Defaults to not being updated.
-   */
-  newCollection?: Option<PublicKey>;
-
-  /** A key to distinguish the instruction that updates the data. */
-  updateInstructionKey?: string;
-
-  /** A key to distinguish the instruction that updates the authority. */
-  updateAuthorityInstructionKey?: string;
-
-  /** A key to distinguish the instruction that sets the collection. */
+  /** A key to distinguish the instruction that updates the Candy Machine collection. */
   setCollectionInstructionKey?: string;
 
-  /** A key to distinguish the instruction that removes the collection. */
-  removeCollectionInstructionKey?: string;
+  /** A key to distinguish the instruction that updates the associated Candy Guard, if any. */
+  updateCandyGuardInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Machine's mint authority. */
+  setMintAuthorityInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Machine's authority. */
+  setAuthorityInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Guard's authority. */
+  setCandyGuardAuthorityInstructionKey?: string;
 };
 
 /**
- * Updates an existing Candy Machine.
+ * Updates the every aspect of an existing Candy Machine, including its
+ * authorities, collection and guards (when associated with a Candy Guard).
  *
  * ```ts
- * const transactionBuilder = metaplex
+ * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
  *   .update({
- *     candyMachine: { address, walletAddress, collectionMintAddress },
- *     newData: {...}, // Updates the provided data.
+ *     candyMachine,
+ *     sellerFeeBasisPoints: 500,
  *   });
  * ```
  *
  * @group Transaction Builders
  * @category Constructors
  */
-export const updateCandyMachineBuilder = (
+export const updateCandyMachineBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
   metaplex: Metaplex,
-  params: UpdateCandyMachineBuilderParams
+  params: UpdateCandyMachineBuilderParams<T>,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const {
-    candyMachine,
-    authority = metaplex.identity(),
-    payer = metaplex.identity(),
-    newData,
-    newAuthority,
-    newCollection,
-  } = params;
-  const shouldUpdateAuthority =
-    !!newAuthority && !newAuthority.equals(authority.publicKey);
-  const sameCollection =
-    newCollection &&
-    candyMachine.collectionMintAddress &&
-    candyMachine.collectionMintAddress.equals(newCollection);
-  const shouldUpdateCollection = !!newCollection && !sameCollection;
-  const shouldRemoveCollection =
-    !shouldUpdateCollection &&
-    newCollection === null &&
-    candyMachine.collectionMintAddress !== null;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { authority = metaplex.identity(), candyGuardAuthority = authority } =
+    params;
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
-      // Update data.
-      .when(!!newData, (builder) => {
-        const data = newData as CandyMachineData;
-        const wallet = newData?.wallet as PublicKey;
-        const tokenMint = newData?.tokenMint as Option<PublicKey>;
-        const updateInstruction = createUpdateCandyMachineInstruction(
-          {
-            candyMachine: candyMachine.address,
-            authority: authority.publicKey,
-            wallet,
-          },
-          { data }
-        );
+      // Update Candy Machine data.
+      .add(
+        updateCandyMachineDataBuilder<T>(metaplex, params, authority, programs)
+      )
 
-        if (tokenMint) {
-          updateInstruction.keys.push({
-            pubkey: tokenMint,
-            isWritable: false,
-            isSigner: false,
-          });
-        }
+      // Update Candy Machine collection.
+      .add(
+        updateCandyMachineCollectionBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          payer,
+          programs
+        )
+      )
 
-        return builder.add({
-          instruction: updateInstruction,
-          signers: [authority],
-          key: params.updateInstructionKey ?? 'update',
-        });
-      })
+      // Update Candy Guard's guards and groups, if any.
+      .add(
+        updateCandyGuardsBuilder<T>(
+          metaplex,
+          params,
+          candyGuardAuthority,
+          payer,
+          programs
+        )
+      )
 
-      // Set or update collection.
-      .when(shouldUpdateCollection, (builder) => {
-        const collectionMint = newCollection as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const edition = findMasterEditionV2Pda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
-          candyMachine.address
-        );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
+      // Update Candy Machine mint authority.
+      .add(
+        updateCandyMachineMintAuthorityBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          programs
+        )
+      )
 
-        return builder.add({
-          instruction: createSetCollectionInstruction({
-            candyMachine: candyMachine.address,
-            authority: authority.publicKey,
-            collectionPda,
-            payer: payer.publicKey,
-            metadata,
-            mint: collectionMint,
-            edition,
-            collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
-          }),
-          signers: [payer, authority],
-          key: params.setCollectionInstructionKey ?? 'setCollection',
-        });
-      })
+      // Update Candy Machine authority.
+      .add(
+        updateCandyMachineAuthorityBuilder<T>(
+          metaplex,
+          params,
+          authority,
+          programs
+        )
+      )
 
-      // Remove collection.
-      .when(shouldRemoveCollection, (builder) => {
-        const collectionMint = candyMachine.collectionMintAddress as PublicKey;
-        const metadata = findMetadataPda(collectionMint);
-        const collectionPda = findCandyMachineCollectionPda(
-          candyMachine.address
-        );
-        const collectionAuthorityRecord = findCollectionAuthorityRecordPda(
-          collectionMint,
-          collectionPda
-        );
-
-        return builder.add({
-          instruction: createRemoveCollectionInstruction({
-            candyMachine: candyMachine.address,
-            authority: authority.publicKey,
-            collectionPda,
-            metadata,
-            mint: collectionMint,
-            collectionAuthorityRecord,
-            tokenMetadataProgram: TokenMetadataProgram.publicKey,
-          }),
-          signers: [authority],
-          key: params.removeCollectionInstructionKey ?? 'removeCollection',
-        });
-      })
-
-      // Update authority.
-      .when(shouldUpdateAuthority, (builder) =>
-        builder.add({
-          instruction: createUpdateAuthorityInstruction(
-            {
-              candyMachine: candyMachine.address,
-              authority: authority.publicKey,
-              wallet: newData?.wallet ?? candyMachine.walletAddress,
-            },
-            { newAuthority: newAuthority as PublicKey }
-          ),
-          signers: [authority],
-          key: params.updateAuthorityInstructionKey ?? 'updateAuthority',
-        })
+      // Update Candy Guard authority.
+      .add(
+        updateCandyGuardAuthorityBuilder<T>(
+          metaplex,
+          params,
+          candyGuardAuthority,
+          payer,
+          programs
+        )
       )
   );
 };
+
+const updateCandyMachineDataBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  const dataToUpdate: Partial<CandyMachine> = removeUndefinedAttributes({
+    itemsAvailable: params.itemsAvailable,
+    symbol: params.symbol,
+    sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+    maxEditionSupply: params.maxEditionSupply,
+    isMutable: params.isMutable,
+    creators: params.creators,
+    itemSettings: params.itemSettings,
+  });
+
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
+  let data: CandyMachineData;
+  if (Object.keys(dataToUpdate).length === 0) {
+    return TransactionBuilder.make();
+  } else if (isCandyMachine(params.candyMachine)) {
+    data = toCandyMachineData({ ...params.candyMachine, ...dataToUpdate });
+  } else {
+    assertObjectHasDefinedKeys(
+      dataToUpdate,
+      [
+        'itemsAvailable',
+        'symbol',
+        'sellerFeeBasisPoints',
+        'maxEditionSupply',
+        'isMutable',
+        'creators',
+        'itemSettings',
+      ],
+      onMissingInputError
+    );
+    data = toCandyMachineData(dataToUpdate);
+  }
+
+  return TransactionBuilder.make().add({
+    instruction: createUpdateCandyMachineInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+      },
+      { data },
+      candyMachineProgram.address
+    ),
+    signers: [authority],
+    key: params.updateDataInstructionKey ?? 'updateCandyMachineData',
+  });
+};
+
+const updateCandyMachineCollectionBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer,
+  payer: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  if (!params.collection) {
+    return TransactionBuilder.make();
+  }
+
+  const currentCollectionAddress =
+    params.collection.currentCollectionAddress ??
+    (isCandyMachine(params.candyMachine)
+      ? params.candyMachine.collectionMintAddress
+      : null);
+
+  if (!currentCollectionAddress) {
+    throw onMissingInputError(['collection.currentCollectionAddress']);
+  }
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
+  // Addresses.
+  const candyMachineAddress = toPublicKey(params.candyMachine);
+  const collectionAddress = params.collection.address;
+  const collectionUpdateAuthority = params.collection.updateAuthority;
+
+  // PDAs.
+  const authorityPda = metaplex.candyMachines().pdas().authority({
+    candyMachine: candyMachineAddress,
+    programs,
+  });
+  const currentCollectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: currentCollectionAddress,
+  });
+  const currentCollectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: currentCollectionAddress,
+      collectionAuthority: authorityPda,
+    });
+  const collectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: collectionAddress,
+  });
+  const collectionMasterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: collectionAddress,
+  });
+  const collectionAuthorityRecord = metaplex
+    .nfts()
+    .pdas()
+    .collectionAuthorityRecord({
+      mint: collectionAddress,
+      collectionAuthority: authorityPda,
+    });
+
+  return TransactionBuilder.make().add({
+    instruction: createSetCollectionInstruction(
+      {
+        candyMachine: candyMachineAddress,
+        authority: authority.publicKey,
+        authorityPda,
+        payer: payer.publicKey,
+        collectionMint: currentCollectionAddress,
+        collectionMetadata: currentCollectionMetadata,
+        collectionAuthorityRecord: currentCollectionAuthorityRecord,
+        newCollectionUpdateAuthority: collectionUpdateAuthority.publicKey,
+        newCollectionMetadata: collectionMetadata,
+        newCollectionMint: collectionAddress,
+        newCollectionMasterEdition: collectionMasterEdition,
+        newCollectionAuthorityRecord: collectionAuthorityRecord,
+        tokenMetadataProgram: tokenMetadataProgram.address,
+      },
+      candyMachineProgram.address
+    ),
+    signers: [authority, payer, collectionUpdateAuthority],
+    key: params.setCollectionInstructionKey ?? 'setCandyMachineCollection',
+  });
+};
+
+const updateCandyGuardsBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  candyGuardAuthority: Signer,
+  payer: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  const guardsToUpdate: {
+    candyGuard?: PublicKey;
+    guards?: Partial<T>;
+    groups?: { label: string; guards: Partial<T> }[];
+  } = removeUndefinedAttributes({
+    candyGuard: params.candyGuard,
+    guards: params.guards,
+    groups: params.groups,
+  });
+
+  let args: {
+    candyGuard: PublicKey;
+    guards: Partial<T>;
+    groups: { label: string; guards: Partial<T> }[];
+  };
+
+  if (Object.keys(guardsToUpdate).length === 0) {
+    return TransactionBuilder.make();
+  }
+
+  if (
+    isCandyMachine<T>(params.candyMachine) &&
+    params.candyMachine.candyGuard
+  ) {
+    args = {
+      candyGuard: params.candyMachine.candyGuard.address,
+      guards: params.candyMachine.candyGuard.guards,
+      groups: params.candyMachine.candyGuard.groups,
+      ...guardsToUpdate,
+    };
+  } else {
+    assertObjectHasDefinedKeys(
+      guardsToUpdate,
+      ['candyGuard', 'guards', 'groups'],
+      onMissingInputError
+    );
+    args = guardsToUpdate;
+  }
+
+  return metaplex
+    .candyMachines()
+    .builders()
+    .updateCandyGuard<T>(
+      {
+        candyGuard: args.candyGuard,
+        guards: args.guards,
+        groups: args.groups,
+        authority: candyGuardAuthority,
+        updateInstructionKey:
+          params.updateCandyGuardInstructionKey ?? 'updateCandyGuard',
+      },
+      { payer, programs }
+    );
+};
+
+const updateCandyMachineMintAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  if (!params.newMintAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
+  return TransactionBuilder.make().add({
+    instruction: createSetMintAuthorityInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+        mintAuthority: params.newMintAuthority.publicKey,
+      },
+      candyMachineProgram.address
+    ),
+    signers: [authority, params.newMintAuthority],
+    key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
+  });
+};
+
+const updateCandyMachineAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  authority: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  if (!params.newAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
+
+  return TransactionBuilder.make().add({
+    instruction: createSetAuthorityInstruction(
+      {
+        candyMachine: toPublicKey(params.candyMachine),
+        authority: authority.publicKey,
+      },
+      { newAuthority: params.newAuthority },
+      candyMachineProgram.address
+    ),
+    signers: [authority],
+    key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
+  });
+};
+
+const updateCandyGuardAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  candyGuardAuthority: Signer,
+  payer: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  if (!params.newCandyGuardAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  const candyGuardAddress =
+    params.candyGuard ??
+    (isCandyMachine<T>(params.candyMachine) && params.candyMachine.candyGuard
+      ? params.candyMachine.candyGuard.address
+      : null);
+
+  if (!candyGuardAddress) {
+    throw onMissingInputError(['candyGuard']);
+  }
+
+  return TransactionBuilder.make().add(
+    metaplex.candyMachines().builders().updateCandyGuardAuthority(
+      {
+        candyGuard: candyGuardAddress,
+        authority: candyGuardAuthority,
+        newAuthority: params.newCandyGuardAuthority,
+        instructionKey: params.setCandyGuardAuthorityInstructionKey,
+      },
+      { payer, programs }
+    )
+  );
+};
+
+const onMissingInputError = (missingKeys: string[]) =>
+  new MissingInputDataError(missingKeys, {
+    problem:
+      'When passing the Candy Machine as a `PublicKey` instead of a Candy Machine model ' +
+      'the SDK cannot rely on current data to fill the gaps within the provided input.',
+    solutionSuffix:
+      ' Alternatively, you can pass the Candy Machine model instead.',
+  });

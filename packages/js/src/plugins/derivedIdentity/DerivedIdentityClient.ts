@@ -1,17 +1,17 @@
-import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
-import type { Metaplex } from '@/Metaplex';
+import * as ed25519 from '@noble/ed25519';
+import { sha512 } from '@noble/hashes/sha512';
+import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { UninitializedDerivedIdentityError } from './errors';
 import {
   IdentitySigner,
   isSigner,
   KeypairSigner,
   Signer,
   SolAmount,
+  subtractAmounts,
 } from '@/types';
-import { UninitializedDerivedIdentityError } from './errors';
-import { Task } from '@/utils';
-import { TransferSolOutput } from '../systemModule';
+import type { Metaplex } from '@/Metaplex';
 
 /**
  * @group Modules
@@ -43,50 +43,52 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
     return this.originalSigner.publicKey;
   }
 
-  deriveFrom(
+  async deriveFrom(
     message: string | Uint8Array,
     originalSigner?: IdentitySigner
-  ): Task<void> {
-    return new Task(async () => {
-      this.originalSigner = originalSigner ?? this.metaplex.identity().driver();
+  ) {
+    this.originalSigner = originalSigner ?? this.metaplex.identity().driver();
 
-      const signature = await this.originalSigner.signMessage(
-        Buffer.from(message)
-      );
+    const signature = await this.originalSigner.signMessage(
+      Buffer.from(message)
+    );
 
-      const seeds = nacl.hash(signature).slice(0, 32);
+    const seeds = sha512(signature).slice(0, 32);
 
-      this.derivedKeypair = Keypair.fromSeed(seeds);
-    });
+    this.derivedKeypair = Keypair.fromSeed(seeds);
   }
 
-  fund(amount: SolAmount): Task<TransferSolOutput> {
+  fund(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.originalSigner,
-      to: this.derivedKeypair.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.originalSigner,
+        to: this.derivedKeypair.publicKey,
+        amount,
+      },
+      { payer: this.originalSigner }
+    );
   }
 
-  withdraw(amount: SolAmount): Task<TransferSolOutput> {
+  withdraw(amount: SolAmount) {
     this.assertInitialized();
-    return this.metaplex.system().transferSol({
-      from: this.derivedKeypair,
-      to: this.originalSigner.publicKey,
-      amount,
-    });
+    return this.metaplex.system().transferSol(
+      {
+        from: this.derivedKeypair,
+        to: this.originalSigner.publicKey,
+        amount,
+      },
+      { payer: this.derivedKeypair }
+    );
   }
 
-  withdrawAll(): Task<TransferSolOutput> {
+  async withdrawAll() {
     this.assertInitialized();
-    return new Task(async (scope) => {
-      this.assertInitialized();
-      const balance = await this.metaplex
-        .rpc()
-        .getBalance(this.derivedKeypair.publicKey);
-      return this.withdraw(balance).run(scope);
-    });
+    const balance = await this.metaplex
+      .rpc()
+      .getBalance(this.derivedKeypair.publicKey);
+    const transactionFee = this.metaplex.utils().estimateTransactionFee();
+    return this.withdraw(subtractAmounts(balance, transactionFee));
   }
 
   close(): void {
@@ -95,7 +97,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
-    return nacl.sign.detached(message, this.secretKey);
+    return ed25519.sync.sign(message, this.secretKey);
   }
 
   async signTransaction(transaction: Transaction): Promise<Transaction> {
@@ -113,11 +115,7 @@ export class DerivedIdentityClient implements IdentitySigner, KeypairSigner {
   }
 
   verifyMessage(message: Uint8Array, signature: Uint8Array): boolean {
-    return nacl.sign.detached.verify(
-      message,
-      signature,
-      this.publicKey.toBytes()
-    );
+    return ed25519.sync.verify(message, signature, this.publicKey.toBytes());
   }
 
   equals(that: Signer | PublicKey): boolean {

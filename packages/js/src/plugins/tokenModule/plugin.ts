@@ -1,6 +1,4 @@
-import type { Metaplex } from '@/Metaplex';
-import type { MetaplexPlugin } from '@/types';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { ProgramClient } from '../programModule';
 import {
   approveTokenDelegateAuthorityOperation,
   approveTokenDelegateAuthorityOperationHandler,
@@ -29,18 +27,33 @@ import {
   thawTokensOperation,
   thawTokensOperationHandler,
 } from './operations';
+import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
+import type { MetaplexPlugin, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 /**
  * @group Plugins
  */
 /** @group Plugins */
 export const tokenModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    // Program.
-    metaplex.programs().register({
-      name: 'TokenProgram',
-      address: TOKEN_PROGRAM_ID,
-    });
+    // Token Program.
+    metaplex.programs().register(tokenProgram);
+    metaplex.programs().getToken = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(tokenProgram.name, programs);
+    };
+
+    // Associated Token Program.
+    metaplex.programs().register(associatedTokenProgram);
+    metaplex.programs().getAssociatedToken = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(associatedTokenProgram.name, programs);
+    };
 
     // Operations.
     const op = metaplex.operations();
@@ -85,5 +98,12 @@ export const tokenModule = (): MetaplexPlugin => ({
 declare module '../../Metaplex' {
   interface Metaplex {
     tokens(): TokenClient;
+  }
+}
+
+declare module '../programModule/ProgramClient' {
+  interface ProgramClient {
+    getToken(programs?: Program[]): Program;
+    getAssociatedToken(programs?: Program[]): Program;
   }
 }

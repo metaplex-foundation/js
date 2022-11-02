@@ -1,4 +1,3 @@
-import { findAssociatedTokenAccountPda } from '@/plugins';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import {
@@ -19,7 +18,7 @@ test('[nftModule] the owner of an NFT can delete it', async (t: Test) => {
   const nft = await createNft(mx, { tokenOwner: owner.publicKey });
 
   // When the owner deletes the NFT.
-  await mx.nfts().delete({ mintAddress: nft.address, owner }).run();
+  await mx.nfts().delete({ mintAddress: nft.address, owner });
 
   // Then the NFT accounts no longer exist.
   const accounts = await mx
@@ -49,14 +48,11 @@ test('[nftModule] it decreases the collection size when deleting the NFT', async
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 
   // When the owner deletes the NFT and provides the collection address.
-  await mx
-    .nfts()
-    .delete({
-      mintAddress: nft.address,
-      owner,
-      collection: collectionNft.address,
-    })
-    .run();
+  await mx.nfts().delete({
+    mintAddress: nft.address,
+    owner,
+    collection: collectionNft.address,
+  });
 
   // Then the collection size has decreased.
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 0);
@@ -83,21 +79,18 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
   const updateAuthority = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: owner.publicKey,
-    updateAuthority: updateAuthority,
+    updateAuthority,
   });
 
   // When the update authority tries to delete the NFT.
-  const promise = mx
-    .nfts()
-    .delete({
-      mintAddress: nft.address,
-      owner: updateAuthority,
-      ownerTokenAccount: findAssociatedTokenAccountPda(
-        nft.mint.address,
-        owner.publicKey
-      ),
-    })
-    .run();
+  const promise = mx.nfts().delete({
+    mintAddress: nft.address,
+    owner: updateAuthority,
+    ownerTokenAccount: mx.tokens().pdas().associatedTokenAccount({
+      mint: nft.mint.address,
+      owner: owner.publicKey,
+    }),
+  });
 
   // Then we expect an error.
   await assertThrows(t, promise, /InvalidOwner: Invalid Owner/);

@@ -1,9 +1,14 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope, walk } from '@/utils';
 import cloneDeep from 'lodash.clonedeep';
 import { isMetaplexFile, MetaplexFile } from '../../storageModule';
 import { JsonMetadata } from '../models';
+import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import { walk } from '@/utils';
 
 // -----------------
 // Operation
@@ -21,8 +26,7 @@ const Key = 'UploadMetadataOperation' as const;
  *     name: "My NFT",
  *     description: "My description",
  *     image: "https://arweave.net/123",
- *   })
- *   .run();
+ *   };
  * ```
  *
  * @group Operations
@@ -74,7 +78,7 @@ export const uploadMetadataOperationHandler: OperationHandler<UploadMetadataOper
     handle: async (
       operation: UploadMetadataOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<UploadMetadataOutput> => {
       const rawMetadata = operation.input;
       const files = getAssetsFromJsonMetadata(rawMetadata);

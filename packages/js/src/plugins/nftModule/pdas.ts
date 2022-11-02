@@ -1,12 +1,15 @@
-import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
+import { PublicKey } from '@solana/web3.js';
+import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { BigNumber, Pda, toBigNumber } from '@/types';
-import { TokenMetadataProgram } from './program';
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().metadata(...)` instead.
+ */
 export const findMetadataPda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -15,10 +18,13 @@ export const findMetadataPda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().masterEdition(...)` instead.
+ */
 export const findMasterEditionV2Pda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -28,10 +34,13 @@ export const findMasterEditionV2Pda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().edition(...)` instead.
+ */
 export const findEditionPda = (
   mint: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -41,11 +50,14 @@ export const findEditionPda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().editionMarker(...)` instead.
+ */
 export const findEditionMarkerPda = (
   mint: PublicKey,
   edition: BigNumber,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -56,11 +68,14 @@ export const findEditionMarkerPda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().collectionAuthorityRecord(...)` instead.
+ */
 export const findCollectionAuthorityRecordPda = (
   mint: PublicKey,
   collectionAuthority: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -71,11 +86,14 @@ export const findCollectionAuthorityRecordPda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().useAuthorityRecord(...)` instead.
+ */
 export const findUseAuthorityRecordPda = (
   mint: PublicKey,
   useAuthority: PublicKey,
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),
@@ -86,9 +104,12 @@ export const findUseAuthorityRecordPda = (
   ]);
 };
 
-/** @group Pdas */
+/**
+ * @group Pdas
+ * @deprecated Please use `metaplex.nfts().pdas().burner(...)` instead.
+ */
 export const findProgramAsBurnerPda = (
-  programId: PublicKey = TokenMetadataProgram.publicKey
+  programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
     Buffer.from('metadata', 'utf8'),

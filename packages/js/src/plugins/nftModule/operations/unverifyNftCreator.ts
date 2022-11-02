@@ -1,10 +1,15 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createRemoveCreatorVerificationInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findMetadataPda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -18,8 +23,7 @@ const Key = 'UnverifyNftCreatorOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .unverifyCreator({ mintAddress, creator })
- *   .run();
+ *   .unverifyCreator({ mintAddress, creator };
  * ```
  *
  * @group Operations
@@ -52,9 +56,6 @@ export type UnverifyNftCreatorInput = {
    * @defaultValue `metaplex.identity()`
    */
   creator?: Signer;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -74,12 +75,14 @@ export const unverifyNftCreatorOperationHandler: OperationHandler<UnverifyNftCre
   {
     handle: async (
       operation: UnverifyNftCreatorOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UnverifyNftCreatorOutput> => {
       return unverifyNftCreatorBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -114,19 +117,31 @@ export type UnverifyNftCreatorBuilderParams = Omit<
  */
 export const unverifyNftCreatorBuilder = (
   metaplex: Metaplex,
-  params: UnverifyNftCreatorBuilderParams
+  params: UnverifyNftCreatorBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { mintAddress, creator = metaplex.identity() } = params;
+
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Verify the creator.
       .add({
-        instruction: createRemoveCreatorVerificationInstruction({
-          metadata: findMetadataPda(mintAddress),
-          creator: creator.publicKey,
-        }),
+        instruction: createRemoveCreatorVerificationInstruction(
+          {
+            metadata: metaplex.nfts().pdas().metadata({
+              mint: mintAddress,
+              programs,
+            }),
+            creator: creator.publicKey,
+          },
+          tokenMetadataProgram.address
+        ),
         signers: [creator],
         key: params.instructionKey ?? 'unverifyCreator',
       })

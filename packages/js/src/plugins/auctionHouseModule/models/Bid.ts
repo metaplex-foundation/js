@@ -1,4 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
+import { BidReceiptAccount } from '../accounts';
+import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
+import { AuctionHouse } from './AuctionHouse';
 import {
   amount,
   BigNumber,
@@ -11,10 +14,7 @@ import {
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { BidReceiptAccount } from '../accounts';
 import { assert, Option } from '@/utils';
-import { AuctionHouse } from './AuctionHouse';
-import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
 
 /** @group Models */
 export type Bid = Readonly<
@@ -130,6 +130,19 @@ export const toBid = (
         }),
   };
 };
+
+/** @group Models */
+export type PublicBid = Bid & { isPublic: true; asset: Sft | Nft };
+
+/** @group Models */
+export type PrivateBid = Bid & {
+  isPublic: false;
+  asset: SftWithToken | NftWithToken;
+};
+
+/** @group Model Helpers */
+export const isPrivateBid = (value: any): value is PrivateBid =>
+  typeof value === 'object' && value.model === 'bid' && !value.isPublic;
 
 export type LazyBid = Omit<Bid, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{

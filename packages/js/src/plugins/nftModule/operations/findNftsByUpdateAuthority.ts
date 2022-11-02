@@ -1,10 +1,14 @@
+import { PublicKey } from '@solana/web3.js';
+import { toMetadataAccount } from '../accounts';
+import { MetadataV1GpaBuilder } from '../gpaBuilders';
+import { Metadata, Nft, Sft, toMetadata } from '../models';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
 import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
-import { Metadata, Nft, Sft } from '../models';
-import { TokenMetadataProgram } from '../program';
-import { findNftsByMintListOperation } from './findNftsByMintList';
 
 // -----------------
 // Operation
@@ -18,8 +22,7 @@ const Key = 'FindNftsByUpdateAuthorityOperation' as const;
  * ```ts
  * const nfts = await metaplex
  *   .nfts()
- *   .findAllByUpdateAuthority({ updateAuthority })
- *   .run();
+ *   .findAllByUpdateAuthority({ updateAuthority };
  * ```
  *
  * @group Operations
@@ -45,9 +48,6 @@ export type FindNftsByUpdateAuthorityOperation = Operation<
 export type FindNftsByUpdateAuthorityInput = {
   /** The address of the update authority. */
   updateAuthority: PublicKey;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -65,21 +65,30 @@ export const findNftsByUpdateAuthorityOperationHandler: OperationHandler<FindNft
     handle: async (
       operation: FindNftsByUpdateAuthorityOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftsByUpdateAuthorityOutput> => {
-      const { updateAuthority, commitment } = operation.input;
+      const { updateAuthority } = operation.input;
 
-      const mints = await TokenMetadataProgram.metadataV1Accounts(metaplex)
-        .selectMint()
-        .whereUpdateAuthority(updateAuthority)
-        .getDataAsPublicKeys();
+      const gpaBuilder = new MetadataV1GpaBuilder(
+        metaplex,
+        metaplex.programs().getTokenMetadata(scope.programs).address
+      );
+
+      const nfts = await gpaBuilder.whereUpdateAuthority(updateAuthority).get();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex
-        .operations()
-        .execute(findNftsByMintListOperation({ mints, commitment }), scope);
-      scope.throwIfCanceled();
+      return nfts
+        .map<Metadata | null>((account) => {
+          if (account == null) {
+            return null;
+          }
 
-      return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);
+          try {
+            return toMetadata(toMetadataAccount(account));
+          } catch (error) {
+            return null;
+          }
+        })
+        .filter((nft): nft is Metadata => nft !== null);
     },
   };

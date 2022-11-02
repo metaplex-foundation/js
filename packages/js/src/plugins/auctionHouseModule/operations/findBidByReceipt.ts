@@ -1,9 +1,13 @@
-import type { Commitment, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { useOperation, Operation, OperationHandler } from '@/types';
-import { DisposableScope } from '@/utils';
-import { AuctionHouse, Bid, toLazyBid } from '../models';
+import type { PublicKey } from '@solana/web3.js';
 import { toBidReceiptAccount } from '../accounts';
+import { AuctionHouse, Bid, toLazyBid } from '../models';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -17,8 +21,7 @@ const Key = 'FindBidByReceiptOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .auctionHouse()
- *   .findBidByReceipt({ receiptAddress, auctionHouse })
- *   .run();
+ *   .findBidByReceipt({ receiptAddress, auctionHouse };
  * ```
  *
  * @group Operations
@@ -58,9 +61,6 @@ export type FindBidByReceiptInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -72,19 +72,18 @@ export const findBidByReceiptOperationHandler: OperationHandler<FindBidByReceipt
     handle: async (
       operation: FindBidByReceiptOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const { receiptAddress, auctionHouse, commitment } = operation.input;
+      const { receiptAddress, auctionHouse } = operation.input;
 
       const account = toBidReceiptAccount(
-        await metaplex.rpc().getAccount(receiptAddress, commitment)
+        await metaplex.rpc().getAccount(receiptAddress, scope.commitment)
       );
       scope.throwIfCanceled();
 
       const lazyBid = toLazyBid(account, auctionHouse);
       return metaplex
         .auctionHouse()
-        .loadBid({ lazyBid, ...operation.input })
-        .run(scope);
+        .loadBid({ lazyBid, ...operation.input }, scope);
     },
   };

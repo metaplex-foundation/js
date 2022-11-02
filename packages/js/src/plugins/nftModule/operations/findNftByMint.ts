@@ -1,9 +1,5 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, useOperation } from '@/types';
-import { DisposableScope } from '@/utils';
-import { Commitment, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
-  findAssociatedTokenAccountPda,
   toMint,
   toMintAccount,
   toToken,
@@ -26,7 +22,13 @@ import {
   toSft,
   toSftWithToken,
 } from '../models';
-import { findMasterEditionV2Pda, findMetadataPda } from '../pdas';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -40,8 +42,7 @@ const Key = 'FindNftByMintOperation' as const;
  * ```ts
  * const nft = await metaplex
  *   .nfts()
- *   .findByMint({ mintAddress })
- *   .run();
+ *   .findByMint({ mintAddress };
  * ```
  *
  * @group Operations
@@ -99,9 +100,6 @@ export type FindNftByMintInput = {
    * @defaultValue `true`
    */
   loadJsonMetadata?: boolean;
-
-  /** The level of commitment desired when querying the blockchain. */
-  commitment?: Commitment;
 };
 
 /**
@@ -119,23 +117,28 @@ export const findNftByMintOperationHandler: OperationHandler<FindNftByMintOperat
     handle: async (
       operation: FindNftByMintOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<FindNftByMintOutput> => {
+      const { programs, commitment } = scope;
       const {
         mintAddress,
         tokenAddress,
         tokenOwner,
         loadJsonMetadata = true,
-        commitment,
       } = operation.input;
 
       const associatedTokenAddress = tokenOwner
-        ? findAssociatedTokenAccountPda(mintAddress, tokenOwner)
+        ? metaplex.tokens().pdas().associatedTokenAccount({
+            mint: mintAddress,
+            owner: tokenOwner,
+            programs,
+          })
         : undefined;
+      const nftPdas = metaplex.nfts().pdas();
       const accountAddresses = [
         mintAddress,
-        findMetadataPda(mintAddress),
-        findMasterEditionV2Pda(mintAddress),
+        nftPdas.metadata({ mint: mintAddress, programs }),
+        nftPdas.masterEdition({ mint: mintAddress, programs }),
         tokenAddress ?? associatedTokenAddress,
       ].filter((address): address is PublicKey => !!address);
 

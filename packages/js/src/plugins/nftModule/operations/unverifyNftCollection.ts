@@ -1,17 +1,18 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import {
   createUnverifyCollectionInstruction,
   createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Metaplex } from '@/Metaplex';
 import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '../pdas';
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -25,8 +26,7 @@ const Key = 'UnverifyNftCollectionOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .unverifyCollection({ mintAddress, collectionMintAddress })
- *   .run();
+ *   .unverifyCollection({ mintAddress, collectionMintAddress };
  * ```
  *
  * @group Operations
@@ -65,13 +65,6 @@ export type UnverifyNftCollectionInput = {
   collectionAuthority?: Signer;
 
   /**
-   * The Signer paying for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Whether or not the provided `collectionMintAddress` is a
    * sized collection (as opposed to a legacy collection).
    *
@@ -87,9 +80,6 @@ export type UnverifyNftCollectionInput = {
    * @defaultValue `false`
    */
   isDelegated?: boolean;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -109,12 +99,14 @@ export const unverifyNftCollectionOperationHandler: OperationHandler<UnverifyNft
   {
     handle: async (
       operation: UnverifyNftCollectionOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<UnverifyNftCollectionOutput> => {
       return unverifyNftCollectionBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -149,37 +141,55 @@ export type UnverifyNftCollectionBuilderParams = Omit<
  */
 export const unverifyNftCollectionBuilder = (
   metaplex: Metaplex,
-  params: UnverifyNftCollectionBuilderParams
+  params: UnverifyNftCollectionBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     collectionMintAddress,
     isSizedCollection = true,
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
-    payer = metaplex.identity(),
   } = params;
 
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const accounts = {
-    metadata: findMetadataPda(mintAddress),
+    metadata: metaplex.nfts().pdas().metadata({
+      mint: mintAddress,
+      programs,
+    }),
     collectionAuthority: collectionAuthority.publicKey,
     payer: payer.publicKey,
     collectionMint: collectionMintAddress,
-    collection: findMetadataPda(collectionMintAddress),
-    collectionMasterEditionAccount: findMasterEditionV2Pda(
-      collectionMintAddress
-    ),
+    collection: metaplex.nfts().pdas().metadata({
+      mint: collectionMintAddress,
+      programs,
+    }),
+    collectionMasterEditionAccount: metaplex.nfts().pdas().masterEdition({
+      mint: collectionMintAddress,
+      programs,
+    }),
     collectionAuthorityRecord: isDelegated
-      ? findCollectionAuthorityRecordPda(
-          collectionMintAddress,
-          collectionAuthority.publicKey
-        )
+      ? metaplex.nfts().pdas().collectionAuthorityRecord({
+          mint: collectionMintAddress,
+          collectionAuthority: collectionAuthority.publicKey,
+          programs,
+        })
       : undefined,
   };
 
   const instruction = isSizedCollection
-    ? createUnverifySizedCollectionItemInstruction(accounts)
-    : createUnverifyCollectionInstruction(accounts);
+    ? createUnverifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createUnverifyCollectionInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      );
 
   return (
     TransactionBuilder.make()
@@ -187,7 +197,7 @@ export const unverifyNftCollectionBuilder = (
 
       // Unverify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'unverifyCollection',
       })

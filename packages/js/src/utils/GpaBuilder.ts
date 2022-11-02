@@ -1,14 +1,14 @@
+import { Buffer } from 'buffer';
 import {
   GetProgramAccountsConfig,
   GetProgramAccountsFilter,
   PublicKey,
 } from '@solana/web3.js';
-import { Buffer } from 'buffer';
 import base58 from 'bs58';
 import BN from 'bn.js';
+import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 import { Metaplex } from '@/Metaplex';
 import { UnparsedAccount } from '@/types';
-import { GmaBuilder, GmaBuilderOptions } from './GmaBuilder';
 
 export type GpaSortCallback = (
   a: UnparsedAccount,
@@ -104,6 +104,7 @@ export class GpaBuilder {
   }
 
   async getDataAsPublicKeys(): Promise<PublicKey[]> {
+    // TODO(loris): Throw a custom Metaplex error if the data is not a public key.
     return this.getAndMap((account) => new PublicKey(account.data));
   }
 
@@ -111,6 +112,7 @@ export class GpaBuilder {
     callback?: (account: UnparsedAccount) => PublicKey,
     options?: GmaBuilderOptions
   ): Promise<GmaBuilder> {
+    // TODO(loris): Throw a custom Metaplex error if the data is not a public key.
     const cb = callback ?? ((account) => new PublicKey(account.data));
 
     return new GmaBuilder(this.metaplex, await this.getAndMap(cb), options);

@@ -1,20 +1,16 @@
-import {
-  ConfirmOptions,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js';
+import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
   assertSol,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SolAmount,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -28,8 +24,7 @@ const Key = 'CreateAccountOperation' as const;
  * ```ts
  * const { newAccount } = await metaplex
  *   .system()
- *   .createAccount({ space: 100 }) // 100 bytes
- *   .run();
+ *   .createAccount({ space: 100 }); // 100 bytes
  * ```
  *
  * @group Operations
@@ -65,13 +60,6 @@ export type CreateAccountInput = {
   lamports?: SolAmount;
 
   /**
-   * The Signer to use to pay for the new account and the transaction fee.
-   *
-   * @defaultValue Defaults to the current identity, i.e. `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The new account as a Signer since it will be mutated on-chain.
    *
    * @defaultValue Defaults to a new generated Keypair, i.e. `Keypair.generate()`
@@ -84,9 +72,6 @@ export type CreateAccountInput = {
    * @defaultValue Defaults to the System Program.
    */
   program?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -113,11 +98,15 @@ export const createAccountOperationHandler: OperationHandler<CreateAccountOperat
     async handle(
       operation: CreateAccountOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<CreateAccountOutput> {
-      const builder = await createAccountBuilder(metaplex, operation.input);
+      const builder = await createAccountBuilder(
+        metaplex,
+        operation.input,
+        scope
+      );
       scope.throwIfCanceled();
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -162,11 +151,12 @@ export type CreateAccountBuilderContext = Omit<CreateAccountOutput, 'response'>;
  */
 export const createAccountBuilder = async (
   metaplex: Metaplex,
-  params: CreateAccountBuilderParams
+  params: CreateAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<CreateAccountBuilderContext>> => {
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     space,
-    payer = metaplex.identity(),
     newAccount = Keypair.generate(),
     program = SystemProgram.programId,
   } = params;

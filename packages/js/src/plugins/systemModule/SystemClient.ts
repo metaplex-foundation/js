@@ -1,4 +1,3 @@
-import type { Metaplex } from '@/Metaplex';
 import {
   CreateAccountInput,
   createAccountOperation,
@@ -6,6 +5,8 @@ import {
   transferSolOperation,
 } from './operations';
 import { SystemBuildersClient } from './SystemBuildersClient';
+import type { Metaplex } from '@/Metaplex';
+import { OperationOptions } from '@/types';
 
 /**
  * This is a client for the System module.
@@ -24,7 +25,7 @@ import { SystemBuildersClient } from './SystemBuildersClient';
  * using the code below.
  *
  * ```ts
- * const { newAccount } = await metaplex.system().createAccount({ space: 42 }).run();
+ * const { newAccount } = await metaplex.system().createAccount({ space: 42 });
  * ```
  *
  * @group Modules
@@ -45,12 +46,16 @@ export class SystemClient {
   }
 
   /** {@inheritDoc createAccountOperation} */
-  createAccount(input: CreateAccountInput) {
-    return this.metaplex.operations().getTask(createAccountOperation(input));
+  createAccount(input: CreateAccountInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(createAccountOperation(input), options);
   }
 
   /** {@inheritDoc transferSolOperation} */
-  transferSol(input: TransferSolInput) {
-    return this.metaplex.operations().getTask(transferSolOperation(input));
+  transferSol(input: TransferSolInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(transferSolOperation(input), options);
   }
 }

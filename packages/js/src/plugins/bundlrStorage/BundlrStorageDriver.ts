@@ -1,6 +1,22 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  SendOptions,
+  Signer as Web3Signer,
+  Transaction,
+  TransactionSignature,
+} from '@solana/web3.js';
+import {
+  getBytesFromMetaplexFiles,
+  MetaplexFile,
+  MetaplexFileTag,
+  StorageDriver,
+} from '../storageModule';
+import { KeypairIdentityDriver } from '../keypairIdentity';
 import { Metaplex } from '@/Metaplex';
 import {
   Amount,
@@ -18,22 +34,6 @@ import {
   FailedToConnectToBundlrAddressError,
   FailedToInitializeBundlrError,
 } from '@/errors';
-import {
-  getBytesFromMetaplexFiles,
-  MetaplexFile,
-  MetaplexFileTag,
-  StorageDriver,
-} from '../storageModule';
-import { KeypairIdentityDriver } from '../keypairIdentity';
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  SendOptions,
-  Signer as Web3Signer,
-  Transaction,
-  TransactionSignature,
-} from '@solana/web3.js';
 
 /**
  * This method is necessary to import the Bundlr package on both ESM and CJS modules.
@@ -42,6 +42,7 @@ import {
  * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
  * This method fixes this by ensure there is not double default in the imported package.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function _removeDoubleDefault(pkg: any) {
   if (
     pkg &&
@@ -113,10 +114,9 @@ export class BundlrStorageDriver implements StorageDriver {
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const { status, data } = await bundlr.uploader.upload(
-        file.buffer,
-        getMetaplexFileTagsWithContentType(file)
-      );
+      const { status, data } = await bundlr.uploader.upload(file.buffer, {
+        tags: getMetaplexFileTagsWithContentType(file),
+      });
 
       if (status >= 300) {
         throw new AssetUploadFailedError(status);
@@ -200,7 +200,7 @@ export class BundlrStorageDriver implements StorageDriver {
 
     // if in node use node bundlr, else use web bundlr
     // see: https://github.com/metaplex-foundation/js/issues/202
-    let isNode =
+    const isNode =
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
     let bundlr;
     if (isNode && isKeypairSigner(identity))
@@ -265,19 +265,11 @@ export class BundlrStorageDriver implements StorageDriver {
         connection: Connection,
         options: SendOptions & { signers?: Web3Signer[] } = {}
       ): Promise<TransactionSignature> => {
-        const { signers, ...sendOptions } = options;
+        const { signers = [], ...sendOptions } = options;
 
-        if ('rpc' in this._metaplex) {
-          return this._metaplex
-            .rpc()
-            .sendTransaction(transaction, signers, sendOptions);
-        }
-
-        return connection.sendTransaction(
-          transaction,
-          signers ?? [],
-          sendOptions
-        );
+        return this._metaplex
+          .rpc()
+          .sendTransaction(transaction, sendOptions, [identity, ...signers]);
       },
     };
 

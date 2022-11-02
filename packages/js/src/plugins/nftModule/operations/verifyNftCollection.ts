@@ -1,17 +1,18 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import {
   createVerifyCollectionInstruction,
   createVerifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { Metaplex } from '@/Metaplex';
 import {
-  findCollectionAuthorityRecordPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '../pdas';
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -25,8 +26,7 @@ const Key = 'VerifyNftCollectionOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .verifyCollection({ mintAddress, collectionMintAddress })
- *   .run();
+ *   .verifyCollection({ mintAddress, collectionMintAddress };
  * ```
  *
  * @group Operations
@@ -65,13 +65,6 @@ export type VerifyNftCollectionInput = {
   collectionAuthority?: Signer;
 
   /**
-   * The Signer paying for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * Whether or not the provided `collectionMintAddress` is a
    * sized collection (as opposed to a legacy collection).
    *
@@ -87,9 +80,6 @@ export type VerifyNftCollectionInput = {
    * @defaultValue `false`
    */
   isDelegated?: boolean;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -109,12 +99,14 @@ export const verifyNftCollectionOperationHandler: OperationHandler<VerifyNftColl
   {
     handle: async (
       operation: VerifyNftCollectionOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<VerifyNftCollectionOutput> => {
       return verifyNftCollectionBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -149,38 +141,53 @@ export type VerifyNftCollectionBuilderParams = Omit<
  */
 export const verifyNftCollectionBuilder = (
   metaplex: Metaplex,
-  params: VerifyNftCollectionBuilderParams
+  params: VerifyNftCollectionBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     collectionMintAddress,
     isSizedCollection = true,
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
-    payer = metaplex.identity(),
   } = params;
 
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   const accounts = {
-    metadata: findMetadataPda(mintAddress),
+    metadata: metaplex.nfts().pdas().metadata({
+      mint: mintAddress,
+      programs,
+    }),
     collectionAuthority: collectionAuthority.publicKey,
     payer: payer.publicKey,
     collectionMint: collectionMintAddress,
-    collection: findMetadataPda(collectionMintAddress),
-    collectionMasterEditionAccount: findMasterEditionV2Pda(
-      collectionMintAddress
-    ),
+    collection: metaplex.nfts().pdas().metadata({
+      mint: collectionMintAddress,
+      programs,
+    }),
+    collectionMasterEditionAccount: metaplex.nfts().pdas().masterEdition({
+      mint: collectionMintAddress,
+      programs,
+    }),
   };
 
   const instruction = isSizedCollection
-    ? createVerifySizedCollectionItemInstruction(accounts)
-    : createVerifyCollectionInstruction(accounts);
+    ? createVerifySizedCollectionItemInstruction(
+        accounts,
+        tokenMetadataProgram.address
+      )
+    : createVerifyCollectionInstruction(accounts, tokenMetadataProgram.address);
 
   if (isDelegated) {
     instruction.keys.push({
-      pubkey: findCollectionAuthorityRecordPda(
-        collectionMintAddress,
-        collectionAuthority.publicKey
-      ),
+      pubkey: metaplex.nfts().pdas().collectionAuthorityRecord({
+        mint: collectionMintAddress,
+        collectionAuthority: collectionAuthority.publicKey,
+        programs,
+      }),
       isWritable: false,
       isSigner: false,
     });
@@ -192,7 +199,7 @@ export const verifyNftCollectionBuilder = (
 
       // Verify the collection.
       .add({
-        instruction: instruction,
+        instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'verifyCollection',
       })

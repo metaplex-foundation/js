@@ -1,80 +1,50 @@
+import { Keypair } from '@solana/web3.js';
 import test from 'tape';
-import {
-  assertThrows,
-  createNft,
-  createWallet,
-  killStuckProcess,
-  metaplex,
-} from '../../helpers';
-import { findCandyMachineCollectionPda } from '@/plugins';
+import { killStuckProcess, metaplex } from '../../helpers';
 import { createCandyMachine } from './helpers';
+import { assert } from '@/index';
 
 killStuckProcess();
 
-test('[candyMachineModule] it can delete a candy machine', async (t) => {
-  // Given an existing Candy Machine.
+test('[candyMachineModule] it can delete a Candy Machine', async (t) => {
+  // Given an existing Candy Machine with a Candy Guard.
   const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
-
-  // When we delete that candy machine using default values.
-  await mx.candyMachines().delete({ candyMachine }).run();
-
-  // Then the Candy Machine has been deleted.
-  const account = await mx.rpc().getAccount(candyMachine.address);
-  t.false(account.exists, 'candy machine should not exist');
-});
-
-test('[candyMachineModule] it can delete a candy machine using an explicit authority', async (t) => {
-  // Given an existing Candy Machine with an explicit authority.
-  const mx = await metaplex();
-  const authority = await createWallet(mx);
-  const { candyMachine } = await createCandyMachine(mx, { authority });
-
-  // When we delete that candy machine using that authority.
-  await mx.candyMachines().delete({ candyMachine, authority }).run();
-
-  // Then the Candy Machine has been deleted.
-  const account = await mx.rpc().getAccount(candyMachine.address);
-  t.false(account.exists, 'candy machine should not exist');
-});
-
-test('[candyMachineModule] it cannot delete a candy machine using an invalid authority', async (t) => {
-  // Given an existing Candy Machine.
-  const mx = await metaplex();
-  const { candyMachine } = await createCandyMachine(mx);
-
-  // When we delete that candy machine using an invalid authority.
-  const invalidAuthority = await createWallet(mx);
-  const promise = mx
-    .candyMachines()
-    .delete({ candyMachine, authority: invalidAuthority })
-    .run();
-
-  // Then we expect an error.
-  await assertThrows(t, promise, /A has one constraint was violated/);
-});
-
-test('[candyMachineModule] it can delete a candy machine with a collection NFT', async (t) => {
-  // Given an existing Candy Machine with a collection NFT.
-  const mx = await metaplex();
-  const collectionNft = await createNft(mx);
+  const candyMachineAuthority = Keypair.generate();
   const { candyMachine } = await createCandyMachine(mx, {
-    collection: collectionNft.address,
+    authority: candyMachineAuthority,
+  });
+  assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');
+
+  // When we delete the Candy Machine account.
+  await mx.candyMachines().delete({
+    candyMachine: candyMachine.address,
+    authority: candyMachineAuthority,
   });
 
-  // When we delete that candy machine.
-  await mx.candyMachines().delete({ candyMachine }).run();
+  // Then the Candy Machine account no longer exists.
+  t.false(await mx.rpc().accountExists(candyMachine.address));
 
-  // Then the Candy Machine has been deleted.
-  const account = await mx.rpc().getAccount(candyMachine.address);
-  t.false(account.exists, 'candy machine should not exist');
+  // But the Candy Guard account still exists.
+  t.true(await mx.rpc().accountExists(candyMachine.candyGuard.address));
+});
 
-  // And the Collection PDA has also been deleted.
-  const collectionPda = await mx
-    .rpc()
-    .getAccount(findCandyMachineCollectionPda(candyMachine.address));
-  t.false(
-    collectionPda.exists,
-    'candy machine collection PDA should not exist'
-  );
+test('[candyMachineModule] it can delete a Candy Machine with its Candy Guard', async (t) => {
+  // Given an existing Candy Machine with a Candy Guard.
+  const mx = await metaplex();
+  const candyMachineAuthority = Keypair.generate();
+  const { candyMachine } = await createCandyMachine(mx, {
+    authority: candyMachineAuthority,
+  });
+  assert(!!candyMachine.candyGuard, 'Candy Machine has a Candy Guard');
+
+  // When we delete the Candy Machine account whilst specifying the Candy Guard.
+  await mx.candyMachines().delete({
+    candyMachine: candyMachine.address,
+    candyGuard: candyMachine.candyGuard.address,
+    authority: candyMachineAuthority,
+  });
+
+  // Then both the Candy Machine and Candy Guard accounts no longer exist.
+  t.false(await mx.rpc().accountExists(candyMachine.address));
+  t.false(await mx.rpc().accountExists(candyMachine.candyGuard.address));
 });

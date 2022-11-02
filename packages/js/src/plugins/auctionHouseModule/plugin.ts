@@ -1,8 +1,6 @@
-import { cusper } from '@metaplex-foundation/mpl-auction-house';
-import type { Metaplex } from '@/Metaplex';
-import type { ErrorWithLogs, MetaplexPlugin } from '@/types';
+import { cusper, PROGRAM_ID } from '@metaplex-foundation/mpl-auction-house';
+import { ProgramClient } from '../programModule';
 import { AuctionHouseClient } from './AuctionHouseClient';
-import { AuctionHouseProgram } from './program';
 import {
   cancelBidOperation,
   cancelBidOperationHandler,
@@ -16,6 +14,10 @@ import {
   createListingOperationHandler,
   depositToBuyerAccountOperation,
   depositToBuyerAccountOperationHandler,
+  directBuyOperation,
+  directBuyOperationHandler,
+  directSellOperation,
+  directSellOperationHandler,
   executeSaleOperation,
   executeSaleOperationHandler,
   findAuctionHouseByAddressOperation,
@@ -26,20 +28,20 @@ import {
   findBidByReceiptOperationHandler,
   findBidByTradeStateOperation,
   findBidByTradeStateOperationHandler,
-  findBidsByPublicKeyFieldOperation,
-  findBidsByPublicKeyFieldOperationHandler,
+  findBidsOperation,
+  findBidsOperationHandler,
   findListingByReceiptOperation,
   findListingByReceiptOperationHandler,
   findListingByTradeStateOperation,
   findListingByTradeStateOperationHandler,
-  findListingsByPublicKeyFieldOperation,
-  findListingsByPublicKeyFieldOperationHandler,
+  findListingsOperation,
+  findListingsOperationHandler,
   findPurchaseByReceiptOperation,
   findPurchaseByReceiptOperationHandler,
   findPurchaseByTradeStateOperation,
   findPurchaseByTradeStateOperationHandler,
-  findPurchasesByPublicKeyFieldOperation,
-  findPurchasesByPublicKeyFieldOperationHandler,
+  findPurchasesOperation,
+  findPurchasesOperationHandler,
   getBuyerBalanceOperation,
   getBuyerBalanceOperationHandler,
   loadBidOperation,
@@ -57,17 +59,26 @@ import {
   withdrawFromTreasuryAccountOperation,
   withdrawFromTreasuryAccountOperationHandler,
 } from './operations';
+import type { ErrorWithLogs, MetaplexPlugin, Program } from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 /** @group Plugins */
 export const auctionHouseModule = (): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
     // Auction House Program.
-    metaplex.programs().register({
+    const auctionHouseProgram = {
       name: 'AuctionHouseProgram',
-      address: AuctionHouseProgram.publicKey,
+      address: PROGRAM_ID,
       errorResolver: (error: ErrorWithLogs) =>
         cusper.errorFromProgramLogs(error.logs, false),
-    });
+    };
+    metaplex.programs().register(auctionHouseProgram);
+    metaplex.programs().getAuctionHouse = function (
+      this: ProgramClient,
+      programs?: Program[]
+    ) {
+      return this.get(auctionHouseProgram.name, programs);
+    };
 
     const op = metaplex.operations();
     op.register(cancelBidOperation, cancelBidOperationHandler);
@@ -82,6 +93,8 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       depositToBuyerAccountOperation,
       depositToBuyerAccountOperationHandler
     );
+    op.register(directBuyOperation, directBuyOperationHandler);
+    op.register(directSellOperation, directSellOperationHandler);
     op.register(executeSaleOperation, executeSaleOperationHandler);
     op.register(
       findAuctionHouseByAddressOperation,
@@ -96,10 +109,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findBidByTradeStateOperation,
       findBidByTradeStateOperationHandler
     );
-    op.register(
-      findBidsByPublicKeyFieldOperation,
-      findBidsByPublicKeyFieldOperationHandler
-    );
+    op.register(findBidsOperation, findBidsOperationHandler);
     op.register(
       findListingByReceiptOperation,
       findListingByReceiptOperationHandler
@@ -108,10 +118,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findListingByTradeStateOperation,
       findListingByTradeStateOperationHandler
     );
-    op.register(
-      findListingsByPublicKeyFieldOperation,
-      findListingsByPublicKeyFieldOperationHandler
-    );
+    op.register(findListingsOperation, findListingsOperationHandler);
     op.register(
       findPurchaseByReceiptOperation,
       findPurchaseByReceiptOperationHandler
@@ -120,10 +127,7 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
       findPurchaseByTradeStateOperation,
       findPurchaseByTradeStateOperationHandler
     );
-    op.register(
-      findPurchasesByPublicKeyFieldOperation,
-      findPurchasesByPublicKeyFieldOperationHandler
-    );
+    op.register(findPurchasesOperation, findPurchasesOperationHandler);
     op.register(getBuyerBalanceOperation, getBuyerBalanceOperationHandler);
     op.register(loadBidOperation, loadBidOperationHandler);
     op.register(loadListingOperation, loadListingOperationHandler);
@@ -154,5 +158,11 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
 declare module '../../Metaplex' {
   interface Metaplex {
     auctionHouse(): AuctionHouseClient;
+  }
+}
+
+declare module '../programModule/ProgramClient' {
+  interface ProgramClient {
+    getAuctionHouse(programs?: Program[]): Program;
   }
 }

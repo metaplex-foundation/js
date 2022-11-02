@@ -1,14 +1,13 @@
 import {
-  Blockhash,
+  BlockhashWithExpiryBlockHeight,
   ConfirmOptions,
-  PublicKey,
   SignaturePubkeyPair,
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import type { Signer } from '@/types';
+import { SendAndConfirmTransactionResponse } from '../plugins/rpcModule';
 import type { Metaplex } from '@/Metaplex';
-import { SendAndConfirmTransactionResponse } from '..';
+import type { OperationOptions, Signer } from '@/types';
 
 export type InstructionWithSigners = {
   instruction: TransactionInstruction;
@@ -17,30 +16,29 @@ export type InstructionWithSigners = {
 };
 
 type TransactionOptions = {
-  /** The transaction fee payer */
-  feePayer?: PublicKey | null;
-  /** One or more signatures */
+  /** Additional signatures. */
   signatures?: Array<SignaturePubkeyPair>;
-  /** A recent blockhash */
-  blockhash: Blockhash;
-  /** the last block chain can advance to before tx is exportd expired */
-  lastValidBlockHeight: number;
 };
+
+export type TransactionBuilderOptions = Pick<
+  OperationOptions,
+  'programs' | 'payer'
+>;
 
 export class TransactionBuilder<C extends object = object> {
   /** The list of all instructions and their respective signers. */
-  private records: InstructionWithSigners[] = [];
+  protected records: InstructionWithSigners[] = [];
 
   /** Options used when building the transaction. */
-  private transactionOptions?: TransactionOptions;
+  protected transactionOptions: TransactionOptions;
 
   /** The signer to use to pay for transaction fees. */
-  private feePayer: Signer | undefined = undefined;
+  protected feePayer: Signer | undefined = undefined;
 
   /** Any additional context gathered when creating the transaction builder. */
-  private context: C = {} as C;
+  protected context: C = {} as C;
 
-  constructor(transactionOptions?: TransactionOptions) {
+  constructor(transactionOptions: TransactionOptions = {}) {
     this.transactionOptions = transactionOptions;
   }
 
@@ -80,7 +78,7 @@ export class TransactionBuilder<C extends object = object> {
 
   splitUsingKey(
     key: string,
-    include: boolean = true
+    include = true
   ): [TransactionBuilder, TransactionBuilder] {
     const firstBuilder = new TransactionBuilder(this.transactionOptions);
     const secondBuilder = new TransactionBuilder(this.transactionOptions);
@@ -146,8 +144,8 @@ export class TransactionBuilder<C extends object = object> {
     return this;
   }
 
-  getFeePayer(): PublicKey | undefined {
-    return this.feePayer?.publicKey;
+  getFeePayer(): Signer | undefined {
+    return this.feePayer;
   }
 
   setContext(context: C): TransactionBuilder<C> {
@@ -174,12 +172,22 @@ export class TransactionBuilder<C extends object = object> {
     return this.when(!condition, callback);
   }
 
-  toTransaction(): Transaction {
-    const tx = new Transaction(this.getTransactionOptions());
-    tx.add(...this.getInstructions());
-    tx.feePayer = this.getFeePayer();
+  toTransaction(
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
+    options: TransactionOptions = {}
+  ): Transaction {
+    options = { ...this.getTransactionOptions(), ...options };
 
-    return tx;
+    const transaction = new Transaction({
+      feePayer: this.getFeePayer()?.publicKey,
+      signatures: options.signatures,
+      blockhash: blockhashWithExpiryBlockHeight.blockhash,
+      lastValidBlockHeight: blockhashWithExpiryBlockHeight.lastValidBlockHeight,
+    });
+
+    transaction.add(...this.getInstructions());
+
+    return transaction;
   }
 
   async sendAndConfirm(
@@ -188,7 +196,7 @@ export class TransactionBuilder<C extends object = object> {
   ): Promise<{ response: SendAndConfirmTransactionResponse } & C> {
     const response = await metaplex
       .rpc()
-      .sendAndConfirmTransaction(this, undefined, confirmOptions);
+      .sendAndConfirmTransaction(this, confirmOptions);
 
     return {
       response,

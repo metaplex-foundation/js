@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import debug from 'debug';
 
 export const logErrorDebug = debug('mp-sdk:error');

@@ -1,11 +1,15 @@
-import type { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
 import { createThawDelegatedAccountInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda, TokenProgram } from '../../tokenModule';
-import { findMasterEditionV2Pda } from '../pdas';
+import type { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -19,8 +23,7 @@ const Key = 'ThawDelegatedNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .thawDelegatedNft({ mintAddress, delegateAuthority })
- *   .run();
+ *   .thawDelegatedNft({ mintAddress, delegateAuthority };
  * ```
  *
  * @group Operations
@@ -69,12 +72,6 @@ export type ThawDelegatedNftInput = {
    * from the `mintAddress` and `tokenOwner` parameters.
    */
   tokenAddress?: PublicKey;
-
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey; // Defaults to Token Program.
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -94,11 +91,12 @@ export const thawDelegatedNftOperationHandler: OperationHandler<ThawDelegatedNft
   {
     async handle(
       operation: ThawDelegatedNftOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<ThawDelegatedNftOutput> {
       return thawDelegatedNftBuilder(metaplex, operation.input).sendAndConfirm(
         metaplex,
-        operation.input.confirmOptions
+        scope.confirmOptions
       );
     },
   };
@@ -134,29 +132,47 @@ export type ThawDelegatedNftBuilderParams = Omit<
  */
 export const thawDelegatedNftBuilder = (
   metaplex: Metaplex,
-  params: ThawDelegatedNftBuilderParams
+  params: ThawDelegatedNftBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     mintAddress,
     delegateAuthority,
     tokenOwner = metaplex.identity().publicKey,
     tokenAddress,
-    tokenProgram = TokenProgram.publicKey,
   } = params;
 
-  const editionAddress = findMasterEditionV2Pda(mintAddress);
-  const tokenAddressOrAta =
-    tokenAddress ?? findAssociatedTokenAccountPda(mintAddress, tokenOwner);
+  // Programs.
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  return TransactionBuilder.make().add({
-    instruction: createThawDelegatedAccountInstruction({
-      delegate: delegateAuthority.publicKey,
-      tokenAccount: tokenAddressOrAta,
-      edition: editionAddress,
-      mint: mintAddress,
-      tokenProgram,
-    }),
-    signers: [delegateAuthority],
-    key: params.instructionKey ?? 'thawDelegatedNft',
+  const editionAddress = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
   });
+  const tokenAddressOrAta =
+    tokenAddress ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: tokenOwner,
+      programs,
+    });
+
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createThawDelegatedAccountInstruction(
+        {
+          delegate: delegateAuthority.publicKey,
+          tokenAccount: tokenAddressOrAta,
+          edition: editionAddress,
+          mint: mintAddress,
+          tokenProgram: tokenProgram.address,
+        },
+        tokenMetadataProgram.address
+      ),
+      signers: [delegateAuthority],
+      key: params.instructionKey ?? 'thawDelegatedNft',
+    });
 };

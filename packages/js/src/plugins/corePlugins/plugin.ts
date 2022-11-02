@@ -16,6 +16,7 @@ import { bundlrStorage } from '../bundlrStorage';
 import { systemModule } from '../systemModule';
 import { tokenModule } from '../tokenModule';
 import { nftModule } from '../nftModule';
+import { candyMachineV2Module } from '../candyMachineV2Module';
 import { candyMachineModule } from '../candyMachineModule';
 import { auctionHouseModule } from '../auctionHouseModule';
 
@@ -37,6 +38,7 @@ export const corePlugins = () => ({
     metaplex.use(systemModule());
     metaplex.use(tokenModule());
     metaplex.use(nftModule());
+    metaplex.use(candyMachineV2Module());
     metaplex.use(candyMachineModule());
     metaplex.use(auctionHouseModule());
   },

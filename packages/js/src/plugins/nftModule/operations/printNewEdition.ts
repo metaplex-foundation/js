@@ -1,30 +1,25 @@
-import { Metaplex } from '@/Metaplex';
-import {
-  BigNumber,
-  Operation,
-  OperationHandler,
-  Signer,
-  toBigNumber,
-  token,
-  useOperation,
-} from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { ConfirmOptions, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { findAssociatedTokenAccountPda } from '../../tokenModule';
 import { toOriginalEditionAccount } from '../accounts';
 import {
   assertNftWithToken,
   NftWithToken,
   toNftOriginalEdition,
 } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  findEditionMarkerPda,
-  findEditionPda,
-  findMasterEditionV2Pda,
-  findMetadataPda,
-} from '../pdas';
+  BigNumber,
+  makeConfirmOptionsFinalizedOnMainnet,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  toBigNumber,
+  token,
+  useOperation,
+} from '@/types';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -38,8 +33,7 @@ const Key = 'PrintNewEditionOperation' as const;
  * ```ts
  * const { nft } = await metaplex
  *   .nfts()
- *   .printNewEdition({ originalMint })
- *   .run();
+ *   .printNewEdition({ originalMint };
  * ```
  *
  * @group Operations
@@ -114,24 +108,6 @@ export type PrintNewEditionInput = {
    * from the `originalMint` and `newOwner` parameters.
    */
   newTokenAccount?: Signer;
-
-  /**
-   * The Signer paying for the creation of all accounts
-   * required to create a new printed NFT.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /** The address of the SPL Token program to override if necessary. */
-  tokenProgram?: PublicKey;
-
-  /** The address of the SPL Associated Token program to override if necessary. */
-  associatedTokenProgram?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -170,35 +146,40 @@ export const printNewEditionOperationHandler: OperationHandler<PrintNewEditionOp
     handle: async (
       operation: PrintNewEditionOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ) => {
-      const originalEditionAccount = await metaplex
-        .rpc()
-        .getAccount(findMasterEditionV2Pda(operation.input.originalMint));
+      const originalEditionAccount = await metaplex.rpc().getAccount(
+        metaplex.nfts().pdas().masterEdition({
+          mint: operation.input.originalMint,
+          programs: scope.programs,
+        })
+      );
       scope.throwIfCanceled();
 
       const originalEdition = toNftOriginalEdition(
         toOriginalEditionAccount(originalEditionAccount)
       );
-      const builder = await printNewEditionBuilder(metaplex, {
-        ...operation.input,
-        originalSupply: originalEdition.supply,
-      });
-      scope.throwIfCanceled();
-
-      const output = await builder.sendAndConfirm(
+      const builder = await printNewEditionBuilder(
         metaplex,
-        operation.input.confirmOptions
+        { ...operation.input, originalSupply: originalEdition.supply },
+        scope
       );
       scope.throwIfCanceled();
 
-      const nft = await metaplex
-        .nfts()
-        .findByMint({
+      const confirmOptions = makeConfirmOptionsFinalizedOnMainnet(
+        metaplex,
+        scope.confirmOptions
+      );
+      const output = await builder.sendAndConfirm(metaplex, confirmOptions);
+      scope.throwIfCanceled();
+
+      const nft = await metaplex.nfts().findByMint(
+        {
           mintAddress: output.mintSigner.publicKey,
           tokenAddress: output.tokenAddress,
-        })
-        .run(scope);
+        },
+        scope
+      );
       scope.throwIfCanceled();
 
       assertNftWithToken(nft);
@@ -267,30 +248,48 @@ export type PrintNewEditionBuilderContext = Omit<
  */
 export const printNewEditionBuilder = async (
   metaplex: Metaplex,
-  params: PrintNewEditionBuilderParams
+  params: PrintNewEditionBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): Promise<TransactionBuilder<PrintNewEditionBuilderContext>> => {
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
     originalMint,
     newMint = Keypair.generate(),
     newUpdateAuthority = metaplex.identity().publicKey,
     newOwner = metaplex.identity().publicKey,
     newTokenAccount,
-    payer = metaplex.identity(),
-    tokenProgram,
-    associatedTokenProgram,
     printNewEditionInstructionKey = 'printNewEdition',
   } = params;
 
+  // Programs.
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
   // Original NFT.
-  const originalMetadataAddress = findMetadataPda(originalMint);
-  const originalEditionAddress = findMasterEditionV2Pda(originalMint);
+  const originalMetadataAddress = metaplex.nfts().pdas().metadata({
+    mint: originalMint,
+    programs,
+  });
+  const originalEditionAddress = metaplex.nfts().pdas().masterEdition({
+    mint: originalMint,
+    programs,
+  });
   const edition = toBigNumber(params.originalSupply.addn(1));
-  const originalEditionMarkPda = findEditionMarkerPda(originalMint, edition);
+  const originalEditionMarkPda = metaplex.nfts().pdas().editionMarker({
+    mint: originalMint,
+    edition,
+    programs,
+  });
 
   // New NFT.
   const newMintAuthority = Keypair.generate(); // Will be overwritten by edition PDA.
-  const newMetadataAddress = findMetadataPda(newMint.publicKey);
-  const newEditionAddress = findEditionPda(newMint.publicKey);
+  const newMetadataAddress = metaplex.nfts().pdas().metadata({
+    mint: newMint.publicKey,
+    programs,
+  });
+  const newEditionAddress = metaplex.nfts().pdas().edition({
+    mint: newMint.publicKey,
+    programs,
+  });
   const sharedAccounts = {
     newMetadata: newMetadataAddress,
     newEdition: newEditionAddress,
@@ -306,35 +305,37 @@ export const printNewEditionBuilder = async (
   const tokenWithMintBuilder = await metaplex
     .tokens()
     .builders()
-    .createTokenWithMint({
-      decimals: 0,
-      initialSupply: token(1),
-      mint: newMint,
-      mintAuthority: newMintAuthority,
-      freezeAuthority: newMintAuthority.publicKey,
-      owner: newOwner,
-      token: newTokenAccount,
-      payer,
-      tokenProgram,
-      associatedTokenProgram,
-      createMintAccountInstructionKey: params.createMintAccountInstructionKey,
-      initializeMintInstructionKey: params.initializeMintInstructionKey,
-      createAssociatedTokenAccountInstructionKey:
-        params.createAssociatedTokenAccountInstructionKey,
-      createTokenAccountInstructionKey: params.createTokenAccountInstructionKey,
-      initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-      mintTokensInstructionKey: params.mintTokensInstructionKey,
-    });
+    .createTokenWithMint(
+      {
+        decimals: 0,
+        initialSupply: token(1),
+        mint: newMint,
+        mintAuthority: newMintAuthority,
+        freezeAuthority: newMintAuthority.publicKey,
+        owner: newOwner,
+        token: newTokenAccount,
+        createMintAccountInstructionKey: params.createMintAccountInstructionKey,
+        initializeMintInstructionKey: params.initializeMintInstructionKey,
+        createAssociatedTokenAccountInstructionKey:
+          params.createAssociatedTokenAccountInstructionKey,
+        createTokenAccountInstructionKey:
+          params.createTokenAccountInstructionKey,
+        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+        mintTokensInstructionKey: params.mintTokensInstructionKey,
+      },
+      { payer, programs }
+    );
 
   const { tokenAddress } = tokenWithMintBuilder.getContext();
   const originalTokenAccountOwner =
     params.originalTokenAccountOwner ?? metaplex.identity();
   const originalTokenAccount =
     params.originalTokenAccount ??
-    findAssociatedTokenAccountPda(
-      originalMint,
-      originalTokenAccountOwner.publicKey
-    );
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: originalMint,
+      owner: originalTokenAccountOwner.publicKey,
+      programs,
+    });
 
   return (
     TransactionBuilder.make<PrintNewEditionBuilderContext>()
@@ -358,7 +359,8 @@ export const printNewEditionBuilder = async (
             tokenAccountOwner: originalTokenAccountOwner.publicKey,
             tokenAccount: originalTokenAccount,
           },
-          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } }
+          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } },
+          tokenMetadataProgram.address
         ),
         signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],
         key: printNewEditionInstructionKey,

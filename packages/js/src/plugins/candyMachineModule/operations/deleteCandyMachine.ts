@@ -1,11 +1,15 @@
-import { Metaplex } from '@/Metaplex';
-import { Operation, OperationHandler, Signer, useOperation } from '@/types';
-import { TransactionBuilder } from '@/utils';
-import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
-import type { ConfirmOptions } from '@solana/web3.js';
+import { createWithdrawInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { CandyMachine } from '../models/CandyMachine';
-import { findCandyMachineCollectionPda } from '../pdas';
+import { Metaplex } from '@/Metaplex';
+import {
+  Operation,
+  OperationHandler,
+  OperationScope,
+  PublicKey,
+  Signer,
+  useOperation,
+} from '@/types';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -14,10 +18,16 @@ import { findCandyMachineCollectionPda } from '../pdas';
 const Key = 'DeleteCandyMachineOperation' as const;
 
 /**
- * Deletes an existing Candy Machine.
+ * Deletes a Candy Machine account by withdrawing its rent-exempt balance.
  *
  * ```ts
- * await metaplex.candyMachines().delete({ candyMachine }).run();
+ * await metaplex
+ *   .candyMachines()
+ *   .delete({
+ *     candyMachine: candyMachine.address,
+ *     candyGuard: candyMachine.candyGuard.address,
+ *     authority,
+ *   };
  * ```
  *
  * @group Operations
@@ -41,26 +51,36 @@ export type DeleteCandyMachineOperation = Operation<
  * @category Inputs
  */
 export type DeleteCandyMachineInput = {
-  /**
-   * The Candy Machine to delete.
-   * We need the address of the Candy Machine as well as the address
-   * of the potential collection since we will need to delete the PDA account
-   * that links the Candy Machine to the collection.
-   *
-   * If the Candy Machine does not have a collection, simply set
-   * `collectionMintAddress` to `null`.
-   */
-  candyMachine: Pick<CandyMachine, 'address' | 'collectionMintAddress'>;
+  /** The address of the Candy Machine account to delete. */
+  candyMachine: PublicKey;
 
   /**
-   * The Signer authorized to update the candy machine.
+   * The address of the Candy Guard associated with the Candy Machine account.
+   * When provided the Candy Guard will be deleted as well.
+   *
+   * @defaultValue Defaults to not being deleted.
+   */
+  candyGuard?: PublicKey;
+
+  /**
+   * The authority of the Candy Machine account.
+   *
+   * This is the account that will received the rent-exemption
+   * lamports from the Candy Machine account.
    *
    * @defaultValue `metaplex.identity()`
    */
   authority?: Signer;
 
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
+  /**
+   * The authority of the Candy Guard account to delete.
+   *
+   * This is only required if `candyGuard` is provided and the Candy
+   * Guard authority is not the same as the Candy Machine authority.
+   *
+   * @defaultValue `authority`
+   */
+  candyGuardAuthority?: Signer;
 };
 
 /**
@@ -80,12 +100,14 @@ export const deleteCandyMachineOperationHandler: OperationHandler<DeleteCandyMac
   {
     async handle(
       operation: DeleteCandyMachineOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ): Promise<DeleteCandyMachineOutput> {
       return deleteCandyMachineBuilder(
         metaplex,
-        operation.input
-      ).sendAndConfirm(metaplex, operation.input.confirmOptions);
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -101,19 +123,21 @@ export type DeleteCandyMachineBuilderParams = Omit<
   DeleteCandyMachineInput,
   'confirmOptions'
 > & {
-  /** A key to distinguish the instruction that deletes the Candy Machine. */
-  instructionKey?: string;
+  /** A key to distinguish the instruction that deletes the Candy Machine account. */
+  deleteCandyMachineInstructionKey?: string;
 };
 
 /**
- * Deletes an existing Candy Machine.
+ * Deletes a Candy Machine account by withdrawing its rent-exempt balance.
  *
  * ```ts
- * const transactionBuilder = metaplex
+ * const transactionBuilder = await metaplex
  *   .candyMachines()
  *   .builders()
  *   .delete({
- *     candyMachine: { address, collectionMintAddress },
+ *     candyMachine: candyMachine.address,
+ *     candyGuard: candyMachine.candyGuard.address,
+ *     authority,
  *   });
  * ```
  *
@@ -122,36 +146,44 @@ export type DeleteCandyMachineBuilderParams = Omit<
  */
 export const deleteCandyMachineBuilder = (
   metaplex: Metaplex,
-  params: DeleteCandyMachineBuilderParams
+  params: DeleteCandyMachineBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const authority = params.authority ?? metaplex.identity();
-  const candyMachine = params.candyMachine;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const {
+    candyMachine,
+    candyGuard,
+    authority = metaplex.identity(),
+    candyGuardAuthority = authority,
+  } = params;
 
-  const deleteInstruction = createWithdrawFundsInstruction({
-    candyMachine: candyMachine.address,
-    authority: authority.publicKey,
-  });
+  const candyMachineProgram = metaplex.programs().getCandyMachine(programs);
 
-  if (candyMachine.collectionMintAddress) {
-    const collectionPda = findCandyMachineCollectionPda(candyMachine.address);
-    deleteInstruction.keys.push({
-      pubkey: collectionPda,
-      isWritable: true,
-      isSigner: false,
+  const builder = TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createWithdrawInstruction(
+        {
+          candyMachine,
+          authority: authority.publicKey,
+        },
+        candyMachineProgram.address
+      ),
+      signers: [authority],
+      key: params.deleteCandyMachineInstructionKey ?? 'deleteCandyMachine',
     });
+
+  if (candyGuard) {
+    builder.add(
+      metaplex
+        .candyMachines()
+        .builders()
+        .deleteCandyGuard(
+          { candyGuard, authority: candyGuardAuthority },
+          { payer, programs }
+        )
+    );
   }
 
-  return (
-    TransactionBuilder.make()
-
-      // This is important because, otherwise, the authority will not be identitied
-      // as a mutable account and debitting it will cause an error.
-      .setFeePayer(authority)
-
-      .add({
-        instruction: deleteInstruction,
-        signers: [authority],
-        key: params.instructionKey ?? 'withdrawFunds',
-      })
-  );
+  return builder;
 };

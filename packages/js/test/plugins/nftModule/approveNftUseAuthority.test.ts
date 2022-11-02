@@ -1,4 +1,3 @@
-import { Nft } from '@/index';
 import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
@@ -10,6 +9,7 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
+import { Nft } from '@/index';
 
 killStuckProcess();
 
@@ -26,27 +26,21 @@ test('[nftModule] it can approve a use authority for a given Nft', async (t: Tes
 
   // When we approve a new use authority.
   const newUser = Keypair.generate();
-  await mx
-    .nfts()
-    .approveUseAuthority({
-      mintAddress: nft.address,
-      user: newUser.publicKey,
-      numberOfUses: 5,
-    })
-    .run();
+  await mx.nfts().approveUseAuthority({
+    mintAddress: nft.address,
+    user: newUser.publicKey,
+    numberOfUses: 5,
+  });
 
   // Then that user can successfully use the NFT.
-  await mx
-    .nfts()
-    .use({
-      mintAddress: nft.address,
-      numberOfUses: 5,
-      useAuthority: newUser,
-    })
-    .run();
+  await mx.nfts().use({
+    mintAddress: nft.address,
+    numberOfUses: 5,
+    useAuthority: newUser,
+  });
 
   // And the returned NFT should have the updated data.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
@@ -71,24 +65,18 @@ test('[nftModule] approve use authorities cannot use more than the agreed amount
 
   // And a use authority has been approved for 5 uses only.
   const currentUser = Keypair.generate();
-  await mx
-    .nfts()
-    .approveUseAuthority({
-      mintAddress: nft.address,
-      user: currentUser.publicKey,
-      numberOfUses: 5,
-    })
-    .run();
+  await mx.nfts().approveUseAuthority({
+    mintAddress: nft.address,
+    user: currentUser.publicKey,
+    numberOfUses: 5,
+  });
 
   // When we try to use that authority for 6 uses.
-  const promise = mx
-    .nfts()
-    .use({
-      mintAddress: nft.address,
-      useAuthority: currentUser,
-      numberOfUses: 6,
-    })
-    .run();
+  const promise = mx.nfts().use({
+    mintAddress: nft.address,
+    useAuthority: currentUser,
+    numberOfUses: 6,
+  });
 
   // Then we should get an error.
   await assertThrows(

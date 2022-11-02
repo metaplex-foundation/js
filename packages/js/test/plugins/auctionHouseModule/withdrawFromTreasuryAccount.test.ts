@@ -1,7 +1,7 @@
 import test, { Test } from 'tape';
-import { sol, toPublicKey } from '@/types';
 import { metaplex, killStuckProcess, createWallet } from '../../helpers';
 import { createAuctionHouse } from './helpers';
+import { sol, toPublicKey } from '@/types';
 
 killStuckProcess();
 
@@ -9,10 +9,12 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   // Given we have an Auction House with fee that equals 10% and an NFT.
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  const auctionHouse = await createAuctionHouse(mx, null, {
-    sellerFeeBasisPoints: 1000,
-    payer,
-  });
+  const auctionHouse = await createAuctionHouse(
+    mx,
+    null,
+    { sellerFeeBasisPoints: 1000 },
+    { payer }
+  );
 
   // And withdrawal destination has 100 SOL.
   const originalTreasuryWithdrawalDestinationBalance = await mx
@@ -30,12 +32,7 @@ test('[auctionHouseModule] withdraw from treasury account on an Auction House', 
   // When we withdraw 1 SOL from treasury account.
   await mx
     .auctionHouse()
-    .withdrawFromTreasuryAccount({
-      auctionHouse,
-      payer,
-      amount: sol(1),
-    })
-    .run();
+    .withdrawFromTreasuryAccount({ auctionHouse, amount: sol(1) }, { payer });
 
   // Then treasury account has 1 SOL in it.
   const treasuryBalance = await mx

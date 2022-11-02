@@ -1,4 +1,3 @@
-import { Nft } from '@/index';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -10,6 +9,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { assertRefreshedCollectionHasSize } from './helpers';
+import { Nft } from '@/index';
 
 killStuckProcess();
 
@@ -30,17 +30,14 @@ test('[nftModule] it can verify the collection of an NFT item', async (t: Test) 
   await assertRefreshedCollectionHasSize(t, mx, collection, 0);
 
   // When we verify the collection.
-  await mx
-    .nfts()
-    .verifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority,
-    })
-    .run();
+  await mx.nfts().verifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority,
+  });
 
   // Then the NFT collection should be verified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',
@@ -71,18 +68,15 @@ test('[nftModule] it can verify the legacy collection of an NFT item', async (t:
   t.false(collection.collectionDetails, 'collection is legacy');
 
   // When we verify the collection.
-  await mx
-    .nfts()
-    .verifyCollection({
-      mintAddress: nft.address,
-      collectionMintAddress: nft.collection!.address,
-      collectionAuthority,
-      isSizedCollection: false,
-    })
-    .run();
+  await mx.nfts().verifyCollection({
+    mintAddress: nft.address,
+    collectionMintAddress: nft.collection!.address,
+    collectionAuthority,
+    isSizedCollection: false,
+  });
 
   // Then the NFT collection should be verified.
-  const updatedNft = await mx.nfts().refresh(nft).run();
+  const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated Nft',
     model: 'nft',

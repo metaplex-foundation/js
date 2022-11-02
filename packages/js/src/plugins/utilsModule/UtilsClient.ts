@@ -23,8 +23,8 @@ export class UtilsClient {
 
   async estimate(
     bytes: number,
-    numberOfAccounts: number = 1,
-    numberOfTransactions: number = 1,
+    numberOfAccounts = 1,
+    numberOfTransactions = 1,
     useCache = true
   ): Promise<SolAmount> {
     const rent = await this.estimateRent(bytes, numberOfAccounts, useCache);
@@ -35,8 +35,8 @@ export class UtilsClient {
 
   async estimateRent(
     bytes: number,
-    numberOfAccounts: number = 1,
-    useCache: boolean = true
+    numberOfAccounts = 1,
+    useCache = true
   ): Promise<SolAmount> {
     if (
       !useCache ||
@@ -44,6 +44,8 @@ export class UtilsClient {
       this.cachedRentPerByte === null
     ) {
       const rentFor0Bytes = await this.metaplex.rpc().getRent(0);
+
+      // TODO(loris): Infer from header size in bytes.
       const rentFor1Byte = await this.metaplex.rpc().getRent(1);
       this.cachedRentPerEmptyAccount = rentFor0Bytes;
       this.cachedRentPerByte = subtractAmounts(rentFor1Byte, rentFor0Bytes);
@@ -58,7 +60,7 @@ export class UtilsClient {
     return addAmounts(rentForAccounts, rentForBytes);
   }
 
-  estimateTransactionFee(numberOfTransactions: number = 1): SolAmount {
+  estimateTransactionFee(numberOfTransactions = 1): SolAmount {
     // TODO(loris): Improve with an RPC call to get the current transaction fee.
     return lamports(numberOfTransactions * TRANSACTION_FEE);
   }

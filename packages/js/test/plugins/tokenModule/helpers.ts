@@ -1,3 +1,4 @@
+import { Test } from 'tape';
 import {
   formatAmount,
   isEqualToAmount,
@@ -6,7 +7,6 @@ import {
   TokenWithMint,
 } from '@/index';
 import type { Metaplex } from '@/Metaplex';
-import { Test } from 'tape';
 
 export const assertTokenHasAmount = (
   t: Test,
@@ -33,5 +33,5 @@ export const refreshToken = (
   metaplex: Metaplex,
   token: Token | TokenWithMint
 ) => {
-  return metaplex.tokens().findTokenByAddress({ address: token.address }).run();
+  return metaplex.tokens().findTokenByAddress({ address: token.address });
 };

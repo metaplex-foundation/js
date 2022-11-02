@@ -1,28 +1,28 @@
-import { ConfirmOptions, PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
-import { TransactionBuilder } from '@/utils';
 import {
-  WithdrawInstructionAccounts,
-  createWithdrawInstruction,
   createAuctioneerWithdrawInstruction,
+  createWithdrawInstruction,
+  WithdrawInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
-import {
-  useOperation,
-  Operation,
-  OperationHandler,
-  Signer,
-  isSigner,
-  toPublicKey,
-  SplTokenAmount,
-  SolAmount,
-} from '@/types';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { AuctionHouse } from '../models';
-import { findAuctioneerPda, findAuctionHouseBuyerEscrowPda } from '../pdas';
 import {
   AuctioneerAuthorityRequiredError,
   WithdrawFromBuyerAccountRequiresSignerError,
 } from '../errors';
+import { AuctionHouse } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import {
+  isSigner,
+  Operation,
+  OperationHandler,
+  OperationScope,
+  Signer,
+  SolAmount,
+  SplTokenAmount,
+  toPublicKey,
+  useOperation,
+} from '@/types';
+import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -36,8 +36,7 @@ const Key = 'WithdrawFromBuyerAccountOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .withdraw({ auctionHouse, buyer, amount })
- *   .run();
+ *   .withdraw({ auctionHouse, buyer, amount };
  * ```
  *
  * @group Operations
@@ -81,15 +80,6 @@ export type WithdrawFromBuyerAccountInput = {
   buyer?: PublicKey | Signer;
 
   /**
-   * The Signer paying for the creation of all accounts
-   * required to deposit to the buyer's account.
-   * This account will also pay for the transaction fee.
-   *
-   * @defaultValue `metaplex.identity()`
-   */
-  payer?: Signer;
-
-  /**
    * The Authority key.
    * It is required when the buyer is not a signer.
    * There must be one and only one signer; Authority or Buyer must sign.
@@ -111,9 +101,6 @@ export type WithdrawFromBuyerAccountInput = {
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
   amount: SolAmount | SplTokenAmount;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -133,12 +120,14 @@ export const withdrawFromBuyerAccountOperationHandler: OperationHandler<Withdraw
   {
     handle: async (
       operation: WithdrawFromBuyerAccountOperation,
-      metaplex: Metaplex
+      metaplex: Metaplex,
+      scope: OperationScope
     ) =>
-      withdrawFromBuyerAccountBuilder(metaplex, operation.input).sendAndConfirm(
+      withdrawFromBuyerAccountBuilder(
         metaplex,
-        operation.input.confirmOptions
-      ),
+        operation.input,
+        scope
+      ).sendAndConfirm(metaplex, scope.confirmOptions),
   };
 
 // -----------------
@@ -180,14 +169,11 @@ export type WithdrawFromBuyerAccountBuilderContext = Omit<
  */
 export const withdrawFromBuyerAccountBuilder = (
   metaplex: Metaplex,
-  params: WithdrawFromBuyerAccountBuilderParams
+  params: WithdrawFromBuyerAccountBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder<WithdrawFromBuyerAccountBuilderContext> => {
-  const {
-    auctionHouse,
-    auctioneerAuthority,
-    amount,
-    payer = metaplex.identity(),
-  } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { auctionHouse, auctioneerAuthority, amount } = params;
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -201,10 +187,14 @@ export const withdrawFromBuyerAccountBuilder = (
     throw new WithdrawFromBuyerAccountRequiresSignerError();
   }
 
-  const escrowPayment = findAuctionHouseBuyerEscrowPda(
-    auctionHouse.address,
-    toPublicKey(buyer)
-  );
+  const escrowPayment = metaplex
+    .auctionHouse()
+    .pdas()
+    .buyerEscrow({
+      auctionHouse: auctionHouse.address,
+      buyer: toPublicKey(buyer),
+      programs,
+    });
 
   // Accounts,
   const accounts: WithdrawInstructionAccounts = {
@@ -226,10 +216,11 @@ export const withdrawFromBuyerAccountBuilder = (
   // Withdraw Instruction.
   let withdrawInstruction = createWithdrawInstruction(accounts, args);
   if (auctioneerAuthority) {
-    const ahAuctioneerPda = findAuctioneerPda(
-      auctionHouse.address,
-      auctioneerAuthority.publicKey
-    );
+    const ahAuctioneerPda = metaplex.auctionHouse().pdas().auctioneer({
+      auctionHouse: auctionHouse.address,
+      auctioneerAuthority: auctioneerAuthority.publicKey,
+      programs,
+    });
 
     const accountsWithAuctioneer = {
       ...accounts,
@@ -256,6 +247,7 @@ export const withdrawFromBuyerAccountBuilder = (
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
+
       // Withdraw.
       .add({
         instruction: withdrawInstruction,

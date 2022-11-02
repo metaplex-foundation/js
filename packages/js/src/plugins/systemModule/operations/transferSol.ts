@@ -1,15 +1,16 @@
-import { ConfirmOptions, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
   assertSol,
   Operation,
   OperationHandler,
+  OperationScope,
   Signer,
   SolAmount,
   useOperation,
 } from '@/types';
-import { DisposableScope, TransactionBuilder } from '@/utils';
-import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
 // -----------------
 // Operation
@@ -26,8 +27,7 @@ const Key = 'TransferSolOperation' as const;
  *   .transferSol({
  *     to: new PublicKey("..."),
  *     amount: sol(1.5),
- *   })
- *   .run();
+ *   };
  * ````
  *
  * @group Operations
@@ -76,12 +76,6 @@ export type TransferSolInput = {
    * @defaultValue Defaults to not being used.
    */
   seed?: string;
-
-  /** The address of the SPL System program to override if necessary. */
-  program?: PublicKey;
-
-  /** A set of options to configure how the transaction is sent and confirmed. */
-  confirmOptions?: ConfirmOptions;
 };
 
 /**
@@ -102,10 +96,10 @@ export const transferSolOperationHandler: OperationHandler<TransferSolOperation>
     async handle(
       operation: TransferSolOperation,
       metaplex: Metaplex,
-      scope: DisposableScope
+      scope: OperationScope
     ): Promise<TransferSolOutput> {
-      const builder = transferSolBuilder(metaplex, operation.input);
-      return builder.sendAndConfirm(metaplex, operation.input.confirmOptions);
+      const builder = transferSolBuilder(metaplex, operation.input, scope);
+      return builder.sendAndConfirm(metaplex, scope.confirmOptions);
     },
   };
 
@@ -143,28 +137,25 @@ export type TransferSolBuilderParams = Omit<
  */
 export const transferSolBuilder = (
   metaplex: Metaplex,
-  params: TransferSolBuilderParams
+  params: TransferSolBuilderParams,
+  options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const {
-    from = metaplex.identity(),
-    to,
-    amount,
-    basePubkey,
-    seed,
-    program = SystemProgram.programId,
-  } = params;
+  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { from = metaplex.identity(), to, amount, basePubkey, seed } = params;
 
   assertSol(amount);
 
-  return TransactionBuilder.make().add({
-    instruction: SystemProgram.transfer({
-      fromPubkey: from.publicKey,
-      toPubkey: to,
-      lamports: amount.basisPoints.toNumber(),
-      ...(basePubkey ? { basePubkey, seed } : {}),
-      programId: program,
-    }),
-    signers: [from],
-    key: params.instructionKey ?? 'transferSol',
-  });
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: SystemProgram.transfer({
+        fromPubkey: from.publicKey,
+        toPubkey: to,
+        lamports: amount.basisPoints.toNumber(),
+        ...(basePubkey ? { basePubkey, seed } : {}),
+        programId: metaplex.programs().getSystem(programs).address,
+      }),
+      signers: [from],
+      key: params.instructionKey ?? 'transferSol',
+    });
 };

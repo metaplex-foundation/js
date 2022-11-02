@@ -1,7 +1,7 @@
+import * as ed25519 from '@noble/ed25519';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
-import nacl from 'tweetnacl';
-import { KeypairSigner } from '@/types';
 import { IdentityDriver } from '../identityModule';
+import { KeypairSigner } from '@/types';
 
 export class KeypairIdentityDriver implements IdentityDriver, KeypairSigner {
   public readonly keypair: Keypair;
@@ -15,7 +15,7 @@ export class KeypairIdentityDriver implements IdentityDriver, KeypairSigner {
   }
 
   public async signMessage(message: Uint8Array): Promise<Uint8Array> {
-    return nacl.sign.detached(message, this.secretKey);
+    return ed25519.sync.sign(message, this.secretKey.slice(0, 32));
   }
 
   public async signTransaction(transaction: Transaction): Promise<Transaction> {
