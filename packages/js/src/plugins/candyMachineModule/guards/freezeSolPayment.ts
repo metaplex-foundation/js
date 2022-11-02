@@ -13,7 +13,6 @@ import {
 } from './core';
 import { assert } from '@/utils';
 import {
-  BigNumber,
   createSerializerFromBeet,
   lamports,
   mapSerializer,
@@ -23,7 +22,7 @@ import {
 } from '@/types';
 
 /**
- * The solPayment guard allows minting frozen NFTs by charging
+ * The freezeSolPayment guard allows minting frozen NFTs by charging
  * the payer an amount in SOL. Frozen NFTs cannot be transferred
  * or listed on any marketplaces until thawed.
  *
@@ -47,7 +46,44 @@ export type FreezeSolPaymentGuardSettings = {
 };
 
 /**
- * TODO(loris): Document
+ * The settings for the freezeSolPayment guard that should be provided
+ * when accessing the guard's special "route" instruction.
+ *
+ * ## Initialize
+ * The `initialize` path creates the freeze escrow account that will
+ * hold the funds until NFTs are thawed. It must be called before
+ * any NFTs can be minted.
+ *
+ * ```ts
+ * await metaplex.candyMachines().callGuardRoute({
+ *   candyMachine,
+ *   guard: 'freezeSolPayment',
+ *   settings: {
+ *     path: 'initialize',
+ *     period: 15 * 24 * 60 * 60, // 15 days.
+ *     candyGuardAuthority,
+ *   },
+ * });
+ * ```
+ *
+ * ## Thaw
+ * The `thaw` path unfreezes an NFT and proportionally transfers
+ * part of the escrow funds to the configured destination address.
+ *
+ * ```ts
+ * await metaplex.candyMachines().callGuardRoute({
+ *   candyMachine,
+ *   guard: 'freezeSolPayment',
+ *   settings: {
+ *     path: 'thaw',
+ *     nftMint: nftToThaw.address,
+ *     nftOwner: nftToThaw.token.ownerAddress,
+ *   },
+ * });
+ * ```
+ *
+ * @see {@link FreezeSolPaymentGuardSettings} for more
+ * information on the freezeSolPayment guard itself.
  */
 export type FreezeSolPaymentGuardRouteSettings =
   | {
@@ -55,7 +91,7 @@ export type FreezeSolPaymentGuardRouteSettings =
       path: 'initialize';
 
       /** The freeze period in seconds (maximum 30 days). */
-      period: BigNumber;
+      period: number;
 
       /** The authority of the Candy Guard as a Signer. */
       candyGuardAuthority: Signer;
