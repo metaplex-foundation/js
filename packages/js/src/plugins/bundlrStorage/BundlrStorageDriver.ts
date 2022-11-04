@@ -34,6 +34,27 @@ import {
   FailedToInitializeBundlrError,
 } from '@/errors';
 
+/**
+ * This method is necessary to import the Bundlr package on both ESM and CJS modules.
+ * Without this, we get a different structure on each module:
+ * - CJS: { default: [Getter], WebBundlr: [Getter] }
+ * - ESM: { default: { default: [Getter], WebBundlr: [Getter] } }
+ * This method fixes this by ensure there is not double default in the imported package.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+function _removeDoubleDefault(pkg: any) {
+  if (
+    pkg &&
+    typeof pkg === 'object' &&
+    'default' in pkg &&
+    'default' in pkg.default
+  ) {
+    return pkg.default;
+  }
+
+  return pkg;
+}
+
 export type BundlrOptions = {
   address?: string;
   timeout?: number;
@@ -215,7 +236,9 @@ export class BundlrStorageDriver implements StorageDriver {
     keypair: KeypairSigner,
     options: any
   ): Promise<NodeBundlr> {
-    const bPackage = await import('@bundlr-network/client');
+    const bPackage = _removeDoubleDefault(
+      await import('@bundlr-network/client')
+    );
     return new bPackage.default(address, currency, keypair.secretKey, options);
   }
 
@@ -245,7 +268,9 @@ export class BundlrStorageDriver implements StorageDriver {
       },
     };
 
-    const bPackage = await import('@bundlr-network/client');
+    const bPackage = _removeDoubleDefault(
+      await import('@bundlr-network/client')
+    );
     const bundlr = new bPackage.WebBundlr(address, currency, wallet, options);
 
     try {
