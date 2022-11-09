@@ -98,7 +98,7 @@ test('[FeatureFlags] it can (de)serialize arrays of boolean', (t: Test) => {
   // Truncated bytes.
   assertSerialize(t, '1100011100101001', 'c7', 1, false);
   assertDeserialize(t, 'c729', '11000111', 8, false);
-  assertSerialize(t, '1100011100101001', '94', 1, true);
+  assertSerialize(t, '1100011100101001', 'e3', 1, true);
   assertDeserialize(t, '94e3', '11000111', 8, true);
 
   // Dynamic bytes forward.
