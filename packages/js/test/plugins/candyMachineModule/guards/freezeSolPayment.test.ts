@@ -1,5 +1,6 @@
 import { Keypair } from '@solana/web3.js';
 import test from 'tape';
+import { AccountState } from '@solana/spl-token';
 import {
   assertThrows,
   createWallet,
@@ -9,7 +10,6 @@ import {
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import {
   CandyMachine,
-  formatAmount,
   isEqualToAmount,
   Metaplex,
   sol,
@@ -18,7 +18,7 @@ import {
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
+test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -46,12 +46,10 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an e
 
   // When we mint using an explicit payer and owner.
   const payer = await createWallet(mx, 10);
-  const owner = Keypair.generate().publicKey;
   const { nft } = await mx.candyMachines().mint(
     {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
-      owner,
     },
     { payer }
   );
@@ -61,11 +59,11 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an e
     candyMachine,
     collectionUpdateAuthority: collection.updateAuthority.publicKey,
     nft,
-    owner,
+    owner: payer.publicKey,
   });
 
   // And the NFT is frozen.
-  // TODO
+  t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
 
   // And the treasury escrow received SOLs.
   const treasuryEscrow = mx.candyMachines().pdas().freezeEscrow({
@@ -75,13 +73,12 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an e
   });
   const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
   t.true(
-    isEqualToAmount(treasuryEscrowBalance, sol(1)),
+    isEqualToAmount(treasuryEscrowBalance, sol(1), sol(0.1)),
     'treasury escrow received SOLs'
   );
 
   // And the payer lost SOLs.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  console.log(formatAmount(payerBalance));
   t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
 });
 
