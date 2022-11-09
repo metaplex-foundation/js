@@ -7,7 +7,11 @@ import {
   killStuckProcess,
   metaplex,
 } from '../../../helpers';
-import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
+import {
+  assertMintingWasSuccessful,
+  createCandyMachine,
+  SEQUENTIAL_ITEM_SETTINGS,
+} from '../helpers';
 import {
   CandyMachine,
   isEqualToAmount,
@@ -18,13 +22,17 @@ import {
 
 killStuckProcess();
 
-test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
+test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account and freezes the NFT', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
-    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    itemsAvailable: toBigNumber(2),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
     guards: {
       freezeSolPayment: {
         amount: sol(1),
@@ -64,6 +72,18 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
 
   // And the NFT is frozen.
   t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
+
+  // And cannot be thawed since not all NFTs have been minted.
+  const promise = mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'thaw',
+      nftMint: nft.address,
+      nftOwner: payer.publicKey,
+    },
+  });
+  await assertThrows(t, promise, /Thaw is not enabled/);
 
   // And the treasury escrow received SOLs.
   const treasuryEscrow = mx.candyMachines().pdas().freezeEscrow({
