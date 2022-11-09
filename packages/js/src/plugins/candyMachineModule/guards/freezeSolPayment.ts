@@ -293,7 +293,7 @@ function thawRouteInstruction({
     programs,
   });
   const tokenProgram = metaplex.programs().getToken(programs);
-  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const args = Buffer.alloc(1);
   beet.u8.write(args, 0, FreezeInstruction.Thaw);
@@ -333,7 +333,7 @@ function thawRouteInstruction({
       },
       {
         isSigner: false,
-        address: systemProgram.address,
+        address: tokenMetadataProgram.address,
         isWritable: false,
       },
     ] as CandyGuardsRemainingAccount[],
