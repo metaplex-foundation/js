@@ -1,4 +1,4 @@
-import { Keypair } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import test from 'tape';
 import { AccountState } from '@solana/spl-token';
 import {
@@ -22,6 +22,7 @@ import {
 
 killStuckProcess();
 
+// TODO(loris): Check content of the escrow account.
 test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account and freezes the NFT', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
@@ -52,7 +53,7 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
     },
   });
 
-  // When we mint using an explicit payer and owner.
+  // When we mint from that candy machine.
   const payer = await createWallet(mx, 10);
   const { nft } = await mx.candyMachines().mint(
     {
@@ -74,15 +75,7 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
   t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
 
   // And cannot be thawed since not all NFTs have been minted.
-  const promise = mx.candyMachines().callGuardRoute({
-    candyMachine,
-    guard: 'freezeSolPayment',
-    settings: {
-      path: 'thaw',
-      nftMint: nft.address,
-      nftOwner: payer.publicKey,
-    },
-  });
+  const promise = thawNft(mx, candyMachine, nft.address, payer.publicKey);
   await assertThrows(t, promise, /Thaw is not enabled/);
 
   // And the treasury escrow received SOLs.
@@ -100,6 +93,48 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
   // And the payer lost SOLs.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
   t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
+});
+
+test('[candyMachineModule] freezeSolPayment guard: it can thaw an NFT once all NFTs are minted', async (t) => {
+  // Given a loaded Candy Machine with an initialized
+  // freezeSolPayment guard with only one item.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      freezeSolPayment: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+  });
+  await initFreezeEscrow(mx, candyMachine);
+
+  // And given we minted the only frozen NFT from that candy machine.
+  const payer = await createWallet(mx, 10);
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
+  await assertMintingWasSuccessful(t, mx, {
+    candyMachine,
+    collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    nft,
+    owner: payer.publicKey,
+  });
+  t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
+
+  // When we thaw the NFT.
+  await thawNft(mx, candyMachine, nft.address, payer.publicKey);
+
+  // Then the NFT is thawed.
+  const refreshedNft = await mx.nfts().refresh(nft);
+  t.equal(refreshedNft.token.state, AccountState.Initialized, 'NFT is Thawed');
 });
 
 test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the freeze escrow was not initialized', async (t) => {
@@ -254,6 +289,23 @@ const initFreezeEscrow = async (mx: Metaplex, candyMachine: CandyMachine) => {
       path: 'initialize',
       period: 15 * 24 * 3600, // 15 days.
       candyGuardAuthority: mx.identity(),
+    },
+  });
+};
+
+const thawNft = async (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  nftMint: PublicKey,
+  nftOwner: PublicKey
+) => {
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'thaw',
+      nftMint,
+      nftOwner,
     },
   });
 };
