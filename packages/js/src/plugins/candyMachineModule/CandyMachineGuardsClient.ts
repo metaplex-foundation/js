@@ -254,6 +254,7 @@ export class CandyMachineGuardsClient {
   >(
     candyMachine: PublicKey,
     candyGuard: CandyGuard<Settings>,
+    owner: PublicKey,
     payer: Signer,
     mint: Signer,
     guardMintSettings: Partial<MintSettings>,
@@ -285,6 +286,7 @@ export class CandyMachineGuardsClient {
         metaplex: this.metaplex,
         settings,
         mintSettings,
+        owner,
         payer,
         mint,
         candyMachine,

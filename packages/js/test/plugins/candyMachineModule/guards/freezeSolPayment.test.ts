@@ -7,11 +7,18 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { formatAmount, isEqualToAmount, sol, toBigNumber } from '@/index';
+import {
+  CandyMachine,
+  formatAmount,
+  isEqualToAmount,
+  Metaplex,
+  sol,
+  toBigNumber,
+} from '@/index';
 
 killStuckProcess();
 
-test.only('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
+test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -111,8 +118,9 @@ test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the freez
   t.true(isEqualToAmount(payerBalance, sol(10)), 'payer did not lose SOLs');
 });
 
-test.skip('[candyMachineModule] freezeSolPayment guard: it fails if the payer does not have enough funds', async (t) => {
-  // Given a loaded Candy Machine with a freezeSolPayment guard costing 5 SOLs.
+test('[candyMachineModule] freezeSolPayment guard: it fails if the payer does not have enough funds', async (t) => {
+  // Given a loaded Candy Machine with an initialized
+  // freezeSolPayment guard costing 5 SOLs.
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -125,6 +133,7 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it fails if the payer do
       },
     },
   });
+  await initFreezeEscrow(mx, candyMachine);
 
   // When we mint from it using a payer that only has 4 SOL.
   const payer = await createWallet(mx, 4);
@@ -142,6 +151,42 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it fails if the payer do
   // And the payer didn't loose any SOL.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
   t.true(isEqualToAmount(payerBalance, sol(4)), 'payer did not lose SOLs');
+});
+
+test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the owner is not the payer', async (t) => {
+  // Given a loaded Candy Machine with an initialized freezeSolPayment guard.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      freezeSolPayment: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+  });
+  await initFreezeEscrow(mx, candyMachine);
+
+  // When we mint using an owner that is not the payer.
+  const payer = await createWallet(mx, 10);
+  const owner = Keypair.generate().publicKey;
+  const promise = mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      owner,
+    },
+    { payer }
+  );
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /The payer must be the owner when using the \[freezeSolPayment\] guard/
+  );
 });
 
 test('[candyMachineModule] freezeSolPayment guard with bot tax: it charges a bot tax if something goes wrong', async (t) => {
@@ -183,3 +228,15 @@ test('[candyMachineModule] freezeSolPayment guard with bot tax: it charges a bot
     'payer was charged a bot tax'
   );
 });
+
+const initFreezeEscrow = async (mx: Metaplex, candyMachine: CandyMachine) => {
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'initialize',
+      period: 15 * 24 * 3600, // 15 days.
+      candyGuardAuthority: mx.identity(),
+    },
+  });
+};

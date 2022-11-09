@@ -68,6 +68,8 @@ export type MintSettingsParserInput<Settings, MintSettings> = {
   settings: Settings;
   /** The optional mint settings. */
   mintSettings: Option<MintSettings>;
+  /** The owner of the minted NFT, this is typically the payer. */
+  owner: PublicKey;
   /** The minting wallet as a Signer. */
   payer: Signer;
   /** The NFT mint account as a Signer. */
