@@ -51,7 +51,7 @@ export type FreezeSolPaymentGuardSettings = {
  *
  * ## Initialize
  * The `initialize` path creates the freeze escrow account that will
- * hold the funds until NFTs are thawed. It must be called before
+ * hold the funds until all NFTs are thawed. It must be called before
  * any NFTs can be minted.
  *
  * ```ts
@@ -67,8 +67,13 @@ export type FreezeSolPaymentGuardSettings = {
  * ```
  *
  * ## Thaw
- * The `thaw` path unfreezes an NFT and proportionally transfers
- * part of the escrow funds to the configured destination address.
+ * The `thaw` path unfreezes one NFT if one of the following conditions are met:
+ * - All NFTs have been minted.
+ * - The configured period has elapsed (max 30 days).
+ *
+ * Anyone can call this instruction. Since the funds are not transferrable
+ * until all NFTs are thawed, it creates an incentive for the treasury to
+ * thaw all NFTs as soon as possible.
  *
  * ```ts
  * await metaplex.candyMachines().callGuardRoute({
@@ -78,6 +83,21 @@ export type FreezeSolPaymentGuardSettings = {
  *     path: 'thaw',
  *     nftMint: nftToThaw.address,
  *     nftOwner: nftToThaw.token.ownerAddress,
+ *   },
+ * });
+ * ```
+ *
+ * ## Unlock Funds
+ * The `unlockFunds` path transfers all of the escrow funds to the
+ * configured destination address once all NFTs have been thawed.
+ *
+ * ```ts
+ * await metaplex.candyMachines().callGuardRoute({
+ *   candyMachine,
+ *   guard: 'freezeSolPayment',
+ *   settings: {
+ *     path: 'unlockFunds',
+ *     candyGuardAuthority,
  *   },
  * });
  * ```
