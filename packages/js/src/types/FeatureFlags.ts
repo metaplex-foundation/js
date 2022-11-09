@@ -16,10 +16,10 @@ export const serializeFeatureFlags = (
   byteSize?: number,
   backward = false
 ): Buffer => {
-  const minimumByteSize = Math.ceil(features.length / 8);
+  byteSize = byteSize ?? Math.ceil(features.length / 8);
   const bytes: number[] = [];
 
-  for (let i = 0; i < minimumByteSize; i++) {
+  for (let i = 0; i < byteSize; i++) {
     let byte = 0;
     for (let j = 0; j < 8; j++) {
       const feature = Number(features[i * 8 + j] ?? 0);
@@ -32,8 +32,7 @@ export const serializeFeatureFlags = (
     }
   }
 
-  const buffer = Buffer.from(bytes);
-  return byteSize === undefined ? buffer : Buffer.concat([buffer], byteSize);
+  return Buffer.from(bytes);
 };
 
 /**
