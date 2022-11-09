@@ -174,6 +174,7 @@ export const freezeSolPaymentGuardManifest: CandyGuardManifest<
     const nftAta = metaplex.tokens().pdas().associatedTokenAccount({
       mint: mint.publicKey,
       owner: payer.publicKey,
+      programs,
     });
 
     return {

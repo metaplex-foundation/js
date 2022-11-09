@@ -11,7 +11,7 @@ import { formatAmount, isEqualToAmount, sol, toBigNumber } from '@/index';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
+test.only('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -23,6 +23,17 @@ test.skip('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an e
         amount: sol(1),
         destination: treasury.publicKey,
       },
+    },
+  });
+
+  // And given the freezeSolPayment guard is initialized.
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'initialize',
+      period: 15 * 24 * 3600, // 15 days.
+      candyGuardAuthority: mx.identity(),
     },
   });
 
