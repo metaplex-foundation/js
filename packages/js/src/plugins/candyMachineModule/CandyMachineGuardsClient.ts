@@ -129,7 +129,7 @@ export class CandyMachineGuardsClient {
         }
       );
 
-      return Buffer.concat([serializeFeatureFlags(features, 8), buffer]);
+      return Buffer.concat([serializeFeatureFlags(features, 8, true), buffer]);
     };
 
     let buffer = serializeSet(guards);
@@ -168,7 +168,7 @@ export class CandyMachineGuardsClient {
     const availableGuards = this.forProgram(program);
     const deserializeSet = () => {
       const serializedFeatures = buffer.slice(0, 8);
-      const features = deserializeFeatureFlags(serializedFeatures, 64)[0];
+      const features = deserializeFeatureFlags(serializedFeatures, 64, true);
       buffer = buffer.slice(8);
 
       return availableGuards.reduce((acc, guard, index) => {
