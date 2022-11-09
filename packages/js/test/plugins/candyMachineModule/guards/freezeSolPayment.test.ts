@@ -1,11 +1,15 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { FreezeEscrow } from '@metaplex-foundation/mpl-candy-guard';
 import test from 'tape';
 import { AccountState } from '@solana/spl-token';
+import spok from 'spok';
 import {
   assertThrows,
   createWallet,
   killStuckProcess,
   metaplex,
+  spokSameBignum,
+  spokSamePubkey,
 } from '../../../helpers';
 import {
   assertMintingWasSuccessful,
@@ -22,7 +26,6 @@ import {
 
 killStuckProcess();
 
-// TODO(loris): Check content of the escrow account.
 test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow account and freezes the NFT', async (t) => {
   // Given a loaded Candy Machine with a freezeSolPayment guard.
   const mx = await metaplex();
@@ -89,6 +92,22 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
     isEqualToAmount(treasuryEscrowBalance, sol(1), sol(0.1)),
     'treasury escrow received SOLs'
   );
+
+  // And was assigned the right data.
+  const freezeEscrowAccount = await FreezeEscrow.fromAccountAddress(
+    mx.connection,
+    treasuryEscrow
+  );
+  spok(t, freezeEscrowAccount, {
+    $topic: 'freeze escrow account',
+    candyMachine: spokSamePubkey(candyMachine.address),
+    candyGuard: spokSamePubkey(candyMachine.candyGuard!.address),
+    frozenCount: spokSameBignum(1),
+    firstMintTime: spok.definedObject,
+    freezePeriod: spokSameBignum(15 * 24 * 3600),
+    destination: spokSamePubkey(treasury.publicKey),
+    authority: spokSamePubkey(candyMachine.candyGuard!.authorityAddress),
+  });
 
   // And the payer lost SOLs.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
