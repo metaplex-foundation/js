@@ -131,6 +131,10 @@ export type UpdateCandyMachineInput<
    * Warning: This means the current `authority` Signer will no longer be able
    * to manage the Candy Machine.
    *
+   * Note that if your Candy Machine has a Candy Guard associated to it,
+   * you might want to also update the Candy Guard's authority using the
+   * `newCandyGuardAuthority` parameter.
+   *
    * @defaultValue Defaults to not being updated.
    */
   newAuthority?: PublicKey;
@@ -144,6 +148,17 @@ export type UpdateCandyMachineInput<
    * @defaultValue Defaults to not being updated.
    */
   newMintAuthority?: Signer;
+
+  /**
+   * The new authority that will be allowed to manage the Candy Guard
+   * account associated with the Candy Machine.
+   *
+   * Warning: This means the current Candy Guard `authority` Signer will
+   * no longer be able to manage the Candy Guard account.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  newCandyGuardAuthority?: PublicKey;
 
   /**
    * The Collection NFT that all NFTs minted from this Candy Machine should be part of.
@@ -331,6 +346,9 @@ export type UpdateCandyMachineBuilderParams<
 
   /** A key to distinguish the instruction that updates the Candy Machine's authority. */
   setAuthorityInstructionKey?: string;
+
+  /** A key to distinguish the instruction that updates the Candy Guard's authority. */
+  setCandyGuardAuthorityInstructionKey?: string;
 };
 
 /**
@@ -408,6 +426,17 @@ export const updateCandyMachineBuilder = <
           metaplex,
           params,
           authority,
+          programs
+        )
+      )
+
+      // Update Candy Guard authority.
+      .add(
+        updateCandyGuardAuthorityBuilder<T>(
+          metaplex,
+          params,
+          candyGuardAuthority,
+          payer,
           programs
         )
       )
@@ -673,6 +702,42 @@ const updateCandyMachineAuthorityBuilder = <
     signers: [authority],
     key: params.setAuthorityInstructionKey ?? 'setCandyMachineAuthority',
   });
+};
+
+const updateCandyGuardAuthorityBuilder = <
+  T extends CandyGuardsSettings = DefaultCandyGuardSettings
+>(
+  metaplex: Metaplex,
+  params: UpdateCandyMachineBuilderParams<T>,
+  candyGuardAuthority: Signer,
+  payer: Signer,
+  programs?: Program[]
+): TransactionBuilder => {
+  if (!params.newCandyGuardAuthority) {
+    return TransactionBuilder.make();
+  }
+
+  const candyGuardAddress =
+    params.candyGuard ??
+    (isCandyMachine<T>(params.candyMachine) && params.candyMachine.candyGuard
+      ? params.candyMachine.candyGuard.address
+      : null);
+
+  if (!candyGuardAddress) {
+    throw onMissingInputError(['candyGuard']);
+  }
+
+  return TransactionBuilder.make().add(
+    metaplex.candyMachines().builders().updateCandyGuardAuthority(
+      {
+        candyGuard: candyGuardAddress,
+        authority: candyGuardAuthority,
+        newAuthority: params.newCandyGuardAuthority,
+        instructionKey: params.setCandyGuardAuthorityInstructionKey,
+      },
+      { payer, programs }
+    )
+  );
 };
 
 const onMissingInputError = (missingKeys: string[]) =>

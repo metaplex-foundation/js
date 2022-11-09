@@ -361,6 +361,65 @@ test('[candyMachineModule] it can update the mint authority of a candy machine',
   } as unknown as Specifications<CandyMachine>);
 });
 
+test('[candyMachineModule] it can update the authority of a candy guard', async (t) => {
+  // Given a Candy Machine and its Candy Guard using authority A.
+  const mx = await metaplex();
+  const authorityA = Keypair.generate();
+  const { candyMachine } = await createCandyMachine(mx, {
+    authority: authorityA,
+  });
+
+  // When we update the Candy Guard account to use authority B.
+  const authorityB = Keypair.generate();
+  await mx.candyMachines().update({
+    candyMachine,
+    candyGuardAuthority: authorityA,
+    newCandyGuardAuthority: authorityB.publicKey,
+  });
+
+  // Then the Candy Guard's authority was updated accordingly.
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+  const updatedCandyGuard = updatedCandyMachine.candyGuard!;
+  t.ok(
+    updatedCandyMachine.authorityAddress.equals(authorityA.publicKey),
+    'Candy Machine authority was not updated'
+  );
+  t.ok(
+    updatedCandyGuard.authorityAddress.equals(authorityB.publicKey),
+    'Candy Guard authority was updated'
+  );
+});
+
+test('[candyMachineModule] it can update both the authority and the candy guard authority of a candy machine', async (t) => {
+  // Given a Candy Machine and its Candy Guard using authority A.
+  const mx = await metaplex();
+  const authorityA = Keypair.generate();
+  const { candyMachine } = await createCandyMachine(mx, {
+    authority: authorityA,
+  });
+
+  // When we update both authorities to authority B.
+  const authorityB = Keypair.generate();
+  await mx.candyMachines().update({
+    candyMachine,
+    authority: authorityA,
+    newAuthority: authorityB.publicKey,
+    newCandyGuardAuthority: authorityB.publicKey,
+  });
+
+  // Then the both the candy machine and the candy guard were updated accordingly.
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+  const updatedCandyGuard = updatedCandyMachine.candyGuard!;
+  t.ok(
+    updatedCandyMachine.authorityAddress.equals(authorityB.publicKey),
+    'Candy Machine authority was updated'
+  );
+  t.ok(
+    updatedCandyGuard.authorityAddress.equals(authorityB.publicKey),
+    'Candy Guard authority was updated'
+  );
+});
+
 test('[candyMachineModule] it can update the collection of a candy machine', async (t) => {
   // Given a Candy Machine associated to Collection A.
   const mx = await metaplex();

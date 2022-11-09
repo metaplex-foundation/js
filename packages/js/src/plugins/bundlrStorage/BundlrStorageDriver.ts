@@ -1,5 +1,4 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
-import * as _BundlrPackage from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import {
   Connection,
@@ -55,8 +54,6 @@ function _removeDoubleDefault(pkg: any) {
 
   return pkg;
 }
-
-const BundlrPackage = _removeDoubleDefault(_BundlrPackage);
 
 export type BundlrOptions = {
   address?: string;
@@ -204,7 +201,7 @@ export class BundlrStorageDriver implements StorageDriver {
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
     let bundlr;
     if (isNode && isKeypairSigner(identity))
-      bundlr = this.initNodeBundlr(address, currency, identity, options);
+      bundlr = await this.initNodeBundlr(address, currency, identity, options);
     else {
       let identitySigner: IdentitySigner;
       if (isIdentitySigner(identity)) identitySigner = identity;
@@ -233,18 +230,16 @@ export class BundlrStorageDriver implements StorageDriver {
     return bundlr;
   }
 
-  initNodeBundlr(
+  async initNodeBundlr(
     address: string,
     currency: string,
     keypair: KeypairSigner,
     options: any
-  ): NodeBundlr {
-    return new BundlrPackage.default(
-      address,
-      currency,
-      keypair.secretKey,
-      options
+  ): Promise<NodeBundlr> {
+    const bPackage = _removeDoubleDefault(
+      await import('@bundlr-network/client')
     );
+    return new bPackage.default(address, currency, keypair.secretKey, options);
   }
 
   async initWebBundlr(
@@ -273,12 +268,10 @@ export class BundlrStorageDriver implements StorageDriver {
       },
     };
 
-    const bundlr = new BundlrPackage.WebBundlr(
-      address,
-      currency,
-      wallet,
-      options
+    const bPackage = _removeDoubleDefault(
+      await import('@bundlr-network/client')
     );
+    const bundlr = new bPackage.WebBundlr(address, currency, wallet, options);
 
     try {
       // Try to initiate bundlr.
