@@ -104,6 +104,12 @@ export class CandyMachineGuardsClient {
     programs: Program[] = []
   ): Buffer {
     const availableGuards = this.forCandyGuardProgram(programs);
+    this.assertGuardsAreRegistered<T>(
+      guards,
+      groups,
+      availableGuards.map(({ name }) => name)
+    );
+
     const serializeSet = (set: Partial<T>): Buffer => {
       const { features, buffer } = availableGuards.reduce(
         (acc, guard, index) => {
@@ -364,5 +370,32 @@ export class CandyMachineGuardsClient {
     return remainingAccounts
       .filter((account) => account.isSigner)
       .map((account) => account.address as Signer);
+  }
+
+  /** @internal */
+  protected assertGuardsAreRegistered<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(
+    guards: Partial<T>,
+    groups: { label: string; guards: Partial<T> }[],
+    availableGuardNames: string[]
+  ): void {
+    const guardNames = new Set<string>();
+    const addGuardSet = (guardSet: Partial<T>) => {
+      Object.keys(guardSet).forEach((name) => {
+        if (!!guardSet[name]) {
+          guardNames.add(name);
+        }
+      });
+    };
+
+    addGuardSet(guards);
+    groups.forEach((group) => addGuardSet(group.guards));
+
+    guardNames.forEach((name) => {
+      if (!availableGuardNames.includes(name)) {
+        throw new UnregisteredCandyGuardError(name);
+      }
+    });
   }
 }
