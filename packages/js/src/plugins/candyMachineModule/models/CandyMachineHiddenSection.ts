@@ -33,7 +33,6 @@ export const deserializeCandyMachineHiddenSection = (
 
   // Items loaded map.
   const itemsLoadedBuffer = buffer.slice(offset, offset + itemsAvailable);
-  itemsLoadedBuffer.reverse();
   const itemsLoadedMap = deserializeFeatureFlags(
     itemsLoadedBuffer,
     itemsAvailable
