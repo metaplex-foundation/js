@@ -44,7 +44,7 @@ test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
     ],
     guards: {
       freezeTokenPayment: {
-        amount: token(6),
+        amount: token(1),
         destinationAta: treasury.publicKey,
         mint: mint.address,
       },
@@ -91,7 +91,7 @@ test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
   const freezeEscrow = getFreezeEscrow(mx, candyMachine, treasuryAta);
   const escrowTokens = await getTokenBalance(mx, mint, freezeEscrow);
   t.true(
-    isEqualToAmount(escrowTokens, token(6)),
+    isEqualToAmount(escrowTokens, token(1)),
     'treasury escrow received tokens'
   );
 
@@ -112,8 +112,8 @@ test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
   });
 
   // And the payer lost tokens.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
+  const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
+  t.true(isEqualToAmount(payerBalance, token(9)), 'payer lost tokens');
 });
 
 test.skip('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all NFTs are minted', async (t) => {
