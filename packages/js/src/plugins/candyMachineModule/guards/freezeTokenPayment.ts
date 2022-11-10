@@ -447,12 +447,12 @@ function unlockFundsRouteInstruction({
       },
       {
         isSigner: false,
-        address: systemProgram.address,
+        address: tokenProgram.address,
         isWritable: false,
       },
       {
         isSigner: false,
-        address: tokenProgram.address,
+        address: systemProgram.address,
         isWritable: false,
       },
     ] as CandyGuardsRemainingAccount[],

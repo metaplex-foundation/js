@@ -30,7 +30,7 @@ import {
 
 killStuckProcess();
 
-test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an escrow account and freezes the NFT', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an escrow account and freezes the NFT', async (t) => {
   // Given a loaded Candy Machine with a freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -116,26 +116,27 @@ test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
   t.true(isEqualToAmount(payerBalance, token(9)), 'payer lost tokens');
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all NFTs are minted', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all NFTs are minted', async (t) => {
   // Given a loaded Candy Machine with an initialized
   // freezeTokenPayment guard with only one item.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
         amount: token(1),
-        destinationAta: treasury.publicKey,
-        mint: Keypair.generate().publicKey, // TODO
+        destinationAta: treasuryAta.address,
+        mint: mint.address,
       },
     },
   });
   await initFreezeEscrow(mx, candyMachine);
 
   // And given we minted the only frozen NFT from that candy machine.
-  const payer = await createWallet(mx, 10);
+  const payer = await createTokenPayer(mx, mint, treasury, 10);
   const nft = await mintNft(mx, candyMachine, collection, payer);
   t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
 
@@ -147,25 +148,26 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT onc
   t.equal(refreshedNft.token.state, AccountState.Initialized, 'NFT is Thawed');
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it can unlock funds once all NFTs have been thawed', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it can unlock funds once all NFTs have been thawed', async (t) => {
   // Given a loaded Candy Machine with an initialized freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
         amount: token(1),
-        destinationAta: treasury.publicKey,
-        mint: Keypair.generate().publicKey, // TODO
+        destinationAta: treasuryAta.address,
+        mint: mint.address,
       },
     },
   });
   await initFreezeEscrow(mx, candyMachine);
 
   // And given all NFTs have been minted and thawed.
-  const payer = await createWallet(mx, 10);
+  const payer = await createTokenPayer(mx, mint, treasury, 10);
   const nft = await mintNft(mx, candyMachine, collection, payer);
   await thawNft(mx, candyMachine, nft.address, payer.publicKey);
 
@@ -180,18 +182,21 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it can unlock funds on
   });
 
   // Then the destination wallet received the funds.
-  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
+  const treasuryBalance = await getTokenBalance(mx, mint, treasury.publicKey);
   t.true(
-    isEqualToAmount(treasuryBalance, sol(1), sol(0.1)),
-    'treasury received SOLs'
+    isEqualToAmount(treasuryBalance, token(1)),
+    'treasury received tokens'
   );
 
-  // And the treasury escrow has been emptied.
-  const treasuryEscrow = getFreezeEscrow(mx, candyMachine, treasury);
-  const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
-  t.true(
-    isEqualToAmount(treasuryEscrowBalance, sol(0)),
-    'treasury escrow received SOLs'
+  // And the treasury escrow ATA no longer exists.
+  const treasuryEscrow = getFreezeEscrow(mx, candyMachine, treasuryAta);
+  const treasuryEscrowAta = mx.tokens().pdas().associatedTokenAccount({
+    mint: mint.address,
+    owner: treasuryEscrow,
+  });
+  t.false(
+    await mx.rpc().accountExists(treasuryEscrowAta),
+    'treasury escrow ATA no longer exists'
   );
 });
 
@@ -246,8 +251,11 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it can have multiple f
   // - Group D does not use a freezeTokenPayment guard at all.
   const mx = await metaplex();
   const treasuryAB = Keypair.generate();
+  const [mintAB, treasuryAtaAB] = await createMint(mx, treasuryAB);
   const treasuryC = Keypair.generate();
+  const [mintC, treasuryAtaC] = await createMint(mx, treasuryC);
   const treasuryD = Keypair.generate();
+  const [mintD, treasuryAtaD] = await createMint(mx, treasuryD);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(4),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
@@ -413,6 +421,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   // Given a loaded Candy Machine with a freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -448,6 +457,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   // freezeTokenPayment guard costing 5 SOLs.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -483,6 +493,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   // Given a loaded Candy Machine with an initialized freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -520,6 +531,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard with bot tax: it charge
   // Given a loaded Candy Machine with a freezeTokenPayment guard and a botTax guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
