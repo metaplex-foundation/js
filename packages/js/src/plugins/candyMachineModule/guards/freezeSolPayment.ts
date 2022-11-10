@@ -73,6 +73,7 @@ export type FreezeSolPaymentGuardSettings = {
  * The `thaw` path unfreezes one NFT if one of the following conditions are met:
  * - All NFTs have been minted.
  * - The configured period has elapsed (max 30 days).
+ * - The `freezeSolPayment` guard was removed.
  *
  * Anyone can call this instruction. Since the funds are not transferrable
  * until all NFTs are thawed, it creates an incentive for the treasury to

@@ -35,7 +35,10 @@ import {
   FreezeSolPaymentGuardRouteSettings,
   FreezeSolPaymentGuardSettings,
 } from './freezeSolPayment';
-import { FreezeTokenPaymentGuardSettings } from './freezeTokenPayment';
+import {
+  FreezeTokenPaymentGuardRouteSettings,
+  FreezeTokenPaymentGuardSettings,
+} from './freezeTokenPayment';
 import { Option } from '@/utils';
 
 /**
@@ -107,7 +110,7 @@ export type DefaultCandyGuardRouteSettings = CandyGuardsRouteSettings & {
   // nftBurn: no route settings
   // tokenBurn: no route settings
   freezeSolPayment: FreezeSolPaymentGuardRouteSettings;
-  // freezeTokenPayment: FreezeTokenPaymentGuardRouteSettings; // TODO
+  freezeTokenPayment: FreezeTokenPaymentGuardRouteSettings;
 };
 
 /** @internal */
