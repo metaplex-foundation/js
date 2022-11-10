@@ -20,18 +20,21 @@ import {
   CandyMachine,
   isEqualToAmount,
   Metaplex,
+  Mint,
   Signer,
   sol,
   toBigNumber,
   token,
+  TokenWithMint,
 } from '@/index';
 
 killStuckProcess();
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an escrow account and freezes the NFT', async (t) => {
+test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an escrow account and freezes the NFT', async (t) => {
   // Given a loaded Candy Machine with a freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
+  const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
     itemsAvailable: toBigNumber(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
@@ -41,9 +44,9 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
     ],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: token(6),
         destinationAta: treasury.publicKey,
-        mint: Keypair.generate().publicKey, // TODO
+        mint: mint.address,
       },
     },
   });
@@ -60,7 +63,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
   });
 
   // When we mint from that candy machine.
-  const payer = await createWallet(mx, 10);
+  const payer = await createTokenPayer(mx, mint, treasury, 10);
   const { nft } = await mx.candyMachines().mint(
     {
       candyMachine,
@@ -85,17 +88,17 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
   await assertThrows(t, promise, /Thaw is not enabled/);
 
   // And the treasury escrow received SOLs.
-  const treasuryEscrow = getFreezeEscrow(mx, candyMachine, treasury);
-  const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
+  const freezeEscrow = getFreezeEscrow(mx, candyMachine, treasuryAta);
+  const escrowTokens = await getTokenBalance(mx, mint, freezeEscrow);
   t.true(
-    isEqualToAmount(treasuryEscrowBalance, sol(1), sol(0.1)),
-    'treasury escrow received SOLs'
+    isEqualToAmount(escrowTokens, token(6)),
+    'treasury escrow received tokens'
   );
 
   // And was assigned the right data.
   const freezeEscrowAccount = await FreezeEscrow.fromAccountAddress(
     mx.connection,
-    treasuryEscrow
+    freezeEscrow
   );
   spok(t, freezeEscrowAccount, {
     $topic: 'freeze escrow account',
@@ -104,11 +107,11 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
     frozenCount: spokSameBignum(1),
     firstMintTime: spok.definedObject,
     freezePeriod: spokSameBignum(15 * 24 * 3600),
-    destination: spokSamePubkey(treasury.publicKey),
+    destination: spokSamePubkey(treasuryAta.address),
     authority: spokSamePubkey(candyMachine.candyGuard!.authorityAddress),
   });
 
-  // And the payer lost SOLs.
+  // And the payer lost tokens.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
   t.true(isEqualToAmount(payerBalance, sol(9), sol(0.1)), 'payer lost SOLs');
 });
@@ -554,16 +557,56 @@ test.skip('[candyMachineModule] freezeTokenPayment guard with bot tax: it charge
   );
 });
 
+const createMint = async (
+  mx: Metaplex,
+  mintAuthority: Signer
+): Promise<[Mint, TokenWithMint]> => {
+  const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
+    owner: mintAuthority.publicKey,
+    mintAuthority,
+  });
+
+  return [tokenWithMint.mint, tokenWithMint];
+};
+
+const createTokenPayer = async (
+  mx: Metaplex,
+  mint: Mint,
+  mintAuthority: Signer,
+  amount: number
+): Promise<Signer> => {
+  const payer = await createWallet(mx, 10);
+  await mx.tokens().mint({
+    mintAddress: mint.address,
+    mintAuthority,
+    toOwner: payer.publicKey,
+    amount: token(amount),
+  });
+
+  return payer;
+};
+
 const getFreezeEscrow = (
   mx: Metaplex,
   candyMachine: CandyMachine,
-  destination: Signer
+  destinationAta: { address: PublicKey }
 ) => {
   return mx.candyMachines().pdas().freezeEscrow({
-    destination: destination.publicKey,
+    destination: destinationAta.address,
     candyMachine: candyMachine.address,
     candyGuard: candyMachine.candyGuard!.address,
   });
+};
+
+const getTokenBalance = async (mx: Metaplex, mint: Mint, owner: PublicKey) => {
+  const tokenAccount = await mx.tokens().findTokenByAddress({
+    address: mx.tokens().pdas().associatedTokenAccount({
+      mint: mint.address,
+      owner,
+    }),
+  });
+
+  return tokenAccount.amount;
 };
 
 const getFrozenCount = async (
