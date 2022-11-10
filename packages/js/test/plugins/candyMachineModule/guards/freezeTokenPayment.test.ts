@@ -445,7 +445,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
   );
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the freeze escrow was not initialized', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the freeze escrow was not initialized', async (t) => {
   // Given a loaded Candy Machine with a freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -463,7 +463,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   });
 
   // When we try to mint without initializing the freeze escrow.
-  const payer = await createWallet(mx, 10);
+  const payer = await createTokenPayer(mx, mint, treasury, 10);
   const promise = mx.candyMachines().mint(
     {
       candyMachine,
@@ -476,13 +476,13 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   await assertThrows(t, promise, /Freeze must be initialized/);
 
   // And the payer didn't loose any SOL.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, sol(10)), 'payer did not lose SOLs');
+  const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
+  t.true(isEqualToAmount(payerBalance, token(10)), 'payer did not lose tokens');
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the payer does not have enough funds', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the payer does not have enough funds', async (t) => {
   // Given a loaded Candy Machine with an initialized
-  // freezeTokenPayment guard costing 5 SOLs.
+  // freezeTokenPayment guard costing 5 tokens.
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
@@ -499,8 +499,8 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   });
   await initFreezeEscrow(mx, candyMachine);
 
-  // When we mint from it using a payer that only has 4 SOL.
-  const payer = await createWallet(mx, 4);
+  // When we mint from it using a payer that only has 4 tokens.
+  const payer = await createTokenPayer(mx, mint, treasury, 4);
   const promise = mx.candyMachines().mint(
     {
       candyMachine,
@@ -510,14 +510,14 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   );
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Not enough SOL to pay for the mint/);
+  await assertThrows(t, promise, /Not enough tokens on the account/);
 
-  // And the payer didn't loose any SOL.
-  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, sol(4)), 'payer did not lose SOLs');
+  // And the payer didn't loose any tokens.
+  const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
+  t.true(isEqualToAmount(payerBalance, token(4)), 'payer did not lose tokens');
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the owner is not the payer', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the owner is not the payer', async (t) => {
   // Given a loaded Candy Machine with an initialized freezeTokenPayment guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -536,7 +536,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   await initFreezeEscrow(mx, candyMachine);
 
   // When we mint using an owner that is not the payer.
-  const payer = await createWallet(mx, 10);
+  const payer = await createTokenPayer(mx, mint, treasury, 10);
   const owner = Keypair.generate().publicKey;
   const promise = mx.candyMachines().mint(
     {
@@ -555,7 +555,7 @@ test.skip('[candyMachineModule] freezeTokenPayment guard: it fails to mint if th
   );
 });
 
-test.skip('[candyMachineModule] freezeTokenPayment guard with bot tax: it charges a bot tax if something goes wrong', async (t) => {
+test('[candyMachineModule] freezeTokenPayment guard with bot tax: it charges a bot tax if something goes wrong', async (t) => {
   // Given a loaded Candy Machine with a freezeTokenPayment guard and a botTax guard.
   const mx = await metaplex();
   const treasury = Keypair.generate();
@@ -577,7 +577,8 @@ test.skip('[candyMachineModule] freezeTokenPayment guard with bot tax: it charge
   });
 
   // When we try to mint without initializing the freeze escrow.
-  const payer = await createWallet(mx, 10);
+  const payer = await createWallet(mx, 10); // 10 SOL.
+  await mintTokens(mx, mint, treasury, payer, 5); // 5 tokens.
   const promise = mx.candyMachines().mint(
     {
       candyMachine,

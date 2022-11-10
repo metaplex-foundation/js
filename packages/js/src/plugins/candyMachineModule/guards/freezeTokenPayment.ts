@@ -5,7 +5,10 @@ import {
   FreezeTokenPayment,
   freezeTokenPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { UnrecognizePathForRouteInstructionError } from '../errors';
+import {
+  MintOwnerMustBeMintPayerError,
+  UnrecognizePathForRouteInstructionError,
+} from '../errors';
 import {
   CandyGuardManifest,
   CandyGuardsRemainingAccount,
@@ -165,12 +168,17 @@ export const freezeTokenPaymentGuardManifest: CandyGuardManifest<
   mintSettingsParser: ({
     metaplex,
     settings,
+    owner,
     payer,
     mint: nftMint,
     candyMachine,
     candyGuard,
     programs,
   }) => {
+    if (!owner.equals(payer.publicKey)) {
+      throw new MintOwnerMustBeMintPayerError('freezeTokenPayment');
+    }
+
     const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
       destination: settings.destinationAta,
       candyMachine,
