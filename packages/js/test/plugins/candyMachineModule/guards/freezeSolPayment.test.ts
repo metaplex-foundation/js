@@ -20,6 +20,7 @@ import {
   CandyMachine,
   isEqualToAmount,
   Metaplex,
+  Signer,
   sol,
   toBigNumber,
 } from '@/index';
@@ -133,19 +134,7 @@ test('[candyMachineModule] freezeSolPayment guard: it can thaw an NFT once all N
 
   // And given we minted the only frozen NFT from that candy machine.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx.candyMachines().mint(
-    {
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    },
-    { payer }
-  );
-  await assertMintingWasSuccessful(t, mx, {
-    candyMachine,
-    collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    nft,
-    owner: payer.publicKey,
-  });
+  const nft = await mintNft(mx, candyMachine, collection, payer);
   t.equal(nft.token.state, AccountState.Frozen, 'NFT is frozen');
 
   // When we thaw the NFT.
@@ -154,6 +143,126 @@ test('[candyMachineModule] freezeSolPayment guard: it can thaw an NFT once all N
   // Then the NFT is thawed.
   const refreshedNft = await mx.nfts().refresh(nft);
   t.equal(refreshedNft.token.state, AccountState.Initialized, 'NFT is Thawed');
+});
+
+test('[candyMachineModule] freezeSolPayment guard: it can unlock funds once all NFTs have been thawed', async (t) => {
+  // Given a loaded Candy Machine with an initialized freezeSolPayment guard.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      freezeSolPayment: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+  });
+  await initFreezeEscrow(mx, candyMachine);
+
+  // And given all NFTs have been minted and thawed.
+  const payer = await createWallet(mx, 10);
+  const nft = await mintNft(mx, candyMachine, collection, payer);
+  await thawNft(mx, candyMachine, nft.address, payer.publicKey);
+
+  // When the authority unlocks the funds.
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'unlockFunds',
+      candyGuardAuthority: mx.identity(),
+    },
+  });
+
+  // Then the destination wallet received the funds.
+  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
+  t.true(
+    isEqualToAmount(treasuryBalance, sol(1), sol(0.1)),
+    'treasury received SOLs'
+  );
+
+  // And the treasury escrow has been emptied.
+  const treasuryEscrow = mx.candyMachines().pdas().freezeEscrow({
+    destination: treasury.publicKey,
+    candyMachine: candyMachine.address,
+    candyGuard: candyMachine.candyGuard!.address,
+  });
+  const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
+  t.true(
+    isEqualToAmount(treasuryEscrowBalance, sol(0)),
+    'treasury escrow received SOLs'
+  );
+});
+
+test('[candyMachineModule] freezeSolPayment guard: it cannot unlock funds if not all NFTs have been thawed', async (t) => {
+  // Given a loaded Candy Machine with an initialized freezeSolPayment guard.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      freezeSolPayment: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+  });
+  await initFreezeEscrow(mx, candyMachine);
+
+  // And given all NFTs have been minted but not thawed.
+  const payer = await createWallet(mx, 10);
+  await mintNft(mx, candyMachine, collection, payer);
+
+  // When the authority tries to unlock the funds.
+  const promise = mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    settings: {
+      path: 'unlockFunds',
+      candyGuardAuthority: mx.identity(),
+    },
+  });
+
+  // Then we expect an error.
+  await assertThrows(
+    t,
+    promise,
+    /Unlock is not enabled \(not all NFTs are thawed\)/
+  );
+
+  // And the destination wallet did not receive any funds.
+  const treasuryBalance = await mx.rpc().getBalance(treasury.publicKey);
+  t.true(isEqualToAmount(treasuryBalance, sol(0)), 'treasury received no SOLs');
+});
+
+test.skip('[candyMachineModule] freezeSolPayment guard: it can have multiple freeze escrow and reuse the same ones', async (t) => {
+  // Given a loaded Candy Machine with an initialized freezeSolPayment guard.
+  const mx = await metaplex();
+  const treasury = Keypair.generate();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      freezeSolPayment: {
+        amount: sol(1),
+        destination: treasury.publicKey,
+      },
+    },
+  });
+  await initFreezeEscrow(mx, candyMachine);
+
+  // When we mint using an explicit payer and owner.
+  const payer = await createWallet(mx, 10);
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
 });
 
 test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the freeze escrow was not initialized', async (t) => {
@@ -189,7 +298,7 @@ test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the freez
   t.true(isEqualToAmount(payerBalance, sol(10)), 'payer did not lose SOLs');
 });
 
-test('[candyMachineModule] freezeSolPayment guard: it fails if the payer does not have enough funds', async (t) => {
+test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the payer does not have enough funds', async (t) => {
   // Given a loaded Candy Machine with an initialized
   // freezeSolPayment guard costing 5 SOLs.
   const mx = await metaplex();
@@ -310,6 +419,22 @@ const initFreezeEscrow = async (mx: Metaplex, candyMachine: CandyMachine) => {
       candyGuardAuthority: mx.identity(),
     },
   });
+};
+
+const mintNft = async (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  collection: { updateAuthority: Signer },
+  payer?: Signer
+) => {
+  const { nft } = await mx.candyMachines().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
+  return nft;
 };
 
 const thawNft = async (
