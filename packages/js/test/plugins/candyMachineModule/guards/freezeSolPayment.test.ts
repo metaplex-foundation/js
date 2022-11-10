@@ -1,6 +1,6 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { FreezeEscrow } from '@metaplex-foundation/mpl-candy-guard';
-import test from 'tape';
+import test, { Test } from 'tape';
 import { AccountState } from '@solana/spl-token';
 import spok from 'spok';
 import {
@@ -83,11 +83,7 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
   await assertThrows(t, promise, /Thaw is not enabled/);
 
   // And the treasury escrow received SOLs.
-  const treasuryEscrow = mx.candyMachines().pdas().freezeEscrow({
-    destination: treasury.publicKey,
-    candyMachine: candyMachine.address,
-    candyGuard: candyMachine.candyGuard!.address,
-  });
+  const treasuryEscrow = getFreezeEscrow(mx, candyMachine, treasury);
   const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
   t.true(
     isEqualToAmount(treasuryEscrowBalance, sol(1), sol(0.1)),
@@ -184,11 +180,7 @@ test('[candyMachineModule] freezeSolPayment guard: it can unlock funds once all 
   );
 
   // And the treasury escrow has been emptied.
-  const treasuryEscrow = mx.candyMachines().pdas().freezeEscrow({
-    destination: treasury.publicKey,
-    candyMachine: candyMachine.address,
-    candyGuard: candyMachine.candyGuard!.address,
-  });
+  const treasuryEscrow = getFreezeEscrow(mx, candyMachine, treasury);
   const treasuryEscrowBalance = await mx.rpc().getBalance(treasuryEscrow);
   t.true(
     isEqualToAmount(treasuryEscrowBalance, sol(0)),
@@ -238,30 +230,170 @@ test('[candyMachineModule] freezeSolPayment guard: it cannot unlock funds if not
   t.true(isEqualToAmount(treasuryBalance, sol(0)), 'treasury received no SOLs');
 });
 
-test.skip('[candyMachineModule] freezeSolPayment guard: it can have multiple freeze escrow and reuse the same ones', async (t) => {
-  // Given a loaded Candy Machine with an initialized freezeSolPayment guard.
+test('[candyMachineModule] freezeSolPayment guard: it can have multiple freeze escrow and reuse the same ones', async (t) => {
+  // Given a loaded Candy Machine with 4 groups
+  // containing freezeSolPayment guards such that:
+  // - Group A and Group B use the same destination (and thus freeze escrow).
+  // - Group C uses a different destination than group A and B.
+  // - Group D does not use a freezeSolPayment guard at all.
   const mx = await metaplex();
-  const treasury = Keypair.generate();
+  const treasuryAB = Keypair.generate();
+  const treasuryC = Keypair.generate();
+  const treasuryD = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
-    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
-    guards: {
-      freezeSolPayment: {
-        amount: sol(1),
-        destination: treasury.publicKey,
+    itemsAvailable: toBigNumber(4),
+    itemSettings: SEQUENTIAL_ITEM_SETTINGS,
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+      { name: 'Degen #3', uri: 'https://example.com/degen/3' },
+      { name: 'Degen #4', uri: 'https://example.com/degen/4' },
+    ],
+    guards: {},
+    groups: [
+      {
+        label: 'GROUPA',
+        guards: {
+          freezeSolPayment: {
+            amount: sol(0.5),
+            destination: treasuryAB.publicKey,
+          },
+        },
       },
-    },
+      {
+        label: 'GROUPB',
+        guards: {
+          freezeSolPayment: {
+            amount: sol(1),
+            destination: treasuryAB.publicKey,
+          },
+        },
+      },
+      {
+        label: 'GROUPC',
+        guards: {
+          freezeSolPayment: {
+            amount: sol(2),
+            destination: treasuryC.publicKey,
+          },
+        },
+      },
+      {
+        label: 'GROUPD',
+        guards: {
+          solPayment: {
+            amount: sol(3),
+            destination: treasuryD.publicKey,
+          },
+        },
+      },
+    ],
   });
-  await initFreezeEscrow(mx, candyMachine);
 
-  // When we mint using an explicit payer and owner.
+  // And given all freeze escrows have been initialized.
+  await initFreezeEscrow(mx, candyMachine, 'GROUPA');
+  await initFreezeEscrow(mx, candyMachine, 'GROUPC');
+
+  // Note that trying to initialize the escrow for group B will fail
+  // because it has already been initialized via group A.
+  await assertThrows(
+    t,
+    initFreezeEscrow(mx, candyMachine, 'GROUPB'),
+    /The freeze escrow account already exists/
+  );
+
+  // When we mint all 4 NFTs via each group.
   const payer = await createWallet(mx, 10);
-  const { nft } = await mx.candyMachines().mint(
-    {
-      candyMachine,
-      collectionUpdateAuthority: collection.updateAuthority.publicKey,
-    },
-    { payer }
+  const nftA = await mintNft(mx, candyMachine, collection, payer, 'GROUPA'); // 0.5 SOL
+  const nftB = await mintNft(mx, candyMachine, collection, payer, 'GROUPB'); // 1 SOL
+  const nftC = await mintNft(mx, candyMachine, collection, payer, 'GROUPC'); // 2 SOL
+  const nftD = await mintNft(mx, candyMachine, collection, payer, 'GROUPD'); // 3 SOL
+
+  // Then all NFTs except for group D have been frozen.
+  t.equal(nftA.token.state, AccountState.Frozen, 'NFT A is frozen');
+  t.equal(nftB.token.state, AccountState.Frozen, 'NFT B is frozen');
+  t.equal(nftC.token.state, AccountState.Frozen, 'NFT C is frozen');
+  t.equal(nftD.token.state, AccountState.Initialized, 'NFT D is not frozen');
+
+  // And the treasury escrow received SOLs.
+  const treasuryEscrowAB = getFreezeEscrow(mx, candyMachine, treasuryAB);
+  const treasuryEscrowC = getFreezeEscrow(mx, candyMachine, treasuryC);
+  const treasuryEscrowBalanceAB = await mx.rpc().getBalance(treasuryEscrowAB);
+  const treasuryEscrowBalanceC = await mx.rpc().getBalance(treasuryEscrowC);
+  t.true(
+    isEqualToAmount(treasuryEscrowBalanceAB, sol(1.5), sol(0.1)),
+    'treasury AB escrow received SOLs'
+  );
+  t.true(
+    isEqualToAmount(treasuryEscrowBalanceC, sol(2), sol(0.1)),
+    'treasury C escrow received SOLs'
+  );
+
+  // And the payer lost SOLs.
+  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
+  t.true(
+    isEqualToAmount(payerBalance, sol(10 - 6.5), sol(0.1)),
+    'payer lost SOLs'
+  );
+
+  // And the frozen counters securely decrease as we thaw all frozen NFTs.
+  const assertFrozenCounts = async (ab: number, c: number) => {
+    await Promise.all([
+      assertFrozenCount(t, mx, candyMachine, treasuryAB, ab),
+      assertFrozenCount(t, mx, candyMachine, treasuryC, c),
+    ]);
+  };
+  await assertFrozenCounts(2, 1);
+  await thawNft(mx, candyMachine, nftD.address, payer.publicKey, 'GROUPA'); // Not frozen.
+  await assertFrozenCounts(2, 1); // No change.
+  await thawNft(mx, candyMachine, nftA.address, payer.publicKey, 'GROUPA');
+  await assertFrozenCounts(1, 1); // AB decreased.
+  await thawNft(mx, candyMachine, nftA.address, payer.publicKey, 'GROUPA'); // Already thawed.
+  await assertFrozenCounts(1, 1); // No change.
+  await thawNft(mx, candyMachine, nftB.address, payer.publicKey, 'GROUPB');
+  await assertFrozenCounts(0, 1); // AB decreased.
+  await thawNft(mx, candyMachine, nftC.address, payer.publicKey, 'GROUPC');
+  await assertFrozenCounts(0, 0); // C decreased.
+
+  // And when the authority unlocks the funds of both freeze escrows.
+  await unlockFunds(mx, candyMachine, 'GROUPA');
+  await unlockFunds(mx, candyMachine, 'GROUPC');
+
+  // Note that trying to unlock the funds of group B will fail
+  // because it has already been unlocked via group A.
+  await assertThrows(
+    t,
+    unlockFunds(mx, candyMachine, 'GROUPB'),
+    /The program expected this account to be already initialized/
+  );
+
+  // Then the treasuries received the funds.
+  const treasuryBalanceAB = await mx.rpc().getBalance(treasuryAB.publicKey);
+  const treasuryBalanceC = await mx.rpc().getBalance(treasuryC.publicKey);
+  const treasuryBalanceD = await mx.rpc().getBalance(treasuryD.publicKey);
+  t.true(
+    isEqualToAmount(treasuryBalanceAB, sol(1.5), sol(0.1)),
+    'treasury AB received the funds'
+  );
+  t.true(
+    isEqualToAmount(treasuryBalanceC, sol(2), sol(0.1)),
+    'treasury C  received the funds'
+  );
+  t.true(
+    isEqualToAmount(treasuryBalanceD, sol(3), sol(0.1)),
+    'treasury D  received the funds'
+  );
+
+  // And the treasury escrows are empty.
+  const newEscrowBalanceAB = await mx.rpc().getBalance(treasuryEscrowAB);
+  const newEscrowBalanceC = await mx.rpc().getBalance(treasuryEscrowC);
+  t.true(
+    isEqualToAmount(newEscrowBalanceAB, sol(0)),
+    'treasury AB escrow is empty'
+  );
+  t.true(
+    isEqualToAmount(newEscrowBalanceC, sol(0)),
+    'treasury C escrow is empty'
   );
 });
 
@@ -409,10 +541,51 @@ test('[candyMachineModule] freezeSolPayment guard with bot tax: it charges a bot
   );
 });
 
-const initFreezeEscrow = async (mx: Metaplex, candyMachine: CandyMachine) => {
+const getFreezeEscrow = (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  destination: Signer
+) => {
+  return mx.candyMachines().pdas().freezeEscrow({
+    destination: destination.publicKey,
+    candyMachine: candyMachine.address,
+    candyGuard: candyMachine.candyGuard!.address,
+  });
+};
+
+const getFrozenCount = async (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  destination: Signer
+) => {
+  const account = await FreezeEscrow.fromAccountAddress(
+    mx.connection,
+    getFreezeEscrow(mx, candyMachine, destination)
+  );
+
+  return toBigNumber(account.frozenCount).toNumber();
+};
+
+const assertFrozenCount = async (
+  t: Test,
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  destination: Signer,
+  expected: number
+): Promise<void> => {
+  const frozenCount = await getFrozenCount(mx, candyMachine, destination);
+  t.equal(frozenCount, expected, 'frozen count is correct');
+};
+
+const initFreezeEscrow = async (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  group?: string
+) => {
   await mx.candyMachines().callGuardRoute({
     candyMachine,
     guard: 'freezeSolPayment',
+    group,
     settings: {
       path: 'initialize',
       period: 15 * 24 * 3600, // 15 days.
@@ -425,12 +598,14 @@ const mintNft = async (
   mx: Metaplex,
   candyMachine: CandyMachine,
   collection: { updateAuthority: Signer },
-  payer?: Signer
+  payer?: Signer,
+  group?: string
 ) => {
   const { nft } = await mx.candyMachines().mint(
     {
       candyMachine,
       collectionUpdateAuthority: collection.updateAuthority.publicKey,
+      group,
     },
     { payer }
   );
@@ -441,15 +616,33 @@ const thawNft = async (
   mx: Metaplex,
   candyMachine: CandyMachine,
   nftMint: PublicKey,
-  nftOwner: PublicKey
+  nftOwner: PublicKey,
+  group?: string
 ) => {
   await mx.candyMachines().callGuardRoute({
     candyMachine,
     guard: 'freezeSolPayment',
+    group,
     settings: {
       path: 'thaw',
       nftMint,
       nftOwner,
+    },
+  });
+};
+
+const unlockFunds = async (
+  mx: Metaplex,
+  candyMachine: CandyMachine,
+  group?: string
+) => {
+  await mx.candyMachines().callGuardRoute({
+    candyMachine,
+    guard: 'freezeSolPayment',
+    group,
+    settings: {
+      path: 'unlockFunds',
+      candyGuardAuthority: mx.identity(),
     },
   });
 };
