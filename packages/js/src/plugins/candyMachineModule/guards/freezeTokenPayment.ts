@@ -208,12 +208,12 @@ export const freezeTokenPaymentGuardManifest: CandyGuardManifest<
         {
           isSigner: false,
           address: tokenAddress,
-          isWritable: false,
+          isWritable: true,
         },
         {
           isSigner: false,
           address: freezeAta,
-          isWritable: false,
+          isWritable: true,
         },
       ],
     };
@@ -254,7 +254,17 @@ function initializeRouteInstruction({
     candyGuard,
     programs,
   });
+  const freezeAta = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: settings.mint,
+    owner: freezeEscrow,
+    programs,
+  });
+
   const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const associatedTokenProgram = metaplex
+    .programs()
+    .getAssociatedToken(programs);
 
   const args = Buffer.alloc(9);
   beet.u8.write(args, 0, FreezeInstruction.Initialize);
@@ -277,6 +287,31 @@ function initializeRouteInstruction({
         isSigner: false,
         address: systemProgram.address,
         isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: freezeAta,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: settings.mint,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: tokenProgram.address,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: associatedTokenProgram.address,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: settings.destinationAta,
+        isWritable: true,
       },
     ] as CandyGuardsRemainingAccount[],
   };
@@ -375,7 +410,14 @@ function unlockFundsRouteInstruction({
     candyGuard,
     programs,
   });
+  const freezeAta = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: settings.mint,
+    owner: freezeEscrow,
+    programs,
+  });
+
   const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
 
   const args = Buffer.alloc(1);
   beet.u8.write(args, 0, FreezeInstruction.UnlockFunds);
@@ -395,12 +437,22 @@ function unlockFundsRouteInstruction({
       },
       {
         isSigner: false,
+        address: freezeAta,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
         address: settings.destinationAta,
         isWritable: true,
       },
       {
         isSigner: false,
         address: systemProgram.address,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: tokenProgram.address,
         isWritable: false,
       },
     ] as CandyGuardsRemainingAccount[],
