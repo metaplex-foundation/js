@@ -45,7 +45,7 @@ test.only('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to
     guards: {
       freezeTokenPayment: {
         amount: token(1),
-        destinationAta: treasury.publicKey,
+        destinationAta: treasuryAta.address,
         mint: mint.address,
       },
     },

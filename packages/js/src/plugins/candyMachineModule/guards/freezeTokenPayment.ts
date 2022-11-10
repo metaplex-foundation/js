@@ -187,7 +187,7 @@ export const freezeTokenPaymentGuardManifest: CandyGuardManifest<
       programs,
     });
     const freezeAta = metaplex.tokens().pdas().associatedTokenAccount({
-      mint: nftMint.publicKey,
+      mint: settings.mint,
       owner: freezeEscrow,
       programs,
     });
