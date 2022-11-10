@@ -1,9 +1,17 @@
 import { Buffer } from 'buffer';
+import * as beet from '@metaplex-foundation/beet';
 import {
+  FreezeInstruction,
   FreezeTokenPayment,
   freezeTokenPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
-import { CandyGuardManifest } from './core';
+import { UnrecognizePathForRouteInstructionError } from '../errors';
+import {
+  CandyGuardManifest,
+  CandyGuardsRemainingAccount,
+  RouteSettingsParserInput,
+} from './core';
+import { assert } from '@/utils';
 import {
   createSerializerFromBeet,
   mapSerializer,
@@ -131,86 +139,270 @@ export type FreezeTokenPaymentGuardRouteSettings =
     };
 
 /** @internal */
-export const freezeTokenPaymentGuardManifest: CandyGuardManifest<FreezeTokenPaymentGuardSettings> =
-  {
-    name: 'freezeTokenPayment',
-    settingsBytes: 72,
-    settingsSerializer: mapSerializer<
-      FreezeTokenPayment,
-      FreezeTokenPaymentGuardSettings
-    >(
-      createSerializerFromBeet(freezeTokenPaymentBeet),
-      (settings) => ({
-        mint: settings.mint,
-        amount: token(settings.amount),
-        destinationAta: settings.destinationAta,
-      }),
-      (settings) => ({
-        mint: settings.mint,
-        amount: settings.amount.basisPoints,
-        destinationAta: settings.destinationAta,
-      })
-    ),
-    mintSettingsParser: ({
-      metaplex,
-      settings,
-      payer,
-      mint: nftMint,
+export const freezeTokenPaymentGuardManifest: CandyGuardManifest<
+  FreezeTokenPaymentGuardSettings,
+  {},
+  FreezeTokenPaymentGuardRouteSettings
+> = {
+  name: 'freezeTokenPayment',
+  settingsBytes: 72,
+  settingsSerializer: mapSerializer<
+    FreezeTokenPayment,
+    FreezeTokenPaymentGuardSettings
+  >(
+    createSerializerFromBeet(freezeTokenPaymentBeet),
+    (settings) => ({
+      mint: settings.mint,
+      amount: token(settings.amount),
+      destinationAta: settings.destinationAta,
+    }),
+    (settings) => ({
+      mint: settings.mint,
+      amount: settings.amount.basisPoints,
+      destinationAta: settings.destinationAta,
+    })
+  ),
+  mintSettingsParser: ({
+    metaplex,
+    settings,
+    payer,
+    mint: nftMint,
+    candyMachine,
+    candyGuard,
+    programs,
+  }) => {
+    const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+      destination: settings.destinationAta,
       candyMachine,
       candyGuard,
       programs,
-    }) => {
-      const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
-        destination: settings.destinationAta,
-        candyMachine,
-        candyGuard,
-        programs,
-      });
-      const nftAta = metaplex.tokens().pdas().associatedTokenAccount({
-        mint: nftMint.publicKey,
-        owner: payer.publicKey,
-      });
-      const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
-        mint: settings.mint,
-        owner: payer.publicKey,
-        programs,
-      });
-      const freezeAta = metaplex.tokens().pdas().associatedTokenAccount({
-        mint: nftMint.publicKey,
-        owner: freezeEscrow,
-        programs,
-      });
+    });
+    const nftAta = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: nftMint.publicKey,
+      owner: payer.publicKey,
+    });
+    const tokenAddress = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: settings.mint,
+      owner: payer.publicKey,
+      programs,
+    });
+    const freezeAta = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: nftMint.publicKey,
+      owner: freezeEscrow,
+      programs,
+    });
 
-      return {
-        arguments: Buffer.from([]),
-        remainingAccounts: [
-          {
-            isSigner: false,
-            address: freezeEscrow,
-            isWritable: true,
-          },
-          {
-            isSigner: false,
-            address: nftAta,
-            isWritable: false,
-          },
-          {
-            isSigner: false,
-            address: tokenAddress,
-            isWritable: false,
-          },
-          {
-            isSigner: false,
-            address: freezeAta,
-            isWritable: false,
-          },
-        ],
-        routeSettingsParser: () => {
-          return {
-            arguments: Buffer.from([]),
-            remainingAccounts: [],
-          };
+    return {
+      arguments: Buffer.from([]),
+      remainingAccounts: [
+        {
+          isSigner: false,
+          address: freezeEscrow,
+          isWritable: true,
         },
-      };
-    },
+        {
+          isSigner: false,
+          address: nftAta,
+          isWritable: false,
+        },
+        {
+          isSigner: false,
+          address: tokenAddress,
+          isWritable: false,
+        },
+        {
+          isSigner: false,
+          address: freezeAta,
+          isWritable: false,
+        },
+      ],
+    };
+  },
+  routeSettingsParser: (input) => {
+    switch (input.routeSettings.path) {
+      case 'initialize':
+        return initializeRouteInstruction(input);
+      case 'thaw':
+        return thawRouteInstruction(input);
+      case 'unlockFunds':
+        return unlockFundsRouteInstruction(input);
+      default:
+        throw new UnrecognizePathForRouteInstructionError(
+          'freezeTokenPayment',
+          // @ts-ignore
+          input.routeSettings.path
+        );
+    }
+  },
+};
+
+function initializeRouteInstruction({
+  metaplex,
+  settings,
+  routeSettings,
+  candyMachine,
+  candyGuard,
+  programs,
+}: RouteSettingsParserInput<
+  FreezeTokenPaymentGuardSettings,
+  FreezeTokenPaymentGuardRouteSettings
+>) {
+  assert(routeSettings.path === 'initialize');
+  const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+    destination: settings.destinationAta,
+    candyMachine,
+    candyGuard,
+    programs,
+  });
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  const args = Buffer.alloc(9);
+  beet.u8.write(args, 0, FreezeInstruction.Initialize);
+  beet.u64.write(args, 1, routeSettings.period);
+
+  return {
+    arguments: args,
+    remainingAccounts: [
+      {
+        isSigner: false,
+        address: freezeEscrow,
+        isWritable: true,
+      },
+      {
+        isSigner: true,
+        address: routeSettings.candyGuardAuthority,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: systemProgram.address,
+        isWritable: false,
+      },
+    ] as CandyGuardsRemainingAccount[],
   };
+}
+
+function thawRouteInstruction({
+  metaplex,
+  settings,
+  routeSettings,
+  candyMachine,
+  candyGuard,
+  programs,
+}: RouteSettingsParserInput<
+  FreezeTokenPaymentGuardSettings,
+  FreezeTokenPaymentGuardRouteSettings
+>) {
+  assert(routeSettings.path === 'thaw');
+  const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+    destination: settings.destinationAta,
+    candyMachine,
+    candyGuard,
+    programs,
+  });
+  const nftAta = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: routeSettings.nftMint,
+    owner: routeSettings.nftOwner,
+    programs,
+  });
+  const nftEdition = metaplex.nfts().pdas().masterEdition({
+    mint: routeSettings.nftMint,
+    programs,
+  });
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+
+  const args = Buffer.alloc(1);
+  beet.u8.write(args, 0, FreezeInstruction.Thaw);
+
+  return {
+    arguments: args,
+    remainingAccounts: [
+      {
+        isSigner: false,
+        address: freezeEscrow,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: routeSettings.nftMint,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: routeSettings.nftOwner,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: nftAta,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: nftEdition,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: tokenProgram.address,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: tokenMetadataProgram.address,
+        isWritable: false,
+      },
+    ] as CandyGuardsRemainingAccount[],
+  };
+}
+
+function unlockFundsRouteInstruction({
+  metaplex,
+  settings,
+  routeSettings,
+  candyMachine,
+  candyGuard,
+  programs,
+}: RouteSettingsParserInput<
+  FreezeTokenPaymentGuardSettings,
+  FreezeTokenPaymentGuardRouteSettings
+>) {
+  assert(routeSettings.path === 'unlockFunds');
+  const freezeEscrow = metaplex.candyMachines().pdas().freezeEscrow({
+    destination: settings.destinationAta,
+    candyMachine,
+    candyGuard,
+    programs,
+  });
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  const args = Buffer.alloc(1);
+  beet.u8.write(args, 0, FreezeInstruction.UnlockFunds);
+
+  return {
+    arguments: args,
+    remainingAccounts: [
+      {
+        isSigner: false,
+        address: freezeEscrow,
+        isWritable: true,
+      },
+      {
+        isSigner: true,
+        address: routeSettings.candyGuardAuthority,
+        isWritable: false,
+      },
+      {
+        isSigner: false,
+        address: settings.destinationAta,
+        isWritable: true,
+      },
+      {
+        isSigner: false,
+        address: systemProgram.address,
+        isWritable: false,
+      },
+    ] as CandyGuardsRemainingAccount[],
+  };
+}
