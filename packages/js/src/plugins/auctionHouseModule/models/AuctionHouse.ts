@@ -56,6 +56,12 @@ export type AuctionHouse = Readonly<
      * In other case, different SPL token is set as the purchase currency.
      */
     isNative: boolean;
+
+    /**
+     * The list of scopes available to the user in the Auction House.
+     * For example Bid, List, Execute Sale.
+     */
+    scopes: AuthorityScope[];
   } & (
     | {
         /** This Auction House doesn't have Auctioneer. */
@@ -74,12 +80,6 @@ export type AuctionHouse = Readonly<
 
           /** The address of Auctioneer Authority. */
           authority: PublicKey;
-
-          /**
-           * The list of scopes available to the user in the Auctioneer.
-           * For example Bid, List, Execute Sale.
-           */
-          scopes: AuthorityScope[];
         };
       }
   )
@@ -159,6 +159,10 @@ export const toAuctionHouse = (
     requiresSignOff: auctionHouseAccount.data.requiresSignOff,
     canChangeSalePrice: auctionHouseAccount.data.canChangeSalePrice,
     isNative: treasuryMint.isWrappedSol,
+    scopes: auctionHouseAccount.data.scopes.reduce<number[]>(
+      (acc, isAllowed, index) => (isAllowed ? [...acc, index] : acc),
+      [] as number[]
+    ),
 
     // Auctioneer.
     ...(auctionHouseAccount.data.hasAuctioneer && auctioneerAccount
@@ -167,10 +171,6 @@ export const toAuctionHouse = (
           auctioneer: {
             address: auctioneerAccount.publicKey,
             authority: auctioneerAccount.data.auctioneerAuthority,
-            scopes: auctioneerAccount.data.scopes.reduce<number[]>(
-              (acc, isAllowed, index) => (isAllowed ? [...acc, index] : acc),
-              [] as number[]
-            ),
           },
         }
       : { hasAuctioneer: false }),
