@@ -6,50 +6,55 @@ export type FeatureFlags = boolean[];
  * Serializes an array of boolean into a Buffer. The `byteSize` parameter
  * can be used to create a fixed-size Buffer, otherwise the Buffer will
  * have the minimum amount of bytes required to store the boolean array.
+ *
+ * Returns a Buffer whose bits are ordered from left to right, unless
+ * `backward` is set to true, in which case the bits are ordered from
+ * right to left.
  */
 export const serializeFeatureFlags = (
   features: FeatureFlags,
   byteSize?: number,
-  littleEndian = true
+  backward = false
 ): Buffer => {
+  byteSize = byteSize ?? Math.ceil(features.length / 8);
   const bytes: number[] = [];
-  let currentByte = 0;
 
-  for (let i = 0; i < features.length; i++) {
-    const byteIndex = i % 8;
-    if (littleEndian) {
-      currentByte |= Number(features[i]) << byteIndex;
-    } else {
-      currentByte |= Number(features[i]) >> byteIndex;
+  for (let i = 0; i < byteSize; i++) {
+    let byte = 0;
+    for (let j = 0; j < 8; j++) {
+      const feature = Number(features[i * 8 + j] ?? 0);
+      byte |= feature << (backward ? j : 7 - j);
     }
-    if (byteIndex === 7) {
-      bytes.push(currentByte);
-      currentByte = 0;
+    if (backward) {
+      bytes.unshift(byte);
+    } else {
+      bytes.push(byte);
     }
   }
 
-  const buffer = Buffer.from(bytes);
-  return byteSize === undefined ? buffer : Buffer.concat([buffer], byteSize);
+  return Buffer.from(bytes);
 };
 
 /**
- * Parses a Buffer into an array of booleans using the bits
- * of the buffer. The number of flags is required to know
- * how many bits to read and how many booleans to return.
+ * Parses a Buffer into an array of booleans using the
+ * bits of the buffer. The number of flags can be provided
+ * to determine how many booleans to return.
+ *
+ * Expects the bits in the Buffer to be ordered from left to right,
+ * unless `backward` is set to true, we expect the bits to be
+ * ordered from right to left.
  */
 export const deserializeFeatureFlags = (
   buffer: Buffer,
-  numberOfFlags: number,
-  offset = 0,
-  littleEndian = true
-): [FeatureFlags, number] => {
+  numberOfFlags?: number,
+  backward = false
+): FeatureFlags => {
   const booleans: boolean[] = [];
-  const byteSize = Math.ceil(numberOfFlags / 8);
-  const bytes = buffer.slice(offset, offset + byteSize);
+  buffer = backward ? buffer.reverse() : buffer;
 
-  for (let byte of bytes) {
+  for (let byte of buffer) {
     for (let i = 0; i < 8; i++) {
-      if (littleEndian) {
+      if (backward) {
         booleans.push(Boolean(byte & 1));
         byte >>= 1;
       } else {
@@ -59,5 +64,5 @@ export const deserializeFeatureFlags = (
     }
   }
 
-  return [booleans.slice(0, numberOfFlags), offset + byteSize];
+  return booleans.slice(0, numberOfFlags);
 };

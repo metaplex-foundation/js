@@ -36,22 +36,9 @@ export type CandyGuardManifest<
    * to the `mint` instruction, this function parses the predefined `mintSettings`
    * of your guards into the required arguments and remaining accounts.
    */
-  mintSettingsParser?: (input: {
-    /** The metaplex instance used to mint. */
-    metaplex: Metaplex;
-    /** The guard's settings. */
-    settings: Settings;
-    /** The optional mint settings. */
-    mintSettings: Option<MintSettings>;
-    /** The minting wallet as a Signer. */
-    payer: Signer;
-    /** The address of the Candy Machine we are minting from. */
-    candyMachine: PublicKey;
-    /** The address of the Candy Guard we are minting from. */
-    candyGuard: PublicKey;
-    /** An optional set of programs that override the registered ones. */
-    programs: Program[];
-  }) => {
+  mintSettingsParser?: (
+    input: MintSettingsParserInput<Settings, MintSettings>
+  ) => {
     /** The serialized arguments to pass to the mint instruction. */
     arguments: Buffer;
     /** {@inheritDoc CandyGuardsRemainingAccount} */
@@ -63,27 +50,58 @@ export type CandyGuardManifest<
    * a custom instruction on the guard, this function parses the predefined
    * `routeSettings` of your guards into the required arguments and remaining accounts.
    */
-  routeSettingsParser?: (input: {
-    /** The metaplex instance used when calling the route instruction. */
-    metaplex: Metaplex;
-    /** The guard's settings. */
-    settings: Settings;
-    /** The route settings for that guard. */
-    routeSettings: RouteSettings;
-    /** The payer for the route instruction. */
-    payer: Signer;
-    /** The address of the Candy Machine we are routing from. */
-    candyMachine: PublicKey;
-    /** The address of the Candy Guard we are routing from. */
-    candyGuard: PublicKey;
-    /** An optional set of programs that override the registered ones. */
-    programs: Program[];
-  }) => {
+  routeSettingsParser?: (
+    input: RouteSettingsParserInput<Settings, RouteSettings>
+  ) => {
     /** The serialized arguments to pass to the route instruction. */
     arguments: Buffer;
     /** {@inheritDoc CandyGuardsRemainingAccount} */
     remainingAccounts: CandyGuardsRemainingAccount[];
   };
+};
+
+/** The input passed to each guard when building the mint instruction. */
+export type MintSettingsParserInput<Settings, MintSettings> = {
+  /** The metaplex instance used to mint. */
+  metaplex: Metaplex;
+  /** The guard's settings. */
+  settings: Settings;
+  /** The optional mint settings. */
+  mintSettings: Option<MintSettings>;
+  /** The owner of the minted NFT, this is typically the payer. */
+  owner: PublicKey;
+  /** The minting wallet as a Signer. */
+  payer: Signer;
+  /** The NFT mint account as a Signer. */
+  mint: Signer;
+  /** The address of the Candy Machine we are minting from. */
+  candyMachine: PublicKey;
+  /** The address of the Candy Guard we are minting from. */
+  candyGuard: PublicKey;
+  /** The address of the Candy Guard's authority. */
+  candyGuardAuthority: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs: Program[];
+};
+
+/** The input passed to each guard when building the route instruction. */
+export type RouteSettingsParserInput<Settings, RouteSettings> = {
+  /** The metaplex instance used when calling the route instruction. */
+  metaplex: Metaplex;
+  /** The guard's settings. */
+  settings: Settings;
+  /** The route settings for that guard. */
+  routeSettings: RouteSettings;
+  /** The payer for the route instruction. */
+  payer: Signer;
+  /** The address of the Candy Machine we are routing from. */
+  candyMachine: PublicKey;
+  /** The address of the Candy Guard we are routing from. */
+  candyGuard: PublicKey;
+  /** The address of the Candy Guard's authority. */
+  candyGuardAuthority: PublicKey;
+  /** An optional set of programs that override the registered ones. */
+  programs: Program[];
 };
 
 /**

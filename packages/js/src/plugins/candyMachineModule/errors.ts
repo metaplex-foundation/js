@@ -250,3 +250,30 @@ export class GuardGroupLabelTooLongError extends CandyMachineV3Error {
     });
   }
 }
+
+/** @group Errors */
+export class UnrecognizePathForRouteInstructionError extends CandyMachineV3Error {
+  constructor(guard: string, path: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'unrecognize_path_for_route_instruction',
+      title: 'Unrecognize Path For Route Instruction',
+      problem: `The provided path [${path}] does not exist on the route instruction of the [${guard}] guard.`,
+      solution: 'Please provide a recognized path.',
+    });
+  }
+}
+
+/** @group Errors */
+export class MintOwnerMustBeMintPayerError extends CandyMachineV3Error {
+  constructor(guard: string, options?: MetaplexErrorOptions) {
+    super({
+      options,
+      key: 'mint_owner_must_be_mint_payer',
+      title: 'Mint Owner Must Be Mint Payer',
+      problem: `The payer must be the owner when using the [${guard}] guard.`,
+      solution:
+        'Please remove the `owner` attribute from the mint input so they can be the same.',
+    });
+  }
+}

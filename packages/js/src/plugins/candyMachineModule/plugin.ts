@@ -59,6 +59,8 @@ import {
   updateCandyGuardAuthorityOperation,
   updateCandyGuardAuthorityOperationHandler,
 } from './operations/updateCandyGuardAuthority';
+import { freezeSolPaymentGuardManifest } from './guards/freezeSolPayment';
+import { freezeTokenPaymentGuardManifest } from './guards/freezeTokenPayment';
 import { MetaplexPlugin, OperationConstructor, Program } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -113,6 +115,8 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     client.guards().register(nftGateGuardManifest);
     client.guards().register(nftBurnGuardManifest);
     client.guards().register(tokenBurnGuardManifest);
+    client.guards().register(freezeSolPaymentGuardManifest);
+    client.guards().register(freezeTokenPaymentGuardManifest);
 
     // Operations.
     const op = metaplex.operations();

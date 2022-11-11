@@ -390,9 +390,11 @@ export const toCandyMachine = <
     isFullyLoaded,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
-      toBigNumber(parsedAccount.data.features).toArrayLike(Buffer, 'le', 8),
+      toBigNumber(parsedAccount.data.features)
+        .toArrayLike(Buffer, 'le', 8)
+        .reverse(),
       64
-    )[0],
+    ),
     candyGuard,
   };
 };
