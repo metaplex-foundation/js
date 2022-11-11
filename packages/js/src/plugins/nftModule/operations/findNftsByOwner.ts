@@ -70,19 +70,11 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
       const { owner } = operation.input;
 
       const tokenProgram = metaplex.programs().getToken(programs);
-      const tokenAccountsUnparsed = await new TokenGpaBuilder(metaplex, tokenProgram.address)
+      const tokenAccounts: Token[] = await new TokenGpaBuilder(metaplex, tokenProgram.address)
         .whereOwner(owner)
         .whereAmount(1)
-        .get();
+        .getAndMap(tokenAccount => toToken(toTokenAccount(tokenAccount)));
       scope.throwIfCanceled();
-
-      const tokenAccounts = tokenAccountsUnparsed.map(tokenAccount => {
-        try {
-          return toToken(toTokenAccount(tokenAccount))
-        } catch (error) {
-          return null
-        }
-      }).filter((tokenAccount): tokenAccount is Token => tokenAccount !== null);
 
       const nfts = await metaplex.nfts().findAllByMintList({ mints: tokenAccounts.map(tokenAccount => tokenAccount.mintAddress) }, scope);
       scope.throwIfCanceled();
