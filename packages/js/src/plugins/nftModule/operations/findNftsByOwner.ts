@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
-import { TokenGpaBuilder } from '../../tokenModule';
-import { Metadata, Nft, Sft } from '../models';
+import { Token, TokenGpaBuilder, toToken, toTokenAccount } from '../../tokenModule';
+import { Metadata, MetadataWithToken } from '../models';
 import {
   Operation,
   OperationHandler,
@@ -53,7 +53,7 @@ export type FindNftsByOwnerInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindNftsByOwnerOutput = (Metadata | Nft | Sft)[];
+export type FindNftsByOwnerOutput = (MetadataWithToken)[];
 
 /**
  * @group Operations
@@ -70,16 +70,26 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
       const { owner } = operation.input;
 
       const tokenProgram = metaplex.programs().getToken(programs);
-      const mints = await new TokenGpaBuilder(metaplex, tokenProgram.address)
-        .selectMint()
+      const tokenAccountsUnparsed = await new TokenGpaBuilder(metaplex, tokenProgram.address)
         .whereOwner(owner)
         .whereAmount(1)
-        .getDataAsPublicKeys();
+        .get();
       scope.throwIfCanceled();
 
-      const nfts = await metaplex.nfts().findAllByMintList({ mints }, scope);
+      const tokenAccounts = tokenAccountsUnparsed.map(tokenAccount => {
+        try {
+          return toToken(toTokenAccount(tokenAccount))
+        } catch (error) {
+          return null
+        }
+      }).filter((tokenAccount): tokenAccount is Token => tokenAccount !== null);
+
+      const nfts = await metaplex.nfts().findAllByMintList({ mints: tokenAccounts.map(tokenAccount => tokenAccount.mintAddress) }, scope);
       scope.throwIfCanceled();
 
-      return nfts.filter((nft): nft is Metadata | Nft | Sft => nft !== null);
+      return nfts.filter((nft): nft is Metadata => nft !== null ).map((nft) => {
+        const token = tokenAccounts.find(tokenAccount => tokenAccount.mintAddress.toBase58() === nft.mintAddress.toBase58())!
+        return {...nft, token}
+      });
     },
   };

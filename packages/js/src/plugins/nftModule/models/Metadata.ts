@@ -7,6 +7,7 @@ import { MetadataAccount } from '../accounts';
 import { JsonMetadata } from './JsonMetadata';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import type { Token } from '../../tokenModule';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
@@ -190,3 +191,6 @@ export const toMetadata = (
       }
     : null,
 });
+
+/** @group Models */
+export type MetadataWithToken = Metadata & { token: Token };
