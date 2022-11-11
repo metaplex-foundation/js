@@ -209,5 +209,17 @@ export const toMetadataWithToken = (
   metadata: Metadata,
   token: Token
 ): MetadataWithToken => ({
-  ...metadata, token
+  ...metadata, token: {
+    ...token,
+    amount: {
+      ...token.amount, currency: {
+        ...token.amount.currency, symbol: metadata.symbol || 'Token'
+      }
+    },
+    delegateAmount: {
+      ...token.delegateAmount, currency: {
+        ...token.delegateAmount.currency, symbol: metadata.symbol || 'Token'
+      }
+    }
+  }
 });
