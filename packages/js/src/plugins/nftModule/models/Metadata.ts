@@ -194,3 +194,20 @@ export const toMetadata = (
 
 /** @group Models */
 export type MetadataWithToken = Metadata & { token: Token };
+
+/** @group Model Helpers */
+export const isMetadataWithToken = (value: any): value is MetadataWithToken =>
+  isMetadata(value) && 'token' in value;
+
+/** @group Model Helpers */
+export function assertMetadataWithToken(value: any): asserts value is MetadataWithToken {
+  assert(isMetadataWithToken(value), `Expected Metadata model with token`);
+}
+
+/** @group Model Helpers */
+export const toMetadataWithToken = (
+  metadata: Metadata,
+  token: Token
+): MetadataWithToken => ({
+  ...metadata, token
+});

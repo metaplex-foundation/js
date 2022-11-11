@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { Token, TokenGpaBuilder, toToken, toTokenAccount } from '../../tokenModule';
-import { Metadata, MetadataWithToken } from '../models';
+import { Metadata, MetadataWithToken, toMetadataWithToken } from '../models';
 import {
   Operation,
   OperationHandler,
@@ -79,9 +79,9 @@ export const findNftsByOwnerOperationHandler: OperationHandler<FindNftsByOwnerOp
       const nfts = await metaplex.nfts().findAllByMintList({ mints: tokenAccounts.map(tokenAccount => tokenAccount.mintAddress) }, scope);
       scope.throwIfCanceled();
 
-      return nfts.filter((nft): nft is Metadata => nft !== null ).map((nft) => {
-        const token = tokenAccounts.find(tokenAccount => tokenAccount.mintAddress.toBase58() === nft.mintAddress.toBase58())!
-        return {...nft, token}
+      return nfts.filter((nft): nft is Metadata => nft !== null ).map((metadata) => {
+        const token = tokenAccounts.find(tokenAccount => tokenAccount.mintAddress.toBase58() === metadata.mintAddress.toBase58())!
+        return toMetadataWithToken(metadata, token)
       });
     },
   };
