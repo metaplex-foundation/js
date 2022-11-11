@@ -28,7 +28,7 @@ export class ParsedProgramError extends ProgramError {
   constructor(
     program: Program,
     cause: UnderlyingProgramError,
-    options?: Omit<MetaplexErrorOptions, 'cause' | 'logs'>
+    options?: Omit<MetaplexErrorOptions, 'cause'>
   ) {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     super(program, {
@@ -42,7 +42,6 @@ export class ParsedProgramError extends ProgramError {
       solution: 'Check the error message provided by the program.',
       options: {
         ...options,
-        logs: cause.logs,
         cause,
       },
     });

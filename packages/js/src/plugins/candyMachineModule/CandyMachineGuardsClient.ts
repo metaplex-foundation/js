@@ -104,6 +104,12 @@ export class CandyMachineGuardsClient {
     programs: Program[] = []
   ): Buffer {
     const availableGuards = this.forCandyGuardProgram(programs);
+    this.assertGuardsAreRegistered<T>(
+      guards,
+      groups,
+      availableGuards.map(({ name }) => name)
+    );
+
     const serializeSet = (set: Partial<T>): Buffer => {
       const { features, buffer } = availableGuards.reduce(
         (acc, guard, index) => {
@@ -123,7 +129,10 @@ export class CandyMachineGuardsClient {
         }
       );
 
-      return Buffer.concat([serializeFeatureFlags(features, 8), buffer]);
+      const serializedfeatures = serializeFeatureFlags(features, 8, true);
+      serializedfeatures.reverse();
+
+      return Buffer.concat([serializedfeatures, buffer]);
     };
 
     let buffer = serializeSet(guards);
@@ -162,7 +171,8 @@ export class CandyMachineGuardsClient {
     const availableGuards = this.forProgram(program);
     const deserializeSet = () => {
       const serializedFeatures = buffer.slice(0, 8);
-      const features = deserializeFeatureFlags(serializedFeatures, 64)[0];
+      serializedFeatures.reverse();
+      const features = deserializeFeatureFlags(serializedFeatures, 64, true);
       buffer = buffer.slice(8);
 
       return availableGuards.reduce((acc, guard, index) => {
@@ -244,7 +254,9 @@ export class CandyMachineGuardsClient {
   >(
     candyMachine: PublicKey,
     candyGuard: CandyGuard<Settings>,
+    owner: PublicKey,
     payer: Signer,
+    mint: Signer,
     guardMintSettings: Partial<MintSettings>,
     groupLabel: Option<string>,
     programs: Program[] = []
@@ -274,9 +286,12 @@ export class CandyMachineGuardsClient {
         metaplex: this.metaplex,
         settings,
         mintSettings,
+        owner,
         payer,
+        mint,
         candyMachine,
         candyGuard: candyGuard.address,
+        candyGuardAuthority: candyGuard.authorityAddress,
         programs,
       });
 
@@ -332,6 +347,7 @@ export class CandyMachineGuardsClient {
       payer,
       candyMachine,
       candyGuard: candyGuard.address,
+      candyGuardAuthority: candyGuard.authorityAddress,
       programs,
     });
 
@@ -360,5 +376,32 @@ export class CandyMachineGuardsClient {
     return remainingAccounts
       .filter((account) => account.isSigner)
       .map((account) => account.address as Signer);
+  }
+
+  /** @internal */
+  protected assertGuardsAreRegistered<
+    T extends CandyGuardsSettings = DefaultCandyGuardSettings
+  >(
+    guards: Partial<T>,
+    groups: { label: string; guards: Partial<T> }[],
+    availableGuardNames: string[]
+  ): void {
+    const guardNames = new Set<string>();
+    const addGuardSet = (guardSet: Partial<T>) => {
+      Object.keys(guardSet).forEach((name) => {
+        if (!!guardSet[name]) {
+          guardNames.add(name);
+        }
+      });
+    };
+
+    addGuardSet(guards);
+    groups.forEach((group) => addGuardSet(group.guards));
+
+    guardNames.forEach((name) => {
+      if (!availableGuardNames.includes(name)) {
+        throw new UnregisteredCandyGuardError(name);
+      }
+    });
   }
 }

@@ -427,7 +427,9 @@ export const mintFromCandyMachineBuilder = async <
     const parsedMintSettings = guardClient.parseMintSettings(
       candyMachine.address,
       candyGuard,
+      owner,
       payer,
+      mint,
       guards,
       group,
       programs

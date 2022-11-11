@@ -276,7 +276,7 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
       {
         label: 'GUARD1',
         guards: {
-          lamports: { amount: sol(1), destination: lamportDestination },
+          solPayment: { amount: sol(1), destination: lamportDestination },
         },
       },
       {
