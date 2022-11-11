@@ -292,8 +292,9 @@ export const updateAuctionHouseBuilder = (
     auctionHouse.hasAuctioneer &&
     !!params.auctioneerScopes &&
     !isEqual(params.auctioneerScopes.sort(), auctionHouse.scopes.sort());
-  const shouldDelegateAuctioneer =
-    shouldAddAuctioneerAuthority || shouldUpdateAuctioneerAuthority;
+  const shouldDelegateAuctioneer = shouldAddAuctioneerAuthority;
+  const shouldUpdateAuctioneer =
+    shouldUpdateAuctioneerAuthority || shouldUpdateAuctioneerScopes;
 
   return (
     TransactionBuilder.make()
@@ -324,7 +325,7 @@ export const updateAuctionHouseBuilder = (
         })
       )
 
-      // Attach or update a new Auctioneer instance to the Auction House.
+      // Attach a new Auctioneer instance to the Auction House.
       .when(shouldDelegateAuctioneer, (builder) => {
         const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
         const defaultScopes = auctionHouse.hasAuctioneer
@@ -349,12 +350,11 @@ export const updateAuctionHouseBuilder = (
         });
       })
 
-      // Update the Auctioneer scopes of the Auction House.
-      .when(shouldUpdateAuctioneerScopes, (builder) => {
+      // Update the Auctioneer authority and/or scopes of the Auction House.
+      .when(shouldUpdateAuctioneer, (builder) => {
         assertAuctioneerAuctionHouse(auctionHouse);
         const auctioneerAuthority =
-          params.auctioneerAuthority ??
-          (auctionHouse.auctioneer.authority as PublicKey);
+          params.auctioneerAuthority ?? auctionHouse.auctioneer.authority;
         return builder.add({
           instruction: createUpdateAuctioneerInstruction(
             {
