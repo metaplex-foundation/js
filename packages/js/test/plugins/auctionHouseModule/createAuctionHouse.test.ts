@@ -166,10 +166,10 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
   });
   spok(t, auctionHouse, {
     hasAuctioneer: true,
+    scopes: AUCTIONEER_ALL_SCOPES,
     auctioneer: {
       address: spokSamePubkey(ahAuctioneerPda),
       authority: spokSamePubkey(auctioneerAuthority.publicKey),
-      scopes: AUCTIONEER_ALL_SCOPES,
     },
   });
 
