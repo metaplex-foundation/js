@@ -134,12 +134,12 @@ export type UpdateAuctionHouseInput = {
   auctioneerAuthority?: PublicKey;
 
   /**
-   * The list of scopes available to the user in the Auctioneer.
+   * The list of scopes available to the user in the Auction House.
    * For example Bid, List, Execute Sale.
    *
    * Only takes place when Auction House has Auctioneer enabled.
    *
-   * @defaultValue `auctionHouse.auctioneerScopes`
+   * @defaultValue `auctionHouse.scopes`
    */
   auctioneerScopes?: AuthorityScope[];
 };
@@ -291,12 +291,10 @@ export const updateAuctionHouseBuilder = (
   const shouldUpdateAuctioneerScopes =
     auctionHouse.hasAuctioneer &&
     !!params.auctioneerScopes &&
-    !isEqual(
-      params.auctioneerScopes.sort(),
-      auctionHouse.auctioneer.scopes.sort()
-    );
-  const shouldDelegateAuctioneer =
-    shouldAddAuctioneerAuthority || shouldUpdateAuctioneerAuthority;
+    !isEqual(params.auctioneerScopes.sort(), auctionHouse.scopes.sort());
+  const shouldDelegateAuctioneer = shouldAddAuctioneerAuthority;
+  const shouldUpdateAuctioneer =
+    shouldUpdateAuctioneerAuthority || shouldUpdateAuctioneerScopes;
 
   return (
     TransactionBuilder.make()
@@ -327,11 +325,11 @@ export const updateAuctionHouseBuilder = (
         })
       )
 
-      // Attach or update a new Auctioneer instance to the Auction House.
+      // Attach a new Auctioneer instance to the Auction House.
       .when(shouldDelegateAuctioneer, (builder) => {
         const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
         const defaultScopes = auctionHouse.hasAuctioneer
-          ? auctionHouse.auctioneer.scopes
+          ? auctionHouse.scopes
           : AUCTIONEER_ALL_SCOPES;
         return builder.add({
           instruction: createDelegateAuctioneerInstruction(
@@ -352,12 +350,11 @@ export const updateAuctionHouseBuilder = (
         });
       })
 
-      // Update the Auctioneer scopes of the Auction House.
-      .when(shouldUpdateAuctioneerScopes, (builder) => {
+      // Update the Auctioneer authority and/or scopes of the Auction House.
+      .when(shouldUpdateAuctioneer, (builder) => {
         assertAuctioneerAuctionHouse(auctionHouse);
         const auctioneerAuthority =
-          params.auctioneerAuthority ??
-          (auctionHouse.auctioneer.authority as PublicKey);
+          params.auctioneerAuthority ?? auctionHouse.auctioneer.authority;
         return builder.add({
           instruction: createUpdateAuctioneerInstruction(
             {
@@ -371,7 +368,7 @@ export const updateAuctionHouseBuilder = (
               }),
             },
             {
-              scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes,
+              scopes: params.auctioneerScopes ?? auctionHouse.scopes,
             }
           ),
           signers: [authority],
