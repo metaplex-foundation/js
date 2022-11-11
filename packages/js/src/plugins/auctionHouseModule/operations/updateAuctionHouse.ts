@@ -134,12 +134,12 @@ export type UpdateAuctionHouseInput = {
   auctioneerAuthority?: PublicKey;
 
   /**
-   * The list of scopes available to the user in the Auctioneer.
+   * The list of scopes available to the user in the Auction House.
    * For example Bid, List, Execute Sale.
    *
    * Only takes place when Auction House has Auctioneer enabled.
    *
-   * @defaultValue `auctionHouse.auctioneerScopes`
+   * @defaultValue `auctionHouse.scopes`
    */
   auctioneerScopes?: AuthorityScope[];
 };
@@ -291,10 +291,7 @@ export const updateAuctionHouseBuilder = (
   const shouldUpdateAuctioneerScopes =
     auctionHouse.hasAuctioneer &&
     !!params.auctioneerScopes &&
-    !isEqual(
-      params.auctioneerScopes.sort(),
-      auctionHouse.auctioneer.scopes.sort()
-    );
+    !isEqual(params.auctioneerScopes.sort(), auctionHouse.scopes.sort());
   const shouldDelegateAuctioneer =
     shouldAddAuctioneerAuthority || shouldUpdateAuctioneerAuthority;
 
@@ -331,7 +328,7 @@ export const updateAuctionHouseBuilder = (
       .when(shouldDelegateAuctioneer, (builder) => {
         const auctioneerAuthority = params.auctioneerAuthority as PublicKey;
         const defaultScopes = auctionHouse.hasAuctioneer
-          ? auctionHouse.auctioneer.scopes
+          ? auctionHouse.scopes
           : AUCTIONEER_ALL_SCOPES;
         return builder.add({
           instruction: createDelegateAuctioneerInstruction(
@@ -371,7 +368,7 @@ export const updateAuctionHouseBuilder = (
               }),
             },
             {
-              scopes: params.auctioneerScopes ?? auctionHouse.auctioneer.scopes,
+              scopes: params.auctioneerScopes ?? auctionHouse.scopes,
             }
           ),
           signers: [authority],
