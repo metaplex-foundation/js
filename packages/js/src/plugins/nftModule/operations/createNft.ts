@@ -5,7 +5,7 @@ import {
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Option, TransactionBuilder, TransactionBuilderOptions, RetryBuilder } from '@/utils';
 import {
   BigNumber,
   CreatorInput,
@@ -296,13 +296,18 @@ export const createNftOperationHandler: OperationHandler<CreateNftOperation> = {
     const output = await builder.sendAndConfirm(metaplex, confirmOptions);
     scope.throwIfCanceled();
 
-    const nft = await metaplex.nfts().findByMint(
-      {
+    const retryOptions = {
+      function: metaplex.nfts().findByMint,
+      parameters: [{
         mintAddress: output.mintAddress,
-        tokenAddress: output.tokenAddress,
-      },
-      scope
-    );
+        tokenAddress: output.tokenAddress
+      }, scope],
+      numRetries: 50,
+      timeout: 2000,
+    }
+    const getNftByMintWithRetry = await RetryBuilder.make(metaplex, retryOptions).run();
+    const nft = getNftByMintWithRetry.getResult();
+
     scope.throwIfCanceled();
 
     assertNftWithToken(nft);
