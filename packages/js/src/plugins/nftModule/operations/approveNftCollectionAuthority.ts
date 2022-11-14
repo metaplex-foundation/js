@@ -151,6 +151,7 @@ export const approveNftCollectionAuthorityBuilder = (
     .collectionAuthorityRecord({
       mint: mintAddress,
       collectionAuthority,
+      updateAuthority: updateAuthority.publicKey,
       programs,
     });
 

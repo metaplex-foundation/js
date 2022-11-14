@@ -65,6 +65,14 @@ export type UnverifyNftCollectionInput = {
   collectionAuthority?: Signer;
 
   /**
+   * The address of the collection's update authority.
+   *
+   * This is required for new delegate authorities but optional for
+   * legacy authorities that have not been updated yet.
+   */
+  updateAuthority?: PublicKey;
+
+  /**
    * Whether or not the provided `collectionMintAddress` is a
    * sized collection (as opposed to a legacy collection).
    *
@@ -151,6 +159,7 @@ export const unverifyNftCollectionBuilder = (
     isSizedCollection = true,
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
+    updateAuthority,
   } = params;
 
   // Programs.
@@ -176,6 +185,7 @@ export const unverifyNftCollectionBuilder = (
       ? metaplex.nfts().pdas().collectionAuthorityRecord({
           mint: collectionMintAddress,
           collectionAuthority: collectionAuthority.publicKey,
+          updateAuthority,
           programs,
         })
       : undefined,

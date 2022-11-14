@@ -63,6 +63,14 @@ export type MigrateToSizedCollectionNftInput = {
   collectionAuthority?: Signer;
 
   /**
+   * The address of the collection's update authority.
+   *
+   * This is required for new delegate authorities but optional for
+   * legacy authorities that have not been updated yet.
+   */
+  updateAuthority?: PublicKey;
+
+  /**
    * The current size of all **verified** NFTs and/or SFTs within
    * the Collection.
    *
@@ -148,6 +156,7 @@ export const migrateToSizedCollectionNftBuilder = (
   const {
     mintAddress,
     collectionAuthority = metaplex.identity(),
+    updateAuthority,
     size,
     isDelegated = false,
   } = params;
@@ -173,6 +182,7 @@ export const migrateToSizedCollectionNftBuilder = (
               ? nftPdas.collectionAuthorityRecord({
                   mint: mintAddress,
                   collectionAuthority: collectionAuthority.publicKey,
+                  updateAuthority,
                   programs,
                 })
               : undefined,

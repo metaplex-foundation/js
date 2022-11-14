@@ -23,7 +23,11 @@ const Key = 'RevokeNftCollectionAuthorityOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .revokeCollectionAuthority({ mintAddress, collectionAuthority };
+ *   .revokeCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *     updateAuthority,
+ *   });
  * ```
  *
  * @group Operations
@@ -52,6 +56,14 @@ export type RevokeNftCollectionAuthorityInput = {
 
   /** The address of the collection authority to revoke. */
   collectionAuthority: PublicKey;
+
+  /**
+   * The address of the collection's update authority.
+   *
+   * This is required for new authorities but optional for
+   * legacy authorities that have not been updated yet.
+   */
+  updateAuthority?: PublicKey;
 
   /**
    * An authority that can revoke this collection authority.
@@ -113,7 +125,11 @@ export type RevokeNftCollectionAuthorityBuilderParams = Omit<
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .revokeCollectionAuthority({ mintAddress, collectionAuthority });
+ *   .revokeCollectionAuthority({
+ *     mintAddress,
+ *     collectionAuthority,
+ *     updateAuthority,
+ *   });
  * ```
  *
  * @group Transaction Builders
@@ -128,6 +144,7 @@ export const revokeNftCollectionAuthorityBuilder = (
   const {
     mintAddress,
     collectionAuthority,
+    updateAuthority,
     revokeAuthority = metaplex.identity(),
   } = params;
 
@@ -142,6 +159,7 @@ export const revokeNftCollectionAuthorityBuilder = (
     .collectionAuthorityRecord({
       mint: mintAddress,
       collectionAuthority,
+      updateAuthority,
       programs,
     });
 
@@ -155,10 +173,6 @@ export const revokeNftCollectionAuthorityBuilder = (
     },
     tokenMetadataProgram.address
   );
-
-  // Temporary fix. The Shank macro wrongfully ask for the delegateAuthority to be a signer.
-  // https://github.com/metaplex-foundation/metaplex-program-library/pull/639
-  instruction.keys[1].isSigner = false;
 
   return (
     TransactionBuilder.make()
