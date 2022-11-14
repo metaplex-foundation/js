@@ -427,6 +427,7 @@ export const createCandyMachineBuilder = async <
     .collectionAuthorityRecord({
       mint: collection.address,
       collectionAuthority: authorityPda,
+      updateAuthority: collection.updateAuthority.publicKey,
       programs,
     });
 

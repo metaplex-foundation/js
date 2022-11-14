@@ -200,9 +200,23 @@ export const mintFromCandyMachineOperationHandler: OperationHandler<MintFromCand
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<MintFromCandyMachineOutput> {
+      const { input } = operation;
+      const { programs } = scope;
+      const authorityPda = metaplex.candyMachines().pdas().authority({
+        candyMachine: input.candyMachine.address,
+        programs,
+      });
+      const usesCollectionAuthorityPdaV2 = !(await metaplex.rpc().accountExists(
+        metaplex.nfts().pdas().collectionAuthorityRecord({
+          mint: input.candyMachine.collectionMintAddress,
+          collectionAuthority: authorityPda,
+          programs,
+        })
+      ));
+
       const builder = await mintFromCandyMachineBuilder<Settings, MintSettings>(
         metaplex,
-        operation.input,
+        { ...input, usesCollectionAuthorityPdaV2 },
         scope
       );
       scope.throwIfCanceled();
@@ -267,6 +281,9 @@ export type MintFromCandyMachineBuilderParams<
   MintFromCandyMachineInput<Settings, MintSettings>,
   'confirmOptions'
 > & {
+  /** Whether or not we should use the latest collection authority PDA version. */
+  usesCollectionAuthorityPdaV2?: boolean;
+
   /** A key to distinguish the instruction that creates the mint account of the NFT. */
   createMintAccountInstructionKey?: string;
 
@@ -332,6 +349,7 @@ export const mintFromCandyMachineBuilder = async <
     group = null,
     guards = {},
     token,
+    usesCollectionAuthorityPdaV2 = false,
   } = params;
 
   // Programs.
@@ -368,6 +386,9 @@ export const mintFromCandyMachineBuilder = async <
     .collectionAuthorityRecord({
       mint: candyMachine.collectionMintAddress,
       collectionAuthority: authorityPda,
+      updateAuthority: usesCollectionAuthorityPdaV2
+        ? collectionUpdateAuthority
+        : undefined,
       programs,
     });
 

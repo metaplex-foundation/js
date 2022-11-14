@@ -178,6 +178,14 @@ export type UpdateCandyMachineInput<
 
     /** The mint address of the current collection that will be overriden. */
     currentCollectionAddress?: PublicKey;
+
+    /**
+     * The update authority address of the current collection that will be overriden.
+     *
+     * This is required for new delegate authorities but optional for
+     * legacy authorities that have not been updated yet.
+     */
+    currentCollectionAuthority?: PublicKey;
   };
 
   /**
@@ -545,6 +553,7 @@ const updateCandyMachineCollectionBuilder = <
     .collectionAuthorityRecord({
       mint: currentCollectionAddress,
       collectionAuthority: authorityPda,
+      updateAuthority: params.collection.currentCollectionAuthority,
     });
   const collectionMetadata = metaplex.nfts().pdas().metadata({
     mint: collectionAddress,
@@ -558,6 +567,7 @@ const updateCandyMachineCollectionBuilder = <
     .collectionAuthorityRecord({
       mint: collectionAddress,
       collectionAuthority: authorityPda,
+      updateAuthority: params.collection.updateAuthority.publicKey,
     });
 
   return TransactionBuilder.make().add({
