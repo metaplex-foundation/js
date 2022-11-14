@@ -64,12 +64,19 @@ export class NftPdasClient {
   collectionAuthorityRecord({
     mint,
     collectionAuthority,
+    updateAuthority,
     programs,
   }: {
     /** The address of the NFT's mint account. */
     mint: PublicKey;
-    /** The address of the collection authority. */
+    /** The address of the delegated collection authority. */
     collectionAuthority: PublicKey;
+    /**
+     * The address of the collection's update authority.
+     * This is required for new authorities but optional for
+     * legacy authorities that have not been updated yet.
+     */
+    updateAuthority?: PublicKey;
     /** An optional set of programs that override the registered ones. */
     programs?: Program[];
   }): Pda {
@@ -79,6 +86,7 @@ export class NftPdasClient {
       programId.toBuffer(),
       mint.toBuffer(),
       Buffer.from('collection_authority', 'utf8'),
+      ...(updateAuthority ? [updateAuthority.toBuffer()] : []),
       collectionAuthority.toBuffer(),
     ]);
   }
