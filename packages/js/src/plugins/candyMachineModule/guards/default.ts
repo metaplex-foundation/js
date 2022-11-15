@@ -21,6 +21,7 @@ import {
   NftPaymentGuardMintSettings,
   NftPaymentGuardSettings,
 } from './nftPayment';
+import { ProgramGateGuardSettings } from './programGate';
 import { RedeemedAmountGuardSettings } from './redeemedAmount';
 import { SolPaymentGuardSettings } from './solPayment';
 import { StartDateGuardSettings } from './startDate';
@@ -63,6 +64,7 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   tokenBurn: Option<TokenBurnGuardSettings>;
   freezeSolPayment: Option<FreezeSolPaymentGuardSettings>;
   freezeTokenPayment: Option<FreezeTokenPaymentGuardSettings>;
+  ProgramGateSettings: Option<ProgramGateGuardSettings>;
 };
 
 /**
@@ -133,6 +135,7 @@ export const defaultCandyGuardNames: string[] = [
   'tokenBurn',
   'freezeSolPayment',
   'freezeTokenPayment',
+  'programGate',
 ];
 
 /** @internal */
