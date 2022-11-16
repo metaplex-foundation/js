@@ -2,6 +2,7 @@ import {
   ProgramGate,
   programGateBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { MaximumOfFiveAdditionalPograms } from '../errors';
 import type { FixableBeet } from '@metaplex-foundation/beet';
 import { CandyGuardManifest } from './core';
 import {
@@ -24,7 +25,7 @@ export type ProgramGateGuardSettings = {
   additional: PublicKey[];
 };
 
-// const MAXIMUM_SIZE = 5;
+const MAXIMUM_SIZE = 5;
 
 /** @internal */
 export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettings> =
@@ -36,20 +37,23 @@ export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettin
       (settings) => settings,
 
       // ensure array of additional programs has length of 5 to account for fixed settingsBytes
-      // (settings) => {
-      //   const limitSettings =
-      //     settings.additional.length >= MAXIMUM_SIZE
-      //       ? settings.additional.slice(0, 5)
-      //       : settings.additional.concat([
-      //           ...Array(MAXIMUM_SIZE - settings.additional.length),
-      //         ]);
+      (settings) => {
+        if (settings.additional.length >= MAXIMUM_SIZE) {
+          throw new MaximumOfFiveAdditionalPograms('programGate');
+        }
 
-      //   return {
-      //     additional: limitSettings.map((addition) =>
-      //       toPublicKey(addition || 0)
-      //     ),
-      //   };
-      // }
-      (settings) => settings
+        const limitSettings =
+          settings.additional.length >= MAXIMUM_SIZE
+            ? settings.additional.slice(0, 5)
+            : settings.additional.concat([
+                ...Array(MAXIMUM_SIZE - settings.additional.length),
+              ]);
+
+        return {
+          additional: limitSettings.map((addition) =>
+            toPublicKey(addition || 0)
+          ),
+        };
+      }
     ),
   };
