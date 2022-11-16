@@ -1,16 +1,8 @@
-import {
-  ProgramGate,
-  programGateBeet,
-} from '@metaplex-foundation/mpl-candy-guard';
+import { programGateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import * as beet from '@metaplex-foundation/beet';
 import { MaximumOfFiveAdditionalPograms } from '../errors';
-import type { FixableBeet } from '@metaplex-foundation/beet';
 import { CandyGuardManifest } from './core';
-import {
-  createSerializerFromBeet,
-  mapSerializer,
-  PublicKey,
-  toPublicKey,
-} from '@/types';
+import { PublicKey } from '@/types';
 
 /**
  * The ProgramGate guard restricts the programs that can be in a mint transaction.
@@ -26,34 +18,38 @@ export type ProgramGateGuardSettings = {
 };
 
 const MAXIMUM_SIZE = 5;
+const SETTINGS_BYTES = 4 + MAXIMUM_SIZE * 32;
 
 /** @internal */
 export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettings> =
   {
     name: 'programGate',
-    settingsBytes: 164, // 4 + MAXIMUM_SIZE (5) * 32
-    settingsSerializer: mapSerializer<ProgramGate, ProgramGateGuardSettings>(
-      createSerializerFromBeet(programGateBeet as FixableBeet<ProgramGate>),
-      (settings) => settings,
-
-      // ensure array of additional programs has length of 5 to account for fixed settingsBytes
-      (settings) => {
-        if (settings.additional.length >= MAXIMUM_SIZE) {
+    settingsBytes: SETTINGS_BYTES,
+    settingsSerializer: {
+      description: programGateBeet.description,
+      serialize: (value: ProgramGateGuardSettings) => {
+        // maximum of 5 additional programs allowed
+        if (value.additional.length >= MAXIMUM_SIZE) {
           throw new MaximumOfFiveAdditionalPograms('programGate');
         }
 
-        const limitSettings =
-          settings.additional.length >= MAXIMUM_SIZE
-            ? settings.additional.slice(0, 5)
-            : settings.additional.concat([
-                ...Array(MAXIMUM_SIZE - settings.additional.length),
-              ]);
+        // create buffer with beet
+        const fixedBeet = programGateBeet.toFixedFromValue(value);
+        const writer = new beet.BeetWriter(fixedBeet.byteSize);
+        writer.write(fixedBeet, value);
 
-        return {
-          additional: limitSettings.map((addition) =>
-            toPublicKey(addition || 0)
-          ),
-        };
-      }
-    ),
+        // create 164 byte buffer and fill with previous buffer
+        // this allows for < 5 additional programs
+        const bufferFullSize = Buffer.alloc(SETTINGS_BYTES);
+        bufferFullSize.fill(writer.buffer);
+
+        return bufferFullSize;
+      },
+      deserialize: (buffer: Buffer, offset?: number) => {
+        const fixedBeet = programGateBeet.toFixedFromData(buffer, offset ?? 0);
+        const reader = new beet.BeetReader(buffer, offset ?? 0);
+        const value = reader.read(fixedBeet);
+        return [value, reader.offset];
+      },
+    },
   };
