@@ -24,6 +24,8 @@ export type ProgramGateGuardSettings = {
   additional: PublicKey[];
 };
 
+// const MAXIMUM_SIZE = 5;
+
 /** @internal */
 export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettings> =
   {
@@ -31,11 +33,23 @@ export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettin
     settingsBytes: 164, // 4 + MAXIMUM_SIZE (5) * 32
     settingsSerializer: mapSerializer<ProgramGate, ProgramGateGuardSettings>(
       createSerializerFromBeet(programGateBeet as FixableBeet<ProgramGate>),
-      (settings) => ({
-        additional: settings.additional.map((addition) =>
-          toPublicKey(addition)
-        ),
-      }),
+      (settings) => settings,
+
+      // ensure array of additional programs has length of 5 to account for fixed settingsBytes
+      // (settings) => {
+      //   const limitSettings =
+      //     settings.additional.length >= MAXIMUM_SIZE
+      //       ? settings.additional.slice(0, 5)
+      //       : settings.additional.concat([
+      //           ...Array(MAXIMUM_SIZE - settings.additional.length),
+      //         ]);
+
+      //   return {
+      //     additional: limitSettings.map((addition) =>
+      //       toPublicKey(addition || 0)
+      //     ),
+      //   };
+      // }
       (settings) => settings
     ),
   };
