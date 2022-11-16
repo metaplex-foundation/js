@@ -133,4 +133,60 @@ test('[candyMachineModule] programGate guard: it forbids candy machine creation 
   await assertThrows(t, promise, /Maximum of Five Additional Programs/);
 });
 
-test('[candyMachineModule] programGate guard with bot tax: it charges a bot tax when minting with unspecified program in transaction', async (t) => {});
+test('[candyMachineModule] programGate guard with bot tax: it charges a bot tax when minting with unspecified program in transaction', async (t) => {
+  // Given a loaded Candy Machine with an empty array of specified programs in program gate with a bot tax
+  const mx = await metaplex();
+  const { candyMachine, collection } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(1),
+    items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
+    guards: {
+      botTax: {
+        lamports: sol(0.1),
+        lastInstruction: true,
+      },
+      programGate: {
+        additional: [],
+      },
+    },
+  });
+
+  // We create a transaction builder with the mint instruction
+  const payer = await createWallet(mx, 10);
+  const transactionBuilder = await mx.candyMachines().builders().mint(
+    {
+      candyMachine,
+      collectionUpdateAuthority: collection.updateAuthority.publicKey,
+    },
+    { payer }
+  );
+
+  // We create an instruction with program not specified in the program gate guard
+  transactionBuilder.add({
+    instruction: new TransactionInstruction({
+      keys: [],
+      programId: memoPubKey,
+      data: Buffer.from('Hello world', 'utf8'),
+    }),
+    signers: [],
+  });
+
+  // Then we send and confirm transaction
+  await mx.rpc().sendAndConfirmTransaction(transactionBuilder);
+
+  const { mintSigner, tokenAddress } = transactionBuilder.getContext();
+
+  const promise = mx.nfts().findByMint({
+    mintAddress: mintSigner.publicKey,
+    tokenAddress,
+  });
+
+  // Confirm NFT was not minted
+  await assertThrows(t, promise, /Account Not Found/);
+
+  // And the payer was charged a bot tax
+  const payerBalance = await mx.rpc().getBalance(payer.publicKey);
+  t.true(
+    isEqualToAmount(payerBalance, sol(9.9), sol(0.01)),
+    'payer was charged a bot tax'
+  );
+});
