@@ -1,6 +1,6 @@
 import { programGateBeet } from '@metaplex-foundation/mpl-candy-guard';
 import * as beet from '@metaplex-foundation/beet';
-import { MaximumOfFiveAdditionalPograms } from '../errors';
+import { MaximumOfFiveAdditionalProgramsError } from '../errors';
 import { CandyGuardManifest } from './core';
 import { PublicKey } from '@/types';
 
@@ -30,7 +30,7 @@ export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettin
       serialize: (value: ProgramGateGuardSettings) => {
         // maximum of 5 additional programs allowed
         if (value.additional.length >= MAXIMUM_SIZE) {
-          throw new MaximumOfFiveAdditionalPograms('programGate');
+          throw new MaximumOfFiveAdditionalProgramsError('programGate');
         }
 
         // create buffer with beet

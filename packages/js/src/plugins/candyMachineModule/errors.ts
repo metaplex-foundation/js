@@ -279,7 +279,7 @@ export class MintOwnerMustBeMintPayerError extends CandyMachineV3Error {
 }
 
 /** @group Errors */
-export class MaximumOfFiveAdditionalPograms extends CandyMachineV3Error {
+export class MaximumOfFiveAdditionalProgramsError extends CandyMachineV3Error {
   constructor(guard: string, options?: MetaplexErrorOptions) {
     super({
       options,
