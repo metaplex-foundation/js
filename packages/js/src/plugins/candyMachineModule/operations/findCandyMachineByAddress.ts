@@ -98,6 +98,7 @@ export const findCandyMachineByAddressOperationHandler: OperationHandler<FindCan
 
       // If the Candy Machine's mint authority is not a PDA,
       // it cannot have an associated Candy Guard.
+      // TODO(loris): Does not seem to work when the Candy Guard does not derive from the Candy Machine.
       if (PublicKey.isOnCurve(mintAuthority)) {
         return candyMachine;
       }

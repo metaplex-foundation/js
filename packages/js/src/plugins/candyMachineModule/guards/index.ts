@@ -4,6 +4,8 @@ export * from './botTax';
 export * from './core';
 export * from './default';
 export * from './endDate';
+export * from './freezeSolPayment';
+export * from './freezeTokenPayment';
 export * from './gatekeeper';
 export * from './mintLimit';
 export * from './nftBurn';

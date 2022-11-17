@@ -76,7 +76,7 @@ export type FreezeTokenPaymentGuardSettings = {
  * The `thaw` path unfreezes one NFT if one of the following conditions are met:
  * - All NFTs have been minted.
  * - The configured period has elapsed (max 30 days).
- * - The `freezeTokenPayment` guard was removed.
+ * - The Candy Machine account was deleted.
  *
  * Anyone can call this instruction. Since the funds are not transferrable
  * until all NFTs are thawed, it creates an incentive for the treasury to
