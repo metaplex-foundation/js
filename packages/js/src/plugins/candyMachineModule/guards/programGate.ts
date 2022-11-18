@@ -13,7 +13,15 @@ import { PublicKey } from '@/types';
  * Machine if you wish to enable this guard.
  */
 export type ProgramGateGuardSettings = {
-  /** Array of additional programs that can be in a mint transaction. */
+  /**
+   * Array of additional programs that can be in a mint transaction.
+   * Providing an empty array is equivalent to only authorising the mandatory programs.
+   * Mandatory programs:
+   * - Candy Machine
+   * - System Program
+   * - SPL Token
+   * - SPL ASsociated Token Account
+   */
   additional: PublicKey[];
 };
 
