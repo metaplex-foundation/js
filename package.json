@@ -65,6 +65,7 @@
     "@typescript-eslint/parser": "^5.37.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "depcheck": "^1.4.3",
+    "esbuild": "^0.15.14",
     "esbuild-runner": "^2.2.2",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
