@@ -24,13 +24,13 @@
     "build:all": "nx run-many --all --target=build",
     "test": "nx affected --target=test",
     "test:all": "nx run-many --all --target=test",
-    "test:filter": "./infra/run-filtered-tests.sh",
+    "test:filter": "CI=1 ./infra/run-filtered-tests.sh",
     "lint:test": "nx run-many --all --target=lint:test",
     "lint:fix": "nx run-many --all --target=lint:fix",
     "format": "prettier --write packages/",
     "docs": "typedoc",
     "docs:deploy": "yarn docs && gh-pages --dist docs --dotfiles",
-    "amman:start": "DEBUG='amman:(info|error|debug)' amman start",
+    "amman:start": "DEBUG='amman:(info|error|debug)' CI=1 amman start",
     "amman:stop": "amman stop"
   },
   "devDependencies": {
