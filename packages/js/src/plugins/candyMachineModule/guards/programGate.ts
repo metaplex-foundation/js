@@ -5,8 +5,9 @@ import { CandyGuardManifest } from './core';
 import { PublicKey } from '@/types';
 
 /**
- * The ProgramGate guard restricts the programs that can be in a mint transaction.
- * The guard allows the necessary programs for the mint and any other program specified in the configuration.
+ * The programGate guard restricts the programs that can be invoked within
+ * the mint transaction. It allows the necessary programs for the mint
+ * instruction to work and any other program specified in the configuration.
  *
  * This object defines the settings that should be
  * provided when creating and/or updating a Candy
@@ -14,9 +15,13 @@ import { PublicKey } from '@/types';
  */
 export type ProgramGateGuardSettings = {
   /**
-   * Array of additional programs that can be in a mint transaction.
-   * Providing an empty array is equivalent to only authorising the mandatory programs.
-   * Mandatory programs:
+   * An array of additional programs that can be invoked in a mint transaction.
+   *
+   * These programs are in addition to the mandatory programs that
+   * are required for the mint instruction to work. Providing an empty
+   * array is equivalent to only authorising the mandatory programs.
+   *
+   * The mandatory programs are:
    * - Candy Machine
    * - System Program
    * - SPL Token
@@ -36,18 +41,18 @@ export const programGateGuardManifest: CandyGuardManifest<ProgramGateGuardSettin
     settingsSerializer: {
       description: programGateBeet.description,
       serialize: (value: ProgramGateGuardSettings) => {
-        // maximum of 5 additional programs allowed
+        // Maximum of 5 additional programs allowed.
         if (value.additional.length >= MAXIMUM_SIZE) {
-          throw new MaximumOfFiveAdditionalProgramsError('programGate');
+          throw new MaximumOfFiveAdditionalProgramsError();
         }
 
-        // create buffer with beet
+        // Create buffer with beet.
         const fixedBeet = programGateBeet.toFixedFromValue(value);
         const writer = new beet.BeetWriter(fixedBeet.byteSize);
         writer.write(fixedBeet, value);
 
-        // create 164 byte buffer and fill with previous buffer
-        // this allows for < 5 additional programs
+        // Create 164 byte buffer and fill with previous buffer.
+        // This allows for < 5 additional programs.
         const bufferFullSize = Buffer.alloc(SETTINGS_BYTES);
         bufferFullSize.fill(writer.buffer);
 

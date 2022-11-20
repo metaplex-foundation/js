@@ -280,12 +280,12 @@ export class MintOwnerMustBeMintPayerError extends CandyMachineV3Error {
 
 /** @group Errors */
 export class MaximumOfFiveAdditionalProgramsError extends CandyMachineV3Error {
-  constructor(guard: string, options?: MetaplexErrorOptions) {
+  constructor(options?: MetaplexErrorOptions) {
     super({
       options,
       key: 'maximum_of_five_additonal_programs',
       title: 'Maximum of Five Additional Programs',
-      problem: `There is a maximum of five additional programs when using [${guard}] guard.`,
+      problem: `There is a maximum of five additional programs when using the [programGate] guard.`,
       solution: 'Please reduce the number of additional programs to <= 5.',
     });
   }

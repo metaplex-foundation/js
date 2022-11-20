@@ -64,7 +64,7 @@ export type DefaultCandyGuardSettings = CandyGuardsSettings & {
   tokenBurn: Option<TokenBurnGuardSettings>;
   freezeSolPayment: Option<FreezeSolPaymentGuardSettings>;
   freezeTokenPayment: Option<FreezeTokenPaymentGuardSettings>;
-  ProgramGateSettings: Option<ProgramGateGuardSettings>;
+  programGate: Option<ProgramGateGuardSettings>;
 };
 
 /**
@@ -89,6 +89,7 @@ export type DefaultCandyGuardMintSettings = CandyGuardsMintSettings & {
   // tokenBurn: no mint settings
   // freezeSolPayment: no mint settings
   // freezeTokenPayment: no mint settings
+  // programGate: no mint settings
 };
 
 /**
@@ -113,6 +114,7 @@ export type DefaultCandyGuardRouteSettings = CandyGuardsRouteSettings & {
   // tokenBurn: no route settings
   freezeSolPayment: FreezeSolPaymentGuardRouteSettings;
   freezeTokenPayment: FreezeTokenPaymentGuardRouteSettings;
+  // programGate: no route settings
 };
 
 /** @internal */
