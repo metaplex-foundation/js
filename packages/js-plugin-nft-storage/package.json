@@ -40,7 +40,7 @@
     "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
-    "test": "tape dist/test/**/*.test.js",
+    "test": "CI=1 tape dist/test/**/*.test.js",
     "preversion": "yarn build && yarn test",
     "postversion": "git push --follow-tags"
   },
