@@ -10,6 +10,7 @@ import {
   nftBurnGuardManifest,
   nftGateGuardManifest,
   nftPaymentGuardManifest,
+  programGateGuardManifest,
   redeemedAmountGuardManifest,
   solPaymentGuardManifest,
   startDateGuardManifest,
@@ -117,6 +118,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
     client.guards().register(tokenBurnGuardManifest);
     client.guards().register(freezeSolPaymentGuardManifest);
     client.guards().register(freezeTokenPaymentGuardManifest);
+    client.guards().register(programGateGuardManifest);
 
     // Operations.
     const op = metaplex.operations();
