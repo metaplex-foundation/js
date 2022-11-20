@@ -1,3 +1,7 @@
+/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 // CC0
 // @ts-check
 const td = require('typedoc');
@@ -132,11 +136,11 @@ function clean(obj, keys, depth) {
   if (depth === 0) return;
 
   if (Array.isArray(obj)) {
-    obj.forEach(function (item) {
+    obj.forEach((item) => {
       clean(item, keys, depth);
     });
   } else if (typeof obj === 'object' && obj != null) {
-    Object.getOwnPropertyNames(obj).forEach(function (key) {
+    Object.getOwnPropertyNames(obj).forEach((key) => {
       if (keys.indexOf(key) !== -1) delete obj[key];
       else clean(obj[key], keys, depth - 1);
     });
