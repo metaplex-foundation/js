@@ -31,7 +31,7 @@ question:
     _This [automated message](https://github.com/metaplex-foundation/js/tree/main/.github/configs/issue-label-automations.yml) is a result of having added the "question" label._
 
 # Direct feature requests to Canny.
-feature-request:
+'feature request':
   close: true
   comment: >
     Hi @{issue-author},
@@ -62,7 +62,7 @@ feature-request:
     _This [automated message](https://github.com/metaplex-foundation/js/tree/main/.github/configs/issue-label-automations.yml) is a result of having added the "feature request" label._
 
 # Ask for community contributions.
-community-contribution:
+community contribution:
   comment: >
     Hi there,
 
