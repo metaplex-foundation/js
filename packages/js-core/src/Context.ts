@@ -2,6 +2,7 @@ import { DownloaderInterface } from './DownloaderInterface';
 import { HttpInterface } from './HttpInterface';
 import { ProgramRepositoryInterface } from './ProgramRepositoryInterface';
 import { RpcInterface } from './RpcInterface';
+import { TransactionFactoryInterface } from './TransactionFactoryInterface';
 import { UploaderInterface } from './UploaderInterface';
 
 export interface Context {
@@ -10,4 +11,5 @@ export interface Context {
   uploader: UploaderInterface;
   downloader: DownloaderInterface;
   programs: ProgramRepositoryInterface;
+  transactions: TransactionFactoryInterface;
 }
