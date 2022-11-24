@@ -1,10 +1,5 @@
+import { Program } from '../Program';
 import { MetaplexError } from './MetaplexError';
-
-// TODO: Define this type elsewhere properly.
-type Program = {
-  name: string;
-  address: { toBase58: () => string };
-};
 
 /** @group Errors */
 export class ProgramError extends MetaplexError {
@@ -21,7 +16,7 @@ export class ProgramError extends MetaplexError {
     super(
       message,
       'program',
-      `${program.name} [${program.address.toBase58()}]`,
+      `${program.name} [${program.address.toString()}]`,
       cause
     );
     this.program = program;
@@ -38,7 +33,7 @@ export class ParsedProgramError extends ProgramError {
     const ofCode = cause.code ? ` of code [${cause.code}]` : '';
     const message =
       `The program [${program.name}] ` +
-      `at address [${program.address.toBase58()}] ` +
+      `at address [${program.address.toString()}] ` +
       `raised an error${ofCode} ` +
       `that translates to "${cause.message}".`;
     super(message, program, cause, cause.logs);
