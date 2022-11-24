@@ -2,6 +2,7 @@ export * from './errors';
 export * from './utils';
 export * from './Context';
 export * from './DownloaderInterface';
+export * from './EddsaInterface';
 export * from './GenericAbortSignal';
 export * from './GenericFile';
 export * from './HttpInterface';

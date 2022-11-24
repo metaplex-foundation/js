@@ -1,4 +1,5 @@
 import { DownloaderInterface } from './DownloaderInterface';
+import { EddsaInterface } from './EddsaInterface';
 import { HttpInterface } from './HttpInterface';
 import { ProgramRepositoryInterface } from './ProgramRepositoryInterface';
 import { RpcInterface } from './RpcInterface';
@@ -12,4 +13,5 @@ export interface Context {
   downloader: DownloaderInterface;
   programs: ProgramRepositoryInterface;
   transactions: TransactionFactoryInterface;
+  eddsa: EddsaInterface;
 }
