@@ -1,3 +1,4 @@
+import { InvalidJsonVariableError } from './errors/SdkError';
 import { generateRandomString } from './utils';
 
 export type GenericFile = {
@@ -56,7 +57,7 @@ export const createGenericFileFromJson = <T extends object = object>(
   try {
     jsonString = JSON.stringify(json);
   } catch (error) {
-    throw new InvalidJsonVariableError({ cause: error as Error });
+    throw new InvalidJsonVariableError(error as Error);
   }
 
   return createGenericFile(jsonString, fileName, options);
