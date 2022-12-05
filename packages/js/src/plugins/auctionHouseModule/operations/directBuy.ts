@@ -5,6 +5,8 @@ import { AuctionHouse, Bid, Listing, Purchase } from '../models';
 import { ExecuteSaleBuilderContext } from './executeSale';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  amount,
+  lamports,
   now,
   Operation,
   OperationHandler,
@@ -98,6 +100,12 @@ export type DirectBuyInput = {
    * @defaultValue `listing.price`.
    */
   price?: SolAmount | SplTokenAmount;
+
+  /**
+   * The amount of tokens to buy.
+   *
+   */
+  tokens?: SplTokenAmount;
 
   /**
    * The Auctioneer authority key.
@@ -199,7 +207,7 @@ export const directBuyBuilder = async (
     auctionHouse,
     auctioneerAuthority,
     listing,
-    price = listing.price,
+    price,
     buyer = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
     bookkeeper = metaplex.identity(),
@@ -207,7 +215,20 @@ export const directBuyBuilder = async (
     executeSaleInstructionKey,
   } = params;
 
-  const { tokens, asset, sellerAddress, receiptAddress } = listing;
+
+  const { asset, sellerAddress, receiptAddress } = listing;
+  const tokens = params.tokens ?? listing.tokens;
+
+  let finalPrice = price;
+
+  if(!finalPrice) {
+    const listingPricePerToken = listing.price.basisPoints.div(listing.tokens.basisPoints);
+    const finalPriceBasisPoints = listingPricePerToken.mul(tokens.basisPoints);
+
+    finalPrice = auctionHouse.isNative
+      ? lamports(finalPriceBasisPoints)
+      : amount(finalPriceBasisPoints, auctionHouse.treasuryMint.currency)
+  }
 
   const printReceipt = (params.printReceipt ?? true) && Boolean(receiptAddress);
 
@@ -221,7 +242,7 @@ export const directBuyBuilder = async (
       auctioneerAuthority,
       authority,
       tokens,
-      price,
+      price: finalPrice,
       mintAccount: asset.mint.address,
       seller: sellerAddress,
       buyer,
@@ -243,7 +264,7 @@ export const directBuyBuilder = async (
     buyerAddress: buyer.publicKey,
     receiptAddress: receipt,
     purchaseReceiptAddress: null,
-    price,
+    price: finalPrice,
     tokens,
     canceledAt: null,
     createdAt: now(),
