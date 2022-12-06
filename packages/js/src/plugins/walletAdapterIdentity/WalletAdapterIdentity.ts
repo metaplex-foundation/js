@@ -1,5 +1,4 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { IdentityDriver } from '../identityModule';
+import { Signer, PublicKey, Transaction } from '@metaplex-foundation/js-core';
 import {
   OperationNotSupportedByWalletAdapterError,
   UninitializedWalletAdapterError,
@@ -12,7 +11,7 @@ export type WalletAdapter = {
   signAllTransactions?: (transactions: Transaction[]) => Promise<Transaction[]>;
 };
 
-export class WalletAdapterIdentityDriver implements IdentityDriver {
+export class WalletAdapterIdentity implements Signer {
   public readonly walletAdapter: WalletAdapter;
 
   constructor(walletAdapter: WalletAdapter) {

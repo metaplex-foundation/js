@@ -1,15 +1,10 @@
 import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
-import {
-  WalletAdapterIdentityDriver,
-  WalletAdapter,
-} from './WalletAdapterIdentityDriver';
+import { WalletAdapter, WalletAdapterIdentity } from './WalletAdapterIdentity';
 
 export const walletAdapterIdentity = (
   walletAdapter: WalletAdapter
 ): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex
-      .identity()
-      .setDriver(new WalletAdapterIdentityDriver(walletAdapter));
+    metaplex.identity = new WalletAdapterIdentity(walletAdapter);
   },
 });
