@@ -1,4 +1,4 @@
-export * from '@metaplex-foundation/js-core';
+// export * from '@metaplex-foundation/js-core';
 export * from './errors';
 export * from './plugins';
 export * from './types';

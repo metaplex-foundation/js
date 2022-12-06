@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
 import BigNumber from 'bignumber.js';
 import {
@@ -9,13 +10,13 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
-import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
-  getBytesFromMetaplexFiles,
-  MetaplexFile,
-  MetaplexFileTag,
-  StorageDriver,
-} from '../storageModule';
+  GenericFile,
+  GenericFileTag,
+  getBytesFromGenericFiles,
+  Metaplex,
+  UploaderInterface,
+} from '@metaplex-foundation/js-core';
 import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   Amount,
@@ -75,7 +76,7 @@ export type BundlrWalletAdapter = {
   ) => Promise<TransactionSignature>;
 };
 
-export class BundlrStorageDriver implements StorageDriver {
+export class BundlrStorageDriver implements UploaderInterface {
   protected _metaplex: Metaplex;
   protected _bundlr: WebBundlr | NodeBundlr | null = null;
   protected _options: BundlrOptions;
@@ -97,21 +98,16 @@ export class BundlrStorageDriver implements StorageDriver {
     );
   }
 
-  async upload(file: MetaplexFile): Promise<string> {
-    const [uri] = await this.uploadAll([file]);
-
-    return uri;
-  }
-
-  async uploadAll(files: MetaplexFile[]): Promise<string[]> {
+  async upload(files: GenericFile[]): Promise<string[]> {
     const bundlr = await this.bundlr();
     const amount = await this.getUploadPrice(
-      getBytesFromMetaplexFiles(...files)
+      getBytesFromGenericFiles(...files)
     );
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const { status, data } = await bundlr.uploader.upload(file.buffer, {
+      const buffer = Buffer.from(file.buffer);
+      const { status, data } = await bundlr.uploader.upload(buffer, {
         tags: getMetaplexFileTagsWithContentType(file),
       });
 
@@ -284,8 +280,8 @@ export class BundlrStorageDriver implements StorageDriver {
   }
 }
 
-export const isBundlrStorageDriver = (
-  storageDriver: StorageDriver
+export const isBundlrUploader = (
+  storageDriver: UploaderInterface
 ): storageDriver is BundlrStorageDriver => {
   return (
     'bundlr' in storageDriver &&
@@ -304,8 +300,8 @@ const amountToBigNumber = (amount: Amount): BigNumber => {
 };
 
 const getMetaplexFileTagsWithContentType = (
-  file: MetaplexFile
-): MetaplexFileTag[] => {
+  file: GenericFile
+): GenericFileTag[] => {
   if (!file.contentType) {
     return file.tags;
   }

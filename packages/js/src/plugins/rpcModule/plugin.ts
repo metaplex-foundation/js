@@ -9,7 +9,7 @@ export const rpcModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core' {
+declare module '@metaplex-foundation/js-core/dist/types/Metaplex' {
   interface Metaplex {
     rpc(): RpcClient;
   }

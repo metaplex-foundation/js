@@ -1,11 +1,12 @@
 import type { Keypair } from './KeyPair';
-import type { PublicKey } from './PublicKey';
+import type { Pda, PublicKey } from './PublicKey';
 
 export interface EddsaInterface {
   generateKeypair: () => Keypair;
   createKeypairFromSecretKey: (secretKey: Uint8Array) => Keypair;
   createKeypairFromSeed: (seed: Uint8Array) => Keypair;
   createPublicKey: (input: PublicKeyInput) => PublicKey;
+  findPda: (programId: PublicKey, seeds: Uint8Array[]) => Pda;
   sign: (message: Uint8Array, keypair: Keypair) => Uint8Array;
   verify: (
     message: Uint8Array,

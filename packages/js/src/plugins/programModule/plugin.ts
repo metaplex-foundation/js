@@ -9,7 +9,7 @@ export const programModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core' {
+declare module '@metaplex-foundation/js-core/dist/types/Metaplex' {
   interface Metaplex {
     programs(): ProgramClient;
   }

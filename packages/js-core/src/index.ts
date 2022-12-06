@@ -1,5 +1,6 @@
 export * from './errors';
 export * from './utils';
+export * from './Cluster';
 export * from './Context';
 export * from './DownloaderInterface';
 // export * from './EddsaInterface';

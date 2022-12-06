@@ -1,7 +1,7 @@
 import { Connection } from '@solana/web3.js';
 import { createMetaplex as baseCreateMetaplex } from '@metaplex-foundation/js-core';
-import type { Metaplex } from '@metaplex-foundation/js-core';
-import { Cluster, resolveClusterFromConnection } from '@/types';
+import type { Metaplex, Cluster } from '@metaplex-foundation/js-core';
+import { resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
@@ -20,3 +20,10 @@ export const createMetaplex = (
 
   return metaplex;
 };
+
+declare module '@metaplex-foundation/js-core/dist/types/Metaplex' {
+  interface Metaplex {
+    connection: Connection;
+    cluster: Cluster;
+  }
+}

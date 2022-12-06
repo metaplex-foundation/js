@@ -62,7 +62,7 @@ export const candyMachineV2Module = (): MetaplexPlugin => ({
   },
 });
 
-declare module '@metaplex-foundation/js-core' {
+declare module '@metaplex-foundation/js-core/dist/types/Metaplex' {
   interface Metaplex {
     candyMachinesV2(): CandyMachinesV2Client;
   }
