@@ -9,3 +9,10 @@ export type UploaderOptions = {
   onProgress?: (percent: number, ...args: any) => void;
   signal?: GenericAbortSignal;
 };
+
+export class NullUploader implements UploaderInterface {
+  upload(): Promise<string[]> {
+    // TODO(loris): Custom error.
+    throw Error('UploaderInterface not implemented.');
+  }
+}

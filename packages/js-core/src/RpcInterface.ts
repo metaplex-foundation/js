@@ -1,3 +1,4 @@
+import type { Cluster } from './Cluster';
 import type { Context } from './Context';
 import type { GenericAbortSignal } from './GenericAbortSignal';
 import type {
@@ -8,6 +9,8 @@ import type {
 } from './Transaction';
 
 export interface RpcInterface {
+  getEndpoint(): string;
+  getCluster(): Cluster;
   call<Result, Params extends Array<any> = Array<any>>(
     method: string,
     params?: Params,

@@ -1,4 +1,5 @@
 import { Connection } from '@solana/web3.js';
+import type { Context, UploaderInterface } from '@metaplex-foundation/js-core';
 import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
 
@@ -6,7 +7,10 @@ export type MetaplexOptions = {
   cluster?: Cluster;
 };
 
-export class Metaplex {
+export class Metaplex implements Pick<Context, 'uploader'> {
+  // TODO(loris): use Bundlr as default.
+  public uploader: UploaderInterface;
+
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection;
 

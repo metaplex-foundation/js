@@ -1,5 +1,5 @@
 import type { S3Client } from '@aws-sdk/client-s3';
-import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js';
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { AwsStorageDriver } from './AwsStorageDriver';
 
 export const awsStorage = (
@@ -7,6 +7,6 @@ export const awsStorage = (
   bucketName: string
 ): MetaplexPlugin => ({
   install(metaplex: Metaplex) {
-    metaplex.storage().setDriver(new AwsStorageDriver(client, bucketName));
+    metaplex.uploader = new AwsStorageDriver(client, bucketName);
   },
 });

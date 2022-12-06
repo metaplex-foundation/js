@@ -1,12 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import {
-  MetaplexFile,
-  StorageDriver,
-  lamports,
-  Amount,
-} from '@metaplex-foundation/js';
+import { GenericFile, UploaderInterface } from '@metaplex-foundation/js-core';
 
-export class AwsStorageDriver implements StorageDriver {
+export class AwsStorageDriver implements UploaderInterface {
   protected client: S3Client;
   protected bucketName: string;
 
@@ -15,11 +10,13 @@ export class AwsStorageDriver implements StorageDriver {
     this.bucketName = bucketName;
   }
 
-  async getUploadPrice(): Promise<Amount> {
-    return lamports(0);
+  async upload(files: GenericFile[]): Promise<string[]> {
+    const promises = files.map((file) => this.uploadOne(file));
+
+    return Promise.all(promises);
   }
 
-  async upload(file: MetaplexFile): Promise<string> {
+  async uploadOne(file: GenericFile): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: file.uniqueName,
