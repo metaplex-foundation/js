@@ -1,3 +1,4 @@
+import type { Context } from './Context';
 import type { GenericAbortSignal } from './GenericAbortSignal';
 import type {
   Blockhash,
@@ -14,19 +15,15 @@ export interface RpcInterface {
   ): Promise<Result>;
   supports(method: string): boolean;
   sendTransaction(
-    serializedTransaction: SerializedTransaction
+    serializedTransaction: SerializedTransaction,
+    context: Pick<Context, 'programs'>,
+    options?: RpcSendOptions
   ): Promise<TransactionSignature>;
   confirmTransaction(
     signature: TransactionSignature,
     blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
     commitment?: Commitment
   ): Promise<RpcConfirmResult>;
-  sendAndConfirmTransaction(
-    serializedTransaction: SerializedTransaction
-  ): Promise<{
-    signature: TransactionSignature;
-    result: RpcConfirmResult;
-  }>;
 }
 
 export type Commitment = 'processed' | 'confirmed' | 'finalized';
@@ -48,3 +45,14 @@ export type RpcOptions = {
 export type RpcConfirmResult = RpcResultWithContext<{
   err: TransactionError | null;
 }>;
+
+export type RpcSendOptions = {
+  /** disable transaction verification step */
+  skipPreflight?: boolean;
+  /** preflight commitment level */
+  preflightCommitment?: Commitment;
+  /** Maximum number of times for the RPC node to retry sending the transaction to the leader. */
+  maxRetries?: number;
+  /** The minimum slot that the request can be evaluated at */
+  minContextSlot?: number;
+};
