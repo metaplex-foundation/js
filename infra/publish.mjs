@@ -8,7 +8,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { readCachedProjectGraph } from '@nrwl/devkit';
 import chalk from 'chalk';
 

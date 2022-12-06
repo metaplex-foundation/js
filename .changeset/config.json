@@ -5,9 +5,10 @@
   "fixed": [],
   "linked": [
     [
+      "@metaplex-foundation/js",
+      "@metaplex-foundation/js-core",
       "@metaplex-foundation/js-plugin-aws",
-      "@metaplex-foundation/js-plugin-nft-storage",
-      "@metaplex-foundation/js"
+      "@metaplex-foundation/js-plugin-nft-storage"
     ]
   ],
   "access": "restricted",
