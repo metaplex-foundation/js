@@ -1,6 +1,6 @@
-import { Instruction } from './Instruction';
-import { PublicKey } from './PublicKey';
-import {
+import type { Instruction } from './Instruction';
+import type { PublicKey } from './PublicKey';
+import type {
   Blockhash,
   LegacyTransactionMessage,
   SerializedTransaction,

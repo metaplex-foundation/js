@@ -1,4 +1,4 @@
-import { GenericAbortSignal } from './GenericAbortSignal';
+import type { GenericAbortSignal } from './GenericAbortSignal';
 
 export interface HttpInterface {
   send: <ResponseData, RequestData = any>(

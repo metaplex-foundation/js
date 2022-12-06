@@ -1,6 +1,6 @@
-import { Keypair } from './KeyPair';
-import { PublicKey } from './PublicKey';
-import { Transaction } from './Transaction';
+import type { Keypair } from './KeyPair';
+import type { PublicKey } from './PublicKey';
+import type { Transaction } from './Transaction';
 
 export type Signer = {
   publicKey: PublicKey;

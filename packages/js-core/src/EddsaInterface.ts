@@ -1,5 +1,5 @@
-import { Keypair } from './KeyPair';
-import { PublicKey } from './PublicKey';
+import type { Keypair } from './KeyPair';
+import type { PublicKey } from './PublicKey';
 
 export interface EddsaInterface {
   generateKeypair: () => Keypair;

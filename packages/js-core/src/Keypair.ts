@@ -1,4 +1,4 @@
-import { PublicKey } from './PublicKey';
+import type { PublicKey } from './PublicKey';
 
 export type Keypair = {
   publicKey: PublicKey;

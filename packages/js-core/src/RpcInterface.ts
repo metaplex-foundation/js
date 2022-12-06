@@ -1,5 +1,5 @@
-import { GenericAbortSignal } from './GenericAbortSignal';
-import {
+import type { GenericAbortSignal } from './GenericAbortSignal';
+import type {
   Blockhash,
   SerializedTransaction,
   TransactionError,

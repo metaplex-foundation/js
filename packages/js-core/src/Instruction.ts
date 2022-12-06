@@ -1,5 +1,5 @@
-import { PublicKey } from './PublicKey';
-import { Signer } from './Signer';
+import type { PublicKey } from './PublicKey';
+import type { Signer } from './Signer';
 
 export type WrappedInstruction = {
   instruction: Instruction;

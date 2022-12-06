@@ -1,4 +1,4 @@
-import { Program } from './Program';
+import type { Program } from './Program';
 
 export interface ProgramRepositoryInterface {
   get<T extends Program = Program>(name: string): T;

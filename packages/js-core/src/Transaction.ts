@@ -1,5 +1,5 @@
-import { Keypair } from './Keypair';
-import { PublicKey } from './PublicKey';
+import type { Keypair } from './Keypair';
+import type { PublicKey } from './PublicKey';
 
 export interface Transaction {
   signatures: Uint8Array[];

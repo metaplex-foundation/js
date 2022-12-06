@@ -3,8 +3,9 @@ import { EddsaInterface } from './EddsaInterface';
 import { HttpInterface } from './HttpInterface';
 import { ProgramRepositoryInterface } from './ProgramRepositoryInterface';
 import { RpcInterface } from './RpcInterface';
+import { Signer } from './Signer';
 import { TransactionFactoryInterface } from './TransactionFactoryInterface';
-import { UploaderInterface } from './UploaderInterface';
+import type { UploaderInterface } from './UploaderInterface';
 
 export interface Context {
   http: HttpInterface;
@@ -14,4 +15,7 @@ export interface Context {
   programs: ProgramRepositoryInterface;
   transactions: TransactionFactoryInterface;
   eddsa: EddsaInterface;
+  identity: Signer;
+  // serializer: SerializerInterface;
+  // bigNumber: BigNumberInterface;
 }
