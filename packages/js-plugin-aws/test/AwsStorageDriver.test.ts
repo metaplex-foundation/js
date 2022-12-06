@@ -30,7 +30,7 @@ test('it can upload assets to a S3 bucket', async (t: Test) => {
   const file = toMetaplexFile('some-image', 'some-image.jpg', {
     uniqueName: 'some-key',
   });
-  const uri = await mx.storage().upload(file);
+  const [uri] = await mx.uploader.upload([file]);
 
   // Then we get the URL of the uploaded asset.
   t.equals(uri, 'https://s3.us-east.amazonaws.com/some-bucket/some-key');
