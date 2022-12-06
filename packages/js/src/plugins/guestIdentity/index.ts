@@ -1,2 +1,2 @@
-export * from './GuestIdentityDriver';
+export * from './GuestIdentity';
 export * from './plugin';

@@ -1,2 +1,2 @@
-export * from './KeypairIdentityDriver';
+export * from './KeypairIdentity';
 export * from './plugin';

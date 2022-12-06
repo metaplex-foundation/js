@@ -1,12 +1,16 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { IdentityDriver } from '../identityModule';
+import {
+  Context,
+  PublicKey,
+  Signer,
+  Transaction,
+} from '@metaplex-foundation/js-core';
 import { OperationUnauthorizedForGuestsError } from '@/errors';
 
-export class GuestIdentityDriver implements IdentityDriver {
+export class GuestIdentity implements Signer {
   public readonly publicKey: PublicKey;
 
-  constructor(publicKey?: PublicKey) {
-    this.publicKey = publicKey ?? PublicKey.default;
+  constructor(context: Pick<Context, 'eddsa'>, publicKey?: PublicKey) {
+    this.publicKey = publicKey ?? context.eddsa.createDefaultPublicKey();
   }
 
   public async signMessage(): Promise<Uint8Array> {
