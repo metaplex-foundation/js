@@ -3,6 +3,7 @@ import {
   createDepositInstruction,
   DepositInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse } from '../models';
@@ -18,7 +19,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

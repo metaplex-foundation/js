@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, Listing, Purchase } from '../models';
@@ -15,7 +16,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

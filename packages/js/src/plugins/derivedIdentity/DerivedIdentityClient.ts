@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import * as ed25519 from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { UninitializedDerivedIdentityError } from './errors';
 import {
   IdentitySigner,
@@ -11,7 +12,6 @@ import {
   SolAmount,
   subtractAmounts,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 /**
  * @group Modules

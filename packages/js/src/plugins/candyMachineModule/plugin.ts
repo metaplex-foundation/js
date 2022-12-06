@@ -1,3 +1,4 @@
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { ProgramClient } from '../programModule';
 import { CandyMachineClient } from './CandyMachineClient';
 import {
@@ -62,8 +63,7 @@ import {
 } from './operations/updateCandyGuardAuthority';
 import { freezeSolPaymentGuardManifest } from './guards/freezeSolPayment';
 import { freezeTokenPaymentGuardManifest } from './guards/freezeTokenPayment';
-import { MetaplexPlugin, OperationConstructor, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { OperationConstructor, Program } from '@/types';
 
 /** @group Plugins */
 export const candyMachineModule = (): MetaplexPlugin => ({
@@ -172,7 +172,7 @@ export const candyMachineModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core' {
   interface Metaplex {
     candyMachines(): CandyMachineClient;
   }

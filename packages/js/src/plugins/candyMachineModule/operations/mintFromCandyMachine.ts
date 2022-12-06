@@ -26,7 +26,7 @@ import {
   token as tokenAmount,
 } from '@/types';
 import { NftWithToken } from '@/plugins/nftModule';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

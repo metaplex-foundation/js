@@ -45,7 +45,7 @@ import {
   updateCandyGuardAuthorityOperation,
 } from './operations/updateCandyGuardAuthority';
 import { OperationOptions, toPublicKey } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 
 /**
  * This is a client for the Candy Machine V3 module.

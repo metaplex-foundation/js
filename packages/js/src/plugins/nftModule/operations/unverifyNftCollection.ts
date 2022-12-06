@@ -3,8 +3,8 @@ import {
   createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,

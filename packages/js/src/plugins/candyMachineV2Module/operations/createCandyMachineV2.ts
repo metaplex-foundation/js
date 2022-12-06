@@ -4,6 +4,7 @@ import {
   Creator,
 } from '@metaplex-foundation/mpl-candy-machine';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { getCandyMachineV2AccountSizeFromData } from '../helpers';
 import {
@@ -32,7 +33,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 import { ExpectedSignerError } from '@/errors';
 
 // -----------------

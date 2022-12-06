@@ -2,9 +2,9 @@ import {
   createWithdrawFromTreasuryInstruction,
   WithdrawFromTreasuryInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
-import type { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,

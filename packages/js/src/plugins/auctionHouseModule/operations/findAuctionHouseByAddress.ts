@@ -1,4 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
@@ -8,7 +9,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

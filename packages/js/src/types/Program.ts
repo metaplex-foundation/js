@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { Cluster } from '@/types';
 import { GpaBuilder } from '@/utils';
 

@@ -1,4 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { toMintAccount, toTokenAccount } from '../accounts';
 import { TokenAndMintDoNotMatchError } from '../errors';
 import { toMint } from '../models/Mint';
@@ -9,7 +10,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

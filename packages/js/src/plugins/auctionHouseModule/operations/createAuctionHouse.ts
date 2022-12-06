@@ -4,6 +4,7 @@ import {
   createDelegateAuctioneerInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { WRAPPED_SOL_MINT } from '../../tokenModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
@@ -20,7 +21,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 import { ExpectedSignerError } from '@/errors';
 
 // -----------------

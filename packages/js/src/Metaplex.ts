@@ -1,35 +1,22 @@
 import { Connection } from '@solana/web3.js';
-import type { Context, UploaderInterface } from '@metaplex-foundation/js-core';
-import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
+import { createMetaplex as baseCreateMetaplex } from '@metaplex-foundation/js-core';
+import type { Metaplex } from '@metaplex-foundation/js-core';
+import { Cluster, resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
 
 export type MetaplexOptions = {
   cluster?: Cluster;
 };
 
-export class Metaplex implements Pick<Context, 'uploader'> {
-  // TODO(loris): use Bundlr as default.
-  public uploader: UploaderInterface;
+export const createMetaplex = (
+  connection: Connection,
+  options: MetaplexOptions = {}
+): Metaplex => {
+  const metaplex = baseCreateMetaplex();
+  metaplex.connection = connection;
+  metaplex.cluster =
+    options.cluster ?? resolveClusterFromConnection(connection);
+  metaplex.use(corePlugins());
 
-  /** The connection object from Solana's SDK. */
-  public readonly connection: Connection;
-
-  /** The cluster in which the connection endpoint belongs to. */
-  public readonly cluster: Cluster;
-
-  constructor(connection: Connection, options: MetaplexOptions = {}) {
-    this.connection = connection;
-    this.cluster = options.cluster ?? resolveClusterFromConnection(connection);
-    this.use(corePlugins());
-  }
-
-  static make(connection: Connection, options: MetaplexOptions = {}) {
-    return new this(connection, options);
-  }
-
-  use(plugin: MetaplexPlugin) {
-    plugin.install(this);
-
-    return this;
-  }
-}
+  return metaplex;
+};

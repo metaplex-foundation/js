@@ -1,8 +1,8 @@
 import { createUtilizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { ExpectedSignerError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   Operation,

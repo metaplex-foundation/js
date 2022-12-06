@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { Metadata, Nft } from '../../nftModule';
 import { findCandyMachineV2CreatorPda } from '../pdas';
 import {
@@ -7,7 +8,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

@@ -23,7 +23,7 @@ import {
   toBigNumber,
   toPublicKey,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { ExpectedSignerError } from '@/errors';
 
 // -----------------

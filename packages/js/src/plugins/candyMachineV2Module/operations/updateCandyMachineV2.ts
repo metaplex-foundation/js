@@ -7,6 +7,7 @@ import {
 } from '@metaplex-foundation/mpl-candy-machine';
 import type { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   CandyMachineV2,
@@ -23,7 +24,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------

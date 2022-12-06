@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { Metadata, Nft, NftWithToken, Sft, SftWithToken } from '../models';
-import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,

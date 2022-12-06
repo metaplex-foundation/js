@@ -1,3 +1,4 @@
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   approveNftCollectionAuthorityBuilder,
   ApproveNftCollectionAuthorityBuilderParams,
@@ -34,7 +35,6 @@ import {
   verifyNftCreatorBuilder,
   VerifyNftCreatorBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

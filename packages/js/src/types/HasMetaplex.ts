@@ -1,4 +1,4 @@
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 export type HasMetaplex = {
   readonly metaplex: Metaplex;

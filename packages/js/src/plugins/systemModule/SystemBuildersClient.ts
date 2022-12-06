@@ -1,10 +1,10 @@
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   createAccountBuilder,
   CreateAccountBuilderParams,
   transferSolBuilder,
   TransferSolBuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

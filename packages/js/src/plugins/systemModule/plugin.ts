@@ -1,4 +1,5 @@
 import { SystemProgram } from '@solana/web3.js';
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { ProgramClient } from '../programModule';
 import {
   createAccountOperation,
@@ -7,8 +8,7 @@ import {
   transferSolOperationHandler,
 } from './operations';
 import { SystemClient } from './SystemClient';
-import type { MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Program } from '@/types';
 
 /**
  * @group Plugins
@@ -40,7 +40,7 @@ export const systemModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core' {
   interface Metaplex {
     system(): SystemClient;
   }

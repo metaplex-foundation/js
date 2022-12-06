@@ -7,7 +7,7 @@ import {
   OperationHandler,
   OperationScope,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

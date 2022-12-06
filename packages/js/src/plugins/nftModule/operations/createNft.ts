@@ -3,6 +3,7 @@ import {
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -18,7 +19,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

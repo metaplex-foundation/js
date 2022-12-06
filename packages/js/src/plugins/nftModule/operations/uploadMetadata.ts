@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { isMetaplexFile, MetaplexFile } from '../../storageModule';
 import { JsonMetadata } from '../models';
-import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,

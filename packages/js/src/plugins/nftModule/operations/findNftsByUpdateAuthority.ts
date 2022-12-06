@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { toMetadataAccount } from '../accounts';
 import { MetadataV1GpaBuilder } from '../gpaBuilders';
 import { Metadata, Nft, Sft, toMetadata } from '../models';
@@ -8,7 +9,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

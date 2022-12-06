@@ -1,7 +1,7 @@
 import { createFreezeAccountInstruction } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import type { Metaplex } from '@/Metaplex';
 import {
   isSigner,
   KeypairSigner,

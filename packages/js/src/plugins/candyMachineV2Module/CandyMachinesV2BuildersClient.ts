@@ -1,3 +1,4 @@
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   createCandyMachineV2Builder,
   CreateCandyMachineV2BuilderParams,
@@ -10,7 +11,6 @@ import {
   updateCandyMachineV2Builder,
   UpdateCandyMachineV2BuilderParams,
 } from './operations';
-import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

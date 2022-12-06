@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

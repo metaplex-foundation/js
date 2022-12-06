@@ -6,6 +6,7 @@ import {
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_ALL_SCOPES } from '../constants';
 import { TreasuryDestinationOwnerRequiredError } from '../errors';
@@ -21,7 +22,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------

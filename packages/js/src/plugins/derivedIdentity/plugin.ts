@@ -1,6 +1,5 @@
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { DerivedIdentityClient } from './DerivedIdentityClient';
-import type { Metaplex } from '@/Metaplex';
-import { MetaplexPlugin } from '@/types';
 
 /** @group Plugins */
 export const derivedIdentity = (): MetaplexPlugin => ({
@@ -10,7 +9,7 @@ export const derivedIdentity = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core' {
   interface Metaplex {
     derivedIdentity(): DerivedIdentityClient;
   }

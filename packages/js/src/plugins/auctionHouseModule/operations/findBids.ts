@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { BidReceiptGpaBuilder } from '../gpaBuilders';
 import { AuctionHouse, Bid, LazyBid, toLazyBid } from '../models';
 import { toBidReceiptAccount } from '../accounts';
@@ -8,7 +9,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

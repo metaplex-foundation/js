@@ -5,6 +5,7 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -16,7 +17,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
 // -----------------

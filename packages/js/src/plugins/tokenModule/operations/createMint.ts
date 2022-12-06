@@ -1,5 +1,6 @@
 import { createInitializeMintInstruction, MINT_SIZE } from '@solana/spl-token';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Mint } from '../models/Mint';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -11,7 +12,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

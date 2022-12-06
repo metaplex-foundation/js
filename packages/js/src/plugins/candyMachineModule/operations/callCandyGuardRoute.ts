@@ -11,7 +11,7 @@ import { CandyMachine } from '../models';
 import { CandyGuardRequiredOnCandyMachineError } from '../errors';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

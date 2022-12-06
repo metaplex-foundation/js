@@ -9,6 +9,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_SLOT_HASHES_PUBKEY,
 } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { NftWithToken } from '../../nftModule';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { parseCandyMachineV2CollectionAccount } from '../accounts';
@@ -30,7 +31,6 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

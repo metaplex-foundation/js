@@ -1,3 +1,4 @@
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   cancelBidBuilder,
   CancelBidBuilderParams,
@@ -32,7 +33,6 @@ import {
   updateAuctionHouseBuilder,
   UpdateAuctionHouseBuilderParams,
 } from './operations/updateAuctionHouse';
-import type { Metaplex } from '@/Metaplex';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

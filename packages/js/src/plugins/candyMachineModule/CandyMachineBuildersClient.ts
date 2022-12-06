@@ -34,7 +34,7 @@ import {
   updateCandyGuardAuthorityBuilder,
   UpdateCandyGuardAuthorityBuilderParams,
 } from './operations/updateCandyGuardAuthority';
-import type { Metaplex } from '@/Metaplex';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { TransactionBuilderOptions } from '@/utils';
 
 /**

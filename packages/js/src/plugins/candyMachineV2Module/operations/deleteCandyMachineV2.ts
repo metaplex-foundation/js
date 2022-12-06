@@ -1,4 +1,5 @@
 import { createWithdrawFundsInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyMachineV2 } from '../models/CandyMachineV2';
 import { findCandyMachineV2CollectionPda } from '../pdas';
@@ -10,7 +11,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

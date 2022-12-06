@@ -16,7 +16,7 @@ import {
   toAccountInfo,
   UnparsedAccount,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 /** @group Models */
 export type CandyGuard<T extends CandyGuardsSettings> = Model<'candyGuard'> & {

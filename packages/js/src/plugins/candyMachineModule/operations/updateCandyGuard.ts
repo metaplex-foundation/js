@@ -4,7 +4,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import { Operation, OperationHandler, OperationScope, Signer } from '@/types';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 
 // -----------------
 // Operation

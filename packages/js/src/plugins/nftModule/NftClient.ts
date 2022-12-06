@@ -1,5 +1,6 @@
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendTokensInput } from '../tokenModule';
 import { toMintAddress } from './helpers';
 import { Nft, NftWithToken, Sft, SftWithToken } from './models';
@@ -61,7 +62,6 @@ import {
 } from './operations';
 import { PartialKeys } from '@/utils';
 import { OperationOptions, token } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 /**
  * This is a client for the NFT module.

@@ -1,6 +1,6 @@
 import type { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { AuctionHouse, Purchase } from '../models';
-import type { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,

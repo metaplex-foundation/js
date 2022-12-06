@@ -1,4 +1,5 @@
 import { cusper, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { ProgramClient } from '../programModule';
 import { NftClient } from './NftClient';
 import {
@@ -55,8 +56,7 @@ import {
   verifyNftCreatorOperation,
   verifyNftCreatorOperationHandler,
 } from './operations';
-import { ErrorWithLogs, MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import { ErrorWithLogs, Program } from '@/types';
 
 /** @group Plugins */
 export const nftModule = (): MetaplexPlugin => ({
@@ -144,7 +144,7 @@ export const nftModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core' {
   interface Metaplex {
     nfts(): NftClient;
   }

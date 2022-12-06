@@ -1,4 +1,5 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   assertAllConfigLineConstraints,
@@ -15,7 +16,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

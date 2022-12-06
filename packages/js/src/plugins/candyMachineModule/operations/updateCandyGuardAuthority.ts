@@ -1,7 +1,7 @@
 import { createSetAuthorityInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import type { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

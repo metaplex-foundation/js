@@ -15,7 +15,7 @@ import {
   toCandyMachineData,
 } from '../models';
 import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import {
   BigNumber,
   Creator,

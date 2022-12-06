@@ -14,6 +14,7 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   FailedToConfirmTransactionError,
   FailedToConfirmTransactionWithResponseError,
@@ -22,7 +23,6 @@ import {
   ParsedProgramError,
   UnknownProgramError,
 } from '@/errors';
-import type { Metaplex } from '@/Metaplex';
 import {
   assertSol,
   getSignerHistogram,

@@ -1,7 +1,7 @@
 import type { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { toListingReceiptAccount } from '../accounts';
 import { AuctionHouse, Listing, toLazyListing } from '../models';
-import type { Metaplex } from '@/Metaplex';
 import {
   useOperation,
   Operation,

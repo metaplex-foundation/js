@@ -5,6 +5,7 @@ import {
   createCancelListingReceiptInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import { AuctioneerAuthorityRequiredError } from '../errors';
@@ -19,7 +20,6 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

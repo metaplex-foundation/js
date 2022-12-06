@@ -7,6 +7,7 @@ import {
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctioneerAuthorityRequiredError,
@@ -33,7 +34,6 @@ import {
   SplTokenAmount,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

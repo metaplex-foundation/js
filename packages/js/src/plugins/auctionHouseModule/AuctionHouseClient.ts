@@ -1,3 +1,4 @@
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { AuctionHouseBuildersClient } from './AuctionHouseBuildersClient';
 import {
   CancelBidInput,
@@ -58,7 +59,6 @@ import {
   withdrawFromTreasuryAccountOperation,
 } from './operations';
 import { AuctionHousePdasClient } from './AuctionHousePdasClient';
-import type { Metaplex } from '@/Metaplex';
 import { OperationOptions } from '@/types';
 
 /**

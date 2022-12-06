@@ -1,6 +1,6 @@
 import { createUnwrapInstruction } from '@metaplex-foundation/mpl-candy-guard';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import {
   Operation,
   OperationHandler,

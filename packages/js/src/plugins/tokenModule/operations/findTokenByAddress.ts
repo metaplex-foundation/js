@@ -1,4 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import { toTokenAccount } from '../accounts';
 import { Token, toToken } from '../models/Token';
 import {
@@ -7,7 +8,6 @@ import {
   OperationScope,
   useOperation,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

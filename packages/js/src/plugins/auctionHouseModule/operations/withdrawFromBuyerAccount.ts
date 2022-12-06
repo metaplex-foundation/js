@@ -4,6 +4,7 @@ import {
   WithdrawInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctioneerAuthorityRequiredError,
@@ -22,7 +23,6 @@ import {
   toPublicKey,
   useOperation,
 } from '@/types';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

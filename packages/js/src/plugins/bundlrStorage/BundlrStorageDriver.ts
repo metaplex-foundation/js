@@ -9,6 +9,7 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
@@ -16,7 +17,6 @@ import {
   StorageDriver,
 } from '../storageModule';
 import { KeypairIdentityDriver } from '../keypairIdentity';
-import { Metaplex } from '@/Metaplex';
 import {
   Amount,
   IdentitySigner,

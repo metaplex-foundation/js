@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { Metaplex } from '@metaplex-foundation/js-core';
 import {
   CandyMachineV2Account,
   parseCandyMachineV2Account,
@@ -16,7 +17,6 @@ import {
   useOperation,
 } from '@/types';
 import { Mint, toMint, toMintAccount } from '@/plugins/tokenModule';
-import { Metaplex } from '@/Metaplex';
 import { UnreachableCaseError } from '@/errors';
 
 // -----------------

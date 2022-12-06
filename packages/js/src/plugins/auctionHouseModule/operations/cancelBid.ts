@@ -5,6 +5,7 @@ import {
   createCancelInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import type { Metaplex } from '@metaplex-foundation/js-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid } from '../models';
@@ -20,7 +21,6 @@ import {
   useOperation,
 } from '@/types';
 import { NftWithToken, SftWithToken } from '@/plugins/nftModule';
-import type { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation

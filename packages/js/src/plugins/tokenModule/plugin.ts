@@ -1,3 +1,4 @@
+import type { Metaplex, MetaplexPlugin } from '@metaplex-foundation/js-core';
 import { ProgramClient } from '../programModule';
 import {
   approveTokenDelegateAuthorityOperation,
@@ -29,8 +30,8 @@ import {
 } from './operations';
 import { associatedTokenProgram, tokenProgram } from './program';
 import { TokenClient } from './TokenClient';
-import type { MetaplexPlugin, Program } from '@/types';
-import type { Metaplex } from '@/Metaplex';
+import type { Program } from '@/types';
+
 /**
  * @group Plugins
  */
@@ -95,7 +96,7 @@ export const tokenModule = (): MetaplexPlugin => ({
   },
 });
 
-declare module '../../Metaplex' {
+declare module '@metaplex-foundation/js-core' {
   interface Metaplex {
     tokens(): TokenClient;
   }
