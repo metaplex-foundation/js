@@ -16,8 +16,8 @@ import {
   getBytesFromGenericFiles,
   Metaplex,
   UploaderInterface,
+  Signer as JsCoreSigner,
 } from '@metaplex-foundation/js-core';
-import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   Amount,
   IdentitySigner,
@@ -25,7 +25,6 @@ import {
   isKeypairSigner,
   KeypairSigner,
   lamports,
-  Signer,
   toBigNumber,
 } from '@/types';
 import {
@@ -61,7 +60,7 @@ export type BundlrOptions = {
   timeout?: number;
   providerUrl?: string;
   priceMultiplier?: number;
-  identity?: Signer;
+  identity?: JsCoreSigner;
 };
 
 export type BundlrWalletAdapter = {
@@ -76,7 +75,7 @@ export type BundlrWalletAdapter = {
   ) => Promise<TransactionSignature>;
 };
 
-export class BundlrStorageDriver implements UploaderInterface {
+export class BundlrUploader implements UploaderInterface {
   protected _metaplex: Metaplex;
   protected _bundlr: WebBundlr | NodeBundlr | null = null;
   protected _options: BundlrOptions;
@@ -188,8 +187,8 @@ export class BundlrStorageDriver implements UploaderInterface {
       providerUrl: this._options.providerUrl,
     };
 
-    const identity: Signer =
-      this._options.identity ?? this._metaplex.identity();
+    const identity: JsCoreSigner =
+      this._options.identity ?? this._metaplex.identity;
 
     // if in node use node bundlr, else use web bundlr
     // see: https://github.com/metaplex-foundation/js/issues/202
@@ -281,13 +280,13 @@ export class BundlrStorageDriver implements UploaderInterface {
 }
 
 export const isBundlrUploader = (
-  storageDriver: UploaderInterface
-): storageDriver is BundlrStorageDriver => {
+  uploader: UploaderInterface
+): uploader is BundlrUploader => {
   return (
-    'bundlr' in storageDriver &&
-    'getBalance' in storageDriver &&
-    'fund' in storageDriver &&
-    'withdrawAll' in storageDriver
+    'bundlr' in uploader &&
+    'getBalance' in uploader &&
+    'fund' in uploader &&
+    'withdrawAll' in uploader
   );
 };
 
