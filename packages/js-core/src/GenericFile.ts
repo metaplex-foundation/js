@@ -1,4 +1,4 @@
-import { InvalidJsonVariableError } from './errors/SdkError';
+import { InvalidJsonVariableError } from './errors';
 import { generateRandomString } from './utils';
 
 export type GenericFile = {

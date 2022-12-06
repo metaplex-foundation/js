@@ -12,3 +12,10 @@ export type DownloaderOptions = {
   onProgress?: (percent: number, ...args: any) => void;
   signal?: GenericAbortSignal;
 };
+
+export class NullDownloader implements DownloaderInterface {
+  download(): Promise<GenericFile[]> {
+    // TODO(loris): Custom error.
+    throw Error('DownloaderInterface not implemented.');
+  }
+}

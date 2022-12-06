@@ -7,7 +7,6 @@ export * from './derivedIdentity';
 export * from './guestIdentity';
 export * from './identityModule';
 export * from './keypairIdentity';
-export * from './mockStorage';
 export * from './nftModule';
 export * from './operationModule';
 export * from './programModule';

@@ -9,6 +9,17 @@ export class SdkError extends MetaplexError {
 }
 
 /** @group Errors */
+export class AssetNotFoundError extends SdkError {
+  readonly name: string = 'AssetNotFoundError';
+  constructor(location: string, cause?: Error) {
+    const message =
+      `The asset at [${location}] could not be found. ` +
+      'Ensure the asset exists at the given path or URI.';
+    super(message, cause);
+  }
+}
+
+/** @group Errors */
 export class InvalidJsonVariableError extends SdkError {
   readonly name: string = 'InvalidJsonVariableError';
   constructor(cause?: Error) {

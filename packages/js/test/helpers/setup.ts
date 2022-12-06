@@ -1,15 +1,15 @@
 import { Commitment, Connection, Keypair } from '@solana/web3.js';
 import { LOCALHOST } from '@metaplex-foundation/amman-client';
+import { Metaplex, mockStorage } from '@metaplex-foundation/js-core';
 import { amman } from './amman';
 import {
-  Metaplex,
   guestIdentity,
   keypairIdentity,
-  mockStorage,
   UploadMetadataInput,
   CreateNftInput,
   KeypairSigner,
   CreateSftInput,
+  createMetaplex,
 } from '@/index';
 
 export type MetaplexTestOptions = {
@@ -25,7 +25,7 @@ export const metaplexGuest = (options: MetaplexTestOptions = {}) => {
     commitment: options.commitment ?? 'confirmed',
   });
 
-  return Metaplex.make(connection).use(guestIdentity()).use(mockStorage());
+  return createMetaplex(connection).use(guestIdentity()).use(mockStorage());
 };
 
 export const metaplex = async (options: MetaplexTestOptions = {}) => {

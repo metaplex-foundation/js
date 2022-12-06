@@ -1,11 +1,14 @@
 import { Commitment, Keypair } from '@solana/web3.js';
 import { Amman } from '@metaplex-foundation/amman-client';
 import test from 'tape';
-import { createMetaplex, Metaplex } from '@metaplex-foundation/js-core';
+import {
+  createMetaplex,
+  Metaplex,
+  mockStorage,
+} from '@metaplex-foundation/js-core';
 import {
   guestIdentity,
   keypairIdentity,
-  mockStorage,
   KeypairSigner,
   logDebug,
 } from '@metaplex-foundation/js';
