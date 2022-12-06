@@ -61,8 +61,80 @@
         "test": {
           "executor": "nx:run-commands",
           "options": {
-            "dir": "./dist/packages/js",
             "commands": ["yarn workspace @metaplex-foundation/js test"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "build",
+              "projects": "self"
+            }
+          ]
+        }
+      },
+      "tags": []
+    },
+    "packages/js-core": {
+      "root": "packages/js-core",
+      "projectType": "library",
+      "sourceRoot": "packages/js-core/src",
+      "targets": {
+        "prebuild": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
+            "cwd": "packages/js-core"
+          }
+        },
+        "build": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js-core build"],
+            "parallel": false
+          },
+          "dependsOn": [
+            {
+              "target": "prebuild",
+              "projects": "self"
+            },
+            {
+              "target": "build",
+              "projects": "dependencies"
+            }
+          ]
+        },
+        "clean": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js-core clean"],
+            "parallel": false
+          }
+        },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./infra/publish.mjs packages/js-core {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["packages/js-core/**/*.ts"],
+            "fix": true
+          }
+        },
+        "test": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": ["yarn workspace @metaplex-foundation/js-core test"],
             "parallel": false
           },
           "dependsOn": [
@@ -77,6 +149,7 @@
     },
     "packages/js-plugin-aws": {
       "root": "packages/js-plugin-aws",
+      "projectType": "library",
       "sourceRoot": "packages/js-plugin-aws/src",
       "targets": {
         "prebuild": {
@@ -117,7 +190,8 @@
         "publish": {
           "executor": "nx:run-commands",
           "options": {
-            "command": "node ./infra/publish.mjs packages/js-plugin-aws {args.ver} {args.tag}"
+            "command": "node ./infra/publish.mjs packages/js-plugin-aws {args.ver} {args.tag}",
+            "forwardAllArgs": true
           },
           "dependsOn": [
             {
@@ -137,7 +211,6 @@
         "test": {
           "executor": "nx:run-commands",
           "options": {
-            "dir": "./dist/packages/js-plugin-aws",
             "commands": [
               "yarn workspace @metaplex-foundation/js-plugin-aws test"
             ],
@@ -164,18 +237,6 @@
             "command": "yarn depcheck --ignore-patterns=test,dist --ignores=buffer",
             "cwd": "packages/js-plugin-nft-storage"
           }
-        },
-        "publish": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "node ./infra/publish.mjs packages/js-plugin-nft-storage {args.ver} {args.tag}"
-          },
-          "dependsOn": [
-            {
-              "projects": "self",
-              "target": "build"
-            }
-          ]
         },
         "build": {
           "executor": "nx:run-commands",
@@ -205,6 +266,19 @@
             "parallel": false
           }
         },
+        "publish": {
+          "executor": "nx:run-commands",
+          "options": {
+            "command": "node ./infra/publish.mjs packages/js-plugin-nft-storage {args.ver} {args.tag}",
+            "forwardAllArgs": true
+          },
+          "dependsOn": [
+            {
+              "projects": "self",
+              "target": "build"
+            }
+          ]
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "outputs": ["{options.outputFile}"],
@@ -216,9 +290,7 @@
         "test": {
           "executor": "nx:run-commands",
           "options": {
-            "dir": "./dist/packages/js-plugin-nft-storage",
             "commands": [
-              "rm -rf ./dist/packages/js-plugin-nft-storage",
               "yarn workspace @metaplex-foundation/js-plugin-nft-storage test"
             ],
             "parallel": false

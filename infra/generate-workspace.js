@@ -1,20 +1,19 @@
+/* eslint-disable no-console */
 const fs = require('fs');
 
 const getDirectories = (source, callback) =>
   fs.readdir(source, { withFileTypes: true }, (err, files) => {
     if (err) {
-      callback(err);
-    } else {
-      callback(
-        null,
-        files
-          .filter((dirent) => dirent.isDirectory())
-          .map((dirent) => dirent.name)
-      );
+      return console.log(err);
     }
+    callback(
+      files
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name)
+    );
   });
-getDirectories(__dirname + '/packages', (err, directories) => {
-  // json data
+
+getDirectories(__dirname + '/../packages', (directories) => {
   const jsonData = {
     version: 2,
     projects: {
@@ -30,7 +29,7 @@ getDirectories(__dirname + '/packages', (err, directories) => {
                 executor: 'nx:run-commands',
                 options: {
                   command:
-                    'yarn depcheck --ignore-patterns=test --ignores=buffer',
+                    'yarn depcheck --ignore-patterns=test,dist --ignores=buffer',
                   cwd: `packages/${rec}`,
                 },
               },
@@ -106,9 +105,9 @@ getDirectories(__dirname + '/packages', (err, directories) => {
   };
 
   // stringify JSON Object
-  const jsonContent = JSON.stringify(jsonData, 2, 4);
+  const jsonContent = JSON.stringify(jsonData, null, 2);
 
-  fs.writeFile('workspace-output.json', jsonContent, 'utf8', function (err) {
+  fs.writeFile('workspace.json', jsonContent, 'utf8', (err) => {
     if (err) {
       console.log('An error occured while writing JSON Object to File.');
       return console.log(err);
