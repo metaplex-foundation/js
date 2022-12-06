@@ -2,7 +2,6 @@ import { Keypair } from './Keypair';
 import { PublicKey } from './PublicKey';
 
 export interface Transaction {
-  // constructor(message: TransactionMessage, signatures?: Array<Uint8Array>);
   signatures: Uint8Array[];
   message: TransactionMessage;
   version: TransactionVersion;
@@ -18,10 +17,10 @@ export type TransactionMessage =
 
 export type SerializedTransaction = Uint8Array;
 export type TransactionSignature = string;
+export type TransactionError = {} | string;
 export type Blockhash = string;
 
 export interface LegacyTransactionMessage {
-  // constructor(args: MessageArgs);
   version: 'legacy';
   staticAccountKeys: PublicKey[];
   recentBlockhash: Blockhash;
@@ -33,7 +32,6 @@ export interface LegacyTransactionMessage {
 }
 
 export interface TransactionMessageV0 {
-  // constructor(args: MessageV0Args);
   version: 0;
   staticAccountKeys: PublicKey[];
   recentBlockhash: Blockhash;

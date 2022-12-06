@@ -1,18 +1,41 @@
 import { GenericAbortSignal } from './GenericAbortSignal';
+import {
+  Blockhash,
+  SerializedTransaction,
+  TransactionError,
+  TransactionSignature,
+} from './Transaction';
 
 export interface RpcInterface {
-  call<ResponseValue, Params extends Array<any> = Array<any>>(
+  call<Result, Params extends Array<any> = Array<any>>(
     method: string,
     params?: Params,
     options?: RpcOptions
-  ): Promise<RpcResult<ResponseValue>>;
+  ): Promise<Result>;
   supports(method: string): boolean;
-  // sendTransaction(SerializedTransaction): Promise<TransactionSignature>;
-  // confirmTransaction(TransactionSignature): Promise<T>;
-  // sendAndConfirmTransaction(SerializedTransaction): Promise<T>;
+  sendTransaction(
+    serializedTransaction: SerializedTransaction
+  ): Promise<TransactionSignature>;
+  confirmTransaction(
+    signature: TransactionSignature,
+    blockhashWithExpiryBlockHeight: BlockhashWithExpiryBlockHeight,
+    commitment?: Commitment
+  ): Promise<RpcConfirmResult>;
+  sendAndConfirmTransaction(
+    serializedTransaction: SerializedTransaction
+  ): Promise<{
+    signature: TransactionSignature;
+    result: RpcConfirmResult;
+  }>;
 }
 
-export type RpcResult<Value> = {
+export type Commitment = 'processed' | 'confirmed' | 'finalized';
+export type BlockhashWithExpiryBlockHeight = {
+  blockhash: Blockhash;
+  lastValidBlockHeight: number;
+};
+
+export type RpcResultWithContext<Value> = {
   context: { slot: number };
   value: Value;
 };
@@ -21,3 +44,7 @@ export type RpcOptions = {
   id?: string;
   signal?: GenericAbortSignal;
 };
+
+export type RpcConfirmResult = RpcResultWithContext<{
+  err: TransactionError | null;
+}>;
