@@ -6,8 +6,6 @@ export * from './Creator';
 export * from './DateTime';
 export * from './FeatureFlags';
 export * from './HasDriver';
-export * from './HasMetaplex';
-export * from './MetaplexPlugin';
 export * from './Model';
 export * from './Operation';
 export * from './Pda';
