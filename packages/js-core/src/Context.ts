@@ -1,10 +1,11 @@
-import { DownloaderInterface } from './DownloaderInterface';
-import { EddsaInterface } from './EddsaInterface';
-import { HttpInterface } from './HttpInterface';
-import { ProgramRepositoryInterface } from './ProgramRepositoryInterface';
-import { RpcInterface } from './RpcInterface';
-import { Signer } from './Signer';
-import { TransactionFactoryInterface } from './TransactionFactoryInterface';
+import type { AmountInterface } from './AmountInterface';
+import type { DownloaderInterface } from './DownloaderInterface';
+import type { EddsaInterface } from './EddsaInterface';
+import type { HttpInterface } from './HttpInterface';
+import type { ProgramRepositoryInterface } from './ProgramRepositoryInterface';
+import type { RpcInterface } from './RpcInterface';
+import type { Signer } from './Signer';
+import type { TransactionFactoryInterface } from './TransactionFactoryInterface';
 import type { UploaderInterface } from './UploaderInterface';
 
 export interface Context {
@@ -16,6 +17,6 @@ export interface Context {
   transactions: TransactionFactoryInterface;
   eddsa: EddsaInterface;
   identity: Signer;
+  amounts: AmountInterface;
   // serializer: SerializerInterface;
-  // bigNumber: BigNumberInterface;
 }
