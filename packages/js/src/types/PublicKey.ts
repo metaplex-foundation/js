@@ -13,7 +13,7 @@ export const toPublicKey = (value: PublicKeyValues): PublicKey => {
   }
 
   if (typeof value === 'object' && 'address' in value) {
-    return value.address;
+    return (value as { address: PublicKey }).address;
   }
 
   return new PublicKey(value);

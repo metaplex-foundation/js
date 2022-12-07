@@ -36,31 +36,22 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "lint:test": "yarn eslint --ext js,ts,tsx src",
-    "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
+    "lint": "eslint --ext js,ts,tsx src",
+    "lint:fix": "eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
-    "test": "CI=1 tape dist/test/**/*.test.js",
-    "preversion": "yarn build && yarn test",
-    "postversion": "git push --follow-tags"
+    "build": "pnpm clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
+    "test": "CI=1 tape dist/test/**/*.test.js"
   },
   "dependencies": {
     "@ipld/dag-pb": "^2.1.17",
-    "@metaplex-foundation/js": "*",
+    "@metaplex-foundation/js": "workspace:*",
     "@nftstorage/metaplex-auth": "^1.2.0",
     "ipfs-car": "^0.7.0",
     "ipfs-unixfs": "^6.0.9",
     "multiformats": "^9.7.0",
-    "nft.storage": "^6.4.1"
+    "nft.storage": "^6.4.1",
+    "node-fetch": "^2.6.7"
   },
-  "engines": {
-    "node": ">=16.0"
-  },
-  "browserslist": [
-    "defaults",
-    "not IE 11",
-    "maintained node versions"
-  ],
   "typedoc": {
     "entryPoint": "./src/index.ts",
     "readmeFile": "./README.md",

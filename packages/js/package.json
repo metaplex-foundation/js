@@ -34,14 +34,12 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "lint:test": "yarn eslint --ext js,ts,tsx src",
-    "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
+    "lint": "eslint --ext js,ts,tsx src",
+    "lint:fix": "eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
-    "test": "CI=1 tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "preversion": "yarn build",
-    "postversion": "git push --follow-tags"
+    "build": "pnpm clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
+    "test": "CI=1 tape dist/test/**/*.test.js && pnpm test:exports",
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.8",
@@ -67,14 +65,6 @@
     "mime": "^3.0.0",
     "node-fetch": "^2.6.7"
   },
-  "engines": {
-    "node": ">=16.0"
-  },
-  "browserslist": [
-    "defaults",
-    "not IE 11",
-    "maintained node versions"
-  ],
   "typedoc": {
     "entryPoint": "./src/index.ts",
     "readmeFile": "./README.md",

@@ -3,14 +3,8 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
-  "linked": [
-    [
-      "@metaplex-foundation/js-plugin-aws",
-      "@metaplex-foundation/js-plugin-nft-storage",
-      "@metaplex-foundation/js"
-    ]
-  ],
-  "access": "restricted",
+  "linked": [["**"]],
+  "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": []
