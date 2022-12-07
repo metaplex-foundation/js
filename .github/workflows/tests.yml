@@ -35,11 +35,8 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: Build
-      run: npx nx affected --target=build
-
     - name: Start local validator using Amman
       run: pnpm amman:start
 
-    - name: Run tests
+    - name: Build and Run tests
       run: pnpm test
