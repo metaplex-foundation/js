@@ -18,6 +18,7 @@ importers:
       '@rollup/plugin-json': ^4.1.0
       '@rollup/plugin-node-resolve': ^13.3.0
       '@rollup/plugin-replace': ^4.0.0
+      '@rollup/plugin-terser': ^0.2.0
       '@rollup/plugin-typescript': ^8.5.0
       '@types/bn.js': ^5.1.1
       '@types/debug': ^4.1.7
@@ -46,7 +47,6 @@ importers:
       rimraf: ^3.0.2
       rollup: ^2.72.0
       rollup-plugin-polyfill-node: ^0.9.0
-      rollup-plugin-terser: ^7.0.2
       sinon: ^13.0.1
       spok: ^1.4.3
       tap-spec: ^5.0.0
@@ -69,6 +69,7 @@ importers:
       '@rollup/plugin-json': 4.1.0_rollup@2.79.1
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.79.1
       '@rollup/plugin-replace': 4.0.0_rollup@2.79.1
+      '@rollup/plugin-terser': 0.2.0_rollup@2.79.1
       '@rollup/plugin-typescript': 8.5.0_k35zwyycrckt5xfsejji7kbwn4
       '@types/bn.js': 5.1.1
       '@types/debug': 4.1.7
@@ -97,7 +98,6 @@ importers:
       rimraf: 3.0.2
       rollup: 2.79.1
       rollup-plugin-polyfill-node: 0.9.0_rollup@2.79.1
-      rollup-plugin-terser: 7.0.2_rollup@2.79.1
       sinon: 13.0.2
       spok: 1.4.3
       tap-spec: 5.0.0
@@ -3412,6 +3412,21 @@ packages:
       '@rollup/pluginutils': 3.1.0_rollup@2.79.1
       magic-string: 0.25.9
       rollup: 2.79.1
+    dev: true
+
+  /@rollup/plugin-terser/0.2.0_rollup@2.79.1:
+    resolution: {integrity: sha512-UBr4WNXBFipKW2C2db9JIzIdq9bFZsaTZwKeAd9Y0N9Pv9G2XgRhaimGdotx1+Wf/2XTuTJ+FVS2SO+y2WyiUQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.x || ^3.x
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 2.79.1
+      serialize-javascript: 6.0.0
+      smob: 0.0.6
+      terser: 5.16.1
     dev: true
 
   /@rollup/plugin-typescript/8.5.0_k35zwyycrckt5xfsejji7kbwn4:
@@ -7245,15 +7260,6 @@ packages:
       - bufferutil
       - utf-8-validate
 
-  /jest-worker/26.6.2:
-    resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
-    engines: {node: '>= 10.13.0'}
-    dependencies:
-      '@types/node': 18.11.11
-      merge-stream: 2.0.0
-      supports-color: 7.2.0
-    dev: true
-
   /joi/17.7.0:
     resolution: {integrity: sha512-1/ugc8djfn93rTE3WRKdCzGGt/EtiYKxITMO4Wiv6q5JL1gl9ePt4kBsl1S499nbosspfctIQTpYIhSmHA3WAg==}
     dependencies:
@@ -8711,19 +8717,6 @@ packages:
       rollup: 2.79.1
     dev: true
 
-  /rollup-plugin-terser/7.0.2_rollup@2.79.1:
-    resolution: {integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==}
-    deprecated: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-terser
-    peerDependencies:
-      rollup: ^2.0.0
-    dependencies:
-      '@babel/code-frame': 7.18.6
-      jest-worker: 26.6.2
-      rollup: 2.79.1
-      serialize-javascript: 4.0.0
-      terser: 5.16.1
-    dev: true
-
   /rollup/2.79.1:
     resolution: {integrity: sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==}
     engines: {node: '>=10.0.0'}
@@ -8839,8 +8832,8 @@ packages:
     dependencies:
       lru-cache: 6.0.0
 
-  /serialize-javascript/4.0.0:
-    resolution: {integrity: sha512-GaNA54380uFefWghODBWEGisLZFj00nS5ACs6yHa9nLqlLpVLO8ChDGeKRjZnV4Nh4n0Qi7nhYZD/9fCPzEqkw==}
+  /serialize-javascript/6.0.0:
+    resolution: {integrity: sha512-Qr3TosvguFt8ePWqsvRfrKyQXIiW+nGbYpy8XK24NQHE83caxWt+mIymTT19DGFbNWNLfEwsrkSmN64lVWB9ag==}
     dependencies:
       randombytes: 2.1.0
     dev: true
@@ -8935,6 +8928,10 @@ packages:
       strip-ansi: 6.0.1
       wcwidth: 1.0.1
       yargs: 15.4.1
+    dev: true
+
+  /smob/0.0.6:
+    resolution: {integrity: sha512-V21+XeNni+tTyiST1MHsa84AQhT1aFZipzPpOFAVB8DkHzwJyjjAmt9bgwnuZiZWnIbMo2duE29wybxv/7HWUw==}
     dev: true
 
   /socket.io-adapter/2.4.0:
