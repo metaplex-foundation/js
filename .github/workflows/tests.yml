@@ -21,9 +21,6 @@ jobs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v2
 
-    - name: Set nx SHA's
-      uses: nrwl/nx-set-shas@v2
-
     - name: Install Solana
       uses: ./.github/actions/install-solana
       with:
