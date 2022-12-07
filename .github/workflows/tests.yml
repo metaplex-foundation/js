@@ -17,9 +17,10 @@ jobs:
     steps:
     - name: Git checkout
       uses: actions/checkout@v3
-      with:
-          fetch-depth: 0
-          
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+
     - name: Set nx SHA's
       uses: nrwl/nx-set-shas@v2
 
@@ -32,16 +33,16 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
-        cache: 'yarn'
+        cache: 'pnpm'
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
 
     - name: Build
       run: npx nx affected --target=build
 
     - name: Start local validator using Amman
-      run: yarn amman:start
+      run: pnpm amman:start
 
     - name: Run tests
-      run: yarn test
+      run: pnpm test
