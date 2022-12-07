@@ -34,14 +34,12 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "lint:test": "eslint --ext js,ts,tsx src",
+    "lint": "eslint --ext js,ts,tsx src",
     "lint:fix": "eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
     "build": "pnpm clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
     "test": "CI=1 tape dist/test/**/*.test.js && pnpm test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "preversion": "pnpm build",
-    "postversion": "git push --follow-tags"
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.8",
