@@ -1,4 +1,4 @@
-import { Blockstore } from 'ipfs-car/blockstore';
+import type { Blockstore } from 'ipfs-car/blockstore';
 import type { CID } from 'multiformats';
 
 /**
@@ -37,7 +37,7 @@ export class BlockstoreCarReader {
     return { cid, bytes };
   }
 
-  blocks() {
+  blocks(): ReturnType<Blockstore['blocks']> {
     return this._blockstore.blocks();
   }
 
