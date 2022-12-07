@@ -18,11 +18,11 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "clean": "turbo run clean --filter=...[origin/main]",
+    "clean": "turbo run clean --filter=[origin/main]",
     "clean:all": "turbo run clean",
-    "build": "turbo run build --filter=...[origin/main]",
+    "build": "turbo run build --filter=[origin/main]",
     "build:all": "turbo run build",
-    "test": "turbo run test --filter=...[origin/main]",
+    "test": "turbo run test --filter=[origin/main]",
     "test:all": "turbo run test",
     "test:filter": "CI=1 ./infra/run-filtered-tests.sh",
     "lint": "turbo run lint",
