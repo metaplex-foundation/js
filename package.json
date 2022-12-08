@@ -35,7 +35,7 @@
     "packages:new": "node infra/generate-new-package.mjs",
     "packages:change": "changeset",
     "packages:version": "changeset version",
-    "packages:publish": "turbo run build lint test && changeset version && changeset publish"
+    "packages:publish": "turbo run build lint test && changeset publish"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",

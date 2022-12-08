@@ -27,12 +27,25 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create Release Pull Request
+      - name: Create and Maintain Release Pull Request
+        id: changesets
         uses: changesets/action@v1
         with:
           title: Version and Publish Packages
-          publish: changeset publish
-          release: false
+          publish: pnpm packages:publish
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create New Global Tag When Packages are Published
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}',
+              sha: context.sha
+            })
