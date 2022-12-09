@@ -51,12 +51,12 @@ export class CandyMachineV2CannotAddAmountError extends CandyMachineV2Error {
 /** @group Errors */
 export class CandyMachineV2AddItemConstraintsViolatedError extends CandyMachineV2Error {
   readonly name: string = 'CandyMachineV2AddItemConstraintsViolatedError';
-  constructor(index: BigNumber, item: CandyMachineV2Item) {
+  constructor(index: BigNumber, item: CandyMachineV2Item, cause: Error) {
     const message =
       `Trying to add an asset with name "${item.name}" and uri: "${item.uri}" ` +
       `to candy machine at index ${index} that violates constraints. ` +
       `Fix the name or URI of this asset and try again.`;
-    super(message);
+    super(message, cause);
   }
 }
 
