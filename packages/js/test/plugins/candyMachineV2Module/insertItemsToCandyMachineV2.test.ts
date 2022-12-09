@@ -102,7 +102,11 @@ test('[candyMachineV2Module] it cannot add items if either of them have a name o
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /CandyMachineV2AddItemConstraintsViolatedError/);
+  await assertThrows(
+    t,
+    promise,
+    /CandyMachineV2AddItemConstraintsViolatedError/
+  );
 });
 
 test('[candyMachineV2Module] it can add items to a custom offset and override existing items', async (t) => {
