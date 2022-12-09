@@ -253,12 +253,13 @@ export const createAuctionHouseBuilder = (
 
   // Auctioneer delegate instruction needs to be signed by authority
   if (params.auctioneerAuthority && !isSigner(authority)) {
-    throw new ExpectedSignerError('authority', 'PublicKey', {
-      problemSuffix:
-        'You are trying to delegate to an Auctioneer authority which ' +
+    throw new ExpectedSignerError(
+      'authority',
+      'PublicKey',
+      'You are trying to delegate to an Auctioneer authority which ' +
         'requires the Auction House authority to sign a transaction. ' +
-        'But you provided the Auction House authority as a Public Key.',
-    });
+        'But you provided the Auction House authority as a Public Key.'
+    );
   }
 
   // PDAs.

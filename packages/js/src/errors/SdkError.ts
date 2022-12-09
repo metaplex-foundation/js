@@ -70,16 +70,22 @@ export class CurrencyMismatchError extends SdkError {
 /** @group Errors */
 export class InvalidJsonVariableError extends SdkError {
   readonly name: string = 'InvalidJsonVariableError';
-  constructor() {
-    super('The provided JSON variable could not be parsed into a string.');
+  constructor(cause?: Error) {
+    super(
+      'The provided JSON variable could not be parsed into a string.',
+      cause
+    );
   }
 }
 
 /** @group Errors */
 export class InvalidJsonStringError extends SdkError {
   readonly name: string = 'InvalidJsonStringError';
-  constructor() {
-    super('The provided string could not be parsed into a JSON variable.');
+  constructor(cause?: Error) {
+    super(
+      'The provided string could not be parsed into a JSON variable.',
+      cause
+    );
   }
 }
 
@@ -141,12 +147,13 @@ export class AssetNotFoundError extends SdkError {
 /** @group Errors */
 export class AccountNotFoundError extends SdkError {
   readonly name: string = 'AccountNotFoundError';
-  constructor(address: PublicKey, accountType?: string) {
+  constructor(address: PublicKey, accountType?: string, solution?: string) {
     const message =
       (accountType
         ? `The account of type [${accountType}] was not found`
         : 'No account was found') +
-      ` at the provided address [${address.toString()}].`;
+      ` at the provided address [${address.toString()}].` +
+      (solution ? ` ${solution}` : '');
     super(message);
   }
 }
@@ -154,11 +161,11 @@ export class AccountNotFoundError extends SdkError {
 /** @group Errors */
 export class UnexpectedAccountError extends SdkError {
   readonly name: string = 'UnexpectedAccountError';
-  constructor(address: PublicKey, expectedType: string) {
+  constructor(address: PublicKey, expectedType: string, cause?: Error) {
     const message =
       `The account at the provided address [${address.toString()}] ` +
       `is not of the expected type [${expectedType}].`;
-    super(message);
+    super(message, cause);
   }
 }
 
@@ -176,11 +183,12 @@ export class UnexpectedTypeError extends SdkError {
 /** @group Errors */
 export class ExpectedSignerError extends SdkError {
   readonly name: string = 'ExpectedSignerError';
-  constructor(variable: string, actualType: string) {
+  constructor(variable: string, actualType: string, solution?: string) {
     const message =
       `Expected variable [${variable}] to be of type [Signer] but got [${actualType}]. ` +
-      'Please check that you are providing the variable as a signer. ' +
-      'Note that, it may be allowed to provide a non-signer variable for certain use cases but not this one.';
+      (solution ??
+        'Please check that you are providing the variable as a signer. ' +
+          'Note that, it may be allowed to provide a non-signer variable for certain use cases but not this one.');
     super(message);
   }
 }
@@ -222,29 +230,30 @@ export class NoInstructionsToSendError extends SdkError {
 /** @group Errors */
 export class FailedToSerializeDataError extends SdkError {
   readonly name: string = 'FailedToSerializeDataError';
-  constructor(dataDescription: string) {
+  constructor(dataDescription: string, cause?: Error) {
     const message = `The received data could not be serialized as a [${dataDescription}].`;
-    super(message);
+    super(message, cause);
   }
 }
 
 /** @group Errors */
 export class FailedToDeserializeDataError extends SdkError {
   readonly name: string = 'FailedToDeserializeDataError';
-  constructor(dataDescription: string) {
+  constructor(dataDescription: string, cause?: Error) {
     const message = `The received serialized data could not be deserialized to a [${dataDescription}].`;
-    super(message);
+    super(message, cause);
   }
 }
 
 /** @group Errors */
 export class MissingInputDataError extends SdkError {
   readonly name: string = 'MissingInputDataError';
-  constructor(missingParameters: string[]) {
+  constructor(missingParameters: string[], solution?: string) {
     const message =
       `Some parameters are missing from the provided input object. ` +
       'Please provide the following missing parameters ' +
-      `[${missingParameters.join(', ')}].`;
+      `[${missingParameters.join(', ')}].` +
+      (solution ? ` ${solution}` : '');
     super(message);
   }
 }
