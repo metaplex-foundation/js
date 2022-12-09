@@ -139,7 +139,7 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Cannot Add Amount/);
+  await assertThrows(t, promise, /CandyMachineCannotAddAmountError/);
 });
 
 test('[candyMachineModule] it cannot add items once the candy machine is fully loaded', async (t) => {
@@ -160,7 +160,7 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Is Full/);
+  await assertThrows(t, promise, /CandyMachineIsFullError/);
 });
 
 test('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
@@ -189,12 +189,9 @@ test('[candyMachineModule] it cannot add items if either of them have a name or 
 
   // Then we expect an error to be thrown regarding that name.
   await assertThrowsFn(t, promiseName, (error) => {
-    t.equal(
-      error.key,
-      'metaplex.errors.plugin.candy_machine_v3.candy_machine_item_text_too_long'
-    );
-    t.ok(error.problem.includes('the name limit as 10 characters'));
-    t.ok(error.problem.includes(`the item at index 1`));
+    t.equal(error.name, 'CandyMachineItemTextTooLongError');
+    t.ok(error.message.includes('the name limit as 10 characters'));
+    t.ok(error.message.includes(`the item at index 1`));
   });
 
   // And when we try to add items such that one of the URIs is too long.

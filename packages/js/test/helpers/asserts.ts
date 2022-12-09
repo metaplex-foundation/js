@@ -50,7 +50,7 @@ export async function assertThrows<T>(
     t,
     fnOrPromise,
     (error: any) => {
-      const message: string = error?.message ?? '';
+      const message: string = error?.toString() ?? error?.message ?? '';
       if (message.match(match)) {
         t.pass(`throws ${match.toString()}`);
       } else {

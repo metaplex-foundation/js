@@ -150,7 +150,7 @@ test('[candyMachineModule] it fails to call the route instruction of a guard tha
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Guard Route Not Supported/);
+  await assertThrows(t, promise, /GuardRouteNotSupportedError/);
 });
 
 test('[candyMachineModule] it fails to call the route instruction on a Candy Machine with no Candy Guard account', async (t) => {
@@ -171,7 +171,7 @@ test('[candyMachineModule] it fails to call the route instruction on a Candy Mac
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Candy Guard Required On Candy Machine/);
+  await assertThrows(t, promise, /CandyGuardRequiredOnCandyMachineError/);
 });
 
 test('[candyMachineModule] it fails if no group label is provided on Candy Machines using groups', async (t) => {
@@ -199,7 +199,7 @@ test('[candyMachineModule] it fails if no group label is provided on Candy Machi
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Guard Group Required/);
+  await assertThrows(t, promise, /GuardGroupRequiredError/);
 });
 
 test('[candyMachineModule] it fails if a group label is provided on Candy Machines not using groups', async (t) => {
@@ -223,7 +223,7 @@ test('[candyMachineModule] it fails if a group label is provided on Candy Machin
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Selected Guard Group Does Not Exist/);
+  await assertThrows(t, promise, /SelectedGuardGroupDoesNotExistError/);
 });
 
 test('[candyMachineModule] it fails if the guard is not enabled on the resolved guards', async (t) => {
@@ -255,5 +255,5 @@ test('[candyMachineModule] it fails if the guard is not enabled on the resolved 
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Guard Not Enabled/);
+  await assertThrows(t, promise, /GuardNotEnabledError/);
 });
