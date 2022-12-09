@@ -38,7 +38,7 @@ export class MetaplexError extends Error {
   }
 
   toString() {
-    return `[${this.name}] ${this.message}`
+    return `[${this.name}] ${this.message}`;
   }
 }
 
