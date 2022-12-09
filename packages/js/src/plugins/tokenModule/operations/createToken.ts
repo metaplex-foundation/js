@@ -308,16 +308,16 @@ export const createTokenIfMissingBuilder = async (
 
   // When creating a token account, ensure it is passed as a Signer.
   if (token && !isSigner(token)) {
-    throw new ExpectedSignerError(tokenVariable, 'PublicKey', {
-      problemSuffix:
-        `The provided "${tokenVariable}" account ` +
+    throw new ExpectedSignerError(
+      tokenVariable,
+      'PublicKey',
+      `The provided "${tokenVariable}" account ` +
         `at address [${destinationAddress}] does not exist. ` +
-        `Therefore, it needs to be created and passed as a Signer.`,
-      solution:
+        `Therefore, it needs to be created and passed as a Signer. ` +
         `If you want to create the "${tokenVariable}" account, then please pass it as a Signer. ` +
         `Alternatively, you can pass the owner account as a PublicKey instead to ` +
-        `use (or create) an associated token account.`,
-    });
+        `use (or create) an associated token account.`
+    );
   }
 
   return builder.add(

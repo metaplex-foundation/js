@@ -363,7 +363,7 @@ export class RpcClient {
     const resolvedError = program.errorResolver(error);
 
     return resolvedError
-      ? new ParsedProgramError(program, resolvedError, { logs: error.logs })
+      ? new ParsedProgramError(program, resolvedError, error.logs)
       : new UnknownProgramError(program, error);
   }
 }

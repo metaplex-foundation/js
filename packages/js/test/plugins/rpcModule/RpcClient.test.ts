@@ -21,10 +21,6 @@ test('[rpcModule] it parses program errors when sending transactions', async (t:
     t.fail('Expected a ParsedProgramError');
   } catch (error) {
     t.ok(error instanceof ParsedProgramError);
-    t.ok(
-      (error as ParsedProgramError).message.includes(
-        'TokenMetadataProgram > Name too long'
-      )
-    );
+    t.ok((error as ParsedProgramError).message.includes('Name too long'));
   }
 });

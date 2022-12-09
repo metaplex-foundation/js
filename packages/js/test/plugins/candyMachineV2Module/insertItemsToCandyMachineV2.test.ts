@@ -57,7 +57,7 @@ test('[candyMachineV2Module] it cannot add items that would make the candy machi
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Cannot Add Amount/);
+  await assertThrows(t, promise, /CandyMachineV2CannotAddAmountError/);
 });
 
 test('[candyMachineV2Module] it cannot add items once the candy machine is fully loaded', async (t) => {
@@ -79,7 +79,7 @@ test('[candyMachineV2Module] it cannot add items once the candy machine is fully
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Is Full/);
+  await assertThrows(t, promise, /CandyMachineV2IsFullError/);
 });
 
 test('[candyMachineV2Module] it cannot add items if either of them have a name or URI that is too long', async (t) => {
@@ -102,7 +102,11 @@ test('[candyMachineV2Module] it cannot add items if either of them have a name o
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /Candy Machine Add Item Constraints Violated/);
+  await assertThrows(
+    t,
+    promise,
+    /CandyMachineV2AddItemConstraintsViolatedError/
+  );
 });
 
 test('[candyMachineV2Module] it can add items to a custom offset and override existing items', async (t) => {

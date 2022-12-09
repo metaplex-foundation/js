@@ -302,7 +302,7 @@ test('[candyMachineV2Module] it cannot update the authority of a candy machine t
     .update({ candyMachine, authority, newAuthority: authority.publicKey });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });
 
 test('[candyMachineV2Module] it sends no transaction if nothing has changed when updating a candy machine.', async (t) => {
@@ -330,7 +330,7 @@ test('[candyMachineV2Module] it throws an error if nothing has changed when upda
   const promise = mx.candyMachinesV2().update({ candyMachine });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });
 
 test('[candyMachineV2Module] it can update the treasury of a candy machine', async (t) => {
@@ -444,5 +444,5 @@ test('[candyMachineV2Module] it keeps the same collection when the new collectio
   });
 
   // Then we have no instruction to send.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });

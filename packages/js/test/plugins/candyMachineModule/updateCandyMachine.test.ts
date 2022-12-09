@@ -300,8 +300,8 @@ test('[candyMachineModule] it fails when the provided data to update misses prop
   await assertThrowsFn(t, promise, (error) => {
     const missingProperties =
       '[itemsAvailable, sellerFeeBasisPoints, maxEditionSupply, isMutable, creators, itemSettings]';
-    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
-    t.ok(error.solution.includes(missingProperties));
+    t.equal(error.name, 'MissingInputDataError');
+    t.ok(error.message.includes(missingProperties));
   });
 });
 
@@ -511,8 +511,8 @@ test('[candyMachineModule] it fails when the provided collection to update misse
   // Then we expect an error telling us some data is missing from the input.
   await assertThrowsFn(t, promise, (error) => {
     const missingProperties = '[collection.currentCollectionAddress]';
-    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
-    t.ok(error.solution.includes(missingProperties));
+    t.equal(error.name, 'MissingInputDataError');
+    t.ok(error.message.includes(missingProperties));
   });
 });
 
@@ -818,8 +818,8 @@ test('[candyMachineModule] it fails when the provided guards to update miss prop
   // Then we expect an error telling us some data is missing from the input.
   await assertThrowsFn(t, promise, (error) => {
     const missingProperties = '[candyGuard, groups]';
-    t.equal(error.key, 'metaplex.errors.sdk.missing_input_data');
-    t.ok(error.solution.includes(missingProperties));
+    t.equal(error.name, 'MissingInputDataError');
+    t.ok(error.message.includes(missingProperties));
   });
 });
 
@@ -832,7 +832,7 @@ test('[candyMachineModule] it fails when there is nothing to update', async (t) 
   const promise = mx.candyMachines().update({ candyMachine });
 
   // Then we expect an error telling us there is nothing to update.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });
 
 test('[candyMachineModule] it can update data, authorities, collection and guards at the same time', async (t) => {

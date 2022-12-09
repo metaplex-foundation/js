@@ -118,7 +118,7 @@ test('[candyMachineModule] solPayment guard with bot tax: it charges a bot tax i
   );
 
   // Then we expect a bot tax error.
-  await assertThrows(t, promise, /Candy Machine Bot Tax/);
+  await assertThrows(t, promise, /CandyMachineBotTaxError/);
 
   // And the payer was charged a bot tax.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);

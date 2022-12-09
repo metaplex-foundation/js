@@ -118,7 +118,7 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
   const promise = mx.auctionHouse().update({ auctionHouse });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });
 
 test('[auctionHouseModule] it can assign an Auctioneer authority on an Auction House update', async (t) => {
@@ -289,5 +289,5 @@ test('[auctionHouseModule] it throws an error if nothing has changed when updati
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /No Instructions To Send/);
+  await assertThrows(t, promise, /NoInstructionsToSendError/);
 });

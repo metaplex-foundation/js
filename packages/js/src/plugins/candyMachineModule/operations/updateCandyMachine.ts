@@ -741,10 +741,9 @@ const updateCandyGuardAuthorityBuilder = <
 };
 
 const onMissingInputError = (missingKeys: string[]) =>
-  new MissingInputDataError(missingKeys, {
-    problem:
-      'When passing the Candy Machine as a `PublicKey` instead of a Candy Machine model ' +
-      'the SDK cannot rely on current data to fill the gaps within the provided input.',
-    solutionSuffix:
-      ' Alternatively, you can pass the Candy Machine model instead.',
-  });
+  new MissingInputDataError(
+    missingKeys,
+    'When passing the Candy Machine as a `PublicKey` instead of a Candy Machine model ' +
+      'the SDK cannot rely on current data to fill the gaps within the provided input. ' +
+      'Alternatively, you can pass the Candy Machine model instead.'
+  );

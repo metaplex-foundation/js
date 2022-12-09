@@ -79,7 +79,7 @@ export function assertAccountExists<T>(
   solution?: string
 ): asserts account is Account<T> & { exists: true } {
   if (!account.exists) {
-    throw new AccountNotFoundError(account.publicKey, name, { solution });
+    throw new AccountNotFoundError(account.publicKey, name, solution);
   }
 }
 

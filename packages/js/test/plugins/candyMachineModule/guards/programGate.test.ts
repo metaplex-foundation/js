@@ -110,7 +110,7 @@ test('[candyMachineModule] programGate guard: it forbids candy machine creation 
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /Maximum of Five Additional Programs/);
+  await assertThrows(t, promise, /MaximumOfFiveAdditionalProgramsError/);
 });
 
 test('[candyMachineModule] programGate guard with bot tax: it charges a bot tax when minting with unspecified program in transaction', async (t) => {
@@ -149,7 +149,7 @@ test('[candyMachineModule] programGate guard with bot tax: it charges a bot tax 
     mintAddress: mintSigner.publicKey,
     tokenAddress,
   });
-  await assertThrows(t, promise, /Account Not Found/);
+  await assertThrows(t, promise, /AccountNotFoundError/);
 
   // And the payer was charged a bot tax.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);

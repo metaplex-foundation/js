@@ -588,7 +588,7 @@ test('[candyMachineModule] freezeTokenPayment guard with bot tax: it charges a b
   );
 
   // Then we expect a bot tax error.
-  await assertThrows(t, promise, /Candy Machine Bot Tax/);
+  await assertThrows(t, promise, /CandyMachineBotTaxError/);
 
   // And the payer was charged a bot tax.
   const payerBalance = await mx.rpc().getBalance(payer.publicKey);
