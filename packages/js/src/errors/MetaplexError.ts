@@ -15,7 +15,11 @@ export class MetaplexError extends Error {
     this.source = source;
     this.sourceDetails = sourceDetails;
     this.cause = cause;
-    this.message = this.toString(false);
+    this.message =
+      this.message +
+      `\n\nSource: ${this.getFullSource()}` +
+      (this.cause ? `\n\nCaused By: ${this.cause}` : '') +
+      '\n';
   }
 
   getCapitalizedSource(): string {
@@ -33,14 +37,8 @@ export class MetaplexError extends Error {
     return capitalizedSource + sourceDetails;
   }
 
-  toString(withName = true) {
-    return (
-      (withName ? `[${this.name}] ` : '') +
-      `${this.message} ` +
-      `\n\nSource: ${this.getFullSource()}` +
-      (this.cause ? `\n\nCaused By: ${this.cause}` : '') +
-      '\n'
-    );
+  toString() {
+    return `[${this.name}] ${this.message}`
   }
 }
 
