@@ -18,6 +18,13 @@ export class FailedToSendTransactionError extends RpcError {
       'The transaction could not be sent successfully to the network. ' +
       'Please check the underlying error below for more details.';
     super(message, cause);
+    if (this.errorLogs.length > 0) {
+      this.message =
+        this.message +
+        `\nProgram Logs:\n${this.errorLogs
+          .map((log) => '| ' + log)
+          .join('\n')}\n`;
+    }
   }
 
   public asSendTransactionError(): SendTransactionError {
