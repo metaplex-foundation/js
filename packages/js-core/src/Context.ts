@@ -1,4 +1,3 @@
-import type { AmountInterface } from './AmountInterface';
 import type { DownloaderInterface } from './DownloaderInterface';
 import type { EddsaInterface } from './EddsaInterface';
 import type { HttpInterface } from './HttpInterface';
@@ -18,6 +17,5 @@ export interface Context {
   transactions: TransactionFactoryInterface;
   eddsa: EddsaInterface;
   identity: Signer;
-  amounts: AmountInterface;
   serializer: SerializerInterface;
 }

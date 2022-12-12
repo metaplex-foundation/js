@@ -1,12 +1,11 @@
-export type BasisPoint = string;
 export type AmountIdentifier = 'SOL' | 'USD' | '%' | string;
 export type AmountDecimals = number;
 export type Amount<
   I extends AmountIdentifier = AmountIdentifier,
   D extends AmountDecimals = AmountDecimals
 > = {
-  /** The base-10 string representation of the basis point. */
-  basisPoint: BasisPoint;
+  /** The amount in its lower possible unit such that it does not contain decimals. */
+  basisPoint: bigint;
   /** The identifier of the amount. */
   identifier: I;
   /** The number of decimals in the amount. */
