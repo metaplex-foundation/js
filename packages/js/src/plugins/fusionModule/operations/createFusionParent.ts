@@ -402,39 +402,37 @@ export const createFusionParentBuilder = async (
   //   programs,
   // });
 
-  return (
-    TransactionBuilder.make<CreateFusionParentBuilderContext>()
-      .setFeePayer(payer)
-      .setContext({
-        // mintAddress,
-        // metadataAddress,
-        // masterEditionAddress,
-        // tokenAddress: tokenAddress as PublicKey,
-      })
+  return TransactionBuilder.make<CreateFusionParentBuilderContext>()
+    .setFeePayer(payer)
+    .setContext({
+      // mintAddress,
+      // metadataAddress,
+      // masterEditionAddress,
+      // tokenAddress: tokenAddress as PublicKey,
+    });
 
-      // Create the mint, the token and the metadata.
-      // .add(nftBuilder)
+  // Create the mint, the token and the metadata.
+  // .add(nftBuilder)
 
-      // Create master edition account (prevents further minting).
-      // .add({
-      //   instruction: createCreateTrifleAccountInstruction(
-      //     {
-      //       escrow: escrowAddress,
-      //       metadata: metadataAddress,
-      //       mint: mintAddress,
-      //       tokenAccount: tokenAddress as PublicKey,
-      //       edition: masterEditionAddress,
-      //       trifleAccount: fusionAddress,
-      //       trifleAuthority: payer.publicKey,
-      //       constraintModel: params.constraintModel,
-      //       payer: payer.publicKey,
-      //       tokenMetadataProgram: tokenMetadataProgram.address,
-      //       systemProgram: SystemProgram.programId,
-      //       sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-      //     },
-      //     trifleProgram.address
-      //   ),
-      //   signers: [payer],
-      // })
-  );
+  // Create master edition account (prevents further minting).
+  // .add({
+  //   instruction: createCreateTrifleAccountInstruction(
+  //     {
+  //       escrow: escrowAddress,
+  //       metadata: metadataAddress,
+  //       mint: mintAddress,
+  //       tokenAccount: tokenAddress as PublicKey,
+  //       edition: masterEditionAddress,
+  //       trifleAccount: fusionAddress,
+  //       trifleAuthority: payer.publicKey,
+  //       constraintModel: params.constraintModel,
+  //       payer: payer.publicKey,
+  //       tokenMetadataProgram: tokenMetadataProgram.address,
+  //       systemProgram: SystemProgram.programId,
+  //       sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+  //     },
+  //     trifleProgram.address
+  //   ),
+  //   signers: [payer],
+  // })
 };

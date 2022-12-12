@@ -1,14 +1,9 @@
-import { MetaplexError, MetaplexErrorInputWithoutSource } from '@/errors';
+import { MetaplexError } from '@/errors';
 
 /** @group Errors */
 export class FusionError extends MetaplexError {
-  constructor(input: MetaplexErrorInputWithoutSource) {
-    super({
-      ...input,
-      key: `plugin.fusion.${input.key}`,
-      title: `AuctionHouse > ${input.title}`,
-      source: 'plugin',
-      sourceDetails: 'Fusion',
-    });
+  readonly name: string = 'FusionError';
+  constructor(message: string, cause?: Error) {
+    super(message, 'plugin', 'Fusion', cause);
   }
 }
