@@ -1,0 +1,42 @@
+{
+  "name": "@metaplex-foundation/js-core",
+  "version": "0.0.0",
+  "license": "MIT",
+  "sideEffects": false,
+  "module": "dist/esm/index.mjs",
+  "main": "dist/cjs/index.cjs",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
+  "files": [
+    "/dist/cjs",
+    "/dist/esm",
+    "/dist/types",
+    "/src"
+  ],
+  "scripts": {
+    "lint": "eslint --ext js,ts,tsx src",
+    "lint:fix": "eslint --fix --ext js,ts,tsx src",
+    "clean": "rimraf dist",
+    "build": "pnpm clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
+    "test": "CI=1 tape dist/test/**/*.test.js"
+  },
+  "dependencies": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Metaplex Maintainers <contact@metaplex.com>",
+  "homepage": "https://metaplex.com",
+  "repository": {
+    "url": "https://github.com/metaplex-foundation/js.git"
+  },
+  "typedoc": {
+    "entryPoint": "./src/index.ts",
+    "readmeFile": "./README.md",
+    "displayName": "js-core"
+  }
+}
