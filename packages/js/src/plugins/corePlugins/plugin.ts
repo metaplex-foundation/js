@@ -19,6 +19,7 @@ import { nftModule } from '../nftModule';
 import { candyMachineV2Module } from '../candyMachineV2Module';
 import { candyMachineModule } from '../candyMachineModule';
 import { auctionHouseModule } from '../auctionHouseModule';
+import { fusionModule } from '../fusionModule';
 
 export const corePlugins = () => ({
   install(metaplex: Metaplex) {
@@ -41,5 +42,6 @@ export const corePlugins = () => ({
     metaplex.use(candyMachineV2Module());
     metaplex.use(candyMachineModule());
     metaplex.use(auctionHouseModule());
+    metaplex.use(fusionModule());
   },
 });

@@ -4,6 +4,7 @@ export * from './candyMachineModule';
 export * from './candyMachineV2Module';
 export * from './corePlugins';
 export * from './derivedIdentity';
+export * from './fusionModule';
 export * from './guestIdentity';
 export * from './identityModule';
 export * from './keypairIdentity';
