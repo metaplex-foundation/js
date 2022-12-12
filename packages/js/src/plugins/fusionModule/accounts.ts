@@ -1,4 +1,4 @@
-import { EscrowConstraintModel, Trifle } from 'mpl-trifle';
+import { EscrowConstraintModel, Trifle } from '@metaplex-foundation/mpl-trifle';
 import {
   Account,
   getAccountParsingAndAssertingFunction,
