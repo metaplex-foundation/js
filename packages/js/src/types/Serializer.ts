@@ -82,9 +82,10 @@ export const serialize = <T>(
   try {
     return serializer.serialize(value);
   } catch (error) {
-    throw new FailedToSerializeDataError(serializer.description, {
-      cause: error as Error,
-    });
+    throw new FailedToSerializeDataError(
+      serializer.description,
+      error as Error
+    );
   }
 };
 
@@ -95,9 +96,10 @@ export const deserialize = <T>(
   try {
     return serializer.deserialize(value);
   } catch (error) {
-    throw new FailedToDeserializeDataError(serializer.description, {
-      cause: error as Error,
-    });
+    throw new FailedToDeserializeDataError(
+      serializer.description,
+      error as Error
+    );
   }
 };
 
@@ -124,7 +126,7 @@ export function deserializeAccount<T>(
     throw new UnexpectedAccountError(
       account.publicKey,
       serializer.description,
-      { cause: error as Error }
+      error as Error
     );
   }
 }

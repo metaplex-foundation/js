@@ -150,11 +150,12 @@ export const useNftBuilder = (
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   if (!isSigner(owner) && !useAuthority) {
-    throw new ExpectedSignerError('owner', 'PublicKey', {
-      problemSuffix:
-        'In order to use an NFT you must either provide the owner as a Signer ' +
-        'or a delegated use authority as a Signer.',
-    });
+    throw new ExpectedSignerError(
+      'owner',
+      'PublicKey',
+      'In order to use an NFT you must either provide the owner as a Signer ' +
+        'or a delegated use authority as a Signer.'
+    );
   }
 
   // PDAs.

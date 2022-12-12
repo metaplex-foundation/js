@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.17.6",
+  "version": "0.17.9",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -34,21 +34,19 @@
     "url": "https://github.com/metaplex-foundation/js.git"
   },
   "scripts": {
-    "lint:test": "yarn eslint --ext js,ts,tsx src",
-    "lint:fix": "yarn eslint --fix --ext js,ts,tsx src",
+    "lint": "eslint --ext js,ts,tsx src",
+    "lint:fix": "eslint --fix --ext js,ts,tsx src",
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc && tsc-alias --verbose && tsc --verbose -p test/tsconfig.json && tsc-alias --verbose -p test/tsconfig.json && rollup -c",
-    "test": "CI=1 tape dist/test/**/*.test.js && yarn test:exports",
-    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs",
-    "preversion": "yarn build",
-    "postversion": "git push --follow-tags"
+    "build": "pnpm clean && tsc && tsc-alias && tsc -p test/tsconfig.json && tsc-alias -p test/tsconfig.json && rollup -c",
+    "test": "CI=1 tape dist/test/**/*.test.js && pnpm test:exports",
+    "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.8",
     "@metaplex-foundation/beet": "0.7.1",
     "@metaplex-foundation/mpl-auction-house": "^2.3.0",
     "@metaplex-foundation/mpl-candy-guard": "^0.3.0",
-    "@metaplex-foundation/mpl-candy-machine": "^4.6.0",
+    "@metaplex-foundation/mpl-candy-machine": "^5.0.0",
     "@metaplex-foundation/mpl-candy-machine-core": "^0.1.2",
     "@metaplex-foundation/mpl-token-metadata": "^2.3.3",
     "mpl-trifle": "^0.1.0",
@@ -68,14 +66,6 @@
     "mime": "^3.0.0",
     "node-fetch": "^2.6.7"
   },
-  "engines": {
-    "node": ">=16.0"
-  },
-  "browserslist": [
-    "defaults",
-    "not IE 11",
-    "maintained node versions"
-  ],
   "typedoc": {
     "entryPoint": "./src/index.ts",
     "readmeFile": "./README.md",

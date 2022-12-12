@@ -507,11 +507,12 @@ export const createCandyMachineBuilder = async <
 
     .when(!withoutCandyGuard, (builder) => {
       if (!isSigner(authority)) {
-        throw new ExpectedSignerError('authority', 'PublicKey', {
-          problemSuffix:
-            'In order to create a Candy Machine with an associated ' +
-            'Candy Guard you must provide the authority as a Signer.',
-        });
+        throw new ExpectedSignerError(
+          'authority',
+          'PublicKey',
+          'In order to create a Candy Machine with an associated ' +
+            'Candy Guard you must provide the authority as a Signer.'
+        );
       }
 
       return builder.add(

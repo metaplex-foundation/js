@@ -89,7 +89,7 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       throw new CandyMachineV2AddItemConstraintsViolatedError(
         toBigNumber(i),
         configLines[i],
-        { cause: error as Error }
+        error as Error
       );
     }
   }

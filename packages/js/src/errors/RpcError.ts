@@ -1,39 +1,30 @@
 import { SendTransactionError, TransactionError } from '@solana/web3.js';
-import {
-  MetaplexError,
-  MetaplexErrorInputWithoutSource,
-  MetaplexErrorOptions,
-} from './MetaplexError';
+import { MetaplexError } from './MetaplexError';
 import type { ConfirmTransactionResponse } from '@/plugins/rpcModule';
 
 /** @group Errors */
 export class RpcError extends MetaplexError {
-  constructor(input: MetaplexErrorInputWithoutSource) {
-    super({
-      ...input,
-      key: `rpc.${input.key}`,
-      source: 'rpc',
-    });
+  readonly name: string = 'RpcError';
+  constructor(message: string, cause?: Error) {
+    super(message, 'rpc', undefined, cause);
   }
 }
 
 /** @group Errors */
 export class FailedToSendTransactionError extends RpcError {
-  constructor(
-    cause: Error,
-    options?: Omit<MetaplexErrorOptions, 'cause' | 'logs'>
-  ) {
-    super({
-      key: 'failed_to_send_transaction',
-      title: 'Failed to Send Transaction',
-      problem: `The transaction could not be sent successfully to the network.`,
-      solution: 'Check the error below for more information.',
-      options: {
-        ...options,
-        logs: (cause as SendTransactionError).logs,
-        cause,
-      },
-    });
+  readonly name: string = 'FailedToSendTransactionError';
+  constructor(cause: Error) {
+    const message =
+      'The transaction could not be sent successfully to the network. ' +
+      'Please check the underlying error below for more details.';
+    super(message, cause);
+    if (this.errorLogs.length > 0) {
+      this.message =
+        this.message +
+        `\nProgram Logs:\n${this.errorLogs
+          .map((log) => '| ' + log)
+          .join('\n')}\n`;
+    }
   }
 
   public asSendTransactionError(): SendTransactionError {
@@ -51,20 +42,19 @@ export class FailedToSendTransactionError extends RpcError {
 
 /** @group Errors */
 export class FailedToConfirmTransactionError extends RpcError {
-  constructor(cause: Error, options?: Omit<MetaplexErrorOptions, 'cause'>) {
-    super({
-      key: 'failed_to_confirm_transaction',
-      title: 'Failed to Confirm Transaction',
-      problem: `The transaction could not be confirmed.`,
-      solution: 'Check the error below for more information.',
-      options: { ...options, cause },
-    });
+  readonly name: string = 'FailedToConfirmTransactionError';
+  constructor(cause: Error) {
+    const message =
+      'The transaction could not be confirmed. ' +
+      'Please check the underlying error below for more details.';
+    super(message, cause);
   }
 }
 
 /** @group Errors */
 export class FailedToConfirmTransactionWithResponseError extends FailedToConfirmTransactionError {
-  public readonly response: ConfirmTransactionResponse;
+  readonly name: string = 'FailedToConfirmTransactionWithResponseError';
+  readonly response: ConfirmTransactionResponse;
 
   constructor(response: ConfirmTransactionResponse) {
     const getMessage = (error: TransactionError | null): string => {
