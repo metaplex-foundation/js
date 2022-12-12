@@ -1,4 +1,4 @@
-import { PROGRAM_ID } from 'mpl-trifle';
+import { PROGRAM_ID } from '@metaplex-foundation/mpl-trifle';
 import { ProgramClient } from '../programModule';
 import {
   createFusionParentOperation,
