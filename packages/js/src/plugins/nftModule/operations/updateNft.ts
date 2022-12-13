@@ -300,6 +300,7 @@ export const updateNftBuilder = (
 
   return (
     TransactionBuilder.make()
+      .setFeePayer(payer)
 
       // Unverify current collection before overriding it.
       // Otherwise, the previous collection size will not be properly decremented.
