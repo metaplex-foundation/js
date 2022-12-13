@@ -1,7 +1,6 @@
 import test, { Test } from 'tape';
 import {
   Amount,
-  amount,
   formatAmount,
   addAmounts,
   subtractAmounts,
@@ -19,32 +18,46 @@ import {
   sol,
   lamports,
   AmountMismatchError,
-  token,
+  toAmount,
+  amountToString,
+  toTokenAmount,
 } from '@/index';
 
-test('[Amount] it can create amounts from any currencies', (t: Test) => {
-  const usdAmount = amount(1500, { symbol: 'USD', decimals: 2 });
-  const gbpAmount = amount(4200, { symbol: 'GBP', decimals: 2 });
+test('[Amount] it can create amounts from any types', (t: Test) => {
+  const usdAmount = toAmount(1500, 'USD', 2);
+  const gbpAmount = toAmount(4200, 'GBP', 2);
 
-  t.equal(usdAmount.basisPoints.toNumber(), 1500);
-  t.equal(usdAmount.currency.symbol, 'USD');
-  t.equal(gbpAmount.basisPoints.toNumber(), 4200);
-  t.equal(gbpAmount.currency.symbol, 'GBP');
+  t.equal(usdAmount.basisPoints.toString(), '1500');
+  t.equal(usdAmount.identifier, 'USD');
+  t.equal(usdAmount.decimals, 2);
+  t.equal(gbpAmount.basisPoints.toString(), '4200');
+  t.equal(gbpAmount.identifier, 'GBP');
+  t.equal(gbpAmount.decimals, 2);
   t.end();
 });
 
 test('[Amount] it can be formatted', (t: Test) => {
-  const usdAmount = amount(1536, { symbol: 'USD', decimals: 2 });
-  const gbpAmount = amount(4210, { symbol: 'GBP', decimals: 2 });
-  const solAmount = amount(2_500_000_000, { symbol: 'SOL', decimals: 9 });
-  const solAmountLeadingZeroDecimal = amount(2_005_000_000, {
-    symbol: 'SOL',
-    decimals: 9,
-  });
+  const percentAmount = toAmount(1234, '%', 2);
+  const usdAmount = toAmount(1536, 'USD', 2);
+  const gbpAmount = toAmount(4210, 'GBP', 2);
+  const solAmount = toAmount(2_500_000_000, 'SOL', 9);
+  const solAmountLeadingZeroDecimal = toAmount(2_005_000_000, 'SOL', 9);
 
+  t.equal(amountToString(percentAmount), '12.34');
+  t.equal(formatAmount(percentAmount), '12.34%');
+
+  t.equal(amountToString(usdAmount), '15.36');
   t.equal(formatAmount(usdAmount), 'USD 15.36');
+
+  t.equal(amountToString(gbpAmount), '42.10');
   t.equal(formatAmount(gbpAmount), 'GBP 42.10');
+
+  t.equal(amountToString(solAmount), '2.500000000');
+  t.equal(amountToString(solAmount, 2), '2.50');
   t.equal(formatAmount(solAmount), 'SOL 2.500000000');
+  t.equal(formatAmount(solAmount, 2), 'SOL 2.50');
+
+  t.equal(amountToString(solAmountLeadingZeroDecimal), '2.005000000');
   t.equal(formatAmount(solAmountLeadingZeroDecimal), 'SOL 2.005000000');
   t.end();
 });
@@ -52,18 +65,18 @@ test('[Amount] it can be formatted', (t: Test) => {
 test('[Amount] it has helpers for certain currencies', (t: Test) => {
   amountEquals(t, usd(15.36), 'USD 15.36');
   amountEquals(t, usd(15.36), 'USD 15.36');
-  amountEquals(t, amount(1536, USD), 'USD 15.36');
+  amountEquals(t, toAmount(1536, 'USD', 2), 'USD 15.36');
   amountEquals(t, sol(2.5), 'SOL 2.500000000');
   amountEquals(t, lamports(2_500_000_000), 'SOL 2.500000000');
-  amountEquals(t, amount(2_500_000_000, SOL), 'SOL 2.500000000');
+  amountEquals(t, toAmount(2_500_000_000, 'SOL', 9), 'SOL 2.500000000');
   t.end();
 });
 
 test('[Amount] it can create amounts representing SPL tokens', (t: Test) => {
-  t.equal(token(1).currency.namespace, 'spl-token');
-  amountEquals(t, token(1), 'Token 1');
-  amountEquals(t, token(4.5, 2), 'Token 4.50');
-  amountEquals(t, token(6.2587, 9, 'DGEN'), 'DGEN 6.258700000');
+  amountEquals(t, toTokenAmount(1), 'Token 1');
+  amountEquals(t, toTokenAmount(4.5, 'DGEN'), 'DGEN 4');
+  amountEquals(t, toTokenAmount(4.5, 'DGEN', 2), 'DGEN 4.50');
+  amountEquals(t, toTokenAmount(6.2587, 'DGEN', 9), 'DGEN 6.258700000');
   t.end();
 });
 
@@ -89,8 +102,8 @@ test('[Amount] it fail to operate on amounts of different currencies', (t: Test)
   } catch (error) {
     t.true(error instanceof AmountMismatchError);
     const customError = error as AmountMismatchError;
-    t.equal(customError.left, SOL);
-    t.equal(customError.right, USD);
+    t.equal(customError.left.identifier, 'SOL');
+    t.equal(customError.right.identifier, 'USD');
     t.equal(customError.operation, 'add');
     t.end();
   }
@@ -98,7 +111,7 @@ test('[Amount] it fail to operate on amounts of different currencies', (t: Test)
 
 test('[Amount] it can multiply and divide amounts', (t: Test) => {
   amountEquals(t, multiplyAmount(sol(1.5), 3), 'SOL 4.500000000');
-  amountEquals(t, multiplyAmount(sol(1.5), 3.78), 'SOL 5.659262581');
+  amountEquals(t, multiplyAmount(sol(1.5), 3.78), 'SOL 5.670000000');
   amountEquals(t, multiplyAmount(sol(1.5), -1), 'SOL -1.500000000');
 
   amountEquals(t, divideAmount(sol(1.5), 3), 'SOL 0.500000000');
