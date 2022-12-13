@@ -140,9 +140,18 @@ export const multiplyAmount = <
   left: Amount<I, D>,
   multiplier: number | bigint
 ): Amount<I, D> => {
+  if (typeof multiplier === 'bigint') {
+    return { ...left, basisPoints: left.basisPoints * multiplier };
+  }
+
+  const [units, decimals] = multiplier.toString().split('.');
+  const multiplierBasisPoints = BigInt(units + (decimals ?? ''));
+  const multiplierExponents = BigInt(10) ** BigInt(decimals?.length ?? 0);
+
   return {
     ...left,
-    basisPoints: left.basisPoints * BigInt(multiplier),
+    basisPoints:
+      (left.basisPoints * multiplierBasisPoints) / multiplierExponents,
   };
 };
 
@@ -151,9 +160,20 @@ export const divideAmount = <
   D extends AmountDecimals
 >(
   left: Amount<I, D>,
-  divisor: number
+  divisor: number | bigint
 ): Amount<I, D> => {
-  return amount(left.basisPoints.divn(divisor), left.currency);
+  if (typeof divisor === 'bigint') {
+    return { ...left, basisPoints: left.basisPoints / divisor };
+  }
+
+  const [units, decimals] = divisor.toString().split('.');
+  const divisorBasisPoints = BigInt(units + (decimals ?? ''));
+  const divisorExponents = BigInt(10) ** BigInt(decimals?.length ?? 0);
+
+  return {
+    ...left,
+    basisPoints: (left.basisPoints * divisorExponents) / divisorBasisPoints,
+  };
 };
 
 export const absoluteAmount = <
@@ -162,7 +182,8 @@ export const absoluteAmount = <
 >(
   value: Amount<I, D>
 ): Amount<I, D> => {
-  return amount(value.basisPoints.abs(), value.currency);
+  const x = value.basisPoints;
+  return { ...value, basisPoints: x < 0 ? -x : x };
 };
 
 export const compareAmounts = <
@@ -173,8 +194,9 @@ export const compareAmounts = <
   right: Amount<I, D>
 ): -1 | 0 | 1 => {
   assertSameAmounts(left, right, 'compare');
-
-  return left.basisPoints.cmp(right.basisPoints);
+  if (left.basisPoints > right.basisPoints) return 1;
+  if (left.basisPoints < right.basisPoints) return -1;
+  return 0;
 };
 
 export const isEqualToAmount = <
@@ -185,7 +207,7 @@ export const isEqualToAmount = <
   right: Amount<I, D>,
   tolerance?: Amount<I, D>
 ): boolean => {
-  tolerance = tolerance ?? amount(0, left.currency);
+  tolerance = tolerance ?? amount(0, left.identifier, left.decimals);
   assertSameAmounts(left, right, 'isEqualToAmount');
   assertSameAmounts(left, tolerance, 'isEqualToAmount');
 
@@ -227,28 +249,44 @@ export const isGreaterThanOrEqualToAmount = <
 ): boolean => compareAmounts(left, right) >= 0;
 
 export const isZeroAmount = (value: Amount): boolean =>
-  compareAmounts(value, amount(0, value.currency)) === 0;
+  value.basisPoints === BigInt(0);
 
 export const isPositiveAmount = (value: Amount): boolean =>
-  compareAmounts(value, amount(0, value.currency)) >= 0;
+  value.basisPoints >= BigInt(0);
 
 export const isNegativeAmount = (value: Amount): boolean =>
-  compareAmounts(value, amount(0, value.currency)) < 0;
+  value.basisPoints < BigInt(0);
 
-export const formatAmount = (value: Amount): string => {
-  if (value.currency.decimals === 0) {
-    return `${value.currency.symbol} ${value.basisPoints.toString()}`;
+export const amountToString = (value: Amount, maxDecimals?: number): string => {
+  let text = value.basisPoints.toString();
+  if (value.decimals === 0) {
+    return text;
   }
 
-  const power = new BN(10).pow(new BN(value.currency.decimals));
-  const basisPoints = value.basisPoints as unknown as BN & {
-    divmod: (other: BN) => { div: BN; mod: BN };
-  };
+  const sign = text.startsWith('-') ? '-' : '';
+  text = text.replace('-', '');
+  text = text.padStart(value.decimals + 1, '0');
+  const units = text.slice(0, -value.decimals);
+  let decimals = text.slice(-value.decimals);
 
-  const { div, mod } = basisPoints.divmod(power);
-  const units = `${div.toString()}.${mod
-    .abs()
-    .toString(10, value.currency.decimals)}`;
+  if (maxDecimals !== undefined) {
+    decimals = decimals.slice(0, maxDecimals);
+  }
 
-  return `${value.currency.symbol} ${units}`;
+  return sign + units + '.' + decimals;
+};
+
+export const amountToNumber = (value: Amount): number => {
+  return parseFloat(amountToString(value));
+};
+
+export const formatAmount = (value: Amount, maxDecimals?: number): string => {
+  const amountAsString = amountToString(value, maxDecimals);
+
+  switch (value.identifier) {
+    case '%':
+      return `${amountAsString} %`;
+    default:
+      return `${value.identifier} ${amountAsString}`;
+  }
 };
