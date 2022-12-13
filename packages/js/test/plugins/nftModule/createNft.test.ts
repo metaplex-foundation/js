@@ -65,7 +65,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
       model: 'mint',
       address: spokSamePubkey(mintAddress),
       decimals: 0,
-      supply: spokSameAmount(token(1)),
+      supply: spokSameAmount(toTokenAmount(1)),
       mintAuthorityAddress: spokSamePubkey(masterEditionAddress),
       freezeAuthorityAddress: spokSamePubkey(masterEditionAddress),
     },
@@ -74,10 +74,10 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
       isAssociatedToken: true,
       mintAddress: spokSamePubkey(mintAddress),
       ownerAddress: spokSamePubkey(mx.identity().publicKey),
-      amount: spokSameAmount(token(1)),
+      amount: spokSameAmount(toTokenAmount(1)),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: spokSameAmount(token(0)),
+      delegateAmount: spokSameAmount(toTokenAmount(0)),
     },
     metadataAddress: spokSamePubkey(metadataAddress),
     updateAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
@@ -172,17 +172,17 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
       model: 'mint',
       address: spokSamePubkey(mint.publicKey),
       decimals: 0,
-      supply: spokSameAmount(token(1, 0, 'MYNFT')),
+      supply: spokSameAmount(toTokenAmount(1, 0, 'MYNFT')),
     },
     token: {
       model: 'token',
       isAssociatedToken: true,
       mintAddress: spokSamePubkey(mint.publicKey),
       ownerAddress: spokSamePubkey(owner.publicKey),
-      amount: spokSameAmount(token(1, 0, 'MYNFT')),
+      amount: spokSameAmount(toTokenAmount(1, 0, 'MYNFT')),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0, 0, 'MYNFT'),
+      delegateAmount: toTokenAmount(0, 0, 'MYNFT'),
     },
     json: {
       name: 'JSON NFT name',
@@ -244,7 +244,7 @@ test('[nftModule] it can create an NFT from an existing mint', async (t: Test) =
       model: 'mint',
       address: spokSamePubkey(mint.address),
       decimals: 0,
-      supply: spokSameAmount(token(1)),
+      supply: spokSameAmount(toTokenAmount(1)),
       mintAuthorityAddress: spokSamePubkey(masterEditionAddress),
       freezeAuthorityAddress: spokSamePubkey(masterEditionAddress),
     },
@@ -253,7 +253,7 @@ test('[nftModule] it can create an NFT from an existing mint', async (t: Test) =
       isAssociatedToken: true,
       mintAddress: spokSamePubkey(mint.address),
       ownerAddress: spokSamePubkey(mx.identity().publicKey),
-      amount: spokSameAmount(token(1)),
+      amount: spokSameAmount(toTokenAmount(1)),
     },
   } as unknown as Specifications<NftWithToken>);
 });
@@ -457,7 +457,7 @@ test('[nftModule] it works when we give an explicit payer for the create metadat
         .tokens()
         .builders()
         .createTokenWithMint(
-          { initialSupply: token(1), mint },
+          { initialSupply: toTokenAmount(1), mint },
           { payer: mx.identity() }
         )
     )

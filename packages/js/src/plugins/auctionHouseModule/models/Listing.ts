@@ -1,16 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
-import { ListingReceiptAccount } from '../accounts';
 import { NftWithToken, SftWithToken } from '../../nftModule';
+import { ListingReceiptAccount } from '../accounts';
 import { AuctionHouse } from './AuctionHouse';
 import { assert, Option } from '@/utils';
 import {
-  amount,
+  Amount,
   BigNumber,
   DateTime,
   lamports,
   Pda,
-  SolAmount,
-  SplTokenAmount,
+  toAmount,
   toBigNumber,
   toDateTime,
   toOptionDateTime,
@@ -66,10 +65,10 @@ export type Listing = Readonly<{
   purchaseReceiptAddress: Option<PublicKey>;
 
   /** The sellers's price. */
-  price: SolAmount | SplTokenAmount;
+  price: Amount;
 
   /** The number of tokens listed in case it's a sale of a Fungible Token. */
-  tokens: SplTokenAmount;
+  tokens: Amount;
 
   /** The date of creation. */
   createdAt: DateTime;
@@ -99,7 +98,7 @@ export const toListing = (
     model: 'listing',
     lazy: false,
     asset,
-    tokens: amount(lazyListing.tokens, asset.mint.currency),
+    tokens: toAmount(lazyListing.tokens.toString(), ...asset.mint.currency),
   };
 };
 
@@ -140,8 +139,11 @@ export const toLazyListing = (
 
     // Data.
     price: auctionHouse.isNative
-      ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouse.treasuryMint.currency),
+      ? lamports(account.data.price.toString())
+      : toAmount(
+          account.data.price.toString(),
+          ...auctionHouse.treasuryMint.currency
+        ),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),

@@ -17,17 +17,17 @@ test('[tokenModule] it can mint tokens to an existing token account', async (t: 
     .tokens()
     .createToken({ mint: mint.address, token: toTokenSigner });
 
-  assertTokenHasAmount(t, toToken, token(0));
+  assertTokenHasAmount(t, toToken, toTokenAmount(0));
 
   // When we mint 42 tokens to that token account.
   await mx.tokens().mint({
     mintAddress: mint.address,
-    amount: token(42),
+    amount: toTokenAmount(42),
     toToken: toToken.address,
   });
 
   // Then the mint was successful.
-  await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
+  await assertRefreshedTokenHasAmount(t, mx, toToken, toTokenAmount(42));
 });
 
 test('[tokenModule] it can mint tokens to an existing associated token account', async (t: Test) => {
@@ -41,17 +41,17 @@ test('[tokenModule] it can mint tokens to an existing associated token account',
     .tokens()
     .createToken({ mint: mint.address, owner: toOwner });
 
-  assertTokenHasAmount(t, toToken, token(0));
+  assertTokenHasAmount(t, toToken, toTokenAmount(0));
 
   // When we mint 42 tokens to that token account.
   await mx.tokens().mint({
     mintAddress: mint.address,
-    amount: token(42),
+    amount: toTokenAmount(42),
     toToken: toToken.address,
   });
 
   // Then the mint was successful.
-  await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
+  await assertRefreshedTokenHasAmount(t, mx, toToken, toTokenAmount(42));
 });
 
 test('[tokenModule] it can mint tokens to an non-existing token account', async (t: Test) => {
@@ -67,7 +67,7 @@ test('[tokenModule] it can mint tokens to an non-existing token account', async 
   // When we mint 42 tokens to that token account.
   await mx.tokens().mint({
     mintAddress: mint.address,
-    amount: token(42),
+    amount: toTokenAmount(42),
     toToken: toTokenSigner,
   });
 
@@ -77,7 +77,7 @@ test('[tokenModule] it can mint tokens to an non-existing token account', async 
     .findTokenByAddress({ address: toTokenSigner.publicKey });
 
   // And the mint was successful.
-  await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
+  await assertRefreshedTokenHasAmount(t, mx, toToken, toTokenAmount(42));
 });
 
 test('[tokenModule] it can mint tokens to an non-existing associated token account', async (t: Test) => {
@@ -97,7 +97,7 @@ test('[tokenModule] it can mint tokens to an non-existing associated token accou
   // When we mint 42 tokens to that token account.
   await mx
     .tokens()
-    .mint({ mintAddress: mint.address, amount: token(42), toOwner });
+    .mint({ mintAddress: mint.address, amount: toTokenAmount(42), toOwner });
 
   // Then the associated token account was created.
   const toToken = await mx
@@ -105,5 +105,5 @@ test('[tokenModule] it can mint tokens to an non-existing associated token accou
     .findTokenByAddress({ address: toAssociatedToken });
 
   // And the mint was successful.
-  await assertRefreshedTokenHasAmount(t, mx, toToken, token(42));
+  await assertRefreshedTokenHasAmount(t, mx, toToken, toTokenAmount(42));
 });

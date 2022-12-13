@@ -44,7 +44,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an e
     ],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -91,7 +91,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an e
   const freezeEscrow = getFreezeEscrow(mx, candyMachine, treasuryAta);
   const escrowTokens = await getTokenBalance(mx, mint, freezeEscrow);
   t.true(
-    isEqualToAmount(escrowTokens, token(1)),
+    isEqualToAmount(escrowTokens, toTokenAmount(1)),
     'treasury escrow received tokens'
   );
 
@@ -113,7 +113,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an e
 
   // And the payer lost tokens.
   const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, token(9)), 'payer lost tokens');
+  t.true(isEqualToAmount(payerBalance, toTokenAmount(9)), 'payer lost tokens');
 });
 
 test('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all NFTs are minted', async (t) => {
@@ -127,7 +127,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -158,7 +158,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can unlock funds once al
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -184,7 +184,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can unlock funds once al
   // Then the destination wallet received the funds.
   const treasuryBalance = await getTokenBalance(mx, mint, treasury.publicKey);
   t.true(
-    isEqualToAmount(treasuryBalance, token(1)),
+    isEqualToAmount(treasuryBalance, toTokenAmount(1)),
     'treasury received tokens'
   );
 
@@ -210,7 +210,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it cannot unlock funds if n
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -242,7 +242,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it cannot unlock funds if n
   // And the destination wallet did not receive any funds.
   const treasuryBalance = await getTokenBalance(mx, mint, treasury.publicKey);
   t.true(
-    isEqualToAmount(treasuryBalance, token(0)),
+    isEqualToAmount(treasuryBalance, toTokenAmount(0)),
     'treasury received no tokens'
   );
 });
@@ -275,7 +275,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
         label: 'GROUPA',
         guards: {
           freezeTokenPayment: {
-            amount: token(1),
+            amount: toTokenAmount(1),
             destinationAta: treasuryAtaAB.address,
             mint: mintAB.address,
           },
@@ -285,7 +285,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
         label: 'GROUPB',
         guards: {
           freezeTokenPayment: {
-            amount: token(3),
+            amount: toTokenAmount(3),
             destinationAta: treasuryAtaAB.address,
             mint: mintAB.address,
           },
@@ -295,7 +295,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
         label: 'GROUPC',
         guards: {
           freezeTokenPayment: {
-            amount: token(5),
+            amount: toTokenAmount(5),
             destinationAta: treasuryAtaC.address,
             mint: mintC.address,
           },
@@ -305,7 +305,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
         label: 'GROUPD',
         guards: {
           tokenPayment: {
-            amount: token(7),
+            amount: toTokenAmount(7),
             destinationAta: treasuryAtaD.address,
             mint: mintD.address,
           },
@@ -350,11 +350,11 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
   const escrowBalanceAB = await getTokenBalance(mx, mintAB, escrowAB);
   const escrowBalanceC = await getTokenBalance(mx, mintC, escrowC);
   t.true(
-    isEqualToAmount(escrowBalanceAB, token(4)),
+    isEqualToAmount(escrowBalanceAB, toTokenAmount(4)),
     'treasury AB escrow ATA received tokens'
   );
   t.true(
-    isEqualToAmount(escrowBalanceC, token(5)),
+    isEqualToAmount(escrowBalanceC, toTokenAmount(5)),
     'treasury C escrow ATA received tokens'
   );
 
@@ -362,9 +362,18 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
   const payerTokensAB = await getTokenBalance(mx, mintAB, payer.publicKey);
   const payerTokensC = await getTokenBalance(mx, mintC, payer.publicKey);
   const payerTokensD = await getTokenBalance(mx, mintD, payer.publicKey);
-  t.true(isEqualToAmount(payerTokensAB, token(10 - 4)), 'payer lost AB tokens');
-  t.true(isEqualToAmount(payerTokensC, token(10 - 5)), 'payer lost C tokens');
-  t.true(isEqualToAmount(payerTokensD, token(10 - 7)), 'payer lost D tokens');
+  t.true(
+    isEqualToAmount(payerTokensAB, toTokenAmount(10 - 4)),
+    'payer lost AB tokens'
+  );
+  t.true(
+    isEqualToAmount(payerTokensC, toTokenAmount(10 - 5)),
+    'payer lost C tokens'
+  );
+  t.true(
+    isEqualToAmount(payerTokensD, toTokenAmount(10 - 7)),
+    'payer lost D tokens'
+  );
 
   // And the frozen counters securely decrease as we thaw all frozen NFTs.
   const assertFrozenCounts = async (ab: number, c: number) => {
@@ -401,21 +410,21 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
   t.true(
     isEqualToAmount(
       await getTokenBalance(mx, mintAB, treasuryAB.publicKey),
-      token(4)
+      toTokenAmount(4)
     ),
     'treasury AB received the funds'
   );
   t.true(
     isEqualToAmount(
       await getTokenBalance(mx, mintC, treasuryC.publicKey),
-      token(5)
+      toTokenAmount(5)
     ),
     'treasury C received the funds'
   );
   t.true(
     isEqualToAmount(
       await getTokenBalance(mx, mintD, treasuryD.publicKey),
-      token(7)
+      toTokenAmount(7)
     ),
     'treasury D received the funds'
   );
@@ -455,7 +464,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the fre
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -477,7 +486,10 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the fre
 
   // And the payer didn't loose any SOL.
   const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, token(10)), 'payer did not lose tokens');
+  t.true(
+    isEqualToAmount(payerBalance, toTokenAmount(10)),
+    'payer did not lose tokens'
+  );
 });
 
 test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the payer does not have enough funds', async (t) => {
@@ -491,7 +503,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the pay
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(5),
+        amount: toTokenAmount(5),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -514,7 +526,10 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the pay
 
   // And the payer didn't loose any tokens.
   const payerBalance = await getTokenBalance(mx, mint, payer.publicKey);
-  t.true(isEqualToAmount(payerBalance, token(4)), 'payer did not lose tokens');
+  t.true(
+    isEqualToAmount(payerBalance, toTokenAmount(4)),
+    'payer did not lose tokens'
+  );
 });
 
 test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the owner is not the payer', async (t) => {
@@ -527,7 +542,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the own
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -569,7 +584,7 @@ test('[candyMachineModule] freezeTokenPayment guard with bot tax: it charges a b
         lastInstruction: true,
       },
       freezeTokenPayment: {
-        amount: token(1),
+        amount: toTokenAmount(1),
         destinationAta: treasuryAta.address,
         mint: mint.address,
       },
@@ -632,7 +647,7 @@ const mintTokens = async (
     mintAddress: mint.address,
     mintAuthority,
     toOwner: payer.publicKey,
-    amount: token(amount),
+    amount: toTokenAmount(amount),
   });
 };
 

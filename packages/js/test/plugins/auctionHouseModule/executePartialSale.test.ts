@@ -8,7 +8,7 @@ import {
   assertThrows,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
+import { sol, toTokenAmount } from '@/types';
 
 killStuckProcess();
 
@@ -21,7 +21,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(10),
+    amount: toTokenAmount(10),
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
@@ -29,7 +29,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
     auctionHouse,
     mintAccount: sft.address,
     price: sol(5),
-    tokens: token(5),
+    tokens: toTokenAmount(5),
   });
 
   // And we created a public bid on that SFT to buy only 3 Tokens.
@@ -38,7 +38,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
     buyer,
     mintAccount: sft.address,
     price: sol(3),
-    tokens: token(3),
+    tokens: toTokenAmount(3),
   });
 
   // When we execute a sale with given listing and bid.
@@ -71,7 +71,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(10),
+    amount: toTokenAmount(10),
   });
 
   // And an existing SPL treasury.
@@ -80,7 +80,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
   // And airdrop 4 Payment SPL Tokens to buyer.
   await mx.tokens().mint({
     mintAddress: treasuryToken.mint.address,
-    amount: token(4),
+    amount: toTokenAmount(4),
     toOwner: buyer.publicKey,
   });
 
@@ -94,8 +94,8 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
   const { listing } = await mx.auctionHouse().list({
     auctionHouse,
     mintAccount: sft.address,
-    price: token(10),
-    tokens: token(5),
+    price: toTokenAmount(10),
+    tokens: toTokenAmount(5),
   });
 
   // And we created a private bid on 2 SFTs for 4 Payment Tokens.
@@ -103,8 +103,8 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
     auctionHouse,
     buyer,
     mintAccount: sft.address,
-    price: token(4),
-    tokens: token(2),
+    price: toTokenAmount(4),
+    tokens: toTokenAmount(2),
   });
 
   // When we execute a sale with given listing and bid.
@@ -149,7 +149,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(10),
+    amount: toTokenAmount(10),
   });
 
   // And existing SPL treasury SFT.
@@ -158,7 +158,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
   // And airdrop 4 Payment SPL Tokens to buyer.
   await mx.tokens().mint({
     mintAddress: paymentSft.mint.address,
-    amount: token(4),
+    amount: toTokenAmount(4),
     toOwner: buyer.publicKey,
   });
 
@@ -172,8 +172,8 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
   const { listing } = await mx.auctionHouse().list({
     auctionHouse,
     mintAccount: sft.address,
-    price: token(10),
-    tokens: token(5),
+    price: toTokenAmount(10),
+    tokens: toTokenAmount(5),
   });
 
   // And we created a private bid on 2 SFTs for 2 Payment Tokens only.
@@ -181,8 +181,8 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
     auctionHouse,
     buyer,
     mintAccount: sft.address,
-    price: token(2),
-    tokens: token(2),
+    price: toTokenAmount(2),
+    tokens: toTokenAmount(2),
   });
 
   // When we execute a sale with the price that is lower than required.
@@ -209,7 +209,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(5),
+    amount: toTokenAmount(5),
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
@@ -217,7 +217,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
     auctionHouse,
     mintAccount: sft.address,
     price: sol(5),
-    tokens: token(5),
+    tokens: toTokenAmount(5),
   });
 
   // And we created a public bid on that SFT to buy only 3 Tokens but for 1 SOL.
@@ -226,7 +226,7 @@ test('[auctionHouseModule] it throws when executing partial sale with wrong pric
     buyer,
     mintAccount: sft.address,
     price: sol(1),
-    tokens: token(3),
+    tokens: toTokenAmount(3),
   });
 
   // When we execute a sale with the price that is lower than required.
@@ -253,7 +253,7 @@ test('[auctionHouseModule] it throws when executing partial sale when no supply 
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(5),
+    amount: toTokenAmount(5),
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
@@ -261,7 +261,7 @@ test('[auctionHouseModule] it throws when executing partial sale when no supply 
     auctionHouse,
     mintAccount: sft.address,
     price: sol(5),
-    tokens: token(5),
+    tokens: toTokenAmount(5),
   });
 
   // And we bought only 3 Tokens but for 1 SOL.
@@ -270,7 +270,7 @@ test('[auctionHouseModule] it throws when executing partial sale when no supply 
     buyer,
     mintAccount: sft.address,
     price: sol(3),
-    tokens: token(3),
+    tokens: toTokenAmount(3),
   });
 
   await mx.auctionHouse().executeSale({
@@ -285,7 +285,7 @@ test('[auctionHouseModule] it throws when executing partial sale when no supply 
     buyer,
     mintAccount: sft.address,
     price: sol(3),
-    tokens: token(3),
+    tokens: toTokenAmount(3),
   });
 
   const promise = mx.auctionHouse().executeSale({
@@ -312,7 +312,7 @@ test('[auctionHouseModule] it throws when executing partial sale in Auctioneer',
 
   await mx.tokens().mint({
     mintAddress: sft.address,
-    amount: token(5),
+    amount: toTokenAmount(5),
   });
 
   // And we listed that 5 SFTs for 1 SOL each.
@@ -321,7 +321,7 @@ test('[auctionHouseModule] it throws when executing partial sale in Auctioneer',
     auctioneerAuthority,
     mintAccount: sft.address,
     price: sol(5),
-    tokens: token(5),
+    tokens: toTokenAmount(5),
   });
 
   // When we execute a sale to buy more tokens than left.
@@ -331,7 +331,7 @@ test('[auctionHouseModule] it throws when executing partial sale in Auctioneer',
     buyer,
     mintAccount: sft.address,
     price: sol(3),
-    tokens: token(3),
+    tokens: toTokenAmount(3),
   });
 
   const promise = mx.auctionHouse().executeSale({

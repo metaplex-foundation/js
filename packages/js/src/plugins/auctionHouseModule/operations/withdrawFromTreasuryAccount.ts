@@ -2,16 +2,16 @@ import {
   createWithdrawFromTreasuryInstruction,
   WithdrawFromTreasuryInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
 import type { Metaplex } from '@/Metaplex';
 import {
+  Amount,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -77,7 +77,7 @@ export type WithdrawFromTreasuryAccountInput = {
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
-  amount: SolAmount | SplTokenAmount;
+  amount: Amount;
 };
 
 /**
@@ -177,7 +177,7 @@ export const withdrawFromTreasuryAccountBuilder = (
   // Withdraw From Treasury Instruction.
   const withdrawFromTreasuryInstruction = createWithdrawFromTreasuryInstruction(
     accounts,
-    { amount: amount.basisPoints }
+    { amount: new BN(amount.basisPoints.toString()) }
   );
 
   // Signers.

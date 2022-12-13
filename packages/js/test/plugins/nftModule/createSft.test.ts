@@ -43,7 +43,7 @@ test('[nftModule] it can create an SFT with minimum configuration', async (t: Te
     mint: {
       model: 'mint',
       decimals: 0,
-      supply: spokSameAmount(token(0)),
+      supply: spokSameAmount(toTokenAmount(0)),
       mintAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
       freezeAuthorityAddress: spokSamePubkey(mx.identity().publicKey),
     },
@@ -99,7 +99,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       isMutable: false,
       useNewMint: mint,
       tokenOwner: owner.publicKey,
-      tokenAmount: token(4200),
+      tokenAmount: toTokenAmount(4200),
       mintAuthority,
       updateAuthority,
       freezeAuthority: freezeAuthority.publicKey,
@@ -139,7 +139,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       model: 'mint',
       address: spokSamePubkey(mint.publicKey),
       decimals: 2,
-      supply: spokSameAmount(token(42, 2, 'MYSFT')),
+      supply: spokSameAmount(toTokenAmount(42, 2, 'MYSFT')),
       mintAuthorityAddress: spokSamePubkey(mintAuthority.publicKey),
       freezeAuthorityAddress: spokSamePubkey(freezeAuthority.publicKey),
     },
@@ -148,10 +148,10 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       isAssociatedToken: true,
       mintAddress: spokSamePubkey(mint.publicKey),
       ownerAddress: spokSamePubkey(owner.publicKey),
-      amount: spokSameAmount(token(42, 2, 'MYSFT')),
+      amount: spokSameAmount(toTokenAmount(42, 2, 'MYSFT')),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0, 2, 'MYSFT'),
+      delegateAmount: toTokenAmount(0, 2, 'MYSFT'),
     },
     collection: {
       address: spokSamePubkey(collection.publicKey),
@@ -207,7 +207,7 @@ test('[nftModule] it can create an SFT from an existing mint', async (t: Test) =
       model: 'mint',
       address: spokSamePubkey(mint.address),
       decimals: 2,
-      supply: spokSameAmount(token(0, 2, 'MYSFT')),
+      supply: spokSameAmount(toTokenAmount(0, 2, 'MYSFT')),
       mintAuthorityAddress: spokSamePubkey(mint.mintAuthorityAddress),
       freezeAuthorityAddress: spokSamePubkey(mint.freezeAuthorityAddress),
     },
@@ -223,7 +223,7 @@ test('[nftModule] it can create an SFT with a new associated token', async (t: T
   const { sft } = await mx.nfts().createSft({
     ...minimalInput(),
     tokenOwner: mx.identity().publicKey,
-    tokenAmount: token(42),
+    tokenAmount: toTokenAmount(42),
   });
 
   // Then the created SFT has the expected configuration.
@@ -233,16 +233,16 @@ test('[nftModule] it can create an SFT with a new associated token', async (t: T
     mint: {
       model: 'mint',
       decimals: 0,
-      supply: spokSameAmount(token(42)),
+      supply: spokSameAmount(toTokenAmount(42)),
     },
     token: {
       model: 'token',
       isAssociatedToken: true,
       ownerAddress: spokSamePubkey(mx.identity().publicKey),
-      amount: spokSameAmount(token(42)),
+      amount: spokSameAmount(toTokenAmount(42)),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0),
+      delegateAmount: toTokenAmount(0),
     },
   } as unknown as Specifications<Sft>);
 });
@@ -256,7 +256,7 @@ test('[nftModule] it can create an SFT with a new non-associated token', async (
   const { sft } = await mx.nfts().createSft({
     ...minimalInput(),
     tokenAddress: tokenSigner,
-    tokenAmount: token(42),
+    tokenAmount: toTokenAmount(42),
   });
 
   // Then the created SFT has the expected configuration.
@@ -266,16 +266,16 @@ test('[nftModule] it can create an SFT with a new non-associated token', async (
     mint: {
       model: 'mint',
       decimals: 0,
-      supply: spokSameAmount(token(42)),
+      supply: spokSameAmount(toTokenAmount(42)),
     },
     token: {
       model: 'token',
       address: spokSamePubkey(tokenSigner.publicKey),
       isAssociatedToken: false,
-      amount: spokSameAmount(token(42)),
+      amount: spokSameAmount(toTokenAmount(42)),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0),
+      delegateAmount: toTokenAmount(0),
     },
   } as unknown as Specifications<Sft>);
 });
@@ -297,7 +297,7 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
     ...minimalInput(),
     useExistingMint: existingMint.address,
     tokenAddress: tokenSigner,
-    tokenAmount: token(42),
+    tokenAmount: toTokenAmount(42),
   });
 
   // Then the created SFT has the expected configuration.
@@ -308,16 +308,16 @@ test('[nftModule] it can create an SFT from an existing mint and mint to an exis
       model: 'mint',
       address: spokSamePubkey(existingMint.address),
       decimals: 0,
-      supply: spokSameAmount(token(42)),
+      supply: spokSameAmount(toTokenAmount(42)),
     },
     token: {
       model: 'token',
       address: spokSamePubkey(existingToken.address),
       isAssociatedToken: false,
-      amount: spokSameAmount(token(42)),
+      amount: spokSameAmount(toTokenAmount(42)),
       closeAuthorityAddress: null,
       delegateAddress: null,
-      delegateAmount: token(0),
+      delegateAmount: toTokenAmount(0),
     },
   } as unknown as Specifications<Sft>);
 });

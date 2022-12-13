@@ -3,13 +3,14 @@ import {
   TokenPayment,
   tokenPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { BN } from 'bn.js';
 import { CandyGuardManifest } from './core';
 import {
+  Amount,
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
-  SplTokenAmount,
-  token,
+  toAmount,
 } from '@/types';
 
 /**
@@ -30,7 +31,7 @@ export type TokenPaymentGuardSettings = {
   mint: PublicKey;
 
   /** The amount of tokens required to mint an NFT. */
-  amount: SplTokenAmount;
+  amount: Amount;
 
   /** The associated token address to send the tokens to. */
   destinationAta: PublicKey;
@@ -45,12 +46,12 @@ export const tokenPaymentGuardManifest: CandyGuardManifest<TokenPaymentGuardSett
       createSerializerFromBeet(tokenPaymentBeet),
       (settings) => ({
         mint: settings.mint,
-        amount: token(settings.amount),
+        amount: toAmount(settings.amount.toString(), 'Token', 0),
         destinationAta: settings.destinationAta,
       }),
       (settings) => ({
         mint: settings.mint,
-        amount: settings.amount.basisPoints,
+        amount: new BN(settings.amount.basisPoints.toString()),
         destinationAta: settings.destinationAta,
       })
     ),

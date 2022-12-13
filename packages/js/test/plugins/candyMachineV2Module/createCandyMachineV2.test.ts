@@ -129,7 +129,7 @@ test('[candyMachineV2Module] create with 0-decimal SPL token treasury', async (t
   // And a token account and its mint account.
   const { token: tokenMint } = await mx.tokens().createTokenWithMint();
 
-  const amount = token(
+  const amount = toTokenAmount(
     100,
     tokenMint.mint.decimals,
     tokenMint.mint.currency.symbol
@@ -164,7 +164,7 @@ test('[candyMachineV2Module] create with 9-decimal SPL token treasury', async (t
     .tokens()
     .createTokenWithMint({ decimals: 9 });
 
-  const amount = token(
+  const amount = toTokenAmount(
     1.25,
     tokenMint.mint.decimals,
     tokenMint.mint.currency.symbol

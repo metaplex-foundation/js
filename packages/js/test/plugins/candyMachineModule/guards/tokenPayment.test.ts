@@ -18,7 +18,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
   const { token: tokenTreasury } = await mx.tokens().createTokenWithMint({
     mintAuthority: treasuryAuthority,
     owner: treasuryAuthority.publicKey,
-    initialSupply: token(100),
+    initialSupply: toTokenAmount(100),
   });
 
   const { candyMachine, collection } = await createCandyMachine(mx, {
@@ -26,7 +26,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
-        amount: token(5),
+        amount: toTokenAmount(5),
         mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
@@ -39,7 +39,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     mintAddress: tokenTreasury.mint.address,
     mintAuthority: treasuryAuthority,
     toOwner: payer.publicKey,
-    amount: token(12),
+    amount: toTokenAmount(12),
   });
 
   // When we mint from it using that payer.
@@ -65,7 +65,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     .findTokenByAddress({ address: tokenTreasury.address });
 
   t.true(
-    isEqualToAmount(updatedTokenTreasury.amount, token(105)),
+    isEqualToAmount(updatedTokenTreasury.amount, toTokenAmount(105)),
     'treasury received tokens'
   );
 
@@ -76,7 +76,10 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
     address: payer.publicKey,
   });
 
-  t.true(isEqualToAmount(payerToken.amount, token(7)), 'payer lost tokens');
+  t.true(
+    isEqualToAmount(payerToken.amount, toTokenAmount(7)),
+    'payer lost tokens'
+  );
 });
 
 test('[candyMachineModule] tokenPayment guard: it fails if the payer does not have enough tokens', async (t) => {
@@ -93,7 +96,7 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
-        amount: token(5),
+        amount: toTokenAmount(5),
         mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
@@ -106,7 +109,7 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
     mintAddress: tokenTreasury.mint.address,
     mintAuthority: treasuryAuthority,
     toOwner: payer.publicKey,
-    amount: token(4),
+    amount: toTokenAmount(4),
   });
 
   // When we try to mint from it using that payer.
@@ -140,7 +143,7 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
         lastInstruction: true,
       },
       tokenPayment: {
-        amount: token(5),
+        amount: toTokenAmount(5),
         mint: tokenTreasury.mint.address,
         destinationAta: tokenTreasury.address,
       },
@@ -153,7 +156,7 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
     mintAddress: tokenTreasury.mint.address,
     mintAuthority: treasuryAuthority,
     toOwner: payer.publicKey,
-    amount: token(4),
+    amount: toTokenAmount(4),
   });
 
   // When we try to mint from it using that payer.

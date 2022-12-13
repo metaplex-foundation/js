@@ -1,18 +1,18 @@
-import { Keypair } from '@solana/web3.js';
-import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
+import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
   assertThrows,
-  metaplex,
-  killStuckProcess,
   createNft,
-  spokSamePubkey,
-  spokSameAmount,
   createWallet,
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Pda, sol, token, Bid } from '@/index';
+import { Bid, Pda, sol, toTokenAmount } from '@/index';
 
 killStuckProcess();
 
@@ -35,7 +35,7 @@ test('[auctionHouseModule] create a new public bid on an Auction House', async (
   const expectedBid = {
     tradeStateAddress: spokSamePubkey(buyerTradeState),
     price: spokSameAmount(sol(6.5)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
@@ -87,7 +87,7 @@ test('[auctionHouseModule] create a new private bid by token account on an Aucti
   const expectedBid = {
     tradeStateAddress: spokSamePubkey(buyerTradeState),
     price: spokSameAmount(sol(1)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
@@ -131,7 +131,7 @@ test('[auctionHouseModule] create a new private bid by seller account on an Auct
   const expectedBid = {
     tradeStateAddress: spokSamePubkey(buyerTradeState),
     price: spokSameAmount(sol(1)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
@@ -175,7 +175,7 @@ test('[auctionHouseModule] create private receipt-less bid but cannot fetch it a
   // Then we still get a bid model.
   t.equal(bid.tradeStateAddress, buyerTradeState);
   t.same(bid.price, sol(1));
-  t.same(bid.tokens, token(1));
+  t.same(bid.tokens, toTokenAmount(1));
   t.false(bid.isPublic);
   t.false(bid.receiptAddress);
 
@@ -211,7 +211,7 @@ test('[auctionHouseModule] create public receipt-less bid but cannot fetch it af
   // Then we still get a bid model.
   t.equal(bid.tradeStateAddress, buyerTradeState);
   t.same(bid.price, sol(1));
-  t.same(bid.tokens, token(1));
+  t.same(bid.tokens, toTokenAmount(1));
   t.ok(bid.isPublic);
 
   // But we cannot retrieve it later with the default operation handler.
@@ -249,7 +249,7 @@ test('[auctionHouseModule] create private receipt-less Auctioneer bid', async (t
   // Then we created and returned the new Bid with appropriate defaults.
   t.equal(bid.tradeStateAddress, buyerTradeState);
   t.same(bid.price, sol(1));
-  t.same(bid.tokens, token(1));
+  t.same(bid.tokens, toTokenAmount(1));
   t.false(bid.isPublic);
   t.false(bid.receiptAddress);
 });
@@ -275,7 +275,7 @@ test('[auctionHouseModule] create public receipt-less Auctioneer bid', async (t:
   // Then we created and returned the new Bid with appropriate defaults.
   t.equal(bid.tradeStateAddress, buyerTradeState);
   t.same(bid.price, sol(1));
-  t.same(bid.tokens, token(1));
+  t.same(bid.tokens, toTokenAmount(1));
   t.ok(bid.isPublic);
 });
 

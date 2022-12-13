@@ -1,18 +1,24 @@
 import { AuthorityScope } from '@metaplex-foundation/mpl-auction-house';
 import { Keypair } from '@solana/web3.js';
-import test, { Test } from 'tape';
 import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
-  metaplex,
-  killStuckProcess,
-  createNft,
-  spokSamePubkey,
-  spokSameAmount,
   assertThrows,
+  createNft,
   createWallet,
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { Listing, AccountNotFoundError, Pda, sol, token } from '@/index';
+import {
+  AccountNotFoundError,
+  Listing,
+  Pda,
+  sol,
+  toTokenAmount,
+} from '@/index';
 
 killStuckProcess();
 
@@ -33,7 +39,7 @@ test('[auctionHouseModule] create a new listing on an Auction House', async (t: 
   const expectedListing = {
     tradeStateAddress: spokSamePubkey(sellerTradeState),
     price: spokSameAmount(sol(6.5)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     auctionHouse: {
       address: spokSamePubkey(auctionHouse.address),
     },
@@ -102,7 +108,7 @@ test('[auctionHouseModule] create receipt-less listings but can fetch them after
   // Then we still get a listing model.
   t.equal(listing.tradeStateAddress, sellerTradeState);
   t.same(listing.price, sol(1));
-  t.same(listing.tokens, token(1));
+  t.same(listing.tokens, toTokenAmount(1));
   t.false(listing.receiptAddress);
 
   // But we cannot retrieve it later with the default operation handler.

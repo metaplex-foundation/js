@@ -14,8 +14,8 @@ import {
   OperationHandler,
   OperationScope,
   Signer,
-  token,
   toPublicKey,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -401,7 +401,7 @@ export const createNftBuilder = async (
         freezeAuthority: mintAuthority.publicKey,
         useNewMint,
         tokenOwner,
-        tokenAmount: token(1),
+        tokenAmount: toTokenAmount(1),
         decimals: 0,
       },
       { programs, payer }

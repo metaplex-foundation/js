@@ -27,7 +27,7 @@ import {
   OperationHandler,
   OperationScope,
   Signer,
-  token,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -306,7 +306,7 @@ export const mintCandyMachineV2Builder = async (
     .createTokenWithMint(
       {
         decimals: 0,
-        initialSupply: token(1),
+        initialSupply: toTokenAmount(1),
         mint: newMint,
         mintAuthority: payer,
         freezeAuthority: payer.publicKey,

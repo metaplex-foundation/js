@@ -3,18 +3,18 @@ import {
   createDepositInstruction,
   DepositInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   isSigner,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -94,7 +94,7 @@ export type DepositToBuyerAccountInput = {
    * Amount of funds to deposit.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
-  amount: SolAmount | SplTokenAmount;
+  amount: Amount;
 };
 
 /**
@@ -214,7 +214,7 @@ export const depositToBuyerAccountBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: amount.basisPoints,
+    amount: new BN(amount.basisPoints.toString()),
   };
 
   // Deposit Instruction.

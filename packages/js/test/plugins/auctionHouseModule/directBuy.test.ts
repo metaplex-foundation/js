@@ -1,6 +1,6 @@
-import test, { Test } from 'tape';
-import spok, { Specifications } from 'spok';
 import { Keypair } from '@solana/web3.js';
+import spok, { Specifications } from 'spok';
+import test, { Test } from 'tape';
 import {
   createNft,
   createWallet,
@@ -10,8 +10,8 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { createAuctionHouse } from './helpers';
-import { sol, token } from '@/types';
-import { Purchase } from '@/index';
+import { sol } from '@/types';
+import { Purchase, toTokenAmount } from '@/index';
 
 killStuckProcess();
 
@@ -40,7 +40,7 @@ test('[auctionHouseModule] buy on an Auction House with minimum input', async (t
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
     price: spokSameAmount(sol(1)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     buyerAddress: spokSamePubkey(mx.identity().publicKey),
     sellerAddress: spokSamePubkey(seller.publicKey),
     auctionHouse: {
@@ -128,7 +128,7 @@ test('[auctionHouseModule] buy on an Auction House with maximum input', async (t
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
     price: spokSameAmount(sol(1)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     buyerAddress: spokSamePubkey(buyer.publicKey),
     sellerAddress: spokSamePubkey(seller.publicKey),
     bookkeeperAddress: spokSamePubkey(mx.identity().publicKey),

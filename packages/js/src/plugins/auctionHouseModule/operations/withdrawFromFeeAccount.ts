@@ -2,16 +2,16 @@ import {
   createWithdrawFromFeeInstruction,
   WithdrawFromFeeInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctionHouse } from '../models';
 import type { Metaplex } from '@/Metaplex';
 import {
+  Amount,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -76,7 +76,7 @@ export type WithdrawFromFeeAccountInput = {
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
-  amount: SolAmount | SplTokenAmount;
+  amount: Amount;
 };
 
 /**
@@ -169,7 +169,7 @@ export const withdrawFromFeeAccountBuilder = (
   // Withdraw From Fee Instruction.
   const withdrawFromFeeInstruction = createWithdrawFromFeeInstruction(
     accounts,
-    { amount: amount.basisPoints }
+    { amount: new BN(amount.basisPoints.toString()) }
   );
 
   // Signers.

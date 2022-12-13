@@ -4,6 +4,7 @@ import {
   createSellInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import type { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AUCTIONEER_PRICE } from '../constants';
 import {
@@ -13,7 +14,7 @@ import {
 import { AuctionHouse, LazyListing, Listing } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  amount,
+  Amount,
   isSigner,
   lamports,
   makeConfirmOptionsFinalizedOnMainnet,
@@ -23,10 +24,9 @@ import {
   OperationScope,
   Pda,
   Signer,
-  SolAmount,
-  SplTokenAmount,
-  token,
+  toAmount,
   toPublicKey,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
@@ -117,7 +117,7 @@ export type CreateListingInput = {
    *
    * @defaultValue 0 SOLs or tokens.
    */
-  price?: SolAmount | SplTokenAmount;
+  price?: Amount;
 
   /**
    * The number of tokens to list.
@@ -129,7 +129,7 @@ export type CreateListingInput = {
    *
    * @defaultValue 1 token.
    */
-  tokens?: SplTokenAmount;
+  tokens?: Amount;
 
   /**
    * The address of the bookkeeper wallet responsible for the receipt.
@@ -178,10 +178,10 @@ export type CreateListingOutput = {
   bookkeeper: Option<PublicKey>;
 
   /** The listing price. */
-  price: SolAmount | SplTokenAmount;
+  price: Amount;
 
   /** The number of tokens listed. */
-  tokens: SplTokenAmount;
+  tokens: Amount;
 
   /** A model that keeps information about the Listing. */
   listing: Listing;
@@ -294,7 +294,7 @@ export const createListingBuilder = (
     auctionHouse,
     auctioneerAuthority,
     mintAccount,
-    tokens = token(1),
+    tokens = toTokenAmount(1),
     seller = metaplex.identity(),
     authority = auctionHouse.authorityAddress,
   } = params;
@@ -305,7 +305,7 @@ export const createListingBuilder = (
     : params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
-    : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+    : toAmount(priceBasisPoint, ...auctionHouse.treasuryMint.currency);
 
   if (auctionHouse.hasAuctioneer && !auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();
@@ -376,8 +376,8 @@ export const createListingBuilder = (
     tradeStateBump: sellerTradeState.bump,
     freeTradeStateBump: freeSellerTradeState.bump,
     programAsSignerBump: programAsSigner.bump,
-    buyerPrice: price.basisPoints,
-    tokenSize: tokens.basisPoints,
+    buyerPrice: new BN(price.basisPoints.toString()),
+    tokenSize: new BN(tokens.basisPoints.toString()),
   };
 
   // Sell Instruction.

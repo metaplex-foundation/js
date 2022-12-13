@@ -4,13 +4,13 @@ import { MintAuthorityMustBeSignerToMintInitialSupplyError } from '../errors';
 import { TokenWithMint } from '../models/Token';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   isSigner,
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -63,7 +63,7 @@ export type CreateTokenWithMintInput = {
    *
    * @defaultValue `0`
    */
-  initialSupply?: SplTokenAmount;
+  initialSupply?: Amount;
 
   /**
    * The address of the new mint account as a Signer.

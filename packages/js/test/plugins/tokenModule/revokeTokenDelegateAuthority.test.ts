@@ -11,7 +11,7 @@ test('[tokenModule] a token owner can revoke an existing token delegate authorit
   const owner = Keypair.generate();
   const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
     owner: owner.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And an approved token delegate authority for 10 tokens.
@@ -19,7 +19,7 @@ test('[tokenModule] a token owner can revoke an existing token delegate authorit
   await mx.tokens().approveDelegateAuthority({
     mintAddress: tokenWithMint.mint.address,
     delegateAuthority: delegateAuthority.publicKey,
-    amount: token(10),
+    amount: toTokenAmount(10),
     owner,
   });
 
@@ -36,7 +36,7 @@ test('[tokenModule] a token owner can revoke an existing token delegate authorit
     delegateAuthority,
     fromOwner: owner.publicKey,
     toOwner: newOwner.publicKey,
-    amount: token(1),
+    amount: toTokenAmount(1),
   });
 
   await assertThrows(t, promise, /Error: owner does not match/);

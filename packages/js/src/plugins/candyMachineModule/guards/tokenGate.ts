@@ -1,11 +1,12 @@
 import { TokenGate, tokenGateBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { BN } from 'bn.js';
 import { CandyGuardManifest } from './core';
 import {
+  Amount,
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
-  SplTokenAmount,
-  token,
+  toAmount,
 } from '@/types';
 
 /**
@@ -22,7 +23,7 @@ export type TokenGateGuardSettings = {
   mint: PublicKey;
 
   /** The amount of tokens required to mint an NFT. */
-  amount: SplTokenAmount;
+  amount: Amount;
 };
 
 /** @internal */
@@ -32,8 +33,14 @@ export const tokenGateGuardManifest: CandyGuardManifest<TokenGateGuardSettings> 
     settingsBytes: 40,
     settingsSerializer: mapSerializer<TokenGate, TokenGateGuardSettings>(
       createSerializerFromBeet(tokenGateBeet),
-      (settings) => ({ ...settings, amount: token(settings.amount) }),
-      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+      (settings) => ({
+        ...settings,
+        amount: toAmount(settings.amount.toString(), 'Token', 0),
+      }),
+      (settings) => ({
+        ...settings,
+        amount: new BN(settings.amount.basisPoints.toString()),
+      })
     ),
     mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
       const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({

@@ -7,6 +7,7 @@ import {
   ExecutePartialSaleInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctioneerAuthorityRequiredError,
@@ -20,6 +21,7 @@ import {
 import { AuctionHouse, Bid, LazyPurchase, Listing, Purchase } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   amount,
   isSigner,
   lamports,
@@ -29,8 +31,7 @@ import {
   OperationScope,
   Pda,
   Signer,
-  SolAmount,
-  SplTokenAmount,
+  toAmount,
   useOperation,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
@@ -165,10 +166,10 @@ export type ExecuteSaleOutput = {
   receipt: Option<Pda>;
 
   /** The sale price. */
-  price: SolAmount | SplTokenAmount;
+  price: Amount;
 
   /** The number of tokens bought. */
-  tokens: SplTokenAmount;
+  tokens: Amount;
 
   /** A model that keeps information about the Purchase. */
   purchase: Purchase;
@@ -312,19 +313,21 @@ export const executeSaleBuilder = (
     throw new AuctioneerPartialSaleNotSupportedError();
   }
   if (isPartialSale) {
-    const listingPricePerToken = price.basisPoints.div(tokens.basisPoints);
-    const buyerPricePerToken = buyerPrice.basisPoints.div(
-      buyerTokensSize.basisPoints
-    );
+    const listingPricePerToken = price.basisPoints / tokens.basisPoints;
+    const buyerPricePerToken =
+      buyerPrice.basisPoints / buyerTokensSize.basisPoints;
 
-    if (!listingPricePerToken.eq(buyerPricePerToken)) {
+    if (listingPricePerToken !== buyerPricePerToken) {
       throw new PartialPriceMismatchError(
         auctionHouse.isNative
           ? lamports(listingPricePerToken)
-          : amount(listingPricePerToken, auctionHouse.treasuryMint.currency),
+          : toAmount(
+              listingPricePerToken,
+              ...auctionHouse.treasuryMint.currency
+            ),
         auctionHouse.isNative
           ? lamports(buyerPricePerToken)
-          : amount(buyerPricePerToken, auctionHouse.treasuryMint.currency)
+          : toAmount(buyerPricePerToken, ...auctionHouse.treasuryMint.currency)
       );
     }
   }
@@ -390,15 +393,15 @@ export const executeSaleBuilder = (
     freeTradeStateBump: freeTradeState.bump,
     escrowPaymentBump: escrowPayment.bump,
     programAsSignerBump: programAsSigner.bump,
-    buyerPrice: price.basisPoints,
-    tokenSize: tokens.basisPoints,
+    buyerPrice: new BN(price.basisPoints.toString()),
+    tokenSize: new BN(tokens.basisPoints.toString()),
   };
 
   // Execute Sale Instruction
   const partialSaleArgs: ExecutePartialSaleInstructionArgs = {
     ...args,
-    partialOrderSize: bid.tokens.basisPoints,
-    partialOrderPrice: bid.price.basisPoints,
+    partialOrderSize: new BN(bid.tokens.basisPoints.toString()),
+    partialOrderPrice: new BN(bid.price.basisPoints.toString()),
   };
 
   let executeSaleInstruction = isPartialSale

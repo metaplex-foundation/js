@@ -74,8 +74,12 @@ test('[candyMachineV2Module] find all candy machines correctly parses token mint
   const { token: token1 } = await mx.tokens().createTokenWithMint();
   const { token: token2_3 } = await mx.tokens().createTokenWithMint();
 
-  const amount1 = token(1.0, token1.mint.decimals, token1.mint.currency.symbol);
-  const amount2 = token(
+  const amount1 = toTokenAmount(
+    1.0,
+    token1.mint.decimals,
+    token1.mint.currency.symbol
+  );
+  const amount2 = toTokenAmount(
     1.5,
     token2_3.mint.decimals,
     token2_3.mint.currency.symbol

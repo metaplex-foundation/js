@@ -1,20 +1,19 @@
 import { PublicKey } from '@solana/web3.js';
-import { BidReceiptAccount } from '../accounts';
 import { Nft, NftWithToken, Sft, SftWithToken } from '../../nftModule';
+import { BidReceiptAccount } from '../accounts';
 import { AuctionHouse } from './AuctionHouse';
+import { assert, Option } from '@/utils';
 import {
-  amount,
+  Amount,
   BigNumber,
   DateTime,
   lamports,
   Pda,
-  SolAmount,
-  SplTokenAmount,
+  toAmount,
   toBigNumber,
   toDateTime,
   toOptionDateTime,
 } from '@/types';
-import { assert, Option } from '@/utils';
 
 /** @group Models */
 export type Bid = Readonly<
@@ -64,10 +63,10 @@ export type Bid = Readonly<
     purchaseReceiptAddress: Option<PublicKey>;
 
     /** The buyer's price. */
-    price: SolAmount | SplTokenAmount;
+    price: Amount;
 
     /** The number of tokens bid is for. */
-    tokens: SplTokenAmount;
+    tokens: Amount;
 
     /** The date of creation. */
     createdAt: DateTime;
@@ -120,12 +119,12 @@ export const toBid = (
     ...('token' in asset
       ? {
           asset,
-          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          tokens: toAmount(lazyBid.tokens.toString(), ...asset.mint.currency),
           isPublic: false,
         }
       : {
           asset,
-          tokens: amount(lazyBid.tokens, asset.mint.currency),
+          tokens: toAmount(lazyBid.tokens.toString(), ...asset.mint.currency),
           isPublic: true,
         }),
   };
@@ -149,7 +148,7 @@ export type LazyBid = Omit<Bid, 'lazy' | 'asset' | 'tokens'> &
     lazy: true;
     metadataAddress: PublicKey;
     tokenAddress: Option<PublicKey>;
-    tokens: BigNumber;
+    tokens: bigint;
   }>;
 
 /** @group Model Helpers */
@@ -184,8 +183,11 @@ export const toLazyBid = (
 
     // Data.
     price: auctionHouse.isNative
-      ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouse.treasuryMint.currency),
+      ? lamports(account.data.price.toString())
+      : toAmount(
+          account.data.price.toString(),
+          ...auctionHouse.treasuryMint.currency
+        ),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),

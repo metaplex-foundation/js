@@ -166,7 +166,9 @@ export const assertMintingWasSuccessful = async (
       model: 'token',
       ownerAddress: spokSamePubkey(input.owner),
       mintAddress: spokSamePubkey(input.nft.address),
-      amount: spokSameAmount(token(1, 0, candyMachine.symbol || 'Token')),
+      amount: spokSameAmount(
+        toTokenAmount(1, 0, candyMachine.symbol || 'Token')
+      ),
     },
   } as Specifications<NftWithToken>);
 

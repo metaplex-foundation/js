@@ -16,7 +16,7 @@ import {
   OperationScope,
   Signer,
   toBigNumber,
-  token,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -308,7 +308,7 @@ export const printNewEditionBuilder = async (
     .createTokenWithMint(
       {
         decimals: 0,
-        initialSupply: token(1),
+        initialSupply: toTokenAmount(1),
         mint: newMint,
         mintAuthority: newMintAuthority,
         freezeAuthority: newMintAuthority.publicKey,

@@ -46,7 +46,7 @@ test('[nftModule] it can use an SFT', async (t: Test) => {
   const mx = await metaplex();
   const sft = await createSft(mx, {
     tokenOwner: mx.identity().publicKey,
-    tokenAmount: token(10),
+    tokenAmount: toTokenAmount(10),
     uses: {
       useMethod: UseMethod.Multiple,
       remaining: 10,

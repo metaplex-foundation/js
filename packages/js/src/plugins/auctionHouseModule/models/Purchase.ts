@@ -3,12 +3,12 @@ import { PurchaseReceiptAccount } from '../accounts';
 import { NftWithToken, SftWithToken } from '../../nftModule';
 import { AuctionHouse } from './AuctionHouse';
 import {
+  Amount,
   amount,
   BigNumber,
   DateTime,
   lamports,
-  SolAmount,
-  SplTokenAmount,
+  toAmount,
   toBigNumber,
   toDateTime,
 } from '@/types';
@@ -50,10 +50,10 @@ export type Purchase = Readonly<{
   receiptAddress: Option<PublicKey>;
 
   /** The number of tokens spent on this purchase. */
-  price: SolAmount | SplTokenAmount;
+  price: Amount;
 
   /** The number of tokens bought in case it's a sale of a Fungible Token. */
-  tokens: SplTokenAmount;
+  tokens: Amount;
 
   /** The date of creation. */
   createdAt: DateTime;
@@ -78,7 +78,7 @@ export const toPurchase = (
     model: 'purchase',
     lazy: false,
     asset,
-    tokens: amount(lazyPurchase.tokens, asset.mint.currency),
+    tokens: toAmount(lazyPurchase.tokens.toString(), ...asset.mint.currency),
   };
 };
 
@@ -109,8 +109,11 @@ export const toLazyPurchase = (
     bookkeeperAddress: account.data.bookkeeper,
     receiptAddress: account.publicKey,
     price: auctionHouseModel.isNative
-      ? lamports(account.data.price)
-      : amount(account.data.price, auctionHouseModel.treasuryMint.currency),
+      ? lamports(account.data.price.toString())
+      : toAmount(
+          account.data.price.toString(),
+          ...auctionHouseModel.treasuryMint.currency
+        ),
     tokens: toBigNumber(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
   };

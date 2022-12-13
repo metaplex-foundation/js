@@ -177,7 +177,7 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
           startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
           tokenPayment: {
             mint: splTokenA,
-            amount: token(375),
+            amount: toTokenAmount(375),
             destinationAta: tokenDestination,
           },
         },
@@ -213,7 +213,7 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
           startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
           tokenPayment: {
             mint: splTokenB,
-            amount: token(42),
+            amount: toTokenAmount(42),
             destinationAta: tokenDestination,
           },
         },
@@ -248,7 +248,7 @@ test('[candyMachineModule] it overrides all previous groups', async (t) => {
           },
           tokenPayment: {
             mint: spokSamePubkey(splTokenB),
-            amount: spokSameAmount(token(42)),
+            amount: spokSameAmount(toTokenAmount(42)),
             destinationAta: spokSamePubkey(tokenDestination),
           },
         },
@@ -285,7 +285,7 @@ test('[candyMachineModule] it can remove all guards and groups', async (t) => {
           startDate: { date: toDateTime('2022-09-06T12:00:00.000Z') },
           tokenPayment: {
             mint: splTokenA,
-            amount: token(375),
+            amount: toTokenAmount(375),
             destinationAta: tokenDestination,
           },
         },

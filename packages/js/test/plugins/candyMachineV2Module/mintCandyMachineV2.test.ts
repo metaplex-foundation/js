@@ -154,7 +154,10 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   const payer = await createWallet(mx);
   const { token: payerTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey });
+    .createTokenWithMint({
+      initialSupply: toTokenAmount(10),
+      owner: payer.publicKey,
+    });
 
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
@@ -163,7 +166,7 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
 
   // And given a Candy Machine with all of these settings.
   const { candyMachine } = await createCandyMachineV2(mx, {
-    price: token(5),
+    price: toTokenAmount(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',
@@ -208,7 +211,10 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   const payer = await createWallet(mx);
   const { token: payerTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(10), owner: payer.publicKey });
+    .createTokenWithMint({
+      initialSupply: toTokenAmount(10),
+      owner: payer.publicKey,
+    });
 
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
@@ -218,7 +224,10 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   // And the following whitelist settings.
   const { token: payerWhitelistTokenAccount } = await mx
     .tokens()
-    .createTokenWithMint({ initialSupply: token(1), owner: payer.publicKey });
+    .createTokenWithMint({
+      initialSupply: toTokenAmount(1),
+      owner: payer.publicKey,
+    });
 
   const whitelistMintSettings = {
     mode: WhitelistMintMode.BurnEveryTime,
@@ -232,7 +241,7 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
 
   // And given a Candy Machine with all of these settings.
   const { candyMachine } = await createCandyMachineV2(mx, {
-    price: token(5),
+    price: toTokenAmount(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
     itemsAvailable: toBigNumber(2),
     symbol: 'CANDY',

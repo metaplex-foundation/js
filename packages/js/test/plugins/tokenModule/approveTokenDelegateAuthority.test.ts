@@ -19,7 +19,7 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
   const owner = Keypair.generate();
   const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
     owner: owner.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // When we approve a new token delegate authority for 10 tokens.
@@ -27,7 +27,7 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
   await mx.tokens().approveDelegateAuthority({
     mintAddress: tokenWithMint.mint.address,
     delegateAuthority: delegateAuthority.publicKey,
-    amount: token(10),
+    amount: toTokenAmount(10),
     owner,
   });
 
@@ -36,7 +36,7 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
     $topic: 'Refreshed Token',
     address: spokSamePubkey(tokenWithMint.address),
     delegateAddress: spokSamePubkey(delegateAuthority.publicKey),
-    delegateAmount: spokSameAmount(token(10)),
+    delegateAmount: spokSameAmount(toTokenAmount(10)),
   } as unknown as Specifications<Token>);
 
   // And the delegate authority can do what they want with up to 10 of these tokens.
@@ -46,16 +46,16 @@ test('[tokenModule] a token owner can approve a new token delegate authority', a
     delegateAuthority,
     fromOwner: owner.publicKey,
     toOwner: newOwner.publicKey,
-    amount: token(8),
+    amount: toTokenAmount(8),
   });
 
   // And the data is updated correctly on the token account afterwards.
   spok(t, await refreshToken(mx, tokenWithMint), {
     $topic: 'Refreshed Token After sending',
     address: spokSamePubkey(tokenWithMint.address),
-    amount: spokSameAmount(token(34)),
+    amount: spokSameAmount(toTokenAmount(34)),
     delegateAddress: spokSamePubkey(delegateAuthority.publicKey),
-    delegateAmount: spokSameAmount(token(2)),
+    delegateAmount: spokSameAmount(toTokenAmount(2)),
   } as unknown as Specifications<Token>);
 });
 
@@ -65,7 +65,7 @@ test('[tokenModule] an approved delegate authority is automatically revoked when
   const owner = Keypair.generate();
   const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
     owner: owner.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And given we approved a new token delegate authority for 10 tokens.
@@ -73,7 +73,7 @@ test('[tokenModule] an approved delegate authority is automatically revoked when
   await mx.tokens().approveDelegateAuthority({
     mintAddress: tokenWithMint.mint.address,
     delegateAuthority: delegateAuthority.publicKey,
-    amount: token(10),
+    amount: toTokenAmount(10),
     owner,
   });
 
@@ -84,16 +84,16 @@ test('[tokenModule] an approved delegate authority is automatically revoked when
     delegateAuthority,
     fromOwner: owner.publicKey,
     toOwner: newOwner.publicKey,
-    amount: token(10),
+    amount: toTokenAmount(10),
   });
 
   // Then the delegated authority was automatically revoked.
   spok(t, await refreshToken(mx, tokenWithMint), {
     $topic: 'Refreshed Token After sending',
     address: spokSamePubkey(tokenWithMint.address),
-    amount: spokSameAmount(token(32)),
+    amount: spokSameAmount(toTokenAmount(32)),
     delegateAddress: null,
-    delegateAmount: spokSameAmount(token(0)),
+    delegateAmount: spokSameAmount(toTokenAmount(0)),
   } as unknown as Specifications<Token>);
 });
 
@@ -103,7 +103,7 @@ test('[tokenModule] a delegated authority cannot use more tokens than initially 
   const owner = Keypair.generate();
   const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
     owner: owner.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And given we approved a new token delegate authority for 10 tokens.
@@ -111,7 +111,7 @@ test('[tokenModule] a delegated authority cannot use more tokens than initially 
   await mx.tokens().approveDelegateAuthority({
     mintAddress: tokenWithMint.mint.address,
     delegateAuthority: delegateAuthority.publicKey,
-    amount: token(10),
+    amount: toTokenAmount(10),
     owner,
   });
 
@@ -122,7 +122,7 @@ test('[tokenModule] a delegated authority cannot use more tokens than initially 
     delegateAuthority,
     fromOwner: owner.publicKey,
     toOwner: newOwner.publicKey,
-    amount: token(20),
+    amount: toTokenAmount(20),
   });
 
   // Then we expect an error.

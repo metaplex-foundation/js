@@ -7,12 +7,13 @@ import {
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, Bid, LazyBid } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  amount,
+  Amount,
   isSigner,
   lamports,
   makeConfirmOptionsFinalizedOnMainnet,
@@ -22,10 +23,9 @@ import {
   OperationScope,
   Pda,
   Signer,
-  SolAmount,
-  SplTokenAmount,
-  token,
+  toAmount,
   toPublicKey,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
@@ -125,7 +125,7 @@ export type CreateBidInput = {
    *
    * @defaultValue 0 SOLs or tokens.
    */
-  price?: SolAmount | SplTokenAmount;
+  price?: Amount;
 
   /**
    * The number of tokens to bid for.
@@ -137,7 +137,7 @@ export type CreateBidInput = {
    *
    * @defaultValue 1 token.
    */
-  tokens?: SplTokenAmount;
+  tokens?: Amount;
 
   /**
    * Prints the bid receipt.
@@ -183,10 +183,10 @@ export type CreateBidOutput = {
   bookkeeper: Option<PublicKey>;
 
   /** The buyer's price. */
-  price: SolAmount | SplTokenAmount;
+  price: Amount;
 
   /** The number of tokens to bid for. */
-  tokens: SplTokenAmount;
+  tokens: Amount;
 
   /** A model that keeps information about the Bid. */
   bid: Bid;
@@ -297,11 +297,11 @@ export const createBidBuilder = async (
   // Data.
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { auctionHouse } = params;
-  const tokens = params.tokens ?? token(1);
+  const tokens = params.tokens ?? toTokenAmount(1);
   const priceBasisPoint = params.price?.basisPoints ?? 0;
   const price = auctionHouse.isNative
     ? lamports(priceBasisPoint)
-    : amount(priceBasisPoint, auctionHouse.treasuryMint.currency);
+    : toAmount(priceBasisPoint, ...auctionHouse.treasuryMint.currency);
 
   if (auctionHouse.hasAuctioneer && !params.auctioneerAuthority) {
     throw new AuctioneerAuthorityRequiredError();

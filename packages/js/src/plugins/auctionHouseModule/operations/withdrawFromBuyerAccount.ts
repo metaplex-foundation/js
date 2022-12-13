@@ -4,6 +4,7 @@ import {
   WithdrawInstructionAccounts,
 } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   AuctioneerAuthorityRequiredError,
@@ -12,13 +13,12 @@ import {
 import { AuctionHouse } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   isSigner,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -100,7 +100,7 @@ export type WithdrawFromBuyerAccountInput = {
    * Amount of funds to withdraw.
    * This can either be in SOL or in the SPL token used by the Auction House as a currency.
    */
-  amount: SolAmount | SplTokenAmount;
+  amount: Amount;
 };
 
 /**
@@ -210,7 +210,7 @@ export const withdrawFromBuyerAccountBuilder = (
   // Args.
   const args = {
     escrowPaymentBump: escrowPayment.bump,
-    amount: amountBasisPoint,
+    amount: new BN(amountBasisPoint.toString()),
   };
 
   // Withdraw Instruction.

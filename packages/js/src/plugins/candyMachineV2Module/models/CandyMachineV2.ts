@@ -514,7 +514,7 @@ export type CandyMachineV2Configs = {
    * @example
    * ```ts
    * { price: sol(1.5) } // For 1.5 SOL.
-   * { price: token(320, 2, MYTOKEN) } // For 3.2 MYTOKEN which is a 2-decimal token.
+   * { price: toTokenAmount(320, 'MYTOKEN', 2) } // For 3.2 MYTOKEN which is a 2-decimal token.
    * ```
    */
   price: Amount;

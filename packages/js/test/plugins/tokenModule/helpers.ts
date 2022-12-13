@@ -1,8 +1,8 @@
 import { Test } from 'tape';
 import {
+  Amount,
   formatAmount,
   isEqualToAmount,
-  SplTokenAmount,
   Token,
   TokenWithMint,
 } from '@/index';
@@ -11,7 +11,7 @@ import type { Metaplex } from '@/Metaplex';
 export const assertTokenHasAmount = (
   t: Test,
   token: Token | TokenWithMint,
-  amount: SplTokenAmount
+  amount: Amount
 ) => {
   t.true(
     isEqualToAmount(token.amount, amount),
@@ -23,7 +23,7 @@ export const assertRefreshedTokenHasAmount = async (
   t: Test,
   metaplex: Metaplex,
   token: Token | TokenWithMint,
-  amount: SplTokenAmount
+  amount: Amount
 ) => {
   const refreshedToken = await refreshToken(metaplex, token);
   assertTokenHasAmount(t, refreshedToken, amount);

@@ -5,13 +5,12 @@ import { AuctionHouse, Bid, Listing, Purchase } from '../models';
 import { ExecuteSaleBuilderContext } from './executeSale';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   now,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SolAmount,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -97,7 +96,7 @@ export type DirectBuyInput = {
    *
    * @defaultValue `listing.price`.
    */
-  price?: SolAmount | SplTokenAmount;
+  price?: Amount;
 
   /**
    * The Auctioneer authority key.
@@ -300,6 +299,7 @@ export const directBuyBuilder = async (
   };
 
   return TransactionBuilder.make<DirectBuyBuilderContext>()
+    .setFeePayer(payer)
     .setContext({
       bid,
       purchase,

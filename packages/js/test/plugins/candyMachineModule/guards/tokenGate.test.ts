@@ -18,7 +18,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(1),
+    initialSupply: toTokenAmount(1),
   });
 
   // And a loaded Candy Machine with the token gate guard.
@@ -28,7 +28,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
     guards: {
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });
@@ -63,7 +63,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And a loaded Candy Machine with the token gate guard that requires 5 tokens.
@@ -73,7 +73,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
     guards: {
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(5),
+        amount: toTokenAmount(5),
       },
     },
   });
@@ -108,7 +108,7 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(1),
+    initialSupply: toTokenAmount(1),
   });
 
   // And a loaded Candy Machine with the token gate guard.
@@ -118,7 +118,7 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
     guards: {
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });
@@ -148,7 +148,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(0),
+    initialSupply: toTokenAmount(0),
   });
 
   // And a loaded Candy Machine with the token gate guard.
@@ -158,7 +158,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
     guards: {
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });
@@ -188,7 +188,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(5),
+    initialSupply: toTokenAmount(5),
   });
 
   // And a loaded Candy Machine with the token gate guard that requires 10 tokens.
@@ -198,7 +198,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
     guards: {
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(10),
+        amount: toTokenAmount(10),
       },
     },
   });
@@ -228,7 +228,7 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(0),
+    initialSupply: toTokenAmount(0),
   });
 
   // And a loaded Candy Machine with the token gate guard and the bot tax guard.
@@ -242,7 +242,7 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
       },
       tokenGate: {
         mint: payerTokens.mint.address,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });

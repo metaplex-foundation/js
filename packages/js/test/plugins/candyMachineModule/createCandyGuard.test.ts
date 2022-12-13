@@ -78,7 +78,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         destination: lamportDestination,
       },
       tokenPayment: {
-        amount: token(5),
+        amount: toTokenAmount(5),
         mint: tokenMint,
         destinationAta: tokenDestination,
       },
@@ -90,7 +90,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenGate: {
         mint: tokenGateMint,
-        amount: token(5),
+        amount: toTokenAmount(5),
       },
       gatekeeper: {
         network: gatekeeperNetwork,
@@ -124,7 +124,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenBurn: {
         mint: tokenBurnMint,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });
@@ -143,7 +143,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         destination: spokSamePubkey(lamportDestination),
       },
       tokenPayment: {
-        amount: spokSameAmount(token(5)),
+        amount: spokSameAmount(toTokenAmount(5)),
         mint: spokSamePubkey(tokenMint),
         destinationAta: spokSamePubkey(tokenDestination),
       },
@@ -155,7 +155,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenGate: {
         mint: spokSamePubkey(tokenGateMint),
-        amount: spokSameAmount(token(5)),
+        amount: spokSameAmount(toTokenAmount(5)),
       },
       gatekeeper: {
         network: spokSamePubkey(gatekeeperNetwork),
@@ -189,7 +189,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
       },
       tokenBurn: {
         mint: spokSamePubkey(tokenBurnMint),
-        amount: spokSameAmount(token(1)),
+        amount: spokSameAmount(toTokenAmount(1)),
       },
     },
     groups: [],
@@ -242,7 +242,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
             },
             tokenGate: {
               mint: tokenGateMint,
-              amount: token(1),
+              amount: toTokenAmount(1),
             },
           },
         },
@@ -303,7 +303,7 @@ test('[candyMachineModule] create candy guard with guard groups', async (t) => {
           },
           tokenGate: {
             mint: spokSamePubkey(tokenGateMint),
-            amount: spokSameAmount(token(1)),
+            amount: spokSameAmount(toTokenAmount(1)),
           },
         },
       },

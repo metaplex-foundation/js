@@ -48,7 +48,7 @@ test('[auctionHouseModule] execute sale on an Auction House', async (t: Test) =>
   // Then we created and returned the new Purchase with appropriate values.
   const expectedPurchase = {
     price: spokSameAmount(sol(1)),
-    tokens: spokSameAmount(token(1)),
+    tokens: spokSameAmount(toTokenAmount(1)),
     buyerAddress: spokSamePubkey(buyer.publicKey),
     sellerAddress: spokSamePubkey(mx.identity().publicKey),
     auctionHouse: {
@@ -358,7 +358,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
   // And airdrop 2 Tokens to buyer.
   await mx.tokens().mint({
     mintAddress: treasuryToken.mint.address,
-    amount: token(2),
+    amount: toTokenAmount(2),
     toOwner: buyer.publicKey,
   });
 
@@ -373,7 +373,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
   const { listing } = await mx.auctionHouse().list({
     auctionHouse,
     mintAccount: nft.address,
-    price: token(2),
+    price: toTokenAmount(2),
   });
 
   // And we created a private bid on that NFT for 2 Tokens.
@@ -382,7 +382,7 @@ test('[auctionHouseModule] it executes sale on an Auction House with SPL treasur
     buyer,
     mintAccount: nft.address,
     tokenAccount: nft.token.address,
-    price: token(2),
+    price: toTokenAmount(2),
   });
 
   // When we execute a sale with given listing and bid.

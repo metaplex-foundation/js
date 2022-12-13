@@ -3,14 +3,14 @@ import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
+  Amount,
   isSigner,
   KeypairSigner,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SplTokenAmount,
-  token,
+  toTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -64,9 +64,9 @@ export type ApproveTokenDelegateAuthorityInput = {
    * The maximum amount of tokens that can be manipulated
    * by the new delegate authority.
    *
-   * @defaultValue `token(1)`
+   * @defaultValue `toTokenAmount(1)`
    */
-  amount?: SplTokenAmount;
+  amount?: Amount;
 
   /**
    * The owner of the token account as a Signer.
@@ -163,7 +163,7 @@ export const approveTokenDelegateAuthorityBuilder = (
   const {
     mintAddress,
     delegateAuthority,
-    amount = token(1),
+    amount = toTokenAmount(1),
     owner = metaplex.identity(),
     tokenAddress,
     multiSigners = [],
@@ -189,7 +189,7 @@ export const approveTokenDelegateAuthorityBuilder = (
         tokenAddressOrAta,
         delegateAuthority,
         ownerPublicKey,
-        amount.basisPoints.toNumber(),
+        amount.basisPoints,
         multiSigners,
         tokenProgram.address
       ),

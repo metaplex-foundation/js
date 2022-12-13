@@ -356,9 +356,8 @@ type Nft = Readonly<{
         mintAuthorityAddress: Option<PublicKey>;
         freezeAuthorityAddress: Option<PublicKey>;
         decimals: number;
-        supply: SplTokenAmount;
+        supply: Amount;
         isWrappedSol: boolean;
-        currency: SplTokenCurrency;
     };
     edition:
         | {

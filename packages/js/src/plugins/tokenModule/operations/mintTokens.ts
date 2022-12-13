@@ -3,13 +3,13 @@ import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
+  Amount,
   isSigner,
   KeypairSigner,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -30,7 +30,7 @@ const Key = 'MintTokensOperation' as const;
  *   .mint({
  *     mintAddress,
  *     toOwner,
- *     amount: token(100),
+ *     amount: toTokenAmount(100),
  *   };
  * ```
  *
@@ -58,7 +58,7 @@ export type MintTokensInput = {
   mintAddress: PublicKey;
 
   /** The amount of tokens to mint. */
-  amount: SplTokenAmount;
+  amount: Amount;
 
   /**
    * The owner of the token account to mint to.
@@ -191,7 +191,7 @@ export type MintTokensBuilderParams = Omit<
  *   .mint({
  *     mintAddress,
  *     toOwner,
- *     amount: token(100),
+ *     amount: toTokenAmount(100),
  *   });
  * ```
  *
@@ -254,7 +254,7 @@ export const mintTokensBuilder = async (
           mintAddress,
           toPublicKey(destination),
           mintAuthorityPublicKey,
-          amount.basisPoints.toNumber(),
+          amount.basisPoints,
           multiSigners,
           tokenProgram.address
         ),

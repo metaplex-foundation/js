@@ -60,7 +60,7 @@ import {
   verifyNftCreatorOperation,
 } from './operations';
 import { PartialKeys } from '@/utils';
-import { OperationOptions, token } from '@/types';
+import { OperationOptions, toTokenAmount } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
 /**
@@ -396,6 +396,8 @@ export class NftClient {
     options?: OperationOptions
   ) {
     // TODO: update documentation.
-    return this.metaplex.tokens().send({ ...input, amount: token(1) }, options);
+    return this.metaplex
+      .tokens()
+      .send({ ...input, amount: toTokenAmount(1) }, options);
   }
 }

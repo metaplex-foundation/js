@@ -5,6 +5,7 @@ import {
   FreezeTokenPayment,
   freezeTokenPaymentBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { BN } from 'bn.js';
 import {
   MintOwnerMustBeMintPayerError,
   UnrecognizePathForRouteInstructionError,
@@ -16,12 +17,12 @@ import {
 } from './core';
 import { assert } from '@/utils';
 import {
+  Amount,
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
   Signer,
-  SplTokenAmount,
-  token,
+  toAmount,
 } from '@/types';
 
 /**
@@ -45,7 +46,7 @@ export type FreezeTokenPaymentGuardSettings = {
   mint: PublicKey;
 
   /** The amount of tokens required to mint an NFT. */
-  amount: SplTokenAmount;
+  amount: Amount;
 
   /** The associated token address to send the tokens to. */
   destinationAta: PublicKey;
@@ -156,12 +157,12 @@ export const freezeTokenPaymentGuardManifest: CandyGuardManifest<
     createSerializerFromBeet(freezeTokenPaymentBeet),
     (settings) => ({
       mint: settings.mint,
-      amount: token(settings.amount),
+      amount: toAmount(settings.amount.toString(), 'Token', 0),
       destinationAta: settings.destinationAta,
     }),
     (settings) => ({
       mint: settings.mint,
-      amount: settings.amount.basisPoints,
+      amount: new BN(settings.amount.basisPoints.toString()),
       destinationAta: settings.destinationAta,
     })
   ),

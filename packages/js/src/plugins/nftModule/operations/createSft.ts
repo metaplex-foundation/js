@@ -7,6 +7,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  Amount,
   Creator,
   CreatorInput,
   isSigner,
@@ -15,7 +16,6 @@ import {
   OperationHandler,
   OperationScope,
   Signer,
-  SplTokenAmount,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -149,7 +149,7 @@ export type CreateSftInput = {
    *
    * @defaultValue Defaults to not minting any tokens.
    */
-  tokenAmount?: SplTokenAmount;
+  tokenAmount?: Amount;
 
   /**
    * The number of decimal points used to define token amounts.

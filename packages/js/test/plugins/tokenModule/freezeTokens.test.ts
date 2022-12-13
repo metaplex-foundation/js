@@ -37,7 +37,7 @@ test('[tokenModule] a frozen account cannot send tokens', async (t: Test) => {
   const { token: tokenWithMint } = await mx.tokens().createTokenWithMint({
     owner: owner.publicKey,
     freezeAuthority: freezeAuthority.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And that token account has been frozen.
@@ -50,7 +50,7 @@ test('[tokenModule] a frozen account cannot send tokens', async (t: Test) => {
   // When we try to send tokens from the frozen account.
   const promise = mx.tokens().send({
     mintAddress: tokenWithMint.mint.address,
-    amount: token(10),
+    amount: toTokenAmount(10),
     fromOwner: owner,
     toOwner: Keypair.generate().publicKey,
   });

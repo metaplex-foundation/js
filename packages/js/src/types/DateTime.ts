@@ -1,19 +1,18 @@
-import BN from 'bn.js';
-import { BigNumberValues } from './BigNumber';
+import { BigIntInput, toBigInt } from './Amount';
 import { assert, Opaque, Option } from '@/utils';
 
 export type DateTimeString = string;
-export type DateTimeValues = DateTimeString | BigNumberValues | Date;
-export type DateTime = Opaque<BN, 'DateTime'>;
+export type DateTimeValues = DateTimeString | BigIntInput | Date;
+export type DateTime = Opaque<bigint, 'DateTime'>;
 
 export const toDateTime = (value: DateTimeValues): DateTime => {
   if (typeof value === 'string' || isDateObject(value)) {
     const date = new Date(value);
     const timestamp = Math.floor(date.getTime() / 1000);
-    return new BN(timestamp) as DateTime;
+    return toBigInt(timestamp) as DateTime;
   }
 
-  return new BN(value) as DateTime;
+  return toBigInt(value) as DateTime;
 };
 
 export const now = (): DateTime => toDateTime(new Date(Date.now()));
@@ -49,7 +48,7 @@ export const formatDateTime = (
     minute: 'numeric',
   }
 ): string => {
-  const date = new Date(value.toNumber() * 1000);
+  const date = new Date((value * toBigInt(1000)).toString());
 
   return date.toLocaleDateString(locales, options);
 };

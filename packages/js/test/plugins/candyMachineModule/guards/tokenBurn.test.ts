@@ -18,7 +18,7 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(1),
+    initialSupply: toTokenAmount(1),
   });
 
   // And a loaded Candy Machine with the tokenBurn guard.
@@ -28,7 +28,7 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
     guards: {
       tokenBurn: {
         mint: payerTokens.mint.address,
-        amount: token(1),
+        amount: toTokenAmount(1),
       },
     },
   });
@@ -56,7 +56,7 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
     .findTokenByAddress({ address: payerTokens.address });
 
   t.ok(
-    isEqualToAmount(refreshedPayerTokens.amount, token(0)),
+    isEqualToAmount(refreshedPayerTokens.amount, toTokenAmount(0)),
     'payer now has zero tokens'
   );
 });
@@ -68,7 +68,7 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(42),
+    initialSupply: toTokenAmount(42),
   });
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 5 tokens.
@@ -78,7 +78,7 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
     guards: {
       tokenBurn: {
         mint: payerTokens.mint.address,
-        amount: token(5),
+        amount: toTokenAmount(5),
       },
     },
   });
@@ -106,7 +106,7 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
     .findTokenByAddress({ address: payerTokens.address });
 
   t.ok(
-    isEqualToAmount(refreshedPayerTokens.amount, token(37)),
+    isEqualToAmount(refreshedPayerTokens.amount, toTokenAmount(37)),
     'payer now has 37 tokens'
   );
 });
@@ -118,7 +118,7 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(1),
+    initialSupply: toTokenAmount(1),
   });
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 2 tokens.
@@ -128,7 +128,7 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
     guards: {
       tokenBurn: {
         mint: payerTokens.mint.address,
-        amount: token(2),
+        amount: toTokenAmount(2),
       },
     },
   });
@@ -151,7 +151,7 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
     .findTokenByAddress({ address: payerTokens.address });
 
   t.ok(
-    isEqualToAmount(refreshedPayerTokens.amount, token(1)),
+    isEqualToAmount(refreshedPayerTokens.amount, toTokenAmount(1)),
     'payer still has one token'
   );
 });
@@ -163,7 +163,7 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
   const { token: payerTokens } = await mx.tokens().createTokenWithMint({
     mintAuthority: Keypair.generate(),
     owner: payer.publicKey,
-    initialSupply: token(1),
+    initialSupply: toTokenAmount(1),
   });
 
   // And a loaded Candy Machine with a botTax guard and a tokenBurn guard that requires 2 tokens.
@@ -177,7 +177,7 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
       },
       tokenBurn: {
         mint: payerTokens.mint.address,
-        amount: token(2),
+        amount: toTokenAmount(2),
       },
     },
   });
@@ -207,7 +207,7 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
     .findTokenByAddress({ address: payerTokens.address });
 
   t.ok(
-    isEqualToAmount(refreshedPayerTokens.amount, token(1)),
+    isEqualToAmount(refreshedPayerTokens.amount, toTokenAmount(1)),
     'payer still has one token'
   );
 });

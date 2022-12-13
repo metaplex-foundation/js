@@ -1,11 +1,12 @@
 import { TokenBurn, tokenBurnBeet } from '@metaplex-foundation/mpl-candy-guard';
+import { BN } from 'bn.js';
 import { CandyGuardManifest } from './core';
 import {
+  Amount,
   createSerializerFromBeet,
   mapSerializer,
   PublicKey,
-  SplTokenAmount,
-  token,
+  toAmount,
 } from '@/types';
 
 /**
@@ -26,7 +27,7 @@ export type TokenBurnGuardSettings = {
   mint: PublicKey;
 
   /** The amount of tokens required to mint an NFT. */
-  amount: SplTokenAmount;
+  amount: Amount;
 };
 
 /** @internal */
@@ -36,8 +37,14 @@ export const tokenBurnGuardManifest: CandyGuardManifest<TokenBurnGuardSettings> 
     settingsBytes: 40,
     settingsSerializer: mapSerializer<TokenBurn, TokenBurnGuardSettings>(
       createSerializerFromBeet(tokenBurnBeet),
-      (settings) => ({ ...settings, amount: token(settings.amount) }),
-      (settings) => ({ ...settings, amount: settings.amount.basisPoints })
+      (settings) => ({
+        ...settings,
+        amount: toAmount(settings.amount.toString(), 'Token', 0),
+      }),
+      (settings) => ({
+        ...settings,
+        amount: new BN(settings.amount.basisPoints.toString()),
+      })
     ),
     mintSettingsParser: ({ metaplex, settings, payer, programs }) => {
       const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
