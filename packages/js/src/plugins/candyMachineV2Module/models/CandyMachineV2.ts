@@ -17,15 +17,14 @@ import {
 import { CandyMachineV2Program } from '../program';
 import {
   Amount,
-  BigNumber,
   DateTime,
   lamports,
-  toBigNumber,
   toDateTime,
   toOptionDateTime,
   UnparsedAccount,
   Creator,
   toAmount,
+  toBigInt,
 } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { Mint } from '@/plugins/tokenModule';
@@ -148,7 +147,7 @@ export type CandyMachineV2 = {
    * Note that you cannot set this to `null` which means unlimited editions
    * are not supported by the Candy Machine program.
    */
-  readonly maxEditionSupply: BigNumber;
+  readonly maxEditionSupply: bigint;
 
   /**
    * The parsed items that are loaded in the Candy Machine.
@@ -161,17 +160,17 @@ export type CandyMachineV2 = {
   /**
    * The total number of items availble in the Candy Machine, minted or not.
    */
-  readonly itemsAvailable: BigNumber;
+  readonly itemsAvailable: bigint;
 
   /**
    * The number of items that have been minted on this Candy Machine so far.
    */
-  readonly itemsMinted: BigNumber;
+  readonly itemsMinted: bigint;
 
   /**
    * The number of remaining items in the Candy Machine that can still be minted.
    */
-  readonly itemsRemaining: BigNumber;
+  readonly itemsRemaining: bigint;
 
   /**
    * The number of items that have been inserted in the Candy Machine by
@@ -180,7 +179,7 @@ export type CandyMachineV2 = {
    *
    * This field is irrelevant if the Candy Machine is using hidden settings.
    */
-  readonly itemsLoaded: BigNumber;
+  readonly itemsLoaded: bigint;
 
   /**
    * Whether all items in the Candy Machine have been inserted by
@@ -260,7 +259,7 @@ export type CandyMachineV2EndSettingsAmount = {
   readonly endSettingType: EndSettingType.Amount;
 
   /** The maximum number of items to mint. */
-  readonly number: BigNumber;
+  readonly number: bigint;
 };
 
 /**
@@ -401,8 +400,8 @@ export const toCandyMachineV2 = (
         mint.address.equals(account.data.tokenMint))
   );
 
-  const itemsAvailable = toBigNumber(account.data.data.itemsAvailable);
-  const itemsMinted = toBigNumber(account.data.itemsRedeemed);
+  const itemsAvailable = toBigInt(account.data.data.itemsAvailable.toString());
+  const itemsMinted = toBigInt(account.data.itemsRedeemed.toString());
 
   const { endSettings } = account.data.data;
   const { hiddenSettings } = account.data.data;
@@ -411,7 +410,7 @@ export const toCandyMachineV2 = (
 
   const rawData = unparsedAccount.data;
   const itemsLoaded = hiddenSettings
-    ? toBigNumber(0)
+    ? toBigInt(0)
     : countCandyMachineV2Items(rawData);
   const items = hiddenSettings ? [] : parseCandyMachineV2Items(rawData);
 
@@ -438,24 +437,26 @@ export const toCandyMachineV2 = (
     sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
     isMutable: account.data.data.isMutable,
     retainAuthority: account.data.data.retainAuthority,
-    goLiveDate: toOptionDateTime(account.data.data.goLiveDate),
-    maxEditionSupply: toBigNumber(account.data.data.maxSupply),
+    goLiveDate: toOptionDateTime(
+      account.data.data.goLiveDate?.toString() ?? null
+    ),
+    maxEditionSupply: toBigInt(account.data.data.maxSupply?.toString()),
     items,
     itemsAvailable,
     itemsMinted,
-    itemsRemaining: toBigNumber(itemsAvailable.sub(itemsMinted)),
+    itemsRemaining: itemsAvailable - itemsMinted,
     itemsLoaded,
-    isFullyLoaded: itemsAvailable.lte(itemsLoaded),
+    isFullyLoaded: itemsAvailable <= itemsLoaded,
     // eslint-disable-next-line no-nested-ternary
     endSettings: endSettings
       ? endSettings.endSettingType === EndSettingType.Date
         ? {
             endSettingType: EndSettingType.Date,
-            date: toDateTime(endSettings.number),
+            date: toDateTime(endSettings.number.toString()),
           }
         : {
             endSettingType: EndSettingType.Amount,
-            number: toBigNumber(endSettings.number),
+            number: toBigInt(endSettings.number.toString()),
           }
       : null,
     hiddenSettings,
@@ -534,10 +535,10 @@ export type CandyMachineV2Configs = {
    *
    * @example
    * ```ts
-   * { itemsAvailable: toBigNumber(1000) } // For 1000 items.
+   * { itemsAvailable: toBigInt(1000) } // For 1000 items.
    * ```
    */
-  itemsAvailable: BigNumber;
+  itemsAvailable: bigint;
 
   /**
    * The symbol to use when minting NFTs (e.g. "MYPROJECT")
@@ -559,9 +560,9 @@ export type CandyMachineV2Configs = {
    * Note that you cannot set this to `null` which means unlimited editions
    * are not supported by the Candy Machine program.
    *
-   * @defaultValue `toBigNumber(0)`
+   * @defaultValue `toBigInt(0)`
    */
-  maxEditionSupply: BigNumber;
+  maxEditionSupply: bigint;
 
   /**
    * Whether the minted NFTs should be mutable or not.
@@ -677,14 +678,15 @@ export const toCandyMachineV2InstructionData = (
       ...configs,
       uuid: getCandyMachineV2UuidFromAddress(address),
       price: new BN(configs.price.basisPoints.toString()),
-      maxSupply: configs.maxEditionSupply,
+      maxSupply: new BN(configs.maxEditionSupply.toString()),
       endSettings: endSettings
         ? {
             ...endSettings,
-            number:
+            number: new BN(
               endSettings.endSettingType === EndSettingType.Date
-                ? endSettings.date
-                : endSettings.number,
+                ? endSettings.date.toString()
+                : endSettings.number.toString()
+            ),
           }
         : null,
       whitelistMintSettings: whitelistMintSettings

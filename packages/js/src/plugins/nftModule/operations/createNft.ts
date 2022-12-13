@@ -3,11 +3,11 @@ import {
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  BigNumber,
   CreatorInput,
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,
@@ -169,9 +169,9 @@ export type CreateNftInput = {
    * When this is `null`, an unlimited amount of editions
    * can be printed from the original edition.
    *
-   * @defaultValue `toBigNumber(0)`
+   * @defaultValue `toBigInt(0)`
    */
-  maxSupply?: Option<BigNumber>;
+  maxSupply?: Option<bigint>;
 
   /**
    * When this field is not `null`, it indicates that the NFT
@@ -440,7 +440,10 @@ export const createNftBuilder = async (
           },
           {
             createMasterEditionArgs: {
-              maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
+              maxSupply:
+                params.maxSupply === null
+                  ? null
+                  : new BN((params.maxSupply ?? BigInt(0)).toString()),
             },
           },
           tokenMetadataProgram.address

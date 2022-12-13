@@ -59,14 +59,13 @@ export class GpaBuilder {
     return this;
   }
 
-  where(offset: number, bytes: string | Buffer | PublicKey | BN | number) {
+  where(offset: number, bytes: string | Buffer | PublicKey | number | bigint) {
     if (Buffer.isBuffer(bytes)) {
       bytes = base58.encode(bytes);
     } else if (typeof bytes === 'object' && 'toBase58' in bytes) {
       bytes = bytes.toBase58();
-    } else if (BN.isBN(bytes)) {
-      bytes = base58.encode(bytes.toArray());
     } else if (typeof bytes !== 'string') {
+      bytes = typeof bytes === 'bigint' ? bytes.toString() : bytes;
       bytes = base58.encode(new BN(bytes, 'le').toArray());
     }
 

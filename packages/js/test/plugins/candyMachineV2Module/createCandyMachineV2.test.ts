@@ -22,7 +22,7 @@ import {
   CreateCandyMachineV2Input,
   getCandyMachineV2UuidFromAddress,
   sol,
-  toBigNumber,
+  toBigInt,
   token,
 } from '@/index';
 
@@ -35,7 +35,7 @@ async function init() {
   const minimalInput: CreateCandyMachineV2Input = {
     price: sol(1),
     sellerFeeBasisPoints: 500,
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
   };
 
   return { mx, tc, client, minimalInput };
@@ -49,7 +49,7 @@ test('[candyMachineV2Module] create with minimal input', async (t) => {
   const { response, candyMachine } = await client.create({
     price: sol(1.25),
     sellerFeeBasisPoints: 500,
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
   });
 
   // Then we created the Candy Machine as configured
@@ -197,7 +197,7 @@ test('[candyMachineV2Module] create with end settings', async (t) => {
     ...minimalInput,
     endSettings: {
       endSettingType: EndSettingType.Amount,
-      number: toBigNumber(100),
+      number: toBigInt(100),
     },
   });
 

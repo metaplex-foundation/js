@@ -9,7 +9,7 @@ import {
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
 import {
-  toBigNumber,
+  toBigInt,
   PublicKey,
   NftWithToken,
   sol,
@@ -27,7 +27,7 @@ test('[candyMachineModule] programGate guard: it allows minting with specified p
   // Given a loaded Candy Machine with a programGate guard allowing the memo program.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       programGate: {
@@ -66,7 +66,7 @@ test('[candyMachineModule] programGate guard: it forbids minting with unspecifie
   // Given a loaded Candy Machine with a programGate guard allowing no additional programs.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       programGate: {
@@ -100,7 +100,7 @@ test('[candyMachineModule] programGate guard: it forbids candy machine creation 
   // programGate guard allowing more than 5 programs.
   const mx = await metaplex();
   const promise = createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       programGate: {
@@ -118,7 +118,7 @@ test('[candyMachineModule] programGate guard with bot tax: it charges a bot tax 
   // and a programGate guard allowing no additional programs.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

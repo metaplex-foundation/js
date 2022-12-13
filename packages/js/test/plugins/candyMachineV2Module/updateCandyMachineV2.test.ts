@@ -15,7 +15,7 @@ import {
   spokSamePubkey,
 } from '../../helpers';
 import { create32BitsHash, createCandyMachineV2 } from './helpers';
-import { CandyMachineV2, sol, toBigNumber, toDateTime } from '@/index';
+import { CandyMachineV2, sol, toBigInt, toDateTime } from '@/index';
 
 killStuckProcess();
 
@@ -25,9 +25,9 @@ test('[candyMachineV2Module] it can update the data of a candy machine', async (
   const { candyMachine } = await createCandyMachineV2(mx, {
     price: sol(1),
     sellerFeeBasisPoints: 100,
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
     symbol: 'OLD',
-    maxEditionSupply: toBigNumber(0),
+    maxEditionSupply: toBigInt(0),
     isMutable: true,
     retainAuthority: true,
     goLiveDate: toDateTime(1000000000),
@@ -41,9 +41,9 @@ test('[candyMachineV2Module] it can update the data of a candy machine', async (
     authority: mx.identity(),
     price: sol(2),
     sellerFeeBasisPoints: 200,
-    itemsAvailable: toBigNumber(100), // <- Can only be updated with hidden settings.
+    itemsAvailable: toBigInt(100), // <- Can only be updated with hidden settings.
     symbol: 'NEW',
-    maxEditionSupply: toBigNumber(1),
+    maxEditionSupply: toBigInt(1),
     isMutable: false,
     retainAuthority: false,
     goLiveDate: toDateTime(2000000000),
@@ -86,7 +86,7 @@ test('[candyMachineV2Module] it can update the itemsAvailable of a candy machine
   // Given an existing Candy Machine with hidden settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachineV2(mx, {
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
     hiddenSettings: {
       hash: create32BitsHash('cache-file'),
       name: 'mint-name',
@@ -97,7 +97,7 @@ test('[candyMachineV2Module] it can update the itemsAvailable of a candy machine
   // When we update the items available of a Candy Machine.
   await mx
     .candyMachinesV2()
-    .update({ candyMachine, itemsAvailable: toBigNumber(200) });
+    .update({ candyMachine, itemsAvailable: toBigInt(200) });
 
   const updatedCandyMachine = await mx.candyMachinesV2().refresh(candyMachine);
 
@@ -143,7 +143,7 @@ test('[candyMachineV2Module] it can add hidden settings to a candy machine that 
   // Given an existing Candy Machine without hidden settings and without items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachineV2(mx, {
-    itemsAvailable: toBigNumber(0),
+    itemsAvailable: toBigInt(0),
     hiddenSettings: null,
   });
 
@@ -176,7 +176,7 @@ test('[candyMachineV2Module] it can update the end settings of a candy machine',
   const { candyMachine } = await createCandyMachineV2(mx, {
     endSettings: {
       endSettingType: EndSettingType.Amount,
-      number: toBigNumber(100),
+      number: toBigInt(100),
     },
   });
 

@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
+import { isEqualToAmount, sol, toBigInt, token } from '@/index';
 
 killStuckProcess();
 
@@ -23,7 +23,7 @@ test('[candyMachineModule] tokenBurn guard: it burns a specific token to allow m
 
   // And a loaded Candy Machine with the tokenBurn guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenBurn: {
@@ -73,7 +73,7 @@ test('[candyMachineModule] tokenBurn guard: it may burn multiple tokens from a s
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 5 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenBurn: {
@@ -123,7 +123,7 @@ test('[candyMachineModule] tokenBurn guard: it fails to mint if there are not en
 
   // And a loaded Candy Machine with the tokenBurn guard that requires 2 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenBurn: {
@@ -168,7 +168,7 @@ test('[candyMachineModule] tokenBurn guard with bot tax: it charges a bot tax wh
 
   // And a loaded Candy Machine with a botTax guard and a tokenBurn guard that requires 2 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

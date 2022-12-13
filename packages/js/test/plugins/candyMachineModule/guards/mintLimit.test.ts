@@ -16,7 +16,7 @@ import {
   PublicKey,
   sol,
   subtractAmounts,
-  toBigNumber,
+  toBigInt,
 } from '@/index';
 
 killStuckProcess();
@@ -25,7 +25,7 @@ test('[candyMachineModule] mintLimit guard: it allows minting when the mint limi
   // Given a loaded Candy Machine with a mint limit of 5.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -69,14 +69,14 @@ test('[candyMachineModule] mintLimit guard: it allows minting when the mint limi
     });
   const counterAccount = await mx.rpc().getAccount(counterPda);
   assertAccountExists(counterAccount);
-  t.equal(toBigNumber(counterAccount.data, 'le').toNumber(), 1);
+  t.equal(toBigInt(counterAccount.data, 'le').toNumber(), 1);
 });
 
 test('[candyMachineModule] mintLimit guard: it forbids minting when the mint limit is reached', async (t) => {
   // Given a loaded Candy Machine with a mint limit of 1.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -121,7 +121,7 @@ test('[candyMachineModule] mintLimit guard: the mint limit is local to each wall
   // Given a loaded Candy Machine with a mint limit of 1.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -172,7 +172,7 @@ test('[candyMachineModule] mintLimit guard with bot tax: it charges a bot tax wh
   // Given a loaded Candy Machine with a mint limit of 1 and a bot tax guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },

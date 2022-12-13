@@ -19,7 +19,7 @@ import {
   CandyMachineV2NotLiveError,
 } from './errors';
 import { assert } from '@/utils';
-import { BigNumber, now, Signer, toBigNumber } from '@/types';
+import { now, Signer, toBigInt } from '@/types';
 
 export const assertName = (name: string) => {
   assert(
@@ -51,9 +51,9 @@ export const assertCreators = (creators: Creator[]) => {
 
 export const assertNotFull = (
   candyMachine: Pick<CandyMachineV2, 'itemsAvailable' | 'itemsLoaded'>,
-  index: BigNumber
+  index: bigint
 ) => {
-  if (candyMachine.itemsAvailable.lte(candyMachine.itemsLoaded)) {
+  if (candyMachine.itemsAvailable <= candyMachine.itemsLoaded) {
     throw new CandyMachineV2IsFullError(index, candyMachine.itemsAvailable);
   }
 };
@@ -61,17 +61,17 @@ export const assertNotFull = (
 export const assertNotEmpty = (
   candyMachine: Pick<CandyMachineV2, 'itemsRemaining' | 'itemsAvailable'>
 ) => {
-  if (candyMachine.itemsRemaining.isZero()) {
+  if (candyMachine.itemsRemaining === BigInt(0)) {
     throw new CandyMachineV2IsEmptyError(candyMachine.itemsAvailable);
   }
 };
 
 export const assertCanAdd = (
   candyMachine: Pick<CandyMachineV2, 'itemsAvailable'>,
-  index: BigNumber,
+  index: bigint,
   amount: number
 ) => {
-  if (index.addn(amount).gt(candyMachine.itemsAvailable)) {
+  if (index + toBigInt(amount) > candyMachine.itemsAvailable) {
     throw new CandyMachineV2CannotAddAmountError(
       index,
       amount,
@@ -87,7 +87,7 @@ export const assertAllConfigLineConstraints = (configLines: ConfigLine[]) => {
       assertUri(configLines[i].uri);
     } catch (error) {
       throw new CandyMachineV2AddItemConstraintsViolatedError(
-        toBigNumber(i),
+        toBigInt(i),
         configLines[i],
         error as Error
       );
@@ -123,10 +123,10 @@ export const assertCandyMachineV2HasNotEnded = (
 
   const hasEndedByAmount =
     endSettings.endSettingType === EndSettingType.Amount &&
-    candyMachine.itemsMinted.gte(endSettings.number);
+    candyMachine.itemsMinted >= endSettings.number;
   const hasEndedByDate =
     endSettings.endSettingType === EndSettingType.Date &&
-    endSettings.date.lt(now());
+    endSettings.date < now();
 
   if (hasEndedByAmount || hasEndedByDate) {
     throw new CandyMachineV2EndedError(endSettings);

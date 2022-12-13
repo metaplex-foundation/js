@@ -19,7 +19,7 @@ import {
   Metaplex,
   NftWithToken,
   PublicKey,
-  toBigNumber,
+  toBigInt,
   token,
 } from '@/index';
 
@@ -49,7 +49,7 @@ export const createCandyMachine = async (
   let { candyMachine } = await metaplex.candyMachines().create({
     collection,
     sellerFeeBasisPoints: 200,
-    itemsAvailable: toBigNumber(1000),
+    itemsAvailable: toBigInt(1000),
     ...input,
   });
 
@@ -159,7 +159,7 @@ export const assertMintingWasSuccessful = async (
     edition: {
       model: 'nftEdition',
       isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
+      supply: spokSameBignum(toBigInt(0)),
       maxSupply: spokSameBignum(candyMachine.maxEditionSupply),
     },
     token: {

@@ -17,7 +17,6 @@ import {
 import { MissingInputDataError, NoInstructionsToSendError } from '@/errors';
 import { Metaplex } from '@/Metaplex';
 import {
-  BigNumber,
   Creator,
   Operation,
   OperationHandler,
@@ -192,7 +191,7 @@ export type UpdateCandyMachineInput<
    *
    * @defaultValue Defaults to not being updated.
    */
-  itemsAvailable?: BigNumber;
+  itemsAvailable?: bigint;
 
   /**
    * Settings related to the Candy Machine's items.
@@ -232,7 +231,7 @@ export type UpdateCandyMachineInput<
    *
    * @defaultValue Defaults to not being updated.
    */
-  maxEditionSupply?: BigNumber;
+  maxEditionSupply?: bigint;
 
   /**
    * Whether the minted NFTs should be mutable or not.

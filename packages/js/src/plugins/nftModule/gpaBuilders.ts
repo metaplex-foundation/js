@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Key, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { Metaplex } from '@/Metaplex';
 import { GpaBuilder, padEmptyChars } from '@/utils';
-import { toBigNumber } from '@/types';
+import { toBigInt } from '@/types';
 
 const MAX_NAME_LENGTH = 32;
 const MAX_SYMBOL_LENGTH = 10;
@@ -21,7 +21,7 @@ export class TokenMetadataGpaBuilder extends GpaBuilder {
   }
 
   whereKey(key: Key) {
-    return this.where(0, toBigNumber(key, 'le'));
+    return this.where(0, toBigInt(key, 'le'));
   }
 }
 

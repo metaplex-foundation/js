@@ -2,7 +2,7 @@ import { Keypair } from '@solana/web3.js';
 import test from 'tape';
 import { createWallet, killStuckProcess, metaplex } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -10,7 +10,7 @@ test('[candyMachineModule] botTax guard: it does nothing if all conditions are v
   // Given a loaded Candy Machine with a botTax guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -44,7 +44,7 @@ test('[candyMachineModule] botTax guard: it may charge a bot tax if the mint ins
   // such that lastInstruction is set to true.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

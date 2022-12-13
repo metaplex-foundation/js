@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
+import { isEqualToAmount, sol, toBigInt, token } from '@/index';
 
 killStuckProcess();
 
@@ -22,7 +22,7 @@ test('[candyMachineModule] tokenPayment guard: it transfers tokens from the paye
   });
 
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
@@ -92,7 +92,7 @@ test('[candyMachineModule] tokenPayment guard: it fails if the payer does not ha
   });
 
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenPayment: {
@@ -135,7 +135,7 @@ test('[candyMachineModule] tokenPayment guard with bot tax: it charges a bot tax
   });
 
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

@@ -15,7 +15,7 @@ import {
   DefaultCandyGuardSettings,
   emptyDefaultCandyGuardSettings,
   sol,
-  toBigNumber,
+  toBigInt,
   toDateTime,
   token,
 } from '@/index';
@@ -111,7 +111,7 @@ test('[candyMachineModule] create candy guard with all guards', async (t) => {
         destination: nftPaymentDestination,
       },
       redeemedAmount: {
-        maximum: toBigNumber(100),
+        maximum: toBigInt(100),
       },
       addressGate: {
         address: addressGate,

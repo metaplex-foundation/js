@@ -45,7 +45,7 @@ import type { Metaplex } from '@/Metaplex';
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     itemsAvailable: toBigInt(1000), // 1000 items available
  *   };
  * ```
  *

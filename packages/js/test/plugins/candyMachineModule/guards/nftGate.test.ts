@@ -9,7 +9,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -29,7 +29,7 @@ test('[candyMachineModule] nftGate guard: it allows minting when the payer owns 
 
   // And a loaded Candy Machine with an nftGate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {
@@ -78,7 +78,7 @@ test('[candyMachineModule] nftGate guard: it allows minting when the NFT is not 
 
   // And a loaded Candy Machine with an nftGate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {
@@ -134,7 +134,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer does
 
   // And a loaded Candy Machine with an nftGate guard on that collection.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {
@@ -180,7 +180,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
     updateAuthority: Keypair.generate(),
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {
@@ -222,7 +222,7 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer trie
 
   // And a loaded Candy Machine with an nftGate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {
@@ -256,7 +256,7 @@ test('[candyMachineModule] nftGate guard with bot tax: it charges a bot tax when
     updateAuthority: Keypair.generate(),
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -312,7 +312,7 @@ test('[candyMachineModule] nftGate guard: it fails if no mint settings are provi
 
   // And a loaded Candy Machine with an nftGate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftGate: {

@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -16,7 +16,7 @@ test('[candyMachineModule] thirdPartySigner guard: it allows minting when the th
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {
@@ -54,7 +54,7 @@ test('[candyMachineModule] thirdPartySigner guard: it forbids minting when the t
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {
@@ -88,7 +88,7 @@ test('[candyMachineModule] thirdPartySigner guard with bot tax: it charges a bot
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -133,7 +133,7 @@ test('[candyMachineModule] thirdPartySigner guard: minting settings must be prov
   const mx = await metaplex();
   const thirdPartySigner = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       thirdPartySigner: {

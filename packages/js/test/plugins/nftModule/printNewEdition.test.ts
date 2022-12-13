@@ -8,7 +8,7 @@ import {
   spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
-import { Nft, toBigNumber } from '@/index';
+import { Nft, toBigInt } from '@/index';
 import { assertNftOriginalEdition } from '@/plugins';
 
 killStuckProcess();
@@ -18,7 +18,7 @@ test('[nftModule] it can print a new edition from an original edition', async (t
   const mx = await metaplex();
   const originalNft = await createNft(mx, {
     name: 'Original Nft On-Chain Name',
-    maxSupply: toBigNumber(100),
+    maxSupply: toBigInt(100),
     json: {
       name: 'Original Nft Name',
       description: 'Original Nft Description',
@@ -63,7 +63,7 @@ test('[nftModule] it can print a new edition from an original edition', async (t
 test('[nftModule] it keeps track of the edition number', async (t: Test) => {
   // Given an existing Original NFT.
   const mx = await metaplex();
-  const originalNft = await createNft(mx, { maxSupply: toBigNumber(100) });
+  const originalNft = await createNft(mx, { maxSupply: toBigInt(100) });
 
   // When we print 3 new editions of the NFT.
   const input = { originalMint: originalNft.address };
@@ -97,7 +97,7 @@ test('[nftModule] it can print unlimited editions', async (t: Test) => {
 test('[nftModule] it cannot print when the maxSupply is zero', async (t: Test) => {
   // Given an existing Original NFT with a maxSupply of zero.
   const mx = await metaplex();
-  const originalNft = await createNft(mx, { maxSupply: toBigNumber(0) });
+  const originalNft = await createNft(mx, { maxSupply: toBigInt(0) });
 
   // When we try to print an edition of the NFT.
   const promise = mx

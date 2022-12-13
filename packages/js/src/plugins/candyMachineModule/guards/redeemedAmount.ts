@@ -2,13 +2,9 @@ import {
   RedeemedAmount,
   redeemedAmountBeet,
 } from '@metaplex-foundation/mpl-candy-guard';
+import { BN } from 'bn.js';
 import { CandyGuardManifest } from './core';
-import {
-  BigNumber,
-  createSerializerFromBeet,
-  mapSerializer,
-  toBigNumber,
-} from '@/types';
+import { createSerializerFromBeet, mapSerializer, toBigInt } from '@/types';
 
 /**
  * The redeemedAmount guard forbids minting when the
@@ -21,7 +17,7 @@ import {
  */
 export type RedeemedAmountGuardSettings = {
   /** The maximum amount of NFTs that can be minted using that guard. */
-  maximum: BigNumber;
+  maximum: bigint;
 };
 
 /** @internal */
@@ -34,7 +30,7 @@ export const redeemedAmountGuardManifest: CandyGuardManifest<RedeemedAmountGuard
       RedeemedAmountGuardSettings
     >(
       createSerializerFromBeet(redeemedAmountBeet),
-      (settings) => ({ maximum: toBigNumber(settings.maximum) }),
-      (settings) => settings
+      (settings) => ({ maximum: toBigInt(settings.maximum.toString()) }),
+      (settings) => ({ maximum: new BN(settings.maximum.toString()) })
     ),
   };

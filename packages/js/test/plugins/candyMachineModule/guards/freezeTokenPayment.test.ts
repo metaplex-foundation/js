@@ -23,9 +23,10 @@ import {
   Mint,
   Signer,
   sol,
-  toBigNumber,
+  toBigInt,
   token,
   TokenWithMint,
+  toTokenAmount,
 } from '@/index';
 
 killStuckProcess();
@@ -36,7 +37,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it transfers tokens to an e
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -123,7 +124,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can thaw an NFT once all
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -154,7 +155,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can unlock funds once al
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -206,7 +207,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it cannot unlock funds if n
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -261,7 +262,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it can have multiple freeze
   const treasuryD = Keypair.generate();
   const [mintD, treasuryAtaD] = await createMint(mx, treasuryD);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(4),
+    itemsAvailable: toBigInt(4),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -460,7 +461,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the fre
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -499,7 +500,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the pay
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -538,7 +539,7 @@ test('[candyMachineModule] freezeTokenPayment guard: it fails to mint if the own
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeTokenPayment: {
@@ -576,7 +577,7 @@ test('[candyMachineModule] freezeTokenPayment guard with bot tax: it charges a b
   const treasury = Keypair.generate();
   const [mint, treasuryAta] = await createMint(mx, treasury);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -684,7 +685,7 @@ const getFrozenCount = async (
     getFreezeEscrow(mx, candyMachine, destinationAta)
   );
 
-  return toBigNumber(account.frozenCount).toNumber();
+  return toBigInt(account.frozenCount).toNumber();
 };
 
 const assertFrozenCount = async (

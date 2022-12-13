@@ -18,7 +18,7 @@ import {
   defaultCandyGuardProgram,
   emptyDefaultCandyGuardSettings,
   sol,
-  toBigNumber,
+  toBigInt,
   toDateTime,
 } from '@/index';
 
@@ -31,7 +31,7 @@ test('[candyMachineModule] create candy machine with minimum configuration', asy
 
   // When we create a new Candy Machine with minimum configuration.
   const { candyMachine, candyMachineSigner } = await mx.candyMachines().create({
-    itemsAvailable: toBigNumber(5000),
+    itemsAvailable: toBigInt(5000),
     sellerFeeBasisPoints: 333, // 3.33%
     collection: {
       address: collectionNft.address,
@@ -118,7 +118,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
         updateAuthority: collectionUpdateAuthority,
       },
       sellerFeeBasisPoints: 333, // 3.33%
-      itemsAvailable: toBigNumber(5000),
+      itemsAvailable: toBigInt(5000),
       itemSettings: {
         type: 'configLines',
         prefixName: 'My NFT Drop #$ID+1$',
@@ -128,7 +128,7 @@ test('[candyMachineModule] create candy machine with maximum configuration', asy
         isSequential: true,
       },
       symbol: 'MYNFT',
-      maxEditionSupply: toBigNumber(1),
+      maxEditionSupply: toBigInt(1),
       isMutable: false,
       creators: [
         { address: creatorA, share: 50 },
@@ -246,7 +246,7 @@ test('[candyMachineModule] it fails to wrap a Candy Guard if the authority is pr
   // whilst passing the authority as a Public Key.
   const promise = mx.candyMachines().create({
     authority: Keypair.generate().publicKey,
-    itemsAvailable: toBigNumber(5000),
+    itemsAvailable: toBigInt(5000),
     sellerFeeBasisPoints: 333, // 3.33%
     collection: {
       address: collectionNft.address,
@@ -270,7 +270,7 @@ test('[candyMachineModule] create candy machine without a candy guard', async (t
   // When we create a new Candy Machine without a Candy Guard.
   const { candyMachine } = await mx.candyMachines().create({
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(5000),
+    itemsAvailable: toBigInt(5000),
     sellerFeeBasisPoints: 333, // 3.33%
     collection: {
       address: collectionNft.address,
@@ -296,7 +296,7 @@ test('[candyMachineModule] create candy machine with hidden settings', async (t)
   // When we create a new Candy Machine with hidden settings.
   const hash = create32BitsHash('some-file');
   const { candyMachine } = await mx.candyMachines().create({
-    itemsAvailable: toBigNumber(5000),
+    itemsAvailable: toBigInt(5000),
     sellerFeeBasisPoints: 333, // 3.33%
     collection: {
       address: collectionNft.address,

@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../helpers';
 import { create32BitsHash, createCandyMachine } from './helpers';
-import { toBigNumber } from '@/index';
+import { toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -17,7 +17,7 @@ test('[candyMachineModule] it can add items to a candy machine', async (t) => {
   const authority = Keypair.generate();
   const { candyMachine } = await createCandyMachine(mx, {
     authority,
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
   });
 
   // When we add two items to the Candy Machine.
@@ -56,7 +56,7 @@ test('[candyMachineModule] it uses the names and URIs as suffixes when adding it
   // Given an existing Candy Machine with prefixes for the names and URIs.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(9), // Numbers go from 1 to 9.
+    itemsAvailable: toBigInt(9), // Numbers go from 1 to 9.
     itemSettings: {
       type: 'configLines',
       prefixName: 'Degen #',
@@ -99,7 +99,7 @@ test('[candyMachineModule] it cannot add items to a candy machine with hidden se
   // Given a Candy Machine with hidden settings.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(10),
+    itemsAvailable: toBigInt(10),
     itemSettings: {
       type: 'hidden',
       name: 'Degen #$ID+1$',
@@ -125,7 +125,7 @@ test('[candyMachineModule] it cannot add items that would make the candy machine
   // Given an existing Candy Machine with a capacity of 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
   });
 
   // When we try to add 3 items to the Candy Machine.
@@ -146,7 +146,7 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   // Given an existing Candy Machine with 2 items loaded and a capacity of 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },
@@ -215,7 +215,7 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
   // Given an existing Candy Machine with 2 items loaded and capacity of 3 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(3),
+    itemsAvailable: toBigInt(3),
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
       { name: 'Degen #2', uri: 'https://example.com/degen/2' },

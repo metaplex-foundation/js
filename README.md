@@ -343,12 +343,12 @@ type Nft = Readonly<{
     }>;
     collectionDetails: Option<{
         version: 'V1';
-        size: BigNumber;
+        size: bigint;
     }>;
     uses: Option<{
         useMethod: UseMethod;
-        remaining: BigNumber;
-        total: BigNumber;
+        remaining: bigint;
+        total: bigint;
     }>;
     mint: {
         model: 'mint';
@@ -364,15 +364,15 @@ type Nft = Readonly<{
             model: 'nftEdition';
             isOriginal: true;
             address: PublicKey;
-            supply: BigNumber;
-            maxSupply: Option<BigNumber>;
+            supply: bigint;
+            maxSupply: Option<bigint>;
         }
         | {
             model: 'nftEdition';
             isOriginal: false;
             address: PublicKey;
             parent: PublicKey;
-            number: BigNumber;
+            number: bigint;
         };
 }>
 ```

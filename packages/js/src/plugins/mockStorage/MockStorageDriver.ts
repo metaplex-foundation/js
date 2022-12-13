@@ -1,5 +1,5 @@
 import { MetaplexFile, StorageDriver } from '../storageModule';
-import { Amount, BigNumber, lamports, toBigNumber } from '@/types';
+import { Amount, lamports, toBigInt } from '@/types';
 import { AssetNotFoundError } from '@/errors';
 
 const DEFAULT_BASE_URL = 'https://mockstorage.example.com/';
@@ -7,17 +7,17 @@ const DEFAULT_COST_PER_BYTE = 1;
 
 export type MockStorageOptions = {
   baseUrl?: string;
-  costPerByte?: BigNumber | number;
+  costPerByte?: bigint | number;
 };
 
 export class MockStorageDriver implements StorageDriver {
   protected cache: Record<string, MetaplexFile> = {};
   public readonly baseUrl: string;
-  public readonly costPerByte: BigNumber;
+  public readonly costPerByte: bigint;
 
   constructor(options?: MockStorageOptions) {
     this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
-    this.costPerByte = toBigNumber(
+    this.costPerByte = toBigInt(
       options?.costPerByte != null
         ? options?.costPerByte
         : DEFAULT_COST_PER_BYTE
@@ -25,7 +25,7 @@ export class MockStorageDriver implements StorageDriver {
   }
 
   async getUploadPrice(bytes: number): Promise<Amount> {
-    return lamports(this.costPerByte.muln(bytes));
+    return lamports(this.costPerByte * BigInt(bytes));
   }
 
   async upload(file: MetaplexFile): Promise<string> {

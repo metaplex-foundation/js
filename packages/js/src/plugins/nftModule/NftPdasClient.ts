@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
-import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
+import { Pda, Program, PublicKey } from '@/types';
 
 /**
  * This client allows you to build PDAs related to the NFT module.
@@ -46,7 +46,7 @@ export class NftPdasClient {
     /** The address of the mint account of the edition NFT. */
     mint: PublicKey;
     /** The edition number of the NFT. */
-    edition: BigNumber;
+    edition: bigint;
     /** An optional set of programs that override the registered ones. */
     programs?: Program[];
   }): Pda {
@@ -56,7 +56,7 @@ export class NftPdasClient {
       programId.toBuffer(),
       mint.toBuffer(),
       Buffer.from('edition', 'utf8'),
-      Buffer.from(edition.div(toBigNumber(248)).toString()),
+      Buffer.from((edition / BigInt(248)).toString()),
     ]);
   }
 

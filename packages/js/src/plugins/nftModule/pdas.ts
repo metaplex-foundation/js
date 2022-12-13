@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { PublicKey } from '@solana/web3.js';
 import { PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { BigNumber, Pda, toBigNumber } from '@/types';
+import { Pda } from '@/types';
 
 /**
  * @group Pdas
@@ -56,7 +56,7 @@ export const findEditionPda = (
  */
 export const findEditionMarkerPda = (
   mint: PublicKey,
-  edition: BigNumber,
+  edition: bigint,
   programId: PublicKey = PROGRAM_ID
 ): Pda => {
   return Pda.find(programId, [
@@ -64,7 +64,7 @@ export const findEditionMarkerPda = (
     programId.toBuffer(),
     mint.toBuffer(),
     Buffer.from('edition', 'utf8'),
-    Buffer.from(edition.div(toBigNumber(248)).toString()),
+    Buffer.from((edition / BigInt(248)).toString()),
   ]);
 };
 

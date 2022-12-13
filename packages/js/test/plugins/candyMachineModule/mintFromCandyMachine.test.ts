@@ -17,7 +17,7 @@ import {
   isLessThanAmount,
   now,
   sol,
-  toBigNumber,
+  toBigInt,
   toDateTime,
 } from '@/index';
 
@@ -30,7 +30,7 @@ test('[candyMachineModule] it can mint from a Candy Machine directly as the mint
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
     authority: candyMachineAuthority,
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -61,7 +61,7 @@ test('[candyMachineModule] it cannot mint from a Candy Machine directly if not t
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
     authority: candyMachineAuthority,
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
@@ -81,7 +81,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with no guards', async
   // Given a loaded Candy Machine with a Candy Guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -107,7 +107,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with some guards', asy
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
@@ -140,7 +140,7 @@ test("[candyMachineModule] it throws a bot tax error if minting succeeded but we
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -169,7 +169,7 @@ test('[candyMachineModule] it can mint from a Candy Guard with groups', async (t
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -222,7 +222,7 @@ test('[candyMachineModule] it cannot mint using the default guards if the Candy 
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -265,7 +265,7 @@ test('[candyMachineModule] it cannot mint using a labelled group if the Candy Gu
   // Given a loaded Candy Machine with no guard groups.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -291,7 +291,7 @@ test('[candyMachineModule] it cannot mint from a Candy Guard with groups if the 
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     authority: Keypair.generate(),
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -335,7 +335,7 @@ test('[candyMachineModule] it can mint from a candy machine using an explicit pa
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
@@ -375,7 +375,7 @@ test('[candyMachineModule] it cannot mint from an empty candy machine', async (t
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(0),
+    itemsAvailable: toBigInt(0),
   });
 
   // When we try to mint from it.
@@ -393,7 +393,7 @@ test('[candyMachineModule] it cannot mint from a candy machine that is not fully
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
@@ -416,7 +416,7 @@ test('[candyMachineModule] it cannot mint from a candy machine that has been ful
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
 
@@ -441,7 +441,7 @@ test('[candyMachineModule] it can mint from a candy machine using hidden setting
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(100_000_000),
+    itemsAvailable: toBigInt(100_000_000),
     itemSettings: {
       type: 'hidden',
       name: 'Degen $ID+1$',
@@ -471,7 +471,7 @@ test('[candyMachineModule] it can mint from a candy machine sequentially', async
   const itemsAvailable = 16;
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(itemsAvailable),
+    itemsAvailable: toBigInt(itemsAvailable),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: Array(itemsAvailable)
       .fill({})
@@ -503,7 +503,7 @@ test('[candyMachineModule] it can mint from a candy machine in a random order', 
   const itemsAvailable = 16;
   const { candyMachine, collection } = await createCandyMachine(mx, {
     withoutCandyGuard: true,
-    itemsAvailable: toBigNumber(itemsAvailable),
+    itemsAvailable: toBigInt(itemsAvailable),
     itemSettings: { ...SEQUENTIAL_ITEM_SETTINGS, isSequential: false },
     items: Array(itemsAvailable)
       .fill({})

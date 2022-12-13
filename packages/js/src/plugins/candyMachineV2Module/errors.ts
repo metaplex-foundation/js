@@ -1,7 +1,7 @@
 import { EndSettingType } from '@metaplex-foundation/mpl-candy-machine';
 import { CandyMachineV2Item, CandyMachineV2EndSettings } from './models';
 import { MetaplexError } from '@/errors';
-import { BigNumber, DateTime, formatDateTime } from '@/types';
+import { DateTime, formatDateTime } from '@/types';
 import { Option } from '@/utils';
 
 /** @group Errors */
@@ -15,9 +15,9 @@ export class CandyMachineV2Error extends MetaplexError {
 /** @group Errors */
 export class CandyMachineV2IsFullError extends CandyMachineV2Error {
   readonly name: string = 'CandyMachineV2IsFullError';
-  constructor(assetIndex: BigNumber, itemsAvailable: BigNumber) {
+  constructor(assetIndex: bigint, itemsAvailable: bigint) {
     const message =
-      `Trying to add asset number ${assetIndex.addn(1)}, but ` +
+      `Trying to add asset number ${assetIndex + BigInt(1)}, but ` +
       `candy machine only can hold ${itemsAvailable} assets. ` +
       'Limit number of assets you are adding or create a new Candy Machine that can hold more.';
     super(message);
@@ -27,7 +27,7 @@ export class CandyMachineV2IsFullError extends CandyMachineV2Error {
 /** @group Errors */
 export class CandyMachineV2IsEmptyError extends CandyMachineV2Error {
   readonly name: string = 'CandyMachineV2IsEmptyError';
-  constructor(itemsAvailable: BigNumber) {
+  constructor(itemsAvailable: bigint) {
     const message =
       `You're trying to mint from an empty candy machine. ` +
       `All ${itemsAvailable} items have been minted. ` +
@@ -39,7 +39,7 @@ export class CandyMachineV2IsEmptyError extends CandyMachineV2Error {
 /** @group Errors */
 export class CandyMachineV2CannotAddAmountError extends CandyMachineV2Error {
   readonly name: string = 'CandyMachineV2CannotAddAmountError';
-  constructor(index: BigNumber, amount: number, itemsAvailable: BigNumber) {
+  constructor(index: bigint, amount: number, itemsAvailable: bigint) {
     const message =
       `Trying to add ${amount} assets to candy machine that already ` +
       `has ${index} assets and can only hold ${itemsAvailable} assets.` +
@@ -51,7 +51,7 @@ export class CandyMachineV2CannotAddAmountError extends CandyMachineV2Error {
 /** @group Errors */
 export class CandyMachineV2AddItemConstraintsViolatedError extends CandyMachineV2Error {
   readonly name: string = 'CandyMachineV2AddItemConstraintsViolatedError';
-  constructor(index: BigNumber, item: CandyMachineV2Item, cause: Error) {
+  constructor(index: bigint, item: CandyMachineV2Item, cause: Error) {
     const message =
       `Trying to add an asset with name "${item.name}" and uri: "${item.uri}" ` +
       `to candy machine at index ${index} that violates constraints. ` +

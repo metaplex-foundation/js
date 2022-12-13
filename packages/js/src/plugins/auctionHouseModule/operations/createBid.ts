@@ -381,8 +381,8 @@ export const createBidBuilder = async (
   const args = {
     tradeStateBump: buyerTradeState.bump,
     escrowPaymentBump: escrowPayment.bump,
-    buyerPrice: price.basisPoints,
-    tokenSize: tokens.basisPoints,
+    buyerPrice: new BN(price.basisPoints.toString()),
+    tokenSize: new BN(tokens.basisPoints.toString()),
   };
 
   // Sell Instruction.

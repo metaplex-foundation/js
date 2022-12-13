@@ -27,7 +27,7 @@ import {
   OperationHandler,
   OperationScope,
   Signer,
-  toBigNumber,
+  toBigInt,
   toPublicKey,
   useOperation,
 } from '@/types';
@@ -49,7 +49,7 @@ const Key = 'CreateCandyMachineV2Operation' as const;
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     itemsAvailable: toBigInt(1000), // 1000 items available
  *   };
  * ```
  *
@@ -209,7 +209,7 @@ export type CreateCandyMachineV2BuilderContext = Omit<
  *   .create({
  *     sellerFeeBasisPoints: 500, // 5% royalties
  *     price: sol(1.3), // 1.3 SOL
- *     itemsAvailable: toBigNumber(1000), // 1000 items available
+ *     itemsAvailable: toBigInt(1000), // 1000 items available
  *   });
  * ```
  *
@@ -233,7 +233,7 @@ export const createCandyMachineV2Builder = async (
       wallet: params.wallet ?? metaplex.identity().publicKey,
       tokenMint: params.tokenMint ?? null,
       symbol: params.symbol ?? '',
-      maxEditionSupply: params.maxEditionSupply ?? toBigNumber(0),
+      maxEditionSupply: params.maxEditionSupply ?? toBigInt(0),
       isMutable: params.isMutable ?? true,
       retainAuthority: params.retainAuthority ?? true,
       goLiveDate: params.goLiveDate ?? null,

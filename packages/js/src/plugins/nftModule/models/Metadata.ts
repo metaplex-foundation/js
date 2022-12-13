@@ -6,7 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
 import { JsonMetadata } from './JsonMetadata';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import { Creator, Pda, toBigInt } from '@/types';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
@@ -118,7 +118,7 @@ export type Metadata<Json extends object = JsonMetadata> = {
     version: 'V1';
 
     /** The size of the collection, automatically kept up-to-date by the program. */
-    size: BigNumber;
+    size: bigint;
   }>;
 
   /**
@@ -130,10 +130,10 @@ export type Metadata<Json extends object = JsonMetadata> = {
     useMethod: UseMethod;
 
     /** The amount of remaining uses. */
-    remaining: BigNumber;
+    remaining: bigint;
 
     /** The total amount of uses that was initially allowed. */
-    total: BigNumber;
+    total: bigint;
   }>;
 };
 
@@ -179,14 +179,14 @@ export const toMetadata = (
   collectionDetails: account.data.collectionDetails
     ? {
         version: account.data.collectionDetails.__kind,
-        size: toBigNumber(account.data.collectionDetails.size),
+        size: toBigInt(account.data.collectionDetails.size.toString()),
       }
     : null,
   uses: account.data.uses
     ? {
         ...account.data.uses,
-        remaining: toBigNumber(account.data.uses.remaining),
-        total: toBigNumber(account.data.uses.total),
+        remaining: toBigInt(account.data.uses.remaining.toString()),
+        total: toBigInt(account.data.uses.total.toString()),
       }
     : null,
 });

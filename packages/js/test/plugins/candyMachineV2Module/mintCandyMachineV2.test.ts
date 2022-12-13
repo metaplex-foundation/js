@@ -16,7 +16,7 @@ import {
   findCandyMachineV2CreatorPda,
   Nft,
   now,
-  toBigNumber,
+  toBigInt,
   toDateTime,
   token,
 } from '@/index';
@@ -27,7 +27,7 @@ test('[candyMachineV2Module] it can mint from candy machine', async (t) => {
   // Given an existing Candy Machine with 2 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachineV2(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     items: [
@@ -69,17 +69,17 @@ test('[candyMachineV2Module] it can mint from candy machine', async (t) => {
     edition: {
       model: 'nftEdition',
       isOriginal: true,
-      supply: spokSameBignum(toBigNumber(0)),
-      maxSupply: spokSameBignum(toBigNumber(0)),
+      supply: spokSameBignum(toBigInt(0)),
+      maxSupply: spokSameBignum(toBigInt(0)),
     },
   } as Specifications<Nft>);
 
   // And the Candy Machine data was updated.
   spok(t, updatedCandyMachine, {
     $topic: 'Update Candy Machine',
-    itemsAvailable: spokSameBignum(toBigNumber(2)),
-    itemsMinted: spokSameBignum(toBigNumber(1)),
-    itemsRemaining: spokSameBignum(toBigNumber(1)),
+    itemsAvailable: spokSameBignum(toBigInt(2)),
+    itemsMinted: spokSameBignum(toBigInt(1)),
+    itemsRemaining: spokSameBignum(toBigInt(1)),
   } as Specifications<CandyMachineV2>);
 });
 
@@ -89,7 +89,7 @@ test('[candyMachineV2Module] it can mint from candy machine with a collection', 
   const collection = await createNft(mx);
   const { candyMachine } = await createCandyMachineV2(mx, {
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     collection: collection.address,
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
   });
@@ -115,7 +115,7 @@ test('[candyMachineV2Module] it can mint from candy machine as another payer', a
   const payer = await createWallet(mx);
   const { candyMachine } = await createCandyMachineV2(mx, {
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
@@ -152,12 +152,10 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   // - One for the candy machine "treasuryTokenAccount".
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  const { token: payerTokenAccount } = await mx
-    .tokens()
-    .createTokenWithMint({
-      initialSupply: toTokenAmount(10),
-      owner: payer.publicKey,
-    });
+  const { token: payerTokenAccount } = await mx.tokens().createTokenWithMint({
+    initialSupply: toTokenAmount(10),
+    owner: payer.publicKey,
+  });
 
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
@@ -168,7 +166,7 @@ test('[candyMachineV2Module] it can mint from candy machine with an SPL treasury
   const { candyMachine } = await createCandyMachineV2(mx, {
     price: toTokenAmount(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     tokenMint: mintTreasury.address,
@@ -209,12 +207,10 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   // - One for the candy machine "treasuryTokenAccount".
   const mx = await metaplex();
   const payer = await createWallet(mx);
-  const { token: payerTokenAccount } = await mx
-    .tokens()
-    .createTokenWithMint({
-      initialSupply: toTokenAmount(10),
-      owner: payer.publicKey,
-    });
+  const { token: payerTokenAccount } = await mx.tokens().createTokenWithMint({
+    initialSupply: toTokenAmount(10),
+    owner: payer.publicKey,
+  });
 
   const mintTreasury = payerTokenAccount.mint;
   const { token: treasuryTokenAccount } = await mx
@@ -243,7 +239,7 @@ test('[candyMachineV2Module] it can mint from candy machine even when we max out
   const { candyMachine } = await createCandyMachineV2(mx, {
     price: toTokenAmount(5),
     goLiveDate: toDateTime(now().subn(24 * 60 * 60)), // Yesterday.
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     symbol: 'CANDY',
     sellerFeeBasisPoints: 123,
     tokenMint: mintTreasury.address,

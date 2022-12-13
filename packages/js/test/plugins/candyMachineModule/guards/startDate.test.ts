@@ -6,7 +6,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, now, sol, toBigNumber, toDateTime } from '@/index';
+import { isEqualToAmount, now, sol, toBigInt, toDateTime } from '@/index';
 
 killStuckProcess();
 
@@ -16,7 +16,7 @@ test('[candyMachineModule] startDate guard: it allows minting after the start da
   // Given a loaded Candy Machine with a start date in the past.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
@@ -48,7 +48,7 @@ test('[candyMachineModule] startDate guard: it forbids minting before the start 
   // Given a loaded Candy Machine with a start date in the future.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       startDate: {
@@ -75,7 +75,7 @@ test('[candyMachineModule] startDate guard with bot tax: it charges a bot tax wh
   // Given a loaded Candy Machine with a start date in the future and a bot tax.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

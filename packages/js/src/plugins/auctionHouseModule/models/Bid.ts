@@ -5,12 +5,11 @@ import { AuctionHouse } from './AuctionHouse';
 import { assert, Option } from '@/utils';
 import {
   Amount,
-  BigNumber,
   DateTime,
   lamports,
   Pda,
   toAmount,
-  toBigNumber,
+  toBigInt,
   toDateTime,
   toOptionDateTime,
 } from '@/types';
@@ -188,7 +187,7 @@ export const toLazyBid = (
           account.data.price.toString(),
           ...auctionHouse.treasuryMint.currency
         ),
-    tokens: toBigNumber(account.data.tokenSize),
+    tokens: toBigInt(account.data.tokenSize),
     createdAt: toDateTime(account.data.createdAt),
     canceledAt: toOptionDateTime(account.data.canceledAt),
   };

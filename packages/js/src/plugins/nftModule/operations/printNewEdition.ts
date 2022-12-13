@@ -1,5 +1,6 @@
 import { createMintNewEditionFromMasterEditionViaTokenInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { toOriginalEditionAccount } from '../accounts';
 import {
@@ -9,13 +10,11 @@ import {
 } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  BigNumber,
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  toBigNumber,
   toTokenAmount,
   useOperation,
 } from '@/types';
@@ -134,7 +133,7 @@ export type PrintNewEditionOutput = {
   tokenAddress: PublicKey;
 
   /** The new supply of the original NFT. */
-  updatedSupply: BigNumber;
+  updatedSupply: bigint;
 };
 
 /**
@@ -200,7 +199,7 @@ export type PrintNewEditionBuilderParams = Omit<
   'confirmOptions'
 > & {
   /** The current supply of the original edition. */
-  originalSupply: BigNumber;
+  originalSupply: bigint;
 
   /** A key to distinguish the instruction that creates the mint account. */
   createMintAccountInstructionKey?: string;
@@ -273,7 +272,7 @@ export const printNewEditionBuilder = async (
     mint: originalMint,
     programs,
   });
-  const edition = toBigNumber(params.originalSupply.addn(1));
+  const edition = params.originalSupply + BigInt(1);
   const originalEditionMarkPda = metaplex.nfts().pdas().editionMarker({
     mint: originalMint,
     edition,
@@ -359,7 +358,11 @@ export const printNewEditionBuilder = async (
             tokenAccountOwner: originalTokenAccountOwner.publicKey,
             tokenAccount: originalTokenAccount,
           },
-          { mintNewEditionFromMasterEditionViaTokenArgs: { edition } },
+          {
+            mintNewEditionFromMasterEditionViaTokenArgs: {
+              edition: new BN(edition.toString()),
+            },
+          },
           tokenMetadataProgram.address
         ),
         signers: [newMint, newMintAuthority, payer, originalTokenAccountOwner],

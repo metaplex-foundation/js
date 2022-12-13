@@ -8,7 +8,6 @@ import {
 import { CandyMachineV2, CandyMachineV2Item } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  BigNumber,
   Operation,
   OperationHandler,
   OperationScope,
@@ -93,7 +92,7 @@ export type InsertItemsToCandyMachineV2Input = {
    *
    * @defaultValue `candyMachine.itemsLoaded`
    */
-  index?: BigNumber;
+  index?: bigint;
 };
 
 /**
@@ -173,7 +172,7 @@ export const insertItemsToCandyMachineV2Builder = (
           candyMachine: params.candyMachine.address,
           authority: authority.publicKey,
         },
-        { index: index.toNumber(), configLines: items }
+        { index: Number(index), configLines: items }
       ),
       signers: [authority],
       key: params.instructionKey ?? 'insertItems',

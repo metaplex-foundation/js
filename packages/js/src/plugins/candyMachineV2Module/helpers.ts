@@ -1,16 +1,18 @@
+import { Buffer } from 'buffer';
 import type { PublicKey } from '@solana/web3.js';
 import {
   CandyMachineData,
   configLineBeet,
 } from '@metaplex-foundation/mpl-candy-machine';
+import { BN } from 'bn.js';
 import { CONFIG_ARRAY_START, CONFIG_LINE_SIZE } from './constants';
 import { CandyMachineV2Item } from './models';
 import { removeEmptyChars } from '@/utils';
-import { BigNumber, toBigNumber } from '@/types';
+import { toBigInt } from '@/types';
 
-export function countCandyMachineV2Items(rawData: Buffer): BigNumber {
+export function countCandyMachineV2Items(rawData: Buffer): bigint {
   const number = rawData.slice(CONFIG_ARRAY_START, CONFIG_ARRAY_START + 4);
-  return toBigNumber(number, 'le');
+  return toBigInt(new BN(number, 'le').toString());
 }
 
 export function parseCandyMachineV2Items(
@@ -18,7 +20,7 @@ export function parseCandyMachineV2Items(
 ): CandyMachineV2Item[] {
   const configLinesStart = CONFIG_ARRAY_START + 4;
   const lines = [];
-  const count = countCandyMachineV2Items(rawData).toNumber();
+  const count = countCandyMachineV2Items(rawData);
   for (let i = 0; i < count; i++) {
     const [line] = configLineBeet.deserialize(
       rawData,
@@ -36,7 +38,7 @@ export function getCandyMachineV2AccountSizeFromData(data: CandyMachineData) {
   if (data.hiddenSettings != null) {
     return CONFIG_ARRAY_START;
   }
-  const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
+  const itemsAvailable = Number(toBigInt(data.itemsAvailable.toString()));
   return Math.ceil(
     CONFIG_ARRAY_START +
       4 +

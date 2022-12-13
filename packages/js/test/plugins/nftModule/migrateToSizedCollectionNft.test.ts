@@ -7,7 +7,7 @@ import {
   metaplex,
   spokSameBignum,
 } from '../../helpers';
-import { Nft, toBigNumber } from '@/index';
+import { Nft, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -25,7 +25,7 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection'
   // When we migrate the collection to a sized collection of 12345 items.
   await mx.nfts().migrateToSizedCollection({
     mintAddress: collection.address,
-    size: toBigNumber(12345),
+    size: toBigInt(12345),
     collectionAuthority,
   });
 
@@ -63,7 +63,7 @@ test('[nftModule] it can migrate from a legacy collection to a sized collection 
   // When we migrate the collection to a sized collection using that delegated authority.
   await mx.nfts().migrateToSizedCollection({
     mintAddress: collection.address,
-    size: toBigNumber(12345),
+    size: toBigInt(12345),
     collectionAuthority: delegatedCollectionAuthority,
     isDelegated: true,
   });

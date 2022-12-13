@@ -12,7 +12,7 @@ import {
   isEqualToAmount,
   NftWithToken,
   sol,
-  toBigNumber,
+  toBigInt,
 } from '@/index';
 
 killStuckProcess();
@@ -31,7 +31,7 @@ test('[candyMachineModule] allowList guard: it allows minting from wallets of a 
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
@@ -82,7 +82,7 @@ test('[candyMachineModule] allowList guard: it is possible to verify the proof a
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
@@ -138,7 +138,7 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
@@ -187,7 +187,7 @@ test('[candyMachineModule] allowList guard: it forbids minting from wallets that
 
   // And given a loaded Candy Machine with the allow list guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       allowList: {
@@ -240,7 +240,7 @@ test('[candyMachineModule] allowList guard with bot tax: it charges a bot tax wh
 
   // And given a loaded Candy Machine with a allow list guard and a box tax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

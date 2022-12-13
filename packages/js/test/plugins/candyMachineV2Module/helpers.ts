@@ -6,7 +6,7 @@ import {
   CreateCandyMachineV2Input,
   Metaplex,
   sol,
-  toBigNumber,
+  toBigInt,
 } from '@/index';
 
 export async function createCandyMachineV2(
@@ -18,7 +18,7 @@ export async function createCandyMachineV2(
   const candyMachineOutput = await mx.candyMachinesV2().create({
     price: sol(1),
     sellerFeeBasisPoints: 500,
-    itemsAvailable: toBigNumber(100),
+    itemsAvailable: toBigInt(100),
     ...input,
   });
 

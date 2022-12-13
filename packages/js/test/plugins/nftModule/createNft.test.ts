@@ -23,7 +23,7 @@ import {
 import {
   Nft,
   NftWithToken,
-  toBigNumber,
+  toBigInt,
   token,
   toMetaplexFile,
   TransactionBuilder,
@@ -136,7 +136,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
       symbol: 'MYNFT',
       sellerFeeBasisPoints: 456,
       isMutable: true,
-      maxSupply: toBigNumber(123),
+      maxSupply: toBigInt(123),
       useNewMint: mint,
       mintAuthority,
       updateAuthority,

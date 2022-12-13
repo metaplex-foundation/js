@@ -1,9 +1,9 @@
 import { createSetCollectionSizeInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
-  BigNumber,
   Operation,
   OperationHandler,
   OperationScope,
@@ -26,7 +26,7 @@ const Key = 'MigrateToSizedCollectionNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) };
+ *   .migrateToSizedCollection({ mintAddress, size: toBigInt(10000) };
  * ```
  *
  * @group Operations
@@ -68,7 +68,7 @@ export type MigrateToSizedCollectionNftInput = {
    *
    * **Warning, once set, this size can no longer be updated.**
    */
-  size: BigNumber;
+  size: bigint;
 
   /**
    * Whether or not the provided `collectionAuthority` is a delegated
@@ -133,7 +133,7 @@ export type MigrateToSizedCollectionNftBuilderParams = Omit<
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .migrateToSizedCollection({ mintAddress, size: toBigNumber(10000) });
+ *   .migrateToSizedCollection({ mintAddress, size: toBigInt(10000) });
  * ```
  *
  * @group Transaction Builders
@@ -177,7 +177,7 @@ export const migrateToSizedCollectionNftBuilder = (
                 })
               : undefined,
           },
-          { setCollectionSizeArgs: { size } },
+          { setCollectionSizeArgs: { size: new BN(size.toString()) } },
           tokenMetadataProgram.address
         ),
         signers: [collectionAuthority],

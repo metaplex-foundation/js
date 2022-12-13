@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -16,7 +16,7 @@ test('[candyMachineModule] addressGate guard: it allows minting from a specific 
   const mx = await metaplex();
   const allowedAddress = await createWallet(mx, 10);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       addressGate: {
@@ -48,7 +48,7 @@ test('[candyMachineModule] addressGate guard: it forbids minting from anyone els
   const mx = await metaplex();
   const allowedAddress = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       addressGate: {
@@ -76,7 +76,7 @@ test('[candyMachineModule] addressGate guard with bot tax: it charges a bot tax 
   const mx = await metaplex();
   const allowedAddress = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

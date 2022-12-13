@@ -4,6 +4,7 @@ import {
   candyMachineBeet,
   CandyMachineData,
 } from '@metaplex-foundation/mpl-candy-machine-core';
+import { BN } from 'bn.js';
 import { CANDY_MACHINE_HIDDEN_SECTION } from '../constants';
 import { CandyGuardsSettings, DefaultCandyGuardSettings } from '../guards';
 import { deserializeCandyMachineHiddenSection } from './CandyMachineHiddenSection';
@@ -12,7 +13,6 @@ import { CandyGuard } from './CandyGuard';
 import {
   AccountInfo,
   assertModel,
-  BigNumber,
   createSerializerFromSolitaType,
   Creator,
   deserializeAccount,
@@ -22,7 +22,7 @@ import {
   Model,
   PublicKey,
   toAccountInfo,
-  toBigNumber,
+  toBigInt,
   UnparsedAccount,
 } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
@@ -96,7 +96,7 @@ export type CandyMachine<
    * Note that you cannot set this to `null` which means unlimited editions
    * are not supported by the Candy Machine program.
    */
-  readonly maxEditionSupply: BigNumber;
+  readonly maxEditionSupply: bigint;
 
   /**
    * Array of creators that should be set on minted NFTs.
@@ -118,17 +118,17 @@ export type CandyMachine<
   /**
    * The total number of items availble in the Candy Machine, minted or not.
    */
-  readonly itemsAvailable: BigNumber;
+  readonly itemsAvailable: bigint;
 
   /**
    * The number of items that have been minted on this Candy Machine so far.
    */
-  readonly itemsMinted: BigNumber;
+  readonly itemsMinted: bigint;
 
   /**
    * The number of remaining items in the Candy Machine that can still be minted.
    */
-  readonly itemsRemaining: BigNumber;
+  readonly itemsRemaining: bigint;
 
   /**
    * The number of items that have been inserted in the Candy Machine by
@@ -336,9 +336,11 @@ export const toCandyMachine = <
   );
   const parsedAccount = deserializeAccount(account, serializer);
 
-  const itemsAvailable = toBigNumber(parsedAccount.data.data.itemsAvailable);
-  const itemsMinted = toBigNumber(parsedAccount.data.itemsRedeemed);
-  const itemsRemaining = toBigNumber(itemsAvailable.sub(itemsMinted));
+  const itemsAvailable = toBigInt(
+    parsedAccount.data.data.itemsAvailable.toString()
+  );
+  const itemsMinted = toBigInt(parsedAccount.data.itemsRedeemed.toString());
+  const itemsRemaining = itemsAvailable - itemsMinted;
 
   let items: CandyMachineItem[] = [];
   let itemsLoaded = 0;
@@ -357,15 +359,15 @@ export const toCandyMachine = <
     itemSettings = { ...configLineSettings, type: 'configLines' };
     const hiddenSection = deserializeCandyMachineHiddenSection(
       account.data,
-      itemsAvailable.toNumber(),
-      itemsRemaining.toNumber(),
+      Number(itemsAvailable),
+      Number(itemsRemaining),
       itemSettings,
       CANDY_MACHINE_HIDDEN_SECTION
     );
 
     items = hiddenSection.items;
     itemsLoaded = hiddenSection.itemsLoaded;
-    isFullyLoaded = hiddenSection.itemsLoaded >= itemsAvailable.toNumber();
+    isFullyLoaded = hiddenSection.itemsLoaded >= Number(itemsAvailable);
   }
 
   return {
@@ -378,7 +380,7 @@ export const toCandyMachine = <
     symbol: removeEmptyChars(parsedAccount.data.data.symbol),
     sellerFeeBasisPoints: parsedAccount.data.data.sellerFeeBasisPoints,
     isMutable: parsedAccount.data.data.isMutable,
-    maxEditionSupply: toBigNumber(parsedAccount.data.data.maxSupply),
+    maxEditionSupply: toBigInt(parsedAccount.data.data.maxSupply.toString()),
     creators: parsedAccount.data.data.creators.map(
       (creator): Creator => ({ ...creator, share: creator.percentageShare })
     ),
@@ -390,7 +392,7 @@ export const toCandyMachine = <
     isFullyLoaded,
     itemSettings,
     featureFlags: deserializeFeatureFlags(
-      toBigNumber(parsedAccount.data.features)
+      new BN(parsedAccount.data.features)
         .toArrayLike(Buffer, 'le', 8)
         .reverse(),
       64
@@ -412,10 +414,10 @@ export const toCandyMachineData = (
   >
 ): CandyMachineData => {
   return {
-    itemsAvailable: candyMachine.itemsAvailable,
+    itemsAvailable: new BN(candyMachine.itemsAvailable.toString()),
     symbol: candyMachine.symbol,
     sellerFeeBasisPoints: candyMachine.sellerFeeBasisPoints,
-    maxSupply: candyMachine.maxEditionSupply,
+    maxSupply: new BN(candyMachine.maxEditionSupply.toString()),
     isMutable: candyMachine.isMutable,
     creators: candyMachine.creators.map((creator) => ({
       ...creator,
@@ -446,7 +448,7 @@ export const getCandyMachineSize = (data: CandyMachineData): number => {
       'Please provide one of them.'
   );
 
-  const itemsAvailable = toBigNumber(data.itemsAvailable).toNumber();
+  const itemsAvailable = Number(toBigInt(data.itemsAvailable.toString()));
   const configLineSize =
     data.configLineSettings.nameLength + data.configLineSettings.uriLength;
 

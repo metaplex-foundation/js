@@ -1,5 +1,4 @@
 import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
-import BigNumber from 'bignumber.js';
 import {
   Connection,
   Keypair,
@@ -9,14 +8,14 @@ import {
   Transaction,
   TransactionSignature,
 } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
+import { KeypairIdentityDriver } from '../keypairIdentity';
 import {
   getBytesFromMetaplexFiles,
   MetaplexFile,
   MetaplexFileTag,
   StorageDriver,
 } from '../storageModule';
-import { KeypairIdentityDriver } from '../keypairIdentity';
-import { Metaplex } from '@/Metaplex';
 import {
   Amount,
   IdentitySigner,
@@ -25,8 +24,8 @@ import {
   KeypairSigner,
   lamports,
   Signer,
-  toBigNumber,
 } from '@/types';
+import { Metaplex } from '@/Metaplex';
 import {
   AssetUploadFailedError,
   BundlrWithdrawError,
@@ -294,7 +293,7 @@ export const isBundlrStorageDriver = (
 };
 
 const bigNumberToAmount = (bigNumber: BigNumber): Amount => {
-  return lamports(toBigNumber(bigNumber.decimalPlaces(0).toString()));
+  return lamports(bigNumber.decimalPlaces(0).toString());
 };
 
 const amountToBigNumber = (amount: Amount): BigNumber => {

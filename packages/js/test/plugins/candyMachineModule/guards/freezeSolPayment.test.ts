@@ -22,7 +22,7 @@ import {
   Metaplex,
   Signer,
   sol,
-  toBigNumber,
+  toBigInt,
 } from '@/index';
 
 killStuckProcess();
@@ -32,7 +32,7 @@ test('[candyMachineModule] freezeSolPayment guard: it transfers SOL to an escrow
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -117,7 +117,7 @@ test('[candyMachineModule] freezeSolPayment guard: it can thaw an NFT once all N
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -146,7 +146,7 @@ test('[candyMachineModule] freezeSolPayment guard: it can unlock funds once all 
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -193,7 +193,7 @@ test('[candyMachineModule] freezeSolPayment guard: it cannot unlock funds if not
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -241,7 +241,7 @@ test('[candyMachineModule] freezeSolPayment guard: it can have multiple freeze e
   const treasuryC = Keypair.generate();
   const treasuryD = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(4),
+    itemsAvailable: toBigInt(4),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -402,7 +402,7 @@ test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the freez
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -436,7 +436,7 @@ test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the payer
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -470,7 +470,7 @@ test('[candyMachineModule] freezeSolPayment guard: it fails to mint if the owner
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       freezeSolPayment: {
@@ -506,7 +506,7 @@ test('[candyMachineModule] freezeSolPayment guard with bot tax: it charges a bot
   const mx = await metaplex();
   const treasury = Keypair.generate();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -563,7 +563,7 @@ const getFrozenCount = async (
     getFreezeEscrow(mx, candyMachine, destination)
   );
 
-  return toBigNumber(account.frozenCount).toNumber();
+  return toBigInt(account.frozenCount).toNumber();
 };
 
 const assertFrozenCount = async (

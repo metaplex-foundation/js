@@ -7,7 +7,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber, token } from '@/index';
+import { isEqualToAmount, sol, toBigInt, token } from '@/index';
 
 killStuckProcess();
 
@@ -23,7 +23,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenGate: {
@@ -68,7 +68,7 @@ test('[candyMachineModule] tokenGate guard: it allows minting when the payer own
 
   // And a loaded Candy Machine with the token gate guard that requires 5 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenGate: {
@@ -113,7 +113,7 @@ test('[candyMachineModule] tokenGate guard: it defaults to using the associated 
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenGate: {
@@ -153,7 +153,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
 
   // And a loaded Candy Machine with the token gate guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenGate: {
@@ -193,7 +193,7 @@ test('[candyMachineModule] tokenGate guard: it forbids minting when the owner do
 
   // And a loaded Candy Machine with the token gate guard that requires 10 tokens.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       tokenGate: {
@@ -233,7 +233,7 @@ test('[candyMachineModule] tokenGate guard with bot tax: it charges a bot tax wh
 
   // And a loaded Candy Machine with the token gate guard and the bot tax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

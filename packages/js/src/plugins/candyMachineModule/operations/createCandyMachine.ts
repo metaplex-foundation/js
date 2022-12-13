@@ -11,7 +11,6 @@ import {
 } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  BigNumber,
   Creator,
   isSigner,
   makeConfirmOptionsFinalizedOnMainnet,
@@ -20,7 +19,7 @@ import {
   OperationScope,
   PublicKey,
   Signer,
-  toBigNumber,
+  toBigInt,
   toPublicKey,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
@@ -43,7 +42,7 @@ const Key = 'CreateCandyMachineOperation' as const;
  *  const { candyMachine } = await metaplex
  *    .candyMachines()
  *    .create({
- *      itemsAvailable: toBigNumber(5000),
+ *      itemsAvailable: toBigInt(5000),
  *      sellerFeeBasisPoints: 333, // 3.33%
  *      collection: {
  *        address: collectionNft.address,
@@ -141,10 +140,10 @@ export type CreateCandyMachineInput<
    *
    * @example
    * ```ts
-   * { itemsAvailable: toBigNumber(1000) } // For 1000 items.
+   * { itemsAvailable: toBigInt(1000) } // For 1000 items.
    * ```
    */
-  itemsAvailable: BigNumber;
+  itemsAvailable: bigint;
 
   /**
    * Settings related to the Candy Machine's items.
@@ -200,9 +199,9 @@ export type CreateCandyMachineInput<
    * Note that you cannot set this to `null` which means unlimited editions
    * are not supported by the Candy Machine program.
    *
-   * @defaultValue `toBigNumber(0)`
+   * @defaultValue `toBigInt(0)`
    */
-  maxEditionSupply?: BigNumber;
+  maxEditionSupply?: bigint;
 
   /**
    * Whether the minted NFTs should be mutable or not.
@@ -364,7 +363,7 @@ export type CreateCandyMachineBuilderContext = Omit<
  *    .candyMachines()
  *    .builders()
  *    .create({
- *      itemsAvailable: toBigNumber(5000),
+ *      itemsAvailable: toBigInt(5000),
  *      sellerFeeBasisPoints: 333, // 3.33%
  *      collection: {
  *        address: collectionNft.address,
@@ -392,7 +391,7 @@ export const createCandyMachineBuilder = async <
     sellerFeeBasisPoints,
     itemsAvailable,
     symbol = '',
-    maxEditionSupply = toBigNumber(0),
+    maxEditionSupply = toBigInt(0),
     isMutable = true,
     withoutCandyGuard = false,
   } = params;

@@ -9,7 +9,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -29,7 +29,7 @@ test('[candyMachineModule] nftBurn guard: it burns a specific NFT to allow minti
 
   // And a loaded Candy Machine with an nftBurn guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftBurn: {
@@ -80,7 +80,7 @@ test('[candyMachineModule] nftBurn guard: it fails if there is not valid NFT to 
   const mx = await metaplex();
   const nftBurnCollection = await createCollectionNft(mx);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftBurn: {
@@ -114,7 +114,7 @@ test('[candyMachineModule] nftBurn guard with bot tax: it charges a bot tax when
   const mx = await metaplex();
   const nftBurnCollection = await createCollectionNft(mx);
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -170,7 +170,7 @@ test('[candyMachineModule] nftBurn guard: it fails if no mint settings are provi
 
   // And a loaded Candy Machine with an nftBurn guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftBurn: {

@@ -70,7 +70,7 @@ import type { Metaplex } from '@/Metaplex';
  *  const { candyMachine } = await metaplex
  *    .candyMachines()
  *    .create({
- *      itemsAvailable: toBigNumber(5000),
+ *      itemsAvailable: toBigInt(5000),
  *      sellerFeeBasisPoints: 333, // 3.33%
  *      collection: {
  *        address: collectionNft.address,

@@ -5,7 +5,7 @@ import {
   OriginalOrPrintEditionAccount,
   PrintEditionAccount,
 } from '../accounts';
-import { BigNumber, toBigNumber, toOptionBigNumber } from '@/types';
+import { toBigInt } from '@/types';
 import { assert, Option } from '@/utils';
 
 /** @group Models */
@@ -44,14 +44,14 @@ export type NftOriginalEdition = {
   readonly address: PublicKey;
 
   /** The current supply of printed editions. */
-  readonly supply: BigNumber;
+  readonly supply: bigint;
 
   /**
    * The maximum supply of printed editions.
    * When this is `null`, an unlimited amount of editions
    * can be printed from the original edition.
    */
-  readonly maxSupply: Option<BigNumber>;
+  readonly maxSupply: Option<bigint>;
 };
 
 /** @group Model Helpers */
@@ -72,8 +72,10 @@ export const toNftOriginalEdition = (
   model: 'nftEdition',
   isOriginal: true,
   address: account.publicKey,
-  supply: toBigNumber(account.data.supply),
-  maxSupply: toOptionBigNumber(account.data.maxSupply),
+  supply: toBigInt(account.data.supply.toString()),
+  maxSupply: account.data.maxSupply
+    ? toBigInt(account.data.maxSupply.toString())
+    : null,
 });
 
 /** @group Models */
@@ -102,7 +104,7 @@ export type NftPrintEdition = {
    * printed editions and SFTs as SFTs do not keep track of any
    * ordering.
    */
-  readonly number: BigNumber;
+  readonly number: bigint;
 };
 
 /** @group Model Helpers */
@@ -124,5 +126,5 @@ export const toNftPrintEdition = (
   isOriginal: false,
   address: account.publicKey,
   parent: account.data.parent,
-  number: toBigNumber(account.data.edition),
+  number: toBigInt(account.data.edition.toString()),
 });

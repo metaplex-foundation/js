@@ -4,12 +4,10 @@ import { NftWithToken, SftWithToken } from '../../nftModule';
 import { AuctionHouse } from './AuctionHouse';
 import {
   Amount,
-  amount,
-  BigNumber,
   DateTime,
   lamports,
   toAmount,
-  toBigNumber,
+  toBigInt,
   toDateTime,
 } from '@/types';
 import { assert, Option } from '@/utils';
@@ -86,7 +84,7 @@ export type LazyPurchase = Omit<Purchase, 'lazy' | 'asset' | 'tokens'> &
   Readonly<{
     lazy: true;
     metadataAddress: PublicKey;
-    tokens: BigNumber;
+    tokens: bigint;
   }>;
 
 export const isLazyPurchase = (value: any): value is LazyPurchase =>
@@ -114,7 +112,7 @@ export const toLazyPurchase = (
           account.data.price.toString(),
           ...auctionHouseModel.treasuryMint.currency
         ),
-    tokens: toBigNumber(account.data.tokenSize),
-    createdAt: toDateTime(account.data.createdAt),
+    tokens: toBigInt(account.data.tokenSize.toString()),
+    createdAt: toDateTime(account.data.createdAt.toString()),
   };
 };

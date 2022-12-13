@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import type { Metaplex } from '@/Metaplex';
-import { BigNumber, Pda, Program, PublicKey } from '@/types';
+import { Pda, Program, PublicKey } from '@/types';
 import { Option } from '@/utils';
 
 /**
@@ -119,9 +119,9 @@ export class AuctionHousePdasClient {
     /** The mint address of the token to trade. */
     tokenMint: PublicKey;
     /** The price of the trade in basis points. */
-    price: BigNumber;
+    price: bigint;
     /** The number of tokens to trade in basis points. */
-    tokenSize: BigNumber;
+    tokenSize: bigint;
     /** The token account from which to trade, unless it is a public bid. */
     tokenAccount?: Option<PublicKey>;
     /** An optional set of programs that override the registered ones. */

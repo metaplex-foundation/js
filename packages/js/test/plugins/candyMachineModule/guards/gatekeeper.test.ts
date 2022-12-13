@@ -26,7 +26,7 @@ import {
   PublicKey,
   Signer,
   sol,
-  toBigNumber,
+  toBigInt,
   toDateTime,
   TransactionBuilder,
 } from '@/index';
@@ -52,7 +52,7 @@ test('[candyMachineModule] gatekeeper guard: it allows minting via a gatekeeper 
 
   // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -102,7 +102,7 @@ test('[candyMachineModule] gatekeeper guard: it defaults to calculating the gate
 
   // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -141,7 +141,7 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting when providing t
 
   // Given a loaded Candy Machine with a gatekeeper guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -188,7 +188,7 @@ test('[candyMachineModule] gatekeeper guard: it allows minting using gateway tok
 
   // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -239,7 +239,7 @@ test('[candyMachineModule] gatekeeper guard: it forbids minting using gateway to
 
   // And a loaded Candy Machine with a gatekeeper guard on that network.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -291,7 +291,7 @@ test('[candyMachineModule] gatekeeper guard: it may immediately mark gateway tok
   // And a loaded Candy Machine with a gatekeeper guard
   // that mark tokens as expire after using them.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       gatekeeper: {
@@ -347,7 +347,7 @@ test('[candyMachineModule] gatekeeper guard with bot tax: it charges a bot tax w
 
   // Given a loaded Candy Machine with a gatekeeper guard and a botTax guard.
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {

@@ -16,7 +16,7 @@ import {
   CandyMachine,
   emptyDefaultCandyGuardSettings,
   sol,
-  toBigNumber,
+  toBigInt,
   toDateTime,
 } from '@/index';
 
@@ -27,10 +27,10 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
   const mx = await metaplex();
   const creatorA = Keypair.generate().publicKey;
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1000),
+    itemsAvailable: toBigInt(1000),
     symbol: 'OLD',
     sellerFeeBasisPoints: 100,
-    maxEditionSupply: toBigNumber(1),
+    maxEditionSupply: toBigInt(1),
     isMutable: true,
     creators: [{ address: creatorA, share: 100 }],
     itemSettings: {
@@ -47,10 +47,10 @@ test('[candyMachineModule] it can update the data of a candy machine', async (t)
   const creatorB = Keypair.generate().publicKey;
   await mx.candyMachines().update({
     candyMachine,
-    itemsAvailable: toBigNumber(1000), // Cannot be updated.
+    itemsAvailable: toBigInt(1000), // Cannot be updated.
     symbol: 'NEW',
     sellerFeeBasisPoints: 200,
-    maxEditionSupply: toBigNumber(2),
+    maxEditionSupply: toBigInt(2),
     isMutable: false,
     creators: [{ address: creatorB, share: 100 }],
     itemSettings: {
@@ -103,7 +103,7 @@ test('[candyMachineModule] it cannot update the number of items when using confi
   // Given a Candy Machine using config line settings with 1000 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1000),
+    itemsAvailable: toBigInt(1000),
     itemSettings: {
       type: 'configLines',
       prefixName: 'My Old NFT #',
@@ -117,7 +117,7 @@ test('[candyMachineModule] it cannot update the number of items when using confi
   // When we try to update the number of items to 2000.
   const promise = mx
     .candyMachines()
-    .update({ candyMachine, itemsAvailable: toBigNumber(2000) });
+    .update({ candyMachine, itemsAvailable: toBigInt(2000) });
 
   // Then we get an error from the Program.
   await assertThrows(t, promise, /CannotChangeNumberOfLines/);
@@ -127,7 +127,7 @@ test('[candyMachineModule] it can update the number of items when using hidden s
   // Given a Candy Machine using hidden settings with 1000 items.
   const mx = await metaplex();
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1000),
+    itemsAvailable: toBigInt(1000),
     itemSettings: {
       type: 'hidden',
       name: 'My NFT #$ID+1$',
@@ -139,7 +139,7 @@ test('[candyMachineModule] it can update the number of items when using hidden s
   // When we update the number of items to 2000.
   await mx
     .candyMachines()
-    .update({ candyMachine, itemsAvailable: toBigNumber(2000) });
+    .update({ candyMachine, itemsAvailable: toBigInt(2000) });
 
   // Then the Candy Machine's data was updated accordingly.
   const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
@@ -244,10 +244,10 @@ test('[candyMachineModule] updating part of the data does not override the rest 
   const mx = await metaplex();
   const creatorA = Keypair.generate().publicKey;
   const { candyMachine } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1000),
+    itemsAvailable: toBigInt(1000),
     symbol: 'MYNFT',
     sellerFeeBasisPoints: 100,
-    maxEditionSupply: toBigNumber(1),
+    maxEditionSupply: toBigInt(1),
     isMutable: true,
     creators: [{ address: creatorA, share: 100 }],
     itemSettings: {

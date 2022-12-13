@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 import { Specification, Specifications } from 'spok';
 import { Test } from 'tape';
-import { Amount, BigNumber, sameAmounts } from '@/types';
+import { Amount, sameAmounts } from '@/types';
 
 export function spokSamePubkey(
   a: PublicKey | string | null | undefined
@@ -19,8 +19,8 @@ export function spokSamePubkey(
 }
 
 export function spokSameBignum(
-  a: BN | bignum | number | null | undefined | BigNumber
-): Specification<bignum | BigNumber> {
+  a: BN | bignum | number | null | undefined
+): Specification<bignum> {
   const same = (b?: BN | bignum | number) => {
     if (a == null) return b == null;
     return b != null && new BN(a).eq(new BN(b));

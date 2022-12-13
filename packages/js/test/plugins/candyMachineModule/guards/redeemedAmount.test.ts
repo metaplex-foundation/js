@@ -10,7 +10,7 @@ import {
   createCandyMachine,
   SEQUENTIAL_ITEM_SETTINGS,
 } from '../helpers';
-import { isEqualToAmount, sol, toBigNumber } from '@/index';
+import { isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -18,7 +18,7 @@ test('[candyMachineModule] redeemedAmount guard: it allows minting until a thres
   // Given a loaded Candy Machine with a redeemedAmount guard with a threshold of 1 NFT.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -26,7 +26,7 @@ test('[candyMachineModule] redeemedAmount guard: it allows minting until a thres
     ],
     guards: {
       redeemedAmount: {
-        maximum: toBigNumber(1),
+        maximum: toBigInt(1),
       },
     },
   });
@@ -54,7 +54,7 @@ test('[candyMachineModule] redeemedAmount guard: it forbids minting once the red
   // Given a loaded Candy Machine with a redeemedAmount guard with a threshold of 1 NFT.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -62,7 +62,7 @@ test('[candyMachineModule] redeemedAmount guard: it forbids minting once the red
     ],
     guards: {
       redeemedAmount: {
-        maximum: toBigNumber(1),
+        maximum: toBigInt(1),
       },
     },
   });
@@ -99,7 +99,7 @@ test('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot t
   // and a redeemedAmount guard with a threshold of 1 NFT.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(2),
+    itemsAvailable: toBigInt(2),
     itemSettings: SEQUENTIAL_ITEM_SETTINGS,
     items: [
       { name: 'Degen #1', uri: 'https://example.com/degen/1' },
@@ -111,7 +111,7 @@ test('[candyMachineModule] redeemedAmount guard with bot tax: it charges a bot t
         lastInstruction: true,
       },
       redeemedAmount: {
-        maximum: toBigNumber(1),
+        maximum: toBigInt(1),
       },
     },
   });

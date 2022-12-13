@@ -9,7 +9,7 @@ import {
   metaplex,
 } from '../../../helpers';
 import { assertMintingWasSuccessful, createCandyMachine } from '../helpers';
-import { assertNftWithToken, isEqualToAmount, sol, toBigNumber } from '@/index';
+import { assertNftWithToken, isEqualToAmount, sol, toBigInt } from '@/index';
 
 killStuckProcess();
 
@@ -22,7 +22,7 @@ test('[candyMachineModule] nftPayment guard: it transfers an NFT from the payer 
     updateAuthority: requiredCollectionAuthority,
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
@@ -84,7 +84,7 @@ test('[candyMachineModule] nftPayment guard: it works when the provided NFT is n
     updateAuthority: requiredCollectionAuthority,
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
@@ -151,7 +151,7 @@ test('[candyMachineModule] nftPayment guard: it fails if the payer does not own 
     updateAuthority: requiredCollectionAuthority,
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
@@ -194,7 +194,7 @@ test('[candyMachineModule] nftPayment guard: it fails if the payer tries to prov
     updateAuthority: requiredCollectionAuthority,
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
@@ -239,7 +239,7 @@ test('[candyMachineModule] nftPayment guard with bot tax: it charges a bot tax w
     updateAuthority: requiredCollectionAuthority,
   });
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       botTax: {
@@ -288,7 +288,7 @@ test('[candyMachineModule] nftPayment guard: minting settings must be provided',
   // Given a loaded Candy Machine with a third party signer guard.
   const mx = await metaplex();
   const { candyMachine, collection } = await createCandyMachine(mx, {
-    itemsAvailable: toBigNumber(1),
+    itemsAvailable: toBigInt(1),
     items: [{ name: 'Degen #1', uri: 'https://example.com/degen/1' }],
     guards: {
       nftPayment: {
