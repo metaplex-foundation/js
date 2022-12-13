@@ -186,7 +186,16 @@ export type UpdateNftInput = {
   collectionIsSized?: boolean;
 
   /**
-   * Whether or not the current asset's collection is a sized collection
+   * The authority of the asset's current collection.
+   * This may be required if the current collection is being removed
+   * or updated and needs to be unverified before doing so.
+   *
+   * @defaultValue `updateAuthority`
+   */
+  oldCollectionAuthority?: Signer;
+
+  /**
+   * Whether or not the asset's current collection is a sized collection
    * and not a legacy collection.
    *
    * @defaultValue `true`
@@ -314,7 +323,8 @@ export const updateNftBuilder = (
                 mintAddress: nftOrSft.address,
                 collectionMintAddress: nftOrSft.collection
                   ?.address as PublicKey,
-                collectionAuthority: updateAuthority,
+                collectionAuthority:
+                  params.oldCollectionAuthority ?? updateAuthority,
                 isSizedCollection: params.oldCollectionIsSized ?? true,
               },
               { programs, payer }
