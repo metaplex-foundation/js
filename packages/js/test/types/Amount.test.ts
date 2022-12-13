@@ -18,9 +18,7 @@ import {
   usd,
   sol,
   lamports,
-  USD,
-  SOL,
-  CurrencyMismatchError,
+  AmountMismatchError,
   token,
 } from '@/index';
 
@@ -89,8 +87,8 @@ test('[Amount] it fail to operate on amounts of different currencies', (t: Test)
     addAmounts(sol(1), usd(1));
     t.fail();
   } catch (error) {
-    t.true(error instanceof CurrencyMismatchError);
-    const customError = error as CurrencyMismatchError;
+    t.true(error instanceof AmountMismatchError);
+    const customError = error as AmountMismatchError;
     t.equal(customError.left, SOL);
     t.equal(customError.right, USD);
     t.equal(customError.operation, 'add');

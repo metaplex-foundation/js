@@ -1,6 +1,5 @@
 import { AmountMismatchError, UnexpectedAmountError } from '@/errors';
 
-const LAMPORTS_PER_SOL = 1_000_000_000;
 export type BigIntInput = number | string | boolean | bigint | Uint8Array;
 export type AmountIdentifier = 'SOL' | 'USD' | '%' | string;
 export type AmountDecimals = number;
@@ -25,7 +24,7 @@ export const toBigInt = (input: BigIntInput): bigint => {
   return BigInt(input);
 };
 
-export const amount = <I extends AmountIdentifier, D extends AmountDecimals>(
+export const toAmount = <I extends AmountIdentifier, D extends AmountDecimals>(
   basisPoints: BigIntInput,
   identifier: I,
   decimals: D
@@ -38,23 +37,27 @@ export const amount = <I extends AmountIdentifier, D extends AmountDecimals>(
 };
 
 export const lamports = (lamports: BigIntInput): SolAmount => {
-  return amount(lamports, 'SOL', 9);
+  return toAmount(lamports, 'SOL', 9);
 };
 
+const LAMPORTS_PER_SOL = 1_000_000_000;
 export const sol = (sol: number): SolAmount => {
   return multiplyAmount(lamports(LAMPORTS_PER_SOL), sol);
 };
 
 export const usd = (usd: number): UsdAmount => {
-  return multiplyAmount(amount(100, 'USD', 2), usd);
+  return multiplyAmount(toAmount(100, 'USD', 2), usd);
 };
 
-export const token = <I extends AmountIdentifier, D extends AmountDecimals>(
+export const toTokenAmount = <
+  I extends AmountIdentifier,
+  D extends AmountDecimals
+>(
   tokens: number,
   identifier?: I,
   decimals?: D
 ): Amount<I, D> => {
-  const exponentAmount = amount(
+  const exponentAmount = toAmount(
     BigInt(10) ** BigInt(decimals ?? 0),
     (identifier ?? 'Token') as I,
     (decimals ?? 0) as D
@@ -206,7 +209,7 @@ export const isEqualToAmount = <
   right: Amount<I, D>,
   tolerance?: Amount<I, D>
 ): boolean => {
-  tolerance = tolerance ?? amount(0, left.identifier, left.decimals);
+  tolerance = tolerance ?? toAmount(0, left.identifier, left.decimals);
   assertSameAmounts(left, right, 'isEqualToAmount');
   assertSameAmounts(left, tolerance, 'isEqualToAmount');
 
