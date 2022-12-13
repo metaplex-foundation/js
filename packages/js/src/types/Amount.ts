@@ -292,3 +292,15 @@ export const formatAmount = (value: Amount, maxDecimals?: number): string => {
       return `${value.identifier} ${amountAsString}`;
   }
 };
+
+/** @deprecated Use `toAmount` instead. */
+export const amount = toAmount;
+
+/** @deprecated Use `toTokenAmount` instead. */
+export const token = toTokenAmount;
+
+/** @deprecated Use `isSolAmount` instead. */
+export const isSol = isSolAmount;
+
+/** @deprecated Use `assertSolAmount` instead. */
+export const assertSol = assertSolAmount;
