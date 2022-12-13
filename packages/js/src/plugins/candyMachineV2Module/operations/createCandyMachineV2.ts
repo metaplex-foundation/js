@@ -20,14 +20,13 @@ import {
   TransactionBuilderOptions,
 } from '@/utils';
 import {
-  assertSameCurrencies,
+  assertSolAmount,
   isSigner,
   makeConfirmOptionsFinalizedOnMainnet,
   Operation,
   OperationHandler,
   OperationScope,
   Signer,
-  SOL,
   toBigNumber,
   toPublicKey,
   useOperation,
@@ -269,7 +268,7 @@ export const createCandyMachineV2Builder = async (
       isSigner: false,
     });
   } else {
-    assertSameCurrencies(params.price, SOL);
+    assertSolAmount(params.price);
   }
 
   return (

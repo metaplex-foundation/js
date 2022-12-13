@@ -3,7 +3,7 @@ import { AccountState } from '@solana/spl-token';
 import { TokenAccount } from '../accounts';
 import { associatedTokenProgram } from '../program';
 import { Mint } from './Mint';
-import { amount, Pda, SplTokenAmount, token } from '@/types';
+import { Amount, Pda, toAmount } from '@/types';
 import { assert, Option } from '@/utils';
 
 /**
@@ -28,7 +28,7 @@ export type Token = {
   readonly ownerAddress: PublicKey;
 
   /** The amount of tokens held in this account. */
-  readonly amount: SplTokenAmount;
+  readonly amount: Amount;
 
   /**
    * The address of the authority that can close the account.
@@ -49,7 +49,7 @@ export type Token = {
    *
    * This field is only relevant if the account has a delegate authority.
    */
-  readonly delegateAmount: SplTokenAmount;
+  readonly delegateAmount: Amount;
 
   /**
    * The state of the token account.
@@ -89,12 +89,12 @@ export const toToken = (account: TokenAccount): Token => {
     isAssociatedToken,
     mintAddress: account.data.mint,
     ownerAddress: account.data.owner,
-    amount: token(account.data.amount.toString()),
+    amount: toAmount(account.data.amount, 'Token', 0),
     closeAuthorityAddress: account.data.closeAuthorityOption
       ? account.data.closeAuthority
       : null,
     delegateAddress: account.data.delegateOption ? account.data.delegate : null,
-    delegateAmount: token(account.data.delegatedAmount.toString()),
+    delegateAmount: toAmount(account.data.delegatedAmount, 'Token', 0),
     state: account.data.state,
   };
 };
@@ -127,10 +127,10 @@ export const toTokenWithMint = (
     ...token,
     model: 'tokenWithMint',
     mint: mintModel,
-    amount: amount(token.amount.basisPoints, mintModel.currency),
-    delegateAmount: amount(
+    amount: toAmount(token.amount.basisPoints, ...mintModel.currency),
+    delegateAmount: toAmount(
       token.delegateAmount.basisPoints,
-      mintModel.currency
+      ...mintModel.currency
     ),
   };
 };

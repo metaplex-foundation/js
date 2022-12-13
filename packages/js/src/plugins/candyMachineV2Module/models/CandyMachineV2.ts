@@ -4,6 +4,7 @@ import {
   EndSettingType,
   WhitelistMintMode,
 } from '@metaplex-foundation/mpl-candy-machine';
+import { BN } from 'bn.js';
 import {
   countCandyMachineV2Items,
   getCandyMachineV2UuidFromAddress,
@@ -15,17 +16,16 @@ import {
 } from '../accounts';
 import { CandyMachineV2Program } from '../program';
 import {
-  amount,
   Amount,
   BigNumber,
   DateTime,
   lamports,
-  SOL,
   toBigNumber,
   toDateTime,
   toOptionDateTime,
   UnparsedAccount,
   Creator,
+  toAmount,
 } from '@/types';
 import { assert, Option, removeEmptyChars } from '@/utils';
 import { Mint } from '@/plugins/tokenModule';
@@ -429,7 +429,11 @@ export const toCandyMachineV2 = (
         : null,
     uuid: account.data.data.uuid,
 
-    price: amount(account.data.data.price, mint ? mint.currency : SOL),
+    price: toAmount(
+      account.data.data.price.toString(),
+      mint ? mint.currency[0] : 'SOL',
+      9
+    ),
     symbol: removeEmptyChars(account.data.data.symbol),
     sellerFeeBasisPoints: account.data.data.sellerFeeBasisPoints,
     isMutable: account.data.data.isMutable,
@@ -459,7 +463,7 @@ export const toCandyMachineV2 = (
       ? {
           ...whitelistMintSettings,
           discountPrice: whitelistMintSettings.discountPrice
-            ? lamports(whitelistMintSettings.discountPrice)
+            ? lamports(whitelistMintSettings.discountPrice.toString())
             : null,
         }
       : null,
@@ -672,7 +676,7 @@ export const toCandyMachineV2InstructionData = (
     data: {
       ...configs,
       uuid: getCandyMachineV2UuidFromAddress(address),
-      price: configs.price.basisPoints,
+      price: new BN(configs.price.basisPoints.toString()),
       maxSupply: configs.maxEditionSupply,
       endSettings: endSettings
         ? {
@@ -686,8 +690,11 @@ export const toCandyMachineV2InstructionData = (
       whitelistMintSettings: whitelistMintSettings
         ? {
             ...whitelistMintSettings,
-            discountPrice:
-              whitelistMintSettings.discountPrice?.basisPoints ?? null,
+            discountPrice: whitelistMintSettings.discountPrice?.basisPoints
+              ? new BN(
+                  whitelistMintSettings.discountPrice.basisPoints.toString()
+                )
+              : null,
           }
         : null,
       gatekeeper: gatekeeper

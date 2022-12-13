@@ -1,7 +1,7 @@
 import type { PublicKey } from '@solana/web3.js';
 import { MintAccount } from '../accounts';
 import { WRAPPED_SOL_MINT } from '../constants';
-import { amount, SplTokenCurrency, SplTokenAmount } from '@/types';
+import { Amount, AmountDecimals, AmountIdentifier, toAmount } from '@/types';
 import { assert, Option } from '@/utils';
 
 /**
@@ -40,7 +40,7 @@ export type Mint = {
   /**
    * The current supply of tokens across all token accounts.
    */
-  readonly supply: SplTokenAmount;
+  readonly supply: Amount;
 
   /**
    * Helper boolean to determine whether this mint account is the
@@ -57,10 +57,10 @@ export type Mint = {
    *
    * ```ts
    * const tokenBasisPoints = 1000;
-   * const tokensAsAmount = amount(tokenBasisPoints, mint.currency);
+   * const tokensAsAmount = toAmount(tokenBasisPoints, ...mint.currency);
    * ```
    */
-  readonly currency: SplTokenCurrency;
+  readonly currency: [AmountIdentifier, AmountDecimals];
 };
 
 /** @group Model Helpers */
@@ -75,11 +75,10 @@ export function assertMint(value: any): asserts value is Mint {
 /** @group Model Helpers */
 export const toMint = (account: MintAccount): Mint => {
   const isWrappedSol = account.publicKey.equals(WRAPPED_SOL_MINT);
-  const currency: SplTokenCurrency = {
-    symbol: isWrappedSol ? 'SOL' : 'Token',
-    decimals: account.data.decimals,
-    namespace: 'spl-token',
-  };
+  const currency: [AmountIdentifier, AmountDecimals] = [
+    isWrappedSol ? 'SOL' : 'Token',
+    account.data.decimals,
+  ];
 
   return {
     model: 'mint',
@@ -91,7 +90,7 @@ export const toMint = (account: MintAccount): Mint => {
       ? account.data.freezeAuthority
       : null,
     decimals: account.data.decimals,
-    supply: amount(account.data.supply.toString(), currency),
+    supply: toAmount(account.data.supply.toString(), ...currency),
     isWrappedSol,
     currency,
   };
