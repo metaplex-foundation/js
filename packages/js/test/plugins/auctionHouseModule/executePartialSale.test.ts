@@ -53,14 +53,14 @@ test('[auctionHouseModule] execute partial sale on an Auction House', async (t: 
     .nfts()
     .findByToken({ token: purchase.asset.token.address });
 
-  t.equal(buyerTokens.token.amount.basisPoints.toNumber(), 3);
+  t.equal(buyerTokens.token.amount.basisPoints, 3);
 
   // And then the seller must have 2 Tokens on sale left.
   const sellerTokens = await mx
     .nfts()
     .findByToken({ token: listing.asset.token.address });
 
-  t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 2);
+  t.equal(sellerTokens.token.delegateAmount.basisPoints, 2);
 });
 
 test('[auctionHouseModule] execute partial sale on an Auction House with SPL treasury', async (t: Test) => {
@@ -119,14 +119,14 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
     .nfts()
     .findByToken({ token: purchase.asset.token.address });
 
-  t.equal(buyerTokens.token.amount.basisPoints.toNumber(), 2);
+  t.equal(buyerTokens.token.amount.basisPoints, 2);
 
   // And then the seller must have 3 SFTs on sale left.
   const sellerTokens = await mx
     .nfts()
     .findByToken({ token: listing.asset.token.address });
 
-  t.equal(sellerTokens.token.delegateAmount.basisPoints.toNumber(), 3);
+  t.equal(sellerTokens.token.delegateAmount.basisPoints, 3);
 
   // And payment tokens left buyer's account.
   const paymentAccount = mx.tokens().pdas().associatedTokenAccount({
@@ -138,7 +138,7 @@ test('[auctionHouseModule] execute partial sale on an Auction House with SPL tre
     .tokens()
     .findTokenByAddress({ address: paymentAccount });
 
-  t.equal(buyerToken.amount.basisPoints.toNumber(), 0);
+  t.equal(buyerToken.amount.basisPoints, 0);
 });
 
 test('[auctionHouseModule] it throws when executing partial sale with wrong price on an Auction House', async (t: Test) => {

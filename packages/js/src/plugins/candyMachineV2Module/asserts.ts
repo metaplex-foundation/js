@@ -107,7 +107,7 @@ export const assertCandyMachineV2IsLive = (
 
   const liveDate = candyMachine.goLiveDate;
 
-  if (!liveDate || liveDate.gte(now())) {
+  if (!liveDate || liveDate >= now()) {
     throw new CandyMachineV2NotLiveError(liveDate);
   }
 };

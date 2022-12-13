@@ -676,9 +676,13 @@ export const toCandyMachineV2InstructionData = (
     tokenMint: configs.tokenMint,
     data: {
       ...configs,
+      itemsAvailable: new BN(configs.itemsAvailable.toString()),
       uuid: getCandyMachineV2UuidFromAddress(address),
       price: new BN(configs.price.basisPoints.toString()),
       maxSupply: new BN(configs.maxEditionSupply.toString()),
+      goLiveDate: configs.goLiveDate
+        ? new BN(configs.goLiveDate.toString())
+        : null,
       endSettings: endSettings
         ? {
             ...endSettings,

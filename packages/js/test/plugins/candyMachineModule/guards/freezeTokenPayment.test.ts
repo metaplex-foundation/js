@@ -24,7 +24,6 @@ import {
   Signer,
   sol,
   toBigInt,
-  token,
   TokenWithMint,
   toTokenAmount,
 } from '@/index';
@@ -685,7 +684,7 @@ const getFrozenCount = async (
     getFreezeEscrow(mx, candyMachine, destinationAta)
   );
 
-  return toBigInt(account.frozenCount).toNumber();
+  return Number(toBigInt(account.frozenCount.toString()));
 };
 
 const assertFrozenCount = async (

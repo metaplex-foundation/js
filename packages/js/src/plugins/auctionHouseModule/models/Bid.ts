@@ -187,8 +187,8 @@ export const toLazyBid = (
           account.data.price.toString(),
           ...auctionHouse.treasuryMint.currency
         ),
-    tokens: toBigInt(account.data.tokenSize),
-    createdAt: toDateTime(account.data.createdAt),
-    canceledAt: toOptionDateTime(account.data.canceledAt),
+    tokens: toBigInt(account.data.tokenSize.toString()),
+    createdAt: toDateTime(account.data.createdAt.toString()),
+    canceledAt: toOptionDateTime(account.data.canceledAt?.toString() ?? null),
   };
 };

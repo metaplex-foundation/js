@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { BN } from 'bn.js';
 import type { Metaplex } from '@/Metaplex';
 import { Pda, Program, PublicKey } from '@/types';
 import { Option } from '@/utils';
@@ -135,8 +136,8 @@ export class AuctionHousePdasClient {
       ...(input.tokenAccount ? [input.tokenAccount.toBuffer()] : []),
       input.treasuryMint.toBuffer(),
       input.tokenMint.toBuffer(),
-      input.price.toArrayLike(Buffer, 'le', 8),
-      input.tokenSize.toArrayLike(Buffer, 'le', 8),
+      new BN(input.price.toString()).toArrayLike(Buffer, 'le', 8),
+      new BN(input.tokenSize.toString()).toArrayLike(Buffer, 'le', 8),
     ]);
   }
 
