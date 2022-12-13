@@ -5,6 +5,7 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -398,6 +399,14 @@ const toInstructionData = (
     ? { key: input.collection, verified: false }
     : null;
 
+  const currentUses = nftOrSft.uses
+    ? {
+        ...nftOrSft.uses,
+        remaining: new BN(nftOrSft.uses.remaining.toString()),
+        total: new BN(nftOrSft.uses.total.toString()),
+      }
+    : null;
+
   return {
     updateAuthority: input.newUpdateAuthority ?? null,
     primarySaleHappened: input.primarySaleHappened ?? null,
@@ -409,7 +418,7 @@ const toInstructionData = (
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
       creators: creators.length > 0 ? creators : null,
-      uses: input.uses === undefined ? nftOrSft.uses : input.uses,
+      uses: input.uses === undefined ? currentUses : input.uses,
       collection:
         input.collection === undefined ? currentCollection : newCollection,
     },

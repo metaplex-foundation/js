@@ -24,7 +24,7 @@ import {
 } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
 import {
-  assertSol,
+  assertSolAmount,
   getSignerHistogram,
   isErrorWithLogs,
   lamports,
@@ -226,11 +226,11 @@ export class RpcClient {
     amount: SolAmount,
     commitment?: Commitment
   ): Promise<SendAndConfirmTransactionResponse> {
-    assertSol(amount);
+    assertSolAmount(amount);
 
     const signature = await this.metaplex.connection.requestAirdrop(
       publicKey,
-      amount.basisPoints.toNumber()
+      Number(amount.basisPoints)
     );
 
     const blockhashWithExpiryBlockHeight = await this.getLatestBlockhash();

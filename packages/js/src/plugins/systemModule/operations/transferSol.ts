@@ -2,7 +2,7 @@ import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
-  assertSol,
+  assertSolAmount,
   Operation,
   OperationHandler,
   OperationScope,
@@ -143,7 +143,7 @@ export const transferSolBuilder = (
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const { from = metaplex.identity(), to, amount, basePubkey, seed } = params;
 
-  assertSol(amount);
+  assertSolAmount(amount);
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
@@ -151,7 +151,7 @@ export const transferSolBuilder = (
       instruction: SystemProgram.transfer({
         fromPubkey: from.publicKey,
         toPubkey: to,
-        lamports: amount.basisPoints.toNumber(),
+        lamports: Number(amount.basisPoints),
         ...(basePubkey ? { basePubkey, seed } : {}),
         programId: metaplex.programs().getSystem(programs).address,
       }),

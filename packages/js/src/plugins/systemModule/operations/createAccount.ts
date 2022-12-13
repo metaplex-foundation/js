@@ -2,7 +2,7 @@ import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import type { Metaplex } from '@/Metaplex';
 import {
-  assertSol,
+  assertSolAmount,
   Operation,
   OperationHandler,
   OperationScope,
@@ -162,7 +162,7 @@ export const createAccountBuilder = async (
   } = params;
 
   const lamports = params.lamports ?? (await metaplex.rpc().getRent(space));
-  assertSol(lamports);
+  assertSolAmount(lamports);
 
   return TransactionBuilder.make<CreateAccountBuilderContext>()
     .setFeePayer(payer)
@@ -175,7 +175,7 @@ export const createAccountBuilder = async (
         fromPubkey: payer.publicKey,
         newAccountPubkey: newAccount.publicKey,
         space,
-        lamports: lamports.basisPoints.toNumber(),
+        lamports: Number(lamports.basisPoints),
         programId: program,
       }),
       signers: [payer, newAccount],
