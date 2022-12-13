@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { MetaplexError } from './MetaplexError';
-import { Cluster, Currency } from '@/types';
+import { Amount, AmountDecimals, AmountIdentifier, Cluster } from '@/types';
 
 /** @group Errors */
 export class SdkError extends MetaplexError {
@@ -34,32 +34,40 @@ export class DriverNotProvidedError extends SdkError {
 }
 
 /** @group Errors */
-export class UnexpectedCurrencyError extends SdkError {
-  readonly name: string = 'UnexpectedCurrencyError';
-  readonly actual: Currency;
-  readonly expected: Currency;
-  constructor(actual: Currency, expected: Currency) {
+export class UnexpectedAmountError extends SdkError {
+  readonly name: string = 'UnexpectedAmountError';
+  readonly amount: Amount;
+  readonly expectedIdentifier: AmountIdentifier;
+  readonly expectedDecimals: AmountDecimals;
+  constructor(
+    amount: Amount,
+    expectedIdentifier: AmountIdentifier,
+    expectedDecimals: AmountDecimals
+  ) {
     const message =
-      `Expected currency [${expected}] but got [${actual}]. ` +
-      `Ensure the provided Amount or Currency is of the expected type.`;
+      `Expected amount of type [${expectedIdentifier} with ${expectedDecimals} decimals] ` +
+      `but got [${amount.identifier} with ${amount.decimals} decimals]. ` +
+      `Ensure the provided Amount is of the expected type.`;
     super(message);
-    this.actual = actual;
-    this.expected = expected;
+    this.amount = amount;
+    this.expectedIdentifier = expectedIdentifier;
+    this.expectedDecimals = expectedDecimals;
   }
 }
 
 /** @group Errors */
-export class CurrencyMismatchError extends SdkError {
-  readonly name: string = 'CurrencyMismatchError';
-  readonly left: Currency;
-  readonly right: Currency;
+export class AmountMismatchError extends SdkError {
+  readonly name: string = 'AmountMismatchError';
+  readonly left: Amount;
+  readonly right: Amount;
   readonly operation?: string;
-  constructor(left: Currency, right: Currency, operation?: string) {
+  constructor(left: Amount, right: Amount, operation?: string) {
     const wrappedOperation = operation ? ` [${operation}]` : '';
     const message =
-      `The SDK tried to execute an operation${wrappedOperation} on two different currencies: ` +
-      `${left.symbol} and ${right.symbol}. ` +
-      `Provide both amounts in the same currency to perform this operation.`;
+      `The SDK tried to execute an operation${wrappedOperation} on two amounts of different types: ` +
+      `[${left.identifier} with ${left.decimals} decimals] and ` +
+      `[${right.identifier} with ${right.decimals} decimals]. ` +
+      `Provide both amounts in the same type to perform this operation.`;
     super(message);
     this.left = left;
     this.right = right;
