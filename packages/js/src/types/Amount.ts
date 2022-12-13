@@ -36,17 +36,21 @@ export const toAmount = <I extends AmountIdentifier, D extends AmountDecimals>(
   };
 };
 
-export const lamports = (lamports: BigIntInput): SolAmount => {
-  return toAmount(lamports, 'SOL', 9);
-};
+export const toAmountFromDecimals = <
+  I extends AmountIdentifier,
+  D extends AmountDecimals
+>(
+  decimalAmount: number,
+  identifier: I,
+  decimals: D
+): Amount<I, D> => {
+  const exponentAmount = toAmount(
+    BigInt(10) ** BigInt(decimals ?? 0),
+    identifier,
+    decimals
+  );
 
-const LAMPORTS_PER_SOL = 1_000_000_000;
-export const sol = (sol: number): SolAmount => {
-  return multiplyAmount(lamports(LAMPORTS_PER_SOL), sol);
-};
-
-export const usd = (usd: number): UsdAmount => {
-  return multiplyAmount(toAmount(100, 'USD', 2), usd);
+  return multiplyAmount(exponentAmount, decimalAmount);
 };
 
 export const toTokenAmount = <
@@ -57,13 +61,23 @@ export const toTokenAmount = <
   identifier?: I,
   decimals?: D
 ): Amount<I, D> => {
-  const exponentAmount = toAmount(
-    BigInt(10) ** BigInt(decimals ?? 0),
+  return toAmountFromDecimals(
+    tokens,
     (identifier ?? 'Token') as I,
     (decimals ?? 0) as D
   );
+};
 
-  return multiplyAmount(exponentAmount, tokens);
+export const lamports = (lamports: BigIntInput): SolAmount => {
+  return toAmount(lamports, 'SOL', 9);
+};
+
+export const sol = (sol: number): SolAmount => {
+  return toAmountFromDecimals(sol, 'SOL', 9);
+};
+
+export const usd = (usd: number): UsdAmount => {
+  return toAmountFromDecimals(usd, 'USD', 2);
 };
 
 export const isAmount = <I extends AmountIdentifier, D extends AmountDecimals>(
@@ -287,7 +301,7 @@ export const formatAmount = (value: Amount, maxDecimals?: number): string => {
 
   switch (value.identifier) {
     case '%':
-      return `${amountAsString} %`;
+      return `${amountAsString}%`;
     default:
       return `${value.identifier} ${amountAsString}`;
   }
