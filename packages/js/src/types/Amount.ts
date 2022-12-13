@@ -42,13 +42,11 @@ export const lamports = (lamports: BigIntInput): SolAmount => {
 };
 
 export const sol = (sol: number): SolAmount => {
-  // TODO(loris): multiply after converting to bigint.
-  return lamports(sol * LAMPORTS_PER_SOL);
+  return multiplyAmount(lamports(LAMPORTS_PER_SOL), sol);
 };
 
 export const usd = (usd: number): UsdAmount => {
-  // TODO(loris): multiply after converting to bigint.
-  return amount(usd * 100, 'USD', 2);
+  return multiplyAmount(amount(100, 'USD', 2), usd);
 };
 
 export const token = <I extends AmountIdentifier, D extends AmountDecimals>(
@@ -56,12 +54,13 @@ export const token = <I extends AmountIdentifier, D extends AmountDecimals>(
   identifier?: I,
   decimals?: D
 ): Amount<I, D> => {
-  // TODO(loris): multiply after converting to bigint.
-  return amount(
-    tokens * Math.pow(10, decimals ?? 0),
+  const exponentAmount = amount(
+    BigInt(10) ** BigInt(decimals ?? 0),
     (identifier ?? 'Token') as I,
     (decimals ?? 0) as D
   );
+
+  return multiplyAmount(exponentAmount, tokens);
 };
 
 export const isAmount = <I extends AmountIdentifier, D extends AmountDecimals>(
