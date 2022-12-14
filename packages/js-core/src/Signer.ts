@@ -10,6 +10,10 @@ export type Signer = {
   signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
 };
 
+export const isSigner = (value: PublicKey | Signer): value is Signer => {
+  return 'publicKey' in value;
+};
+
 export const createSignerFromKeypair = (
   context: Pick<Context, 'eddsa'>,
   keypair: Keypair
