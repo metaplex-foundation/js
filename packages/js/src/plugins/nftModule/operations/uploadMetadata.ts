@@ -116,11 +116,13 @@ export const replaceAssetsWithUris = (
   let index = 0;
 
   walk(clone, (next, value, key, parent) => {
-    if (isMetaplexFile(value) && index < replacements.length) {
-      parent[key] = replacements[index++];
+    if (isMetaplexFile(value)) {
+      if (index < replacements.length) {
+        parent[key] = replacements[index++];
+      }
+    } else {
+      next(value);
     }
-
-    next(value);
   });
 
   return clone as JsonMetadata;
