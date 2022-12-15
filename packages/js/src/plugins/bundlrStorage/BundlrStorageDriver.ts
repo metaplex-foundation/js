@@ -75,6 +75,12 @@ export type BundlrWalletAdapter = {
   ) => Promise<TransactionSignature>;
 };
 
+/// Size of Bundlr transaction header
+const HEADER_SIZE = 2_000;
+
+/// Minimum file size for cost calculation
+const MINIMUM_SIZE = 80_000;
+
 export class BundlrStorageDriver implements StorageDriver {
   protected _metaplex: Metaplex;
   protected _bundlr: WebBundlr | NodeBundlr | null = null;
@@ -93,8 +99,16 @@ export class BundlrStorageDriver implements StorageDriver {
     const price = await bundlr.getPrice(bytes);
 
     return bigNumberToAmount(
-      price.multipliedBy(this._options.priceMultiplier ?? 1.5)
+      price.multipliedBy(this._options.priceMultiplier ?? 1.1)
     );
+  }
+
+  async getUploadPriceForFiles(files: MetaplexFile[]): Promise<Amount> {
+    const bytes: number = files.reduce((sum, file) => {
+      return sum + HEADER_SIZE + Math.max(MINIMUM_SIZE, file.buffer.byteLength);
+    }, 0);
+
+    return this.getUploadPrice(bytes);
   }
 
   async upload(file: MetaplexFile): Promise<string> {

@@ -10,6 +10,7 @@ export type StorageDriver = {
     uri: string,
     options?: StorageDownloadOptions
   ) => Promise<MetaplexFile>;
+  getUploadPriceForFiles?: (files: MetaplexFile[]) => Promise<Amount>;
 };
 
 export type StorageDownloadOptions = Omit<RequestInit, 'signal'> & {

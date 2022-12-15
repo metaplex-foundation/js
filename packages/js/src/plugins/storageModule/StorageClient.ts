@@ -36,7 +36,11 @@ export class StorageClient implements HasDriver<StorageDriver> {
   }
 
   getUploadPriceForFiles(files: MetaplexFile[]): Promise<Amount> {
-    return this.getUploadPriceForBytes(getBytesFromMetaplexFiles(...files));
+    const driver = this.driver();
+
+    return driver.getUploadPriceForFiles
+      ? driver.getUploadPriceForFiles(files)
+      : this.getUploadPriceForBytes(getBytesFromMetaplexFiles(...files));
   }
 
   upload(file: MetaplexFile): Promise<string> {
