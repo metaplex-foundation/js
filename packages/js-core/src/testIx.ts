@@ -66,21 +66,6 @@ export const createUpdateMetadataInstruction = (
     });
   }
 
-  // Data.
-  type UpdateMetadataInstructionData = {
-    discriminator: number;
-    users: number;
-    maxEditions: bigint;
-  };
-  const dataSerializer =
-    context.serializer.struct<UpdateMetadataInstructionData>(
-      'updateMetadataInstructionData',
-      [
-        ['discriminator', context.serializer.u8],
-        ['foo', context.serializer.u64],
-      ]
-    );
-
   return {
     instruction: {
       keys,
