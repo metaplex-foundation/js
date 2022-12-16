@@ -1,5 +1,12 @@
 # @metaplex-foundation/js
 
+## 0.17.11
+
+### Patch Changes
+
+- c1506ea8: `replaceAssetsWithUris`: don't recurse into `MetaplexFile` objects
+- cad98ec1: Update Bundlr price logic
+
 ## 0.17.10
 
 ### Patch Changes
