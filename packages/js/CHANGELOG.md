@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.17.12
+
+### Patch Changes
+
+- 45dab0ac: Ensure calling signTransaction uses the returned Transaction
+
 ## 0.17.11
 
 ### Patch Changes
