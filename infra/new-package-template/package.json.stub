@@ -26,7 +26,6 @@
     "test": "CI=1 tape dist/test/**/*.test.js"
   },
   "dependencies": {},
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },
