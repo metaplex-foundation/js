@@ -92,6 +92,7 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
 
       const nfts = await gpaBuilder.whereCreator(position, creator).get();
       scope.throwIfCanceled();
+      //a
 
       return nfts
         .map<Metadata | null>((account) => {
