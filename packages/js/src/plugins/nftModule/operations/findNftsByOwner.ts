@@ -53,7 +53,7 @@ export type FindNftsByOwnerInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindNftsByOwnerOutput = (MetadataWithToken)[];
+export type FindNftsByOwnerOutput = MetadataWithToken[];
 
 /**
  * @group Operations

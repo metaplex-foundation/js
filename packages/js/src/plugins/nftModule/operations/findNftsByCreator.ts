@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { MetadataV1GpaBuilder } from '../gpaBuilders';
-import { Metadata, Nft, Sft, toMetadata } from '../models';
+import { Metadata, toMetadata } from '../models';
 import {
   Operation,
   OperationHandler,
@@ -69,7 +69,7 @@ export type FindNftsByCreatorInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindNftsByCreatorOutput = (Metadata | Nft | Sft)[];
+export type FindNftsByCreatorOutput = Metadata[];
 
 /**
  * @group Operations
@@ -92,7 +92,6 @@ export const findNftsByCreatorOperationHandler: OperationHandler<FindNftsByCreat
 
       const nfts = await gpaBuilder.whereCreator(position, creator).get();
       scope.throwIfCanceled();
-      //a
 
       return nfts
         .map<Metadata | null>((account) => {

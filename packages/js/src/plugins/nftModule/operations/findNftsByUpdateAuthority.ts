@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
 import { MetadataV1GpaBuilder } from '../gpaBuilders';
-import { Metadata, Nft, Sft, toMetadata } from '../models';
+import { Metadata, toMetadata } from '../models';
 import {
   Operation,
   OperationHandler,
@@ -54,7 +54,7 @@ export type FindNftsByUpdateAuthorityInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindNftsByUpdateAuthorityOutput = (Metadata | Nft | Sft)[];
+export type FindNftsByUpdateAuthorityOutput = Metadata[];
 
 /**
  * @group Operations

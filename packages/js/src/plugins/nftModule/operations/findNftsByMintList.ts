@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { toMetadataAccount } from '../accounts';
-import { Metadata, Nft, Sft, toMetadata } from '../models';
+import { Metadata, toMetadata } from '../models';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
@@ -54,7 +54,7 @@ export type FindNftsByMintListInput = {
  * @group Operations
  * @category Outputs
  */
-export type FindNftsByMintListOutput = (Metadata | Nft | Sft | null)[];
+export type FindNftsByMintListOutput = Metadata[];
 
 /**
  * @group Operations
@@ -88,6 +88,7 @@ export const findNftsByMintListOperationHandler: OperationHandler<FindNftsByMint
         } catch (error) {
           return null;
         }
-      });
+      })
+      .filter((nft): nft is Metadata => nft !== null);
     },
   };
