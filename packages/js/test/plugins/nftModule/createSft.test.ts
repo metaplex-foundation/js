@@ -14,7 +14,7 @@ import { Sft, SftWithToken, token, toMetaplexFile } from '@/index';
 
 killStuckProcess();
 
-test('[nftModule] it can create an SFT with minimum configuration', async (t: Test) => {
+test.only('[nftModule] it can create an SFT with minimum configuration', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 

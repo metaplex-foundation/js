@@ -477,8 +477,8 @@ export const createSftBuilder = async (
           creators,
           primarySaleHappened: false, // TODO: Ask as input, defaults to false
           isMutable: params.isMutable ?? true,
-          editionNonce: null, // TODO: Check with Febo if this should be filled?
-          tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset"
+          editionNonce: null, // TODO: Check with Febo if this should ever be filled?
+          tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset" for SFTs.
           collection: params.collection
             ? { key: params.collection, verified: false }
             : null,
@@ -489,7 +489,7 @@ export const createSftBuilder = async (
           programmableConfig: null, // TODO: ProgrammableConfig
           delegateState: null, // TODO: DelegateState
         },
-        decimals: null, // TODO: number | null
+        decimals: params.decimals ?? null, // TODO: number | null
         maxSupply: null, // TODO: bignum | null
       },
     },
