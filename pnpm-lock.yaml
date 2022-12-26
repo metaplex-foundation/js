@@ -116,7 +116,7 @@ importers:
       '@metaplex-foundation/mpl-candy-guard': ^0.3.0
       '@metaplex-foundation/mpl-candy-machine': ^5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': ^0.1.2
-      '@metaplex-foundation/mpl-token-metadata': ^2.3.3
+      '@metaplex-foundation/mpl-token-metadata': npm:@lorisleiva/mpl-token-metadata@^0.0.1
       '@noble/ed25519': ^1.7.1
       '@noble/hashes': ^1.1.3
       '@solana/spl-token': ^0.3.5
@@ -139,7 +139,7 @@ importers:
       '@metaplex-foundation/mpl-candy-guard': 0.3.0
       '@metaplex-foundation/mpl-candy-machine': 5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': 0.1.2
-      '@metaplex-foundation/mpl-token-metadata': 2.5.2
+      '@metaplex-foundation/mpl-token-metadata': /@lorisleiva/mpl-token-metadata/0.0.1
       '@noble/ed25519': 1.7.1
       '@noble/hashes': 1.1.4
       '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
@@ -3016,6 +3016,23 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
+  /@lorisleiva/mpl-token-metadata/0.0.1:
+    resolution: {integrity: sha512-7sd0Zu1Qi9438bMW5q7hFqYyyhqjjcVPynXoLSNrPVsyHQCR2wqhhm6GpphFbMy4Cwguw4/UJr6DuoT6Sks5Ww==}
+    dependencies:
+      '@metaplex-foundation/beet': 0.7.1
+      '@metaplex-foundation/beet-solana': 0.4.0
+      '@metaplex-foundation/cusper': 0.0.2
+      '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
+      '@solana/web3.js': 1.70.0
+      bn.js: 5.2.1
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@manypkg/find-root/1.1.0:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
     dependencies:
@@ -3197,23 +3214,6 @@ packages:
       '@metaplex-foundation/cusper': 0.0.2
       '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
       '@solana/web3.js': 1.70.0
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: false
-
-  /@metaplex-foundation/mpl-token-metadata/2.5.2:
-    resolution: {integrity: sha512-lAjQjj2gGtyLq8MOkp4tWZSC5DK9NWgPd3EoH0KQ9gMs3sKIJRik0CBaZg+JA0uLwzkiErY2Izus4vbWtRADJQ==}
-    dependencies:
-      '@metaplex-foundation/beet': 0.7.1
-      '@metaplex-foundation/beet-solana': 0.4.0
-      '@metaplex-foundation/cusper': 0.0.2
-      '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
-      '@solana/web3.js': 1.70.0
-      bn.js: 5.2.1
-      debug: 4.3.4
     transitivePeerDependencies:
       - bufferutil
       - encoding
