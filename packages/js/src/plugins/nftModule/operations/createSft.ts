@@ -1,8 +1,14 @@
 import {
   createCreateMetadataAccountV3Instruction,
+  createCreateInstruction,
   Uses,
+  TokenStandard,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import {
+  Keypair,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -421,8 +427,14 @@ export const createSftBuilder = async (
   );
   const { mintAddress, tokenAddress } = mintAndTokenBuilder.getContext();
 
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
   const metadataPda = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const masterEditionPda = metaplex.nfts().pdas().masterEdition({
     mint: mintAddress,
     programs,
   });
@@ -441,6 +453,48 @@ export const createSftBuilder = async (
         }))
       : null;
 
+  const createMetadataInstructionNew = createCreateInstruction(
+    {
+      metadata: metadataPda,
+      masterEdition: masterEditionPda,
+      mint: mintAddress,
+      mintAuthority: mintAuthority.publicKey,
+      payer: payer.publicKey,
+      updateAuthority: updateAuthority.publicKey,
+      systemProgram: systemProgram.address,
+      sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+      splTokenProgram: tokenProgram.address,
+    },
+    {
+      createArgs: {
+        __kind: 'V1',
+        assetData: {
+          updateAuthority: updateAuthority.publicKey,
+          name: params.name,
+          symbol: params.symbol ?? '',
+          uri: params.uri,
+          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+          creators,
+          primarySaleHappened: false, // TODO: Ask as input, defaults to false
+          isMutable: params.isMutable ?? true,
+          editionNonce: null, // TODO: Check with Febo if this should be filled?
+          tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset"
+          collection: params.collection
+            ? { key: params.collection, verified: false }
+            : null,
+          uses: params.uses ?? null,
+          collectionDetails: params.isCollection
+            ? { __kind: 'V1', size: 0 } // Program will hardcode size to zero anyway.
+            : null,
+          programmableConfig: null, // TODO: ProgrammableConfig
+          delegateState: null, // TODO: DelegateState
+        },
+        decimals: null, // TODO: number | null
+        maxSupply: null, // TODO: bignum | null
+      },
+    },
+    tokenMetadataProgram.address
+  );
   const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
     {
       metadata: metadataPda,
@@ -506,7 +560,7 @@ export const createSftBuilder = async (
 
       // Create metadata account.
       .add({
-        instruction: createMetadataInstruction,
+        instruction: createMetadataInstructionNew,
         signers: [payer, mintAuthority, updateAuthority],
         key: params.createMetadataInstructionKey ?? 'createMetadata',
       })
