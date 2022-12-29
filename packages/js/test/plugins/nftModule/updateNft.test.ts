@@ -1,6 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
   createCollectionNft,
   createNft,
@@ -444,26 +445,67 @@ test('[nftModule] it does not try to remove a collection when the collection par
   } as unknown as Specifications<Nft>);
 });
 
-test.only('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
+test('[nftModule] it add programmable configs to a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
-  // And an existing NFT with the NonFunbible token standard.
-  const nft = await createNft(mx);
-  t.equal(nft.programmableConfig, null);
+  // And an existing PNFT with no programmable configs
+  const nft = await createNft(mx, {
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: null,
+  });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: null,
+  } as unknown as Specifications<Nft>);
 
-  // When we update its token standard to a Programmable NFT.
+  // When we update it with some new programmable configs.
   const ruleSet = Keypair.generate();
   await mx.nfts().update({
     nftOrSft: nft,
     programmableConfig: { ruleSet: ruleSet.publicKey },
   });
 
-  // Then the updated NFT is now from that collection.
+  // Then the updated NFT has the new programmable configs.
   const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
     programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing PNFT some existing programmable configs.
+  const ruleSetA = Keypair.generate();
+  const nft = await createNft(mx, {
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: { ruleSet: ruleSetA.publicKey },
+  });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: { ruleSet: spokSamePubkey(ruleSetA.publicKey) },
+  } as unknown as Specifications<Nft>);
+
+  // When we update it with some new programmable configs.
+  const ruleSetB = Keypair.generate();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    programmableConfig: { ruleSet: ruleSetB.publicKey },
+  });
+
+  // Then the updated NFT has the new programmable configs.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    programmableConfig: { ruleSet: spokSamePubkey(ruleSetB.publicKey) },
   } as unknown as Specifications<Nft>);
 });
