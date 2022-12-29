@@ -1,4 +1,6 @@
 import {
+  DelegateState,
+  ProgrammableConfig,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -135,6 +137,12 @@ export type Metadata<Json extends object = JsonMetadata> = {
     /** The total amount of uses that was initially allowed. */
     total: BigNumber;
   }>;
+
+  /** Programmable configuration for the asset. */
+  readonly programmableConfig: Option<ProgrammableConfig>;
+
+  /** Persistent delegate state for the asset. */
+  readonly delegateState: Option<DelegateState>;
 };
 
 /** @group Model Helpers */
@@ -189,4 +197,6 @@ export const toMetadata = (
         total: toBigNumber(account.data.uses.total),
       }
     : null,
+  programmableConfig: account.data.programmableConfig,
+  delegateState: account.data.delegateState,
 });

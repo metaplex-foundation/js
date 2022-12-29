@@ -2,6 +2,8 @@ import {
   createCreateInstruction,
   Uses,
   TokenStandard,
+  ProgrammableConfig,
+  DelegateState,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
   Keypair,
@@ -288,6 +290,22 @@ export type CreateSftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
+
+  /**
+   * Programmable configuration for the asset.
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue `null`
+   */
+  programmableConfig?: Option<ProgrammableConfig>;
+
+  /**
+   * Persistent delegate state for the asset.
+   *
+   * @defaultValue `null`
+   */
+  delegateState?: Option<DelegateState>;
 };
 
 /**
@@ -517,8 +535,8 @@ export const createSftBuilder = async (
           collectionDetails: params.isCollection
             ? { __kind: 'V1' as const, size: 0 } // Program will hardcode size to zero anyway.
             : null,
-          programmableConfig: null, // TODO: ProgrammableConfig
-          delegateState: null, // TODO: DelegateState
+          programmableConfig: params.programmableConfig ?? null,
+          delegateState: params.delegateState ?? null,
         },
         decimals: params.decimals ?? null,
         maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
