@@ -1,5 +1,4 @@
 import {
-  DelegateState,
   ProgrammableConfig,
   TokenStandard,
   Uses,
@@ -256,13 +255,6 @@ export type CreateNftInput = {
    * @defaultValue `null`
    */
   programmableConfig?: Option<ProgrammableConfig>;
-
-  /**
-   * Persistent delegate state for the asset.
-   *
-   * @defaultValue `null`
-   */
-  delegateState?: Option<DelegateState>;
 };
 
 /**

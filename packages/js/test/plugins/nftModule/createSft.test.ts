@@ -1,5 +1,4 @@
 import {
-  DelegateRole,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -92,7 +91,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const updateAuthority = Keypair.generate();
   const otherCreator = Keypair.generate();
   const ruleSet = Keypair.generate();
-  const delegateState = Keypair.generate();
 
   // When we create a new SFT with maximum configuration.
   const { sft } = await mx.nfts().createSft(
@@ -127,12 +125,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       ],
       // Programmable configs will be ignored for FungibleAssets.
       programmableConfig: { ruleSet: ruleSet.publicKey },
-      // Delegate state will be ignored on creation.
-      delegateState: {
-        role: DelegateRole.Transfer,
-        delegate: delegateState.publicKey,
-        hasData: true,
-      },
     },
     { payer }
   );

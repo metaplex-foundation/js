@@ -1,7 +1,6 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
-  DelegateRole,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -425,17 +424,10 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
 
   // When we create a new Programmable NFT.
   const ruleSet = Keypair.generate();
-  const delegateState = Keypair.generate();
   const { nft } = await mx.nfts().create({
     ...minimalInput(),
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: { ruleSet: ruleSet.publicKey },
-    // Delegate state will be ignored on creation.
-    delegateState: {
-      role: DelegateRole.Transfer,
-      delegate: delegateState.publicKey,
-      hasData: true,
-    },
   });
 
   // Then the Programmable NFT was created successfully.

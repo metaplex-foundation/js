@@ -3,7 +3,6 @@ import {
   Uses,
   TokenStandard,
   ProgrammableConfig,
-  DelegateState,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
   Keypair,
@@ -299,13 +298,6 @@ export type CreateSftInput = {
    * @defaultValue `null`
    */
   programmableConfig?: Option<ProgrammableConfig>;
-
-  /**
-   * Persistent delegate state for the asset.
-   *
-   * @defaultValue `null`
-   */
-  delegateState?: Option<DelegateState>;
 };
 
 /**
@@ -526,17 +518,17 @@ export const createSftBuilder = async (
           creators,
           primarySaleHappened: params.primarySaleHappened ?? false,
           isMutable: params.isMutable ?? true,
-          editionNonce: null,
+          editionNonce: null, // Ignored by program.
           tokenStandard: params.tokenStandard ?? TokenStandard.FungibleAsset,
           collection: params.collection
             ? { key: params.collection, verified: false }
             : null,
           uses: params.uses ?? null,
           collectionDetails: params.isCollection
-            ? { __kind: 'V1' as const, size: 0 } // Program will hardcode size to zero anyway.
+            ? { __kind: 'V1' as const, size: 0 } // Size ignored by program.
             : null,
           programmableConfig: params.programmableConfig ?? null,
-          delegateState: params.delegateState ?? null,
+          delegateState: null, // Ignored by program.
         },
         decimals: params.decimals ?? null,
         maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
