@@ -1,6 +1,8 @@
 import {
   approveNftCollectionAuthorityBuilder,
   ApproveNftCollectionAuthorityBuilderParams,
+  approveNftDelegateBuilder,
+  ApproveNftDelegateBuilderParams,
   approveNftUseAuthorityBuilder,
   ApproveNftUseAuthorityBuilderParams,
   createNftBuilder,
@@ -11,16 +13,24 @@ import {
   DeleteNftBuilderParams,
   freezeDelegatedNftBuilder,
   FreezeDelegatedNftBuilderParams,
+  migrateNftBuilder,
+  MigrateNftBuilderParams,
   migrateToSizedCollectionNftBuilder,
   MigrateToSizedCollectionNftBuilderParams,
+  mintNftBuilder,
+  MintNftBuilderParams,
   printNewEditionBuilder,
   PrintNewEditionBuilderParams,
   revokeNftCollectionAuthorityBuilder,
   RevokeNftCollectionAuthorityBuilderParams,
+  revokeNftDelegateBuilder,
+  RevokeNftDelegateBuilderParams,
   revokeNftUseAuthorityBuilder,
   RevokeNftUseAuthorityBuilderParams,
   thawDelegatedNftBuilder,
   ThawDelegatedNftBuilderParams,
+  transferNftBuilder,
+  TransferNftBuilderParams,
   unverifyNftCollectionBuilder,
   UnverifyNftCollectionBuilderParams,
   unverifyNftCreatorBuilder,
@@ -80,6 +90,26 @@ export class NftBuildersClient {
   /** {@inheritDoc deleteNftBuilder} */
   delete(input: DeleteNftBuilderParams, options?: TransactionBuilderOptions) {
     return deleteNftBuilder(this.metaplex, input, options);
+  }
+
+  // -----------------
+  // Delegates
+  // -----------------
+
+  /** {@inheritDoc approveNftDelegateBuilder} */
+  delegate(
+    input: ApproveNftDelegateBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return approveNftDelegateBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc revokeNftDelegateBuilder} */
+  revoke(
+    input: RevokeNftDelegateBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return revokeNftDelegateBuilder(this.metaplex, input, options);
   }
 
   // -----------------
@@ -174,6 +204,24 @@ export class NftBuildersClient {
   // -----------------
   // Token
   // -----------------
+
+  /** {@inheritDoc mintNftBuilder} */
+  mint(input: MintNftBuilderParams, options?: TransactionBuilderOptions) {
+    return mintNftBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc transferNftBuilder} */
+  transfer(
+    input: TransferNftBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return transferNftBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc migrateNftBuilder} */
+  migrate(input: MigrateNftBuilderParams, options?: TransactionBuilderOptions) {
+    return migrateNftBuilder(this.metaplex, input, options);
+  }
 
   /** {@inheritDoc freezeDelegatedNftBuilder} */
   freezeDelegatedNft(
