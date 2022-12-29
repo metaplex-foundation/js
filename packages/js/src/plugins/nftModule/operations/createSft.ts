@@ -488,12 +488,16 @@ export const createSftBuilder = async (
           programmableConfig: null, // TODO: ProgrammableConfig
           delegateState: null, // TODO: DelegateState
         },
-        decimals: params.decimals ?? null, // TODO: number | null
-        maxSupply: null, // TODO: bignum | null
+        decimals: params.decimals ?? null,
+        maxSupply: 0, // TODO: params.maxSupply ?? 0
       },
     },
     tokenMetadataProgram.address
   );
+
+  // When the payer is different than the update authority, the latter will
+  // not be marked as a signer and therefore signing as a creator will fail.
+  createMetadataInstruction.keys[5].isSigner = true;
 
   const verifyAdditionalCreatorInstructions = creatorsInput
     .filter((creator) => {
