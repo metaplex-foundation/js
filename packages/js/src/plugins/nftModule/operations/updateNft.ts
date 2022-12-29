@@ -450,7 +450,6 @@ const toInstructionData = (
     collection:
       input.collection === undefined ? currentCollection : newCollection,
     uses: input.uses === undefined ? nftOrSft.uses : input.uses,
-    collectionDetails: null, // TODO: Option<CollectionDetails>
     programmableConfig:
       input.programmableConfig === undefined
         ? nftOrSft.programmableConfig
@@ -465,5 +464,6 @@ const toInstructionData = (
     // TODO: Remove the following when program has removed them.
     tokenStandard: null,
     delegateState: null,
+    collectionDetails: null, // Double check with Sam.
   };
 };
