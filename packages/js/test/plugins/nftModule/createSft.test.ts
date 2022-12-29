@@ -1,4 +1,8 @@
-import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  DelegateRole,
+  TokenStandard,
+  UseMethod,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -87,6 +91,8 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const freezeAuthority = Keypair.generate();
   const updateAuthority = Keypair.generate();
   const otherCreator = Keypair.generate();
+  const ruleSet = Keypair.generate();
+  const delegateState = Keypair.generate();
 
   // When we create a new SFT with maximum configuration.
   const { sft } = await mx.nfts().createSft(
@@ -109,6 +115,12 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
         remaining: 0,
         total: 1000,
       },
+      programmableConfig: { ruleSet: ruleSet.publicKey },
+      delegateState: {
+        role: DelegateRole.Transfer,
+        delegate: delegateState.publicKey,
+        hasData: true,
+      },
       creators: [
         {
           address: updateAuthority.publicKey,
@@ -127,6 +139,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   spok(t, sft, {
     $topic: 'SFT With Token',
     model: 'sft',
+    tokenStandard: TokenStandard.FungibleAsset,
     uri: 'https://example.com/some-json-uri',
     name: 'On-chain SFT name',
     symbol: 'MYSFT',
@@ -161,6 +174,14 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       useMethod: UseMethod.Burn,
       remaining: spokSameBignum(0),
       total: spokSameBignum(1000),
+    },
+    programmableConfig: {
+      ruleSet: spokSamePubkey(ruleSet.publicKey),
+    },
+    delegateState: {
+      role: DelegateRole.Transfer,
+      delegate: spokSamePubkey(delegateState.publicKey),
+      hasData: true,
     },
     creators: [
       {
