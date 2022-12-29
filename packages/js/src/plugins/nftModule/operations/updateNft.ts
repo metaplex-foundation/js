@@ -1,9 +1,10 @@
 import {
-  createUpdateMetadataAccountV2Instruction,
-  UpdateMetadataAccountArgsV2,
+  AuthorityType,
+  createUpdateInstruction,
+  UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
@@ -268,6 +269,7 @@ export const updateNftBuilder = (
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   const updateInstructionDataWithoutChanges = toInstructionData(nftOrSft);
   const updateInstructionData = toInstructionData(nftOrSft, params);
@@ -335,15 +337,26 @@ export const updateNftBuilder = (
       // Update the metadata account.
       .when(shouldSendUpdateInstruction, (builder) =>
         builder.add({
-          instruction: createUpdateMetadataAccountV2Instruction(
+          instruction: createUpdateInstruction(
             {
+              authority: updateAuthority.publicKey,
               metadata: metaplex.nfts().pdas().metadata({
                 mint: nftOrSft.address,
                 programs,
               }),
-              updateAuthority: updateAuthority.publicKey,
+              masterEdition: metaplex.nfts().pdas().masterEdition({
+                mint: nftOrSft.address,
+                programs,
+              }),
+              mint: nftOrSft.address,
+              systemProgram: systemProgram.address,
+              sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+              // TODO: token: PublicKey,
+              // TODO: delegateRecord: PublicKey,
+              // TODO: authorizationRulesProgram: PublicKey,
+              // TODO: authorizationRules: PublicKey,
             },
-            { updateMetadataAccountArgsV2: updateInstructionData },
+            { updateArgs: updateInstructionData },
             tokenMetadataProgram.address
           ),
           signers: [updateAuthority],
@@ -388,7 +401,7 @@ const toInstructionData = (
     | 'uses'
   >,
   input: Partial<UpdateNftInput> = {}
-): UpdateMetadataAccountArgsV2 => {
+): UpdateArgs => {
   const creators =
     input.creators === undefined
       ? nftOrSft.creators
@@ -410,9 +423,9 @@ const toInstructionData = (
     : null;
 
   return {
-    updateAuthority: input.newUpdateAuthority ?? null,
-    primarySaleHappened: input.primarySaleHappened ?? null,
-    isMutable: input.isMutable ?? null,
+    __kind: 'V1',
+    authorizationData: null, // TODO: Option<AuthorizationData>
+    newUpdateAuthority: input.newUpdateAuthority ?? null,
     data: {
       name: input.name ?? nftOrSft.name,
       symbol: input.symbol ?? nftOrSft.symbol,
@@ -420,9 +433,16 @@ const toInstructionData = (
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
       creators: creators.length > 0 ? creators : null,
-      uses: input.uses === undefined ? nftOrSft.uses : input.uses,
-      collection:
-        input.collection === undefined ? currentCollection : newCollection,
     },
+    primarySaleHappened: input.primarySaleHappened ?? null,
+    isMutable: input.isMutable ?? null,
+    tokenStandard: null, // TODO: Option<TokenStandard>;
+    collection:
+      input.collection === undefined ? currentCollection : newCollection,
+    uses: input.uses === undefined ? nftOrSft.uses : input.uses,
+    collectionDetails: null, // TODO: Option<CollectionDetails>
+    programmableConfig: null, // TODO: Option<ProgrammableConfig>
+    delegateState: null, // TODO: Option<DelegateState>
+    authorityType: AuthorityType.Metadata, // TODO: Custom AuthorityType
   };
 };
