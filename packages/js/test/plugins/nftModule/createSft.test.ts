@@ -127,6 +127,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       ],
       // Programmable configs will be ignored for FungibleAssets.
       programmableConfig: { ruleSet: ruleSet.publicKey },
+      // Delegate state will be ignored on creation.
       delegateState: {
         role: DelegateRole.Transfer,
         delegate: delegateState.publicKey,

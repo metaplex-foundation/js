@@ -419,7 +419,7 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
+test('[nftModule] it can create a programmable NFT', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -430,6 +430,7 @@ test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
     ...minimalInput(),
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: { ruleSet: ruleSet.publicKey },
+    // Delegate state will be ignored on creation.
     delegateState: {
       role: DelegateRole.Transfer,
       delegate: delegateState.publicKey,
@@ -443,11 +444,7 @@ test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
-    delegateState: {
-      role: DelegateRole.Transfer,
-      delegate: spokSamePubkey(delegateState.publicKey),
-      hasData: true,
-    },
+    delegateState: null,
   } as unknown as Specifications<Nft>);
 });
 
