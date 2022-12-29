@@ -453,46 +453,46 @@ export const createSftBuilder = async (
         }))
       : null;
 
-  const createMetadataInstructionNew = createCreateInstruction(
-    {
-      metadata: metadataPda,
-      masterEdition: masterEditionPda,
-      mint: mintAddress,
-      mintAuthority: mintAuthority.publicKey,
-      payer: payer.publicKey,
+  const accountsNew = {
+    metadata: metadataPda,
+    masterEdition: masterEditionPda,
+    mint: mintAddress,
+    mintAuthority: mintAuthority.publicKey,
+    payer: payer.publicKey,
+    updateAuthority: updateAuthority.publicKey,
+    systemProgram: systemProgram.address,
+    sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+    splTokenProgram: tokenProgram.address,
+  };
+  const createArgsNew = {
+    __kind: 'V1' as const,
+    assetData: {
       updateAuthority: updateAuthority.publicKey,
-      systemProgram: systemProgram.address,
-      sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-      splTokenProgram: tokenProgram.address,
+      name: params.name,
+      symbol: params.symbol ?? '',
+      uri: params.uri,
+      sellerFeeBasisPoints: params.sellerFeeBasisPoints,
+      creators,
+      primarySaleHappened: false, // TODO: Ask as input, defaults to false
+      isMutable: params.isMutable ?? true,
+      editionNonce: null, // TODO: Check with Febo if this should ever be filled?
+      tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset" for SFTs.
+      collection: params.collection
+        ? { key: params.collection, verified: false }
+        : null,
+      uses: params.uses ?? null,
+      collectionDetails: params.isCollection
+        ? { __kind: 'V1' as const, size: 0 } // Program will hardcode size to zero anyway.
+        : null,
+      programmableConfig: null, // TODO: ProgrammableConfig
+      delegateState: null, // TODO: DelegateState
     },
-    {
-      createArgs: {
-        __kind: 'V1',
-        assetData: {
-          updateAuthority: updateAuthority.publicKey,
-          name: params.name,
-          symbol: params.symbol ?? '',
-          uri: params.uri,
-          sellerFeeBasisPoints: params.sellerFeeBasisPoints,
-          creators,
-          primarySaleHappened: false, // TODO: Ask as input, defaults to false
-          isMutable: params.isMutable ?? true,
-          editionNonce: null, // TODO: Check with Febo if this should ever be filled?
-          tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset" for SFTs.
-          collection: params.collection
-            ? { key: params.collection, verified: false }
-            : null,
-          uses: params.uses ?? null,
-          collectionDetails: params.isCollection
-            ? { __kind: 'V1', size: 0 } // Program will hardcode size to zero anyway.
-            : null,
-          programmableConfig: null, // TODO: ProgrammableConfig
-          delegateState: null, // TODO: DelegateState
-        },
-        decimals: params.decimals ?? null, // TODO: number | null
-        maxSupply: null, // TODO: bignum | null
-      },
-    },
+    decimals: params.decimals ?? null, // TODO: number | null
+    maxSupply: null, // TODO: bignum | null
+  };
+  const createMetadataInstructionNew = createCreateInstruction(
+    accountsNew,
+    { createArgs: createArgsNew },
     tokenMetadataProgram.address
   );
   const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
