@@ -1,6 +1,7 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
+  DelegateRole,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -99,6 +100,8 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
     ],
     collection: null,
     uses: null,
+    programmableConfig: null,
+    delegateState: null,
   } as unknown as Specifications<Nft>;
   spok(t, nft, { $topic: 'NFT', ...expectedNft });
 
@@ -133,6 +136,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   // When we create a new NFT with minimum configuration.
   const { nft } = await mx.nfts().create(
     {
+      tokenStandard: TokenStandard.NonFungible,
       uri,
       name: 'On-chain NFT name',
       symbol: 'MYNFT',
@@ -167,6 +171,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   spok(t, nft, {
     $topic: 'nft',
     model: 'nft',
+    tokenStandard: TokenStandard.NonFungible,
     name: 'On-chain NFT name',
     symbol: 'MYNFT',
     uri,
@@ -412,6 +417,38 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
 
   // And the collection NFT size has been increase by 1.
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+});
+
+test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a new Programmable NFT.
+  const ruleSet = Keypair.generate();
+  const delegateState = Keypair.generate();
+  const { nft } = await mx.nfts().create({
+    ...minimalInput(),
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: { ruleSet: ruleSet.publicKey },
+    delegateState: {
+      role: DelegateRole.Transfer,
+      delegate: delegateState.publicKey,
+      hasData: true,
+    },
+  });
+
+  // Then the Programmable NFT was created successfully.
+  spok(t, nft, {
+    $topic: 'nft',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
+    delegateState: {
+      role: DelegateRole.Transfer,
+      delegate: spokSamePubkey(delegateState.publicKey),
+      hasData: true,
+    },
+  } as unknown as Specifications<Nft>);
 });
 
 const minimalInput = () => ({
