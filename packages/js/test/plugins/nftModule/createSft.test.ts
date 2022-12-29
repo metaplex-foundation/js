@@ -115,12 +115,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
         remaining: 0,
         total: 1000,
       },
-      programmableConfig: { ruleSet: ruleSet.publicKey },
-      delegateState: {
-        role: DelegateRole.Transfer,
-        delegate: delegateState.publicKey,
-        hasData: true,
-      },
       creators: [
         {
           address: updateAuthority.publicKey,
@@ -131,6 +125,13 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
           share: 40,
         },
       ],
+      // Programmable configs will be ignored for FungibleAssets.
+      programmableConfig: { ruleSet: ruleSet.publicKey },
+      delegateState: {
+        role: DelegateRole.Transfer,
+        delegate: delegateState.publicKey,
+        hasData: true,
+      },
     },
     { payer }
   );
@@ -175,14 +176,8 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       remaining: spokSameBignum(0),
       total: spokSameBignum(1000),
     },
-    programmableConfig: {
-      ruleSet: spokSamePubkey(ruleSet.publicKey),
-    },
-    delegateState: {
-      role: DelegateRole.Transfer,
-      delegate: spokSamePubkey(delegateState.publicKey),
-      hasData: true,
-    },
+    programmableConfig: null,
+    delegateState: null,
     creators: [
       {
         address: spokSamePubkey(updateAuthority.publicKey),
