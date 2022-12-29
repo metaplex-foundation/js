@@ -12,6 +12,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  BigNumber,
   Creator,
   CreatorInput,
   isSigner,
@@ -163,6 +164,19 @@ export type CreateSftInput = {
    */
   decimals?: number;
 
+  /**
+   * Describes the asset class of the token.
+   * It can be one of the following:
+   * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
+   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+   * - `TokenStandard.Fungible`: A fungible token with simple metadata.
+   * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
+   * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
+   *
+   * @defaultValue `TokenStandard.FungibleAsset`
+   */
+  tokenStandard?: TokenStandard;
+
   /** The URI that points to the JSON metadata of the asset. */
   uri: string;
 
@@ -205,6 +219,24 @@ export type CreateSftInput = {
    * @defaultValue `true`
    */
   isMutable?: boolean;
+
+  /**
+   * The maximum supply of printed editions for NFTs.
+   * When this is `null`, an unlimited amount of editions
+   * can be printed from the original edition.
+   *
+   * @defaultValue `toBigNumber(0)`
+   */
+  maxSupply?: Option<BigNumber>;
+
+  /**
+   * Whether or not selling this asset is considered a primary sale.
+   * Once flipped from `false` to `true`, this field is immutable and
+   * all subsequent sales of this asset will be considered secondary.
+   *
+   * @defaultValue `false`
+   */
+  primarySaleHappened?: boolean;
 
   /**
    * When this field is not `null`, it indicates that the SFT
@@ -474,10 +506,10 @@ export const createSftBuilder = async (
           uri: params.uri,
           sellerFeeBasisPoints: params.sellerFeeBasisPoints,
           creators,
-          primarySaleHappened: false, // TODO: Ask as input, defaults to false
+          primarySaleHappened: params.primarySaleHappened ?? false,
           isMutable: params.isMutable ?? true,
           editionNonce: null, // TODO: Check with Febo if this should ever be filled?
-          tokenStandard: TokenStandard.FungibleAsset, // TODO: Ask as input, defaults to "FungibleAsset" for SFTs.
+          tokenStandard: params.tokenStandard ?? TokenStandard.FungibleAsset,
           collection: params.collection
             ? { key: params.collection, verified: false }
             : null,
@@ -489,7 +521,7 @@ export const createSftBuilder = async (
           delegateState: null, // TODO: DelegateState
         },
         decimals: params.decimals ?? null,
-        maxSupply: 0, // TODO: params.maxSupply ?? 0
+        maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
       },
     },
     tokenMetadataProgram.address
