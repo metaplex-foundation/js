@@ -443,3 +443,27 @@ test('[nftModule] it does not try to remove a collection when the collection par
     },
   } as unknown as Specifications<Nft>);
 });
+
+test.only('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with the NonFunbible token standard.
+  const nft = await createNft(mx);
+  t.equal(nft.programmableConfig, null);
+
+  // When we update its token standard to a Programmable NFT.
+  const ruleSet = Keypair.generate();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    programmableConfig: { ruleSet: ruleSet.publicKey },
+  });
+
+  // Then the updated NFT is now from that collection.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
+  } as unknown as Specifications<Nft>);
+});

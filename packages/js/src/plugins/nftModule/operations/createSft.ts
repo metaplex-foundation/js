@@ -526,7 +526,7 @@ export const createSftBuilder = async (
           creators,
           primarySaleHappened: params.primarySaleHappened ?? false,
           isMutable: params.isMutable ?? true,
-          editionNonce: null, // TODO: Check with Febo if this should ever be filled?
+          editionNonce: null,
           tokenStandard: params.tokenStandard ?? TokenStandard.FungibleAsset,
           collection: params.collection
             ? { key: params.collection, verified: false }

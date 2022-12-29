@@ -1,6 +1,7 @@
 import {
   AuthorityType,
   createUpdateInstruction,
+  ProgrammableConfig,
   UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -71,6 +72,7 @@ export type UpdateNftInput = {
     | 'uri'
     | 'sellerFeeBasisPoints'
     | 'uses'
+    | 'programmableConfig'
   >;
 
   /**
@@ -159,6 +161,15 @@ export type UpdateNftInput = {
    * @defaultValue Defaults to not being updated.
    */
   collection?: Option<PublicKey>;
+
+  /**
+   * Programmable configuration for the asset.
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  programmableConfig?: Option<ProgrammableConfig>;
 
   /**
    * The collection authority that should sign the asset
@@ -399,6 +410,7 @@ const toInstructionData = (
     | 'uri'
     | 'sellerFeeBasisPoints'
     | 'uses'
+    | 'programmableConfig'
   >,
   input: Partial<UpdateNftInput> = {}
 ): UpdateArgs => {
@@ -424,7 +436,6 @@ const toInstructionData = (
 
   return {
     __kind: 'V1',
-    authorizationData: null, // TODO: Option<AuthorizationData>
     newUpdateAuthority: input.newUpdateAuthority ?? null,
     data: {
       name: input.name ?? nftOrSft.name,
@@ -436,13 +447,23 @@ const toInstructionData = (
     },
     primarySaleHappened: input.primarySaleHappened ?? null,
     isMutable: input.isMutable ?? null,
-    tokenStandard: null, // TODO: Option<TokenStandard>;
     collection:
       input.collection === undefined ? currentCollection : newCollection,
     uses: input.uses === undefined ? nftOrSft.uses : input.uses,
     collectionDetails: null, // TODO: Option<CollectionDetails>
-    programmableConfig: null, // TODO: Option<ProgrammableConfig>
-    delegateState: null, // TODO: Option<DelegateState>
+    programmableConfig:
+      input.programmableConfig === undefined
+        ? nftOrSft.programmableConfig
+        : input.programmableConfig,
+
+    // These are not fields to update on the asset.
+    // Instead they are authorization input related to the provided authority.
+    // It tells the program how to authorize the update.
     authorityType: AuthorityType.Metadata, // TODO: Custom AuthorityType
+    authorizationData: null, // TODO: Option<AuthorizationData>
+
+    // TODO: Remove the following when program has removed them.
+    tokenStandard: null,
+    delegateState: null,
   };
 };
