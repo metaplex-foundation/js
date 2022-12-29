@@ -1,4 +1,7 @@
-import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  AuthorizationData,
+  createMintInstruction,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
@@ -6,6 +9,8 @@ import {
   Operation,
   OperationHandler,
   OperationScope,
+  Signer,
+  SplTokenAmount,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -45,6 +50,53 @@ export type MintNftOperation = Operation<
 export type MintNftInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /**
+   * The owner of the destination token account.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  toOwner?: PublicKey;
+
+  /**
+   * The address of the destination token account.
+   *
+   * Note that this may be required as a `Signer` if the destination
+   * token account does not exist and we need to create it before
+   * sending the tokens.
+   *
+   * @defaultValue Defaults to using the associated token account
+   * from the `mintAddress` and `toOwner` parameters.
+   */
+  toToken?: PublicKey | Signer; // TODO: ask Febo
+
+  /**
+   * The amount of tokens to mint.
+   *
+   * @defaultValue `token(1)`
+   */
+  amount?: SplTokenAmount;
+
+  /**
+   * The authority allowed to mint as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /**
+   * The optional address of the authorization rules to use.
+   *
+   * @defaultValue `undefined`
+   */
+  authorizationRules?: PublicKey;
+
+  /**
+   * The optional authorization payload to pass in.
+   *
+   * @defaultValue `null`
+   */
+  authorizationData?: AuthorizationData;
 };
 
 /**
@@ -105,7 +157,11 @@ export const mintNftBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress } = params;
+  const {
+    mintAddress,
+    authority = metaplex.identity(),
+    authorizationRules,
+  } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -136,23 +192,23 @@ export const mintNftBuilder = (
             masterEdition,
             mint: mintAddress,
             payer: payer.publicKey,
-            authority: web3.PublicKey, // TODO
+            authority: authority.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
-            authorizationRules: web3.PublicKey, // TODO
+            authorizationRules,
           },
           {
             mintArgs: {
               __kind: 'V1',
               amount: 0, // TODO: beet.bignum;
-              authorizationData: null, // TODO: beet.COption<AuthorizationData>;
+              authorizationData: params.authorizationData ?? null,
             },
           },
           tokenMetadataProgram.address
         ),
-        signers: [payer],
+        signers: [payer, authority],
         key: params.instructionKey ?? 'mintNft',
       })
   );
