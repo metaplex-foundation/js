@@ -1,5 +1,8 @@
 import {
   createCreateMasterEditionV3Instruction,
+  DelegateState,
+  ProgrammableConfig,
+  TokenStandard,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
@@ -121,6 +124,19 @@ export type CreateNftInput = {
    */
   tokenAddress?: PublicKey | Signer;
 
+  /**
+   * Describes the asset class of the token.
+   * It can be one of the following:
+   * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
+   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+   * - `TokenStandard.Fungible`: A fungible token with simple metadata.
+   * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
+   * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
+   *
+   * @defaultValue `TokenStandard.NonFungible`
+   */
+  tokenStandard?: TokenStandard;
+
   /** The URI that points to the JSON metadata of the asset. */
   uri: string;
 
@@ -163,6 +179,15 @@ export type CreateNftInput = {
    * @defaultValue `true`
    */
   isMutable?: boolean;
+
+  /**
+   * Whether or not selling this asset is considered a primary sale.
+   * Once flipped from `false` to `true`, this field is immutable and
+   * all subsequent sales of this asset will be considered secondary.
+   *
+   * @defaultValue `false`
+   */
+  primarySaleHappened?: boolean;
 
   /**
    * The maximum supply of printed editions.
@@ -223,6 +248,22 @@ export type CreateNftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
+
+  /**
+   * Programmable configuration for the asset.
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue `null`
+   */
+  programmableConfig?: Option<ProgrammableConfig>;
+
+  /**
+   * Persistent delegate state for the asset.
+   *
+   * @defaultValue `null`
+   */
+  delegateState?: Option<DelegateState>;
 };
 
 /**
@@ -388,14 +429,13 @@ export const createNftBuilder = async (
     tokenOwner = metaplex.identity().publicKey,
   } = params;
 
-  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
-
   const sftBuilder = await metaplex
     .nfts()
     .builders()
     .createSft(
       {
         ...params,
+        tokenStandard: params.tokenStandard ?? TokenStandard.NonFungible,
         updateAuthority,
         mintAuthority,
         freezeAuthority: mintAuthority.publicKey,
@@ -426,27 +466,5 @@ export const createNftBuilder = async (
 
       // Create the mint, the token and the metadata.
       .add(sftBuilder)
-
-      // Create master edition account (prevents further minting).
-      .add({
-        instruction: createCreateMasterEditionV3Instruction(
-          {
-            edition: masterEditionAddress,
-            mint: mintAddress,
-            updateAuthority: updateAuthority.publicKey,
-            mintAuthority: mintAuthority.publicKey,
-            payer: payer.publicKey,
-            metadata: metadataAddress,
-          },
-          {
-            createMasterEditionArgs: {
-              maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
-            },
-          },
-          tokenMetadataProgram.address
-        ),
-        signers: [payer, mintAuthority, updateAuthority],
-        key: params.createMasterEditionInstructionKey ?? 'createMasterEdition',
-      })
   );
 };

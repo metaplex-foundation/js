@@ -1,6 +1,7 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
+  TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
@@ -59,6 +60,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   const expectedNft = {
     model: 'nft',
     name: 'On-chain NFT name',
+    tokenStandard: TokenStandard.NonFungible,
     uri,
     address: spokSamePubkey(mintAddress),
     mint: {
