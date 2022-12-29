@@ -1,5 +1,5 @@
 import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -109,9 +109,16 @@ export const mintNftBuilder = (
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const ataProgram = metaplex.programs().getAssociatedToken(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const masterEdition = metaplex.nfts().pdas().masterEdition({
     mint: mintAddress,
     programs,
   });
@@ -123,11 +130,29 @@ export const mintNftBuilder = (
       // Update the metadata account.
       .add({
         instruction: createMintInstruction(
-          { metadata } as any, // TODO
-          {} as any, // TODO
+          {
+            token: web3.PublicKey, // TODO
+            metadata,
+            masterEdition,
+            mint: mintAddress,
+            payer: payer.publicKey,
+            authority: web3.PublicKey, // TODO
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            splTokenProgram: tokenProgram.address,
+            splAtaProgram: ataProgram.address,
+            authorizationRules: web3.PublicKey, // TODO
+          },
+          {
+            mintArgs: {
+              __kind: 'V1',
+              amount: 0, // TODO: beet.bignum;
+              authorizationData: null, // TODO: beet.COption<AuthorizationData>;
+            },
+          },
           tokenMetadataProgram.address
         ),
-        signers: [],
+        signers: [payer],
         key: params.instructionKey ?? 'mintNft',
       })
   );

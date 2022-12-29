@@ -1,24 +1,23 @@
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
-import { createNft, killStuckProcess, metaplex } from '../../helpers';
-import { Nft } from '@/index';
+import { createSft, killStuckProcess, metaplex } from '../../helpers';
+import { Sft } from '@/index';
 
 killStuckProcess();
 
-test.skip('[nftModule] it can do something', async (t: Test) => {
-  // Given an existing NFT.
+test.only('[nftModule] it can mint tokens from an SFT', async (t: Test) => {
+  // Given an existing SFT.
   const mx = await metaplex();
-  const nft = await createNft(mx, {
-    //
-  });
+  const sft = await createSft(mx);
+  t.equal(sft.mint.supply.basisPoints.toNumber(), 0, 'SFT has no supply');
 
   // When ...
-  // Do something...
-  const updatedNft = await mx.nfts().refresh(nft);
+  await mx.nfts().mint({ mintAddress: sft.address });
+  const updatedSft = await mx.nfts().refresh(sft);
 
-  // Then the NFT was updated accordingly.
-  spok(t, updatedNft, {
-    model: 'nft',
-    $topic: 'Updated NFT',
-  } as unknown as Specifications<Nft>);
+  // Then the SFT was updated accordingly.
+  spok(t, updatedSft, {
+    model: 'sft',
+    $topic: 'Updated SFT',
+  } as unknown as Specifications<Sft>);
 });
