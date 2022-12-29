@@ -11,6 +11,7 @@ import {
   OperationScope,
   Signer,
   SplTokenAmount,
+  token,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -61,14 +62,14 @@ export type MintNftInput = {
   /**
    * The address of the destination token account.
    *
-   * Note that this may be required as a `Signer` if the destination
-   * token account does not exist and we need to create it before
-   * sending the tokens.
+   * This may be a regular token account or an associated token account.
+   * If the token account does not exist, then it will be created but
+   * only if it is an associated token account.
    *
    * @defaultValue Defaults to using the associated token account
    * from the `mintAddress` and `toOwner` parameters.
    */
-  toToken?: PublicKey | Signer; // TODO: ask Febo
+  toToken?: PublicKey;
 
   /**
    * The amount of tokens to mint.
@@ -160,6 +161,8 @@ export const mintNftBuilder = (
   const {
     mintAddress,
     authority = metaplex.identity(),
+    toOwner = metaplex.identity().publicKey,
+    amount = token(1),
     authorizationRules,
   } = params;
 
@@ -179,6 +182,15 @@ export const mintNftBuilder = (
     programs,
   });
 
+  // Destination token account.
+  const toToken =
+    params.toToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: mintAddress,
+      owner: toOwner,
+      programs,
+    });
+
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
@@ -187,7 +199,7 @@ export const mintNftBuilder = (
       .add({
         instruction: createMintInstruction(
           {
-            token: web3.PublicKey, // TODO
+            token: toToken,
             metadata,
             masterEdition,
             mint: mintAddress,
@@ -202,7 +214,7 @@ export const mintNftBuilder = (
           {
             mintArgs: {
               __kind: 'V1',
-              amount: 0, // TODO: beet.bignum;
+              amount: amount.basisPoints,
               authorizationData: params.authorizationData ?? null,
             },
           },
