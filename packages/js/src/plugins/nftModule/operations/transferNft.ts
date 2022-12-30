@@ -193,7 +193,7 @@ export const transferNftBuilder = (
     mint: mintAddress,
     programs,
   });
-  const masterEdition = metaplex.nfts().pdas().masterEdition({
+  const edition = metaplex.nfts().pdas().masterEdition({
     mint: mintAddress,
     programs,
   });
@@ -224,7 +224,7 @@ export const transferNftBuilder = (
             destinationOwner: toOwner,
             mint: mintAddress,
             metadata,
-            masterEdition,
+            edition,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
             systemProgram: systemProgram.address,
