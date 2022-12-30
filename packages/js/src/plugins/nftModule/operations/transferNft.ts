@@ -83,6 +83,15 @@ export type TransferNftInput = {
   authority?: Signer;
 
   /**
+   * If the `authority` attribute is a delegate authority,
+   * this attribute refers to the PDA of the delegate account.
+   * It must be provided if the `authority` is a delegate.
+   *
+   * @defaultValue Defaults to not using a delegate.
+   */
+  delegateRecord?: PublicKey;
+
+  /**
    * The optional address of the authorization rules to use.
    *
    * @defaultValue `undefined`
@@ -208,7 +217,7 @@ export const transferNftBuilder = (
         instruction: createTransferInstruction(
           {
             authority: authority.publicKey,
-            // delegateRecord?
+            delegateRecord: params.delegateRecord,
             token: fromToken,
             tokenOwner: fromOwner,
             destination: toToken,

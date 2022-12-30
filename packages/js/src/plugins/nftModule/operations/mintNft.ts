@@ -217,6 +217,7 @@ export const mintNftBuilder = (
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
+            // authorizationRulesProgram?
             authorizationRules,
           },
           {
