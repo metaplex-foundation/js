@@ -1,11 +1,17 @@
-import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import {
+  AuthorizationData,
+  createTransferInstruction,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
   OperationHandler,
   OperationScope,
+  Signer,
+  SplTokenAmount,
+  token,
   useOperation,
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -20,7 +26,11 @@ const Key = 'TransferNftOperation' as const;
  * Transfers an NFT or SFT from one account to another.
  *
  * ```ts
- * await metaplex.nfts().transfer({ mintAddress });
+ * await metaplex.nfts().transfer({
+ *   mintAddress,
+ *   toOwner,
+ *   amount: token(5),
+ * });
  * ```
  *
  * @group Operations
@@ -45,6 +55,46 @@ export type TransferNftOperation = Operation<
 export type TransferNftInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
+
+  /**
+   * The wallet to get the tokens from.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  fromOwner?: PublicKey;
+
+  /**
+   * The wallet to send the tokens to.
+   */
+  toOwner: PublicKey;
+
+  /**
+   * The amount of tokens to mint.
+   *
+   * @defaultValue `token(1)`
+   */
+  amount?: SplTokenAmount;
+
+  /**
+   * The authority allowed to mint as a Signer.
+   *
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer;
+
+  /**
+   * The optional address of the authorization rules to use.
+   *
+   * @defaultValue `undefined`
+   */
+  authorizationRules?: PublicKey;
+
+  /**
+   * The optional authorization payload to pass in.
+   *
+   * @defaultValue `null`
+   */
+  authorizationData?: AuthorizationData;
 };
 
 /**
@@ -98,7 +148,11 @@ export type TransferNftBuilderParams = Omit<
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .transfer({ mintAddress });
+ *   .transfer({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(5),
+ *   });
  * ```
  *
  * @group Transaction Builders
@@ -110,14 +164,38 @@ export const transferNftBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress } = params;
+  const {
+    mintAddress,
+    authority = metaplex.identity(),
+    fromOwner = metaplex.identity().publicKey,
+    toOwner,
+    amount = token(1),
+    authorizationRules,
+  } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const ataProgram = metaplex.programs().getAssociatedToken(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
     mint: mintAddress,
+    programs,
+  });
+  const masterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: mintAddress,
+    programs,
+  });
+  const fromToken = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: mintAddress,
+    owner: fromOwner,
+    programs,
+  });
+  const toToken = metaplex.tokens().pdas().associatedTokenAccount({
+    mint: mintAddress,
+    owner: toOwner,
     programs,
   });
 
@@ -127,12 +205,34 @@ export const transferNftBuilder = (
 
       // Update the metadata account.
       .add({
-        instruction: createMintInstruction(
-          { metadata } as any, // TODO
-          {} as any, // TODO
+        instruction: createTransferInstruction(
+          {
+            authority: authority.publicKey,
+            // delegateRecord?
+            token: fromToken,
+            tokenOwner: fromOwner,
+            destination: toToken,
+            destinationOwner: toOwner,
+            mint: mintAddress,
+            metadata,
+            masterEdition,
+            splTokenProgram: tokenProgram.address,
+            splAtaProgram: ataProgram.address,
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            // authorizationRulesProgram?
+            authorizationRules,
+          },
+          {
+            transferArgs: {
+              __kind: 'V1',
+              amount: amount.basisPoints,
+              authorizationData: params.authorizationData ?? null,
+            },
+          },
           tokenMetadataProgram.address
         ),
-        signers: [],
+        signers: [payer, authority],
         key: params.instructionKey ?? 'transferNft',
       })
   );

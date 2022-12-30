@@ -26,7 +26,11 @@ const Key = 'MintNftOperation' as const;
  * Mint token(s) for an NFT or SFT.
  *
  * ```ts
- * await metaplex.nfts().mint({ mintAddress });
+ * await metaplex.nfts().mint({
+ *   mintAddress,
+ *   toOwner,
+ *   amount: token(5),
+ * });
  * ```
  *
  * @group Operations
@@ -146,7 +150,11 @@ export type MintNftBuilderParams = Omit<MintNftInput, 'confirmOptions'> & {
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .mint({ mintAddress });
+ *   .mint({
+ *     mintAddress,
+ *     toOwner,
+ *     amount: token(5),
+ *   });
  * ```
  *
  * @group Transaction Builders
