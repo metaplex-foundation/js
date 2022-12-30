@@ -57,25 +57,6 @@ export type TransferNftInput = {
   mintAddress: PublicKey;
 
   /**
-   * The wallet to get the tokens from.
-   *
-   * @defaultValue `metaplex.identity().publicKey`
-   */
-  fromOwner?: PublicKey;
-
-  /**
-   * The wallet to send the tokens to.
-   */
-  toOwner: PublicKey;
-
-  /**
-   * The amount of tokens to mint.
-   *
-   * @defaultValue `token(1)`
-   */
-  amount?: SplTokenAmount;
-
-  /**
    * The authority allowed to mint as a Signer.
    *
    * @defaultValue `metaplex.identity()`
@@ -104,6 +85,25 @@ export type TransferNftInput = {
    * @defaultValue `null`
    */
   authorizationData?: AuthorizationData;
+
+  /**
+   * The wallet to get the tokens from.
+   *
+   * @defaultValue `authority.publicKey`
+   */
+  fromOwner?: PublicKey;
+
+  /**
+   * The wallet to send the tokens to.
+   */
+  toOwner: PublicKey;
+
+  /**
+   * The amount of tokens to mint.
+   *
+   * @defaultValue `token(1)`
+   */
+  amount?: SplTokenAmount;
 };
 
 /**
@@ -176,7 +176,7 @@ export const transferNftBuilder = (
   const {
     mintAddress,
     authority = metaplex.identity(),
-    fromOwner = metaplex.identity().publicKey,
+    fromOwner = authority.publicKey,
     toOwner,
     amount = token(1),
     authorizationRules,
