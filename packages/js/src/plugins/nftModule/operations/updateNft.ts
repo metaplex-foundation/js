@@ -33,7 +33,7 @@ const Key = 'UpdateNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .update({ nftOrSft, name: "My new NFT name" };
+ *   .update({ nftOrSft, name: "My new NFT name" });
  * ```
  *
  * @group Operations
@@ -364,7 +364,7 @@ export const updateNftBuilder = (
               sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
               // TODO: token: PublicKey,
               // TODO: delegateRecord: PublicKey,
-              // TODO: authorizationRulesProgram: PublicKey,
+              // authorizationRulesProgram,
               // TODO: authorizationRules: PublicKey,
             },
             { updateArgs: updateInstructionData },
