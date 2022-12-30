@@ -1,12 +1,18 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
-import { createNft, killStuckProcess, metaplex } from '../../helpers';
-import { Nft } from '@/index';
+import {
+  createNft,
+  killStuckProcess,
+  metaplex,
+  spokSameAmount,
+  spokSamePubkey,
+} from '../../helpers';
+import { Nft, token } from '@/index';
 
 killStuckProcess();
 
-test.only('[nftModule] it can transfer an NFT', async (t: Test) => {
+test('[nftModule] it can transfer an NFT', async (t: Test) => {
   // Given an NFT that belongs to owner A.
   const mx = await metaplex();
   const ownerA = Keypair.generate();
@@ -14,23 +20,34 @@ test.only('[nftModule] it can transfer an NFT', async (t: Test) => {
     tokenOwner: ownerA.publicKey,
   });
 
-  // When owner A transfers the NFT to owner B.
+  // And an owner B with an empty token account.
   const ownerB = Keypair.generate();
+  await mx.tokens().createToken({ mint: nft.address, owner: ownerB.publicKey });
+
+  // When owner A transfers the NFT to owner B.
   await mx.nfts().transfer({
     mintAddress: nft.address,
     authority: ownerA,
     fromOwner: ownerA.publicKey,
     toOwner: ownerB.publicKey,
   });
-  const updatedNft = await mx.nfts().refresh(nft);
+  const updatedNft = await mx.nfts().findByMint({
+    mintAddress: nft.address,
+    tokenOwner: ownerB.publicKey,
+  });
 
-  // Then the NFT was updated accordingly.
-  // TODO
+  // Then the NFT now belongs to owner B.
   spok(t, updatedNft, {
-    model: 'nft',
     $topic: 'Updated NFT',
+    model: 'nft',
+    address: spokSamePubkey(nft.address),
+    token: {
+      ownerAddress: spokSamePubkey(ownerB.publicKey),
+      amount: spokSameAmount(token(1)),
+    },
   } as unknown as Specifications<Nft>);
 });
 
+// TODO: It can transfer an NFT without creating the token account first?
 // TODO: It can transfer a Programmable NFT.
 // TODO: It can partially transfer an SFT
