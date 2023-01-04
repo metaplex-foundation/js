@@ -64,7 +64,7 @@ export type TransferNftInput = {
    * Note that Metadata authorities are
    * not supported for this instruction.
    *
-   * If a Signer is provided directly,
+   * If a `Signer` is provided directly,
    * it will be used as an Holder authority.
    *
    * @see {@link TokenMetadataAuthority}
@@ -178,12 +178,10 @@ export const transferNftBuilder = (
     authorizationDetails,
   } = params;
 
-  // Auth.
-  const auth = parseTokenMetadataAuthorization({
-    authority,
-    authorizationDetails,
-  });
-  const fromOwner = params.fromOwner ?? auth.accounts.authority;
+  // From owner.
+  const defaultFromOwner =
+    '__kind' in authority ? authority.authority.publicKey : authority.publicKey;
+  const fromOwner = params.fromOwner ?? defaultFromOwner;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -209,6 +207,15 @@ export const transferNftBuilder = (
     mint: mintAddress,
     owner: toOwner,
     programs,
+  });
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization({
+    authority:
+      '__kind' in authority
+        ? authority
+        : { __kind: 'holder', authority, token: fromToken },
+    authorizationDetails,
   });
 
   return (

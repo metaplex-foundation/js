@@ -13,9 +13,6 @@ import { UnreachableCaseError } from '@/errors';
  * - Metadata: the update authority of the metadata account.
  * - Delegate: an approved delegate authority of the metadata account for a given action.
  * - Holder: the owner of the token account, i.e. the owner of the asset.
- *
- * When a simple Signer is provided, it is assumed that the authority
- * is the current update authority of the metadata account.
  */
 export type TokenMetadataAuthority =
   | TokenMetadataAuthorityMetadata
@@ -23,12 +20,10 @@ export type TokenMetadataAuthority =
   | TokenMetadataAuthorityHolder;
 
 /** The update authority of the metadata account. */
-export type TokenMetadataAuthorityMetadata =
-  | Signer // Syntactic sugar for metadata update authority.
-  | {
-      __kind: 'metadata';
-      updateAuthority: Signer;
-    };
+export type TokenMetadataAuthorityMetadata = {
+  __kind: 'metadata';
+  updateAuthority: Signer;
+};
 
 /** An approved delegate authority of the metadata account for a given action. */
 export type TokenMetadataAuthorityDelegate = {
@@ -80,11 +75,7 @@ export const parseTokenMetadataAuthorization = (input: {
     data: { authorizationData: input.authorizationDetails?.data ?? null },
   } as ParsedTokenMetadataAuthorization;
 
-  if (!('__kind' in input.authority)) {
-    auth.accounts.authority = input.authority.publicKey;
-    auth.signers.push(input.authority);
-    auth.data.authorityType = AuthorityType.Metadata;
-  } else if (input.authority.__kind === 'metadata') {
+  if (input.authority.__kind === 'metadata') {
     auth.accounts.authority = input.authority.updateAuthority.publicKey;
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;

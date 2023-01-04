@@ -11,6 +11,7 @@ import {
   Operation,
   OperationHandler,
   OperationScope,
+  Signer,
   SplTokenAmount,
   token,
   useOperation,
@@ -63,10 +64,13 @@ export type MintNftInput = {
    * Note that Delegate and Holder authorities
    * are not supported for this instruction.
    *
+   * If a `Signer` is provided directly,
+   * it will be used as the update authority.
+   *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
    */
-  authority?: TokenMetadataAuthorityMetadata;
+  authority?: Signer | TokenMetadataAuthorityMetadata;
 
   /**
    * The authorization rules and data to use for the mint.
@@ -175,7 +179,10 @@ export const mintNftBuilder = (
 
   // Auth.
   const auth = parseTokenMetadataAuthorization({
-    authority,
+    authority:
+      '__kind' in authority
+        ? authority
+        : { __kind: 'metadata', updateAuthority: authority },
     authorizationDetails,
   });
 

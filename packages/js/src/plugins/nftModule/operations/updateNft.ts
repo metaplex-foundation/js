@@ -9,12 +9,12 @@ import {
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Sft } from '../models';
 import {
   parseTokenMetadataAuthorization,
   TokenMetadataAuthority,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
+import { Sft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
@@ -93,10 +93,13 @@ export type UpdateNftInput = {
   /**
    * An authority allowed to update the asset.
    *
+   * If a `Signer` is provided directly,
+   * it will be used as the update authority.
+   *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
    */
-  authority?: TokenMetadataAuthority;
+  authority?: Signer | TokenMetadataAuthority;
 
   /**
    * The authorization rules and data to use for the update.
@@ -351,7 +354,10 @@ export const updateNftBuilder = (
     nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
 
   const auth = parseTokenMetadataAuthorization({
-    authority,
+    authority:
+      '__kind' in authority
+        ? authority
+        : { __kind: 'metadata', updateAuthority: authority },
     authorizationDetails,
   });
 
