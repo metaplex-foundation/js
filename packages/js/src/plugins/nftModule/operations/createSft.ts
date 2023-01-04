@@ -10,7 +10,7 @@ import {
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertSft, Sft, SftWithToken } from '../models';
+import { assertSft, isNonFungible, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
@@ -458,6 +458,7 @@ export const createSftBuilder = async (
     useNewMint = Keypair.generate(),
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
+    tokenStandard = params.tokenStandard ?? TokenStandard.FungibleAsset,
   } = params;
 
   const mintAndTokenBuilder = await createMintAndTokenForSftBuilder(
@@ -497,7 +498,9 @@ export const createSftBuilder = async (
   const createMetadataInstruction = createCreateInstruction(
     {
       metadata: metadataPda,
-      masterEdition: masterEditionPda,
+      masterEdition: isNonFungible({ tokenStandard })
+        ? masterEditionPda
+        : undefined,
       mint: mintAddress,
       mintAuthority: mintAuthority.publicKey,
       payer: payer.publicKey,

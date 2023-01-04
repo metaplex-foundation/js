@@ -2,7 +2,6 @@ import {
   CollectionDetails,
   createUpdateInstruction,
   ProgrammableConfig,
-  TokenStandard,
   UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -14,7 +13,7 @@ import {
   TokenMetadataAuthority,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
-import { Sft } from '../models';
+import { isNonFungible, Sft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
@@ -347,12 +346,7 @@ export const updateNftBuilder = (
   const shouldUnverifyCurrentCollection =
     isRemovingVerifiedCollection || isOverridingVerifiedCollection;
 
-  const shouldPassEditionAccount =
-    nftOrSft.tokenStandard === null ||
-    nftOrSft.tokenStandard === TokenStandard.NonFungible ||
-    nftOrSft.tokenStandard === TokenStandard.NonFungibleEdition ||
-    nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
-
+  // Auth.
   const auth = parseTokenMetadataAuthorization({
     authority:
       '__kind' in authority
@@ -414,7 +408,7 @@ export const updateNftBuilder = (
                 mint: nftOrSft.address,
                 programs,
               }),
-              edition: shouldPassEditionAccount
+              edition: isNonFungible(nftOrSft)
                 ? metaplex.nfts().pdas().masterEdition({
                     mint: nftOrSft.address,
                     programs,

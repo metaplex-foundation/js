@@ -6,6 +6,7 @@ import {
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
+import { isNonFungible, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -55,8 +56,11 @@ export type TransferNftOperation = Operation<
  * @category Inputs
  */
 export type TransferNftInput = {
-  /** The address of the mint account. */
-  mintAddress: PublicKey;
+  /**
+   * The NFT or SFT to update.
+   * We only need its address and token standard.
+   */
+  nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
 
   /**
    * An authority allowed to transfer the asset.
@@ -171,7 +175,7 @@ export const transferNftBuilder = (
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
-    mintAddress,
+    nftOrSft,
     authority = metaplex.identity(),
     toOwner,
     amount = token(1),
@@ -191,20 +195,20 @@ export const transferNftBuilder = (
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     programs,
   });
   const edition = metaplex.nfts().pdas().masterEdition({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     programs,
   });
   const fromToken = metaplex.tokens().pdas().associatedTokenAccount({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     owner: fromOwner,
     programs,
   });
   const toToken = metaplex.tokens().pdas().associatedTokenAccount({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     owner: toOwner,
     programs,
   });
@@ -231,9 +235,9 @@ export const transferNftBuilder = (
             tokenOwner: fromOwner,
             destination: toToken,
             destinationOwner: toOwner,
-            mint: mintAddress,
+            mint: nftOrSft.address,
             metadata,
-            edition,
+            edition: isNonFungible(nftOrSft) ? edition : undefined,
             payer: payer.publicKey,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,

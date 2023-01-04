@@ -200,3 +200,11 @@ export const toMetadata = (
   programmableConfig: account.data.programmableConfig,
   delegateState: account.data.delegateState,
 });
+
+export const isNonFungible = (nftOrSft: {
+  tokenStandard: Option<TokenStandard>;
+}): boolean =>
+  nftOrSft.tokenStandard === null ||
+  nftOrSft.tokenStandard === TokenStandard.NonFungible ||
+  nftOrSft.tokenStandard === TokenStandard.NonFungibleEdition ||
+  nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
