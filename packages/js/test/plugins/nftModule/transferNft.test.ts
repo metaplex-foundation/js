@@ -15,7 +15,7 @@ killStuckProcess();
 
 // TODO: It can transfer an NFT without creating the token account first?
 
-test('[nftModule] it can transfer an NFT', async (t: Test) => {
+test.only('[nftModule] it can transfer an NFT', async (t: Test) => {
   // Given an NFT that belongs to owner A.
   const mx = await metaplex();
   const ownerA = Keypair.generate();
@@ -51,7 +51,7 @@ test('[nftModule] it can transfer an NFT', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 });
 
-test.only('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
+test('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
   // Given a Programmable NFT that belongs to owner A.
   const mx = await metaplex();
   const ownerA = Keypair.generate();

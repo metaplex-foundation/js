@@ -1,10 +1,12 @@
-import {
-  AuthorizationData,
-  createTransferInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { createTransferInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
+import {
+  parseTokenMetadataAuthorization,
+  TokenMetadataAuthorityHolder,
+  TokenMetadataAuthorizationDetails,
+} from '../Authorization';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -14,7 +16,7 @@ import {
   token,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -57,39 +59,34 @@ export type TransferNftInput = {
   mintAddress: PublicKey;
 
   /**
-   * The authority allowed to mint as a Signer.
+   * An authority allowed to transfer the asset.
    *
+   * Note that Metadata authorities are
+   * not supported for this instruction.
+   *
+   * If a Signer is provided directly,
+   * it will be used as an Holder authority.
+   *
+   * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
    */
-  authority?: Signer;
+  authority?:
+    | Signer
+    | TokenMetadataAuthorityHolder
+    | TokenMetadataAuthorityHolder;
 
   /**
-   * If the `authority` attribute is a delegate authority,
-   * this attribute refers to the PDA of the delegate account.
-   * It must be provided if the `authority` is a delegate.
+   * The authorization rules and data to use for the transfer.
    *
-   * @defaultValue Defaults to not using a delegate.
+   * @see {@link TokenMetadataAuthorizationDetails}
+   * @defaultValue Defaults to not using auth rules.
    */
-  delegateRecord?: PublicKey;
-
-  /**
-   * The optional address of the authorization rules to use.
-   *
-   * @defaultValue `undefined`
-   */
-  authorizationRules?: PublicKey;
-
-  /**
-   * The optional authorization payload to pass in.
-   *
-   * @defaultValue `null`
-   */
-  authorizationData?: AuthorizationData;
+  authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
    * The wallet to get the tokens from.
    *
-   * @defaultValue `authority.publicKey`
+   * @defaultValue The public key of the provided authority.
    */
   fromOwner?: PublicKey;
 
@@ -176,11 +173,17 @@ export const transferNftBuilder = (
   const {
     mintAddress,
     authority = metaplex.identity(),
-    fromOwner = authority.publicKey,
     toOwner,
     amount = token(1),
-    authorizationRules,
+    authorizationDetails,
   } = params;
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization({
+    authority,
+    authorizationDetails,
+  });
+  const fromOwner = params.fromOwner ?? auth.accounts.authority;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -216,8 +219,7 @@ export const transferNftBuilder = (
       .add({
         instruction: createTransferInstruction(
           {
-            authority: authority.publicKey,
-            delegateRecord: params.delegateRecord,
+            ...auth.accounts,
             token: fromToken,
             tokenOwner: fromOwner,
             destination: toToken,
@@ -225,23 +227,23 @@ export const transferNftBuilder = (
             mint: mintAddress,
             metadata,
             edition,
+            payer: payer.publicKey,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-            // authorizationRulesProgram?
-            authorizationRules,
+            // authorizationRulesProgram,
           },
           {
             transferArgs: {
               __kind: 'V1',
               amount: amount.basisPoints,
-              authorizationData: params.authorizationData ?? null,
+              ...auth.data,
             },
           },
           tokenMetadataProgram.address
         ),
-        signers: [payer, authority],
+        signers: [payer, ...auth.signers],
         key: params.instructionKey ?? 'transferNft',
       })
   );
