@@ -93,23 +93,20 @@ test.skip('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
 
-  // And an owner B with an empty token account.
-  const ownerB = Keypair.generate();
-  await mx.tokens().createToken({ mint: nft.address, owner: ownerB.publicKey });
-
   // When owner A transfers the NFT to owner B.
+  const ownerB = Keypair.generate();
   await mx.nfts().transfer({
     nftOrSft: nft,
     authority: ownerA,
     fromOwner: ownerA.publicKey,
     toOwner: ownerB.publicKey,
   });
+
+  // Then the NFT now belongs to owner B.
   const updatedNft = await mx.nfts().findByMint({
     mintAddress: nft.address,
     tokenOwner: ownerB.publicKey,
   });
-
-  // Then the NFT now belongs to owner B.
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
