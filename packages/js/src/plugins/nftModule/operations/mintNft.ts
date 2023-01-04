@@ -6,6 +6,7 @@ import {
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
+import { isNonFungible, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -29,7 +30,7 @@ const Key = 'MintNftOperation' as const;
  *
  * ```ts
  * await metaplex.nfts().mint({
- *   mintAddress,
+ *   nftOrSft,
  *   toOwner,
  *   amount: token(5),
  * });
@@ -55,8 +56,11 @@ export type MintNftOperation = Operation<
  * @category Inputs
  */
 export type MintNftInput = {
-  /** The address of the mint account. */
-  mintAddress: PublicKey;
+  /**
+   * The NFT or SFT to mint from.
+   * We only need its address and token standard.
+   */
+  nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
 
   /**
    * An authority allowed to mint the asset.
@@ -95,7 +99,7 @@ export type MintNftInput = {
    * only if it is an associated token account.
    *
    * @defaultValue Defaults to using the associated token account
-   * from the `mintAddress` and `toOwner` parameters.
+   * from the `nftOrSft.address` and `toOwner` parameters.
    */
   toToken?: PublicKey;
 
@@ -154,7 +158,7 @@ export type MintNftBuilderParams = Omit<MintNftInput, 'confirmOptions'> & {
  *   .nfts()
  *   .builders()
  *   .mint({
- *     mintAddress,
+ *     nftOrSft,
  *     toOwner,
  *     amount: token(5),
  *   });
@@ -170,7 +174,7 @@ export const mintNftBuilder = (
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
   const {
-    mintAddress,
+    nftOrSft,
     authority = metaplex.identity(),
     authorizationDetails,
     toOwner = metaplex.identity().publicKey,
@@ -194,11 +198,11 @@ export const mintNftBuilder = (
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     programs,
   });
   const masterEdition = metaplex.nfts().pdas().masterEdition({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     programs,
   });
 
@@ -206,7 +210,7 @@ export const mintNftBuilder = (
   const toToken =
     params.toToken ??
     metaplex.tokens().pdas().associatedTokenAccount({
-      mint: mintAddress,
+      mint: nftOrSft.address,
       owner: toOwner,
       programs,
     });
@@ -222,8 +226,8 @@ export const mintNftBuilder = (
             ...auth.accounts,
             token: toToken,
             metadata,
-            masterEdition,
-            mint: mintAddress,
+            masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
+            mint: nftOrSft.address,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,

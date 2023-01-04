@@ -30,7 +30,7 @@ const Key = 'TransferNftOperation' as const;
  *
  * ```ts
  * await metaplex.nfts().transfer({
- *   mintAddress,
+ *   nftOrSft,
  *   toOwner,
  *   amount: token(5),
  * });
@@ -57,7 +57,7 @@ export type TransferNftOperation = Operation<
  */
 export type TransferNftInput = {
   /**
-   * The NFT or SFT to update.
+   * The NFT or SFT to transfer.
    * We only need its address and token standard.
    */
   nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
@@ -159,7 +159,7 @@ export type TransferNftBuilderParams = Omit<
  *   .nfts()
  *   .builders()
  *   .transfer({
- *     mintAddress,
+ *     nftOrSft,
  *     toOwner,
  *     amount: token(5),
  *   });
