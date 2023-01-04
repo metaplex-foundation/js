@@ -445,8 +445,7 @@ test('[nftModule] it does not try to remove a collection when the collection par
   } as unknown as Specifications<Nft>);
 });
 
-// TODO: Waiting on program to support this.
-test.skip('[nftModule] it add programmable configs to a programmable NFT', async (t: Test) => {
+test('[nftModule] it add programmable configs to a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -478,8 +477,7 @@ test.skip('[nftModule] it add programmable configs to a programmable NFT', async
   } as unknown as Specifications<Nft>);
 });
 
-// TODO: Waiting on program to support this.
-test.skip('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
+test('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
