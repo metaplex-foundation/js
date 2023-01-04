@@ -355,7 +355,7 @@ export const updateNftBuilder = (
                 mint: nftOrSft.address,
                 programs,
               }),
-              masterEdition: metaplex.nfts().pdas().masterEdition({
+              edition: metaplex.nfts().pdas().masterEdition({
                 mint: nftOrSft.address,
                 programs,
               }),
@@ -447,8 +447,10 @@ const toInstructionData = (
     },
     primarySaleHappened: input.primarySaleHappened ?? null,
     isMutable: input.isMutable ?? null,
-    collection:
-      input.collection === undefined ? currentCollection : newCollection,
+    collection: input.collection
+      ? { __kind: 'Set', fields: [{ key: input.collection, verified: false }] }
+      : { __kind: input.collection === undefined ? 'None' : 'Clear' },
+    collectionDetails: { __kind: 'None' }, // TODO: Ask for collectionDetails? They can already use `migrateToSizedCollection`.
     uses: input.uses === undefined ? nftOrSft.uses : input.uses,
     programmableConfig:
       input.programmableConfig === undefined
@@ -460,10 +462,5 @@ const toInstructionData = (
     // It tells the program how to authorize the update.
     authorityType: AuthorityType.Metadata, // TODO: Custom AuthorityType
     authorizationData: null, // TODO: Option<AuthorizationData>
-
-    // TODO: Remove the following when program has removed them.
-    tokenStandard: null,
-    delegateState: null,
-    collectionDetails: null, // Double check with Sam.
   };
 };
