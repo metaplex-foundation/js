@@ -2,6 +2,7 @@ import {
   AuthorityType,
   createUpdateInstruction,
   ProgrammableConfig,
+  TokenStandard,
   UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -73,6 +74,7 @@ export type UpdateNftInput = {
     | 'sellerFeeBasisPoints'
     | 'uses'
     | 'programmableConfig'
+    | 'tokenStandard'
   >;
 
   /**
@@ -301,6 +303,12 @@ export const updateNftBuilder = (
   const shouldUnverifyCurrentCollection =
     isRemovingVerifiedCollection || isOverridingVerifiedCollection;
 
+  const shouldPassEditionAccount =
+    nftOrSft.tokenStandard === null ||
+    nftOrSft.tokenStandard === TokenStandard.NonFungible ||
+    nftOrSft.tokenStandard === TokenStandard.NonFungibleEdition ||
+    nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
+
   const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;
   const verifyAdditionalCreatorInstructions = creatorsInput
     .filter((creator) => {
@@ -355,10 +363,12 @@ export const updateNftBuilder = (
                 mint: nftOrSft.address,
                 programs,
               }),
-              edition: metaplex.nfts().pdas().masterEdition({
-                mint: nftOrSft.address,
-                programs,
-              }),
+              edition: shouldPassEditionAccount
+                ? metaplex.nfts().pdas().masterEdition({
+                    mint: nftOrSft.address,
+                    programs,
+                  })
+                : undefined,
               mint: nftOrSft.address,
               systemProgram: systemProgram.address,
               sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
@@ -427,13 +437,6 @@ const toInstructionData = (
           };
         });
 
-  const currentCollection = nftOrSft.collection
-    ? { ...nftOrSft.collection, key: nftOrSft.collection.address }
-    : null;
-  const newCollection = input.collection
-    ? { key: input.collection, verified: false }
-    : null;
-
   return {
     __kind: 'V1',
     newUpdateAuthority: input.newUpdateAuthority ?? null,
@@ -451,11 +454,12 @@ const toInstructionData = (
       ? { __kind: 'Set', fields: [{ key: input.collection, verified: false }] }
       : { __kind: input.collection === undefined ? 'None' : 'Clear' },
     collectionDetails: { __kind: 'None' }, // TODO: Ask for collectionDetails? They can already use `migrateToSizedCollection`.
-    uses: input.uses === undefined ? nftOrSft.uses : input.uses,
-    programmableConfig:
-      input.programmableConfig === undefined
-        ? nftOrSft.programmableConfig
-        : input.programmableConfig,
+    uses: input.uses
+      ? { __kind: 'Set', fields: [input.uses] }
+      : { __kind: input.uses === undefined ? 'None' : 'Clear' },
+    programmableConfig: input.programmableConfig
+      ? { __kind: 'Set', fields: [input.programmableConfig] }
+      : { __kind: input.programmableConfig === undefined ? 'None' : 'Clear' },
 
     // These are not fields to update on the asset.
     // Instead they are authorization input related to the provided authority.
