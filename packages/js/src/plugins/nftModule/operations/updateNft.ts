@@ -11,6 +11,7 @@ import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Sft } from '../models';
+import { TokenMetadataAuthority } from '../Authorization';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
@@ -82,8 +83,17 @@ export type UpdateNftInput = {
    * The current update authority of the asset as a Signer.
    *
    * @defaultValue `metaplex.identity()`
+   * @deprecated Use `authority` instead.
    */
   updateAuthority?: Signer;
+
+  /**
+   * An authority allowed to update the asset.
+   *
+   * @see {@link TokenMetadataAuthority}
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: TokenMetadataAuthority;
 
   /**
    * The address of the new update authority to set for the asset
