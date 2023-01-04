@@ -23,7 +23,7 @@ test('[nftModule] it can mint tokens from an SFT', async (t: Test) => {
 
   // When we mint 42 tokens to that wallet.
   await mx.nfts().mint({
-    mintAddress: sft.address,
+    nftOrSft: sft,
     amount: token(42),
     toOwner,
   });
@@ -60,7 +60,7 @@ test.skip('[nftModule] it creates the ATA when minting tokens from an SFT', asyn
   // When we mint 42 tokens to a new owner.
   const toOwner = Keypair.generate().publicKey;
   await mx.nfts().mint({
-    mintAddress: sft.address,
+    nftOrSft: sft,
     amount: token(42),
     toOwner,
   });
