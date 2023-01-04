@@ -1,5 +1,6 @@
 import {
   AuthorityType,
+  CollectionDetails,
   createUpdateInstruction,
   ProgrammableConfig,
   TokenStandard,
@@ -215,6 +216,20 @@ export type UpdateNftInput = {
    * @defaultValue `true`
    */
   oldCollectionIsSized?: boolean;
+
+  /**
+   * Transforms a regular NFT into a Collection NFT of the
+   * provided size.
+   *
+   * The provided size should include all **verified** NFTs
+   * and/or SFTs within the Collection. Unverified NFTs
+   * and/or SFTs should not be included in the size.
+   *
+   * **Warning, once set, this size can no longer be updated manually.**
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  collectionDetails?: CollectionDetails;
 };
 
 /**
@@ -453,7 +468,9 @@ const toInstructionData = (
     collection: input.collection
       ? { __kind: 'Set', fields: [{ key: input.collection, verified: false }] }
       : { __kind: input.collection === undefined ? 'None' : 'Clear' },
-    collectionDetails: { __kind: 'None' }, // TODO: Ask for collectionDetails? They can already use `migrateToSizedCollection`.
+    collectionDetails: input.collectionDetails
+      ? { __kind: 'Set', fields: [input.collectionDetails] }
+      : { __kind: 'None' },
     uses: input.uses
       ? { __kind: 'Set', fields: [input.uses] }
       : { __kind: input.uses === undefined ? 'None' : 'Clear' },

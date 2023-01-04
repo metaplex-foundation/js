@@ -8,6 +8,7 @@ import {
   createSft,
   killStuckProcess,
   metaplex,
+  spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
 import {
@@ -507,5 +508,33 @@ test('[nftModule] it can update the programmable configs of a programmable NFT',
     $topic: 'Updated NFT',
     model: 'nft',
     programmableConfig: { ruleSet: spokSamePubkey(ruleSetB.publicKey) },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can set the collection details of a regular NFT once', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with no collection details.
+  const nft = await createNft(mx, { collectionIsSized: false });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.NonFungible,
+    collectionDetails: null,
+  } as unknown as Specifications<Nft>);
+
+  // When we update it with a collection details of 42 items.
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collectionDetails: { __kind: 'V1', size: 42 },
+  });
+
+  // Then the updated NFT is now a sized collection of 42 items.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    collectionDetails: { version: 'V1', size: spokSameBignum(42) },
   } as unknown as Specifications<Nft>);
 });
