@@ -14,39 +14,6 @@ import { Nft, Sft, token } from '@/index';
 
 killStuckProcess();
 
-test('[nftModule] it can create token accounts when transferring NFTs', async (t: Test) => {
-  // Given an NFT that belongs to owner A.
-  const mx = await metaplex();
-  const ownerA = Keypair.generate();
-  const nft = await createNft(mx, {
-    tokenOwner: ownerA.publicKey,
-  });
-
-  // When owner A transfers the NFT to owner B
-  // without creating the token account first.
-  const ownerB = Keypair.generate();
-  await mx.nfts().transfer({
-    nftOrSft: nft,
-    authority: ownerA,
-    toOwner: ownerB.publicKey,
-  });
-  const updatedNft = await mx.nfts().findByMint({
-    mintAddress: nft.address,
-    tokenOwner: ownerB.publicKey,
-  });
-
-  // Then the NFT now belongs to owner B.
-  spok(t, updatedNft, {
-    $topic: 'Updated NFT',
-    model: 'nft',
-    address: spokSamePubkey(nft.address),
-    token: {
-      ownerAddress: spokSamePubkey(ownerB.publicKey),
-      amount: spokSameAmount(token(1)),
-    },
-  } as unknown as Specifications<Nft>);
-});
-
 test('[nftModule] it can transfer an NFT', async (t: Test) => {
   // Given an NFT that belongs to owner A.
   const mx = await metaplex();
@@ -83,30 +50,28 @@ test('[nftModule] it can transfer an NFT', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 });
 
-// TODO: Gets UriTooLong error.
-test.skip('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
-  // Given a Programmable NFT that belongs to owner A.
+test('[nftModule] it can create token accounts when transferring NFTs', async (t: Test) => {
+  // Given an NFT that belongs to owner A.
   const mx = await metaplex();
   const ownerA = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: ownerA.publicKey,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
 
-  // When owner A transfers the NFT to owner B.
+  // When owner A transfers the NFT to owner B
+  // without creating the token account first.
   const ownerB = Keypair.generate();
   await mx.nfts().transfer({
     nftOrSft: nft,
     authority: ownerA,
-    fromOwner: ownerA.publicKey,
     toOwner: ownerB.publicKey,
   });
-
-  // Then the NFT now belongs to owner B.
   const updatedNft = await mx.nfts().findByMint({
     mintAddress: nft.address,
     tokenOwner: ownerB.publicKey,
   });
+
+  // Then the NFT now belongs to owner B.
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
@@ -165,4 +130,39 @@ test('[nftModule] it can can partially transfer an SFT', async (t: Test) => {
       amount: spokSameAmount(token(32)),
     },
   } as unknown as Specifications<Sft>);
+});
+
+// TODO: Gets UriTooLong error.
+test.skip('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
+  // Given a Programmable NFT that belongs to owner A.
+  const mx = await metaplex();
+  const ownerA = Keypair.generate();
+  const nft = await createNft(mx, {
+    tokenOwner: ownerA.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+  });
+
+  // When owner A transfers the NFT to owner B.
+  const ownerB = Keypair.generate();
+  await mx.nfts().transfer({
+    nftOrSft: nft,
+    authority: ownerA,
+    fromOwner: ownerA.publicKey,
+    toOwner: ownerB.publicKey,
+  });
+
+  // Then the NFT now belongs to owner B.
+  const updatedNft = await mx.nfts().findByMint({
+    mintAddress: nft.address,
+    tokenOwner: ownerB.publicKey,
+  });
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    address: spokSamePubkey(nft.address),
+    token: {
+      ownerAddress: spokSamePubkey(ownerB.publicKey),
+      amount: spokSameAmount(token(1)),
+    },
+  } as unknown as Specifications<Nft>);
 });
