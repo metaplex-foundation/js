@@ -1,4 +1,6 @@
 import { Buffer } from 'buffer';
+import { DelegateRole } from '@metaplex-foundation/mpl-token-metadata';
+import { getDelegateRoleSeed } from './DelegateRole';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
 
@@ -118,6 +120,47 @@ export class NftPdasClient {
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
       Buffer.from('burn', 'utf8'),
+    ]);
+  }
+
+  /** Finds the record PDA for a given NFT and delegate authority. */
+  delegateRecord({
+    mint,
+    role,
+    namespace,
+    delegate,
+    programs,
+  }: {
+    /** The address of the NFT's mint account. */
+    mint: PublicKey;
+    /** The role of the delegate authority. */
+    role: DelegateRole;
+    /**
+     * Depending on the role, this should either be
+     * the update authority or the token owner.
+     * This ensures that changing ownership or authority on
+     * an assets, disable any previous delegate authorities.
+     */
+    namespace: PublicKey;
+    /**
+     * The address of delegate authority. Depending on the role,
+     * this can be omitted as the delegate authority will be stored
+     * inside the PDA account instead of being part of the PDA seeds.
+     * This pattern enables us to have "unique" delegates for some roles
+     * and "multiple" delegates for other roles.
+     */
+    delegate?: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const programId = this.programId(programs);
+    return Pda.find(programId, [
+      Buffer.from('metadata', 'utf8'),
+      programId.toBuffer(),
+      mint.toBuffer(),
+      Buffer.from(getDelegateRoleSeed(role), 'utf8'),
+      namespace.toBuffer(),
+      ...(delegate ? [delegate.toBuffer()] : []),
     ]);
   }
 

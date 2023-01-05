@@ -1,5 +1,6 @@
 export * from './accounts';
 export * from './Authorization';
+export * from './DelegateRole';
 export * from './errors';
 export * from './gpaBuilders';
 export * from './helpers';
