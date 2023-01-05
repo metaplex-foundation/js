@@ -124,43 +124,29 @@ export class NftPdasClient {
   }
 
   /** Finds the record PDA for a given NFT and delegate authority. */
-  delegateRecord({
-    mint,
-    role,
-    namespace,
-    delegate,
-    programs,
-  }: {
-    /** The address of the NFT's mint account. */
-    mint: PublicKey;
-    /** The role of the delegate authority. */
-    role: DelegateRole;
-    /**
-     * Depending on the role, this should either be
-     * the update authority or the token owner.
-     * This ensures that changing ownership or authority on
-     * an assets, disable any previous delegate authorities.
-     */
-    namespace: PublicKey;
-    /**
-     * The address of delegate authority. Depending on the role,
-     * this can be omitted as the delegate authority will be stored
-     * inside the PDA account instead of being part of the PDA seeds.
-     * This pattern enables us to have "unique" delegates for some roles
-     * and "multiple" delegates for other roles.
-     */
-    delegate?: PublicKey;
-    /** An optional set of programs that override the registered ones. */
-    programs?: Program[];
-  }): Pda {
-    const programId = this.programId(programs);
+  persistentDelegateRecord(
+    input: Omit<DelegateRecordPdaInput, 'delegate' | 'role' | 'namespace'> & {
+      /** The address of the asset's owner. */
+      tokenOwner: PublicKey;
+    }
+  ): Pda {
+    return this.delegateRecord({
+      ...input,
+      role: DelegateRole.Transfer,
+      namespace: input.tokenOwner,
+    });
+  }
+
+  /** Finds the record PDA for a given NFT and delegate authority. */
+  delegateRecord(input: DelegateRecordPdaInput): Pda {
+    const programId = this.programId(input.programs);
     return Pda.find(programId, [
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
-      mint.toBuffer(),
-      Buffer.from(getDelegateRoleSeed(role), 'utf8'),
-      namespace.toBuffer(),
-      ...(delegate ? [delegate.toBuffer()] : []),
+      input.mint.toBuffer(),
+      Buffer.from(getDelegateRoleSeed(input.role), 'utf8'),
+      input.namespace.toBuffer(),
+      ...(input.delegate ? [input.delegate.toBuffer()] : []),
     ]);
   }
 
@@ -173,6 +159,30 @@ type MintAddressPdaInput = {
   /** The address of the mint account. */
   mint: PublicKey;
 
+  /** An optional set of programs that override the registered ones. */
+  programs?: Program[];
+};
+
+type DelegateRecordPdaInput = {
+  /** The address of the NFT's mint account. */
+  mint: PublicKey;
+  /** The role of the delegate authority. */
+  role: DelegateRole;
+  /**
+   * Depending on the role, this should either be
+   * the update authority or the token owner.
+   * This ensures that changing ownership or authority on
+   * an assets, disable any previous delegate authorities.
+   */
+  namespace: PublicKey;
+  /**
+   * The address of delegate authority. Depending on the role,
+   * this can be omitted as the delegate authority will be stored
+   * inside the PDA account instead of being part of the PDA seeds.
+   * This pattern enables us to have "unique" delegates for some roles
+   * and "multiple" delegates for other roles.
+   */
+  delegate?: PublicKey;
   /** An optional set of programs that override the registered ones. */
   programs?: Program[];
 };

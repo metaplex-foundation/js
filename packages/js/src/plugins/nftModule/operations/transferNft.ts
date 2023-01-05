@@ -3,6 +3,7 @@ import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   parseTokenMetadataAuthorization,
+  TokenMetadataAuthorityDelegate,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
@@ -76,7 +77,7 @@ export type TransferNftInput = {
    */
   authority?:
     | Signer
-    | TokenMetadataAuthorityHolder
+    | TokenMetadataAuthorityDelegate
     | TokenMetadataAuthorityHolder;
 
   /**
