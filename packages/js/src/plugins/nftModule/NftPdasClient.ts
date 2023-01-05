@@ -127,13 +127,13 @@ export class NftPdasClient {
   persistentDelegateRecord(
     input: Omit<DelegateRecordPdaInput, 'delegate' | 'role' | 'namespace'> & {
       /** The address of the asset's owner. */
-      tokenOwner: PublicKey;
+      owner: PublicKey;
     }
   ): Pda {
     return this.delegateRecord({
       ...input,
       role: DelegateRole.Transfer,
-      namespace: input.tokenOwner,
+      namespace: input.owner,
     });
   }
 

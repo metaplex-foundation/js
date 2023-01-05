@@ -213,6 +213,11 @@ export const transferNftBuilder = (
     owner: toOwner,
     programs,
   });
+  const delegateRecord = metaplex.nfts().pdas().persistentDelegateRecord({
+    mint: nftOrSft.address,
+    owner: fromToken,
+    programs,
+  });
 
   // Auth.
   const auth = parseTokenMetadataAuthorization({
@@ -232,6 +237,7 @@ export const transferNftBuilder = (
         instruction: createTransferInstruction(
           {
             ...auth.accounts,
+            delegateRecord,
             token: fromToken,
             tokenOwner: fromOwner,
             destination: toToken,
