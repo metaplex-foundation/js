@@ -224,7 +224,7 @@ export const transferNftBuilder = (
     authority:
       '__kind' in authority
         ? authority
-        : { __kind: 'holder', authority, token: fromToken },
+        : { __kind: 'holder', owner: authority, token: fromToken },
     authorizationDetails,
   });
 

@@ -28,14 +28,14 @@ export type TokenMetadataAuthorityMetadata = {
 /** An approved delegate authority of the metadata account for a given action. */
 export type TokenMetadataAuthorityDelegate = {
   __kind: 'delegate';
-  authority: Signer;
+  delegate: Signer;
   delegateRecord: PublicKey;
 };
 
 /** The owner of the token account, i.e. the owner of the asset. */
 export type TokenMetadataAuthorityHolder = {
   __kind: 'holder';
-  authority: Signer;
+  owner: Signer;
   token: PublicKey;
 };
 
@@ -80,14 +80,14 @@ export const parseTokenMetadataAuthorization = (input: {
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'delegate') {
-    auth.accounts.authority = input.authority.authority.publicKey;
+    auth.accounts.authority = input.authority.delegate.publicKey;
     auth.accounts.delegateRecord = input.authority.delegateRecord;
-    auth.signers.push(input.authority.authority);
+    auth.signers.push(input.authority.delegate);
     auth.data.authorityType = AuthorityType.Delegate;
   } else if (input.authority.__kind === 'holder') {
-    auth.accounts.authority = input.authority.authority.publicKey;
+    auth.accounts.authority = input.authority.owner.publicKey;
     auth.accounts.token = input.authority.token;
-    auth.signers.push(input.authority.authority);
+    auth.signers.push(input.authority.owner);
     auth.data.authorityType = AuthorityType.Holder;
   } else {
     throw new UnreachableCaseError((input.authority as any).__kind as never);

@@ -207,6 +207,7 @@ export const approveNftDelegateBuilder = (
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
+            namespace: TODO,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
