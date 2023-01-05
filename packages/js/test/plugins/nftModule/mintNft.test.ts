@@ -27,9 +27,9 @@ test('[nftModule] it can mint tokens from an SFT', async (t: Test) => {
     amount: token(42),
     toOwner,
   });
-  const updatedSft = await mx.nfts().refresh(sft);
 
   // Then the SFT now has 42 tokens in its supply.
+  const updatedSft = await mx.nfts().refresh(sft);
   spok(t, updatedSft, {
     $topic: 'Updated SFT',
     model: 'sft',
@@ -50,8 +50,7 @@ test('[nftModule] it can mint tokens from an SFT', async (t: Test) => {
   } as unknown as Specifications<TokenWithMint>);
 });
 
-// TODO: program only does this if the owner === payer.
-test.skip('[nftModule] it creates the ATA when minting tokens from an SFT', async (t: Test) => {
+test('[nftModule] it creates the ATA when minting tokens from an SFT', async (t: Test) => {
   // Given an existing SFT with no supply.
   const mx = await metaplex();
   const sft = await createSft(mx);
@@ -64,9 +63,9 @@ test.skip('[nftModule] it creates the ATA when minting tokens from an SFT', asyn
     amount: token(42),
     toOwner,
   });
-  const updatedSft = await mx.nfts().refresh(sft);
 
   // Then the SFT now has 42 tokens in its supply.
+  const updatedSft = await mx.nfts().refresh(sft);
   spok(t, updatedSft, {
     $topic: 'Updated SFT',
     model: 'sft',
@@ -74,5 +73,15 @@ test.skip('[nftModule] it creates the ATA when minting tokens from an SFT', asyn
   } as unknown as Specifications<Sft>);
 
   // And the owner received the tokens.
-  // TODO: Check that the owner received the tokens.
+  const ownerTokenAccount = await mx.tokens().findTokenWithMintByMint({
+    mint: sft.address,
+    address: toOwner,
+    addressType: 'owner',
+  });
+  spok(t, ownerTokenAccount, {
+    $topic: 'Updated SFT',
+    model: 'tokenWithMint',
+    amount: spokSameAmount(token(42)),
+    mint: { supply: spokSameAmount(token(42)) },
+  } as unknown as Specifications<TokenWithMint>);
 });

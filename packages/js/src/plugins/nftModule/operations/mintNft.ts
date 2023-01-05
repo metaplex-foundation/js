@@ -225,6 +225,7 @@ export const mintNftBuilder = (
           {
             ...auth.accounts,
             token: toToken,
+            tokenOwner: params.toToken ? undefined : toOwner,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
