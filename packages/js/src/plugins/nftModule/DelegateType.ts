@@ -13,6 +13,18 @@ export type MetadataDelegateType = 'CollectionV1';
 // | 'UseV1'
 // | 'UpdateV1'
 
+export const isHolderDelegateType = (
+  type: DelegateType
+): type is HolderDelegateType => {
+  return ['TransferV1', 'SaleV1'].includes(type);
+};
+
+export const isMetadataDelegateType = (
+  type: DelegateType
+): type is MetadataDelegateType => {
+  return ['CollectionV1'].includes(type);
+};
+
 export type DelegateRoleSeed =
   | 'authority_delegate'
   | 'collection_delegate'

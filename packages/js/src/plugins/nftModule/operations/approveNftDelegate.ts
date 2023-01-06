@@ -6,6 +6,7 @@ import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   parseTokenMetadataAuthorization,
+  TokenMetadataAuthority,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
@@ -15,7 +16,7 @@ import {
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
-import { getDefaultDelegateArgs } from '../DelegateType';
+import { getDefaultDelegateArgs, isHolderDelegateType } from '../DelegateType';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -199,12 +200,27 @@ export const approveNftDelegateBuilder = (
   );
 
   // Auth.
+  let tokenMetadataAuthority: TokenMetadataAuthority;
+  if ('__kind' in authority) {
+    tokenMetadataAuthority = authority;
+  } else if (isHolderDelegateType(params.delegate.type)) {
+    const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
+      mint: nftOrSft.address,
+      owner: authority.publicKey,
+      programs,
+    });
+    tokenMetadataAuthority = {
+      __kind: 'holder',
+      owner: authority,
+      token: tokenAccount,
+    };
+  } else {
+    tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
+  }
+
   const auth = parseTokenMetadataAuthorization(metaplex, {
     mint: nftOrSft.address,
-    authority:
-      '__kind' in authority
-        ? authority
-        : { __kind: 'metadata', updateAuthority: authority },
+    authority: tokenMetadataAuthority,
     authorizationDetails,
     programs,
   });

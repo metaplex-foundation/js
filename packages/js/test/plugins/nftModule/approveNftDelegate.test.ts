@@ -38,7 +38,7 @@ test('[nftModule] it can create a collection delegate', async (t: Test) => {
   );
 });
 
-// TODO: pass the token account as the authority.
+// TODO: Fix.
 test.only('[nftModule] it can create a transfer delegate', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
@@ -51,6 +51,7 @@ test.only('[nftModule] it can create a transfer delegate', async (t: Test) => {
   const transferDelegate = Keypair.generate();
   await mx.nfts().delegate({
     nftOrSft: nft,
+    authority: nftOwner,
     delegate: {
       type: 'TransferV1',
       delegate: transferDelegate.publicKey,
