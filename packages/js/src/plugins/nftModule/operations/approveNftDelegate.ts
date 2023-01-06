@@ -12,6 +12,7 @@ import {
 } from '../Authorization';
 import {
   DelegateInput,
+  getDelegateRoleDefaultData,
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
@@ -64,7 +65,7 @@ export type ApproveNftDelegateOperation = Operation<
  */
 export type ApproveNftDelegateInput = {
   /**
-   * The NFT or SFT to mint from.
+   * The NFT or SFT for which we want to approve a delegate.
    * We only need its address and token standard.
    */
   nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
@@ -87,7 +88,8 @@ export type ApproveNftDelegateInput = {
     | TokenMetadataAuthorityHolder;
 
   /**
-   * The authorization rules and data to use for the mint.
+   * The authorization rules and data to use
+   * when approving the delegate authority.
    *
    * @see {@link TokenMetadataAuthorizationDetails}
    * @defaultValue Defaults to not using auth rules.
@@ -95,10 +97,10 @@ export type ApproveNftDelegateInput = {
   authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
-   * The role, address and namespace of the delegate to approve.
+   * The role, address, namespace and data of the delegate to approve.
    */
   delegate: DelegateInput & {
-    data: DelegateArgs;
+    data?: DelegateArgs;
   };
 };
 
@@ -231,7 +233,11 @@ export const approveNftDelegateBuilder = (
             splTokenProgram: tokenProgram.address,
             // authorizationRulesProgram,
           },
-          { delegateArgs: params.delegate.data },
+          {
+            delegateArgs:
+              params.delegate.data ??
+              getDelegateRoleDefaultData(params.delegate.role),
+          },
           tokenMetadataProgram.address
         ),
         signers: [payer],

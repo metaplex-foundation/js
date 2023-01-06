@@ -1,7 +1,10 @@
-import { DelegateRole } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  DelegateArgs,
+  DelegateRole,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { UnreachableCaseError } from '@/errors';
+import { DelegateRoleRequiredDataError, Metaplex } from '@/index';
 import { isSigner, Program, PublicKey, Signer } from '@/types';
-import { Metaplex } from '@/index';
 
 export { DelegateRole };
 
@@ -93,6 +96,29 @@ export const getDelegateRoleSeed = (role: DelegateRole): DelegateRoleSeed => {
     case DelegateRole.Utility:
     case DelegateRole.Sale:
       return 'persistent_delegate';
+    default:
+      throw new UnreachableCaseError(role);
+  }
+};
+
+export const getDelegateRoleDefaultData = (
+  role: DelegateRole
+): DelegateArgs => {
+  switch (role) {
+    case DelegateRole.Authority:
+      throw new DelegateRoleRequiredDataError('Authority');
+    case DelegateRole.Collection:
+      return { __kind: 'CollectionV1' };
+    case DelegateRole.Use:
+      throw new DelegateRoleRequiredDataError('Use');
+    case DelegateRole.Update:
+      throw new DelegateRoleRequiredDataError('Update');
+    case DelegateRole.Transfer:
+      throw new DelegateRoleRequiredDataError('Transfer');
+    case DelegateRole.Sale:
+      throw new DelegateRoleRequiredDataError('Sale');
+    case DelegateRole.Utility:
+      throw new DelegateRoleRequiredDataError('Utility');
     default:
       throw new UnreachableCaseError(role);
   }

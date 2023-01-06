@@ -1,14 +1,21 @@
 import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
+import {
+  TokenMetadataAuthorityHolder,
+  TokenMetadataAuthorityMetadata,
+  TokenMetadataAuthorizationDetails,
+} from '../Authorization';
+import { DelegateInput } from '../DelegateInput';
+import { Sft } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
   OperationScope,
+  Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -20,7 +27,7 @@ const Key = 'RevokeNftDelegateOperation' as const;
  * Revoke an existing delegate authority for an NFT or SFT.
  *
  * ```ts
- * await metaplex.nfts().revoke({ mintAddress });
+ * await metaplex.nfts().revoke({ sftOrNft, delegate });
  * ```
  *
  * @group Operations
@@ -44,8 +51,43 @@ export type RevokeNftDelegateOperation = Operation<
  * @category Inputs
  */
 export type RevokeNftDelegateInput = {
-  /** The address of the mint account. */
-  mintAddress: PublicKey;
+  /**
+   * The NFT or SFT for which we want to revoke a delegate.
+   * We only need its address and token standard.
+   */
+  nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
+
+  /**
+   * An authority allowed to revoke a new delegate authority.
+   *
+   * TODO: Check
+   * Note that Delegate authorities are not supported for this
+   * instruction as delegates cannot revoke other delegates.
+   *
+   * If a `Signer` is provided directly,
+   * it will be used as the update authority.
+   *
+   * @see {@link TokenMetadataAuthority}
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?:
+    | Signer
+    | TokenMetadataAuthorityMetadata
+    | TokenMetadataAuthorityHolder;
+
+  /**
+   * The authorization rules and data to use
+   * when revoking the delegate authority.
+   *
+   * @see {@link TokenMetadataAuthorizationDetails}
+   * @defaultValue Defaults to not using auth rules.
+   */
+  authorizationDetails?: TokenMetadataAuthorizationDetails;
+
+  /**
+   * The role, address and namespace of the delegate to revoke.
+   */
+  delegate: DelegateInput;
 };
 
 /**
@@ -99,7 +141,7 @@ export type RevokeNftDelegateBuilderParams = Omit<
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .revoke({ mintAddress });
+ *   .revoke({ sftOrNft, delegate });
  * ```
  *
  * @group Transaction Builders
@@ -111,14 +153,14 @@ export const revokeNftDelegateBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress } = params;
+  const { nftOrSft } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
-    mint: mintAddress,
+    mint: nftOrSft.address,
     programs,
   });
 

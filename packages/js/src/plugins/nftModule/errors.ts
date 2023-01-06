@@ -20,3 +20,15 @@ export class ParentCollectionMissingError extends NftError {
     super(message);
   }
 }
+
+/** @group Errors */
+export class DelegateRoleRequiredDataError extends NftError {
+  readonly name: string = 'DelegateRoleRequiredDataError';
+  constructor(role: string) {
+    const message =
+      `You are trying to approve a delegate of type "DelegateRole.${role}" ` +
+      `but did not provide any data for that role. Please provide the "data" ` +
+      'attribute as the SDK cannot provide a default value for that role.';
+    super(message);
+  }
+}
