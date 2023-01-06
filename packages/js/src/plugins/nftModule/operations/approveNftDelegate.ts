@@ -193,13 +193,12 @@ export const approveNftDelegateBuilder = (
   });
 
   // New Delegate.
-  const { delegateRecord, delegate, namespace } =
-    parseTokenMetadataDelegateInput(
-      metaplex,
-      nftOrSft.address,
-      params.delegate,
-      programs
-    );
+  const { delegateRecord, delegate } = parseTokenMetadataDelegateInput(
+    metaplex,
+    nftOrSft.address,
+    params.delegate,
+    programs
+  );
 
   // Auth.
   const auth = parseTokenMetadataAuthorization(metaplex, {
@@ -220,17 +219,18 @@ export const approveNftDelegateBuilder = (
       .add({
         instruction: createDelegateInstruction(
           {
-            ...auth.accounts,
             delegateRecord,
             delegate,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
-            namespace,
+            token: auth.accounts.token,
+            namespace: auth.accounts.authority,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
+            authorizationRules: auth.accounts.authorizationRules,
             // authorizationRulesProgram,
           },
           {
@@ -240,7 +240,7 @@ export const approveNftDelegateBuilder = (
           },
           tokenMetadataProgram.address
         ),
-        signers: [payer],
+        signers: [payer, ...auth.signers],
         key: params.instructionKey ?? 'approveNftDelegate',
       })
   );

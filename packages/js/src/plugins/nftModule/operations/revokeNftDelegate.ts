@@ -1,6 +1,8 @@
-import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { createRevokeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
+  parseTokenMetadataAuthorization,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
@@ -153,14 +155,35 @@ export const revokeNftDelegateBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { nftOrSft } = params;
+  const {
+    nftOrSft,
+    authority = metaplex.identity(),
+    authorizationDetails,
+  } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
     mint: nftOrSft.address,
+    programs,
+  });
+  const masterEdition = metaplex.nfts().pdas().masterEdition({
+    mint: nftOrSft.address,
+    programs,
+  });
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
+    authority:
+      '__kind' in authority
+        ? authority
+        : { __kind: 'metadata', updateAuthority: authority },
+    authorizationDetails,
     programs,
   });
 
@@ -170,12 +193,28 @@ export const revokeNftDelegateBuilder = (
 
       // Update the metadata account.
       .add({
-        instruction: createMintInstruction(
-          { metadata } as any, // TODO
-          {} as any, // TODO
+        instruction: createRevokeInstruction(
+          {
+            // delegateRecord: web3.PublicKey;
+            // delegate: web3.PublicKey;
+            metadata,
+            masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
+            mint: nftOrSft.address,
+            token: auth.accounts.token,
+            authority: auth.accounts.authority,
+            payer: payer.publicKey,
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            splTokenProgram: tokenProgram.address,
+            authorizationRules: auth.accounts.authorizationRules,
+            // authorizationRulesProgram,
+          },
+          {
+            revokeArgs: {}, // TODO
+          },
           tokenMetadataProgram.address
         ),
-        signers: [],
+        signers: [payer, ...auth.signers],
         key: params.instructionKey ?? 'revokeNftDelegate',
       })
   );
