@@ -11,11 +11,11 @@ import {
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
 import {
-  DelegateInput,
-  getDelegateRoleDefaultData,
+  DelegateInputWithData,
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
+import { getDefaultDelegateArgs } from '../DelegateType';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -99,9 +99,7 @@ export type ApproveNftDelegateInput = {
   /**
    * The role, address, namespace and data of the delegate to approve.
    */
-  delegate: DelegateInput & {
-    data?: DelegateArgs;
-  };
+  delegate: DelegateInputWithData;
 };
 
 /**
@@ -235,8 +233,12 @@ export const approveNftDelegateBuilder = (
           },
           {
             delegateArgs:
-              params.delegate.data ??
-              getDelegateRoleDefaultData(params.delegate.role),
+              params.delegate.data === undefined
+                ? getDefaultDelegateArgs(params.delegate.type)
+                : ({
+                    __kind: params.delegate.type,
+                    ...params.delegate.data,
+                  } as DelegateArgs),
           },
           tokenMetadataProgram.address
         ),

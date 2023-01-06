@@ -1,4 +1,7 @@
-import { createRevokeInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  createRevokeInstruction,
+  RevokeArgs,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -7,8 +10,11 @@ import {
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
-import { DelegateInput } from '../DelegateInput';
-import { Sft } from '../models';
+import {
+  DelegateInput,
+  parseTokenMetadataDelegateInput,
+} from '../DelegateInput';
+import { isNonFungible, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -62,7 +68,7 @@ export type RevokeNftDelegateInput = {
   /**
    * An authority allowed to revoke a new delegate authority.
    *
-   * TODO: Check
+   * TODO: Check and add support for delegate revoking themselves.
    * Note that Delegate authorities are not supported for this
    * instruction as delegates cannot revoke other delegates.
    *
@@ -176,6 +182,14 @@ export const revokeNftDelegateBuilder = (
     programs,
   });
 
+  // Delegate to revoke.
+  const { delegateRecord, delegate } = parseTokenMetadataDelegateInput(
+    metaplex,
+    nftOrSft.address,
+    params.delegate,
+    programs
+  );
+
   // Auth.
   const auth = parseTokenMetadataAuthorization(metaplex, {
     mint: nftOrSft.address,
@@ -195,8 +209,8 @@ export const revokeNftDelegateBuilder = (
       .add({
         instruction: createRevokeInstruction(
           {
-            // delegateRecord: web3.PublicKey;
-            // delegate: web3.PublicKey;
+            delegateRecord,
+            delegate,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
@@ -210,7 +224,7 @@ export const revokeNftDelegateBuilder = (
             // authorizationRulesProgram,
           },
           {
-            revokeArgs: {}, // TODO
+            revokeArgs: RevokeArgs[params.delegate.type],
           },
           tokenMetadataProgram.address
         ),
