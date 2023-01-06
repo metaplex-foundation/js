@@ -38,8 +38,8 @@ test('[nftModule] it can create a collection delegate', async (t: Test) => {
   );
 });
 
-// TODO: Fix.
-test.only('[nftModule] it can create a transfer delegate', async (t: Test) => {
+// TODO: Wait for program update.
+test.skip('[nftModule] it can create a transfer delegate', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
@@ -84,6 +84,7 @@ test('[nftModule] it cannot create a transfer delegate without data', async (t: 
   const transferDelegate = Keypair.generate();
   const promise = mx.nfts().delegate({
     nftOrSft: nft,
+    authority: nftOwner,
     delegate: {
       type: 'TransferV1',
       delegate: transferDelegate.publicKey,
@@ -92,5 +93,5 @@ test('[nftModule] it cannot create a transfer delegate without data', async (t: 
   });
 
   // Then we expect an error.
-  assertThrows(t, promise, /TODO/);
+  await assertThrows(t, promise, /DelegateRoleRequiredDataError/);
 });
