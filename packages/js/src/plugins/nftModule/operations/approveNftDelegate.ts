@@ -97,13 +97,9 @@ export type ApproveNftDelegateInput = {
   /**
    * The role, address and namespace of the delegate to approve.
    */
-  delegate: DelegateInput;
-
-  /**
-   * The type of delegate to approve, including any
-   * additional data it might need.
-   */
-  delegateArgs: DelegateArgs;
+  delegate: DelegateInput & {
+    data: DelegateArgs;
+  };
 };
 
 /**
@@ -235,7 +231,7 @@ export const approveNftDelegateBuilder = (
             splTokenProgram: tokenProgram.address,
             // authorizationRulesProgram,
           },
-          { delegateArgs: params.delegateArgs },
+          { delegateArgs: params.delegate.data },
           tokenMetadataProgram.address
         ),
         signers: [payer],
