@@ -2,6 +2,7 @@ import { createTransferInstruction } from '@metaplex-foundation/mpl-token-metada
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
+  getSignerFromTokenMetadataAuthority,
   parseTokenMetadataAuthorization,
   TokenMetadataAuthorityDelegate,
   TokenMetadataAuthorityHolder,
@@ -184,9 +185,9 @@ export const transferNftBuilder = (
   } = params;
 
   // From owner.
-  const defaultFromOwner =
-    '__kind' in authority ? authority.authority.publicKey : authority.publicKey;
-  const fromOwner = params.fromOwner ?? defaultFromOwner;
+  const fromOwner =
+    params.fromOwner ??
+    getSignerFromTokenMetadataAuthority(authority).publicKey;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
@@ -220,12 +221,14 @@ export const transferNftBuilder = (
   });
 
   // Auth.
-  const auth = parseTokenMetadataAuthorization({
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
     authority:
       '__kind' in authority
         ? authority
         : { __kind: 'holder', owner: authority, token: fromToken },
     authorizationDetails,
+    programs,
   });
 
   return (

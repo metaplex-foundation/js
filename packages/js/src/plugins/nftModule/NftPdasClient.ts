@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { DelegateRole } from '@metaplex-foundation/mpl-token-metadata';
-import { getDelegateRoleSeed } from './DelegateRole';
+import { getDelegateRoleSeed } from './DelegateInput';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
 

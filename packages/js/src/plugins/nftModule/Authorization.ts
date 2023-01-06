@@ -2,9 +2,14 @@ import {
   AuthorityType,
   AuthorizationData,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Signer, PublicKey } from '@/types';
+import {
+  DelegateInputSigner,
+  parseTokenMetadataDelegateInput,
+} from './DelegateInput';
+import { Signer, PublicKey, Program } from '@/types';
 import { Option } from '@/utils';
 import { UnreachableCaseError } from '@/errors';
+import { Metaplex } from '@/index';
 
 /**
  * Defines an authority that can handle a digital asset (NFT, SFT, etc.).
@@ -26,10 +31,8 @@ export type TokenMetadataAuthorityMetadata = {
 };
 
 /** An approved delegate authority of the metadata account for a given action. */
-export type TokenMetadataAuthorityDelegate = {
+export type TokenMetadataAuthorityDelegate = DelegateInputSigner & {
   __kind: 'delegate';
-  delegate: Signer;
-  delegateRecord: PublicKey;
 };
 
 /** The owner of the token account, i.e. the owner of the asset. */
@@ -53,9 +56,18 @@ export type TokenMetadataAuthorizationDetails = {
 
 export type ParsedTokenMetadataAuthorization = {
   accounts: {
+    /** The authority that will sign the transaction. */
     authority: PublicKey;
+    /** If "Holder" authority, the address of the token account. */
     token?: PublicKey;
+    /**
+     * If "Delegate" authority, the address of update authority
+     * or the token owner depending on the role.
+     */
+    namespace?: PublicKey;
+    /** If "Delegate" authority, the address of the delegate record PDA. */
     delegateRecord?: PublicKey;
+    /** If any auth rules are provided, the address of the auth rule account. */
     authorizationRules?: PublicKey;
   };
   signers: Signer[];
@@ -65,10 +77,15 @@ export type ParsedTokenMetadataAuthorization = {
   };
 };
 
-export const parseTokenMetadataAuthorization = (input: {
-  authority: TokenMetadataAuthority;
-  authorizationDetails?: TokenMetadataAuthorizationDetails;
-}): ParsedTokenMetadataAuthorization => {
+export const parseTokenMetadataAuthorization = (
+  metaplex: Metaplex,
+  input: {
+    mint: PublicKey;
+    authority: TokenMetadataAuthority;
+    authorizationDetails?: TokenMetadataAuthorizationDetails;
+    programs?: Program[];
+  }
+): ParsedTokenMetadataAuthorization => {
   const auth = {
     accounts: {},
     signers: [] as Signer[],
@@ -80,8 +97,15 @@ export const parseTokenMetadataAuthorization = (input: {
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'delegate') {
+    const { delegateRecord, namespace } = parseTokenMetadataDelegateInput(
+      metaplex,
+      input.mint,
+      input.authority,
+      input.programs
+    );
     auth.accounts.authority = input.authority.delegate.publicKey;
-    auth.accounts.delegateRecord = input.authority.delegateRecord;
+    auth.accounts.delegateRecord = delegateRecord;
+    auth.accounts.namespace = namespace;
     auth.signers.push(input.authority.delegate);
     auth.data.authorityType = AuthorityType.Delegate;
   } else if (input.authority.__kind === 'holder') {
@@ -94,4 +118,23 @@ export const parseTokenMetadataAuthorization = (input: {
   }
 
   return auth;
+};
+
+export const getSignerFromTokenMetadataAuthority = (
+  authority: TokenMetadataAuthority | Signer
+): Signer => {
+  if (!('__kind' in authority)) {
+    return authority;
+  }
+
+  switch (authority.__kind) {
+    case 'metadata':
+      return authority.updateAuthority;
+    case 'delegate':
+      return authority.delegate;
+    case 'holder':
+      return authority.owner;
+    default:
+      throw new UnreachableCaseError((authority as any).__kind as never);
+  }
 };

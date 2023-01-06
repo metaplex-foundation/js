@@ -347,12 +347,14 @@ export const updateNftBuilder = (
     isRemovingVerifiedCollection || isOverridingVerifiedCollection;
 
   // Auth.
-  const auth = parseTokenMetadataAuthorization({
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
     authority:
       '__kind' in authority
         ? authority
         : { __kind: 'metadata', updateAuthority: authority },
     authorizationDetails,
+    programs,
   });
 
   const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;

@@ -5,8 +5,8 @@ import { Metaplex } from '@/index';
 
 export { DelegateRole };
 
-export type DelegateRecordSigner = DelegateRecord<Signer>;
-export type DelegateRecord<T extends PublicKey | Signer = PublicKey> =
+export type DelegateInputSigner = DelegateInput<Signer>;
+export type DelegateInput<T extends PublicKey | Signer = PublicKey> =
   | {
       role:
         | DelegateRole.Authority
@@ -22,13 +22,13 @@ export type DelegateRecord<T extends PublicKey | Signer = PublicKey> =
       owner: PublicKey;
     };
 
-export const parseTokenMetadataDelegateRecord = <
+export const parseTokenMetadataDelegateInput = <
   T extends PublicKey | Signer = PublicKey
 >(
   metaplex: Metaplex,
   mint: PublicKey,
-  record: DelegateRecord<T>,
-  programs: Program[]
+  record: DelegateInput<T>,
+  programs?: Program[]
 ): {
   delegate: T;
   namespace: PublicKey;

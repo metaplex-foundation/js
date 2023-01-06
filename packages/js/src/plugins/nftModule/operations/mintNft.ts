@@ -182,12 +182,14 @@ export const mintNftBuilder = (
   } = params;
 
   // Auth.
-  const auth = parseTokenMetadataAuthorization({
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
     authority:
       '__kind' in authority
         ? authority
         : { __kind: 'metadata', updateAuthority: authority },
     authorizationDetails,
+    programs,
   });
 
   // Programs.
