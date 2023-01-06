@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { DelegateRole } from '@metaplex-foundation/mpl-token-metadata';
-import { getDelegateRoleSeed } from './DelegateInput';
+import { DelegateType, getDelegateRoleSeed } from './DelegateType';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
 
@@ -125,14 +125,14 @@ export class NftPdasClient {
 
   /** Finds the record PDA for a given NFT and delegate authority. */
   persistentDelegateRecord(
-    input: Omit<DelegateRecordPdaInput, 'delegate' | 'role' | 'namespace'> & {
+    input: Omit<DelegateRecordPdaInput, 'delegate' | 'type' | 'namespace'> & {
       /** The address of the asset's owner. */
       owner: PublicKey;
     }
   ): Pda {
     return this.delegateRecord({
       ...input,
-      role: DelegateRole.Transfer,
+      type: 'TransferV1',
       namespace: input.owner,
     });
   }
@@ -144,7 +144,7 @@ export class NftPdasClient {
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
       input.mint.toBuffer(),
-      Buffer.from(getDelegateRoleSeed(input.role), 'utf8'),
+      Buffer.from(getDelegateRoleSeed(input.type), 'utf8'),
       input.namespace.toBuffer(),
       ...(input.delegate ? [input.delegate.toBuffer()] : []),
     ]);
@@ -167,7 +167,7 @@ type DelegateRecordPdaInput = {
   /** The address of the NFT's mint account. */
   mint: PublicKey;
   /** The role of the delegate authority. */
-  role: DelegateRole;
+  type: DelegateType;
   /**
    * Depending on the role, this should either be
    * the update authority or the token owner.
