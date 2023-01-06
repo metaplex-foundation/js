@@ -2,16 +2,20 @@ import {
   createDelegateInstruction,
   DelegateArgs,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { isNonFungible, Sft } from '../models';
 import {
   parseTokenMetadataAuthorization,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
-import { Metaplex } from '@/Metaplex';
+import {
+  DelegateInput,
+  parseTokenMetadataDelegateInput,
+} from '../DelegateInput';
+import { isNonFungible, Sft } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
@@ -19,7 +23,7 @@ import {
   Signer,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -31,7 +35,11 @@ const Key = 'ApproveNftDelegateOperation' as const;
  * Approve a new delegate authority for an NFT or SFT.
  *
  * ```ts
- * await metaplex.nfts().delegate({ mintAddress });
+ * await metaplex.nfts().delegate({
+ *   nftOrSft,
+ *   delegate,
+ *   delegateArgs
+ * });
  * ```
  *
  * @group Operations
@@ -87,15 +95,15 @@ export type ApproveNftDelegateInput = {
   authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
-   * The address of the new delegate authority to approve.
+   * The role, address and namespace of the delegate to approve.
    */
-  delegate: PublicKey;
+  delegate: DelegateInput;
 
   /**
    * The type of delegate to approve, including any
    * additional data it might need.
    */
-  delegateType: DelegateArgs;
+  delegateArgs: DelegateArgs;
 };
 
 /**
@@ -149,7 +157,11 @@ export type ApproveNftDelegateBuilderParams = Omit<
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .delegate({ mintAddress });
+ *   .delegate({
+ *     nftOrSft,
+ *     delegate,
+ *     delegateArgs
+ *   });
  * ```
  *
  * @group Transaction Builders
@@ -165,8 +177,6 @@ export const approveNftDelegateBuilder = (
     nftOrSft,
     authority = metaplex.identity(),
     authorizationDetails,
-    delegate,
-    delegateType,
   } = params;
 
   // Programs.
@@ -184,13 +194,24 @@ export const approveNftDelegateBuilder = (
     programs,
   });
 
+  // New Delegate.
+  const { delegateRecord, delegate, namespace } =
+    parseTokenMetadataDelegateInput(
+      metaplex,
+      nftOrSft.address,
+      params.delegate,
+      programs
+    );
+
   // Auth.
-  const auth = parseTokenMetadataAuthorization({
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
     authority:
       '__kind' in authority
         ? authority
         : { __kind: 'metadata', updateAuthority: authority },
     authorizationDetails,
+    programs,
   });
 
   return (
@@ -202,19 +223,19 @@ export const approveNftDelegateBuilder = (
         instruction: createDelegateInstruction(
           {
             ...auth.accounts,
-            delegateRecord: TODO,
+            delegateRecord,
             delegate,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
-            namespace: TODO,
+            namespace,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             // authorizationRulesProgram,
           },
-          { delegateArgs: delegateType },
+          { delegateArgs: params.delegateArgs },
           tokenMetadataProgram.address
         ),
         signers: [payer],
