@@ -37,27 +37,27 @@ const delegateTypeMap: Record<
   {
     role: DelegateRole;
     seed: DelegateRoleSeed;
-    hasData: boolean;
+    hasCustomData: boolean;
   }
 > = {
-  // AuthorityV1: { role: DelegateRole.Authority, seed: 'authority_delegate', hasData: false },
+  // AuthorityV1: { role: DelegateRole.Authority, seed: 'authority_delegate', hasCustomData: false },
   CollectionV1: {
     role: DelegateRole.Collection,
     seed: 'collection_delegate',
-    hasData: false,
+    hasCustomData: false,
   },
-  // UseV1: { role: DelegateRole.Use, seed: 'use_delegate', hasData: false },
-  // UpdateV1: { role: DelegateRole.Update, seed: 'update_delegate', hasData: false },
+  // UseV1: { role: DelegateRole.Use, seed: 'use_delegate', hasCustomData: false },
+  // UpdateV1: { role: DelegateRole.Update, seed: 'update_delegate', hasCustomData: false },
   TransferV1: {
     role: DelegateRole.Transfer,
     seed: 'persistent_delegate',
-    hasData: true,
+    hasCustomData: true,
   },
-  // UtilityV1: { role: DelegateRole.Utility, seed: 'persistent_delegate', hasData: false },
+  // UtilityV1: { role: DelegateRole.Utility, seed: 'persistent_delegate', hasCustomData: false },
   SaleV1: {
     role: DelegateRole.Sale,
     seed: 'persistent_delegate',
-    hasData: true,
+    hasCustomData: true,
   },
 };
 
@@ -73,9 +73,11 @@ export const getDelegateRoleSeed = (type: DelegateType): DelegateRoleSeed => {
   return manifest.seed;
 };
 
-export const getDefaultDelegateArgs = (type: DelegateType): DelegateArgs => {
+export const getDefaultDelegateArgs = (
+  type: DelegateType
+): Omit<DelegateArgs, 'authorizationData'> => {
   const manifest = delegateTypeMap[type];
   if (!manifest) throw new UnreachableCaseError(type as never);
-  if (manifest.hasData) throw new DelegateRoleRequiredDataError(type);
+  if (manifest.hasCustomData) throw new DelegateRoleRequiredDataError(type);
   return { __kind: type } as DelegateArgs;
 };

@@ -10,7 +10,7 @@ type SplitTypeAndData<
 > = T extends {
   __kind: U;
 }
-  ? { type: T['__kind']; data?: Omit<T, '__kind'> }
+  ? { type: T['__kind']; data?: Omit<T, '__kind' | 'authorizationData'> }
   : never;
 
 export type MetadataDelegateInputWithData<
@@ -69,7 +69,7 @@ export const parseTokenMetadataDelegateInput = <
           .delegateRecord({
             mint,
             type: input.type,
-            namespace: input.updateAuthority,
+            approver: input.updateAuthority,
             delegate: isSigner(input.delegate)
               ? input.delegate.publicKey
               : input.delegate,

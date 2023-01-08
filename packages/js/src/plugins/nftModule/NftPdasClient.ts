@@ -124,7 +124,7 @@ export class NftPdasClient {
 
   /** Finds the record PDA for a given NFT and delegate authority. */
   persistentDelegateRecord(
-    input: Omit<DelegateRecordPdaInput, 'delegate' | 'type' | 'namespace'> & {
+    input: Omit<DelegateRecordPdaInput, 'delegate' | 'type' | 'approver'> & {
       /** The address of the asset's owner. */
       owner: PublicKey;
     }
@@ -132,7 +132,7 @@ export class NftPdasClient {
     return this.delegateRecord({
       ...input,
       type: 'TransferV1',
-      namespace: input.owner,
+      approver: input.owner,
     });
   }
 
@@ -144,7 +144,7 @@ export class NftPdasClient {
       programId.toBuffer(),
       input.mint.toBuffer(),
       Buffer.from(getDelegateRoleSeed(input.type), 'utf8'),
-      input.namespace.toBuffer(),
+      input.approver.toBuffer(),
       ...(input.delegate ? [input.delegate.toBuffer()] : []),
     ]);
   }
@@ -173,7 +173,7 @@ type DelegateRecordPdaInput = {
    * This ensures that changing ownership or authority on
    * an assets, disable any previous delegate authorities.
    */
-  namespace: PublicKey;
+  approver: PublicKey;
   /**
    * The address of delegate authority. Depending on the role,
    * this can be omitted as the delegate authority will be stored

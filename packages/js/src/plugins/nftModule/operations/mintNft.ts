@@ -225,17 +225,18 @@ export const mintNftBuilder = (
       .add({
         instruction: createMintInstruction(
           {
-            ...auth.accounts,
             token: toToken,
             tokenOwner: params.toToken ? undefined : toOwner,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
+            authority: auth.accounts.authority,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
+            authorizationRules: auth.accounts.authorizationRules,
             // authorizationRulesProgram,
           },
           {

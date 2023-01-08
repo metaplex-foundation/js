@@ -225,6 +225,14 @@ export const approveNftDelegateBuilder = (
     programs,
   });
 
+  const delegateArgsWithoutAuthData: Omit<DelegateArgs, 'authorizationData'> =
+    params.delegate.data === undefined
+      ? getDefaultDelegateArgs(params.delegate.type)
+      : {
+          __kind: params.delegate.type,
+          ...params.delegate.data,
+        };
+
   return (
     TransactionBuilder.make()
       .setFeePayer(payer)
@@ -239,7 +247,7 @@ export const approveNftDelegateBuilder = (
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
             token: auth.accounts.token,
-            namespace: auth.accounts.authority,
+            approver: auth.accounts.authority,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
@@ -248,13 +256,10 @@ export const approveNftDelegateBuilder = (
             // authorizationRulesProgram,
           },
           {
-            delegateArgs:
-              params.delegate.data === undefined
-                ? getDefaultDelegateArgs(params.delegate.type)
-                : ({
-                    __kind: params.delegate.type,
-                    ...params.delegate.data,
-                  } as DelegateArgs),
+            delegateArgs: {
+              ...delegateArgsWithoutAuthData,
+              ...auth.data,
+            } as DelegateArgs,
           },
           tokenMetadataProgram.address
         ),
