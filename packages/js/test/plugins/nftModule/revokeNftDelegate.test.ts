@@ -45,6 +45,7 @@ test('[nftModule] it can revoke a collection delegate', async (t: Test) => {
   );
 });
 
+// TODO: Waiting on the program to support this.
 test.skip('[nftModule] a collection delegate can revoke itself', async (t: Test) => {
   // Given an existing NFT with an approved collection delegate.
   const mx = await metaplex();
@@ -69,9 +70,10 @@ test.skip('[nftModule] a collection delegate can revoke itself', async (t: Test)
     'delegate record exists'
   );
 
-  // When the update authority revokes the delegate.
+  // When the collection delegate revokes itself.
   await mx.nfts().revoke({
     nftOrSft: nft,
+    authority: { __kind: 'self', delegate: collectionDelegate },
     delegate: {
       type: 'CollectionV1',
       delegate: collectionDelegate.publicKey,
@@ -131,6 +133,7 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
   );
 });
 
+// TODO: Waiting on the program to support this.
 test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) => {
   // Given an existing NFT with an approved transfer delegate.
   const mx = await metaplex();
@@ -158,10 +161,10 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
     'delegate record exists'
   );
 
-  // When the NFT owner revokes the delegate.
+  // When the transfer delegate revokes itself.
   await mx.nfts().revoke({
     nftOrSft: nft,
-    authority: nftOwner,
+    authority: { __kind: 'self', delegate: transferDelegate },
     delegate: {
       type: 'TransferV1',
       delegate: transferDelegate.publicKey,

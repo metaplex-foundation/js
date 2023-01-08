@@ -54,6 +54,7 @@ export const parseTokenMetadataDelegateInput = <
   delegate: T;
   approver: PublicKey;
   delegateRecord: PublicKey;
+  tokenAccount?: PublicKey;
 } => {
   switch (input.type) {
     // case 'AuthorityV1':
@@ -82,6 +83,11 @@ export const parseTokenMetadataDelegateInput = <
       return {
         delegate: input.delegate,
         approver: input.owner,
+        tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
+          mint,
+          owner: input.owner,
+          programs,
+        }),
         delegateRecord: metaplex.nfts().pdas().persistentDelegateRecord({
           mint,
           owner: input.owner,
