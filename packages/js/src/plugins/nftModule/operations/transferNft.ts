@@ -234,7 +234,6 @@ export const transferNftBuilder = (
       .add({
         instruction: createTransferInstruction(
           {
-            ...auth.accounts,
             token: fromToken,
             tokenOwner: fromOwner,
             destination: toToken,
@@ -242,11 +241,14 @@ export const transferNftBuilder = (
             mint: nftOrSft.address,
             metadata,
             edition: isNonFungible(nftOrSft) ? edition : undefined,
+            authority: auth.accounts.authority,
+            delegateRecord: auth.accounts.delegateRecord,
             payer: payer.publicKey,
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            authorizationRules: auth.accounts.authorizationRules,
             // authorizationRulesProgram,
           },
           {

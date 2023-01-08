@@ -69,7 +69,6 @@ export type RevokeNftDelegateInput = {
   /**
    * An authority allowed to revoke a new delegate authority.
    *
-   * TODO: Check and add support for delegate revoking themselves.
    * Note that Delegate authorities are not supported for this
    * instruction as delegates cannot revoke other delegates.
    *

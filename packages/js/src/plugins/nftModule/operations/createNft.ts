@@ -1,8 +1,4 @@
-import {
-  ProgrammableConfig,
-  TokenStandard,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { TokenStandard, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
