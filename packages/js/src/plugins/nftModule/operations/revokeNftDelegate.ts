@@ -16,6 +16,7 @@ import {
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
+import { isHolderDelegateType } from '../DelegateType';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -72,8 +73,9 @@ export type RevokeNftDelegateInput = {
    * Note that Delegate authorities are not supported for this
    * instruction as delegates cannot revoke other delegates.
    *
-   * If a `Signer` is provided directly,
-   * it will be used as the update authority.
+   * If a `Signer` is provided directly, it will be either
+   * used as the update authority or as the token holder
+   * based on the delegate type, i.g. `delegate.type`.
    *
    * If a `{ __kind: 'self'; delegate: Signer }` is
    * provided, it will assume the delegate
@@ -198,16 +200,26 @@ export const revokeNftDelegateBuilder = (
 
   // Auth.
   let tokenMetadataAuthority: TokenMetadataAuthority;
-  if (!('__kind' in authority)) {
-    tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
-  } else if (authority.__kind === 'self') {
+  if ('__kind' in authority && authority.__kind === 'self') {
     tokenMetadataAuthority = {
       ...params.delegate,
       __kind: 'delegate',
       delegate: authority.delegate,
     };
-  } else {
+  } else if ('__kind' in authority) {
     tokenMetadataAuthority = authority;
+  } else if (isHolderDelegateType(params.delegate.type)) {
+    tokenMetadataAuthority = {
+      __kind: 'holder',
+      owner: authority,
+      token: metaplex.tokens().pdas().associatedTokenAccount({
+        mint: nftOrSft.address,
+        owner: authority.publicKey,
+        programs,
+      }),
+    };
+  } else {
+    tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
   }
   const auth = parseTokenMetadataAuthorization(metaplex, {
     mint: nftOrSft.address,
