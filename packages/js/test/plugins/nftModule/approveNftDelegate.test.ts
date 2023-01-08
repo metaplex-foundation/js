@@ -13,7 +13,7 @@ import {
 
 killStuckProcess();
 
-test('[nftModule] it can create a collection delegate', async (t: Test) => {
+test('[nftModule] it can approve a collection delegate', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
   const nft = await createNft(mx);
@@ -42,7 +42,7 @@ test('[nftModule] it can create a collection delegate', async (t: Test) => {
   );
 });
 
-test('[nftModule] it can create a transfer delegate', async (t: Test) => {
+test('[nftModule] it can approve a transfer delegate', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
@@ -82,7 +82,7 @@ test('[nftModule] it can create a transfer delegate', async (t: Test) => {
   t.true(delegateRecordAccount.delegate.equals(transferDelegate.publicKey));
 });
 
-test('[nftModule] it cannot create a transfer delegate without data', async (t: Test) => {
+test('[nftModule] it cannot approve a transfer delegate without data', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
