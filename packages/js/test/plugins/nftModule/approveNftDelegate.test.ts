@@ -1,3 +1,7 @@
+import {
+  DelegateRecord,
+  DelegateRole,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import {
@@ -38,8 +42,7 @@ test('[nftModule] it can create a collection delegate', async (t: Test) => {
   );
 });
 
-// TODO: Wait for program update.
-test.skip('[nftModule] it can create a transfer delegate', async (t: Test) => {
+test('[nftModule] it can create a transfer delegate', async (t: Test) => {
   // Given an existing NFT.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
@@ -55,7 +58,7 @@ test.skip('[nftModule] it can create a transfer delegate', async (t: Test) => {
     delegate: {
       type: 'TransferV1',
       delegate: transferDelegate.publicKey,
-      owner: nft.updateAuthorityAddress,
+      owner: nftOwner.publicKey,
       data: { amount: 1 },
     },
   });
@@ -69,6 +72,14 @@ test.skip('[nftModule] it can create a transfer delegate', async (t: Test) => {
     await mx.rpc().accountExists(delegateRecord),
     'delegate record exists'
   );
+
+  // And it contains the correct data.
+  const delegateRecordAccount = await DelegateRecord.fromAccountAddress(
+    mx.connection,
+    delegateRecord
+  );
+  t.equal(delegateRecordAccount.role, DelegateRole.Transfer);
+  t.true(delegateRecordAccount.delegate.equals(transferDelegate.publicKey));
 });
 
 test('[nftModule] it cannot create a transfer delegate without data', async (t: Test) => {
@@ -88,7 +99,7 @@ test('[nftModule] it cannot create a transfer delegate without data', async (t: 
     delegate: {
       type: 'TransferV1',
       delegate: transferDelegate.publicKey,
-      owner: nft.updateAuthorityAddress,
+      owner: nftOwner.publicKey,
     },
   });
 

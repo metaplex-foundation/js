@@ -77,8 +77,9 @@ export type ApproveNftDelegateInput = {
    * Note that Delegate authorities are not supported for this
    * instruction as delegates cannot approve other delegates.
    *
-   * If a `Signer` is provided directly,
-   * it will be used as the update authority.
+   * If a `Signer` is provided directly, it will be either
+   * used as the update authority or as the token holder
+   * based on the delegate type, i.g. `delegate.type`.
    *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
@@ -204,15 +205,14 @@ export const approveNftDelegateBuilder = (
   if ('__kind' in authority) {
     tokenMetadataAuthority = authority;
   } else if (isHolderDelegateType(params.delegate.type)) {
-    const tokenAccount = metaplex.tokens().pdas().associatedTokenAccount({
-      mint: nftOrSft.address,
-      owner: authority.publicKey,
-      programs,
-    });
     tokenMetadataAuthority = {
       __kind: 'holder',
       owner: authority,
-      token: tokenAccount,
+      token: metaplex.tokens().pdas().associatedTokenAccount({
+        mint: nftOrSft.address,
+        owner: authority.publicKey,
+        programs,
+      }),
     };
   } else {
     tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
