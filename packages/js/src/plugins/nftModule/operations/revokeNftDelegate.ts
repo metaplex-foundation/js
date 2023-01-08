@@ -6,6 +6,7 @@ import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   parseTokenMetadataAuthorization,
+  TokenMetadataAuthority,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorityMetadata,
   TokenMetadataAuthorizationDetails,
@@ -75,11 +76,16 @@ export type RevokeNftDelegateInput = {
    * If a `Signer` is provided directly,
    * it will be used as the update authority.
    *
+   * If a `{ __kind: 'self'; delegate: Signer }` is
+   * provided, it will assume the delegate
+   * authority is trying to revoke itself.
+   *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
    */
   authority?:
     | Signer
+    | { __kind: 'self'; delegate: Signer }
     | TokenMetadataAuthorityMetadata
     | TokenMetadataAuthorityHolder;
 
@@ -183,20 +189,30 @@ export const revokeNftDelegateBuilder = (
   });
 
   // Delegate to revoke.
-  const { delegateRecord, delegate } = parseTokenMetadataDelegateInput(
-    metaplex,
-    nftOrSft.address,
-    params.delegate,
-    programs
-  );
+  const { delegateRecord, delegate, approver } =
+    parseTokenMetadataDelegateInput(
+      metaplex,
+      nftOrSft.address,
+      params.delegate,
+      programs
+    );
 
   // Auth.
+  let tokenMetadataAuthority: TokenMetadataAuthority;
+  if (!('__kind' in authority)) {
+    tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
+  } else if (authority.__kind === 'self') {
+    tokenMetadataAuthority = {
+      ...params.delegate,
+      __kind: 'delegate',
+      delegate: authority.delegate,
+    };
+  } else {
+    tokenMetadataAuthority = authority;
+  }
   const auth = parseTokenMetadataAuthorization(metaplex, {
     mint: nftOrSft.address,
-    authority:
-      '__kind' in authority
-        ? authority
-        : { __kind: 'metadata', updateAuthority: authority },
+    authority: tokenMetadataAuthority,
     authorizationDetails,
     programs,
   });
@@ -215,7 +231,7 @@ export const revokeNftDelegateBuilder = (
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
             token: auth.accounts.token,
-            approver: auth.accounts.approver,
+            approver,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
