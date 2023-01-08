@@ -64,7 +64,7 @@ export type ParsedTokenMetadataAuthorization = {
      * If "Delegate" authority, the address of update authority
      * or the token owner depending on the role.
      */
-    namespace?: PublicKey;
+    approver?: PublicKey;
     /** If "Delegate" authority, the address of the delegate record PDA. */
     delegateRecord?: PublicKey;
     /** If any auth rules are provided, the address of the auth rule account. */
@@ -97,7 +97,7 @@ export const parseTokenMetadataAuthorization = (
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'delegate') {
-    const { delegateRecord, namespace } = parseTokenMetadataDelegateInput(
+    const { delegateRecord, approver } = parseTokenMetadataDelegateInput(
       metaplex,
       input.mint,
       input.authority,
@@ -105,7 +105,7 @@ export const parseTokenMetadataAuthorization = (
     );
     auth.accounts.authority = input.authority.delegate.publicKey;
     auth.accounts.delegateRecord = delegateRecord;
-    auth.accounts.namespace = namespace;
+    auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
     auth.data.authorityType = AuthorityType.Delegate;
   } else if (input.authority.__kind === 'holder') {

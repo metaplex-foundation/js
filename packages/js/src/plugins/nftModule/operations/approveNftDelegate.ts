@@ -98,7 +98,7 @@ export type ApproveNftDelegateInput = {
   authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
-   * The role, address, namespace and data of the delegate to approve.
+   * The role, address, approver and data of the delegate to approve.
    */
   delegate: DelegateInputWithData;
 };

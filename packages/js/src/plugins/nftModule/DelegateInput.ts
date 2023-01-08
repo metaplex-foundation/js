@@ -52,7 +52,7 @@ export const parseTokenMetadataDelegateInput = <
   programs?: Program[]
 ): {
   delegate: T;
-  namespace: PublicKey;
+  approver: PublicKey;
   delegateRecord: PublicKey;
 } => {
   switch (input.type) {
@@ -62,7 +62,7 @@ export const parseTokenMetadataDelegateInput = <
     case 'CollectionV1':
       return {
         delegate: input.delegate,
-        namespace: input.updateAuthority,
+        approver: input.updateAuthority,
         delegateRecord: metaplex
           .nfts()
           .pdas()
@@ -81,7 +81,7 @@ export const parseTokenMetadataDelegateInput = <
     case 'SaleV1':
       return {
         delegate: input.delegate,
-        namespace: input.owner,
+        approver: input.owner,
         delegateRecord: metaplex.nfts().pdas().persistentDelegateRecord({
           mint,
           owner: input.owner,

@@ -29,7 +29,7 @@ test('[nftModule] it can create a collection delegate', async (t: Test) => {
   const delegateRecord = mx.nfts().pdas().delegateRecord({
     mint: nft.address,
     type: 'CollectionV1',
-    namespace: nft.updateAuthorityAddress,
+    approver: nft.updateAuthorityAddress,
     delegate: collectionDelegate.publicKey,
   });
   t.true(

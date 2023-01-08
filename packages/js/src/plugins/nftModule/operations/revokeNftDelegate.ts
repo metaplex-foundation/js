@@ -93,7 +93,7 @@ export type RevokeNftDelegateInput = {
   authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
-   * The role, address and namespace of the delegate to revoke.
+   * The role, address and approver of the delegate to revoke.
    */
   delegate: DelegateInput;
 };
@@ -215,7 +215,7 @@ export const revokeNftDelegateBuilder = (
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             mint: nftOrSft.address,
             token: auth.accounts.token,
-            authority: auth.accounts.authority,
+            approver: auth.accounts.approver,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
