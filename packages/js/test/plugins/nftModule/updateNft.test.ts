@@ -1,8 +1,12 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
+  ProgrammableState,
+  TokenStandard,
+} from '@metaplex-foundation/mpl-token-metadata';
+import {
+  assertThrows,
   createCollectionNft,
   createNft,
   createSft,
@@ -446,68 +450,80 @@ test('[nftModule] it does not try to remove a collection when the collection par
   } as unknown as Specifications<Nft>);
 });
 
-test('[nftModule] it add programmable configs to a programmable NFT', async (t: Test) => {
+test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
-  // And an existing PNFT with no programmable configs
+  // And an existing PNFT with no rulesets.
   const nft = await createNft(mx, {
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: null,
+    ruleSet: null,
   });
   spok(t, nft, {
     $topic: 'Original NFT',
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: null,
+    programmableConfig: {
+      state: ProgrammableState.Unlocked,
+      ruleSet: null,
+    },
   } as unknown as Specifications<Nft>);
 
-  // When we update it with some new programmable configs.
+  // When we update it with a new ruleset.
   const ruleSet = Keypair.generate();
   await mx.nfts().update({
     nftOrSft: nft,
-    programmableConfig: { ruleSet: ruleSet.publicKey },
+    ruleSet: ruleSet.publicKey,
   });
 
-  // Then the updated NFT has the new programmable configs.
+  // Then the updated NFT has a new programmable configs containing that ruleset.
   const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
-    programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
+    programmableConfig: {
+      state: ProgrammableState.Unlocked,
+      ruleSet: spokSamePubkey(ruleSet.publicKey),
+    },
   } as unknown as Specifications<Nft>);
 });
 
-test('[nftModule] it can update the programmable configs of a programmable NFT', async (t: Test) => {
+test('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
-  // And an existing PNFT some existing programmable configs.
+  // And an existing PNFT with a ruleset A.
   const ruleSetA = Keypair.generate();
   const nft = await createNft(mx, {
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: { ruleSet: ruleSetA.publicKey },
+    ruleSet: ruleSetA.publicKey,
   });
   spok(t, nft, {
     $topic: 'Original NFT',
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: { ruleSet: spokSamePubkey(ruleSetA.publicKey) },
+    programmableConfig: {
+      state: ProgrammableState.Unlocked,
+      ruleSet: spokSamePubkey(ruleSetA.publicKey),
+    },
   } as unknown as Specifications<Nft>);
 
-  // When we update it with some new programmable configs.
+  // When we update it with a new ruleset B.
   const ruleSetB = Keypair.generate();
   await mx.nfts().update({
     nftOrSft: nft,
-    programmableConfig: { ruleSet: ruleSetB.publicKey },
+    ruleSet: ruleSetB.publicKey,
   });
 
-  // Then the updated NFT has the new programmable configs.
+  // Then the updated NFT contains ruleset B.
   const updatedNft = await mx.nfts().refresh(nft);
   spok(t, updatedNft, {
     $topic: 'Updated NFT',
     model: 'nft',
-    programmableConfig: { ruleSet: spokSamePubkey(ruleSetB.publicKey) },
+    programmableConfig: {
+      state: ProgrammableState.Unlocked,
+      ruleSet: spokSamePubkey(ruleSetB.publicKey),
+    },
   } as unknown as Specifications<Nft>);
 });
 
@@ -537,4 +553,13 @@ test('[nftModule] it can set the collection details of a regular NFT once', asyn
     model: 'nft',
     collectionDetails: { version: 'V1', size: spokSameBignum(42) },
   } as unknown as Specifications<Nft>);
+
+  // And when we try to update it again.
+  const promise = mx.nfts().update({
+    nftOrSft: nft,
+    collectionDetails: { __kind: 'V1', size: 43 },
+  });
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /SizedCollection/);
 });

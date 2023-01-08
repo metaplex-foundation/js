@@ -123,8 +123,8 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
           share: 40,
         },
       ],
-      // Programmable configs will be ignored for FungibleAssets.
-      programmableConfig: { ruleSet: ruleSet.publicKey },
+      // RuleSet acounts will be ignored for FungibleAssets.
+      ruleSet: ruleSet.publicKey,
     },
     { payer }
   );
@@ -170,7 +170,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       total: spokSameBignum(1000),
     },
     programmableConfig: null,
-    delegateState: null,
     creators: [
       {
         address: spokSamePubkey(updateAuthority.publicKey),
