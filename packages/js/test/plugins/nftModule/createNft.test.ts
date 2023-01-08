@@ -1,6 +1,7 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
+  ProgrammableState,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -100,7 +101,6 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
     collection: null,
     uses: null,
     programmableConfig: null,
-    delegateState: null,
   } as unknown as Specifications<Nft>;
   spok(t, nft, { $topic: 'NFT', ...expectedNft });
 
@@ -427,7 +427,7 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
   const { nft } = await mx.nfts().create({
     ...minimalInput(),
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: { ruleSet: ruleSet.publicKey },
+    ruleSet: ruleSet.publicKey,
   });
 
   // Then the Programmable NFT was created successfully.
@@ -435,8 +435,10 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
     $topic: 'nft',
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    programmableConfig: { ruleSet: spokSamePubkey(ruleSet.publicKey) },
-    delegateState: null,
+    programmableConfig: {
+      state: ProgrammableState.Unlocked,
+      ruleSet: spokSamePubkey(ruleSet.publicKey),
+    },
   } as unknown as Specifications<Nft>);
 });
 

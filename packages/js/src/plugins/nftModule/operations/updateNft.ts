@@ -1,7 +1,6 @@
 import {
   CollectionDetails,
   createUpdateInstruction,
-  ProgrammableConfig,
   UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -189,13 +188,15 @@ export type UpdateNftInput = {
   collection?: Option<PublicKey>;
 
   /**
-   * Programmable configuration for the asset.
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
    * This is only relevant for programmable NFTs, i.e. if the
    * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
    *
    * @defaultValue Defaults to not being updated.
    */
-  programmableConfig?: Option<ProgrammableConfig>;
+  ruleSet?: Option<PublicKey>;
 
   /**
    * The collection authority that should sign the asset
@@ -503,8 +504,8 @@ const toInstructionData = (
     uses: input.uses
       ? { __kind: 'Set', fields: [input.uses] }
       : { __kind: input.uses === undefined ? 'None' : 'Clear' },
-    programmableConfig: input.programmableConfig
-      ? { __kind: 'Set', fields: [input.programmableConfig] }
-      : { __kind: input.programmableConfig === undefined ? 'None' : 'Clear' },
+    ruleSet: input.ruleSet
+      ? { __kind: 'Set', fields: [input.ruleSet] }
+      : { __kind: input.ruleSet === undefined ? 'None' : 'Clear' },
   };
 };

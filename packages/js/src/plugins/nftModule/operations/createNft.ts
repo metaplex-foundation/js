@@ -248,13 +248,15 @@ export type CreateNftInput = {
   collectionIsSized?: boolean;
 
   /**
-   * Programmable configuration for the asset.
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
    * This is only relevant for programmable NFTs, i.e. if the
    * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
    *
    * @defaultValue `null`
    */
-  programmableConfig?: Option<ProgrammableConfig>;
+  ruleSet?: Option<PublicKey>;
 };
 
 /**

@@ -1,8 +1,7 @@
 import {
   createCreateInstruction,
-  Uses,
   TokenStandard,
-  ProgrammableConfig,
+  Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
   Keypair,
@@ -291,13 +290,15 @@ export type CreateSftInput = {
   collectionIsSized?: boolean;
 
   /**
-   * Programmable configuration for the asset.
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
    * This is only relevant for programmable NFTs, i.e. if the
    * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
    *
    * @defaultValue `null`
    */
-  programmableConfig?: Option<ProgrammableConfig>;
+  ruleSet?: Option<PublicKey>;
 };
 
 /**
@@ -521,7 +522,6 @@ export const createSftBuilder = async (
           creators,
           primarySaleHappened: params.primarySaleHappened ?? false,
           isMutable: params.isMutable ?? true,
-          editionNonce: null, // Ignored by program.
           tokenStandard: params.tokenStandard ?? TokenStandard.FungibleAsset,
           collection: params.collection
             ? { key: params.collection, verified: false }
@@ -530,8 +530,7 @@ export const createSftBuilder = async (
           collectionDetails: params.isCollection
             ? { __kind: 'V1' as const, size: 0 } // Size ignored by program.
             : null,
-          programmableConfig: params.programmableConfig ?? null,
-          delegateState: null, // Ignored by program.
+          ruleSet: params.ruleSet ?? null,
         },
         decimals: params.decimals ?? null,
         maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
