@@ -100,6 +100,13 @@ export type CreateNftInput = {
   useExistingMint?: PublicKey;
 
   /**
+   * Whether or not we should mint one token for the new NFT.
+   *
+   * @defaultValue `true`
+   */
+  mintTokens?: boolean;
+
+  /**
    * The owner of the NFT to create.
    *
    * @defaultValue `metaplex.identity().publicKey`
@@ -416,6 +423,7 @@ export const createNftBuilder = async (
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
+    mintTokens = true,
   } = params;
 
   const sftBuilder = await metaplex
@@ -430,7 +438,7 @@ export const createNftBuilder = async (
         freezeAuthority: mintAuthority.publicKey,
         useNewMint,
         tokenOwner,
-        tokenAmount: token(1),
+        tokenAmount: mintTokens ? token(1) : undefined,
         decimals: 0,
       },
       { programs, payer }

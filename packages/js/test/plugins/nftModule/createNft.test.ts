@@ -10,6 +10,7 @@ import test, { Test } from 'tape';
 import { AccountState } from '@solana/spl-token';
 import {
   amman,
+  assertThrows,
   createCollectionNft,
   createWallet,
   killStuckProcess,
@@ -444,6 +445,28 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
       state: AccountState.Frozen,
     },
   } as unknown as Specifications<Nft>);
+});
+
+// TODO: Wait for program.
+test.skip('[nftModule] it cannot create a programmable NFT from mint with supply greater than zero', async (t: Test) => {
+  // Given a mint account with a supply of 1.
+  const mx = await metaplex();
+  const mintAddress = Keypair.generate();
+  await mx.tokens().createTokenWithMint({
+    mint: mintAddress,
+    initialSupply: token(1),
+  });
+
+  // When we try to create a new Programmable NFT with it.
+  const promise = mx.nfts().create({
+    ...minimalInput(),
+    useExistingMint: mintAddress.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    mintTokens: false,
+  });
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /TODO/);
 });
 
 const minimalInput = () => ({
