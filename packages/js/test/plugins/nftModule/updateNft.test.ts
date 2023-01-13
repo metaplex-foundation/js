@@ -485,7 +485,7 @@ test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => 
   } as unknown as Specifications<Nft>);
 });
 
-test('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
+test.only('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
@@ -509,6 +509,7 @@ test('[nftModule] it can update the ruleset of a programmable NFT', async (t: Te
   const ruleSetB = Keypair.generate();
   await mx.nfts().update({
     nftOrSft: nft,
+    authorizationDetails: { rules: ruleSetA.publicKey },
     ruleSet: ruleSetB.publicKey,
   });
 

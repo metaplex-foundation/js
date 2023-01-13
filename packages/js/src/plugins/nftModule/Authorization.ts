@@ -102,7 +102,7 @@ export const parseTokenMetadataAuthorization = (
   }
 ): ParsedTokenMetadataAuthorization => {
   const auth = {
-    accounts: {},
+    accounts: { authorizationRules: input.authorizationDetails?.rules ?? null },
     signers: [] as Signer[],
     data: { authorizationData: input.authorizationDetails?.data ?? null },
   } as ParsedTokenMetadataAuthorization;
