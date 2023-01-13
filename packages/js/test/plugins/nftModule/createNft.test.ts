@@ -418,7 +418,9 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
+// TODO: Waiting for program update!
+// TODO: + write a test that fails when creating a PNFT with 1 supply.
+test.skip('[nftModule] it can create a programmable NFT', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -440,11 +442,9 @@ test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
       ruleSet: spokSamePubkey(ruleSet.publicKey),
     },
     token: {
-      state: AccountState.Initialized,
+      state: AccountState.Frozen,
     },
   } as unknown as Specifications<Nft>);
-  const rnft = await mx.nfts().refresh(nft);
-  console.log(rnft);
 });
 
 const minimalInput = () => ({
