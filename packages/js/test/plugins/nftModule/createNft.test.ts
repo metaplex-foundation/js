@@ -419,7 +419,6 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-// TODO: + write a test that fails when creating a PNFT with 1 supply.
 test('[nftModule] it can create a programmable NFT', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
@@ -447,8 +446,7 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
   } as unknown as Specifications<Nft>);
 });
 
-// TODO: Wait for program.
-test.skip('[nftModule] it cannot create a programmable NFT from mint with supply greater than zero', async (t: Test) => {
+test('[nftModule] it cannot create a programmable NFT from mint with supply greater than zero', async (t: Test) => {
   // Given a mint account with a supply of 1.
   const mx = await metaplex();
   const mintAddress = Keypair.generate();
@@ -466,7 +464,7 @@ test.skip('[nftModule] it cannot create a programmable NFT from mint with supply
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /TODO/);
+  await assertThrows(t, promise, /MintSupplyMustBeZero/);
 });
 
 const minimalInput = () => ({
