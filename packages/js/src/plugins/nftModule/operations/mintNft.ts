@@ -229,8 +229,14 @@ export const mintNftBuilder = (
             tokenOwner: params.toToken ? undefined : toOwner,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
+            tokenRecord: metaplex.nfts().pdas().tokenRecord({
+              mint: nftOrSft.address,
+              owner: toOwner,
+              programs,
+            }),
             mint: nftOrSft.address,
             authority: auth.accounts.authority,
+            // TODO: delegateRecord, Should be removed from the program?
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,

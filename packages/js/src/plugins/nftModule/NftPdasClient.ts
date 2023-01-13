@@ -130,8 +130,6 @@ export class NftPdasClient {
   tokenRecord(input: {
     /** The address of the NFT's mint account. */
     mint: PublicKey;
-    /** The role of the delegate authority. */
-    type: TokenDelegateType;
     /** The address of the token owner */
     owner: PublicKey;
     /** An optional set of programs that override the registered ones. */

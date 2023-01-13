@@ -558,7 +558,8 @@ export const createSftBuilder = async (
           authority: isNonFungible({ tokenStandard })
             ? updateAuthority
             : mintAuthority,
-          toToken: tokenAddress,
+          toOwner: params.tokenOwner,
+          toToken: params.tokenOwner ? undefined : tokenAddress,
           amount: params.tokenAmount,
         },
         { programs, payer }

@@ -81,7 +81,6 @@ export const parseTokenMetadataDelegateInput = <
     approver: input.owner,
     delegateRecord: metaplex.nfts().pdas().tokenRecord({
       mint,
-      type: input.type,
       owner: input.owner,
       programs,
     }),
