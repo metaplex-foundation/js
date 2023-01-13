@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import {
-  getDelegateRoleSeed,
   TokenDelegateType,
   MetadataDelegateType,
+  getMetadataDelegateRoleSeed,
 } from './DelegateType';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
@@ -142,7 +142,7 @@ export class NftPdasClient {
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
       input.mint.toBuffer(),
-      Buffer.from(getDelegateRoleSeed(input.type), 'utf8'),
+      Buffer.from('token_record', 'utf8'),
       input.owner.toBuffer(),
     ]);
   }
@@ -165,7 +165,7 @@ export class NftPdasClient {
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
       input.mint.toBuffer(),
-      Buffer.from(getDelegateRoleSeed(input.type), 'utf8'),
+      Buffer.from(getMetadataDelegateRoleSeed(input.type), 'utf8'),
       input.updateAuthority.toBuffer(),
       input.delegate.toBuffer(),
     ]);
