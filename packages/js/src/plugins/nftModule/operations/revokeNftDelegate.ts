@@ -16,7 +16,6 @@ import {
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
-import { isHolderDelegateType } from '../DelegateType';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -200,26 +199,27 @@ export const revokeNftDelegateBuilder = (
 
   // Auth.
   let tokenMetadataAuthority: TokenMetadataAuthority;
-  if ('__kind' in authority && authority.__kind === 'self') {
+  if (!('__kind' in authority)) {
+    tokenMetadataAuthority =
+      'owner' in params.delegate
+        ? {
+            __kind: 'holder',
+            owner: authority,
+            token: metaplex.tokens().pdas().associatedTokenAccount({
+              mint: nftOrSft.address,
+              owner: authority.publicKey,
+              programs,
+            }),
+          }
+        : { __kind: 'metadata', updateAuthority: authority };
+  } else if (authority.__kind === 'self') {
     tokenMetadataAuthority = {
       ...params.delegate,
-      __kind: 'delegate',
+      __kind: 'owner' in params.delegate ? 'tokenDelegate' : 'metadataDelegate',
       delegate: authority.delegate,
-    };
-  } else if ('__kind' in authority) {
-    tokenMetadataAuthority = authority;
-  } else if (isHolderDelegateType(params.delegate.type)) {
-    tokenMetadataAuthority = {
-      __kind: 'holder',
-      owner: authority,
-      token: metaplex.tokens().pdas().associatedTokenAccount({
-        mint: nftOrSft.address,
-        owner: authority.publicKey,
-        programs,
-      }),
-    };
+    } as TokenMetadataAuthority;
   } else {
-    tokenMetadataAuthority = { __kind: 'metadata', updateAuthority: authority };
+    tokenMetadataAuthority = authority;
   }
   const auth = parseTokenMetadataAuthorization(metaplex, {
     mint: nftOrSft.address,
