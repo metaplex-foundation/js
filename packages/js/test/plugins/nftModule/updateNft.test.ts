@@ -485,7 +485,8 @@ test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => 
   } as unknown as Specifications<Nft>);
 });
 
-test.only('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
+// TODO: Unskip when we can create real rulesets on the SDK.
+test.skip('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
   // Given a Metaplex instance.
   const mx = await metaplex();
 
