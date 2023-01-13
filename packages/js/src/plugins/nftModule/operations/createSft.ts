@@ -555,7 +555,9 @@ export const createSftBuilder = async (
             address: mintAddress,
             tokenStandard,
           },
-          authority: mintAuthority,
+          authority: isNonFungible({ tokenStandard })
+            ? updateAuthority
+            : mintAuthority,
           toToken: tokenAddress,
           amount: params.tokenAmount,
         },

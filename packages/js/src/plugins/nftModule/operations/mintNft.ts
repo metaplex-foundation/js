@@ -65,13 +65,11 @@ export type MintNftInput = {
   /**
    * An authority allowed to mint the asset.
    *
+   * This must be the update authority for Non-Fungible assets
+   * and the mint authority for Semi-Fungible assets.
+   *
    * Note that Delegate and Holder authorities
    * are not supported for this instruction.
-   *
-   * If a `Signer` is provided directly,
-   * it will be used as the update authority.
-   *
-   * TODO: signer must be mint authority?
    *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
