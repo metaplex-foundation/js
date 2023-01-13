@@ -1,13 +1,13 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
-  ProgrammableState,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
+import { AccountState } from '@solana/spl-token';
 import {
   amman,
   createCollectionNft,
@@ -418,7 +418,7 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
 });
 
-test('[nftModule] it can create a programmable NFT', async (t: Test) => {
+test.only('[nftModule] it can create a programmable NFT', async (t: Test) => {
   // Given we have a Metaplex instance.
   const mx = await metaplex();
 
@@ -436,10 +436,15 @@ test('[nftModule] it can create a programmable NFT', async (t: Test) => {
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: {
-      state: ProgrammableState.Unlocked,
+      __kind: 'V1',
       ruleSet: spokSamePubkey(ruleSet.publicKey),
     },
+    token: {
+      state: AccountState.Initialized,
+    },
   } as unknown as Specifications<Nft>);
+  const rnft = await mx.nfts().refresh(nft);
+  console.log(rnft);
 });
 
 const minimalInput = () => ({

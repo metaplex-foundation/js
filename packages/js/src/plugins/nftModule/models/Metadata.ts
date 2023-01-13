@@ -1,5 +1,4 @@
 import {
-  DelegateRole,
   ProgrammableConfig,
   TokenStandard,
   UseMethod,
@@ -140,9 +139,6 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /** Programmable configuration for the asset. */
   readonly programmableConfig: Option<ProgrammableConfig>;
-
-  /** Persistent delegate state for the asset. */
-  readonly persistentDelegate: Option<DelegateRole>;
 };
 
 /** @group Model Helpers */
@@ -198,7 +194,6 @@ export const toMetadata = (
       }
     : null,
   programmableConfig: account.data.programmableConfig,
-  persistentDelegate: account.data.persistentDelegate,
 });
 
 export const isNonFungible = (nftOrSft: {
