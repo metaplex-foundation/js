@@ -406,19 +406,10 @@ export const updateNftBuilder = (
         builder.add({
           instruction: createUpdateInstruction(
             {
-              // authority: web3.PublicKey;
-              // delegateRecord?: web3.PublicKey;
-              // token?: web3.PublicKey;
-              // mint: web3.PublicKey;
-              // metadata: web3.PublicKey;
-              // edition?: web3.PublicKey;
-              // tokenRecord?: web3.PublicKey;
-              // payer: web3.PublicKey;
-              // systemProgram?: web3.PublicKey;
-              // sysvarInstructions: web3.PublicKey;
-              // authorizationRulesProgram?: web3.PublicKey;
-              // authorizationRules?: web3.PublicKey;
-              ...auth.accounts,
+              authority: auth.accounts.authority,
+              delegateRecord: auth.accounts.delegateRecord,
+              token: auth.accounts.token,
+              mint: nftOrSft.address,
               metadata: metaplex.nfts().pdas().metadata({
                 mint: nftOrSft.address,
                 programs,
@@ -429,10 +420,11 @@ export const updateNftBuilder = (
                     programs,
                   })
                 : undefined,
-              mint: nftOrSft.address,
+              // tokenRecord, // TODO
               payer: payer.publicKey,
               systemProgram: systemProgram.address,
               sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+              authorizationRules: auth.accounts.authorizationRules,
               // authorizationRulesProgram,
             },
             { updateArgs: { ...updateInstructionData, ...auth.data } },

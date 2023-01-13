@@ -1,10 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
-import {
-  ProgrammableState,
-  TokenStandard,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
   assertThrows,
   createCollectionNft,
@@ -464,7 +461,7 @@ test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => 
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: {
-      state: ProgrammableState.Unlocked,
+      __kind: 'V1',
       ruleSet: null,
     },
   } as unknown as Specifications<Nft>);
@@ -482,7 +479,7 @@ test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => 
     $topic: 'Updated NFT',
     model: 'nft',
     programmableConfig: {
-      state: ProgrammableState.Unlocked,
+      __kind: 'V1',
       ruleSet: spokSamePubkey(ruleSet.publicKey),
     },
   } as unknown as Specifications<Nft>);
@@ -503,7 +500,7 @@ test('[nftModule] it can update the ruleset of a programmable NFT', async (t: Te
     model: 'nft',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
     programmableConfig: {
-      state: ProgrammableState.Unlocked,
+      __kind: 'V1',
       ruleSet: spokSamePubkey(ruleSetA.publicKey),
     },
   } as unknown as Specifications<Nft>);
@@ -521,7 +518,7 @@ test('[nftModule] it can update the ruleset of a programmable NFT', async (t: Te
     $topic: 'Updated NFT',
     model: 'nft',
     programmableConfig: {
-      state: ProgrammableState.Unlocked,
+      __kind: 'V1',
       ruleSet: spokSamePubkey(ruleSetB.publicKey),
     },
   } as unknown as Specifications<Nft>);
