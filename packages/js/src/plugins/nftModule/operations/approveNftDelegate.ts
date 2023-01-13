@@ -16,7 +16,7 @@ import {
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
 import { isNonFungible, Sft } from '../models';
-import { getDefaultDelegateArgs, isHolderDelegateType } from '../DelegateType';
+import { getDefaultDelegateArgs } from '../DelegateType';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -204,7 +204,7 @@ export const approveNftDelegateBuilder = (
   let tokenMetadataAuthority: TokenMetadataAuthority;
   if ('__kind' in authority) {
     tokenMetadataAuthority = authority;
-  } else if (isHolderDelegateType(params.delegate.type)) {
+  } else if ('owner' in params.delegate) {
     tokenMetadataAuthority = {
       __kind: 'holder',
       owner: authority,

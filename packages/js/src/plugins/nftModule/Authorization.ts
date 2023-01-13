@@ -6,7 +6,11 @@ import { TokenDelegateInput } from './DelegateInput';
 import { Signer, PublicKey, Program } from '@/types';
 import { Option } from '@/utils';
 import { UnreachableCaseError } from '@/errors';
-import { MetadataDelegateInput, Metaplex } from '@/index';
+import {
+  MetadataDelegateInput,
+  Metaplex,
+  parseTokenMetadataDelegateInput,
+} from '@/index';
 
 /**
  * Defines an authority that can handle a digital asset (NFT, SFT, etc.).
@@ -108,34 +112,29 @@ export const parseTokenMetadataAuthorization = (
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'metadataDelegate') {
+    const { delegateRecord, approver } = parseTokenMetadataDelegateInput(
+      metaplex,
+      input.mint,
+      input.authority,
+      input.programs
+    );
     auth.accounts.authority = input.authority.delegate.publicKey;
-    auth.accounts.delegateRecord = metaplex
-      .nfts()
-      .pdas()
-      .metadataDelegateRecord({
-        mint: input.mint,
-        type: input.authority.type,
-        updateAuthority: input.authority.updateAuthority,
-        delegate: input.authority.delegate.publicKey,
-        programs: input.programs,
-      });
-    auth.accounts.approver = input.authority.updateAuthority;
+    auth.accounts.delegateRecord = delegateRecord;
+    auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
     auth.data.authorityType = AuthorityType.Delegate;
   } else if (input.authority.__kind === 'tokenDelegate') {
+    const { delegateRecord, approver, tokenAccount } =
+      parseTokenMetadataDelegateInput(
+        metaplex,
+        input.mint,
+        input.authority,
+        input.programs
+      );
     auth.accounts.authority = input.authority.delegate.publicKey;
-    auth.accounts.token = metaplex.tokens().pdas().associatedTokenAccount({
-      mint: input.mint,
-      owner: input.authority.owner,
-      programs: input.programs,
-    });
-    auth.accounts.delegateRecord = metaplex.nfts().pdas().tokenRecord({
-      mint: input.mint,
-      type: input.authority.type,
-      owner: input.authority.owner,
-      programs: input.programs,
-    });
-    auth.accounts.approver = input.authority.owner;
+    auth.accounts.token = tokenAccount;
+    auth.accounts.delegateRecord = delegateRecord;
+    auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
     auth.data.authorityType = AuthorityType.Delegate;
   } else if (input.authority.__kind === 'holder') {

@@ -1,7 +1,7 @@
 import { DelegateArgs } from '@metaplex-foundation/mpl-token-metadata';
 import { MetadataDelegateType, TokenDelegateType } from './DelegateType';
 import { Metaplex } from '@/index';
-import { Program, PublicKey, Signer } from '@/types';
+import { isSigner, Program, PublicKey, Signer } from '@/types';
 
 type SplitTypeAndData<
   T extends { __kind: any },
@@ -34,40 +34,59 @@ export type TokenDelegateInput<T extends PublicKey | Signer = PublicKey> = Omit<
   'data'
 >;
 
-// export type DelegateInputSigner = DelegateInput<Signer>;
-// export type DelegateInput<T extends PublicKey | Signer = PublicKey> =
-//   | MetadataDelegateInput<T>
-//   | TokenDelegateInput<T>;
+export type DelegateInputSigner = DelegateInput<Signer>;
+export type DelegateInput<T extends PublicKey | Signer = PublicKey> =
+  | MetadataDelegateInput<T>
+  | TokenDelegateInput<T>;
 
-// export type DelegateInputWithDataSigner = DelegateInputWithData<Signer>;
-// export type DelegateInputWithData<T extends PublicKey | Signer = PublicKey> =
-//   | MetadataDelegateInputWithData<T>
-//   | TokenDelegateInputWithData<T>;
+export type DelegateInputWithDataSigner = DelegateInputWithData<Signer>;
+export type DelegateInputWithData<T extends PublicKey | Signer = PublicKey> =
+  | MetadataDelegateInputWithData<T>
+  | TokenDelegateInputWithData<T>;
 
-export const parseTokenDelegateInput = <
+export const parseTokenMetadataDelegateInput = <
   T extends PublicKey | Signer = PublicKey
 >(
   metaplex: Metaplex,
   mint: PublicKey,
-  input: TokenDelegateInput<T>,
+  input: DelegateInput<T>,
   programs?: Program[]
 ): {
   delegate: T;
   approver: PublicKey;
-  tokenRecord: PublicKey;
-  tokenAccount: PublicKey;
+  delegateRecord: PublicKey;
+  tokenAccount?: PublicKey;
 } => {
+  if ('updateAuthority' in input) {
+    return {
+      delegate: input.delegate,
+      approver: input.updateAuthority,
+      delegateRecord: metaplex
+        .nfts()
+        .pdas()
+        .metadataDelegateRecord({
+          mint,
+          type: input.type,
+          updateAuthority: input.updateAuthority,
+          delegate: isSigner(input.delegate)
+            ? input.delegate.publicKey
+            : input.delegate,
+          programs,
+        }),
+    };
+  }
+
   return {
     delegate: input.delegate,
     approver: input.owner,
-    tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
+    delegateRecord: metaplex.nfts().pdas().tokenRecord({
       mint,
+      type: input.type,
       owner: input.owner,
       programs,
     }),
-    tokenRecord: metaplex.nfts().pdas().tokenRecord({
+    tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
       mint,
-      type: input.type,
       owner: input.owner,
       programs,
     }),
