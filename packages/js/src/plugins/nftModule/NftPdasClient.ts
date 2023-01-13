@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import {
   getDelegateRoleSeed,
-  HolderDelegateType,
+  TokenDelegateType,
   MetadataDelegateType,
 } from './DelegateType';
 import type { Metaplex } from '@/Metaplex';
@@ -131,7 +131,7 @@ export class NftPdasClient {
     /** The address of the NFT's mint account. */
     mint: PublicKey;
     /** The role of the delegate authority. */
-    type: HolderDelegateType;
+    type: TokenDelegateType;
     /** The address of the token owner */
     owner: PublicKey;
     /** An optional set of programs that override the registered ones. */

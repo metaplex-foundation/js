@@ -1,8 +1,7 @@
 import { DelegateArgs } from '@metaplex-foundation/mpl-token-metadata';
-import { HolderDelegateType, MetadataDelegateType } from './DelegateType';
-import { UnreachableCaseError } from '@/errors';
+import { MetadataDelegateType, TokenDelegateType } from './DelegateType';
 import { Metaplex } from '@/index';
-import { isSigner, Program, PublicKey, Signer } from '@/types';
+import { Program, PublicKey, Signer } from '@/types';
 
 type SplitTypeAndData<
   T extends { __kind: any },
@@ -20,81 +19,57 @@ export type MetadataDelegateInputWithData<
   updateAuthority: PublicKey;
 } & SplitTypeAndData<DelegateArgs, MetadataDelegateType>;
 
-export type HolderDelegateInputWithData<
+export type TokenDelegateInputWithData<
   T extends PublicKey | Signer = PublicKey
 > = {
   delegate: T;
   owner: PublicKey;
-} & SplitTypeAndData<DelegateArgs, HolderDelegateType>;
+} & SplitTypeAndData<DelegateArgs, TokenDelegateType>;
 
 export type MetadataDelegateInput<T extends PublicKey | Signer = PublicKey> =
   Omit<MetadataDelegateInputWithData<T>, 'data'>;
 
-export type HolderDelegateInput<T extends PublicKey | Signer = PublicKey> =
-  Omit<HolderDelegateInputWithData<T>, 'data'>;
+export type TokenDelegateInput<T extends PublicKey | Signer = PublicKey> = Omit<
+  TokenDelegateInputWithData<T>,
+  'data'
+>;
 
-export type DelegateInputSigner = DelegateInput<Signer>;
-export type DelegateInput<T extends PublicKey | Signer = PublicKey> =
-  | MetadataDelegateInput<T>
-  | HolderDelegateInput<T>;
+// export type DelegateInputSigner = DelegateInput<Signer>;
+// export type DelegateInput<T extends PublicKey | Signer = PublicKey> =
+//   | MetadataDelegateInput<T>
+//   | TokenDelegateInput<T>;
 
-export type DelegateInputWithDataSigner = DelegateInputWithData<Signer>;
-export type DelegateInputWithData<T extends PublicKey | Signer = PublicKey> =
-  | MetadataDelegateInputWithData<T>
-  | HolderDelegateInputWithData<T>;
+// export type DelegateInputWithDataSigner = DelegateInputWithData<Signer>;
+// export type DelegateInputWithData<T extends PublicKey | Signer = PublicKey> =
+//   | MetadataDelegateInputWithData<T>
+//   | TokenDelegateInputWithData<T>;
 
-export const parseTokenMetadataDelegateInput = <
+export const parseTokenDelegateInput = <
   T extends PublicKey | Signer = PublicKey
 >(
   metaplex: Metaplex,
   mint: PublicKey,
-  input: DelegateInput<T>,
+  input: TokenDelegateInput<T>,
   programs?: Program[]
 ): {
   delegate: T;
   approver: PublicKey;
-  delegateRecord: PublicKey;
-  tokenAccount?: PublicKey;
+  tokenRecord: PublicKey;
+  tokenAccount: PublicKey;
 } => {
-  switch (input.type) {
-    // case 'AuthorityV1':
-    // case 'UseV1':
-    // case 'UpdateV1':
-    case 'CollectionV1':
-      return {
-        delegate: input.delegate,
-        approver: input.updateAuthority,
-        delegateRecord: metaplex
-          .nfts()
-          .pdas()
-          .delegateRecord({
-            mint,
-            type: input.type,
-            approver: input.updateAuthority,
-            delegate: isSigner(input.delegate)
-              ? input.delegate.publicKey
-              : input.delegate,
-            programs,
-          }),
-      };
-    // case 'UtilityV1':
-    case 'TransferV1':
-    case 'SaleV1':
-      return {
-        delegate: input.delegate,
-        approver: input.owner,
-        tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
-          mint,
-          owner: input.owner,
-          programs,
-        }),
-        delegateRecord: metaplex.nfts().pdas().persistentDelegateRecord({
-          mint,
-          owner: input.owner,
-          programs,
-        }),
-      };
-    default:
-      throw new UnreachableCaseError((input as any).type as never);
-  }
+  return {
+    delegate: input.delegate,
+    approver: input.owner,
+    tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
+      mint,
+      owner: input.owner,
+      programs,
+    }),
+    tokenRecord: metaplex.nfts().pdas().tokenRecord({
+      mint,
+      type: input.type,
+      owner: input.owner,
+      programs,
+    }),
+  };
 };

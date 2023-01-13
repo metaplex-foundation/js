@@ -1,83 +1,76 @@
 import {
   DelegateArgs,
-  DelegateRole,
+  TokenDelegateRole,
+  MetadataDelegateRole,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { DelegateRoleRequiredDataError } from './errors';
 import { UnreachableCaseError } from '@/errors';
 
-export type DelegateType = MetadataDelegateType | HolderDelegateType;
-export type HolderDelegateType = 'TransferV1' | 'SaleV1';
-// | 'UtilityV1'
-export type MetadataDelegateType = 'CollectionV1';
-// | 'AuthorityV1'
-// | 'UseV1'
-// | 'UpdateV1'
+export type TokenDelegateType = 'TransferV1' | 'SaleV1' | 'UtilityV1';
+export type MetadataDelegateType = 'CollectionV1' | 'UpdateV1'; // | 'AuthorityV1' | 'UseV1'
 
-export const isHolderDelegateType = (
-  type: DelegateType
-): type is HolderDelegateType => {
-  return ['TransferV1', 'SaleV1'].includes(type);
+const tokenDelegateRoleMap: Record<TokenDelegateType, TokenDelegateRole> = {
+  TransferV1: TokenDelegateRole.Transfer,
+  SaleV1: TokenDelegateRole.Sale,
+  UtilityV1: TokenDelegateRole.Utility,
 };
 
-export const isMetadataDelegateType = (
-  type: DelegateType
-): type is MetadataDelegateType => {
-  return ['CollectionV1'].includes(type);
-};
-
-export type DelegateRoleSeed =
-  | 'authority_delegate'
-  | 'collection_delegate'
-  | 'use_delegate'
-  | 'update_delegate'
-  | 'persistent_delegate';
-
-const delegateTypeMap: Record<
-  DelegateType,
-  {
-    role: DelegateRole;
-    seed: DelegateRoleSeed;
-    hasCustomData: boolean;
-  }
+const metadataDelegateRoleMap: Record<
+  MetadataDelegateType,
+  MetadataDelegateRole
 > = {
-  // AuthorityV1: { role: DelegateRole.Authority, seed: 'authority_delegate', hasCustomData: false },
-  CollectionV1: {
-    role: DelegateRole.Collection,
-    seed: 'collection_delegate',
-    hasCustomData: false,
-  },
-  // UseV1: { role: DelegateRole.Use, seed: 'use_delegate', hasCustomData: false },
-  // UpdateV1: { role: DelegateRole.Update, seed: 'update_delegate', hasCustomData: false },
-  TransferV1: {
-    role: DelegateRole.Transfer,
-    seed: 'persistent_delegate',
-    hasCustomData: true,
-  },
-  // UtilityV1: { role: DelegateRole.Utility, seed: 'persistent_delegate', hasCustomData: false },
-  SaleV1: {
-    role: DelegateRole.Sale,
-    seed: 'persistent_delegate',
-    hasCustomData: true,
-  },
+  CollectionV1: MetadataDelegateRole.Collection,
+  UpdateV1: MetadataDelegateRole.Update,
 };
 
-export const getDelegateRole = (type: DelegateType): DelegateRole => {
-  const manifest = delegateTypeMap[type];
-  if (!manifest) throw new UnreachableCaseError(type as never);
-  return manifest.role;
+const metadataDelegateSeedMap: Record<MetadataDelegateRole, string> = {
+  [MetadataDelegateRole.Authority]: 'authority_delegate',
+  [MetadataDelegateRole.Collection]: 'collection_delegate',
+  [MetadataDelegateRole.Use]: 'use_delegate',
+  [MetadataDelegateRole.Update]: 'update_delegate',
 };
 
-export const getDelegateRoleSeed = (type: DelegateType): DelegateRoleSeed => {
-  const manifest = delegateTypeMap[type];
-  if (!manifest) throw new UnreachableCaseError(type as never);
-  return manifest.seed;
+const delegateCustomDataMap: Record<
+  TokenDelegateType | MetadataDelegateType,
+  boolean
+> = {
+  // AuthorityV1: false,
+  CollectionV1: false,
+  SaleV1: true,
+  TransferV1: true,
+  // UseV1: false,
+  UpdateV1: false,
+  UtilityV1: false,
+};
+
+export const getTokenDelegateRole = (
+  type: TokenDelegateType
+): TokenDelegateRole => {
+  const role = tokenDelegateRoleMap[type];
+  if (!role) throw new UnreachableCaseError(type as never);
+  return role;
+};
+
+export const getMetadataDelegateRole = (
+  type: MetadataDelegateType
+): MetadataDelegateRole => {
+  const role = metadataDelegateRoleMap[type];
+  if (!role) throw new UnreachableCaseError(type as never);
+  return role;
+};
+
+export const getMetadataDelegateRoleSeed = (
+  type: MetadataDelegateType
+): string => {
+  return metadataDelegateSeedMap[getMetadataDelegateRole(type)];
 };
 
 export const getDefaultDelegateArgs = (
-  type: DelegateType
+  type: TokenDelegateType | MetadataDelegateType
 ): Omit<DelegateArgs, 'authorizationData'> => {
-  const manifest = delegateTypeMap[type];
-  if (!manifest) throw new UnreachableCaseError(type as never);
-  if (manifest.hasCustomData) throw new DelegateRoleRequiredDataError(type);
+  const hasCustomData = delegateCustomDataMap[type];
+  if (hasCustomData === undefined)
+    throw new UnreachableCaseError(type as never);
+  if (hasCustomData) throw new DelegateRoleRequiredDataError(type);
   return { __kind: type } as DelegateArgs;
 };
