@@ -236,7 +236,7 @@ export const mintNftBuilder = (
             }),
             mint: nftOrSft.address,
             authority: auth.accounts.authority,
-            // TODO: delegateRecord, Should be removed from the program?
+            // delegateRecord, // TODO: add when program supports Authority delegate.
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
