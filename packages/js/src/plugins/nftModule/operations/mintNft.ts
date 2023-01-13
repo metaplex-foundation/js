@@ -71,6 +71,8 @@ export type MintNftInput = {
    * If a `Signer` is provided directly,
    * it will be used as the update authority.
    *
+   * TODO: signer must be mint authority?
+   *
    * @see {@link TokenMetadataAuthority}
    * @defaultValue `metaplex.identity()`
    */

@@ -522,7 +522,7 @@ export const createSftBuilder = async (
           creators,
           primarySaleHappened: params.primarySaleHappened ?? false,
           isMutable: params.isMutable ?? true,
-          tokenStandard: params.tokenStandard ?? TokenStandard.FungibleAsset,
+          tokenStandard,
           collection: params.collection
             ? { key: params.collection, verified: false }
             : null,
@@ -542,6 +542,26 @@ export const createSftBuilder = async (
   // When the payer is different than the update authority, the latter will
   // not be marked as a signer and therefore signing as a creator will fail.
   createMetadataInstruction.keys[5].isSigner = true;
+
+  // Mint provided amount to the token account.
+  let mintInstruction: TransactionBuilder | null = null;
+  if (tokenAddress && params.tokenAmount) {
+    mintInstruction = metaplex
+      .nfts()
+      .builders()
+      .mint(
+        {
+          nftOrSft: {
+            address: mintAddress,
+            tokenStandard,
+          },
+          authority: mintAuthority,
+          toToken: tokenAddress,
+          amount: params.tokenAmount,
+        },
+        { programs, payer }
+      );
+  }
 
   const verifyAdditionalCreatorInstructions = creatorsInput
     .filter((creator) => {
@@ -572,12 +592,15 @@ export const createSftBuilder = async (
       // Create the mint and token accounts before minting 1 token to the owner.
       .add(mintAndTokenBuilder)
 
-      // Create metadata account.
+      // Create metadata/edition accounts.
       .add({
         instruction: createMetadataInstruction,
         signers: [payer, mintAuthority, updateAuthority],
         key: params.createMetadataInstructionKey ?? 'createMetadata',
       })
+
+      // Mint provided amount to the token account, if any.
+      .add(...(mintInstruction ? [mintInstruction] : []))
 
       // Verify additional creators.
       .add(...verifyAdditionalCreatorInstructions)
@@ -681,23 +704,6 @@ const createMintAndTokenForSftBuilder = async (
           },
           { programs, payer }
         )
-    );
-  }
-
-  // Mint provided amount to the token account.
-  if (tokenAddress && params.tokenAmount) {
-    builder.add(
-      await metaplex.tokens().builders().mint(
-        {
-          mintAddress,
-          toToken: tokenAddress,
-          toTokenExists: true,
-          amount: params.tokenAmount,
-          mintAuthority,
-          mintTokensInstructionKey: params.mintTokensInstructionKey,
-        },
-        { programs, payer }
-      )
     );
   }
 
