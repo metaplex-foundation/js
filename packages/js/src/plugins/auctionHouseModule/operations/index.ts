@@ -9,6 +9,7 @@ export * from './directSell';
 export * from './executeSale';
 export * from './findAuctionHouseByAddress';
 export * from './findAuctionHouseByCreatorAndMint';
+export * from './findAuctionHousesByAddressList';
 export * from './findBidByReceipt';
 export * from './findBidByTradeState';
 export * from './findBids';

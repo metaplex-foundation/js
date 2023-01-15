@@ -22,6 +22,8 @@ import {
   findAuctionHouseByAddressOperation,
   FindAuctionHouseByCreatorAndMintInput,
   findAuctionHouseByCreatorAndMintOperation,
+  FindAuctionHousesByAddressListInput,
+  findAuctionHousesByAddressListOperation,
   FindBidByReceiptInput,
   findBidByReceiptOperation,
   FindBidByTradeStateInput,
@@ -186,6 +188,16 @@ export class AuctionHouseClient {
     return this.metaplex
       .operations()
       .execute(findAuctionHouseByCreatorAndMintOperation(input), options);
+  }
+
+  /** {@inheritDoc findAuctionHousesByAddressListOperation} */
+  findByAddressList(
+    input: FindAuctionHousesByAddressListInput,
+    options?: OperationOptions
+  ) {
+    return this.metaplex
+      .operations()
+      .execute(findAuctionHousesByAddressListOperation(input), options);
   }
 
   /** {@inheritDoc findBidByReceiptOperation} */
