@@ -53,7 +53,7 @@ export type FindListingsOperation = Operation<
  */
 export type FindListingsInput = {
   /** A model of the Auction House related to these listings. */
-  auctionHouse: AuctionHouse;
+  auctionHouse?: AuctionHouse;
 
   /** The address of a seller to search by. */
   seller?: PublicKey;
@@ -92,9 +92,11 @@ export const findListingsOperationHandler: OperationHandler<FindListingsOperatio
       let listingQuery = new ListingReceiptGpaBuilder(
         metaplex,
         auctionHouseProgram.address
-      )
-        .mergeConfig({ commitment })
-        .whereAuctionHouse(auctionHouse.address);
+      ).mergeConfig({ commitment });
+
+      if (auctionHouse) {
+        listingQuery = listingQuery.whereAuctionHouse(auctionHouse.address);
+      }
 
       if (seller) {
         listingQuery = listingQuery.whereSeller(seller);
@@ -112,8 +114,40 @@ export const findListingsOperationHandler: OperationHandler<FindListingsOperatio
 
       scope.throwIfCanceled();
 
-      return listingQuery.getAndMap((account) =>
-        toLazyListing(toListingReceiptAccount(account), auctionHouse)
+      const listingReceiptAccounts = await listingQuery.getAndMap((account) =>
+        toListingReceiptAccount(account)
+      );
+
+      // return early if auctionHouse is specified
+      if (auctionHouse) {
+        return listingReceiptAccounts.map((listing) =>
+          toLazyListing(listing, auctionHouse)
+        );
+      }
+
+      const uniqueAuctionHouseAddresses = Array.from(
+        new Set(
+          listingReceiptAccounts.map(
+            (auctionHouseAccount) => auctionHouseAccount.data.auctionHouse
+          )
+        )
+      );
+
+      const auctionHouses = await metaplex
+        .auctionHouse()
+        .findByAddressList({ addresses: uniqueAuctionHouseAddresses });
+
+      scope.throwIfCanceled();
+
+      const auctionHouseMap: Map<PublicKey, AuctionHouse> = new Map(
+        auctionHouses.map((auctionHouse) => [
+          auctionHouse.address,
+          auctionHouse,
+        ])
+      );
+
+      return listingReceiptAccounts.map((listing) =>
+        toLazyListing(listing, auctionHouseMap.get(listing.data.auctionHouse)!)
       );
     },
   };
