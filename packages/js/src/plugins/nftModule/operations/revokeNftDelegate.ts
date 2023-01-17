@@ -189,7 +189,7 @@ export const revokeNftDelegateBuilder = (
   });
 
   // Delegate to revoke.
-  const { delegateRecord, delegate, approver, tokenAccount } =
+  const { delegateRecord, delegate, approver, tokenAccount, isTokenDelegate } =
     parseTokenMetadataDelegateInput(
       metaplex,
       nftOrSft.address,
@@ -240,6 +240,7 @@ export const revokeNftDelegateBuilder = (
             delegate,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
+            tokenRecord: isTokenDelegate ? delegateRecord : undefined,
             mint: nftOrSft.address,
             token: tokenAccount,
             approver,

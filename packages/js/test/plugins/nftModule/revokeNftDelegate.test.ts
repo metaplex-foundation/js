@@ -1,3 +1,4 @@
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { createNft, killStuckProcess, metaplex } from '../../helpers';
@@ -17,10 +18,10 @@ test('[nftModule] it can revoke a collection delegate', async (t: Test) => {
       updateAuthority: nft.updateAuthorityAddress,
     },
   });
-  const delegateRecord = mx.nfts().pdas().delegateRecord({
+  const delegateRecord = mx.nfts().pdas().metadataDelegateRecord({
     mint: nft.address,
     type: 'CollectionV1',
-    approver: nft.updateAuthorityAddress,
+    updateAuthority: nft.updateAuthorityAddress,
     delegate: collectionDelegate.publicKey,
   });
   t.true(
@@ -59,10 +60,10 @@ test.skip('[nftModule] a collection delegate can revoke itself', async (t: Test)
       updateAuthority: nft.updateAuthorityAddress,
     },
   });
-  const delegateRecord = mx.nfts().pdas().delegateRecord({
+  const delegateRecord = mx.nfts().pdas().metadataDelegateRecord({
     mint: nft.address,
     type: 'CollectionV1',
-    approver: nft.updateAuthorityAddress,
+    updateAuthority: nft.updateAuthorityAddress,
     delegate: collectionDelegate.publicKey,
   });
   t.true(
@@ -94,6 +95,7 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
   const nftOwner = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: nftOwner.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
   const transferDelegate = Keypair.generate();
   await mx.nfts().delegate({
@@ -106,14 +108,11 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
       data: { amount: 1 },
     },
   });
-  const delegateRecord = mx.nfts().pdas().persistentDelegateRecord({
+  const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
     owner: nftOwner.publicKey,
   });
-  t.true(
-    await mx.rpc().accountExists(delegateRecord),
-    'delegate record exists'
-  );
+  t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 
   // When the NFT owner revokes the delegate.
   await mx.nfts().revoke({
@@ -128,8 +127,8 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
 
   // Then the delegate record was deleted.
   t.false(
-    await mx.rpc().accountExists(delegateRecord),
-    'delegate record does not exist'
+    await mx.rpc().accountExists(tokenRecord),
+    'token record does not exist'
   );
 });
 
@@ -140,6 +139,7 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
   const nftOwner = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: nftOwner.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
   const transferDelegate = Keypair.generate();
   await mx.nfts().delegate({
@@ -152,14 +152,11 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
       data: { amount: 1 },
     },
   });
-  const delegateRecord = mx.nfts().pdas().persistentDelegateRecord({
+  const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
     owner: nftOwner.publicKey,
   });
-  t.true(
-    await mx.rpc().accountExists(delegateRecord),
-    'delegate record exists'
-  );
+  t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 
   // When the transfer delegate revokes itself.
   await mx.nfts().revoke({
@@ -174,7 +171,7 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
 
   // Then the delegate record was deleted.
   t.false(
-    await mx.rpc().accountExists(delegateRecord),
-    'delegate record does not exist'
+    await mx.rpc().accountExists(tokenRecord),
+    'token record does not exist'
   );
 });
