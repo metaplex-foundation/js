@@ -193,12 +193,13 @@ export const approveNftDelegateBuilder = (
   });
 
   // New Delegate.
-  const { delegateRecord, delegate } = parseTokenMetadataDelegateInput(
-    metaplex,
-    nftOrSft.address,
-    params.delegate,
-    programs
-  );
+  const { delegateRecord, delegate, isTokenDelegate } =
+    parseTokenMetadataDelegateInput(
+      metaplex,
+      nftOrSft.address,
+      params.delegate,
+      programs
+    );
 
   // Auth.
   let tokenMetadataAuthority: TokenMetadataAuthority;
@@ -245,6 +246,7 @@ export const approveNftDelegateBuilder = (
             delegate,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
+            tokenRecord: isTokenDelegate ? delegateRecord : undefined,
             mint: nftOrSft.address,
             token: auth.accounts.token,
             approver: auth.accounts.authority,

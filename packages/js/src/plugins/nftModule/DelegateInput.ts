@@ -56,9 +56,11 @@ export const parseTokenMetadataDelegateInput = <
   approver: PublicKey;
   delegateRecord: PublicKey;
   tokenAccount?: PublicKey;
+  isTokenDelegate: boolean;
 } => {
   if ('updateAuthority' in input) {
     return {
+      isTokenDelegate: false,
       delegate: input.delegate,
       approver: input.updateAuthority,
       delegateRecord: metaplex
@@ -77,6 +79,7 @@ export const parseTokenMetadataDelegateInput = <
   }
 
   return {
+    isTokenDelegate: true,
     delegate: input.delegate,
     approver: input.owner,
     delegateRecord: metaplex.nfts().pdas().tokenRecord({
