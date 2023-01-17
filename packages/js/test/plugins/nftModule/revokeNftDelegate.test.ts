@@ -1,4 +1,7 @@
-import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  TokenRecord,
+  TokenStandard,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
 import { createNft, killStuckProcess, metaplex } from '../../helpers';
@@ -125,11 +128,13 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
     },
   });
 
-  // Then the delegate record was deleted.
-  t.false(
-    await mx.rpc().accountExists(tokenRecord),
-    'token record does not exist'
+  // Then the token record was updated.
+  const tokenRecordAccount = await TokenRecord.fromAccountAddress(
+    mx.connection,
+    tokenRecord
   );
+  t.equal(tokenRecordAccount.delegate, null);
+  t.equal(tokenRecordAccount.delegateRole, null);
 });
 
 // TODO: Waiting on the program to support this.
@@ -169,9 +174,11 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
     },
   });
 
-  // Then the delegate record was deleted.
-  t.false(
-    await mx.rpc().accountExists(tokenRecord),
-    'token record does not exist'
+  // Then the token record was updated.
+  const tokenRecordAccount = await TokenRecord.fromAccountAddress(
+    mx.connection,
+    tokenRecord
   );
+  t.equal(tokenRecordAccount.delegate, null);
+  t.equal(tokenRecordAccount.delegateRole, null);
 });
