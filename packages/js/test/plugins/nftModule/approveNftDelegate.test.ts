@@ -1,6 +1,7 @@
 import {
   TokenDelegateRole,
   TokenRecord,
+  TokenStandard,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
@@ -43,11 +44,12 @@ test('[nftModule] it can approve a collection delegate', async (t: Test) => {
 });
 
 test('[nftModule] it can approve a transfer delegate', async (t: Test) => {
-  // Given an existing NFT.
+  // Given an existing PNFT.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: nftOwner.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
 
   // When we approve a new transfer delegate authority.
@@ -85,6 +87,7 @@ test('[nftModule] it cannot approve a transfer delegate without data', async (t:
   const nftOwner = Keypair.generate();
   const nft = await createNft(mx, {
     tokenOwner: nftOwner.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
 
   // When trying to approve a new transfer delegate
