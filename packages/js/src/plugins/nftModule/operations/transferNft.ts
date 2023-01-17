@@ -4,8 +4,8 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
   getSignerFromTokenMetadataAuthority,
   parseTokenMetadataAuthorization,
-  TokenMetadataAuthorityDelegate,
   TokenMetadataAuthorityHolder,
+  TokenMetadataAuthorityTokenDelegate,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
 import { isNonFungible, Sft } from '../models';
@@ -78,7 +78,7 @@ export type TransferNftInput = {
    */
   authority?:
     | Signer
-    | TokenMetadataAuthorityDelegate
+    | TokenMetadataAuthorityTokenDelegate
     | TokenMetadataAuthorityHolder;
 
   /**
@@ -241,13 +241,15 @@ export const transferNftBuilder = (
             mint: nftOrSft.address,
             metadata,
             edition: isNonFungible(nftOrSft) ? edition : undefined,
+            // TODO: ownerTokenRecord?: web3.PublicKey;
+            // TODO: destinationTokenRecord?: web3.PublicKey;
+            // previously: delegateRecord: auth.accounts.delegateRecord,
             authority: auth.accounts.authority,
-            delegateRecord: auth.accounts.delegateRecord,
             payer: payer.publicKey,
-            splTokenProgram: tokenProgram.address,
-            splAtaProgram: ataProgram.address,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            splTokenProgram: tokenProgram.address,
+            splAtaProgram: ataProgram.address,
             authorizationRules: auth.accounts.authorizationRules,
             // authorizationRulesProgram,
           },
