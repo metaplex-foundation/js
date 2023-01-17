@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import {
-  TokenDelegateType,
   MetadataDelegateType,
   getMetadataDelegateRoleSeed,
 } from './DelegateType';

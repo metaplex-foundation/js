@@ -1,6 +1,6 @@
 import {
-  DelegateRecord,
-  DelegateRole,
+  TokenDelegateRole,
+  TokenRecord,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
@@ -30,10 +30,10 @@ test('[nftModule] it can approve a collection delegate', async (t: Test) => {
   });
 
   // Then a new delegate record was created.
-  const delegateRecord = mx.nfts().pdas().delegateRecord({
+  const delegateRecord = mx.nfts().pdas().metadataDelegateRecord({
     mint: nft.address,
     type: 'CollectionV1',
-    approver: nft.updateAuthorityAddress,
+    updateAuthority: nft.updateAuthorityAddress,
     delegate: collectionDelegate.publicKey,
   });
   t.true(
@@ -63,23 +63,20 @@ test('[nftModule] it can approve a transfer delegate', async (t: Test) => {
     },
   });
 
-  // Then a new delegate record was created.
-  const delegateRecord = mx.nfts().pdas().persistentDelegateRecord({
+  // Then a new token record was created.
+  const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
     owner: nftOwner.publicKey,
   });
-  t.true(
-    await mx.rpc().accountExists(delegateRecord),
-    'delegate record exists'
-  );
+  t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 
   // And it contains the correct data.
-  const delegateRecordAccount = await DelegateRecord.fromAccountAddress(
+  const tokenRecordAccount = await TokenRecord.fromAccountAddress(
     mx.connection,
-    delegateRecord
+    tokenRecord
   );
-  t.equal(delegateRecordAccount.role, DelegateRole.Transfer);
-  t.true(delegateRecordAccount.delegate.equals(transferDelegate.publicKey));
+  t.true(tokenRecordAccount.delegate?.equals(transferDelegate.publicKey));
+  t.equal(tokenRecordAccount.delegateRole, TokenDelegateRole.Transfer);
 });
 
 test('[nftModule] it cannot approve a transfer delegate without data', async (t: Test) => {
