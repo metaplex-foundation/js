@@ -203,3 +203,7 @@ export const isNonFungible = (nftOrSft: {
   nftOrSft.tokenStandard === TokenStandard.NonFungible ||
   nftOrSft.tokenStandard === TokenStandard.NonFungibleEdition ||
   nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
+
+export const isProgrammable = (nftOrSft: {
+  tokenStandard: Option<TokenStandard>;
+}): boolean => nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;

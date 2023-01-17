@@ -8,7 +8,7 @@ import {
   TokenMetadataAuthorityTokenDelegate,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
-import { isNonFungible, Sft } from '../models';
+import { isNonFungible, isProgrammable, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -214,6 +214,16 @@ export const transferNftBuilder = (
     owner: toOwner,
     programs,
   });
+  const ownerTokenRecord = metaplex.nfts().pdas().tokenRecord({
+    mint: nftOrSft.address,
+    owner: fromOwner,
+    programs,
+  });
+  const destinationTokenRecord = metaplex.nfts().pdas().tokenRecord({
+    mint: nftOrSft.address,
+    owner: toOwner,
+    programs,
+  });
 
   // Auth.
   const auth = parseTokenMetadataAuthorization(metaplex, {
@@ -241,9 +251,12 @@ export const transferNftBuilder = (
             mint: nftOrSft.address,
             metadata,
             edition: isNonFungible(nftOrSft) ? edition : undefined,
-            // TODO: ownerTokenRecord?: web3.PublicKey;
-            // TODO: destinationTokenRecord?: web3.PublicKey;
-            // previously: delegateRecord: auth.accounts.delegateRecord,
+            ownerTokenRecord: isProgrammable(nftOrSft)
+              ? ownerTokenRecord
+              : undefined,
+            destinationTokenRecord: isProgrammable(nftOrSft)
+              ? destinationTokenRecord
+              : undefined,
             authority: auth.accounts.authority,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,

@@ -132,8 +132,7 @@ test('[nftModule] it can can partially transfer an SFT', async (t: Test) => {
   } as unknown as Specifications<Sft>);
 });
 
-// TODO: Gets UriTooLong error.
-test.skip('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
+test('[nftModule] it can transfer a Programmable NFT', async (t: Test) => {
   // Given a Programmable NFT that belongs to owner A.
   const mx = await metaplex();
   const ownerA = Keypair.generate();
