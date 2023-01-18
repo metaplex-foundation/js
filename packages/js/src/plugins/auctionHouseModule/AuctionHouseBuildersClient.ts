@@ -11,6 +11,8 @@ import {
   DirectSellBuilderParams,
   withdrawFromBuyerAccountBuilder,
   WithdrawFromBuyerAccountBuilderParams,
+  withdrawFromFeeAccountBuilder,
+  WithdrawFromFeeAccountBuilderParams,
 } from './operations';
 import {
   createAuctionHouseBuilder,
@@ -119,5 +121,13 @@ export class AuctionHouseBuildersClient {
     options?: TransactionBuilderOptions
   ) {
     return withdrawFromBuyerAccountBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc withdrawFromFeeAccountBuilder} */
+  withdrawFromFeeAccount(
+    input: WithdrawFromFeeAccountBuilderParams,
+    options?: TransactionBuilderOptions
+  ) {
+    return withdrawFromFeeAccountBuilder(this.metaplex, input, options);
   }
 }
