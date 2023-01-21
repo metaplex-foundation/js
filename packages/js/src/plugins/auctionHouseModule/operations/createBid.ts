@@ -48,7 +48,7 @@ const Key = 'CreateBidOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .createBid({ auctionHouse, mintAccount, seller };
+ *   .bid({ auctionHouse, mintAccount, seller };
  * ```
  *
  * @group Operations

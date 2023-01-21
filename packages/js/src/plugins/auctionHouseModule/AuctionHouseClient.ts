@@ -123,7 +123,7 @@ export class AuctionHouseClient {
       .execute(createBidOperation(input), options);
   }
 
-  /** {@inheritDoc buyOperation} */
+  /** {@inheritDoc directBuyOperation} */
   buy(input: DirectBuyInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
@@ -299,7 +299,7 @@ export class AuctionHouseClient {
       .execute(loadPurchaseOperation(input), options);
   }
 
-  /** {@inheritDoc saleOperation} */
+  /** {@inheritDoc directSellOperation} */
   sell(input: DirectSellInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
