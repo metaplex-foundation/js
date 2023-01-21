@@ -43,7 +43,7 @@ const Key = 'CreateListingOperation' as const;
  * ```ts
  * await metaplex
  *   .auctionHouse()
- *   .createListing({ auctionHouse, mintAccount };
+ *   .list({ auctionHouse, mintAccount };
  * ```
  *
  * @group Operations
