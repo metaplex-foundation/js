@@ -26,7 +26,7 @@ const Key = 'LockNftOperation' as const;
  * Lock a programmable NFT.
  *
  * ```ts
- * await metaplex.nfts().lock({ mintAddress });
+ * await metaplex.nfts().lock({ nftOrSft, authority });
  * ```
  *
  * @group Operations
@@ -68,7 +68,7 @@ export type LockNftInput = {
   authority: TokenMetadataAuthorityTokenDelegate;
 
   /**
-   * The authorization rules and data to use for the mint.
+   * The authorization rules and data to use for the operation.
    *
    * @see {@link TokenMetadataAuthorizationDetails}
    * @defaultValue Defaults to not using auth rules.
@@ -122,7 +122,7 @@ export type LockNftBuilderParams = Omit<LockNftInput, 'confirmOptions'> & {
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .lock({ mintAddress });
+ *   .lock({ nftOrSft, authority });
  * ```
  *
  * @group Transaction Builders

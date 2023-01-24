@@ -1,14 +1,20 @@
-import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { createUnlockInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Metaplex } from '@/Metaplex';
+import {
+  parseTokenMetadataAuthorization,
+  TokenMetadataAuthorityTokenDelegate,
+  TokenMetadataAuthorizationDetails,
+} from '../Authorization';
+import { isNonFungible, Sft } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
   OperationScope,
   useOperation,
 } from '@/types';
-import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Metaplex } from '@/Metaplex';
 
 // -----------------
 // Operation
@@ -17,10 +23,10 @@ import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 const Key = 'UnlockNftOperation' as const;
 
 /**
- * Migrate an NFT to a new asset class.
+ * Unlock a programmable NFT.
  *
  * ```ts
- * await metaplex.nfts().migrate({ mintAddress });
+ * await metaplex.nfts().unlock({ nftOrSft, authority });
  * ```
  *
  * @group Operations
@@ -43,8 +49,31 @@ export type UnlockNftOperation = Operation<
  * @category Inputs
  */
 export type UnlockNftInput = {
-  /** The address of the mint account. */
-  mintAddress: PublicKey;
+  /**
+   * The NFT or SFT to unlock.
+   * We only need its address and token standard.
+   *
+   * Note that locking and unlocking only works for programmable assets.
+   */
+  nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
+
+  /**
+   * An authority allowed to unlock the asset.
+   *
+   * This must be a token delegate.
+   *
+   * @see {@link TokenMetadataAuthority}
+   * @defaultValue `metaplex.identity()`
+   */
+  authority: TokenMetadataAuthorityTokenDelegate;
+
+  /**
+   * The authorization rules and data to use for the operation.
+   *
+   * @see {@link TokenMetadataAuthorizationDetails}
+   * @defaultValue Defaults to not using auth rules.
+   */
+  authorizationDetails?: TokenMetadataAuthorizationDetails;
 };
 
 /**
@@ -87,13 +116,13 @@ export type UnlockNftBuilderParams = Omit<UnlockNftInput, 'confirmOptions'> & {
 };
 
 /**
- * Migrate an NFT to a new asset class.
+ * Unlock a programmable NFT.
  *
  * ```ts
  * const transactionBuilder = metaplex
  *   .nfts()
  *   .builders()
- *   .migrate({ mintAddress });
+ *   .unlock({ nftOrSft, authority });
  * ```
  *
  * @group Transaction Builders
@@ -105,14 +134,28 @@ export const unlockNftBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress } = params;
+  const { nftOrSft } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
+    authority: params.authority,
+    authorizationDetails: params.authorizationDetails,
+    programs,
+  });
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
-    mint: mintAddress,
+    mint: nftOrSft.address,
+    programs,
+  });
+  const edition = metaplex.nfts().pdas().masterEdition({
+    mint: nftOrSft.address,
     programs,
   });
 
@@ -122,13 +165,27 @@ export const unlockNftBuilder = (
 
       // Update the metadata account.
       .add({
-        instruction: createMintInstruction(
-          { metadata } as any, // TODO
-          {} as any, // TODO
+        instruction: createUnlockInstruction(
+          {
+            authority: auth.accounts.authority,
+            tokenOwner: auth.accounts.approver,
+            token: auth.accounts.token as PublicKey,
+            mint: nftOrSft.address,
+            metadata,
+            edition: isNonFungible(nftOrSft) ? edition : undefined,
+            tokenRecord: auth.accounts.delegateRecord,
+            payer: payer.publicKey,
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            splTokenProgram: tokenProgram.address,
+            authorizationRules: auth.accounts.authorizationRules,
+            // authorizationRulesProgram
+          },
+          { unlockArgs: { __kind: 'V1', ...auth.data } },
           tokenMetadataProgram.address
         ),
-        signers: [],
-        key: params.instructionKey ?? 'unlockNft',
+        signers: [payer, ...auth.signers],
+        key: params.instructionKey ?? 'UnlockNft',
       })
   );
 };
