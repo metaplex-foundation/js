@@ -97,9 +97,23 @@ export type TransferNftInput = {
   fromOwner?: PublicKey;
 
   /**
+   * The token account to be debited.
+   *
+   * @defaultValue Defaults to the associated token account of `fromOwner`.
+   */
+  fromToken?: PublicKey;
+
+  /**
    * The wallet to send the tokens to.
    */
   toOwner: PublicKey;
+
+  /**
+   * The token account to be credited.
+   *
+   * @defaultValue Defaults to the associated token account of `toOwner`.
+   */
+  toToken?: PublicKey;
 
   /**
    * The amount of tokens to mint.
@@ -204,24 +218,28 @@ export const transferNftBuilder = (
     mint: nftOrSft.address,
     programs,
   });
-  const fromToken = metaplex.tokens().pdas().associatedTokenAccount({
-    mint: nftOrSft.address,
-    owner: fromOwner,
-    programs,
-  });
-  const toToken = metaplex.tokens().pdas().associatedTokenAccount({
-    mint: nftOrSft.address,
-    owner: toOwner,
-    programs,
-  });
+  const fromToken =
+    params.fromToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: nftOrSft.address,
+      owner: fromOwner,
+      programs,
+    });
+  const toToken =
+    params.toToken ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint: nftOrSft.address,
+      owner: toOwner,
+      programs,
+    });
   const ownerTokenRecord = metaplex.nfts().pdas().tokenRecord({
     mint: nftOrSft.address,
-    owner: fromOwner,
+    token: fromToken,
     programs,
   });
   const destinationTokenRecord = metaplex.nfts().pdas().tokenRecord({
     mint: nftOrSft.address,
-    owner: toOwner,
+    token: toToken,
     programs,
   });
 

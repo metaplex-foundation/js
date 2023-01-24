@@ -129,8 +129,8 @@ export class NftPdasClient {
   tokenRecord(input: {
     /** The address of the NFT's mint account. */
     mint: PublicKey;
-    /** The address of the token owner */
-    owner: PublicKey;
+    /** The address of the token account */
+    token: PublicKey;
     /** An optional set of programs that override the registered ones. */
     programs?: Program[];
   }): Pda {
@@ -140,7 +140,7 @@ export class NftPdasClient {
       programId.toBuffer(),
       input.mint.toBuffer(),
       Buffer.from('token_record', 'utf8'),
-      input.owner.toBuffer(),
+      input.token.toBuffer(),
     ]);
   }
 

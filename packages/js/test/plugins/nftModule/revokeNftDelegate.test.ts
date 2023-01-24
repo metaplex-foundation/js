@@ -113,7 +113,7 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
   });
   const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
-    owner: nftOwner.publicKey,
+    token: nft.token.address,
   });
   t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 
@@ -159,7 +159,7 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
   });
   const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
-    owner: nftOwner.publicKey,
+    token: nft.token.address,
   });
   t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 

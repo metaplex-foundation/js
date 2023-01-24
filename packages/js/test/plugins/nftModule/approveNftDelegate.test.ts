@@ -68,7 +68,7 @@ test('[nftModule] it can approve a transfer delegate', async (t: Test) => {
   // Then a new token record was created.
   const tokenRecord = mx.nfts().pdas().tokenRecord({
     mint: nft.address,
-    owner: nftOwner.publicKey,
+    token: nft.token.address,
   });
   t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 

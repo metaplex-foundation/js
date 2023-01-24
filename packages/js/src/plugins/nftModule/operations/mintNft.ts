@@ -231,7 +231,7 @@ export const mintNftBuilder = (
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             tokenRecord: metaplex.nfts().pdas().tokenRecord({
               mint: nftOrSft.address,
-              owner: toOwner,
+              token: toToken,
               programs,
             }),
             mint: nftOrSft.address,
