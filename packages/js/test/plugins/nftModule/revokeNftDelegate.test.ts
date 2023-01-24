@@ -1,10 +1,16 @@
 import {
+  TokenDelegateRole,
   TokenRecord,
   TokenStandard,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import test, { Test } from 'tape';
-import { createNft, killStuckProcess, metaplex } from '../../helpers';
+import {
+  assertThrows,
+  createNft,
+  killStuckProcess,
+  metaplex,
+} from '../../helpers';
 
 killStuckProcess();
 
@@ -49,8 +55,7 @@ test('[nftModule] it can revoke a collection delegate', async (t: Test) => {
   );
 });
 
-// TODO: Waiting on the program to support this.
-test.skip('[nftModule] a collection delegate can revoke itself', async (t: Test) => {
+test('[nftModule] a collection delegate can revoke itself', async (t: Test) => {
   // Given an existing NFT with an approved collection delegate.
   const mx = await metaplex();
   const nft = await createNft(mx);
@@ -137,8 +142,7 @@ test('[nftModule] it can revoke a transfer delegate', async (t: Test) => {
   t.equal(tokenRecordAccount.delegateRole, null);
 });
 
-// TODO: Waiting on the program to support this.
-test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) => {
+test('[nftModule] a transfer delegate cannot revoke itself', async (t: Test) => {
   // Given an existing NFT with an approved transfer delegate.
   const mx = await metaplex();
   const nftOwner = Keypair.generate();
@@ -163,8 +167,8 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
   });
   t.true(await mx.rpc().accountExists(tokenRecord), 'token record exists');
 
-  // When the transfer delegate revokes itself.
-  await mx.nfts().revoke({
+  // When the transfer delegate tries to revoke itself.
+  const promise = mx.nfts().revoke({
     nftOrSft: nft,
     authority: { __kind: 'self', delegate: transferDelegate },
     delegate: {
@@ -174,11 +178,14 @@ test.skip('[nftModule] a transfer delegate can revoke itself', async (t: Test) =
     },
   });
 
-  // Then the token record was updated.
+  // Then we expect an error.
+  await assertThrows(t, promise, /IncorrectOwner/);
+
+  // And the token record was not updated.
   const tokenRecordAccount = await TokenRecord.fromAccountAddress(
     mx.connection,
     tokenRecord
   );
-  t.equal(tokenRecordAccount.delegate, null);
-  t.equal(tokenRecordAccount.delegateRole, null);
+  t.true(tokenRecordAccount.delegate?.equals(transferDelegate.publicKey));
+  t.equal(tokenRecordAccount.delegateRole, TokenDelegateRole.Transfer);
 });
