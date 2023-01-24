@@ -1,6 +1,12 @@
-import { createMintInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { createLockInstruction } from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
+import { isNonFungible, Sft } from '../models';
+import {
+  parseTokenMetadataAuthorization,
+  TokenMetadataAuthorityTokenDelegate,
+  TokenMetadataAuthorizationDetails,
+} from '../Authorization';
 import { Metaplex } from '@/Metaplex';
 import {
   Operation,
@@ -43,8 +49,31 @@ export type LockNftOperation = Operation<
  * @category Inputs
  */
 export type LockNftInput = {
-  /** The address of the mint account. */
-  mintAddress: PublicKey;
+  /**
+   * The NFT or SFT to lock.
+   * We only need its address and token standard.
+   *
+   * Note that locking only works for programmable assets.
+   */
+  nftOrSft: Pick<Sft, 'address' | 'tokenStandard'>;
+
+  /**
+   * An authority allowed to lock the asset.
+   *
+   * This must be a token delegate.
+   *
+   * @see {@link TokenMetadataAuthority}
+   * @defaultValue `metaplex.identity()`
+   */
+  authority: TokenMetadataAuthorityTokenDelegate;
+
+  /**
+   * The authorization rules and data to use for the mint.
+   *
+   * @see {@link TokenMetadataAuthorizationDetails}
+   * @defaultValue Defaults to not using auth rules.
+   */
+  authorizationDetails?: TokenMetadataAuthorizationDetails;
 };
 
 /**
@@ -105,14 +134,28 @@ export const lockNftBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { mintAddress } = params;
+  const { nftOrSft } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
+    authority: params.authority,
+    authorizationDetails: params.authorizationDetails,
+    programs,
+  });
 
   // PDAs.
   const metadata = metaplex.nfts().pdas().metadata({
-    mint: mintAddress,
+    mint: nftOrSft.address,
+    programs,
+  });
+  const edition = metaplex.nfts().pdas().masterEdition({
+    mint: nftOrSft.address,
     programs,
   });
 
@@ -122,12 +165,26 @@ export const lockNftBuilder = (
 
       // Update the metadata account.
       .add({
-        instruction: createMintInstruction(
-          { metadata } as any, // TODO
-          {} as any, // TODO
+        instruction: createLockInstruction(
+          {
+            authority: auth.accounts.authority,
+            tokenOwner: auth.accounts.approver,
+            token: auth.accounts.token as PublicKey,
+            mint: nftOrSft.address,
+            metadata,
+            edition: isNonFungible(nftOrSft) ? edition : undefined,
+            tokenRecord: auth.accounts.delegateRecord,
+            payer: payer.publicKey,
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+            splTokenProgram: tokenProgram.address,
+            authorizationRules: auth.accounts.authorizationRules,
+            // authorizationRulesProgram
+          },
+          { lockArgs: { __kind: 'V1', ...auth.data } },
           tokenMetadataProgram.address
         ),
-        signers: [],
+        signers: [payer, ...auth.signers],
         key: params.instructionKey ?? 'lockNft',
       })
   );
