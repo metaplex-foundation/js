@@ -249,7 +249,7 @@ export const approveNftDelegateBuilder = (
             tokenRecord: isTokenDelegate ? delegateRecord : undefined,
             mint: nftOrSft.address,
             token: auth.accounts.token,
-            approver: auth.accounts.authority,
+            authority: auth.accounts.authority,
             payer: payer.publicKey,
             systemProgram: systemProgram.address,
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,

@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { DelegateType } from './DelegateType';
+import { MetadataDelegateType, TokenDelegateType } from './DelegateType';
 import { MetaplexError } from '@/errors';
 
 /** @group Errors */
@@ -25,7 +25,7 @@ export class ParentCollectionMissingError extends NftError {
 /** @group Errors */
 export class DelegateRoleRequiredDataError extends NftError {
   readonly name: string = 'DelegateRoleRequiredDataError';
-  constructor(type: DelegateType) {
+  constructor(type: MetadataDelegateType | TokenDelegateType) {
     const message =
       `You are trying to approve a delegate of type "${type}" ` +
       `but did not provide any data for that role. Please provide the "data" ` +

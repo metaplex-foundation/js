@@ -503,7 +503,7 @@ export const createSftBuilder = async (
         ? masterEditionPda
         : undefined,
       mint: mintAddress,
-      mintAuthority: mintAuthority.publicKey,
+      authority: mintAuthority.publicKey,
       payer: payer.publicKey,
       updateAuthority: updateAuthority.publicKey,
       systemProgram: systemProgram.address,
