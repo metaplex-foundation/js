@@ -24,6 +24,7 @@ export type TokenDelegateInputWithData<
 > = {
   delegate: T;
   owner: PublicKey;
+  token?: PublicKey;
 } & SplitTypeAndData<DelegateArgs, TokenDelegateType>;
 
 export type MetadataDelegateInput<T extends PublicKey | Signer = PublicKey> =
@@ -78,19 +79,22 @@ export const parseTokenMetadataDelegateInput = <
     };
   }
 
+  const tokenAccount =
+    input.token ??
+    metaplex.tokens().pdas().associatedTokenAccount({
+      mint,
+      owner: input.owner,
+      programs,
+    });
   return {
     isTokenDelegate: true,
     delegate: input.delegate,
     approver: input.owner,
     delegateRecord: metaplex.nfts().pdas().tokenRecord({
       mint,
-      owner: input.owner,
+      token: tokenAccount,
       programs,
     }),
-    tokenAccount: metaplex.tokens().pdas().associatedTokenAccount({
-      mint,
-      owner: input.owner,
-      programs,
-    }),
+    tokenAccount,
   };
 };
