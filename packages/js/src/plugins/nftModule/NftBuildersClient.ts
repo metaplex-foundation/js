@@ -13,8 +13,8 @@ import {
   DeleteNftBuilderParams,
   freezeDelegatedNftBuilder,
   FreezeDelegatedNftBuilderParams,
-  migrateNftBuilder,
-  MigrateNftBuilderParams,
+  lockNftBuilder,
+  LockNftBuilderParams,
   migrateToSizedCollectionNftBuilder,
   MigrateToSizedCollectionNftBuilderParams,
   mintNftBuilder,
@@ -31,6 +31,8 @@ import {
   ThawDelegatedNftBuilderParams,
   transferNftBuilder,
   TransferNftBuilderParams,
+  unlockNftBuilder,
+  UnlockNftBuilderParams,
   unverifyNftCollectionBuilder,
   UnverifyNftCollectionBuilderParams,
   unverifyNftCreatorBuilder,
@@ -202,6 +204,20 @@ export class NftBuildersClient {
   }
 
   // -----------------
+  // Programmables
+  // -----------------
+
+  /** {@inheritDoc lockNftBuilder} */
+  lock(input: LockNftBuilderParams, options?: TransactionBuilderOptions) {
+    return lockNftBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc unlockNftBuilder} */
+  unlock(input: UnlockNftBuilderParams, options?: TransactionBuilderOptions) {
+    return unlockNftBuilder(this.metaplex, input, options);
+  }
+
+  // -----------------
   // Token
   // -----------------
 
@@ -216,11 +232,6 @@ export class NftBuildersClient {
     options?: TransactionBuilderOptions
   ) {
     return transferNftBuilder(this.metaplex, input, options);
-  }
-
-  /** {@inheritDoc migrateNftBuilder} */
-  migrate(input: MigrateNftBuilderParams, options?: TransactionBuilderOptions) {
-    return migrateNftBuilder(this.metaplex, input, options);
   }
 
   /** {@inheritDoc freezeDelegatedNftBuilder} */

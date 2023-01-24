@@ -32,8 +32,8 @@ import {
   freezeDelegatedNftOperationHandler,
   loadMetadataOperation,
   loadMetadataOperationHandler,
-  migrateNftOperation,
-  migrateNftOperationHandler,
+  lockNftOperation,
+  lockNftOperationHandler,
   migrateToSizedCollectionNftOperation,
   migrateToSizedCollectionNftOperationHandler,
   mintNftOperation,
@@ -50,6 +50,8 @@ import {
   thawDelegatedNftOperationHandler,
   transferNftOperation,
   transferNftOperationHandler,
+  unlockNftOperation,
+  unlockNftOperationHandler,
   unverifyNftCollectionOperation,
   unverifyNftCollectionOperationHandler,
   unverifyNftCreatorOperation,
@@ -121,7 +123,7 @@ export const nftModule = (): MetaplexPlugin => ({
       freezeDelegatedNftOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
-    op.register(migrateNftOperation, migrateNftOperationHandler);
+    op.register(lockNftOperation, lockNftOperationHandler);
     op.register(
       migrateToSizedCollectionNftOperation,
       migrateToSizedCollectionNftOperationHandler
@@ -139,6 +141,7 @@ export const nftModule = (): MetaplexPlugin => ({
     );
     op.register(thawDelegatedNftOperation, thawDelegatedNftOperationHandler);
     op.register(transferNftOperation, transferNftOperationHandler);
+    op.register(unlockNftOperation, unlockNftOperationHandler);
     op.register(
       unverifyNftCollectionOperation,
       unverifyNftCollectionOperationHandler

@@ -35,8 +35,8 @@ import {
   freezeDelegatedNftOperation,
   LoadMetadataInput,
   loadMetadataOperation,
-  MigrateNftInput,
-  migrateNftOperation,
+  LockNftInput,
+  lockNftOperation,
   MigrateToSizedCollectionNftInput,
   migrateToSizedCollectionNftOperation,
   MintNftInput,
@@ -53,6 +53,8 @@ import {
   thawDelegatedNftOperation,
   TransferNftInput,
   transferNftOperation,
+  UnlockNftInput,
+  unlockNftOperation,
   UnverifyNftCollectionInput,
   unverifyNftCollectionOperation,
   UnverifyNftCreatorInput,
@@ -396,6 +398,22 @@ export class NftClient {
   }
 
   // -----------------
+  // Programmables
+  // -----------------
+
+  /** {@inheritDoc lockNftOperation} */
+  lock(input: LockNftInput, options?: OperationOptions) {
+    return this.metaplex.operations().execute(lockNftOperation(input), options);
+  }
+
+  /** {@inheritDoc unlockNftOperation} */
+  unlock(input: UnlockNftInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(unlockNftOperation(input), options);
+  }
+
+  // -----------------
   // Tokens
   // -----------------
 
@@ -409,13 +427,6 @@ export class NftClient {
     return this.metaplex
       .operations()
       .execute(transferNftOperation(input), options);
-  }
-
-  /** {@inheritDoc migrateNftOperation} */
-  migrate(input: MigrateNftInput, options?: OperationOptions) {
-    return this.metaplex
-      .operations()
-      .execute(migrateNftOperation(input), options);
   }
 
   /** {@inheritDoc freezeDelegatedNftOperation} */

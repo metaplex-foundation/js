@@ -14,7 +14,7 @@ import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 // Operation
 // -----------------
 
-const Key = 'MigrateNftOperation' as const;
+const Key = 'UnlockNftOperation' as const;
 
 /**
  * Migrate an NFT to a new asset class.
@@ -26,23 +26,23 @@ const Key = 'MigrateNftOperation' as const;
  * @group Operations
  * @category Constructors
  */
-export const migrateNftOperation = useOperation<MigrateNftOperation>(Key);
+export const unlockNftOperation = useOperation<UnlockNftOperation>(Key);
 
 /**
  * @group Operations
  * @category Types
  */
-export type MigrateNftOperation = Operation<
+export type UnlockNftOperation = Operation<
   typeof Key,
-  MigrateNftInput,
-  MigrateNftOutput
+  UnlockNftInput,
+  UnlockNftOutput
 >;
 
 /**
  * @group Operations
  * @category Inputs
  */
-export type MigrateNftInput = {
+export type UnlockNftInput = {
   /** The address of the mint account. */
   mintAddress: PublicKey;
 };
@@ -51,7 +51,7 @@ export type MigrateNftInput = {
  * @group Operations
  * @category Outputs
  */
-export type MigrateNftOutput = {
+export type UnlockNftOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 };
@@ -60,19 +60,18 @@ export type MigrateNftOutput = {
  * @group Operations
  * @category Handlers
  */
-export const migrateNftOperationHandler: OperationHandler<MigrateNftOperation> =
-  {
-    handle: async (
-      operation: MigrateNftOperation,
-      metaplex: Metaplex,
-      scope: OperationScope
-    ): Promise<MigrateNftOutput> => {
-      return migrateNftBuilder(metaplex, operation.input, scope).sendAndConfirm(
-        metaplex,
-        scope.confirmOptions
-      );
-    },
-  };
+export const unlockNftOperationHandler: OperationHandler<UnlockNftOperation> = {
+  handle: async (
+    operation: UnlockNftOperation,
+    metaplex: Metaplex,
+    scope: OperationScope
+  ): Promise<UnlockNftOutput> => {
+    return unlockNftBuilder(metaplex, operation.input, scope).sendAndConfirm(
+      metaplex,
+      scope.confirmOptions
+    );
+  },
+};
 
 // -----------------
 // Builder
@@ -82,10 +81,7 @@ export const migrateNftOperationHandler: OperationHandler<MigrateNftOperation> =
  * @group Transaction Builders
  * @category Inputs
  */
-export type MigrateNftBuilderParams = Omit<
-  MigrateNftInput,
-  'confirmOptions'
-> & {
+export type UnlockNftBuilderParams = Omit<UnlockNftInput, 'confirmOptions'> & {
   /** A key to distinguish the instruction that uses the NFT. */
   instructionKey?: string;
 };
@@ -103,9 +99,9 @@ export type MigrateNftBuilderParams = Omit<
  * @group Transaction Builders
  * @category Constructors
  */
-export const migrateNftBuilder = (
+export const unlockNftBuilder = (
   metaplex: Metaplex,
-  params: MigrateNftBuilderParams,
+  params: UnlockNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
@@ -132,7 +128,7 @@ export const migrateNftBuilder = (
           tokenMetadataProgram.address
         ),
         signers: [],
-        key: params.instructionKey ?? 'migrateNft',
+        key: params.instructionKey ?? 'unlockNft',
       })
   );
 };
