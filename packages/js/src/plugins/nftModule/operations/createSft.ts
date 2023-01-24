@@ -1,5 +1,6 @@
 import {
   createCreateInstruction,
+  PrintSupply,
   TokenStandard,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -12,7 +13,6 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, isNonFungible, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  BigNumber,
   Creator,
   CreatorInput,
   isSigner,
@@ -221,13 +221,13 @@ export type CreateSftInput = {
   isMutable?: boolean;
 
   /**
-   * The maximum supply of printed editions for NFTs.
+   * The supply of printed editions for NFTs.
    * When this is `null`, an unlimited amount of editions
    * can be printed from the original edition.
    *
-   * @defaultValue `toBigNumber(0)`
+   * @defaultValue `{ __kind: 'Zero' }`
    */
-  maxSupply?: Option<BigNumber>;
+  printSupply?: PrintSupply;
 
   /**
    * Whether or not selling this asset is considered a primary sale.
@@ -533,7 +533,10 @@ export const createSftBuilder = async (
           ruleSet: params.ruleSet ?? null,
         },
         decimals: params.decimals ?? null,
-        maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
+        printSupply:
+          params.printSupply === undefined
+            ? { __kind: 'Zero' }
+            : params.printSupply,
       },
     },
     tokenMetadataProgram.address
