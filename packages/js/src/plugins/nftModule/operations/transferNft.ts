@@ -116,7 +116,7 @@ export type TransferNftInput = {
   toToken?: PublicKey;
 
   /**
-   * The amount of tokens to mint.
+   * The amount of tokens to transfer.
    *
    * @defaultValue `token(1)`
    */
