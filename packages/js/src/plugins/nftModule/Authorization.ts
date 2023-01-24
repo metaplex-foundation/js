@@ -2,15 +2,15 @@ import {
   AuthorityType,
   AuthorizationData,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenDelegateInput } from './DelegateInput';
+import { Metaplex } from '../../Metaplex';
+import {
+  MetadataDelegateInput,
+  parseTokenMetadataDelegateInput,
+  TokenDelegateInput,
+} from './DelegateInput';
 import { Signer, PublicKey, Program } from '@/types';
 import { Option } from '@/utils';
 import { UnreachableCaseError } from '@/errors';
-import {
-  MetadataDelegateInput,
-  Metaplex,
-  parseTokenMetadataDelegateInput,
-} from '@/index';
 
 /**
  * Defines an authority that can handle a digital asset (NFT, SFT, etc.).

@@ -126,9 +126,9 @@ test('[candyMachineModule] nftGate guard: it forbids minting when the payer does
   });
 
   // But that sent his NFT to another wallet.
-  await mx.nfts().send({
-    mintAddress: payerNft.address,
-    fromOwner: payer,
+  await mx.nfts().transfer({
+    nftOrSft: payerNft,
+    fromOwner: payer.publicKey,
     toOwner: Keypair.generate().publicKey,
   });
 
