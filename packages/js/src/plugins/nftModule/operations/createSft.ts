@@ -514,7 +514,6 @@ export const createSftBuilder = async (
       createArgs: {
         __kind: 'V1' as const,
         assetData: {
-          updateAuthority: updateAuthority.publicKey,
           name: params.name,
           symbol: params.symbol ?? '',
           uri: params.uri,
