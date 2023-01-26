@@ -13,6 +13,7 @@ import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertSft, isNonFungible, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  BigNumber,
   Creator,
   CreatorInput,
   isSigner,
@@ -221,13 +222,13 @@ export type CreateSftInput = {
   isMutable?: boolean;
 
   /**
-   * The supply of printed editions for NFTs.
+   * The maximum supply of printed editions for NFTs.
    * When this is `null`, an unlimited amount of editions
    * can be printed from the original edition.
    *
-   * @defaultValue `{ __kind: 'Zero' }`
+   * @defaultValue `toBigNumber(0)`
    */
-  printSupply?: PrintSupply;
+  maxSupply?: Option<BigNumber>;
 
   /**
    * Whether or not selling this asset is considered a primary sale.
@@ -496,6 +497,17 @@ export const createSftBuilder = async (
         }))
       : null;
 
+  let printSupply: Option<PrintSupply> = null;
+  if (isNonFungible({ tokenStandard })) {
+    if (params.maxSupply === undefined) {
+      printSupply = { __kind: 'Zero' };
+    } else if (params.maxSupply === null) {
+      printSupply = { __kind: 'Unlimited' };
+    } else {
+      printSupply = { __kind: 'Limited', fields: [params.maxSupply] };
+    }
+  }
+
   const createMetadataInstruction = createCreateInstruction(
     {
       metadata: metadataPda,
@@ -532,10 +544,7 @@ export const createSftBuilder = async (
           ruleSet: params.ruleSet ?? null,
         },
         decimals: params.decimals ?? null,
-        printSupply:
-          params.printSupply === undefined
-            ? { __kind: 'Zero' }
-            : params.printSupply,
+        printSupply,
       },
     },
     tokenMetadataProgram.address
