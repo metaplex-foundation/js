@@ -87,7 +87,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const collection = Keypair.generate();
   const owner = Keypair.generate();
   const mintAuthority = Keypair.generate();
-  const freezeAuthority = Keypair.generate();
   const updateAuthority = Keypair.generate();
   const otherCreator = Keypair.generate();
   const ruleSet = Keypair.generate();
@@ -106,7 +105,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       tokenAmount: token(4200),
       mintAuthority,
       updateAuthority,
-      freezeAuthority: freezeAuthority.publicKey,
       collection: collection.publicKey,
       uses: {
         useMethod: UseMethod.Burn,
@@ -148,7 +146,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       decimals: 2,
       supply: spokSameAmount(token(42, 2, 'MYSFT')),
       mintAuthorityAddress: spokSamePubkey(mintAuthority.publicKey),
-      freezeAuthorityAddress: spokSamePubkey(freezeAuthority.publicKey),
+      freezeAuthorityAddress: spokSamePubkey(mintAuthority.publicKey),
     },
     token: {
       model: 'token',

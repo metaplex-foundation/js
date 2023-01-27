@@ -435,7 +435,6 @@ export const createNftBuilder = async (
         tokenStandard: params.tokenStandard ?? TokenStandard.NonFungible,
         updateAuthority,
         mintAuthority,
-        freezeAuthority: mintAuthority.publicKey,
         useNewMint,
         tokenOwner,
         tokenAmount: mintTokens ? token(1) : undefined,

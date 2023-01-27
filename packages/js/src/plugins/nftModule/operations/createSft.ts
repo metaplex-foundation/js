@@ -88,14 +88,6 @@ export type CreateSftInput = {
   mintAuthority?: Signer;
 
   /**
-   * The authority allowed to freeze token account associated with the
-   * mint account that is either explicitly provided or about to be created.
-   *
-   * @defaultValue `metaplex.identity().publicKey`
-   */
-  freezeAuthority?: Option<PublicKey>;
-
-  /**
    * The address of the new mint account as a Signer.
    * This is useful if you already have a generated Keypair
    * for the mint account of the SFT to create.
@@ -411,9 +403,6 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
 
-  /** A key to distinguish the instruction that creates the associated token account. */
-  createAssociatedTokenAccountInstructionKey?: string;
-
   /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
 
@@ -424,7 +413,7 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   mintTokensInstructionKey?: string;
 
   /** A key to distinguish the instruction that creates the metadata account. */
-  createMetadataInstructionKey?: string;
+  createInstructionKey?: string;
 };
 
 /**
@@ -463,13 +452,17 @@ export const createSftBuilder = async (
     tokenStandard = params.tokenStandard ?? TokenStandard.FungibleAsset,
   } = params;
 
-  const mintAndTokenBuilder = await createMintAndTokenForSftBuilder(
-    metaplex,
-    params,
-    { programs, payer },
-    useNewMint
-  );
-  const { mintAddress, tokenAddress } = mintAndTokenBuilder.getContext();
+  const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
+  const associatedTokenAddress = params.tokenOwner
+    ? metaplex.tokens().pdas().associatedTokenAccount({
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        programs,
+      })
+    : null;
+  const tokenAddress = params.tokenAddress
+    ? toPublicKey(params.tokenAddress)
+    : associatedTokenAddress;
 
   const systemProgram = metaplex.programs().getSystem(programs);
   const tokenProgram = metaplex.programs().getToken(programs);
@@ -508,7 +501,7 @@ export const createSftBuilder = async (
     }
   }
 
-  const createMetadataInstruction = createCreateInstruction(
+  const createInstruction = createCreateInstruction(
     {
       metadata: metadataPda,
       masterEdition: isNonFungible({ tokenStandard })
@@ -543,16 +536,41 @@ export const createSftBuilder = async (
             : null,
           ruleSet: params.ruleSet ?? null,
         },
-        decimals: params.decimals ?? null,
+        decimals: params.decimals ?? 0,
         printSupply,
       },
     },
     tokenMetadataProgram.address
   );
 
+  const createSigners = [payer, mintAuthority, updateAuthority];
+  if (!params.useExistingMint) {
+    createSigners.push(useNewMint);
+    createInstruction.keys[2].isSigner = true;
+  }
+
   // When the payer is different than the update authority, the latter will
   // not be marked as a signer and therefore signing as a creator will fail.
-  createMetadataInstruction.keys[5].isSigner = true;
+  createInstruction.keys[5].isSigner = true;
+
+  let createNonAtaInstruction: TransactionBuilder | null = null;
+  // Create the token account if it doesn't exist.
+  if (
+    !params.tokenExists &&
+    !!params.tokenAddress &&
+    isSigner(params.tokenAddress)
+  ) {
+    createNonAtaInstruction = await metaplex.tokens().builders().createToken(
+      {
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        token: params.tokenAddress,
+        createAccountInstructionKey: params.createTokenAccountInstructionKey,
+        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+      },
+      { programs, payer }
+    );
+  }
 
   // Mint provided amount to the token account.
   let mintInstruction: TransactionBuilder | null = null;
@@ -604,14 +622,17 @@ export const createSftBuilder = async (
       })
 
       // Create the mint and token accounts before minting 1 token to the owner.
-      .add(mintAndTokenBuilder)
+      // .add(mintAndTokenBuilder)
 
       // Create metadata/edition accounts.
       .add({
-        instruction: createMetadataInstruction,
-        signers: [payer, mintAuthority, updateAuthority],
-        key: params.createMetadataInstructionKey ?? 'createMetadata',
+        instruction: createInstruction,
+        signers: createSigners,
+        key: params.createInstructionKey ?? 'createMetadata',
       })
+
+      // Create the non-associated token account if needed.
+      .add(...(createNonAtaInstruction ? [createNonAtaInstruction] : []))
 
       // Mint provided amount to the token account, if any.
       .add(...(mintInstruction ? [mintInstruction] : []))
@@ -638,88 +659,4 @@ export const createSftBuilder = async (
         )
       )
   );
-};
-
-const createMintAndTokenForSftBuilder = async (
-  metaplex: Metaplex,
-  params: CreateSftBuilderParams,
-  options: TransactionBuilderOptions,
-  useNewMint: Signer
-): Promise<
-  TransactionBuilder<{ mintAddress: PublicKey; tokenAddress: PublicKey | null }>
-> => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const {
-    mintAuthority = metaplex.identity(),
-    freezeAuthority = metaplex.identity().publicKey,
-    tokenExists = false,
-  } = params;
-
-  const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
-  const associatedTokenAddress = params.tokenOwner
-    ? metaplex.tokens().pdas().associatedTokenAccount({
-        mint: mintAddress,
-        owner: params.tokenOwner,
-        programs,
-      })
-    : null;
-  const tokenAddress = params.tokenAddress
-    ? toPublicKey(params.tokenAddress)
-    : associatedTokenAddress;
-
-  const builder = TransactionBuilder.make<{
-    mintAddress: PublicKey;
-    tokenAddress: PublicKey | null;
-  }>()
-    .setFeePayer(payer)
-    .setContext({
-      mintAddress,
-      tokenAddress,
-    });
-
-  // Create the mint account if it doesn't exist.
-  if (!params.useExistingMint) {
-    builder.add(
-      await metaplex
-        .tokens()
-        .builders()
-        .createMint(
-          {
-            decimals: params.decimals ?? 0,
-            mint: useNewMint,
-            mintAuthority: mintAuthority.publicKey,
-            freezeAuthority,
-            createAccountInstructionKey: params.createMintAccountInstructionKey,
-            initializeMintInstructionKey: params.initializeMintInstructionKey,
-          },
-          { programs, payer }
-        )
-    );
-  }
-
-  // Create the token account if it doesn't exist.
-  const isNewToken = !!params.tokenAddress && isSigner(params.tokenAddress);
-  const isNewAssociatedToken = !!params.tokenOwner;
-  if (!tokenExists && (isNewToken || isNewAssociatedToken)) {
-    builder.add(
-      await metaplex
-        .tokens()
-        .builders()
-        .createToken(
-          {
-            mint: mintAddress,
-            owner: params.tokenOwner,
-            token: params.tokenAddress as Signer | undefined,
-            createAssociatedTokenAccountInstructionKey:
-              params.createAssociatedTokenAccountInstructionKey,
-            createAccountInstructionKey:
-              params.createTokenAccountInstructionKey,
-            initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-          },
-          { programs, payer }
-        )
-    );
-  }
-
-  return builder;
 };
