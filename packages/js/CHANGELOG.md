@@ -1,5 +1,15 @@
 # @metaplex-foundation/js
 
+## 0.18.0
+
+### Minor Changes
+
+- c412d4b6: Add support for Programmable NFTs and new instructions
+
+### Patch Changes
+
+- 97800255: Update Auction house doc examples
+
 ## 0.17.12
 
 ### Patch Changes
