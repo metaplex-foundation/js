@@ -226,7 +226,7 @@ export const mintNftBuilder = (
         instruction: createMintInstruction(
           {
             token: toToken,
-            tokenOwner: params.toToken ? undefined : toOwner,
+            tokenOwner: toOwner,
             metadata,
             masterEdition: isNonFungible(nftOrSft) ? masterEdition : undefined,
             tokenRecord: metaplex.nfts().pdas().tokenRecord({
