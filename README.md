@@ -595,3 +595,162 @@ The following storage drivers are available as separate packages and must be ins
 
 - [`js-plugin-aws`](https://github.com/metaplex-foundation/js/tree/main/packages/js-plugin-aws) Uploads files to AWS.
 - [`js-plugin-nft-storage`](https://github.com/metaplex-foundation/js/tree/main/packages/js-plugin-nft-storage) Uploads files to IPFS via NFT.Storage.
+
+## Programmable NFTs
+
+Starting from version `0.18.0`, you can now create and maintain programmable NFTs via the JS SDK. Here are some quick examples using the latest instructions from Token Metadata which can be used for all token standards (not only programmable NFTs).
+
+Note that managing rulesets is not yet supported on the JS SDK and you will need to use [the Token Auth Rules library](https://github.com/metaplex-foundation/mpl-token-auth-rules/tree/main/packages/sdk) for that purpose.
+
+### Create
+
+Create all the required accounts of an NFT. Namely, the mint account (if it doesn't already exist), the metadata account and the master edition account. Setting the `tokenStandard` to `ProgrammableNonFungible` in the example below is what makes the created NFT a programmable one. You may also provide a `ruleSet` account at this point.
+
+Note that `createSft` can be used for fungible standards.
+
+```ts
+await metaplex.nfts().createNft({
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    // ...
+});
+```
+
+### Mint
+
+Mint new tokens. From 0 to 1 for NFTs or any for SFTs.
+
+This will create the token account if it doesn't already exist.
+
+```ts
+await metaplex.nfts().mint({
+    nftOrSft: sft,
+    toOwner,
+    amount: token(1),
+});
+```
+
+### Update
+
+Update the metadata and/or master edition accounts of an asset. You may also update the `ruleSet` account for programmable NFTs.
+
+```ts
+await metaplex.nfts().update({
+    nftOrSft,
+    name: "My new NFT name",
+    ruleSet: ruleSet.publicKey,
+});
+```
+
+### Transfer
+
+Transfer an asset fully or partially (for SFTs). For programmable NFTs, it will ensure that the transfer is allowed by the ruleset. For the other token standards, it will delegate the transfer to the SPL token program.
+
+```ts
+await metaplex.nfts().transfer({
+    nftOrSft,
+    authority: ownerA,
+    fromOwner: ownerA.publicKey,
+    toOwner: ownerB.publicKey,
+    amount: token(1),
+});
+```
+
+### Delegate
+
+Approves a new delegate authority for a given role. There are two types of delegates: metadata delegates and token delegates.
+- Metadata delegates are approved by the update authority of the NFT and each manages one aspect of the metadata account. There can be multiple metadata delegates for the same asset.
+- Token delegates are approved by the owner of an NFT and are used to transfer, lock and/or burn tokens. There can be only one token delegate per token account.
+
+You can read more about delegates and their roles in the [Programmable NFT Guide](https://github.com/metaplex-foundation/metaplex-program-library/blob/master/token-metadata/program/ProgrammableNFTGuide.md#--delegates).
+
+```ts
+// Metadata delegate.
+await metaplex.nfts().delegate({
+    nftOrSft,
+    authority: updateAuthority,
+    delegate: {
+        type: 'CollectionV1',
+        delegate: collectionDelegate.publicKey,
+        updateAuthority: updateAuthority.publicKey,
+    },
+});
+
+// Token delegate (for programmable NFTs only).
+await metaplex.nfts().delegate({
+    nftOrSft,
+    authority: nftOwner,
+    delegate: {
+        type: 'TransferV1',
+        delegate: transferDelegate.publicKey,
+        owner: nftOwner.publicKey,
+        data: { amount: 1 },
+    },
+});
+```
+
+### Revoke
+
+Revoke a delegated authority. Note that only metadata delegates can be self-revoked.
+
+```ts
+// Metadata delegate.
+await metaplex.nfts().revoke({
+    nftOrSft,
+    authority: updateAuthority,
+    delegate: {
+        type: 'CollectionV1',
+        delegate: collectionDelegate.publicKey,
+        updateAuthority: updateAuthority.publicKey,
+    },
+});
+
+// Token delegate (for programmable NFTs only).
+await metaplex.nfts().revoke({
+    nftOrSft,
+    authority: nftOwner,
+    delegate: {
+        type: 'TransferV1',
+        delegate: transferDelegate.publicKey,
+        owner: nftOwner.publicKey,
+    },
+});
+
+// Metadata delegate self-revoke.
+await metaplex.nfts().revoke({
+    nftOrSft,
+    authority: { __kind: 'self', delegate: collectionDelegate },
+    delegate: {
+        type: 'CollectionV1',
+        delegate: collectionDelegate.publicKey,
+        updateAuthority: nft.updateAuthorityAddress,
+    },
+});
+```
+
+### Lock/Unlock
+
+Allow specific delegates to lock and unlock programmable NFTs. This is for programmable NFTs only.
+
+```ts
+// Lock an NFT using a utility delegate.
+await metaplex.nfts().lock({
+    nftOrSft: nft,
+    authority: {
+        __kind: 'tokenDelegate',
+        type: 'UtilityV1',
+        delegate: utilityDelegate,
+        owner: nftOwner.publicKey,
+    },
+});
+
+// Unlock an NFT using a utility delegate.
+await metaplex.nfts().unlock({
+    nftOrSft: nft,
+    authority: {
+        __kind: 'tokenDelegate',
+        type: 'UtilityV1',
+        delegate: utilityDelegate,
+        owner: nftOwner.publicKey,
+    },
+});
+```
