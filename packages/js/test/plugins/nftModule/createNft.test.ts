@@ -1,13 +1,16 @@
 import {
   createCreateMasterEditionV3Instruction,
   createCreateMetadataAccountV2Instruction,
+  TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
+import { AccountState } from '@solana/spl-token';
 import {
   amman,
+  assertThrows,
   createCollectionNft,
   createWallet,
   killStuckProcess,
@@ -59,6 +62,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
   const expectedNft = {
     model: 'nft',
     name: 'On-chain NFT name',
+    tokenStandard: TokenStandard.NonFungible,
     uri,
     address: spokSamePubkey(mintAddress),
     mint: {
@@ -97,6 +101,7 @@ test('[nftModule] it can create an NFT with minimum configuration', async (t: Te
     ],
     collection: null,
     uses: null,
+    programmableConfig: null,
   } as unknown as Specifications<Nft>;
   spok(t, nft, { $topic: 'NFT', ...expectedNft });
 
@@ -131,6 +136,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   // When we create a new NFT with minimum configuration.
   const { nft } = await mx.nfts().create(
     {
+      tokenStandard: TokenStandard.NonFungible,
       uri,
       name: 'On-chain NFT name',
       symbol: 'MYNFT',
@@ -165,6 +171,7 @@ test('[nftModule] it can create an NFT with maximum configuration', async (t: Te
   spok(t, nft, {
     $topic: 'nft',
     model: 'nft',
+    tokenStandard: TokenStandard.NonFungible,
     name: 'On-chain NFT name',
     symbol: 'MYNFT',
     uri,
@@ -410,6 +417,54 @@ test('[nftModule] it can create an NFT with a verified parent Collection using a
 
   // And the collection NFT size has been increase by 1.
   await assertRefreshedCollectionHasSize(t, mx, collectionNft, 1);
+});
+
+test('[nftModule] it can create a programmable NFT', async (t: Test) => {
+  // Given we have a Metaplex instance.
+  const mx = await metaplex();
+
+  // When we create a new Programmable NFT.
+  const ruleSet = Keypair.generate();
+  const { nft } = await mx.nfts().create({
+    ...minimalInput(),
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    ruleSet: ruleSet.publicKey,
+  });
+
+  // Then the Programmable NFT was created successfully.
+  spok(t, nft, {
+    $topic: 'nft',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: {
+      __kind: 'V1',
+      ruleSet: spokSamePubkey(ruleSet.publicKey),
+    },
+    token: {
+      state: AccountState.Frozen,
+    },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it cannot create a programmable NFT from mint with supply greater than zero', async (t: Test) => {
+  // Given a mint account with a supply of 1.
+  const mx = await metaplex();
+  const mintAddress = Keypair.generate();
+  await mx.tokens().createTokenWithMint({
+    mint: mintAddress,
+    initialSupply: token(1),
+  });
+
+  // When we try to create a new Programmable NFT with it.
+  const promise = mx.nfts().create({
+    ...minimalInput(),
+    useExistingMint: mintAddress.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    mintTokens: false,
+  });
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /MintSupplyMustBeZero/);
 });
 
 const minimalInput = () => ({

@@ -1,12 +1,18 @@
 import {
-  createUpdateMetadataAccountV2Instruction,
-  UpdateMetadataAccountArgsV2,
+  CollectionDetails,
+  createUpdateInstruction,
+  UpdateArgs,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import isEqual from 'lodash.isequal';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { Sft } from '../models';
+import {
+  parseTokenMetadataAuthorization,
+  TokenMetadataAuthority,
+  TokenMetadataAuthorizationDetails,
+} from '../Authorization';
+import { isNonFungible, Sft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   CreatorInput,
@@ -31,7 +37,7 @@ const Key = 'UpdateNftOperation' as const;
  * ```ts
  * await metaplex
  *   .nfts()
- *   .update({ nftOrSft, name: "My new NFT name" };
+ *   .update({ nftOrSft, name: "My new NFT name" });
  * ```
  *
  * @group Operations
@@ -70,14 +76,36 @@ export type UpdateNftInput = {
     | 'uri'
     | 'sellerFeeBasisPoints'
     | 'uses'
+    | 'programmableConfig'
+    | 'tokenStandard'
   >;
 
   /**
    * The current update authority of the asset as a Signer.
    *
    * @defaultValue `metaplex.identity()`
+   * @deprecated Use `authority` instead.
    */
   updateAuthority?: Signer;
+
+  /**
+   * An authority allowed to update the asset.
+   *
+   * If a `Signer` is provided directly,
+   * it will be used as the update authority.
+   *
+   * @see {@link TokenMetadataAuthority}
+   * @defaultValue `metaplex.identity()`
+   */
+  authority?: Signer | TokenMetadataAuthority;
+
+  /**
+   * The authorization rules and data to use for the update.
+   *
+   * @see {@link TokenMetadataAuthorizationDetails}
+   * @defaultValue Defaults to not using auth rules.
+   */
+  authorizationDetails?: TokenMetadataAuthorizationDetails;
 
   /**
    * The address of the new update authority to set for the asset
@@ -160,6 +188,17 @@ export type UpdateNftInput = {
   collection?: Option<PublicKey>;
 
   /**
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  ruleSet?: Option<PublicKey>;
+
+  /**
    * The collection authority that should sign the asset
    * to prove that it is part of the newly provided collection.
    * When `null`, the provided `collection` will not be verified.
@@ -190,7 +229,7 @@ export type UpdateNftInput = {
    * This may be required if the current collection is being removed
    * or updated and needs to be unverified before doing so.
    *
-   * @defaultValue `updateAuthority`
+   * @defaultValue `payer`
    */
   oldCollectionAuthority?: Signer;
 
@@ -201,6 +240,20 @@ export type UpdateNftInput = {
    * @defaultValue `true`
    */
   oldCollectionIsSized?: boolean;
+
+  /**
+   * Transforms a regular NFT into a Collection NFT of the
+   * provided size.
+   *
+   * The provided size should include all **verified** NFTs
+   * and/or SFTs within the Collection. Unverified NFTs
+   * and/or SFTs should not be included in the size.
+   *
+   * **Warning, once set, this size can no longer be updated manually.**
+   *
+   * @defaultValue Defaults to not being updated.
+   */
+  collectionDetails?: CollectionDetails;
 };
 
 /**
@@ -264,10 +317,16 @@ export const updateNftBuilder = (
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
   const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { nftOrSft, updateAuthority = metaplex.identity() } = params;
+  const {
+    nftOrSft,
+    updateAuthority = metaplex.identity(),
+    authority = updateAuthority,
+    authorizationDetails,
+  } = params;
 
   // Programs.
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
+  const systemProgram = metaplex.programs().getSystem(programs);
 
   const updateInstructionDataWithoutChanges = toInstructionData(nftOrSft);
   const updateInstructionData = toInstructionData(nftOrSft, params);
@@ -287,6 +346,17 @@ export const updateNftBuilder = (
     !params.collection.equals(nftOrSft.collection.address);
   const shouldUnverifyCurrentCollection =
     isRemovingVerifiedCollection || isOverridingVerifiedCollection;
+
+  // Auth.
+  const auth = parseTokenMetadataAuthorization(metaplex, {
+    mint: nftOrSft.address,
+    authority:
+      '__kind' in authority
+        ? authority
+        : { __kind: 'metadata', updateAuthority: authority },
+    authorizationDetails,
+    programs,
+  });
 
   const creatorsInput: CreatorInput[] = params.creators ?? nftOrSft.creators;
   const verifyAdditionalCreatorInstructions = creatorsInput
@@ -323,8 +393,7 @@ export const updateNftBuilder = (
                 mintAddress: nftOrSft.address,
                 collectionMintAddress: nftOrSft.collection
                   ?.address as PublicKey,
-                collectionAuthority:
-                  params.oldCollectionAuthority ?? updateAuthority,
+                collectionAuthority: params.oldCollectionAuthority ?? payer,
                 isSizedCollection: params.oldCollectionIsSized ?? true,
               },
               { programs, payer }
@@ -335,18 +404,33 @@ export const updateNftBuilder = (
       // Update the metadata account.
       .when(shouldSendUpdateInstruction, (builder) =>
         builder.add({
-          instruction: createUpdateMetadataAccountV2Instruction(
+          instruction: createUpdateInstruction(
             {
+              authority: auth.accounts.authority,
+              delegateRecord: auth.accounts.delegateRecord,
+              token: auth.accounts.token,
+              mint: nftOrSft.address,
               metadata: metaplex.nfts().pdas().metadata({
                 mint: nftOrSft.address,
                 programs,
               }),
-              updateAuthority: updateAuthority.publicKey,
+              edition: isNonFungible(nftOrSft)
+                ? metaplex.nfts().pdas().masterEdition({
+                    mint: nftOrSft.address,
+                    programs,
+                  })
+                : undefined,
+              // tokenRecord, // TODO
+              payer: payer.publicKey,
+              systemProgram: systemProgram.address,
+              sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+              authorizationRules: auth.accounts.authorizationRules,
+              // authorizationRulesProgram,
             },
-            { updateMetadataAccountArgsV2: updateInstructionData },
+            { updateArgs: { ...updateInstructionData, ...auth.data } },
             tokenMetadataProgram.address
           ),
-          signers: [updateAuthority],
+          signers: [payer, ...auth.signers],
           key: params.updateMetadataInstructionKey ?? 'updateMetadata',
         })
       )
@@ -386,9 +470,10 @@ const toInstructionData = (
     | 'uri'
     | 'sellerFeeBasisPoints'
     | 'uses'
+    | 'programmableConfig'
   >,
   input: Partial<UpdateNftInput> = {}
-): UpdateMetadataAccountArgsV2 => {
+): Omit<UpdateArgs, 'authorityType' | 'authorizationData'> => {
   const creators =
     input.creators === undefined
       ? nftOrSft.creators
@@ -402,17 +487,9 @@ const toInstructionData = (
           };
         });
 
-  const currentCollection = nftOrSft.collection
-    ? { ...nftOrSft.collection, key: nftOrSft.collection.address }
-    : null;
-  const newCollection = input.collection
-    ? { key: input.collection, verified: false }
-    : null;
-
   return {
-    updateAuthority: input.newUpdateAuthority ?? null,
-    primarySaleHappened: input.primarySaleHappened ?? null,
-    isMutable: input.isMutable ?? null,
+    __kind: 'V1',
+    newUpdateAuthority: input.newUpdateAuthority ?? null,
     data: {
       name: input.name ?? nftOrSft.name,
       symbol: input.symbol ?? nftOrSft.symbol,
@@ -420,9 +497,20 @@ const toInstructionData = (
       sellerFeeBasisPoints:
         input.sellerFeeBasisPoints ?? nftOrSft.sellerFeeBasisPoints,
       creators: creators.length > 0 ? creators : null,
-      uses: input.uses === undefined ? nftOrSft.uses : input.uses,
-      collection:
-        input.collection === undefined ? currentCollection : newCollection,
     },
+    primarySaleHappened: input.primarySaleHappened ?? null,
+    isMutable: input.isMutable ?? null,
+    collection: input.collection
+      ? { __kind: 'Set', fields: [{ key: input.collection, verified: false }] }
+      : { __kind: input.collection === undefined ? 'None' : 'Clear' },
+    collectionDetails: input.collectionDetails
+      ? { __kind: 'Set', fields: [input.collectionDetails] }
+      : { __kind: 'None' },
+    uses: input.uses
+      ? { __kind: 'Set', fields: [input.uses] }
+      : { __kind: input.uses === undefined ? 'None' : 'Clear' },
+    ruleSet: input.ruleSet
+      ? { __kind: 'Set', fields: [input.ruleSet] }
+      : { __kind: input.ruleSet === undefined ? 'None' : 'Clear' },
   };
 };

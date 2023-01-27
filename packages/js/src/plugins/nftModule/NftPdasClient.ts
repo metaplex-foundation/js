@@ -1,4 +1,8 @@
 import { Buffer } from 'buffer';
+import {
+  MetadataDelegateType,
+  getMetadataDelegateRoleSeed,
+} from './DelegateType';
 import type { Metaplex } from '@/Metaplex';
 import { BigNumber, Pda, Program, PublicKey, toBigNumber } from '@/types';
 
@@ -118,6 +122,49 @@ export class NftPdasClient {
       Buffer.from('metadata', 'utf8'),
       programId.toBuffer(),
       Buffer.from('burn', 'utf8'),
+    ]);
+  }
+
+  /** Finds the record PDA for a given NFT and delegate authority. */
+  tokenRecord(input: {
+    /** The address of the NFT's mint account. */
+    mint: PublicKey;
+    /** The address of the token account */
+    token: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const programId = this.programId(input.programs);
+    return Pda.find(programId, [
+      Buffer.from('metadata', 'utf8'),
+      programId.toBuffer(),
+      input.mint.toBuffer(),
+      Buffer.from('token_record', 'utf8'),
+      input.token.toBuffer(),
+    ]);
+  }
+
+  /** Finds the record PDA for a given NFT and delegate authority. */
+  metadataDelegateRecord(input: {
+    /** The address of the NFT's mint account. */
+    mint: PublicKey;
+    /** The role of the delegate authority. */
+    type: MetadataDelegateType;
+    /** The address of the metadata's update authority. */
+    updateAuthority: PublicKey;
+    /** The address of delegate authority. */
+    delegate: PublicKey;
+    /** An optional set of programs that override the registered ones. */
+    programs?: Program[];
+  }): Pda {
+    const programId = this.programId(input.programs);
+    return Pda.find(programId, [
+      Buffer.from('metadata', 'utf8'),
+      programId.toBuffer(),
+      input.mint.toBuffer(),
+      Buffer.from(getMetadataDelegateRoleSeed(input.type), 'utf8'),
+      input.updateAuthority.toBuffer(),
+      input.delegate.toBuffer(),
     ]);
   }
 
