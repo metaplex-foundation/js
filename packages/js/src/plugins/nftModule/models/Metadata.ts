@@ -139,6 +139,9 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /** Programmable configuration for the asset. */
   readonly programmableConfig: Option<ProgrammableConfig>;
+  
+  /** The owner of the metadata account. */
+  readonly metadataOwnerAddress?: PublicKey
 };
 
 /** @group Model Helpers */
@@ -194,6 +197,7 @@ export const toMetadata = (
       }
     : null,
   programmableConfig: account.data.programmableConfig,
+  metadataOwnerAddress: account.owner
 });
 
 export const isNonFungible = (nftOrSft: {

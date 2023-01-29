@@ -61,6 +61,9 @@ export type Mint = {
    * ```
    */
   readonly currency: SplTokenCurrency;
+
+  /** The owner of the mint account. */
+  readonly mintOwnerAddress?: PublicKey;
 };
 
 /** @group Model Helpers */
@@ -94,5 +97,6 @@ export const toMint = (account: MintAccount): Mint => {
     supply: amount(account.data.supply.toString(), currency),
     isWrappedSol,
     currency,
+    mintOwnerAddress: account.owner,
   };
 };
