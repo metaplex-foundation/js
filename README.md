@@ -138,7 +138,7 @@ Thus, if you want to load the `json` and/or `edition` properties of an NFT, you 
 
 ### load
 
-For performance reasons, when fetching NFTs in bulk, you may received `Metadata`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `Metadata` into an `Nft`, you may use the `load` operation like so.
+For performance reasons, when fetching NFTs in bulk, you may receive `Metadata`s which exclude the JSON Metadata and the Edition information of the NFT. In order to transform a `Metadata` into an `Nft`, you may use the `load` operation like so.
 
 ```ts
 const nft = await metaplex.nfts().load({ metadata });
@@ -296,7 +296,7 @@ await metaplex.nfts().printNewEdition({
 });
 ```
 
-Notice that, by default, update authority will be transfered to the metaplex identity. If you want the printed edition to retain the update authority of the original edition, you might want to provide it explicitly like so.
+Notice that, by default, update authority will be transferred to the metaplex identity. If you want the printed edition to retain the update authority of the original edition, you might want to provide it explicitly like so.
 
 ```ts
 await metaplex.nfts().printNewEdition({
@@ -378,7 +378,7 @@ type Nft = Readonly<{
 }>
 ```
 
-Additionally, The SDK may sometimes return a `Metadata` instead of an `Nft` object. The `Metadata` model contains the same data as the `Nft` model but it excludes the following properties: `json`, `mint` and `edition`. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
+Additionally, the SDK may sometimes return a `Metadata` instead of an `Nft` object. The `Metadata` model contains the same data as the `Nft` model but it excludes the following properties: `json`, `mint` and `edition`. This is because they are not always needed and/or can be expensive to load. Therefore, the SDK uses the following rule of thumb:
 - If you're only fetching one NFT — e.g. by using `findByMint` — then you will receive an `Nft` object containing these properties.
 - If you're fetching multiple NFTs — e.g. by using `findAllByMintLint` — then you will receive an array of `Metadata` that do not contain these properties.
 
