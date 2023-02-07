@@ -6,6 +6,17 @@ import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 import { assert } from '@/utils';
 import type { Pda } from '@/types';
 
+// Not a model since this is over-the-wire information, not on-chain properties
+type CompressionMetadata = {
+  compressed: boolean;
+  data_hash: string;
+  creator_hash: string;
+  asset_hash: string;
+  tree: string;
+  seq: number;
+  leaf_id: number;
+};
+
 /**
  * This model captures all the relevant information about an NFT
  * in the Solana blockchain. That includes the NFT's metadata account,
@@ -31,6 +42,8 @@ export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
    * printed edition and provides additional information accordingly.
    */
   readonly edition: NftEdition;
+} & {
+  compression?: CompressionMetadata;
 };
 
 /** @group Model Helpers */

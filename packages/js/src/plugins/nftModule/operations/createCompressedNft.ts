@@ -1,17 +1,21 @@
-import { TokenStandard, Uses } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  TokenStandard,
+  Uses,
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   TokenProgramVersion,
   createMintToCollectionV1Instruction,
+  getLeafAssetId,
   PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-bubblegum';
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
-  // getConcurrentMerkleTreeAccountSize,
   SPL_NOOP_PROGRAM_ID,
-  // ConcurrentMerkleTreeAccount,
+  changeLogEventV1Beet,
 } from '@solana/spl-account-compression';
-import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNft, Nft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -180,14 +184,6 @@ export type CreateCompressedNftInput = {
    * @defaultValue `false`
    */
   collectionAuthorityIsDelegated?: boolean;
-
-  /**
-   * Whether or not the provided `collection` is a sized collection
-   * and not a legacy collection.
-   *
-   * @defaultValue `true`
-   */
-  collectionIsSized?: boolean;
 };
 
 /**
@@ -230,10 +226,34 @@ export const createCompressedNftOperationHandler: OperationHandler<CreateCompres
       const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
-      // TODO(jon): Expand this
-      const nft = await metaplex.nfts().findByMint(
+      const {
+        response: { signature },
+      } = output;
+      const txInfo = await metaplex.connection.getTransaction(signature, {
+        maxSupportedTransactionVersion: 0,
+      });
+      const relevantIx = txInfo!.transaction.message.compiledInstructions.find(
+        (instruction) => {
+          return (
+            txInfo!.transaction.message.staticAccountKeys[
+              instruction.programIdIndex
+            ].toBase58() === 'noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV'
+          );
+        }
+      );
+
+      const [changeLog] = changeLogEventV1Beet.deserialize(
+        Buffer.from(relevantIx!.data)
+      );
+
+      const assetId = await getLeafAssetId(
+        operation.input.tree,
+        new BN(changeLog.index)
+      );
+
+      const nft = await metaplex.nfts().findByAssetId(
         {
-          mintAddress: output.mintAddress,
+          assetId,
         },
         scope
       );
@@ -357,12 +377,6 @@ export const createCompressedNftBuilder = async (
   return (
     TransactionBuilder.make<CreateCompressedNftBuilderContext>()
       .setFeePayer(payer)
-
-      // .setContext({
-      //   mintAddress,
-      //   metadataAddress: metadataPda,
-      //   tokenAddress,
-      // })
 
       // Verify additional creators.
       // TODO(jon): Add the creator verification instructions

@@ -20,6 +20,7 @@ import {
   FailedToSendTransactionError,
   MetaplexError,
   ParsedProgramError,
+  RpcError,
   UnknownProgramError,
 } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
@@ -35,6 +36,11 @@ import {
   UnparsedMaybeAccount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
+import {
+  GetAssetProofRpcResponse,
+  GetAssetRpcResponse,
+  ReadApiConnection,
+} from '@/utils/readApiConnection';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {
@@ -316,6 +322,30 @@ export class RpcClient {
       exists: true,
       lamports: lamports(accountInfo.lamports),
     };
+  }
+
+  async getAsset(
+    assetId: PublicKey
+  ): Promise<GetAssetRpcResponse | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAsset(assetId);
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
+  }
+
+  async getAssetProof(
+    assetId: PublicKey
+  ): Promise<GetAssetProofRpcResponse | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAssetProof(assetId);
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
   }
 
   protected parseProgramError(
