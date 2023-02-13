@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.18.1
+
+### Patch Changes
+
+- 1f37d052: correctly split instructions in transaction builder
+
 ## 0.18.0
 
 ### Minor Changes
