@@ -87,7 +87,7 @@ export class TransactionBuilder<C extends object = object> {
     if (keyPosition > -1) {
       keyPosition += include ? 1 : 0;
       firstBuilder.add(...this.records.slice(0, keyPosition));
-      firstBuilder.add(...this.records.slice(keyPosition));
+      secondBuilder.add(...this.records.slice(keyPosition));
     } else {
       firstBuilder.add(this);
     }
