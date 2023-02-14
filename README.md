@@ -47,16 +47,22 @@ Note while most testing networks include a version of the Metaplex on-chain prog
 To download Metaplex to use locally, run:
 
 ```
+wget -O mpl_token_metadata.so https://raw.githubusercontent.com/metaplex-foundation/js/main/programs/mpl_token_metadata.so
+```
+
+This fetches the exact version used to test metaplex, otherwise you can get the very latest version off the chain using:
+
+```
 # Token Metadata program
 export METAPLEX_PROGRAM_ADDRESS="metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-solana program dump -u m ${METAPLEX_PROGRAM_ADDRESS} metaplex_token_metadata_program.so
+solana program dump -u m ${METAPLEX_PROGRAM_ADDRESS} mpl_token_metadata.so
 ```
 
 Then, to start the validator using Metaplex, run:
 
 ```
 solana-test-validator \
-  --bpf-program ${METAPLEX_TOKEN_METADATA_PROGRAM_ADDRESS} metaplex_token_metadata_program.so \
+  --bpf-program ${METAPLEX_TOKEN_METADATA_PROGRAM_ADDRESS} mpl_token_metadata.so \
   --reset
 ```
 
