@@ -40,6 +40,26 @@ const metaplex = Metaplex.make(connection)
 
 Notice how you can create a `Metaplex` instance using `Metaplex.make(...)` instead of `new Metaplex(...)` in order to make the fluent API more readable.
 
+## Note on using Metaplex with your local validator
+
+Note while most testing networks include a version of the Metaplex on-chain program (which this SDK interacts with) your localhost Solana validator probably doesn't. 
+
+To download Metaplex to use locally, run:
+
+```
+# Token Metadata program
+export METAPLEX_PROGRAM_ADDRESS="metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+solana program dump -u m ${METAPLEX_PROGRAM_ADDRESS} metaplex_token_metadata_program.so
+```
+
+Then, to start the validator using Metaplex, run:
+
+```
+solana-test-validator \
+  --bpf-program ${METAPLEX_TOKEN_METADATA_PROGRAM_ADDRESS} metaplex_token_metadata_program.so \
+  --reset
+```
+
 ## Usage
 Once properly configured, that `Metaplex` instance can be used to access modules providing different sets of features. Currently, there is only one documented NFT module that can be accessed via the `nfts()` method. From that module, you will be able to find, create and update NFTs with more features to come.
 
