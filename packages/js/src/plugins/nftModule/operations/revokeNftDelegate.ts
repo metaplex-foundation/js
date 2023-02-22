@@ -2,6 +2,9 @@ import {
   createRevokeInstruction,
   RevokeArgs,
 } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  PROGRAM_ID as TOKEN_AUTH_RULES_ID,
+} from '@metaplex-foundation/mpl-token-auth-rules';
 import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -249,7 +252,7 @@ export const revokeNftDelegateBuilder = (
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             authorizationRules: auth.accounts.authorizationRules,
-            // authorizationRulesProgram,
+            authorizationRulesProgram: TOKEN_AUTH_RULES_ID,
           },
           {
             revokeArgs: RevokeArgs[params.delegate.type],
