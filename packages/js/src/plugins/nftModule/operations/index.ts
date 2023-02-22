@@ -4,6 +4,7 @@ export * from './approveNftUseAuthority';
 export * from './createNft';
 export * from './createSft';
 export * from './deleteNft';
+export * from './findNftByAssetId';
 export * from './findNftByMetadata';
 export * from './findNftByMint';
 export * from './findNftByToken';

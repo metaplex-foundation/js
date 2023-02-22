@@ -5,6 +5,7 @@ export * from './GmaBuilder';
 export * from './GpaBuilder';
 export * from './log';
 export * from './merkle';
+export * from './readApiConnection';
 export * from './Task';
 export * from './TransactionBuilder';
 export * from './types';

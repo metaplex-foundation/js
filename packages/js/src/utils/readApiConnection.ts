@@ -10,8 +10,9 @@ import {
   PublicKey,
 } from '@solana/web3.js';
 import BN from 'bn.js';
-import type { Metadata, Mint, NftOriginalEdition } from '..';
-import { amount, Pda, SplTokenCurrency, toBigNumber } from '@/types';
+import type { Metadata, Mint, NftOriginalEdition } from '@/plugins';
+import type { SplTokenCurrency } from '@/types';
+import { Pda, amount, toBigNumber } from '@/types';
 
 type JsonRpcParams<ReadApiMethodParams> = {
   method: string;
@@ -101,7 +102,9 @@ export const toMintFromReadApiAsset = (input: GetAssetRpcResponse): Mint => {
 export const toMetadataFromReadApiAsset = (
   input: GetAssetRpcResponse
 ): Metadata => {
-  const updateAuthority = input.authorities.find((authority) =>
+  console.info({ input });
+
+  const updateAuthority = input.authorities?.find((authority) =>
     authority.scopes.includes('full')
   );
 
@@ -158,13 +161,15 @@ export class ReadApiConnection extends Connection {
   private callReadApi = async <ReadApiMethodParams, ReadApiJsonOutput>(
     jsonRpcParams: JsonRpcParams<ReadApiMethodParams>
   ): Promise<JsonRpcOutput<ReadApiJsonOutput>> => {
-    // Array-ify the params
     const response = await fetch(this.rpcEndpoint, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         jsonrpc: '2.0',
         method: jsonRpcParams.method,
-        id: jsonRpcParams.id,
+        id: jsonRpcParams.id ?? 'rpd-op-123',
         params: jsonRpcParams.params,
       }),
     });
@@ -179,7 +184,7 @@ export class ReadApiConnection extends Connection {
       GetAssetRpcInput,
       GetAssetRpcResponse
     >({
-      method: 'get_asset',
+      method: 'getAsset',
       params: {
         id: assetId.toBase58(),
       },
@@ -196,7 +201,7 @@ export class ReadApiConnection extends Connection {
       GetAssetProofRpcInput,
       GetAssetProofRpcResponse
     >({
-      method: 'get_asset_proof',
+      method: 'getAssetProof',
       params: {
         id: assetId.toBase58(),
       },

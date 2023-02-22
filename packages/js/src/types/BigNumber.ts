@@ -1,6 +1,7 @@
 import type { Buffer } from 'buffer';
 import BN from 'bn.js';
-import { assert, Opaque, Option } from '@/utils';
+import { default as assert } from '@/utils/assert';
+import type { Opaque, Option } from '@/utils';
 
 export type BigNumber = Opaque<BN, 'BigNumber'>;
 export type BigNumberValues =
