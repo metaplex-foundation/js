@@ -160,7 +160,7 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /CandyMachineIsFullError/);
+  await assertThrows(t, promise, /CandyMachineCannotAddAmountError/);
 });
 
 test('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
