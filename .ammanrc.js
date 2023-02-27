@@ -42,6 +42,11 @@ const programs = [
     programId: 'gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs',
     deployPath: localDeployPath('solana_gateway_program'),
   },
+  {
+    label: 'Token Auth Rules',
+    programId: 'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg',
+    deployPath: localDeployPath('mpl_token_auth_rules'),
+  },
 ];
 
 module.exports = {

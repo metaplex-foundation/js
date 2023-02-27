@@ -1,4 +1,5 @@
 import {
+  ProgrammableConfig,
   TokenStandard,
   UseMethod,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -135,6 +136,9 @@ export type Metadata<Json extends object = JsonMetadata> = {
     /** The total amount of uses that was initially allowed. */
     total: BigNumber;
   }>;
+
+  /** Programmable configuration for the asset. */
+  readonly programmableConfig: Option<ProgrammableConfig>;
 };
 
 /** @group Model Helpers */
@@ -189,4 +193,17 @@ export const toMetadata = (
         total: toBigNumber(account.data.uses.total),
       }
     : null,
+  programmableConfig: account.data.programmableConfig,
 });
+
+export const isNonFungible = (nftOrSft: {
+  tokenStandard: Option<TokenStandard>;
+}): boolean =>
+  nftOrSft.tokenStandard === null ||
+  nftOrSft.tokenStandard === TokenStandard.NonFungible ||
+  nftOrSft.tokenStandard === TokenStandard.NonFungibleEdition ||
+  nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;
+
+export const isProgrammable = (nftOrSft: {
+  tokenStandard: Option<TokenStandard>;
+}): boolean => nftOrSft.tokenStandard === TokenStandard.ProgrammableNonFungible;

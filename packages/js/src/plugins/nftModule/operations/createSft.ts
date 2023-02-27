@@ -1,12 +1,19 @@
 import {
-  createCreateMetadataAccountV3Instruction,
+  createCreateInstruction,
+  PrintSupply,
+  TokenStandard,
   Uses,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import {
+  Keypair,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+} from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import { assertSft, Sft, SftWithToken } from '../models';
+import { assertSft, isNonFungible, Sft, SftWithToken } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  BigNumber,
   Creator,
   CreatorInput,
   isSigner,
@@ -81,14 +88,6 @@ export type CreateSftInput = {
   mintAuthority?: Signer;
 
   /**
-   * The authority allowed to freeze token account associated with the
-   * mint account that is either explicitly provided or about to be created.
-   *
-   * @defaultValue `metaplex.identity().publicKey`
-   */
-  freezeAuthority?: Option<PublicKey>;
-
-  /**
    * The address of the new mint account as a Signer.
    * This is useful if you already have a generated Keypair
    * for the mint account of the SFT to create.
@@ -158,6 +157,19 @@ export type CreateSftInput = {
    */
   decimals?: number;
 
+  /**
+   * Describes the asset class of the token.
+   * It can be one of the following:
+   * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
+   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+   * - `TokenStandard.Fungible`: A fungible token with simple metadata.
+   * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
+   * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
+   *
+   * @defaultValue `TokenStandard.FungibleAsset`
+   */
+  tokenStandard?: TokenStandard;
+
   /** The URI that points to the JSON metadata of the asset. */
   uri: string;
 
@@ -200,6 +212,24 @@ export type CreateSftInput = {
    * @defaultValue `true`
    */
   isMutable?: boolean;
+
+  /**
+   * The maximum supply of printed editions for NFTs.
+   * When this is `null`, an unlimited amount of editions
+   * can be printed from the original edition.
+   *
+   * @defaultValue `toBigNumber(0)`
+   */
+  maxSupply?: Option<BigNumber>;
+
+  /**
+   * Whether or not selling this asset is considered a primary sale.
+   * Once flipped from `false` to `true`, this field is immutable and
+   * all subsequent sales of this asset will be considered secondary.
+   *
+   * @defaultValue `false`
+   */
+  primarySaleHappened?: boolean;
 
   /**
    * When this field is not `null`, it indicates that the SFT
@@ -251,6 +281,17 @@ export type CreateSftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
+
+  /**
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue `null`
+   */
+  ruleSet?: Option<PublicKey>;
 };
 
 /**
@@ -362,9 +403,6 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   /** A key to distinguish the instruction that initializes the mint account. */
   initializeMintInstructionKey?: string;
 
-  /** A key to distinguish the instruction that creates the associated token account. */
-  createAssociatedTokenAccountInstructionKey?: string;
-
   /** A key to distinguish the instruction that creates the token account. */
   createTokenAccountInstructionKey?: string;
 
@@ -375,7 +413,7 @@ export type CreateSftBuilderParams = Omit<CreateSftInput, 'confirmOptions'> & {
   mintTokensInstructionKey?: string;
 
   /** A key to distinguish the instruction that creates the metadata account. */
-  createMetadataInstructionKey?: string;
+  createInstructionKey?: string;
 };
 
 /**
@@ -411,18 +449,29 @@ export const createSftBuilder = async (
     useNewMint = Keypair.generate(),
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
+    tokenStandard = params.tokenStandard ?? TokenStandard.FungibleAsset,
   } = params;
 
-  const mintAndTokenBuilder = await createMintAndTokenForSftBuilder(
-    metaplex,
-    params,
-    { programs, payer },
-    useNewMint
-  );
-  const { mintAddress, tokenAddress } = mintAndTokenBuilder.getContext();
+  const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
+  const associatedTokenAddress = params.tokenOwner
+    ? metaplex.tokens().pdas().associatedTokenAccount({
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        programs,
+      })
+    : null;
+  const tokenAddress = params.tokenAddress
+    ? toPublicKey(params.tokenAddress)
+    : associatedTokenAddress;
 
+  const systemProgram = metaplex.programs().getSystem(programs);
+  const tokenProgram = metaplex.programs().getToken(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
   const metadataPda = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const masterEditionPda = metaplex.nfts().pdas().masterEdition({
     mint: mintAddress,
     programs,
   });
@@ -441,39 +490,110 @@ export const createSftBuilder = async (
         }))
       : null;
 
-  const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
+  let printSupply: Option<PrintSupply> = null;
+  if (isNonFungible({ tokenStandard })) {
+    if (params.maxSupply === undefined) {
+      printSupply = { __kind: 'Zero' };
+    } else if (params.maxSupply === null) {
+      printSupply = { __kind: 'Unlimited' };
+    } else {
+      printSupply = { __kind: 'Limited', fields: [params.maxSupply] };
+    }
+  }
+
+  const createInstruction = createCreateInstruction(
     {
       metadata: metadataPda,
+      masterEdition: isNonFungible({ tokenStandard })
+        ? masterEditionPda
+        : undefined,
       mint: mintAddress,
-      mintAuthority: mintAuthority.publicKey,
+      authority: mintAuthority.publicKey,
       payer: payer.publicKey,
       updateAuthority: updateAuthority.publicKey,
+      systemProgram: systemProgram.address,
+      sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+      splTokenProgram: tokenProgram.address,
     },
     {
-      createMetadataAccountArgsV3: {
-        data: {
+      createArgs: {
+        __kind: 'V1' as const,
+        assetData: {
           name: params.name,
           symbol: params.symbol ?? '',
           uri: params.uri,
           sellerFeeBasisPoints: params.sellerFeeBasisPoints,
           creators,
+          primarySaleHappened: params.primarySaleHappened ?? false,
+          isMutable: params.isMutable ?? true,
+          tokenStandard,
           collection: params.collection
             ? { key: params.collection, verified: false }
             : null,
           uses: params.uses ?? null,
+          collectionDetails: params.isCollection
+            ? { __kind: 'V1' as const, size: 0 } // Size ignored by program.
+            : null,
+          ruleSet: params.ruleSet ?? null,
         },
-        isMutable: params.isMutable ?? true,
-        collectionDetails: params.isCollection
-          ? { __kind: 'V1', size: 0 } // Program will hardcode size to zero anyway.
-          : null,
+        decimals: params.decimals ?? 0,
+        printSupply,
       },
     },
     tokenMetadataProgram.address
   );
 
+  const createSigners = [payer, mintAuthority, updateAuthority];
+  if (!params.useExistingMint) {
+    createSigners.push(useNewMint);
+    createInstruction.keys[2].isSigner = true;
+  }
+
   // When the payer is different than the update authority, the latter will
   // not be marked as a signer and therefore signing as a creator will fail.
-  createMetadataInstruction.keys[4].isSigner = true;
+  createInstruction.keys[5].isSigner = true;
+
+  let createNonAtaInstruction: TransactionBuilder | null = null;
+  // Create the token account if it doesn't exist.
+  if (
+    !params.tokenExists &&
+    !!params.tokenAddress &&
+    isSigner(params.tokenAddress)
+  ) {
+    createNonAtaInstruction = await metaplex.tokens().builders().createToken(
+      {
+        mint: mintAddress,
+        owner: params.tokenOwner,
+        token: params.tokenAddress,
+        createAccountInstructionKey: params.createTokenAccountInstructionKey,
+        initializeTokenInstructionKey: params.initializeTokenInstructionKey,
+      },
+      { programs, payer }
+    );
+  }
+
+  // Mint provided amount to the token account.
+  let mintInstruction: TransactionBuilder | null = null;
+  if (tokenAddress && params.tokenAmount) {
+    mintInstruction = metaplex
+      .nfts()
+      .builders()
+      .mint(
+        {
+          nftOrSft: {
+            address: mintAddress,
+            tokenStandard,
+          },
+          authority: isNonFungible({ tokenStandard })
+            ? updateAuthority
+            : mintAuthority,
+          toOwner: params.tokenOwner,
+          toToken: tokenAddress,
+          amount: params.tokenAmount,
+        },
+        { programs, payer }
+      );
+  }
 
   const verifyAdditionalCreatorInstructions = creatorsInput
     .filter((creator) => {
@@ -502,14 +622,20 @@ export const createSftBuilder = async (
       })
 
       // Create the mint and token accounts before minting 1 token to the owner.
-      .add(mintAndTokenBuilder)
+      // .add(mintAndTokenBuilder)
 
-      // Create metadata account.
+      // Create metadata/edition accounts.
       .add({
-        instruction: createMetadataInstruction,
-        signers: [payer, mintAuthority, updateAuthority],
-        key: params.createMetadataInstructionKey ?? 'createMetadata',
+        instruction: createInstruction,
+        signers: createSigners,
+        key: params.createInstructionKey ?? 'createMetadata',
       })
+
+      // Create the non-associated token account if needed.
+      .add(...(createNonAtaInstruction ? [createNonAtaInstruction] : []))
+
+      // Mint provided amount to the token account, if any.
+      .add(...(mintInstruction ? [mintInstruction] : []))
 
       // Verify additional creators.
       .add(...verifyAdditionalCreatorInstructions)
@@ -533,105 +659,4 @@ export const createSftBuilder = async (
         )
       )
   );
-};
-
-const createMintAndTokenForSftBuilder = async (
-  metaplex: Metaplex,
-  params: CreateSftBuilderParams,
-  options: TransactionBuilderOptions,
-  useNewMint: Signer
-): Promise<
-  TransactionBuilder<{ mintAddress: PublicKey; tokenAddress: PublicKey | null }>
-> => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const {
-    mintAuthority = metaplex.identity(),
-    freezeAuthority = metaplex.identity().publicKey,
-    tokenExists = false,
-  } = params;
-
-  const mintAddress = params.useExistingMint ?? useNewMint.publicKey;
-  const associatedTokenAddress = params.tokenOwner
-    ? metaplex.tokens().pdas().associatedTokenAccount({
-        mint: mintAddress,
-        owner: params.tokenOwner,
-        programs,
-      })
-    : null;
-  const tokenAddress = params.tokenAddress
-    ? toPublicKey(params.tokenAddress)
-    : associatedTokenAddress;
-
-  const builder = TransactionBuilder.make<{
-    mintAddress: PublicKey;
-    tokenAddress: PublicKey | null;
-  }>()
-    .setFeePayer(payer)
-    .setContext({
-      mintAddress,
-      tokenAddress,
-    });
-
-  // Create the mint account if it doesn't exist.
-  if (!params.useExistingMint) {
-    builder.add(
-      await metaplex
-        .tokens()
-        .builders()
-        .createMint(
-          {
-            decimals: params.decimals ?? 0,
-            mint: useNewMint,
-            mintAuthority: mintAuthority.publicKey,
-            freezeAuthority,
-            createAccountInstructionKey: params.createMintAccountInstructionKey,
-            initializeMintInstructionKey: params.initializeMintInstructionKey,
-          },
-          { programs, payer }
-        )
-    );
-  }
-
-  // Create the token account if it doesn't exist.
-  const isNewToken = !!params.tokenAddress && isSigner(params.tokenAddress);
-  const isNewAssociatedToken = !!params.tokenOwner;
-  if (!tokenExists && (isNewToken || isNewAssociatedToken)) {
-    builder.add(
-      await metaplex
-        .tokens()
-        .builders()
-        .createToken(
-          {
-            mint: mintAddress,
-            owner: params.tokenOwner,
-            token: params.tokenAddress as Signer | undefined,
-            createAssociatedTokenAccountInstructionKey:
-              params.createAssociatedTokenAccountInstructionKey,
-            createAccountInstructionKey:
-              params.createTokenAccountInstructionKey,
-            initializeTokenInstructionKey: params.initializeTokenInstructionKey,
-          },
-          { programs, payer }
-        )
-    );
-  }
-
-  // Mint provided amount to the token account.
-  if (tokenAddress && params.tokenAmount) {
-    builder.add(
-      await metaplex.tokens().builders().mint(
-        {
-          mintAddress,
-          toToken: tokenAddress,
-          toTokenExists: true,
-          amount: params.tokenAmount,
-          mintAuthority,
-          mintTokensInstructionKey: params.mintTokensInstructionKey,
-        },
-        { programs, payer }
-      )
-    );
-  }
-
-  return builder;
 };

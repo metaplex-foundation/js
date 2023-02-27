@@ -1,12 +1,15 @@
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
+import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import {
+  assertThrows,
   createCollectionNft,
   createNft,
   createSft,
   killStuckProcess,
   metaplex,
+  spokSameBignum,
   spokSamePubkey,
 } from '../../helpers';
 import {
@@ -442,4 +445,120 @@ test('[nftModule] it does not try to remove a collection when the collection par
       verified: true,
     },
   } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing PNFT with no rulesets.
+  const nft = await createNft(mx, {
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    ruleSet: null,
+  });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: {
+      __kind: 'V1',
+      ruleSet: null,
+    },
+  } as unknown as Specifications<Nft>);
+
+  // When we update it with a new ruleset.
+  const ruleSet = Keypair.generate();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    ruleSet: ruleSet.publicKey,
+  });
+
+  // Then the updated NFT has a new programmable configs containing that ruleset.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    programmableConfig: {
+      __kind: 'V1',
+      ruleSet: spokSamePubkey(ruleSet.publicKey),
+    },
+  } as unknown as Specifications<Nft>);
+});
+
+// TODO: Unskip when we can create real rulesets on the SDK.
+test.skip('[nftModule] it can update the ruleset of a programmable NFT', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing PNFT with a ruleset A.
+  const ruleSetA = Keypair.generate();
+  const nft = await createNft(mx, {
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    ruleSet: ruleSetA.publicKey,
+  });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    programmableConfig: {
+      __kind: 'V1',
+      ruleSet: spokSamePubkey(ruleSetA.publicKey),
+    },
+  } as unknown as Specifications<Nft>);
+
+  // When we update it with a new ruleset B.
+  const ruleSetB = Keypair.generate();
+  await mx.nfts().update({
+    nftOrSft: nft,
+    authorizationDetails: { rules: ruleSetA.publicKey },
+    ruleSet: ruleSetB.publicKey,
+  });
+
+  // Then the updated NFT contains ruleset B.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    programmableConfig: {
+      __kind: 'V1',
+      ruleSet: spokSamePubkey(ruleSetB.publicKey),
+    },
+  } as unknown as Specifications<Nft>);
+});
+
+test('[nftModule] it can set the collection details of a regular NFT once', async (t: Test) => {
+  // Given a Metaplex instance.
+  const mx = await metaplex();
+
+  // And an existing NFT with no collection details.
+  const nft = await createNft(mx, { collectionIsSized: false });
+  spok(t, nft, {
+    $topic: 'Original NFT',
+    model: 'nft',
+    tokenStandard: TokenStandard.NonFungible,
+    collectionDetails: null,
+  } as unknown as Specifications<Nft>);
+
+  // When we update it with a collection details of 42 items.
+  await mx.nfts().update({
+    nftOrSft: nft,
+    collectionDetails: { __kind: 'V1', size: 42 },
+  });
+
+  // Then the updated NFT is now a sized collection of 42 items.
+  const updatedNft = await mx.nfts().refresh(nft);
+  spok(t, updatedNft, {
+    $topic: 'Updated NFT',
+    model: 'nft',
+    collectionDetails: { version: 'V1', size: spokSameBignum(42) },
+  } as unknown as Specifications<Nft>);
+
+  // And when we try to update it again.
+  const promise = mx.nfts().update({
+    nftOrSft: nft,
+    collectionDetails: { __kind: 'V1', size: 43 },
+  });
+
+  // Then we expect an error.
+  await assertThrows(t, promise, /SizedCollection/);
 });

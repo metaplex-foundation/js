@@ -1,7 +1,4 @@
-import {
-  createCreateMasterEditionV3Instruction,
-  Uses,
-} from '@metaplex-foundation/mpl-token-metadata';
+import { TokenStandard, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
@@ -103,6 +100,13 @@ export type CreateNftInput = {
   useExistingMint?: PublicKey;
 
   /**
+   * Whether or not we should mint one token for the new NFT.
+   *
+   * @defaultValue `true`
+   */
+  mintTokens?: boolean;
+
+  /**
    * The owner of the NFT to create.
    *
    * @defaultValue `metaplex.identity().publicKey`
@@ -120,6 +124,19 @@ export type CreateNftInput = {
    * using the `mintAddress` and `tokenOwner` parameters.
    */
   tokenAddress?: PublicKey | Signer;
+
+  /**
+   * Describes the asset class of the token.
+   * It can be one of the following:
+   * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
+   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+   * - `TokenStandard.Fungible`: A fungible token with simple metadata.
+   * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
+   * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
+   *
+   * @defaultValue `TokenStandard.NonFungible`
+   */
+  tokenStandard?: TokenStandard;
 
   /** The URI that points to the JSON metadata of the asset. */
   uri: string;
@@ -163,6 +180,15 @@ export type CreateNftInput = {
    * @defaultValue `true`
    */
   isMutable?: boolean;
+
+  /**
+   * Whether or not selling this asset is considered a primary sale.
+   * Once flipped from `false` to `true`, this field is immutable and
+   * all subsequent sales of this asset will be considered secondary.
+   *
+   * @defaultValue `false`
+   */
+  primarySaleHappened?: boolean;
 
   /**
    * The maximum supply of printed editions.
@@ -223,6 +249,17 @@ export type CreateNftInput = {
    * @defaultValue `true`
    */
   collectionIsSized?: boolean;
+
+  /**
+   * The ruleset account that should be used to configure the
+   * programmable NFT.
+   *
+   * This is only relevant for programmable NFTs, i.e. if the
+   * `tokenStandard` is set to `TokenStandard.ProgrammableNonFungible`.
+   *
+   * @defaultValue `null`
+   */
+  ruleSet?: Option<PublicKey>;
 };
 
 /**
@@ -386,9 +423,8 @@ export const createNftBuilder = async (
     updateAuthority = metaplex.identity(),
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
+    mintTokens = true,
   } = params;
-
-  const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   const sftBuilder = await metaplex
     .nfts()
@@ -396,12 +432,12 @@ export const createNftBuilder = async (
     .createSft(
       {
         ...params,
+        tokenStandard: params.tokenStandard ?? TokenStandard.NonFungible,
         updateAuthority,
         mintAuthority,
-        freezeAuthority: mintAuthority.publicKey,
         useNewMint,
         tokenOwner,
-        tokenAmount: token(1),
+        tokenAmount: mintTokens ? token(1) : undefined,
         decimals: 0,
       },
       { programs, payer }
@@ -426,27 +462,5 @@ export const createNftBuilder = async (
 
       // Create the mint, the token and the metadata.
       .add(sftBuilder)
-
-      // Create master edition account (prevents further minting).
-      .add({
-        instruction: createCreateMasterEditionV3Instruction(
-          {
-            edition: masterEditionAddress,
-            mint: mintAddress,
-            updateAuthority: updateAuthority.publicKey,
-            mintAuthority: mintAuthority.publicKey,
-            payer: payer.publicKey,
-            metadata: metadataAddress,
-          },
-          {
-            createMasterEditionArgs: {
-              maxSupply: params.maxSupply === undefined ? 0 : params.maxSupply,
-            },
-          },
-          tokenMetadataProgram.address
-        ),
-        signers: [payer, mintAuthority, updateAuthority],
-        key: params.createMasterEditionInstructionKey ?? 'createMasterEdition',
-      })
   );
 };

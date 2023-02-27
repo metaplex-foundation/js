@@ -4,6 +4,8 @@ import { NftClient } from './NftClient';
 import {
   approveNftCollectionAuthorityOperation,
   approveNftCollectionAuthorityOperationHandler,
+  approveNftDelegateOperation,
+  approveNftDelegateOperationHandler,
   approveNftUseAuthorityOperation,
   approveNftUseAuthorityOperationHandler,
   createNftOperation,
@@ -30,16 +32,26 @@ import {
   freezeDelegatedNftOperationHandler,
   loadMetadataOperation,
   loadMetadataOperationHandler,
+  lockNftOperation,
+  lockNftOperationHandler,
   migrateToSizedCollectionNftOperation,
   migrateToSizedCollectionNftOperationHandler,
+  mintNftOperation,
+  mintNftOperationHandler,
   printNewEditionOperation,
   printNewEditionOperationHandler,
   revokeNftCollectionAuthorityOperation,
   revokeNftCollectionAuthorityOperationHandler,
+  revokeNftDelegateOperation,
+  revokeNftDelegateOperationHandler,
   revokeNftUseAuthorityOperation,
   revokeNftUseAuthorityOperationHandler,
   thawDelegatedNftOperation,
   thawDelegatedNftOperationHandler,
+  transferNftOperation,
+  transferNftOperationHandler,
+  unlockNftOperation,
+  unlockNftOperationHandler,
   unverifyNftCollectionOperation,
   unverifyNftCollectionOperationHandler,
   unverifyNftCreatorOperation,
@@ -83,6 +95,10 @@ export const nftModule = (): MetaplexPlugin => ({
       approveNftCollectionAuthorityOperationHandler
     );
     op.register(
+      approveNftDelegateOperation,
+      approveNftDelegateOperationHandler
+    );
+    op.register(
       approveNftUseAuthorityOperation,
       approveNftUseAuthorityOperationHandler
     );
@@ -107,20 +123,25 @@ export const nftModule = (): MetaplexPlugin => ({
       freezeDelegatedNftOperationHandler
     );
     op.register(loadMetadataOperation, loadMetadataOperationHandler);
+    op.register(lockNftOperation, lockNftOperationHandler);
     op.register(
       migrateToSizedCollectionNftOperation,
       migrateToSizedCollectionNftOperationHandler
     );
+    op.register(mintNftOperation, mintNftOperationHandler);
     op.register(printNewEditionOperation, printNewEditionOperationHandler);
     op.register(
       revokeNftCollectionAuthorityOperation,
       revokeNftCollectionAuthorityOperationHandler
     );
+    op.register(revokeNftDelegateOperation, revokeNftDelegateOperationHandler);
     op.register(
       revokeNftUseAuthorityOperation,
       revokeNftUseAuthorityOperationHandler
     );
     op.register(thawDelegatedNftOperation, thawDelegatedNftOperationHandler);
+    op.register(transferNftOperation, transferNftOperationHandler);
+    op.register(unlockNftOperation, unlockNftOperationHandler);
     op.register(
       unverifyNftCollectionOperation,
       unverifyNftCollectionOperationHandler

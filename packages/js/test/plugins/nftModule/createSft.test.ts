@@ -1,4 +1,7 @@
-import { UseMethod } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  TokenStandard,
+  UseMethod,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair } from '@solana/web3.js';
 import spok, { Specifications } from 'spok';
 import test, { Test } from 'tape';
@@ -84,9 +87,9 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   const collection = Keypair.generate();
   const owner = Keypair.generate();
   const mintAuthority = Keypair.generate();
-  const freezeAuthority = Keypair.generate();
   const updateAuthority = Keypair.generate();
   const otherCreator = Keypair.generate();
+  const ruleSet = Keypair.generate();
 
   // When we create a new SFT with maximum configuration.
   const { sft } = await mx.nfts().createSft(
@@ -102,7 +105,6 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       tokenAmount: token(4200),
       mintAuthority,
       updateAuthority,
-      freezeAuthority: freezeAuthority.publicKey,
       collection: collection.publicKey,
       uses: {
         useMethod: UseMethod.Burn,
@@ -119,6 +121,8 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
           share: 40,
         },
       ],
+      // RuleSet acounts will be ignored for FungibleAssets.
+      ruleSet: ruleSet.publicKey,
     },
     { payer }
   );
@@ -127,6 +131,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
   spok(t, sft, {
     $topic: 'SFT With Token',
     model: 'sft',
+    tokenStandard: TokenStandard.FungibleAsset,
     uri: 'https://example.com/some-json-uri',
     name: 'On-chain SFT name',
     symbol: 'MYSFT',
@@ -141,7 +146,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       decimals: 2,
       supply: spokSameAmount(token(42, 2, 'MYSFT')),
       mintAuthorityAddress: spokSamePubkey(mintAuthority.publicKey),
-      freezeAuthorityAddress: spokSamePubkey(freezeAuthority.publicKey),
+      freezeAuthorityAddress: spokSamePubkey(mintAuthority.publicKey),
     },
     token: {
       model: 'token',
@@ -162,6 +167,7 @@ test('[nftModule] it can create an SFT with maximum configuration', async (t: Te
       remaining: spokSameBignum(0),
       total: spokSameBignum(1000),
     },
+    programmableConfig: null,
     creators: [
       {
         address: spokSamePubkey(updateAuthority.publicKey),

@@ -29,7 +29,7 @@
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write packages/",
     "docs": "typedoc",
-    "docs:deploy": "pnpm docs && gh-pages --dist docs --dotfiles",
+    "docs:deploy": "pnpm run docs && gh-pages --dist docs --dotfiles",
     "amman:start": "DEBUG='amman:(info|error|debug)' CI=1 amman start",
     "amman:stop": "amman stop",
     "packages:new": "node infra/generate-new-package.mjs",

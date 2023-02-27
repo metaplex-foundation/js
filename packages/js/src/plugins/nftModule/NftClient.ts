@@ -1,6 +1,5 @@
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey } from '@solana/web3.js';
-import { SendTokensInput } from '../tokenModule';
 import { toMintAddress } from './helpers';
 import { Nft, NftWithToken, Sft, SftWithToken } from './models';
 import { NftBuildersClient } from './NftBuildersClient';
@@ -8,6 +7,8 @@ import { NftPdasClient } from './NftPdasClient';
 import {
   ApproveNftCollectionAuthorityInput,
   approveNftCollectionAuthorityOperation,
+  ApproveNftDelegateInput,
+  approveNftDelegateOperation,
   ApproveNftUseAuthorityInput,
   approveNftUseAuthorityOperation,
   CreateNftInput,
@@ -34,16 +35,26 @@ import {
   freezeDelegatedNftOperation,
   LoadMetadataInput,
   loadMetadataOperation,
+  LockNftInput,
+  lockNftOperation,
   MigrateToSizedCollectionNftInput,
   migrateToSizedCollectionNftOperation,
+  MintNftInput,
+  mintNftOperation,
   PrintNewEditionInput,
   printNewEditionOperation,
   RevokeNftCollectionAuthorityInput,
   revokeNftCollectionAuthorityOperation,
+  RevokeNftDelegateInput,
+  revokeNftDelegateOperation,
   RevokeNftUseAuthorityInput,
   revokeNftUseAuthorityOperation,
   ThawDelegatedNftInput,
   thawDelegatedNftOperation,
+  TransferNftInput,
+  transferNftOperation,
+  UnlockNftInput,
+  unlockNftOperation,
   UnverifyNftCollectionInput,
   unverifyNftCollectionOperation,
   UnverifyNftCreatorInput,
@@ -59,8 +70,7 @@ import {
   VerifyNftCreatorInput,
   verifyNftCreatorOperation,
 } from './operations';
-import { PartialKeys } from '@/utils';
-import { OperationOptions, token } from '@/types';
+import { OperationOptions } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
 /**
@@ -269,6 +279,24 @@ export class NftClient {
   }
 
   // -----------------
+  // Delegates
+  // -----------------
+
+  /** {@inheritDoc approveNftDelegateOperation} */
+  delegate(input: ApproveNftDelegateInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(approveNftDelegateOperation(input), options);
+  }
+
+  /** {@inheritDoc revokeNftDelegateOperation} */
+  revoke(input: RevokeNftDelegateInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(revokeNftDelegateOperation(input), options);
+  }
+
+  // -----------------
   // Use
   // -----------------
 
@@ -370,8 +398,36 @@ export class NftClient {
   }
 
   // -----------------
+  // Programmables
+  // -----------------
+
+  /** {@inheritDoc lockNftOperation} */
+  lock(input: LockNftInput, options?: OperationOptions) {
+    return this.metaplex.operations().execute(lockNftOperation(input), options);
+  }
+
+  /** {@inheritDoc unlockNftOperation} */
+  unlock(input: UnlockNftInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(unlockNftOperation(input), options);
+  }
+
+  // -----------------
   // Tokens
   // -----------------
+
+  /** {@inheritDoc mintNftOperation} */
+  mint(input: MintNftInput, options?: OperationOptions) {
+    return this.metaplex.operations().execute(mintNftOperation(input), options);
+  }
+
+  /** {@inheritDoc transferNftOperation} */
+  transfer(input: TransferNftInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(transferNftOperation(input), options);
+  }
 
   /** {@inheritDoc freezeDelegatedNftOperation} */
   freezeDelegatedNft(
@@ -388,14 +444,5 @@ export class NftClient {
     return this.metaplex
       .operations()
       .execute(thawDelegatedNftOperation(input), options);
-  }
-
-  /** {@inheritDoc sendTokensOperation} */
-  send(
-    input: PartialKeys<SendTokensInput, 'amount'>,
-    options?: OperationOptions
-  ) {
-    // TODO: update documentation.
-    return this.metaplex.tokens().send({ ...input, amount: token(1) }, options);
   }
 }
