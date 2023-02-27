@@ -2,7 +2,6 @@ import {
   createDelegateInstruction,
   DelegateArgs,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { PROGRAM_ID as TOKEN_AUTH_RULES_ID } from '@metaplex-foundation/mpl-token-auth-rules';
 import { SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
@@ -16,17 +15,22 @@ import {
   DelegateInputWithData,
   parseTokenMetadataDelegateInput,
 } from '../DelegateInput';
-import { isNonFungible, Sft } from '../models';
 import { getDefaultDelegateArgs } from '../DelegateType';
+import { isNonFungible, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
   OperationHandler,
   OperationScope,
+  PublicKey,
   Signer,
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
+
+const TOKEN_AUTH_RULES_ID = new PublicKey(
+  'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+);
 
 // -----------------
 // Operation

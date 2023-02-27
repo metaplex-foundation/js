@@ -16,6 +16,10 @@ import {
 } from '@/types';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 
+const TOKEN_AUTH_RULES_ID = new PublicKey(
+  'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+);
+
 // -----------------
 // Operation
 // -----------------
@@ -179,7 +183,7 @@ export const lockNftBuilder = (
             sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
             splTokenProgram: tokenProgram.address,
             authorizationRules: auth.accounts.authorizationRules,
-            // authorizationRulesProgram
+            authorizationRulesProgram: TOKEN_AUTH_RULES_ID,
           },
           { lockArgs: { __kind: 'V1', ...auth.data } },
           tokenMetadataProgram.address
