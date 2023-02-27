@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js-plugin-nft-storage",
-  "version": "0.18.1",
+  "version": "0.18.2",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
