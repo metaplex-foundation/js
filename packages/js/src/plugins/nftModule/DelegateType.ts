@@ -41,6 +41,7 @@ const metadataDelegateSeedMap: Record<MetadataDelegateRole, string> = {
   [MetadataDelegateRole.Collection]: 'collection_delegate',
   [MetadataDelegateRole.Use]: 'use_delegate',
   [MetadataDelegateRole.Update]: 'update_delegate',
+  [MetadataDelegateRole.ProgrammableConfig]: 'programmable_config_delegate',
 };
 
 const delegateCustomDataMap: Record<

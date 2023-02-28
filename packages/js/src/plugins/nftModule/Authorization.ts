@@ -122,7 +122,7 @@ export const parseTokenMetadataAuthorization = (
     auth.accounts.delegateRecord = delegateRecord;
     auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
-    auth.data.authorityType = AuthorityType.Delegate;
+    auth.data.authorityType = AuthorityType.MetadataDelegate;
   } else if (input.authority.__kind === 'tokenDelegate') {
     const { delegateRecord, approver, tokenAccount } =
       parseTokenMetadataDelegateInput(
@@ -136,7 +136,7 @@ export const parseTokenMetadataAuthorization = (
     auth.accounts.delegateRecord = delegateRecord;
     auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
-    auth.data.authorityType = AuthorityType.Delegate;
+    auth.data.authorityType = AuthorityType.TokenDelegate;
   } else if (input.authority.__kind === 'holder') {
     auth.accounts.authority = input.authority.owner.publicKey;
     auth.accounts.token = input.authority.token;
