@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.18.3
+
+### Patch Changes
+
+- b6d9571f: Update Token Metadata program
+
 ## 0.18.2
 
 ### Patch Changes
