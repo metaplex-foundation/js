@@ -1,5 +1,12 @@
 # @metaplex-foundation/js-plugin-nft-storage
 
+## 0.18.3
+
+### Patch Changes
+
+- Updated dependencies [b6d9571f]
+  - @metaplex-foundation/js@0.18.3
+
 ## 0.18.2
 
 ### Patch Changes
