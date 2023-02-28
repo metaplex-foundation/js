@@ -9,6 +9,7 @@ import { UnreachableCaseError } from '@/errors';
 export type TokenDelegateType =
   | 'StandardV1'
   | 'TransferV1'
+  | 'LockedTransferV1'
   | 'SaleV1'
   | 'UtilityV1'
   | 'StakingV1';
@@ -16,11 +17,13 @@ export type MetadataDelegateType =
   // | 'AuthorityV1'
   | 'CollectionV1'
   // | 'UseV1'
-  | 'UpdateV1';
+  | 'UpdateV1'
+  | 'ProgrammableConfigV1';
 
 const tokenDelegateRoleMap: Record<TokenDelegateType, TokenDelegateRole> = {
   StandardV1: TokenDelegateRole.Standard,
   TransferV1: TokenDelegateRole.Transfer,
+  LockedTransferV1: TokenDelegateRole.LockedTransfer,
   SaleV1: TokenDelegateRole.Sale,
   UtilityV1: TokenDelegateRole.Utility,
   StakingV1: TokenDelegateRole.Staking,
@@ -34,6 +37,7 @@ const metadataDelegateRoleMap: Record<
   CollectionV1: MetadataDelegateRole.Collection,
   // UseV1: MetadataDelegateRole.Use,
   UpdateV1: MetadataDelegateRole.Update,
+  ProgrammableConfigV1: MetadataDelegateRole.ProgrammableConfig,
 };
 
 const metadataDelegateSeedMap: Record<MetadataDelegateRole, string> = {
@@ -53,12 +57,14 @@ const delegateCustomDataMap: Record<
   CollectionV1: false,
   // UseV1: false,
   UpdateV1: false,
+  ProgrammableConfigV1: false,
   // Token
   StandardV1: true,
   TransferV1: true,
   SaleV1: true,
   UtilityV1: true,
   StakingV1: true,
+  LockedTransferV1: true,
 };
 
 export const getTokenDelegateRole = (

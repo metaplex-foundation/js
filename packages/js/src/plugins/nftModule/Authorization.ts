@@ -31,6 +31,7 @@ export type TokenMetadataAuthority =
 export type TokenMetadataAuthorityMetadata = {
   __kind: 'metadata';
   updateAuthority: Signer;
+  token?: PublicKey;
 };
 
 /** An approved delegate authority of the metadata account for a given action. */
@@ -79,7 +80,7 @@ export type ParsedTokenMetadataAuthorization = {
     approver?: PublicKey;
     /**
      * If "delegate" authority, the address of the token record
-     * or the metdata delegate record PDA depending on the type.
+     * or the metadata delegate record PDA depending on the type.
      */
     delegateRecord?: PublicKey;
     /** If any auth rules are provided, the address of the auth rule account. */
@@ -109,6 +110,7 @@ export const parseTokenMetadataAuthorization = (
 
   if (input.authority.__kind === 'metadata') {
     auth.accounts.authority = input.authority.updateAuthority.publicKey;
+    auth.accounts.token = input.authority.token;
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'metadataDelegate') {
