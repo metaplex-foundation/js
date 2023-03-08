@@ -146,6 +146,8 @@ export const toMetadataFromReadApiAsset = (
     collectionDetails: null,
     // TODO(jon): Read API doesn't return this info
     uses: null,
+    // TODO(jon): Read API doesn't return this info
+    programmableConfig: null,
   };
 };
 

@@ -1,5 +1,4 @@
 import {
-  TokenStandard,
   Uses,
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-token-metadata';
@@ -7,6 +6,7 @@ import {
   TokenProgramVersion,
   createMintToCollectionV1Instruction,
   getLeafAssetId,
+  TokenStandard,
   PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-bubblegum';
 import {
