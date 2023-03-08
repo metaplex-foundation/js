@@ -1,10 +1,6 @@
 import { createAddConfigLinesInstruction } from '@metaplex-foundation/mpl-candy-machine-core';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
-import {
-  assertAllItemConstraints,
-  assertCanAdd,
-  assertNotFull,
-} from '../asserts';
+import { assertAllItemConstraints, assertCanAdd } from '../asserts';
 import { CandyMachine, CandyMachineItem } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
@@ -180,7 +176,6 @@ export const insertCandyMachineItemsBuilder = (
   const index = params.index ?? params.candyMachine.itemsLoaded;
   const { items } = params;
 
-  assertNotFull(params.candyMachine, index);
   assertCanAdd(params.candyMachine, index, items.length);
   assertAllItemConstraints(params.candyMachine, items);
 

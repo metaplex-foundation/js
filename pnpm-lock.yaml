@@ -11,8 +11,8 @@ importers:
       '@identity.com/solana-gateway-ts': ^0.9.0
       '@metaplex-foundation/amman': ^0.12.0
       '@metaplex-foundation/amman-client': ^0.2.2
-      '@metaplex-foundation/beet': ^0.6.1
-      '@metaplex-foundation/beet-solana': ^0.3.1
+      '@metaplex-foundation/beet': ^0.7.1
+      '@metaplex-foundation/beet-solana': ^0.4.0
       '@rollup/plugin-babel': ^5.3.1
       '@rollup/plugin-commonjs': ^22.0.0
       '@rollup/plugin-json': ^4.1.0
@@ -63,8 +63,8 @@ importers:
       '@identity.com/solana-gateway-ts': 0.9.0
       '@metaplex-foundation/amman': 0.12.1_typescript@4.9.3
       '@metaplex-foundation/amman-client': 0.2.4
-      '@metaplex-foundation/beet': 0.6.1
-      '@metaplex-foundation/beet-solana': 0.3.1
+      '@metaplex-foundation/beet': 0.7.1
+      '@metaplex-foundation/beet-solana': 0.4.0
       '@rollup/plugin-babel': 5.3.1_opjstonlpkhafnz76jsxdwq25a
       '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.1
       '@rollup/plugin-json': 4.1.0_rollup@2.79.1
@@ -116,7 +116,7 @@ importers:
       '@metaplex-foundation/mpl-candy-guard': ^0.3.0
       '@metaplex-foundation/mpl-candy-machine': ^5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': ^0.1.2
-      '@metaplex-foundation/mpl-token-metadata': ^2.7.0
+      '@metaplex-foundation/mpl-token-metadata': ^2.8.6
       '@noble/ed25519': ^1.7.1
       '@noble/hashes': ^1.1.3
       '@solana/spl-token': ^0.3.5
@@ -139,7 +139,7 @@ importers:
       '@metaplex-foundation/mpl-candy-guard': 0.3.0
       '@metaplex-foundation/mpl-candy-machine': 5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': 0.1.2
-      '@metaplex-foundation/mpl-token-metadata': 2.7.0
+      '@metaplex-foundation/mpl-token-metadata': 2.8.6
       '@noble/ed25519': 1.7.1
       '@noble/hashes': 1.1.4
       '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
@@ -3087,7 +3087,7 @@ packages:
   /@metaplex-foundation/beet-solana/0.3.1:
     resolution: {integrity: sha512-tgyEl6dvtLln8XX81JyBvWjIiEcjTkUwZbrM5dIobTmoqMuGewSyk9CClno8qsMsFdB5T3jC91Rjeqmu/6xk2g==}
     dependencies:
-      '@metaplex-foundation/beet': 0.6.1
+      '@metaplex-foundation/beet': 0.7.1
       '@solana/web3.js': 1.70.0
       bs58: 5.0.0
       debug: 4.3.4
@@ -3096,6 +3096,7 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
+    dev: false
 
   /@metaplex-foundation/beet-solana/0.4.0:
     resolution: {integrity: sha512-B1L94N3ZGMo53b0uOSoznbuM5GBNJ8LwSeznxBxJ+OThvfHQ4B5oMUqb+0zdLRfkKGS7Q6tpHK9P+QK0j3w2cQ==}
@@ -3109,7 +3110,6 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
-    dev: false
 
   /@metaplex-foundation/beet/0.4.0:
     resolution: {integrity: sha512-2OAKJnLatCc3mBXNL0QmWVQKAWK2C7XDfepgL0p/9+8oSx4bmRAFHFqptl1A/C0U5O3dxGwKfmKluW161OVGcA==}
@@ -3129,6 +3129,7 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
 
   /@metaplex-foundation/beet/0.7.1:
     resolution: {integrity: sha512-hNCEnS2WyCiYyko82rwuISsBY3KYpe828ubsd2ckeqZr7tl0WVLivGkoyA/qdiaaHEBGdGl71OpfWa2rqL3DiA==}
@@ -3138,7 +3139,6 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@metaplex-foundation/cusper/0.0.2:
     resolution: {integrity: sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==}
@@ -3204,8 +3204,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@metaplex-foundation/mpl-token-metadata/2.7.0:
-    resolution: {integrity: sha512-dF20BAD5Kvd/qNOa8xmANO5//xvsmleCsD98HHeqBiz20HwC01y6VMkfwjXgVmrg8WSLpzojlQgMYO6jKhuZtg==}
+  /@metaplex-foundation/mpl-token-metadata/2.8.6:
+    resolution: {integrity: sha512-JxpdLBRYVs3ScyipGsrUalI61Ss8url5vTbao+BPSZF/G6iTggo50LJAj15/8Wc6yoKbgkyJwc8PR2UMyLM67g==}
     dependencies:
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/beet-solana': 0.4.0

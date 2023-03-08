@@ -31,6 +31,7 @@ export type TokenMetadataAuthority =
 export type TokenMetadataAuthorityMetadata = {
   __kind: 'metadata';
   updateAuthority: Signer;
+  token?: PublicKey;
 };
 
 /** An approved delegate authority of the metadata account for a given action. */
@@ -79,7 +80,7 @@ export type ParsedTokenMetadataAuthorization = {
     approver?: PublicKey;
     /**
      * If "delegate" authority, the address of the token record
-     * or the metdata delegate record PDA depending on the type.
+     * or the metadata delegate record PDA depending on the type.
      */
     delegateRecord?: PublicKey;
     /** If any auth rules are provided, the address of the auth rule account. */
@@ -109,6 +110,7 @@ export const parseTokenMetadataAuthorization = (
 
   if (input.authority.__kind === 'metadata') {
     auth.accounts.authority = input.authority.updateAuthority.publicKey;
+    auth.accounts.token = input.authority.token;
     auth.signers.push(input.authority.updateAuthority);
     auth.data.authorityType = AuthorityType.Metadata;
   } else if (input.authority.__kind === 'metadataDelegate') {
@@ -122,7 +124,7 @@ export const parseTokenMetadataAuthorization = (
     auth.accounts.delegateRecord = delegateRecord;
     auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
-    auth.data.authorityType = AuthorityType.Delegate;
+    auth.data.authorityType = AuthorityType.MetadataDelegate;
   } else if (input.authority.__kind === 'tokenDelegate') {
     const { delegateRecord, approver, tokenAccount } =
       parseTokenMetadataDelegateInput(
@@ -136,7 +138,7 @@ export const parseTokenMetadataAuthorization = (
     auth.accounts.delegateRecord = delegateRecord;
     auth.accounts.approver = approver;
     auth.signers.push(input.authority.delegate);
-    auth.data.authorityType = AuthorityType.Delegate;
+    auth.data.authorityType = AuthorityType.TokenDelegate;
   } else if (input.authority.__kind === 'holder') {
     auth.accounts.authority = input.authority.owner.publicKey;
     auth.accounts.token = input.authority.token;

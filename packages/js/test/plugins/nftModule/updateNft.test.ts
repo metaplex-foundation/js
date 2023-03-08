@@ -471,6 +471,11 @@ test('[nftModule] it can add rulesets to programmable NFTs', async (t: Test) => 
   await mx.nfts().update({
     nftOrSft: nft,
     ruleSet: ruleSet.publicKey,
+    authority: {
+      __kind: 'metadata',
+      updateAuthority: mx.identity(),
+      token: nft.token.address,
+    },
   });
 
   // Then the updated NFT has a new programmable configs containing that ruleset.

@@ -19,6 +19,10 @@ import {
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
 
+const TOKEN_AUTH_RULES_ID = new PublicKey(
+  'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+);
+
 // -----------------
 // Operation
 // -----------------
@@ -243,7 +247,7 @@ export const mintNftBuilder = (
             splTokenProgram: tokenProgram.address,
             splAtaProgram: ataProgram.address,
             authorizationRules: auth.accounts.authorizationRules,
-            // authorizationRulesProgram,
+            authorizationRulesProgram: TOKEN_AUTH_RULES_ID,
           },
           {
             mintArgs: {

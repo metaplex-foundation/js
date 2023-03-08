@@ -1,5 +1,18 @@
 # @metaplex-foundation/js
 
+## 0.18.3
+
+### Patch Changes
+
+- b6d9571f: Update Token Metadata program
+
+## 0.18.2
+
+### Patch Changes
+
+- 10644449: Allow updating items of fully loaded CMs
+- 2c01466e: pNFTs: pass the authorizationRulesProgram in the instruction
+
 ## 0.18.1
 
 ### Patch Changes

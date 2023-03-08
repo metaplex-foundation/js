@@ -25,6 +25,10 @@ import {
 import { Metaplex } from '@/Metaplex';
 import { NoInstructionsToSendError } from '@/errors';
 
+const TOKEN_AUTH_RULES_ID = new PublicKey(
+  'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+);
+
 // -----------------
 // Operation
 // -----------------
@@ -425,7 +429,7 @@ export const updateNftBuilder = (
               systemProgram: systemProgram.address,
               sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
               authorizationRules: auth.accounts.authorizationRules,
-              // authorizationRulesProgram,
+              authorizationRulesProgram: TOKEN_AUTH_RULES_ID,
             },
             { updateArgs: { ...updateInstructionData, ...auth.data } },
             tokenMetadataProgram.address

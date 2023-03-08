@@ -160,7 +160,7 @@ test('[candyMachineModule] it cannot add items once the candy machine is fully l
   });
 
   // Then we expect an error to be thrown.
-  await assertThrows(t, promise, /CandyMachineIsFullError/);
+  await assertThrows(t, promise, /CandyMachineCannotAddAmountError/);
 });
 
 test('[candyMachineModule] it cannot add items if either of them have a name or URI that is too long', async (t) => {
@@ -255,6 +255,45 @@ test('[candyMachineModule] it can add items to a custom offset and override exis
     },
     {
       index: 2,
+      minted: false,
+      name: 'Degen #4',
+      uri: 'https://example.com/degen/4',
+    },
+  ]);
+});
+
+test('[candyMachineModule] it can override all items of a candy machine', async (t) => {
+  // Given an fully loaded Candy Machine with 2 items.
+  const mx = await metaplex();
+  const { candyMachine } = await createCandyMachine(mx, {
+    itemsAvailable: toBigNumber(2),
+    items: [
+      { name: 'Degen #1', uri: 'https://example.com/degen/1' },
+      { name: 'Degen #2', uri: 'https://example.com/degen/2' },
+    ],
+  });
+
+  // When we add 2 new items to the Candy Machine at index 0.
+  await mx.candyMachines().insertItems({
+    candyMachine,
+    index: 0,
+    items: [
+      { name: 'Degen #3', uri: 'https://example.com/degen/3' },
+      { name: 'Degen #4', uri: 'https://example.com/degen/4' },
+    ],
+  });
+
+  // Then all items have been overriden.
+  const updatedCandyMachine = await mx.candyMachines().refresh(candyMachine);
+  t.deepEquals(updatedCandyMachine.items, [
+    {
+      index: 0,
+      minted: false,
+      name: 'Degen #3',
+      uri: 'https://example.com/degen/3',
+    },
+    {
+      index: 1,
       minted: false,
       name: 'Degen #4',
       uri: 'https://example.com/degen/4',
