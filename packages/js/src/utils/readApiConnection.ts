@@ -14,6 +14,7 @@ import type { Metadata, Mint, NftOriginalEdition } from '@/plugins';
 import type { SplTokenCurrency } from '@/types';
 import { Pda, amount, toBigNumber } from '@/types';
 
+import type { Option } from '@/utils';
 import { ReadApiError } from '@/errors/ReadApiError';
 import type {
   ReadApiRoyaltyMetadata,
@@ -23,6 +24,8 @@ import type {
   ReadApiAssetAuthority,
   ReadApiInterface,
   ReadApiContent,
+  ReadApiParamAssetSortBy,
+  ReadApiPropGroupKey,
 } from '@/types/ReadApi';
 
 type JsonRpcParams<ReadApiMethodParams> = {
@@ -52,7 +55,7 @@ export type GetAssetRpcResponse = {
   compression: ReadApiCompressionMetadata;
 };
 
-type GetAssetProofRpcInput = {
+export type GetAssetProofRpcInput = {
   id: string;
 };
 
@@ -62,6 +65,29 @@ export type GetAssetProofRpcResponse = {
   node_index: number;
   leaf: string;
   tree_id: string;
+};
+
+export type GetAssetsByGroupRpcInput = {
+  groupKey: ReadApiPropGroupKey;
+  groupValue: string;
+  page?: Option<number>;
+  limit?: Option<number>;
+  /* assetId to search before */
+  before?: Option<string>;
+  /* assetId to search after */
+  after?: Option<string>;
+  sortBy?: Option<ReadApiParamAssetSortBy>;
+};
+
+export type GetAssetsByGroupRpcResponse = {
+  total: number;
+  limit: number;
+  /**
+   * `page` is only provided when using page based pagination, as apposed
+   * to asset id before/after based pagination
+   */
+  page?: number;
+  items: Array<GetAssetRpcResponse>;
 };
 
 export const toNftEditionFromReadApiAsset = (
@@ -213,5 +239,49 @@ export class ReadApiConnection extends Connection {
     if (!proof) throw new ReadApiError('No asset proof returned');
 
     return proof;
+  }
+
+  //
+  async getAssetsByGroup({
+    groupKey,
+    groupValue,
+    page,
+    limit,
+    sortBy,
+    before,
+    after,
+  }: GetAssetsByGroupRpcInput): Promise<
+    GetAssetsByGroupRpcResponse | ReadApiError
+  > {
+    // `page` cannot be supplied with `before` or `after`
+    if (typeof page == 'number' && (before || after))
+      throw new ReadApiError(
+        'Pagination Error. Only one pagination parameter supported per query.'
+      );
+    // a pagination method MUST be selected
+    if (typeof page == 'number' || before || after)
+      throw new ReadApiError(
+        'Pagination Error. No Pagination Method Selected.'
+      );
+
+    const { result } = await this.callReadApi<
+      GetAssetsByGroupRpcInput,
+      GetAssetsByGroupRpcResponse
+    >({
+      method: 'getAssetsByGroup',
+      params: {
+        groupKey,
+        groupValue,
+        after: after ?? null,
+        before: before ?? null,
+        limit: limit ?? null,
+        page: page ?? 0,
+        sortBy: sortBy ?? null,
+      },
+    });
+
+    if (!result) throw new ReadApiError('No results returned');
+
+    return result;
   }
 }
