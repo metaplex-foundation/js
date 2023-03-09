@@ -13,6 +13,7 @@ import BN from 'bn.js';
 import type { Metadata, Mint, NftOriginalEdition } from '@/plugins';
 import type { SplTokenCurrency } from '@/types';
 import { Pda, amount, toBigNumber } from '@/types';
+import { ReadApiError } from '@/errors/ReadApiError';
 
 type JsonRpcParams<ReadApiMethodParams> = {
   method: string;
@@ -102,8 +103,6 @@ export const toMintFromReadApiAsset = (input: GetAssetRpcResponse): Mint => {
 export const toMetadataFromReadApiAsset = (
   input: GetAssetRpcResponse
 ): Metadata => {
-  console.info({ input });
-
   const updateAuthority = input.authorities?.find((authority) =>
     authority.scopes.includes('full')
   );
@@ -181,7 +180,9 @@ export class ReadApiConnection extends Connection {
 
   // Asset id can be calculated via Bubblegum#getLeafAssetId
   // It is a PDA with the following seeds: ["asset", tree, leafIndex]
-  async getAsset(assetId: PublicKey): Promise<GetAssetRpcResponse> {
+  async getAsset(
+    assetId: PublicKey
+  ): Promise<GetAssetRpcResponse | ReadApiError> {
     const { result: asset } = await this.callReadApi<
       GetAssetRpcInput,
       GetAssetRpcResponse
@@ -192,13 +193,16 @@ export class ReadApiConnection extends Connection {
       },
     });
 
-    console.info({ asset });
+    if (!asset) throw new ReadApiError('No asset returned');
+
     return asset;
   }
 
   // Asset id can be calculated via Bubblegum#getLeafAssetId
   // It is a PDA with the following seeds: ["asset", tree, leafIndex]
-  async getAssetProof(assetId: PublicKey): Promise<GetAssetProofRpcResponse> {
+  async getAssetProof(
+    assetId: PublicKey
+  ): Promise<GetAssetProofRpcResponse | ReadApiError> {
     const { result: proof } = await this.callReadApi<
       GetAssetProofRpcInput,
       GetAssetProofRpcResponse
@@ -209,7 +213,7 @@ export class ReadApiConnection extends Connection {
       },
     });
 
-    console.info({ proof });
+    if (!proof) throw new ReadApiError('No asset proof returned');
 
     return proof;
   }
