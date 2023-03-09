@@ -1,4 +1,5 @@
 import type { Metadata } from '@/plugins';
+import type { Option } from '@/utils';
 
 /*
   Types specific to the ReadApi
@@ -54,4 +55,56 @@ export type ReadApiAuthorityScope = 'full';
 export type ReadApiAssetAuthority = {
   address: string;
   scopes: ReadApiAuthorityScope[];
+};
+
+export type GetAssetRpcInput = {
+  id: string;
+};
+
+export type GetAssetRpcResponse = {
+  id: string;
+  interface: ReadApiInterface;
+  content: ReadApiContent;
+  authorities: Array<ReadApiAssetAuthority>;
+  mutable: boolean;
+  royalty: ReadApiRoyaltyMetadata;
+  supply: ReadApiSupplyMetadata;
+  creators: Metadata['creators'];
+  grouping: Array<ReadApiGroupingItem>;
+  compression: ReadApiCompressionMetadata;
+};
+
+export type GetAssetProofRpcInput = {
+  id: string;
+};
+
+export type GetAssetProofRpcResponse = {
+  root: string;
+  proof: string[];
+  node_index: number;
+  leaf: string;
+  tree_id: string;
+};
+
+export type GetAssetsByGroupRpcInput = {
+  groupKey: ReadApiPropGroupKey;
+  groupValue: string;
+  page?: Option<number>;
+  limit?: Option<number>;
+  /* assetId to search before */
+  before?: Option<string>;
+  /* assetId to search after */
+  after?: Option<string>;
+  sortBy?: Option<ReadApiParamAssetSortBy>;
+};
+
+export type GetAssetsByGroupRpcResponse = {
+  total: number;
+  limit: number;
+  /**
+   * `page` is only provided when using page based pagination, as apposed
+   * to asset id before/after based pagination
+   */
+  page?: number;
+  items: Array<GetAssetRpcResponse>;
 };

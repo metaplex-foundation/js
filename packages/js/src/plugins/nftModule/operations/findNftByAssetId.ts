@@ -5,10 +5,10 @@ import {
   OperationHandler,
   OperationScope,
   useOperation,
+  GetAssetRpcResponse,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import {
-  GetAssetRpcResponse,
   toMetadataFromReadApiAsset,
   toMintFromReadApiAsset,
   toNftEditionFromReadApiAsset,

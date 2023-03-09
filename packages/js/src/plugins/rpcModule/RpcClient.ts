@@ -1,7 +1,3 @@
-import {
-  GetAssetsByGroupRpcResponse,
-  GetAssetsByGroupRpcInput,
-} from './../../utils/readApiConnection';
 import { Buffer } from 'buffer';
 import {
   AccountInfo,
@@ -40,11 +36,14 @@ import {
   UnparsedMaybeAccount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
-import {
+
+import type {
   GetAssetProofRpcResponse,
   GetAssetRpcResponse,
-  ReadApiConnection,
-} from '@/utils/readApiConnection';
+  GetAssetsByGroupRpcResponse,
+  GetAssetsByGroupRpcInput,
+} from '@/types/ReadApi';
+import { ReadApiConnection } from '@/utils/readApiConnection';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {
