@@ -4,18 +4,7 @@ import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 import { assert } from '@/utils';
-import type { Pda } from '@/types';
-
-// Not a model since this is over-the-wire information, not on-chain properties
-type CompressionMetadata = {
-  compressed: boolean;
-  data_hash: string;
-  creator_hash: string;
-  asset_hash: string;
-  tree: string;
-  seq: number;
-  leaf_id: number;
-};
+import type { Pda, ReadApiCompressionMetadata } from '@/types';
 
 /**
  * This model captures all the relevant information about an NFT
@@ -43,7 +32,7 @@ export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
    */
   readonly edition: NftEdition;
 } & {
-  compression?: CompressionMetadata;
+  compression?: ReadApiCompressionMetadata;
 };
 
 /** @group Model Helpers */

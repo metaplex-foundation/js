@@ -13,7 +13,17 @@ import BN from 'bn.js';
 import type { Metadata, Mint, NftOriginalEdition } from '@/plugins';
 import type { SplTokenCurrency } from '@/types';
 import { Pda, amount, toBigNumber } from '@/types';
+
 import { ReadApiError } from '@/errors/ReadApiError';
+import type {
+  ReadApiRoyaltyMetadata,
+  ReadApiSupplyMetadata,
+  ReadApiCompressionMetadata,
+  ReadApiGroupingItem,
+  ReadApiAssetAuthority,
+  ReadApiInterface,
+  ReadApiContent,
+} from '@/types/ReadApi';
 
 type JsonRpcParams<ReadApiMethodParams> = {
   method: string;
@@ -31,28 +41,15 @@ export type GetAssetRpcInput = {
 
 export type GetAssetRpcResponse = {
   id: string;
-  interface: 'V1_NFT';
-  content: {
-    json_uri: string;
-    metadata: Metadata['json'];
-  };
-  authorities: Array<{ address: string; scopes: ['full'] }>;
+  interface: ReadApiInterface;
+  content: ReadApiContent;
+  authorities: Array<ReadApiAssetAuthority>;
   mutable: boolean;
-  royalty: {
-    primary_sale_happened: boolean;
-    basis_points: number;
-  };
-  supply: {
-    edition_nonce: number;
-    print_current_supply: number;
-    print_max_supply: number;
-  };
+  royalty: ReadApiRoyaltyMetadata;
+  supply: ReadApiSupplyMetadata;
   creators: Metadata['creators'];
-  grouping: Array<{ group_key: 'collection'; group_value: string }>;
-  compression: {
-    tree: string;
-    leaf_id: number;
-  };
+  grouping: Array<ReadApiGroupingItem>;
+  compression: ReadApiCompressionMetadata;
 };
 
 type GetAssetProofRpcInput = {
