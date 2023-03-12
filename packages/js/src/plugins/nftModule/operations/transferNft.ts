@@ -11,6 +11,7 @@ import {
 import { isNonFungible, isProgrammable, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
+  GetAssetProofRpcResponse,
   Operation,
   OperationHandler,
   OperationScope,
@@ -20,6 +21,11 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
+import {
+  TransferCompressedNftBuilderParams,
+  prepareTransferCompressedNftBuilder,
+  transferCompressedNftBuilder,
+} from './transferCompressedNft';
 
 const TOKEN_AUTH_RULES_ID = new PublicKey(
   'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
@@ -125,6 +131,11 @@ export type TransferNftInput = {
    * @defaultValue `token(1)`
    */
   amount?: SplTokenAmount;
+
+  /**
+   * The asset proof data (for compressed nfts)
+   */
+  compression?: GetAssetProofRpcResponse;
 };
 
 /**
@@ -147,6 +158,23 @@ export const transferNftOperationHandler: OperationHandler<TransferNftOperation>
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<TransferNftOutput> => {
+      // handle the case of transferring compressed nfts
+      if (
+        !!operation.input.compression ||
+        // @ts-ignore
+        !!operation.input.nftOrSft?.compression?.compressed
+      ) {
+        operation.input = await prepareTransferCompressedNftBuilder(
+          metaplex,
+          operation.input
+        );
+        return transferCompressedNftBuilder(
+          metaplex,
+          operation.input as TransferCompressedNftBuilderParams,
+          scope
+        ).sendAndConfirm(metaplex, scope.confirmOptions);
+      }
+
       return transferNftBuilder(
         metaplex,
         operation.input,

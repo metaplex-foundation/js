@@ -108,6 +108,8 @@ export const toMetadataFromReadApiAsset = (
       ? { address: new PublicKey(collection.group_value), verified: false }
       : null,
 
+    compression: input.compression,
+
     // TODO(jon): Read API doesn't return this info
     collectionDetails: null,
     // TODO(jon): Read API doesn't return this info

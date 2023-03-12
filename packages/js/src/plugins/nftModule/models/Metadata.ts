@@ -7,7 +7,13 @@ import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
 import { JsonMetadata } from './JsonMetadata';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import {
+  BigNumber,
+  Creator,
+  Pda,
+  toBigNumber,
+  ReadApiCompressionMetadata,
+} from '@/types';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
@@ -139,6 +145,9 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /** Programmable configuration for the asset. */
   readonly programmableConfig: Option<ProgrammableConfig>;
+
+  /* Compression metadata only provided via the ReadApi */
+  readonly compression?: ReadApiCompressionMetadata;
 };
 
 /** @group Model Helpers */
