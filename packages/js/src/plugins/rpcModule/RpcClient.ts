@@ -42,6 +42,7 @@ import type {
   ReadApiAssetList,
   GetAssetProofRpcResponse,
   GetAssetsByGroupRpcInput,
+  GetAssetsByOwnerRpcInput,
 } from '@/types/ReadApi';
 import { ReadApiConnection } from '@/utils/readApiConnection';
 
@@ -362,6 +363,30 @@ export class RpcClient {
       return await this.metaplex.connection.getAssetsByGroup({
         groupKey,
         groupValue,
+        page,
+        limit,
+        sortBy,
+        before,
+        after,
+      });
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
+  }
+
+  async getAssetsByOwner({
+    ownerAddress,
+    page,
+    limit,
+    sortBy,
+    before,
+    after,
+  }: GetAssetsByOwnerRpcInput): Promise<ReadApiAssetList | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAssetsByOwner({
+        ownerAddress,
         page,
         limit,
         sortBy,

@@ -110,6 +110,18 @@ export type GetAssetsByGroupRpcInput = {
   sortBy?: Option<ReadApiParamAssetSortBy>;
 };
 
+export type GetAssetsByOwnerRpcInput = {
+  /**
+   * String of the owner's PublicKey address
+   */
+  ownerAddress: string;
+  page?: Option<number>;
+  limit?: Option<number>;
+  before?: Option<string>;
+  after?: Option<string>;
+  sortBy?: Option<ReadApiParamAssetSortBy>;
+};
+
 export type ReadApiAsset = {
   /**
    * The asset Id

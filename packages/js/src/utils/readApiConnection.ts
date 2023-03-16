@@ -19,6 +19,7 @@ import type {
   GetAssetProofRpcInput,
   GetAssetProofRpcResponse,
   GetAssetRpcInput,
+  GetAssetsByOwnerRpcInput,
   GetAssetsByGroupRpcInput,
   ReadApiAsset,
   ReadApiAssetList,
@@ -212,6 +213,46 @@ export class ReadApiConnection extends Connection {
       params: {
         groupKey,
         groupValue,
+        after: after ?? null,
+        before: before ?? null,
+        limit: limit ?? null,
+        page: page ?? 0,
+        sortBy: sortBy ?? null,
+      },
+    });
+
+    if (!result) throw new ReadApiError('No results returned');
+
+    return result;
+  }
+
+  //
+  async getAssetsByOwner({
+    ownerAddress,
+    page,
+    limit,
+    sortBy,
+    before,
+    after,
+  }: GetAssetsByOwnerRpcInput): Promise<ReadApiAssetList | ReadApiError> {
+    // `page` cannot be supplied with `before` or `after`
+    if (typeof page == 'number' && (before || after))
+      throw new ReadApiError(
+        'Pagination Error. Only one pagination parameter supported per query.'
+      );
+    // a pagination method MUST be selected
+    if (typeof page == 'number' || before || after)
+      throw new ReadApiError(
+        'Pagination Error. No Pagination Method Selected.'
+      );
+
+    const { result } = await this.callReadApi<
+      GetAssetsByOwnerRpcInput,
+      ReadApiAssetList
+    >({
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress,
         after: after ?? null,
         before: before ?? null,
         limit: limit ?? null,
