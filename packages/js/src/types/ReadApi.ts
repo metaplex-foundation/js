@@ -1,9 +1,10 @@
-import type { Metadata } from '@/plugins';
-import type { Option } from '@/utils';
-
 /*
   Types specific to the ReadApi
 */
+
+import type { Metadata } from '@/plugins';
+import type { Option } from '@/utils';
+import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 
 export type ReadApiInterface = 'V1_NFT';
 
@@ -12,6 +13,13 @@ export type ReadApiPropGroupKey = 'collection';
 export type ReadApiPropSortBy = 'created' | 'updated' | 'recent_action';
 
 export type ReadApiPropSortDirection = 'asc' | 'desc';
+
+export type TransferNftCompressionParam = {
+  ownership?: ReadApiOwnershipMetadata;
+  data?: ReadApiCompressionMetadata;
+  assetProof?: GetAssetProofRpcResponse;
+  merkleTree?: ConcurrentMerkleTreeAccount;
+};
 
 export type ReadApiParamAssetSortBy = {
   sortBy: ReadApiPropSortBy;
@@ -32,6 +40,14 @@ export type ReadApiCompressionMetadata = {
   tree: string;
   seq: number;
   leaf_id: number;
+};
+
+export type ReadApiOwnershipMetadata = {
+  frozen: boolean;
+  delegated: boolean;
+  delegate: string | null;
+  owner: string;
+  ownership_model: 'single' | 'token';
 };
 
 export type ReadApiSupplyMetadata = {
@@ -72,6 +88,7 @@ export type GetAssetRpcResponse = {
   creators: Metadata['creators'];
   grouping: Array<ReadApiGroupingItem>;
   compression: ReadApiCompressionMetadata;
+  ownership: ReadApiOwnershipMetadata;
 };
 
 export type GetAssetProofRpcInput = {

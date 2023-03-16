@@ -32,7 +32,7 @@ export type Metadata<Json extends object = JsonMetadata> = {
    */
   readonly updateAuthorityAddress: PublicKey;
 
-  /** The JSON metadata associated with the metadata acount. */
+  /** The JSON metadata associated with the metadata account. */
   readonly json: Option<Json>;
 
   /**
@@ -116,7 +116,7 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /**
    * When this field is not `null`, it indicates that
-   * the asset is a collection. Everytime an asset is
+   * the asset is a collection. Every time an asset is
    * verified/unverified as part of this collection,
    * the `size` field inside this object will be updated accordingly.
    */

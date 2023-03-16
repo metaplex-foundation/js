@@ -1,17 +1,13 @@
-// @ts-nocheck
-
 import { Metaplex } from '@/Metaplex';
-import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import {
-  getSignerFromTokenMetadataAuthority,
-  parseTokenMetadataAuthorization,
   TokenMetadataAuthorityHolder,
   TokenMetadataAuthorityTokenDelegate,
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
-import { isNonFungible, isProgrammable, Sft } from '../models';
-import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
+import { Sft } from '../models';
+import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   GetAssetProofRpcResponse,
   Operation,
@@ -19,20 +15,17 @@ import {
   OperationScope,
   Signer,
   SplTokenAmount,
-  token,
   useOperation,
+  TransferNftCompressionParam,
+  GetAssetRpcResponse,
 } from '@/types';
-import type { Metadata } from '@/plugins';
-import { TransferNftBuilderParams } from './transferNft';
+import { createTransferInstruction } from '@metaplex-foundation/mpl-bubblegum';
 import {
-  createTransferInstruction,
-  PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
-} from '@metaplex-foundation/mpl-bubblegum';
-import {
+  MerkleTree,
+  ConcurrentMerkleTreeAccount,
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
 } from '@solana/spl-account-compression';
-import base58 from 'bs58';
 
 // -----------------
 // Operation
@@ -41,13 +34,12 @@ import base58 from 'bs58';
 const Key = 'TransferCompressedNftOperation' as const;
 
 /**
- * Transfers an NFT or SFT from one account to another.
+ * Transfers a compressed NFT or SFT from one account to another.
  *
  * ```ts
  * await metaplex.nfts().transfer({
  *   nftOrSft,
  *   toOwner,
- *   amount: token(5),
  * });
  * ```
  *
@@ -73,7 +65,7 @@ export type TransferCompressedNftOperation = Operation<
  */
 export type TransferCompressedNftInput = {
   /**
-   * The NFT or SFT to transfer.
+   * The compressed NFT or SFT to transfer.
    * We only need its address and token standard.
    */
   nftOrSft: Sft;
@@ -137,9 +129,10 @@ export type TransferCompressedNftInput = {
   amount?: SplTokenAmount;
 
   /**
-   * The asset proof data from the ReadApi
+   * The compression data needed for transfer.
+   * Including the assetProof, concurrent merkle tree account info, and compression metadata.
    */
-  compression: GetAssetProofRpcResponse;
+  compression: TransferNftCompressionParam;
 };
 
 /**
@@ -208,47 +201,59 @@ export const transferCompressedNftBuilder = (
   params: TransferCompressedNftBuilderParams,
   options: TransactionBuilderOptions = {}
 ): TransactionBuilder => {
-  const { programs, payer = metaplex.rpc().getDefaultFeePayer() } = options;
-  const { nftOrSft, toOwner, compression } = params;
+  const { payer = metaplex.rpc().getDefaultFeePayer() } = options;
+  const { toOwner, compression } = params;
 
-  const merkleTree = new PublicKey(compression.tree_id);
+  // ensure all required compression data has been supplied
+  if (
+    !compression.merkleTree ||
+    !compression.assetProof ||
+    !compression.data ||
+    !compression.ownership
+  )
+    throw Error('Invalid compression data supplied');
 
-  const [treeAuthority] = PublicKey.findProgramAddressSync(
-    [merkleTree.toBuffer()],
-    BUBBLEGUM_PROGRAM_ID
-  );
+  const merkleTree = new PublicKey(compression.assetProof.tree_id);
+  const treeAuthority = compression.merkleTree?.getAuthority();
+  const canopyDepth = compression.merkleTree?.getCanopyDepth();
 
-  // todo(nick): support different owner/delegate other than the payer
-  const leafOwner = payer.publicKey;
-  const leafDelegate = payer.publicKey;
+  const leafOwner = new PublicKey(compression.ownership.owner);
+  const leafDelegate = !!compression.ownership?.delegate
+    ? new PublicKey(compression.ownership.delegate)
+    : leafOwner;
 
-  const canopyDepth = nftOrSft.compression?.seq ?? 0;
+  // check if the provided assetProof path is valid for the provided root
+  if (
+    MerkleTree.verify(new PublicKey(compression.assetProof.root).toBuffer(), {
+      leafIndex: compression.data.leaf_id,
+      leaf: new PublicKey(compression.assetProof.leaf).toBuffer(),
+      root: new PublicKey(compression.assetProof.root).toBuffer(),
+      proof: compression.assetProof.proof.map((node: string) =>
+        new PublicKey(node).toBuffer()
+      ),
+    })
+  )
+    throw Error('Provided proof path did not pass verification');
 
-  // compute the proof hashes to include
-  let proofPath =
-    compression.proof?.length > 0
-      ? compression.proof
-          .map((node: string) => ({
-            pubkey: new PublicKey(node),
-            isSigner: false,
-            isWritable: false,
-          }))
-          .slice(
-            0,
-            compression.proof.length - (!!canopyDepth ? canopyDepth : 0)
-          )
-      : undefined;
-
-  console.log('proofPath');
-  console.log(proofPath);
+  // parse the list of proof addresses into a valid AccountMeta[]
+  const proofPath = compression.assetProof.proof
+    .map((node: string) => ({
+      pubkey: new PublicKey(node),
+      isSigner: false,
+      isWritable: false,
+    }))
+    .slice(
+      0,
+      compression.assetProof.proof.length - (!!canopyDepth ? canopyDepth : 0)
+    );
 
   return TransactionBuilder.make()
     .setFeePayer(payer)
     .add({
       instruction: createTransferInstruction(
         {
-          treeAuthority,
           merkleTree,
+          treeAuthority,
           leafOwner,
           leafDelegate,
           newLeafOwner: toOwner,
@@ -257,15 +262,17 @@ export const transferCompressedNftBuilder = (
           anchorRemainingAccounts: proofPath,
         },
         {
-          root: new PublicKey(compression.root.trim()).toBytes(),
-          dataHash: new PublicKey(
-            nftOrSft.compression.data_hash.trim()
-          ).toBytes(),
-          creatorHash: new PublicKey(
-            nftOrSft.compression.creator_hash.trim()
-          ).toBytes(),
-          nonce: nftOrSft.compression?.leaf_id,
-          index: nftOrSft.compression?.leaf_id,
+          root: [
+            ...new PublicKey(compression.assetProof.root.trim()).toBytes(),
+          ],
+          dataHash: [
+            ...new PublicKey(compression.data.data_hash.trim()).toBytes(),
+          ],
+          creatorHash: [
+            ...new PublicKey(compression.data.creator_hash.trim()).toBytes(),
+          ],
+          nonce: compression.data.leaf_id,
+          index: compression.data.leaf_id,
         }
       ),
       signers: [payer],
@@ -278,21 +285,32 @@ export const transferCompressedNftBuilder = (
  */
 export async function prepareTransferCompressedNftBuilder(
   metaplex: Metaplex,
-  params: TransferCompressedNftBuilderParams | TransferNftBuilderParams
+  params: TransferCompressedNftBuilderParams
 ): Promise<TransferCompressedNftBuilderParams> {
-  // auto fetch the asset for its compression data
-  // @ts-ignore
-  if (!params.nftOrSft?.compression?.data_hash) {
-    // todo(nick): auto fetch the asset for the compression data
-    console.log('auto fetch the asset by mint');
-  }
+  if (!params?.compression) params.compression = {};
 
-  // auto fetch the assetProof data from the ReadApi
-  if (!params.compression) {
-    params.compression = (await metaplex
+  // auto fetch the assetProof data from the ReadApi, when not provided
+  if (!params?.compression?.assetProof) {
+    params.compression.assetProof = (await metaplex
       .rpc()
       .getAssetProof(params.nftOrSft.address)) as GetAssetProofRpcResponse;
   }
+
+  const [asset, merkleTree] = await Promise.all([
+    // get the asset from the ReadApi
+    metaplex.rpc().getAsset(params.nftOrSft.address),
+
+    // get the on-chain merkle tree AccountInfo (mainly needed for the `canopyHeight`)
+    ConcurrentMerkleTreeAccount.fromAccountAddress(
+      metaplex.connection,
+      new PublicKey(params.compression.assetProof.tree_id)
+    ),
+  ]);
+
+  // update the params data for use by the transfer operation
+  params.compression.merkleTree = merkleTree;
+  params.compression.data = (asset as GetAssetRpcResponse).compression;
+  params.compression.ownership = (asset as GetAssetRpcResponse).ownership;
 
   return params as TransferCompressedNftBuilderParams;
 }

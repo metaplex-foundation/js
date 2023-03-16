@@ -1,3 +1,4 @@
+import { Metaplex } from '@/Metaplex';
 import { createTransferInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -11,7 +12,6 @@ import {
 import { isNonFungible, isProgrammable, Sft } from '../models';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
-  GetAssetProofRpcResponse,
   Operation,
   OperationHandler,
   OperationScope,
@@ -19,8 +19,8 @@ import {
   SplTokenAmount,
   token,
   useOperation,
+  TransferNftCompressionParam,
 } from '@/types';
-import { Metaplex } from '@/Metaplex';
 import {
   TransferCompressedNftBuilderParams,
   prepareTransferCompressedNftBuilder,
@@ -133,9 +133,9 @@ export type TransferNftInput = {
   amount?: SplTokenAmount;
 
   /**
-   * The asset proof data (for compressed nfts)
+   * The compression data needed for transfer.
    */
-  compression?: GetAssetProofRpcResponse;
+  compression?: TransferNftCompressionParam;
 };
 
 /**
@@ -166,7 +166,7 @@ export const transferNftOperationHandler: OperationHandler<TransferNftOperation>
       ) {
         operation.input = await prepareTransferCompressedNftBuilder(
           metaplex,
-          operation.input
+          operation.input as TransferCompressedNftBuilderParams
         );
         return transferCompressedNftBuilder(
           metaplex,
