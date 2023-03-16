@@ -17,7 +17,7 @@ import {
   SplTokenAmount,
   useOperation,
   TransferNftCompressionParam,
-  GetAssetRpcResponse,
+  ReadApiAsset,
 } from '@/types';
 import { createTransferInstruction } from '@metaplex-foundation/mpl-bubblegum';
 import {
@@ -309,8 +309,8 @@ export async function prepareTransferCompressedNftBuilder(
 
   // update the params data for use by the transfer operation
   params.compression.merkleTree = merkleTree;
-  params.compression.data = (asset as GetAssetRpcResponse).compression;
-  params.compression.ownership = (asset as GetAssetRpcResponse).ownership;
+  params.compression.data = (asset as ReadApiAsset).compression;
+  params.compression.ownership = (asset as ReadApiAsset).ownership;
 
   return params as TransferCompressedNftBuilderParams;
 }

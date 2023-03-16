@@ -6,7 +6,16 @@ import type { Metadata } from '@/plugins';
 import type { Option } from '@/utils';
 import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 
-export type ReadApiInterface = 'V1_NFT';
+export type ReadApiAssetInterface =
+  | 'V1_NFT'
+  | 'V1_PRINT'
+  | 'LEGACY_NFT'
+  | 'V2_NFT'
+  | 'FungibleAsset'
+  | 'Custom'
+  | 'Identity'
+  | 'Executable'
+  | 'ProgrammableNFT';
 
 export type ReadApiPropGroupKey = 'collection';
 
@@ -26,7 +35,7 @@ export type ReadApiParamAssetSortBy = {
   sortDirection: ReadApiPropSortDirection;
 };
 
-export type ReadApiContent = {
+export type ReadApiAssetContent = {
   json_uri: string;
   metadata: Metadata['json'];
 };
@@ -50,18 +59,18 @@ export type ReadApiOwnershipMetadata = {
   ownership_model: 'single' | 'token';
 };
 
-export type ReadApiSupplyMetadata = {
+export type ReadApiAssetSupplyMetadata = {
   edition_nonce: number;
   print_current_supply: number;
   print_max_supply: number;
 };
 
-export type ReadApiRoyaltyMetadata = {
+export type ReadApiAssetRoyaltyMetadata = {
   primary_sale_happened: boolean;
   basis_points: number;
 };
 
-export type ReadApiGroupingItem = {
+export type ReadApiAssetGrouping = {
   group_key: ReadApiPropGroupKey;
   group_value: string;
 };
@@ -75,20 +84,6 @@ export type ReadApiAssetAuthority = {
 
 export type GetAssetRpcInput = {
   id: string;
-};
-
-export type GetAssetRpcResponse = {
-  id: string;
-  interface: ReadApiInterface;
-  content: ReadApiContent;
-  authorities: Array<ReadApiAssetAuthority>;
-  mutable: boolean;
-  royalty: ReadApiRoyaltyMetadata;
-  supply: ReadApiSupplyMetadata;
-  creators: Metadata['creators'];
-  grouping: Array<ReadApiGroupingItem>;
-  compression: ReadApiCompressionMetadata;
-  ownership: ReadApiOwnershipMetadata;
 };
 
 export type GetAssetProofRpcInput = {
@@ -115,13 +110,55 @@ export type GetAssetsByGroupRpcInput = {
   sortBy?: Option<ReadApiParamAssetSortBy>;
 };
 
-export type GetAssetsByGroupRpcResponse = {
+export type ReadApiAsset = {
+  /**
+   * The asset Id
+   */
+  id: string;
+  interface: ReadApiAssetInterface;
+  ownership: ReadApiOwnershipMetadata;
+  mutable: boolean;
+  authorities: Array<ReadApiAssetAuthority>;
+  content: ReadApiAssetContent;
+  royalty: ReadApiAssetRoyaltyMetadata;
+  supply: ReadApiAssetSupplyMetadata;
+  creators: Metadata['creators'];
+  grouping: Array<ReadApiAssetGrouping>;
+  compression: ReadApiCompressionMetadata;
+};
+
+export type ReadApiAssetList = {
   total: number;
   limit: number;
+
+  /**
+   * listing of individual assets, and their associated metadata
+   */
+  items: Array<ReadApiAsset>;
+
   /**
    * `page` is only provided when using page based pagination, as apposed
    * to asset id before/after based pagination
    */
-  page?: number;
-  items: Array<GetAssetRpcResponse>;
+  page: Option<number>;
+
+  /**
+   * asset Id searching before
+   */
+  before: Option<string>;
+
+  /**
+   * asset Id searching after
+   */
+  after: Option<string>;
+
+  /**
+   * listing of errors provided by the ReadApi RPC
+   */
+  errors: Option<ReadApiRpcResponseError[]>;
+};
+
+export type ReadApiRpcResponseError = {
+  error: string;
+  id: string;
 };

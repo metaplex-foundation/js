@@ -19,9 +19,9 @@ import type {
   GetAssetProofRpcInput,
   GetAssetProofRpcResponse,
   GetAssetRpcInput,
-  GetAssetRpcResponse,
   GetAssetsByGroupRpcInput,
-  GetAssetsByGroupRpcResponse,
+  ReadApiAsset,
+  ReadApiAssetList,
 } from '@/types/ReadApi';
 
 type JsonRpcParams<ReadApiMethodParams> = {
@@ -35,7 +35,7 @@ type JsonRpcOutput<ReadApiJsonOutput> = {
 };
 
 export const toNftEditionFromReadApiAsset = (
-  input: GetAssetRpcResponse
+  input: ReadApiAsset
 ): NftOriginalEdition => {
   return {
     model: 'nftEdition',
@@ -46,7 +46,7 @@ export const toNftEditionFromReadApiAsset = (
   };
 };
 
-export const toMintFromReadApiAsset = (input: GetAssetRpcResponse): Mint => {
+export const toMintFromReadApiAsset = (input: ReadApiAsset): Mint => {
   const currency: SplTokenCurrency = {
     symbol: 'Token',
     decimals: 0,
@@ -67,9 +67,7 @@ export const toMintFromReadApiAsset = (input: GetAssetRpcResponse): Mint => {
   };
 };
 
-export const toMetadataFromReadApiAsset = (
-  input: GetAssetRpcResponse
-): Metadata => {
+export const toMetadataFromReadApiAsset = (input: ReadApiAsset): Metadata => {
   const updateAuthority = input.authorities?.find((authority) =>
     authority.scopes.includes('full')
   );
@@ -149,12 +147,10 @@ export class ReadApiConnection extends Connection {
 
   // Asset id can be calculated via Bubblegum#getLeafAssetId
   // It is a PDA with the following seeds: ["asset", tree, leafIndex]
-  async getAsset(
-    assetId: PublicKey
-  ): Promise<GetAssetRpcResponse | ReadApiError> {
+  async getAsset(assetId: PublicKey): Promise<ReadApiAsset | ReadApiError> {
     const { result: asset } = await this.callReadApi<
       GetAssetRpcInput,
-      GetAssetRpcResponse
+      ReadApiAsset
     >({
       method: 'getAsset',
       params: {
@@ -196,9 +192,7 @@ export class ReadApiConnection extends Connection {
     sortBy,
     before,
     after,
-  }: GetAssetsByGroupRpcInput): Promise<
-    GetAssetsByGroupRpcResponse | ReadApiError
-  > {
+  }: GetAssetsByGroupRpcInput): Promise<ReadApiAssetList | ReadApiError> {
     // `page` cannot be supplied with `before` or `after`
     if (typeof page == 'number' && (before || after))
       throw new ReadApiError(
@@ -212,7 +206,7 @@ export class ReadApiConnection extends Connection {
 
     const { result } = await this.callReadApi<
       GetAssetsByGroupRpcInput,
-      GetAssetsByGroupRpcResponse
+      ReadApiAssetList
     >({
       method: 'getAssetsByGroup',
       params: {

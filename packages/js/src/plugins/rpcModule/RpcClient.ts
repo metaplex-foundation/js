@@ -38,9 +38,9 @@ import {
 import { TransactionBuilder, zipMap } from '@/utils';
 
 import type {
+  ReadApiAsset,
+  ReadApiAssetList,
   GetAssetProofRpcResponse,
-  GetAssetRpcResponse,
-  GetAssetsByGroupRpcResponse,
   GetAssetsByGroupRpcInput,
 } from '@/types/ReadApi';
 import { ReadApiConnection } from '@/utils/readApiConnection';
@@ -327,9 +327,7 @@ export class RpcClient {
     };
   }
 
-  async getAsset(
-    assetId: PublicKey
-  ): Promise<GetAssetRpcResponse | MetaplexError> {
+  async getAsset(assetId: PublicKey): Promise<ReadApiAsset | MetaplexError> {
     if (this.metaplex.connection instanceof ReadApiConnection) {
       return await this.metaplex.connection.getAsset(assetId);
     }
@@ -359,9 +357,7 @@ export class RpcClient {
     sortBy,
     before,
     after,
-  }: GetAssetsByGroupRpcInput): Promise<
-    GetAssetsByGroupRpcResponse | MetaplexError
-  > {
+  }: GetAssetsByGroupRpcInput): Promise<ReadApiAssetList | MetaplexError> {
     if (this.metaplex.connection instanceof ReadApiConnection) {
       return await this.metaplex.connection.getAssetsByGroup({
         groupKey,

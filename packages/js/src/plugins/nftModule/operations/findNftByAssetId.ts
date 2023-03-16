@@ -5,7 +5,7 @@ import {
   OperationHandler,
   OperationScope,
   useOperation,
-  GetAssetRpcResponse,
+  ReadApiAsset,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -79,11 +79,9 @@ export const findNftByAssetIdOperationHandler: OperationHandler<FindNftByAssetId
       const asset = await metaplex.rpc().getAsset(assetId);
       scope.throwIfCanceled();
 
-      const metadata = toMetadataFromReadApiAsset(asset as GetAssetRpcResponse);
-      const mint = toMintFromReadApiAsset(asset as GetAssetRpcResponse);
-      const nftEdition = toNftEditionFromReadApiAsset(
-        asset as GetAssetRpcResponse
-      );
+      const metadata = toMetadataFromReadApiAsset(asset as ReadApiAsset);
+      const mint = toMintFromReadApiAsset(asset as ReadApiAsset);
+      const nftEdition = toNftEditionFromReadApiAsset(asset as ReadApiAsset);
 
       return toNft(metadata, mint, nftEdition);
     },
