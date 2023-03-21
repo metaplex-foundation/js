@@ -5,6 +5,8 @@ import {
   ApproveNftDelegateBuilderParams,
   approveNftUseAuthorityBuilder,
   ApproveNftUseAuthorityBuilderParams,
+  burnNftBuilder,
+  BurnNftBuilderParams,
   createNftBuilder,
   CreateNftBuilderParams,
   createSftBuilder,
@@ -92,6 +94,11 @@ export class NftBuildersClient {
   /** {@inheritDoc deleteNftBuilder} */
   delete(input: DeleteNftBuilderParams, options?: TransactionBuilderOptions) {
     return deleteNftBuilder(this.metaplex, input, options);
+  }
+
+  /** {@inheritDoc burnNftBuilder} */
+  burn(input: BurnNftBuilderParams, options?: TransactionBuilderOptions) {
+    return burnNftBuilder(this.metaplex, input, options);
   }
 
   // -----------------

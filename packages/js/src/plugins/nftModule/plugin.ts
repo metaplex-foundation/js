@@ -8,6 +8,8 @@ import {
   approveNftDelegateOperationHandler,
   approveNftUseAuthorityOperation,
   approveNftUseAuthorityOperationHandler,
+  burnNftOperation,
+  burnNftOperationHandler,
   createNftOperation,
   createNftOperationHandler,
   createSftOperation,
@@ -102,6 +104,7 @@ export const nftModule = (): MetaplexPlugin => ({
       approveNftUseAuthorityOperation,
       approveNftUseAuthorityOperationHandler
     );
+    op.register(burnNftOperation, burnNftOperationHandler);
     op.register(createNftOperation, createNftOperationHandler);
     op.register(createSftOperation, createSftOperationHandler);
     op.register(deleteNftOperation, deleteNftOperationHandler);

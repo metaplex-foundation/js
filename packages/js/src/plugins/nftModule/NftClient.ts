@@ -11,6 +11,8 @@ import {
   approveNftDelegateOperation,
   ApproveNftUseAuthorityInput,
   approveNftUseAuthorityOperation,
+  BurnNftInput,
+  burnNftOperation,
   CreateNftInput,
   createNftOperation,
   CreateSftInput,
@@ -276,6 +278,11 @@ export class NftClient {
     return this.metaplex
       .operations()
       .execute(deleteNftOperation(input), options);
+  }
+
+  /** {@inheritDoc burnNftOperation} */
+  burn(input: BurnNftInput, options?: OperationOptions) {
+    return this.metaplex.operations().execute(burnNftOperation(input), options);
   }
 
   // -----------------

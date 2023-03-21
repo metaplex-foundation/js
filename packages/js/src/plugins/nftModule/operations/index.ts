@@ -1,6 +1,7 @@
 export * from './approveNftCollectionAuthority';
 export * from './approveNftDelegate';
 export * from './approveNftUseAuthority';
+export * from './burnNft';
 export * from './createNft';
 export * from './createSft';
 export * from './deleteNft';
