@@ -113,12 +113,14 @@ importers:
       '@bundlr-network/client': ^0.8.8
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/mpl-auction-house': ^2.3.0
+      '@metaplex-foundation/mpl-bubblegum': ^0.6.2
       '@metaplex-foundation/mpl-candy-guard': ^0.3.0
       '@metaplex-foundation/mpl-candy-machine': ^5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': ^0.1.2
       '@metaplex-foundation/mpl-token-metadata': ^2.8.6
       '@noble/ed25519': ^1.7.1
       '@noble/hashes': ^1.1.3
+      '@solana/spl-account-compression': ^0.1.7
       '@solana/spl-token': ^0.3.5
       '@solana/web3.js': ^1.63.1
       bignumber.js: ^9.0.2
@@ -132,16 +134,19 @@ importers:
       merkletreejs: ^0.2.32
       mime: ^3.0.0
       node-fetch: ^2.6.7
+      typescript-collections: ^1.3.3
     dependencies:
       '@bundlr-network/client': 0.8.9_debug@4.3.4
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/mpl-auction-house': 2.3.1
+      '@metaplex-foundation/mpl-bubblegum': 0.6.2
       '@metaplex-foundation/mpl-candy-guard': 0.3.0
       '@metaplex-foundation/mpl-candy-machine': 5.0.0
       '@metaplex-foundation/mpl-candy-machine-core': 0.1.2
       '@metaplex-foundation/mpl-token-metadata': 2.8.6
       '@noble/ed25519': 1.7.1
       '@noble/hashes': 1.1.4
+      '@solana/spl-account-compression': 0.1.7_@solana+web3.js@1.70.0
       '@solana/spl-token': 0.3.6_@solana+web3.js@1.70.0
       '@solana/web3.js': 1.70.0
       bignumber.js: 9.1.1
@@ -155,6 +160,7 @@ importers:
       merkletreejs: 0.2.32
       mime: 3.0.0
       node-fetch: 2.6.7
+      typescript-collections: 1.3.3
 
   packages/js-plugin-aws:
     specifiers:
@@ -3159,6 +3165,25 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@metaplex-foundation/mpl-bubblegum/0.6.2:
+    resolution: {integrity: sha512-4tF7/FFSNtpozuIGD7gMKcqK2D49eVXZ144xiowC5H1iBeu009/oj2m8Tj6n4DpYFKWJ2JQhhhk0a2q7x0Begw==}
+    dependencies:
+      '@metaplex-foundation/beet': 0.7.1
+      '@metaplex-foundation/beet-solana': 0.4.0
+      '@metaplex-foundation/cusper': 0.0.2
+      '@metaplex-foundation/mpl-token-metadata': 2.8.6
+      '@solana/spl-account-compression': 0.1.7_@solana+web3.js@1.70.0
+      '@solana/spl-token': 0.1.8
+      '@solana/web3.js': 1.70.0
+      bn.js: 5.2.1
+      js-sha3: 0.8.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@metaplex-foundation/mpl-candy-guard/0.3.0:
     resolution: {integrity: sha512-YJOZPtAirPqBMd48GOUQ+lav71C70QrA9OQnXsuAbbdl7jKlvbL72C9CnSNBTfdW2I+zPOmDL5H3CQddvgIWlA==}
     dependencies:
@@ -3533,12 +3558,48 @@ packages:
     dependencies:
       buffer: 6.0.3
 
+  /@solana/spl-account-compression/0.1.7_@solana+web3.js@1.70.0:
+    resolution: {integrity: sha512-7BKXDpm2rRxmkIWAxq7jm/haRvLp4ZOaM9NMz3+zZtE+z+cWPY9lRKEWdH+RCAWNm1b0J0J+seqwb3hgf79nkA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.50.1
+    dependencies:
+      '@metaplex-foundation/beet': 0.7.1
+      '@metaplex-foundation/beet-solana': 0.4.0
+      '@solana/web3.js': 1.70.0
+      bn.js: 5.2.1
+      borsh: 0.7.0
+      js-sha3: 0.8.0
+      typescript-collections: 1.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@solana/spl-token-registry/0.2.4574:
     resolution: {integrity: sha512-JzlfZmke8Rxug20VT/VpI2XsXlsqMlcORIUivF+Yucj7tFi7A0dXG7h+2UnD0WaZJw8BrUz2ABNkUnv89vbv1A==}
     engines: {node: '>=10'}
     dependencies:
       cross-fetch: 3.0.6
     dev: true
+
+  /@solana/spl-token/0.1.8:
+    resolution: {integrity: sha512-LZmYCKcPQDtJgecvWOgT/cnoIQPWjdH+QVyzPcFvyDUiT0DiRjZaam4aqNUyvchLFhzgunv3d9xOoyE34ofdoQ==}
+    engines: {node: '>= 10'}
+    dependencies:
+      '@babel/runtime': 7.20.6
+      '@solana/web3.js': 1.70.0
+      bn.js: 5.2.1
+      buffer: 6.0.3
+      buffer-layout: 1.2.2
+      dotenv: 10.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
 
   /@solana/spl-token/0.2.0:
     resolution: {integrity: sha512-RWcn31OXtdqIxmkzQfB2R+WpsJOVS6rKuvpxJFjvik2LyODd+WN58ZP3Rpjpro03fscGAkzlFuP3r42doRJgyQ==}
@@ -4664,6 +4725,11 @@ packages:
     resolution: {integrity: sha512-Zfe5uJT9Y7J2cm2MVkmhRdkAqlbj0uw9oBaeXgOKUiXd+kdcABkp7+W+hQ8fCW/5TouBClXSzD8K5/XwVckDsg==}
     dev: true
 
+  /buffer-layout/1.2.2:
+    resolution: {integrity: sha512-kWSuLN694+KTk8SrYvCqwP2WcgQjoRCiF5b4QDvkkz8EmgD+aWAIceGFKMIAdmF/pH+vpgNV3d3kAKorcdAmWA==}
+    engines: {node: '>=4.5'}
+    dev: false
+
   /buffer-reverse/1.0.1:
     resolution: {integrity: sha512-M87YIUBsZ6N924W57vDwT/aOu8hw7ZgdByz6ijksLjmHJELBASmYTTlNHRgjE+pTsT9oJXGaDSgqqwfdHotDUg==}
     dev: false
@@ -5281,6 +5347,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dotenv/10.0.0:
+    resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
+    engines: {node: '>=10'}
+    dev: false
 
   /dotignore/0.1.2:
     resolution: {integrity: sha512-UGGGWfSauusaVJC+8fgV+NVvBXkCTmVv7sk6nojDZZvuOUNGUy0Zk4UpHQD6EDjS0jpBwcACvH4eofvyzBcRDw==}
@@ -9595,6 +9666,10 @@ packages:
       shiki: 0.11.1
       typescript: 4.9.3
     dev: true
+
+  /typescript-collections/1.3.3:
+    resolution: {integrity: sha512-7sI4e/bZijOzyURng88oOFZCISQPTHozfE2sUu5AviFYk5QV7fYGb6YiDl+vKjF/pICA354JImBImL9XJWUvdQ==}
+    dev: false
 
   /typescript/4.9.3:
     resolution: {integrity: sha512-CIfGzTelbKNEnLpLdGFgdyKhG23CKdKgQPOBc+OUNrkJ2vr+KSzsSV5kq5iWhEQbok+quxgGzrAtGWCyU7tHnA==}
