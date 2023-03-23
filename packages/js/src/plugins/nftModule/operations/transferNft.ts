@@ -1,4 +1,3 @@
-import { Metaplex } from '@/Metaplex';
 import { createTransferInstruction } from '@metaplex-foundation/mpl-token-metadata';
 import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
@@ -10,6 +9,11 @@ import {
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
 import { isNonFungible, isProgrammable, Sft } from '../models';
+import {
+  TransferCompressedNftBuilderParams,
+  prepareTransferCompressedNftBuilder,
+  transferCompressedNftBuilder,
+} from './transferCompressedNft';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -21,11 +25,7 @@ import {
   useOperation,
   TransferNftCompressionParam,
 } from '@/types';
-import {
-  TransferCompressedNftBuilderParams,
-  prepareTransferCompressedNftBuilder,
-  transferCompressedNftBuilder,
-} from './transferCompressedNft';
+import { Metaplex } from '@/Metaplex';
 
 const TOKEN_AUTH_RULES_ID = new PublicKey(
   'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'

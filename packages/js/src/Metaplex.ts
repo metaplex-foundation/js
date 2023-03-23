@@ -1,7 +1,7 @@
 import { Connection } from '@solana/web3.js';
+import { ReadApiConnection } from './utils/readApiConnection';
 import { MetaplexPlugin, Cluster, resolveClusterFromConnection } from '@/types';
 import { corePlugins } from '@/plugins/corePlugins';
-import { ReadApiConnection } from './utils/readApiConnection';
 
 export type MetaplexOptions = {
   cluster?: Cluster;

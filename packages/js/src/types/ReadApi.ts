@@ -2,9 +2,9 @@
   Types specific to the ReadApi
 */
 
+import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 import type { Metadata } from '@/plugins';
 import type { Option } from '@/utils';
-import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 
 export type ReadApiAssetInterface =
   | 'V1_NFT'
