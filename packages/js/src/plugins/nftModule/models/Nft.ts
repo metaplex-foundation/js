@@ -31,8 +31,6 @@ export type Nft = Omit<Metadata, 'model' | 'address' | 'mintAddress'> & {
    * printed edition and provides additional information accordingly.
    */
   readonly edition: NftEdition;
-} & {
-  compression?: ReadApiCompressionMetadata;
 };
 
 /** @group Model Helpers */
