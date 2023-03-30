@@ -4,7 +4,7 @@ import type { Metadata } from './Metadata';
 import type { NftEdition } from './NftEdition';
 import { isSftWithToken, SftWithToken, toSft, toSftWithToken } from './Sft';
 import { assert } from '@/utils';
-import type { Pda, ReadApiCompressionMetadata } from '@/types';
+import type { Pda } from '@/types';
 
 /**
  * This model captures all the relevant information about an NFT
