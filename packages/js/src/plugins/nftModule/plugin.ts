@@ -17,6 +17,10 @@ import {
   findNftByAssetIdOperation,
   findNftByAssetIdOperationHandler,
   findNftByMetadataOperation,
+  transferCompressedNftOperation,
+  transferCompressedNftOperationHandler,
+  createCompressedNftOperation,
+  createCompressedNftOperationHandler,
   findNftByMetadataOperationHandler,
   findNftByMintOperation,
   findNftByMintOperationHandler,
@@ -108,8 +112,14 @@ export const nftModule = (): MetaplexPlugin => ({
     op.register(createSftOperation, createSftOperationHandler);
     op.register(deleteNftOperation, deleteNftOperationHandler);
     op.register(findNftByAssetIdOperation, findNftByAssetIdOperationHandler);
-    op.register(createCompressedNftOperation, createCompressedNftOperationHandler);
-    op.register(transferCompressedNftOperation, transferCompressedNftOperationHandler);
+    op.register(
+      createCompressedNftOperation,
+      createCompressedNftOperationHandler
+    );
+    op.register(
+      transferCompressedNftOperation,
+      transferCompressedNftOperationHandler
+    );
     op.register(findNftByMetadataOperation, findNftByMetadataOperationHandler);
     op.register(findNftByMintOperation, findNftByMintOperationHandler);
     op.register(findNftByTokenOperation, findNftByTokenOperationHandler);
