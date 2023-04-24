@@ -2,7 +2,7 @@
   Types specific to the ReadApi
 */
 
-import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
+import type { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 import type { Metadata } from '@/plugins';
 import type { Option } from '@/utils';
 
