@@ -5,6 +5,7 @@ export type JsonMetadata<Uri = string> = {
   description?: string;
   seller_fee_basis_points?: number;
   image?: Uri;
+  animation_url?: Uri;
   external_url?: Uri;
   attributes?: Array<{
     trait_type?: string;
