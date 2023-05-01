@@ -199,8 +199,7 @@ export class NftClient {
       .execute(findNftsByUpdateAuthorityOperation(input), options);
   }
 
-  // TODO(jon): Fix this doc
-  /** {@inheritDoc findNftByMintOperation} */
+  /** {@inheritDoc findNftByAssetIdOperation} */
   findByAssetId(input: FindNftByAssetIdInput, options?: OperationOptions) {
     return this.metaplex
       .operations()
