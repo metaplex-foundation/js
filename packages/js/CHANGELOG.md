@@ -1,5 +1,15 @@
 # @metaplex-foundation/js
 
+## 0.19.0
+
+### Minor Changes
+
+- 16a38751: Add support for compressed NFTs
+
+### Patch Changes
+
+- 61a864ac: Add missing optional field to JsonMetadata type
+
 ## 0.18.3
 
 ### Patch Changes
