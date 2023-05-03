@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.19.1
+
+### Patch Changes
+
+- 0b77c1a7: fix: compression proof verification check
+
 ## 0.19.0
 
 ### Minor Changes
