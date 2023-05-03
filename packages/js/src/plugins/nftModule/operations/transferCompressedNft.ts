@@ -224,7 +224,7 @@ export const transferCompressedNftBuilder = (
 
   // check if the provided assetProof path is valid for the provided root
   if (
-    MerkleTree.verify(new PublicKey(compression.assetProof.root).toBuffer(), {
+    !MerkleTree.verify(new PublicKey(compression.assetProof.root).toBuffer(), {
       leafIndex: compression.data.leaf_id,
       leaf: new PublicKey(compression.assetProof.leaf).toBuffer(),
       root: new PublicKey(compression.assetProof.root).toBuffer(),
