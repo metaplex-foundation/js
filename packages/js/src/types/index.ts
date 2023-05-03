@@ -15,3 +15,4 @@ export * from './Program';
 export * from './PublicKey';
 export * from './Serializer';
 export * from './Signer';
+export * from './ReadApi';

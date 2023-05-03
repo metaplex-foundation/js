@@ -9,6 +9,11 @@ import {
   TokenMetadataAuthorizationDetails,
 } from '../Authorization';
 import { isNonFungible, isProgrammable, Sft } from '../models';
+import {
+  TransferCompressedNftBuilderParams,
+  prepareTransferCompressedNftBuilder,
+  transferCompressedNftBuilder,
+} from './transferCompressedNft';
 import { TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   Operation,
@@ -18,6 +23,7 @@ import {
   SplTokenAmount,
   token,
   useOperation,
+  TransferNftCompressionParam,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
 
@@ -125,6 +131,11 @@ export type TransferNftInput = {
    * @defaultValue `token(1)`
    */
   amount?: SplTokenAmount;
+
+  /**
+   * The compression data needed for transfer.
+   */
+  compression?: TransferNftCompressionParam;
 };
 
 /**
@@ -147,6 +158,23 @@ export const transferNftOperationHandler: OperationHandler<TransferNftOperation>
       metaplex: Metaplex,
       scope: OperationScope
     ): Promise<TransferNftOutput> => {
+      // handle the case of transferring compressed nfts
+      if (
+        !!operation.input.compression ||
+        // @ts-ignore
+        !!operation.input.nftOrSft?.compression?.compressed
+      ) {
+        operation.input = await prepareTransferCompressedNftBuilder(
+          metaplex,
+          operation.input as TransferCompressedNftBuilderParams
+        );
+        return transferCompressedNftBuilder(
+          metaplex,
+          operation.input as TransferCompressedNftBuilderParams,
+          scope
+        ).sendAndConfirm(metaplex, scope.confirmOptions);
+      }
+
       return transferNftBuilder(
         metaplex,
         operation.input,

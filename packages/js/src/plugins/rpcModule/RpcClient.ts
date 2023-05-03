@@ -20,6 +20,7 @@ import {
   FailedToSendTransactionError,
   MetaplexError,
   ParsedProgramError,
+  RpcError,
   UnknownProgramError,
 } from '@/errors';
 import type { Metaplex } from '@/Metaplex';
@@ -35,6 +36,15 @@ import {
   UnparsedMaybeAccount,
 } from '@/types';
 import { TransactionBuilder, zipMap } from '@/utils';
+
+import type {
+  ReadApiAsset,
+  ReadApiAssetList,
+  GetAssetProofRpcResponse,
+  GetAssetsByGroupRpcInput,
+  GetAssetsByOwnerRpcInput,
+} from '@/types/ReadApi';
+import { ReadApiConnection } from '@/utils/readApiConnection';
 
 export type ConfirmTransactionResponse = RpcResponseAndContext<SignatureResult>;
 export type SendAndConfirmTransactionResponse = {
@@ -316,6 +326,78 @@ export class RpcClient {
       exists: true,
       lamports: lamports(accountInfo.lamports),
     };
+  }
+
+  async getAsset(assetId: PublicKey): Promise<ReadApiAsset | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAsset(assetId);
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
+  }
+
+  async getAssetProof(
+    assetId: PublicKey
+  ): Promise<GetAssetProofRpcResponse | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAssetProof(assetId);
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
+  }
+
+  async getAssetsByGroup({
+    groupKey,
+    groupValue,
+    page,
+    limit,
+    sortBy,
+    before,
+    after,
+  }: GetAssetsByGroupRpcInput): Promise<ReadApiAssetList | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAssetsByGroup({
+        groupKey,
+        groupValue,
+        page,
+        limit,
+        sortBy,
+        before,
+        after,
+      });
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
+  }
+
+  async getAssetsByOwner({
+    ownerAddress,
+    page,
+    limit,
+    sortBy,
+    before,
+    after,
+  }: GetAssetsByOwnerRpcInput): Promise<ReadApiAssetList | MetaplexError> {
+    if (this.metaplex.connection instanceof ReadApiConnection) {
+      return await this.metaplex.connection.getAssetsByOwner({
+        ownerAddress,
+        page,
+        limit,
+        sortBy,
+        before,
+        after,
+      });
+    }
+
+    return new RpcError(
+      'Method not supported! Use a ReadApiConnection instead'
+    );
   }
 
   protected parseProgramError(

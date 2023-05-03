@@ -7,7 +7,13 @@ import { PublicKey } from '@solana/web3.js';
 import { MetadataAccount } from '../accounts';
 import { JsonMetadata } from './JsonMetadata';
 import { assert, Option, removeEmptyChars } from '@/utils';
-import { BigNumber, Creator, Pda, toBigNumber } from '@/types';
+import {
+  BigNumber,
+  Creator,
+  Pda,
+  toBigNumber,
+  ReadApiCompressionMetadata,
+} from '@/types';
 
 /** @group Models */
 export type Metadata<Json extends object = JsonMetadata> = {
@@ -26,7 +32,7 @@ export type Metadata<Json extends object = JsonMetadata> = {
    */
   readonly updateAuthorityAddress: PublicKey;
 
-  /** The JSON metadata associated with the metadata acount. */
+  /** The JSON metadata associated with the metadata account. */
   readonly json: Option<Json>;
 
   /**
@@ -110,7 +116,7 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /**
    * When this field is not `null`, it indicates that
-   * the asset is a collection. Everytime an asset is
+   * the asset is a collection. Every time an asset is
    * verified/unverified as part of this collection,
    * the `size` field inside this object will be updated accordingly.
    */
@@ -139,6 +145,9 @@ export type Metadata<Json extends object = JsonMetadata> = {
 
   /** Programmable configuration for the asset. */
   readonly programmableConfig: Option<ProgrammableConfig>;
+
+  /* Compression metadata only provided via the ReadApi */
+  readonly compression?: ReadApiCompressionMetadata;
 };
 
 /** @group Model Helpers */

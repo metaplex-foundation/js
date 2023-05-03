@@ -70,6 +70,10 @@ import {
   VerifyNftCreatorInput,
   verifyNftCreatorOperation,
 } from './operations';
+import {
+  FindNftByAssetIdInput,
+  findNftByAssetIdOperation,
+} from './operations/findNftByAssetId';
 import { OperationOptions } from '@/types';
 import type { Metaplex } from '@/Metaplex';
 
@@ -193,6 +197,13 @@ export class NftClient {
     return this.metaplex
       .operations()
       .execute(findNftsByUpdateAuthorityOperation(input), options);
+  }
+
+  /** {@inheritDoc findNftByAssetIdOperation} */
+  findByAssetId(input: FindNftByAssetIdInput, options?: OperationOptions) {
+    return this.metaplex
+      .operations()
+      .execute(findNftByAssetIdOperation(input), options);
   }
 
   /** {@inheritDoc loadMetadataOperation} */

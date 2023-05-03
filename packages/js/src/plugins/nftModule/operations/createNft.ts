@@ -2,6 +2,10 @@ import { TokenStandard, Uses } from '@metaplex-foundation/mpl-token-metadata';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNftWithToken, NftWithToken } from '../models';
+import {
+  createCompressedNftBuilder,
+  CreateCompressedNftBuilderParams,
+} from './createCompressedNft';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
 import {
   BigNumber,
@@ -260,6 +264,11 @@ export type CreateNftInput = {
    * @defaultValue `null`
    */
   ruleSet?: Option<PublicKey>;
+
+  /**
+   * The Merkle tree used to store the NFT
+   */
+  tree?: Option<PublicKey>;
 };
 
 /**
@@ -424,7 +433,17 @@ export const createNftBuilder = async (
     mintAuthority = metaplex.identity(),
     tokenOwner = metaplex.identity().publicKey,
     mintTokens = true,
+    tree,
   } = params;
+
+  if (tree) {
+    // @ts-ignore
+    return createCompressedNftBuilder(
+      metaplex,
+      params as CreateCompressedNftBuilderParams,
+      options
+    );
+  }
 
   const sftBuilder = await metaplex
     .nfts()
