@@ -61,7 +61,6 @@ test('[candyMachineV2Module] create with minimal input', async (t) => {
     version: 2,
     tokenMintAddress: null,
     collectionMintAddress: null,
-    uuid: getCandyMachineV2UuidFromAddress(candyMachine.address),
     price: spokSameAmount(sol(1.25)),
     symbol: '',
     sellerFeeBasisPoints: 500,
