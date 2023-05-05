@@ -267,7 +267,11 @@ const { uri: newUri } = await metaplex.nfts().uploadMetadata({
 
 await metaplex.nfts().update({ 
     nftOrSft: nft,
-    uri: newUri
+    uri: newUri,
+    authorizationDetails: nft.programmableConfig?.ruleSet ? {
+        rules: nft.programmableConfig?.ruleSet,
+    }
+    : undefined,
 });
 ```
 
