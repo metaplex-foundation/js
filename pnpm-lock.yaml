@@ -182,8 +182,8 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       '@metaplex-foundation/mpl-token-metadata':
-        specifier: ^2.8.6
-        version: 2.8.6
+        specifier: ^2.11.0
+        version: 2.11.0
       '@noble/ed25519':
         specifier: ^1.7.1
         version: 1.7.1
@@ -3250,7 +3250,7 @@ packages:
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/beet-solana': 0.4.0
       '@metaplex-foundation/cusper': 0.0.2
-      '@metaplex-foundation/mpl-token-metadata': 2.8.6
+      '@metaplex-foundation/mpl-token-metadata': 2.11.0
       '@solana/spl-account-compression': 0.1.8(@solana/web3.js@1.70.0)
       '@solana/spl-token': 0.1.8
       '@solana/web3.js': 1.70.0
@@ -3308,8 +3308,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@metaplex-foundation/mpl-token-metadata@2.8.6:
-    resolution: {integrity: sha512-JxpdLBRYVs3ScyipGsrUalI61Ss8url5vTbao+BPSZF/G6iTggo50LJAj15/8Wc6yoKbgkyJwc8PR2UMyLM67g==}
+  /@metaplex-foundation/mpl-token-metadata@2.11.0:
+    resolution: {integrity: sha512-pwuufw3QuSk0Z/oOmB7gpnlxiIR0bc5RVHLEpwOJ5/4KHEq7PIFxVsNcwDFzLoZJWTcQdvwZTy0d1J/qJMoxxg==}
     dependencies:
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/beet-solana': 0.4.0
