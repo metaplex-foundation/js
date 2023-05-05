@@ -20,7 +20,6 @@ import {
   CandyMachineV2,
   CandyMachineV2Program,
   CreateCandyMachineV2Input,
-  getCandyMachineV2UuidFromAddress,
   sol,
   toBigNumber,
   token,
@@ -61,7 +60,6 @@ test('[candyMachineV2Module] create with minimal input', async (t) => {
     version: 2,
     tokenMintAddress: null,
     collectionMintAddress: null,
-    uuid: getCandyMachineV2UuidFromAddress(candyMachine.address),
     price: spokSameAmount(sol(1.25)),
     symbol: '',
     sellerFeeBasisPoints: 500,
@@ -302,7 +300,6 @@ test('[candyMachineV2Module] create with whitelistMint settings', async (t) => {
 
   // Then a Candy Machine was created with ...
   await tc.assertSuccess(t, response.signature);
-  console.log(candyMachine.whitelistMintSettings?.discountPrice);
   spok(t, candyMachine, {
     $topic: 'Candy Machine',
     model: 'candyMachineV2',

@@ -431,7 +431,9 @@ export const updateNftBuilder = (
               authorizationRules: auth.accounts.authorizationRules,
               authorizationRulesProgram: TOKEN_AUTH_RULES_ID,
             },
-            { updateArgs: { ...updateInstructionData, ...auth.data } },
+            {
+              updateArgs: { ...updateInstructionData, ...auth.data } as any,
+            },
             tokenMetadataProgram.address
           ),
           signers: [payer, ...auth.signers],
@@ -491,7 +493,7 @@ const toInstructionData = (
           };
         });
 
-  return {
+  return <Omit<UpdateArgs, 'authorityType' | 'authorizationData'>>{
     __kind: 'V1',
     newUpdateAuthority: input.newUpdateAuthority ?? null,
     data: {

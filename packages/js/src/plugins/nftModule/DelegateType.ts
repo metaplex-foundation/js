@@ -14,10 +14,10 @@ export type TokenDelegateType =
   | 'UtilityV1'
   | 'StakingV1';
 export type MetadataDelegateType =
-  // | 'AuthorityV1'
+  // | 'AuthorityItemV1'
   | 'CollectionV1'
   // | 'UseV1'
-  | 'UpdateV1'
+  | 'DataV1'
   | 'ProgrammableConfigV1';
 
 const tokenDelegateRoleMap: Record<TokenDelegateType, TokenDelegateRole> = {
@@ -33,19 +33,22 @@ const metadataDelegateRoleMap: Record<
   MetadataDelegateType,
   MetadataDelegateRole
 > = {
-  // AuthorityV1: MetadataDelegateRole.Authority,
+  // AuthorityItemV1: MetadataDelegateRole.AuthorityItem,
   CollectionV1: MetadataDelegateRole.Collection,
   // UseV1: MetadataDelegateRole.Use,
-  UpdateV1: MetadataDelegateRole.Update,
+  DataV1: MetadataDelegateRole.Data,
   ProgrammableConfigV1: MetadataDelegateRole.ProgrammableConfig,
 };
 
 const metadataDelegateSeedMap: Record<MetadataDelegateRole, string> = {
-  [MetadataDelegateRole.Authority]: 'authority_delegate',
+  [MetadataDelegateRole.AuthorityItem]: 'authority_item_delegate',
   [MetadataDelegateRole.Collection]: 'collection_delegate',
   [MetadataDelegateRole.Use]: 'use_delegate',
-  [MetadataDelegateRole.Update]: 'update_delegate',
+  [MetadataDelegateRole.Data]: 'data_delegate',
   [MetadataDelegateRole.ProgrammableConfig]: 'programmable_config_delegate',
+  [MetadataDelegateRole.DataItem]: 'data_item_delegate',
+  [MetadataDelegateRole.CollectionItem]: 'collection_item_delegate',
+  [MetadataDelegateRole.ProgrammableConfigItem]: 'prog_config_item_delegate',
 };
 
 const delegateCustomDataMap: Record<
@@ -53,10 +56,10 @@ const delegateCustomDataMap: Record<
   boolean
 > = {
   // Metadata.
-  // AuthorityV1: false,
+  // AuthorityItemV1: false,
   CollectionV1: false,
   // UseV1: false,
-  UpdateV1: false,
+  DataV1: false,
   ProgrammableConfigV1: false,
   // Token
   StandardV1: true,
