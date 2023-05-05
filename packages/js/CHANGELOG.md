@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.19.2
+
+### Patch Changes
+
+- c062243c: Update Token Metadata program to v1.11.0
+
 ## 0.19.1
 
 ### Patch Changes
