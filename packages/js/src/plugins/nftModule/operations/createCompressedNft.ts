@@ -12,7 +12,7 @@ import {
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
-  changeLogEventV1Beet,
+  deserializeChangeLogEventV1,
 } from '@solana/spl-account-compression';
 import { PublicKey } from '@solana/web3.js';
 import { BN } from 'bn.js';
@@ -30,6 +30,7 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
+import base58 from 'bs58';
 
 // -----------------
 // Operation
@@ -194,11 +195,20 @@ export type CreateCompressedNftOutput = {
   /** The blockchain response from sending and confirming the transaction. */
   response: SendAndConfirmTransactionResponse;
 
-  /** The newly created SFT and, potentially, its associated token. */
+  /** The newly created NFT and, potentially, its associated token. */
   nft: Nft;
 
-  /** The asset id of the leaf. */
+  /** The mint address is the compressed NFT's assetId. */
   mintAddress: PublicKey;
+
+  /** The metadata address is the compressed NFT's assetId. */
+  metadataAddress: PublicKey;
+
+  /** The master edition address is the compressed NFT's assetId. */
+  masterEditionAddress: PublicKey;
+
+  /** The token address is the compressed NFT's assetId. */
+  tokenAddress: PublicKey;
 };
 
 /**
@@ -226,29 +236,64 @@ export const createCompressedNftOperationHandler: OperationHandler<CreateCompres
       const output = await builder.sendAndConfirm(metaplex, confirmOptions);
       scope.throwIfCanceled();
 
-      const {
-        response: { signature },
-      } = output;
-      const txInfo = await metaplex.connection.getTransaction(signature, {
-        maxSupportedTransactionVersion: 0,
-      });
-      const relevantIx = txInfo!.transaction.message.compiledInstructions.find(
-        (instruction) => {
-          return (
-            txInfo!.transaction.message.staticAccountKeys[
-              instruction.programIdIndex
-            ].toBase58() === 'noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV'
-          );
+      const txInfo = await metaplex.connection.getTransaction(
+        output.response.signature,
+        {
+          maxSupportedTransactionVersion: 0,
         }
       );
+      scope.throwIfCanceled();
 
-      const [changeLog] = changeLogEventV1Beet.deserialize(
-        Buffer.from(relevantIx!.data)
-      );
+      // find the index of the bubblegum instruction
+      const relevantIndex =
+        txInfo!.transaction.message.compiledInstructions.findIndex(
+          (instruction) => {
+            return (
+              txInfo?.transaction.message.staticAccountKeys[
+                instruction.programIdIndex
+              ].toBase58() === 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY'
+            );
+          }
+        );
+
+      // locate the no-op inner instructions called via cpi from bubblegum
+      const relevantInnerIxs = txInfo!.meta?.innerInstructions?.[
+        relevantIndex
+      ].instructions.filter((instruction) => {
+        return (
+          txInfo?.transaction.message.staticAccountKeys[
+            instruction.programIdIndex
+          ].toBase58() === 'noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV'
+        );
+      });
+
+      // when no valid noop instructions are found, throw an error
+      if (!relevantInnerIxs || relevantInnerIxs.length == 0)
+        throw Error('Unable to locate valid noop instructions');
+
+      // locate the asset index by attempting to locate and parse the correct `relevantInnerIx`
+      let assetIndex: number | undefined = undefined;
+      // note: the `assetIndex` is expected to be at position `1`, and normally expect only 2 `relevantInnerIx`
+      for (let i = relevantInnerIxs.length - 1; i > 0; i--) {
+        try {
+          const changeLogEvent = deserializeChangeLogEventV1(
+            Buffer.from(base58.decode(relevantInnerIxs[i]?.data!))
+          );
+
+          // extract a successful changelog index
+          assetIndex = changeLogEvent?.index;
+        } catch (__) {
+          // do nothing, invalid data is handled just after the for loop
+        }
+      }
+
+      // when no `assetIndex` was found, throw an error
+      if (typeof assetIndex == 'undefined')
+        throw Error('Unable to locate the newly minted assetId ');
 
       const assetId = await getLeafAssetId(
         operation.input.tree,
-        new BN(changeLog.index)
+        new BN(assetIndex)
       );
 
       const nft = await metaplex.nfts().findByAssetId(
@@ -260,7 +305,19 @@ export const createCompressedNftOperationHandler: OperationHandler<CreateCompres
       scope.throwIfCanceled();
 
       assertNft(nft);
-      return { ...output, nft };
+
+      return {
+        ...output,
+        nft,
+        /**
+         * the assetId is impossible to know before the compressed nft is minted
+         * all these addresses are derived from, or are, the `assetId`
+         */
+        mintAddress: assetId,
+        tokenAddress: assetId,
+        metadataAddress: nft.metadataAddress,
+        masterEditionAddress: nft.edition.address,
+      };
     },
   };
 
@@ -316,7 +373,7 @@ export type CreateCompressedNftBuilderContext = Omit<
 >;
 
 /**
- * Creates a new SFT.
+ * Creates a new compressed NFT.
  *
  * ```ts
  * const transactionBuilder = await metaplex

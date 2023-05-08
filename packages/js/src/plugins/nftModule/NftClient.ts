@@ -11,6 +11,8 @@ import {
   approveNftDelegateOperation,
   ApproveNftUseAuthorityInput,
   approveNftUseAuthorityOperation,
+  CreateCompressedNftInput,
+  createCompressedNftOperation,
   CreateNftInput,
   createNftOperation,
   CreateSftInput,
@@ -229,7 +231,7 @@ export class NftClient {
     model: T,
     input?: Omit<
       FindNftByMintInput,
-      'mintAddress' | 'tokenAddres' | 'tokenOwner'
+      'mintAddress' | 'tokenAddress' | 'tokenOwner'
     >,
     options?: OperationOptions
   ): Promise<T extends Metadata | PublicKey ? Nft | Sft : T> {
@@ -249,9 +251,17 @@ export class NftClient {
 
   /** {@inheritDoc createNftOperation} */
   create(input: CreateNftInput, options?: OperationOptions) {
-    return this.metaplex
-      .operations()
-      .execute(createNftOperation(input), options);
+    if (input?.tree)
+      return this.metaplex
+        .operations()
+        .execute(
+          createCompressedNftOperation(input as CreateCompressedNftInput),
+          options
+        );
+    else
+      return this.metaplex
+        .operations()
+        .execute(createNftOperation(input), options);
   }
 
   /** {@inheritDoc createSftOperation} */
