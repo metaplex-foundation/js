@@ -259,8 +259,8 @@ export class NftClient {
           options
         );
     return this.metaplex
-        .operations()
-        .execute(createNftOperation(input), options);
+      .operations()
+      .execute(createNftOperation(input), options);
   }
 
   /** {@inheritDoc createSftOperation} */
