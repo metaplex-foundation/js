@@ -1,5 +1,12 @@
 # @metaplex-foundation/js
 
+## 0.19.3
+
+### Patch Changes
+
+- bcd01a14: Fix minting compressed NFTs
+- 37add4ea: Update Token Metadata to v1.11.1
+
 ## 0.19.2
 
 ### Patch Changes
