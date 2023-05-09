@@ -10,6 +10,7 @@ import {
   CreateNftInput,
   KeypairSigner,
   CreateSftInput,
+  NftWithToken,
 } from '@/index';
 
 export type MetaplexTestOptions = {
@@ -57,7 +58,7 @@ export const createNft = async (
     ...input,
   });
 
-  return nft;
+  return nft as NftWithToken;
 };
 
 export const createCollectionNft = (

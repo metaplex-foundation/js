@@ -133,7 +133,7 @@ export type CreateNftInput = {
    * Describes the asset class of the token.
    * It can be one of the following:
    * - `TokenStandard.NonFungible`: A traditional NFT (master edition).
-   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attrributes.
+   * - `TokenStandard.FungibleAsset`: A fungible token with metadata that can also have attributes.
    * - `TokenStandard.Fungible`: A fungible token with simple metadata.
    * - `TokenStandard.NonFungibleEdition`: A limited edition NFT "printed" from a master edition.
    * - `TokenStandard.ProgrammableNonFungible`: A master edition NFT with programmable configuration.
