@@ -258,8 +258,7 @@ export class NftClient {
           createCompressedNftOperation(input as CreateCompressedNftInput),
           options
         );
-    else
-      return this.metaplex
+    return this.metaplex
         .operations()
         .execute(createNftOperation(input), options);
   }

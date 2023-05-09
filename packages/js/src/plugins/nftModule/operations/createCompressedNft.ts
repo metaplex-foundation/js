@@ -16,6 +16,7 @@ import {
 } from '@solana/spl-account-compression';
 import { PublicKey } from '@solana/web3.js';
 import { BN } from 'bn.js';
+import base58 from 'bs58';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { assertNft, Nft } from '../models';
 import { Option, TransactionBuilder, TransactionBuilderOptions } from '@/utils';
@@ -30,7 +31,6 @@ import {
   useOperation,
 } from '@/types';
 import { Metaplex } from '@/Metaplex';
-import base58 from 'bs58';
 
 // -----------------
 // Operation
