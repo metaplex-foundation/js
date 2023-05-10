@@ -4,6 +4,10 @@ This SDK helps developers get started with the on-chain tools provided by Metapl
 
 Please note that this SDK has been re-implemented from scratch and is still in active development. This means **some of the core API and interfaces might change from one version to another**. However, feel free to use it and provide some early feedback if you wish to contribute to the direction of this project.
 
+## Changelog
+
+See the [GitHub Releases page](https://github.com/metaplex-foundation/js/releases) for information about changes and new features in each release.
+
 ## Installation
 ```sh
 npm install @metaplex-foundation/js @solana/web3.js
