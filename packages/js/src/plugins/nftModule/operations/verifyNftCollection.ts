@@ -247,14 +247,8 @@ export const verifyNftCollectionBuilder = (
           delegateRecord,
           metadata,
           collectionMint: collectionMintAddress,
-          collectionMetadata: metaplex.nfts().pdas().metadata({
-            mint: collectionMintAddress,
-            programs,
-          }),
-          collectionMasterEdition: metaplex.nfts().pdas().masterEdition({
-            mint: collectionMintAddress,
-            programs,
-          }),
+          collectionMetadata,
+          collectionMasterEdition: collectionEdition,
           systemProgram: systemProgram.address,
           sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
         },
