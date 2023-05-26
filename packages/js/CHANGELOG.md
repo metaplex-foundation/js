@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.19.4
+
+### Patch Changes
+
+- 989a8853: Integrate the new Burn and Verify instructions
+
 ## 0.19.3
 
 ### Patch Changes
