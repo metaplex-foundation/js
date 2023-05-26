@@ -1,8 +1,10 @@
 import {
+  VerificationArgs,
   createUnverifyCollectionInstruction,
+  createUnverifyInstruction,
   createUnverifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -74,12 +76,28 @@ export type UnverifyNftCollectionInput = {
 
   /**
    * Whether or not the provided `collectionAuthority` is a delegated
-   * collection authority, i.e. it was approved by the update authority
-   * using `metaplex.nfts().approveCollectionAuthority()`.
+   * collection authority, i.e. it was approved by the update authority.
+   *
+   * - `false` means the collection authority is the update authority of the collection.
+   * - `legacyDelegate` means the collection authority is a delegate that was approved
+   *  using the legacy `metaplex.nfts().approveCollectionAuthority()` operation.
+   * - `metadataDelegate` means the collection authority is a delegate that was approved
+   *  using the new `metaplex.nfts().delegate()` operation.
+   * - `true` is equivalent to `legacyDelegate` for backwards compatibility.
    *
    * @defaultValue `false`
    */
-  isDelegated?: boolean;
+  isDelegated?: boolean | 'legacyDelegate' | 'metadataDelegate';
+
+  /**
+   * The update authority of the Collection NFT.
+   *
+   * This is used to compute the metadata delegate record when
+   * `isDelegated` is equal to `"metadataDelegate"`.
+   *
+   * @defaultValue `metaplex.identity().publicKey`
+   */
+  collectionUpdateAuthority?: PublicKey;
 };
 
 /**
@@ -151,55 +169,92 @@ export const unverifyNftCollectionBuilder = (
     isSizedCollection = true,
     isDelegated = false,
     collectionAuthority = metaplex.identity(),
+    collectionUpdateAuthority = metaplex.identity().publicKey,
   } = params;
 
   // Programs.
+  const systemProgram = metaplex.programs().getSystem(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
-  const accounts = {
-    metadata: metaplex.nfts().pdas().metadata({
-      mint: mintAddress,
-      programs,
-    }),
-    collectionAuthority: collectionAuthority.publicKey,
-    payer: payer.publicKey,
-    collectionMint: collectionMintAddress,
-    collection: metaplex.nfts().pdas().metadata({
-      mint: collectionMintAddress,
-      programs,
-    }),
-    collectionMasterEditionAccount: metaplex.nfts().pdas().masterEdition({
-      mint: collectionMintAddress,
-      programs,
-    }),
-    collectionAuthorityRecord: isDelegated
-      ? metaplex.nfts().pdas().collectionAuthorityRecord({
+  // Accounts.
+  const metadata = metaplex.nfts().pdas().metadata({
+    mint: mintAddress,
+    programs,
+  });
+  const collectionMetadata = metaplex.nfts().pdas().metadata({
+    mint: collectionMintAddress,
+    programs,
+  });
+  const collectionEdition = metaplex.nfts().pdas().masterEdition({
+    mint: collectionMintAddress,
+    programs,
+  });
+
+  if (isDelegated === 'legacyDelegate' || isDelegated === true) {
+    const accounts = {
+      metadata,
+      collectionAuthority: collectionAuthority.publicKey,
+      payer: payer.publicKey,
+      collectionMint: collectionMintAddress,
+      collection: collectionMetadata,
+      collectionMasterEditionAccount: collectionEdition,
+      collectionAuthorityRecord: metaplex
+        .nfts()
+        .pdas()
+        .collectionAuthorityRecord({
           mint: collectionMintAddress,
           collectionAuthority: collectionAuthority.publicKey,
           programs,
-        })
-      : undefined,
-  };
+        }),
+    };
 
-  const instruction = isSizedCollection
-    ? createUnverifySizedCollectionItemInstruction(
-        accounts,
-        tokenMetadataProgram.address
-      )
-    : createUnverifyCollectionInstruction(
-        accounts,
-        tokenMetadataProgram.address
-      );
+    const instruction = isSizedCollection
+      ? createUnverifySizedCollectionItemInstruction(
+          accounts,
+          tokenMetadataProgram.address
+        )
+      : createUnverifyCollectionInstruction(
+          accounts,
+          tokenMetadataProgram.address
+        );
 
-  return (
-    TransactionBuilder.make()
+    return TransactionBuilder.make()
       .setFeePayer(payer)
-
-      // Unverify the collection.
       .add({
         instruction,
         signers: [payer, collectionAuthority],
         key: params.instructionKey ?? 'unverifyCollection',
-      })
-  );
+      });
+  }
+
+  const delegateRecord =
+    isDelegated === 'metadataDelegate'
+      ? metaplex.nfts().pdas().metadataDelegateRecord({
+          mint: collectionMintAddress,
+          type: 'CollectionV1',
+          updateAuthority: collectionUpdateAuthority,
+          delegate: collectionAuthority.publicKey,
+          programs,
+        })
+      : undefined;
+
+  return TransactionBuilder.make()
+    .setFeePayer(payer)
+    .add({
+      instruction: createUnverifyInstruction(
+        {
+          authority: collectionAuthority.publicKey,
+          delegateRecord,
+          metadata,
+          collectionMint: collectionMintAddress,
+          collectionMetadata,
+          systemProgram: systemProgram.address,
+          sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+        },
+        { verificationArgs: VerificationArgs.CollectionV1 },
+        tokenMetadataProgram.address
+      ),
+      signers: [collectionAuthority],
+      key: params.instructionKey ?? 'unverifyCollection',
+    });
 };

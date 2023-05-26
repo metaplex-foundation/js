@@ -93,7 +93,7 @@ test('[nftModule] the update authority of an NFT cannot delete it', async (t: Te
   });
 
   // Then we expect an error.
-  await assertThrows(t, promise, /InvalidOwner: Invalid Owner/);
+  await assertThrows(t, promise, /Invalid authority type/);
 
   // And the NFT accounts still exist.
   const accounts = await mx

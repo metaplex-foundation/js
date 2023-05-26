@@ -1,5 +1,8 @@
-import { createRemoveCreatorVerificationInstruction } from '@metaplex-foundation/mpl-token-metadata';
-import { PublicKey } from '@solana/web3.js';
+import {
+  VerificationArgs,
+  createUnverifyInstruction,
+} from '@metaplex-foundation/mpl-token-metadata';
+import { PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY } from '@solana/web3.js';
 import { SendAndConfirmTransactionResponse } from '../../rpcModule';
 import { Metaplex } from '@/Metaplex';
 import {
@@ -124,6 +127,7 @@ export const unverifyNftCreatorBuilder = (
   const { mintAddress, creator = metaplex.identity() } = params;
 
   // Programs.
+  const systemProgram = metaplex.programs().getSystem(programs);
   const tokenMetadataProgram = metaplex.programs().getTokenMetadata(programs);
 
   return (
@@ -132,14 +136,17 @@ export const unverifyNftCreatorBuilder = (
 
       // Verify the creator.
       .add({
-        instruction: createRemoveCreatorVerificationInstruction(
+        instruction: createUnverifyInstruction(
           {
+            authority: creator.publicKey,
             metadata: metaplex.nfts().pdas().metadata({
               mint: mintAddress,
               programs,
             }),
-            creator: creator.publicKey,
+            systemProgram: systemProgram.address,
+            sysvarInstructions: SYSVAR_INSTRUCTIONS_PUBKEY,
           },
+          { verificationArgs: VerificationArgs.CreatorV1 },
           tokenMetadataProgram.address
         ),
         signers: [creator],
