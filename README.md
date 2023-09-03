@@ -1,5 +1,18 @@
 # Metaplex JavaScript SDK
 
+🚨 **Deprecated library**
+
+Please note that this library is no longer actively maintained. To integrate Metaplex's products with your JavaScript applications please use our various Umi libraries instead:
+
+- 🌊 **Umi Framework**. [GitHub](https://github.com/metaplex-foundation/umi) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/umi)
+- 📦 **Token Metadata**. [Documentation](https://developers.metaplex.com/token-metadata) / [GitHub](https://github.com/metaplex-foundation/mpl-token-metadata) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-token-metadata)
+- 📦 **Candy Machine**. [Documentation](https://developers.metaplex.com/candy-machine) / [GitHub](https://github.com/metaplex-foundation/mpl-candy-machine) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-candy-machine)
+- 📦 **Bubblegum**. [Documentation](https://developers.metaplex.com/bubblegum) / [GitHub](https://github.com/metaplex-foundation/mpl-bubblegum) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-bubblegum)
+- 📦 **Token Auth Rules**. [Documentation](https://developers.metaplex.com/token-auth-rules) / [GitHub](https://github.com/metaplex-foundation/mpl-token-auth-rules) / [NPM (alpha tag)](https://www.npmjs.com/package/@metaplex-foundation/mpl-token-auth-rules)
+- 📦 **Toolbox**. [Documentation](https://developers.metaplex.com/toolbox) / [GitHub](https://github.com/metaplex-foundation/mpl-toolbox) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-toolbox)
+
+---
+
 This SDK helps developers get started with the on-chain tools provided by Metaplex. It focuses its API on common use-cases to provide a smooth developer experience whilst allowing third parties to extend its features via plugins.
 
 Please note that this SDK has been re-implemented from scratch and is still in active development. This means **some of the core API and interfaces might change from one version to another**. However, feel free to use it and provide some early feedback if you wish to contribute to the direction of this project.
