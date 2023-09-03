@@ -8,7 +8,7 @@ Please note that this library is no longer actively maintained. To integrate Met
 - 📦 **Token Metadata**. [Documentation](https://developers.metaplex.com/token-metadata) / [GitHub](https://github.com/metaplex-foundation/mpl-token-metadata) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-token-metadata)
 - 📦 **Candy Machine**. [Documentation](https://developers.metaplex.com/candy-machine) / [GitHub](https://github.com/metaplex-foundation/mpl-candy-machine) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-candy-machine)
 - 📦 **Bubblegum**. [Documentation](https://developers.metaplex.com/bubblegum) / [GitHub](https://github.com/metaplex-foundation/mpl-bubblegum) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-bubblegum)
-- 📦 **Token Auth Rules**. [Documentation](https://developers.metaplex.com/token-auth-rules) / [GitHub](https://github.com/metaplex-foundation/mpl-token-auth-rules) / [NPM (alpha tag)](https://www.npmjs.com/package/@metaplex-foundation/mpl-token-auth-rules)
+- 📦 **Token Auth Rules**. [Documentation](https://developers.metaplex.com/token-auth-rules) / [GitHub](https://github.com/metaplex-foundation/mpl-token-auth-rules) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-token-auth-rules)
 - 📦 **Toolbox**. [Documentation](https://developers.metaplex.com/toolbox) / [GitHub](https://github.com/metaplex-foundation/mpl-toolbox) / [NPM](https://www.npmjs.com/package/@metaplex-foundation/mpl-toolbox)
 
 ---
