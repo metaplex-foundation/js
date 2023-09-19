@@ -1,5 +1,11 @@
 # @metaplex-foundation/js
 
+## 0.19.5
+
+### Patch Changes
+
+- 20e13b29: Add types to exports in package.json
+
 ## 0.19.4
 
 ### Patch Changes
