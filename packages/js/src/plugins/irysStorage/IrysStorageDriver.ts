@@ -1,6 +1,5 @@
 import type { default as NodeIrys, WebIrys } from '@irys/sdk';
 
-
 import BigNumber from 'bignumber.js';
 import {
   Connection,
@@ -30,7 +29,10 @@ import {
   toBigNumber,
 } from '@/types';
 import {
-  AssetUploadFailedError, FailedToConnectToIrysAddressError, FailedToInitializeIrysError, IrysWithdrawError,
+  AssetUploadFailedError,
+  FailedToConnectToIrysAddressError,
+  FailedToInitializeIrysError,
+  IrysWithdrawError,
 } from '@/errors';
 import { _removeDoubleDefault } from '@/utils';
 
@@ -104,8 +106,10 @@ export class IrysStorageDriver implements StorageDriver {
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const irysTx = irys.createTransaction(file.buffer, { tags: getMetaplexFileTagsWithContentType(file)})
-      await irysTx.sign()
+      const irysTx = irys.createTransaction(file.buffer, {
+        tags: getMetaplexFileTagsWithContentType(file),
+      });
+      await irysTx.sign();
 
       const { status, data } = await irys.uploader.uploadTransaction(irysTx);
 
@@ -162,10 +166,12 @@ export class IrysStorageDriver implements StorageDriver {
 
   async withdraw(amount: Amount): Promise<void> {
     const irys = await this.irys();
-    try{
+    try {
       await irys.withdrawBalance(amountToBigNumber(amount));
-    }catch(e: any){
-      throw new IrysWithdrawError( (e instanceof Error) ? e.message : e.toString());
+    } catch (e: any) {
+      throw new IrysWithdrawError(
+        e instanceof Error ? e.message : e.toString()
+      );
     }
   }
 
@@ -203,12 +209,7 @@ export class IrysStorageDriver implements StorageDriver {
           Keypair.fromSecretKey((identity as KeypairSigner).secretKey)
         );
 
-      irys = await this.initWebirys(
-        address,
-        currency,
-        identitySigner,
-        options
-      );
+      irys = await this.initWebirys(address, currency, identitySigner, options);
     }
 
     try {
@@ -227,10 +228,13 @@ export class IrysStorageDriver implements StorageDriver {
     keypair: KeypairSigner,
     options: any
   ): Promise<NodeIrys> {
-    const bPackage = _removeDoubleDefault(
-      await import('@irys/sdk')
-    );
-    return new bPackage.default({url: address, token: currency, key: keypair.secretKey, config: options});
+    const bPackage = _removeDoubleDefault(await import('@irys/sdk'));
+    return new bPackage.default({
+      url: address,
+      token: currency,
+      key: keypair.secretKey,
+      config: options,
+    });
   }
 
   async initWebirys(
@@ -259,10 +263,13 @@ export class IrysStorageDriver implements StorageDriver {
       },
     };
 
-    const bPackage = _removeDoubleDefault(
-      await import('@irys/sdk')
-    );
-    const irys = new bPackage.WebIrys({url: address, token: currency, wallet: {provider: wallet}, config: options});
+    const bPackage = _removeDoubleDefault(await import('@irys/sdk'));
+    const irys = new bPackage.WebIrys({
+      url: address,
+      token: currency,
+      wallet: { provider: wallet },
+      config: options,
+    });
 
     try {
       // Try to initiate irys.
