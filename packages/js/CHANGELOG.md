@@ -1,5 +1,15 @@
 # @metaplex-foundation/js
 
+## 0.20.0
+
+### Minor Changes
+
+- f2d02ac5: Transition from Bundlr to Irys
+
+### Patch Changes
+
+- 1067c0b8: Fix formatting
+
 ## 0.19.5
 
 ### Patch Changes
