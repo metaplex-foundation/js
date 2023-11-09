@@ -43,7 +43,7 @@
     "test:exports": "node ./test/cjs-export.test.cjs && node ./test/esm-export.test.mjs"
   },
   "dependencies": {
-    "@bundlr-network/client": "^0.8.8",
+    "@irys/sdk": "^0.0.2",
     "@metaplex-foundation/beet": "0.7.1",
     "@metaplex-foundation/mpl-auction-house": "^2.3.0",
     "@metaplex-foundation/mpl-bubblegum": "^0.6.2",

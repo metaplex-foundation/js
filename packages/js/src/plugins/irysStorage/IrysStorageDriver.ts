@@ -1,4 +1,6 @@
-import type { default as NodeBundlr, WebBundlr } from '@bundlr-network/client';
+import type { default as NodeIrys, WebIrys } from '@irys/sdk';
+
+
 import BigNumber from 'bignumber.js';
 import {
   Connection,
@@ -28,14 +30,11 @@ import {
   toBigNumber,
 } from '@/types';
 import {
-  AssetUploadFailedError,
-  BundlrWithdrawError,
-  FailedToConnectToBundlrAddressError,
-  FailedToInitializeBundlrError,
+  AssetUploadFailedError, FailedToConnectToIrysAddressError, FailedToInitializeIrysError, IrysWithdrawError,
 } from '@/errors';
 import { _removeDoubleDefault } from '@/utils';
 
-export type BundlrOptions = {
+export type IrysOptions = {
   address?: string;
   timeout?: number;
   providerUrl?: string;
@@ -43,7 +42,7 @@ export type BundlrOptions = {
   identity?: Signer;
 };
 
-export type BundlrWalletAdapter = {
+export type IrysWalletAdapter = {
   publicKey: PublicKey | null;
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction?: (transaction: Transaction) => Promise<Transaction>;
@@ -55,18 +54,18 @@ export type BundlrWalletAdapter = {
   ) => Promise<TransactionSignature>;
 };
 
-/// Size of Bundlr transaction header
+/// Size of irys transaction header
 const HEADER_SIZE = 2_000;
 
 /// Minimum file size for cost calculation
 const MINIMUM_SIZE = 80_000;
 
-export class BundlrStorageDriver implements StorageDriver {
+export class IrysStorageDriver implements StorageDriver {
   protected _metaplex: Metaplex;
-  protected _bundlr: WebBundlr | NodeBundlr | null = null;
-  protected _options: BundlrOptions;
+  protected _irys: WebIrys | NodeIrys | null = null;
+  protected _options: IrysOptions;
 
-  constructor(metaplex: Metaplex, options: BundlrOptions = {}) {
+  constructor(metaplex: Metaplex, options: IrysOptions = {}) {
     this._metaplex = metaplex;
     this._options = {
       providerUrl: metaplex.connection.rpcEndpoint,
@@ -75,8 +74,8 @@ export class BundlrStorageDriver implements StorageDriver {
   }
 
   async getUploadPrice(bytes: number): Promise<Amount> {
-    const bundlr = await this.bundlr();
-    const price = await bundlr.getPrice(bytes);
+    const irys = await this.irys();
+    const price = await irys.getPrice(bytes);
 
     return bigNumberToAmount(
       price.multipliedBy(this._options.priceMultiplier ?? 1.1)
@@ -98,16 +97,17 @@ export class BundlrStorageDriver implements StorageDriver {
   }
 
   async uploadAll(files: MetaplexFile[]): Promise<string[]> {
-    const bundlr = await this.bundlr();
+    const irys = await this.irys();
     const amount = await this.getUploadPrice(
       getBytesFromMetaplexFiles(...files)
     );
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
-      const { status, data } = await bundlr.uploader.upload(file.buffer, {
-        tags: getMetaplexFileTagsWithContentType(file),
-      });
+      const irysTx = irys.createTransaction(file.buffer, { tags: getMetaplexFileTagsWithContentType(file)})
+      await irysTx.sign()
+
+      const { status, data } = await irys.uploader.uploadTransaction(irysTx);
 
       if (status >= 300) {
         throw new AssetUploadFailedError(status);
@@ -120,18 +120,18 @@ export class BundlrStorageDriver implements StorageDriver {
   }
 
   async getBalance(): Promise<Amount> {
-    const bundlr = await this.bundlr();
-    const balance = await bundlr.getLoadedBalance();
+    const irys = await this.irys();
+    const balance = await irys.getLoadedBalance();
 
     return bigNumberToAmount(balance);
   }
 
   async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
-    const bundlr = await this.bundlr();
+    const irys = await this.irys();
     let toFund = amountToBigNumber(amount);
 
     if (!skipBalanceCheck) {
-      const balance = await bundlr.getLoadedBalance();
+      const balance = await irys.getLoadedBalance();
 
       toFund = toFund.isGreaterThan(balance)
         ? toFund.minus(balance)
@@ -142,14 +142,14 @@ export class BundlrStorageDriver implements StorageDriver {
       return;
     }
 
-    // TODO: Catch errors and wrap in BundlrErrors.
-    await bundlr.fund(toFund);
+    // TODO: Catch errors and wrap in irysErrors.
+    await irys.fund(toFund);
   }
 
   async withdrawAll(): Promise<void> {
-    // TODO(loris): Replace with "withdrawAll" when available on Bundlr.
-    const bundlr = await this.bundlr();
-    const balance = await bundlr.getLoadedBalance();
+    // TODO(loris): Replace with "withdrawAll" when available on irys.
+    const irys = await this.irys();
+    const balance = await irys.getLoadedBalance();
     const minimumBalance = new BigNumber(5000);
 
     if (balance.isLessThan(minimumBalance)) {
@@ -161,26 +161,25 @@ export class BundlrStorageDriver implements StorageDriver {
   }
 
   async withdraw(amount: Amount): Promise<void> {
-    const bundlr = await this.bundlr();
-
-    const { status } = await bundlr.withdrawBalance(amountToBigNumber(amount));
-
-    if (status >= 300) {
-      throw new BundlrWithdrawError(status);
+    const irys = await this.irys();
+    try{
+      await irys.withdrawBalance(amountToBigNumber(amount));
+    }catch(e: any){
+      throw new IrysWithdrawError( (e instanceof Error) ? e.message : e.toString());
     }
   }
 
-  async bundlr(): Promise<WebBundlr | NodeBundlr> {
-    if (this._bundlr) {
-      return this._bundlr;
+  async irys(): Promise<WebIrys | NodeIrys> {
+    if (this._irys) {
+      return this._irys;
     }
 
-    return (this._bundlr = await this.initBundlr());
+    return (this._irys = await this.initIrys());
   }
 
-  async initBundlr(): Promise<WebBundlr | NodeBundlr> {
+  async initIrys(): Promise<WebIrys | NodeIrys> {
     const currency = 'solana';
-    const address = this._options?.address ?? 'https://node1.bundlr.network';
+    const address = this._options?.address ?? 'https://node1.irys.xyz';
     const options = {
       timeout: this._options.timeout,
       providerUrl: this._options.providerUrl,
@@ -189,13 +188,13 @@ export class BundlrStorageDriver implements StorageDriver {
     const identity: Signer =
       this._options.identity ?? this._metaplex.identity();
 
-    // if in node use node bundlr, else use web bundlr
+    // if in node use node irys, else use web irys
     // see: https://github.com/metaplex-foundation/js/issues/202
     const isNode =
       typeof window === 'undefined' || window.process?.hasOwnProperty('type');
-    let bundlr;
+    let irys;
     if (isNode && isKeypairSigner(identity))
-      bundlr = await this.initNodeBundlr(address, currency, identity, options);
+      irys = await this.initNodeirys(address, currency, identity, options);
     else {
       let identitySigner: IdentitySigner;
       if (isIdentitySigner(identity)) identitySigner = identity;
@@ -204,7 +203,7 @@ export class BundlrStorageDriver implements StorageDriver {
           Keypair.fromSecretKey((identity as KeypairSigner).secretKey)
         );
 
-      bundlr = await this.initWebBundlr(
+      irys = await this.initWebirys(
         address,
         currency,
         identitySigner,
@@ -213,34 +212,34 @@ export class BundlrStorageDriver implements StorageDriver {
     }
 
     try {
-      // Check for valid bundlr node.
-      await bundlr.utils.getBundlerAddress(currency);
+      // Check for valid irys node.
+      await irys.utils.getBundlerAddress(currency);
     } catch (error) {
-      throw new FailedToConnectToBundlrAddressError(address, error as Error);
+      throw new FailedToConnectToIrysAddressError(address, error as Error);
     }
 
-    return bundlr;
+    return irys;
   }
 
-  async initNodeBundlr(
+  async initNodeirys(
     address: string,
     currency: string,
     keypair: KeypairSigner,
     options: any
-  ): Promise<NodeBundlr> {
+  ): Promise<NodeIrys> {
     const bPackage = _removeDoubleDefault(
-      await import('@bundlr-network/client')
+      await import('@irys/sdk')
     );
-    return new bPackage.default(address, currency, keypair.secretKey, options);
+    return new bPackage.default({url: address, token: currency, key: keypair.secretKey, config: options});
   }
 
-  async initWebBundlr(
+  async initWebirys(
     address: string,
     currency: string,
     identity: IdentitySigner,
     options: any
-  ): Promise<WebBundlr> {
-    const wallet: BundlrWalletAdapter = {
+  ): Promise<WebIrys> {
+    const wallet: IrysWalletAdapter = {
       publicKey: identity.publicKey,
       signMessage: (message: Uint8Array) => identity.signMessage(message),
       signTransaction: (transaction: Transaction) =>
@@ -261,26 +260,26 @@ export class BundlrStorageDriver implements StorageDriver {
     };
 
     const bPackage = _removeDoubleDefault(
-      await import('@bundlr-network/client')
+      await import('@irys/sdk')
     );
-    const bundlr = new bPackage.WebBundlr(address, currency, wallet, options);
+    const irys = new bPackage.WebIrys({url: address, token: currency, wallet: {provider: wallet}, config: options});
 
     try {
-      // Try to initiate bundlr.
-      await bundlr.ready();
+      // Try to initiate irys.
+      await irys.ready();
     } catch (error) {
-      throw new FailedToInitializeBundlrError(error as Error);
+      throw new FailedToInitializeIrysError(error as Error);
     }
 
-    return bundlr;
+    return irys;
   }
 }
 
-export const isBundlrStorageDriver = (
+export const isirysStorageDriver = (
   storageDriver: StorageDriver
-): storageDriver is BundlrStorageDriver => {
+): storageDriver is IrysStorageDriver => {
   return (
-    'bundlr' in storageDriver &&
+    'irys' in storageDriver &&
     'getBalance' in storageDriver &&
     'fund' in storageDriver &&
     'withdrawAll' in storageDriver
