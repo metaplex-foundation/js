@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/js",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "sideEffects": false,
   "module": "dist/esm/index.mjs",
   "main": "dist/cjs/index.cjs",
@@ -64,7 +64,7 @@
     "eventemitter3": "^4.0.7",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
-    "merkletreejs": "^0.2.32",
+    "merkletreejs": "^0.3.11",
     "mime": "^3.0.0",
     "node-fetch": "^2.6.7"
   },

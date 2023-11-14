@@ -228,8 +228,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       merkletreejs:
-        specifier: ^0.2.32
-        version: 0.2.32
+        specifier: ^0.3.11
+        version: 0.3.11
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -5337,8 +5337,8 @@ packages:
       which: 2.0.2
     dev: true
 
-  /crypto-js@3.3.0:
-    resolution: {integrity: sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==}
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
   /csv-generate@3.4.3:
@@ -7858,13 +7858,13 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /merkletreejs@0.2.32:
-    resolution: {integrity: sha512-TostQBiwYRIwSE5++jGmacu3ODcKAgqb0Y/pnIohXS7sWxh1gCkSptbmF1a43faehRDpcHf7J/kv0Ml2D/zblQ==}
+  /merkletreejs@0.3.11:
+    resolution: {integrity: sha512-LJKTl4iVNTndhL+3Uz/tfkjD0klIWsHlUzgtuNnNrsf7bAlXR30m+xYB7lHr5Z/l6e/yAIsr26Dabx6Buo4VGQ==}
     engines: {node: '>= 7.6.0'}
     dependencies:
       bignumber.js: 9.1.1
       buffer-reverse: 1.0.1
-      crypto-js: 3.3.0
+      crypto-js: 4.2.0
       treeify: 1.1.0
       web3-utils: 1.8.1
     dev: false
