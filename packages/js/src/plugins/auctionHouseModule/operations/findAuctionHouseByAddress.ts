@@ -1,6 +1,5 @@
 import type { PublicKey } from '@solana/web3.js';
 import { toAuctioneerAccount, toAuctionHouseAccount } from '../accounts';
-import { AuctioneerAuthorityRequiredError } from '../errors';
 import { AuctionHouse, toAuctionHouse } from '../models/AuctionHouse';
 import {
   Operation,
@@ -51,7 +50,7 @@ export type FindAuctionHouseByAddressInput = {
 
   /**
    * The Auctioneer authority key.
-   * It is required when Auction House has Auctioneer enabled.
+   * It is automatically loaded when not specified and Auction House has Auctioneer enabled.
    *
    * @defaultValue No default value.
    */
@@ -101,7 +100,9 @@ export const findAuctionHouseByAddressOperationHandler: OperationHandler<FindAuc
       }
 
       if (!accounts[1] || !accounts[1].exists) {
-        throw new AuctioneerAuthorityRequiredError();
+        accounts[1] = await metaplex
+          .rpc()
+          .getAccount(auctionHouseAccount.data.auctioneerAddress);
       }
 
       const auctioneerAccount = toAuctioneerAccount(accounts[1]);

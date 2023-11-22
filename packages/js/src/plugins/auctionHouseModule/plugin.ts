@@ -24,6 +24,8 @@ import {
   findAuctionHouseByAddressOperationHandler,
   findAuctionHouseByCreatorAndMintOperation,
   findAuctionHouseByCreatorAndMintOperationHandler,
+  findAuctionHousesByAddressListOperation,
+  findAuctionHousesByAddressListOperationHandler,
   findBidByReceiptOperation,
   findBidByReceiptOperationHandler,
   findBidByTradeStateOperation,
@@ -103,6 +105,10 @@ export const auctionHouseModule = (): MetaplexPlugin => ({
     op.register(
       findAuctionHouseByCreatorAndMintOperation,
       findAuctionHouseByCreatorAndMintOperationHandler
+    );
+    op.register(
+      findAuctionHousesByAddressListOperation,
+      findAuctionHousesByAddressListOperationHandler
     );
     op.register(findBidByReceiptOperation, findBidByReceiptOperationHandler);
     op.register(

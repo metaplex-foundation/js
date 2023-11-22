@@ -176,6 +176,19 @@ test('[auctionHouseModule] create new Auctioneer Auction House', async (t: Test)
   // And the Auctioneer PDA for that Auction House was created.
   const ahAuctioneerAccount = await mx.rpc().getAccount(ahAuctioneerPda);
   t.ok(ahAuctioneerAccount.exists);
+
+  // Try fetching auctioneer auction house with only auctionHouse key
+  const retrievedAuctionHouse = await mx
+    .auctionHouse()
+    .findByAddress({ address: auctionHouse.address });
+  spok(t, retrievedAuctionHouse, {
+    hasAuctioneer: true,
+    scopes: AUCTIONEER_ALL_SCOPES,
+    auctioneer: {
+      address: spokSamePubkey(ahAuctioneerPda),
+      authority: spokSamePubkey(auctioneerAuthority.publicKey),
+    },
+  });
 });
 
 test('[auctionHouseModule] create new Auctioneer Auction House with separate authority', async (t: Test) => {
