@@ -23,6 +23,7 @@ import {
   useOperation,
 } from '@/types';
 import type { Metaplex } from '@/Metaplex';
+import { WRAPPED_SOL_MINT } from '@/plugins/tokenModule';
 
 // -----------------
 // Operation
@@ -196,10 +197,19 @@ export const withdrawFromBuyerAccountBuilder = (
       programs,
     });
 
+    const receiptAccount =auctionHouse.treasuryMint.address === WRAPPED_SOL_MINT ? toPublicKey(buyer) : metaplex
+    .tokens()
+    .pdas()
+    .associatedTokenAccount({
+      mint: auctionHouse.treasuryMint.address,
+      owner: toPublicKey(buyer),
+      programs,
+    })
+
   // Accounts,
   const accounts: WithdrawInstructionAccounts = {
     wallet: toPublicKey(buyer),
-    receiptAccount: toPublicKey(buyer),
+    receiptAccount,
     escrowPaymentAccount: escrowPayment,
     treasuryMint: auctionHouse.treasuryMint.address,
     authority: toPublicKey(authority),
